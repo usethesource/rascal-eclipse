@@ -44,25 +44,35 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	private final Evaluator eval = new Evaluator(vf, factory, new PrintWriter(
 			System.err));
 	private final RascalConsole console;
-
+    private String command;
 	private String content;
 	private int state = IScriptInterpreter.WAIT_NEW_COMMAND;
 	private Runnable listener;
 
 	public RascalScriptInterpreter(RascalConsole console) {
 		this.console = console;
+		this.command = "";
 	}
 
 	public void exec(String cmd) throws IOException {
+		if (cmd.trim().length() == 0) {
+			content = "cancelled\n";
+			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
+			command = "";
+			return;
+		}
+		
 		try {
-		IConstructor tree = parser.parse(new ByteArrayInputStream(cmd
-				.toString().getBytes()));
+			command += cmd;
+			ByteArrayInputStream stream = new ByteArrayInputStream(command.getBytes());
+			IConstructor tree = parser.parse(stream);
 
-		Type constructor = tree.getConstructorType();
+			Type constructor = tree.getConstructorType();
 
-		if (constructor == Factory.ParseTree_Summary) {
-			content = tree.toString() + "\n";
-		} else {
+			if (constructor == Factory.ParseTree_Summary) {
+				state = IScriptInterpreter.WAIT_USER_INPUT;
+				content = "";
+			} else {
 				Command stat = builder.buildCommand(tree);
 
 				IValue value = stat.accept(new NullASTVisitor<IValue>() {
@@ -94,13 +104,18 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 					@Override
 					public IValue visitShellCommandEdit(Edit x) {
 						// TODO implement opening an eclipse editor for a file
-						// for now, it opens a graph editor for the named variable
+						// for now, it opens a graph editor for the named
+						// variable
 						// just a trick to get something working...
-						
+
 						String name = x.getName().toString();
 						try {
-							IConstructor tree = parser.parse(new ByteArrayInputStream((name + ";").getBytes()));
-							Editor.open(builder.buildCommand(tree).accept(this));
+							IConstructor tree = parser
+									.parse(new ByteArrayInputStream(
+											(name + ";").getBytes()));
+							Editor
+									.open(builder.buildCommand(tree).accept(
+											this));
 						} catch (FactTypeError e) {
 						} catch (IOException e) {
 						}
@@ -131,20 +146,22 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 						return null;
 					}
 				});
-				
+
 				if (value != null) {
 					content = value.toString() + "\n";
-				}
-				else {
+				} else {
 					content = "ok\n";
 				}
-		}
+				
+				command = "";
+				state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
+			}
 		} catch (Throwable e) {
 			content = e.toString();
 			e.printStackTrace();
+			command = "";
+			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 		}
-		
-		state =  IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 	}
 
 	public boolean isValid() {
