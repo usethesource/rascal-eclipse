@@ -12,6 +12,14 @@ public class ValueEditorInput implements IEditorInput {
 		this.value = value;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj.getClass() == ValueEditorInput.class) {
+			return value.equals(((ValueEditorInput) obj).value);
+		}
+		return false;
+	}
+	
 	public IValue getValue() {
 		return value;
 	}
