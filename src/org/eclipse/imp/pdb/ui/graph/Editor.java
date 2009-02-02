@@ -64,10 +64,6 @@ public class Editor extends EditorPart {
 			throws PartInitException {
 		setSite(site);
 		setInput(input);
-		
-		if (input instanceof ValueEditorInput) {
-			initGraph((ValueEditorInput) input);
-		}
 	}
 
 	private void initGraph(ValueEditorInput input) {
@@ -94,6 +90,11 @@ public class Editor extends EditorPart {
 		graph.setLayoutAlgorithm(new TreeLayoutAlgorithm(), false);
 		canvas.setVisible(true);
 		canvas.pack();
+		
+		IEditorInput input = getEditorInput();
+		if (input instanceof ValueEditorInput) {
+			initGraph((ValueEditorInput) input);
+		}
 	}
 
 	@Override
