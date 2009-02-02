@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Rascal_eclipse Plug-in
+Bundle-SymbolicName: rascal_eclipse;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: org.meta_environment.rascal.eclipse.Activator
+Require-Bundle: rascal;bundle-version="0.1.0",
+ org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.imp.pdb.ui;bundle-version="0.1.0",
+ org.eclipse.imp.pdb.values;bundle-version="0.1.14",
+ org.eclipse.ui.console;bundle-version="3.3.0",
+ org.eclipse.ui.editors;bundle-version="3.4.0",
+ org.eclipse.dltk.console;bundle-version="0.95.0",
+ org.eclipse.dltk.console.ui;bundle-version="0.95.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

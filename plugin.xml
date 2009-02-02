@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.console.consoleFactories">
+      <consoleFactory
+            class="org.meta_environment.rascal.eclipse.console.ConsoleFactory"
+            label="Rascal">
+      </consoleFactory>
+   </extension>
+   <extension
+         point="org.eclipse.dltk.console.ui.scriptConsole">
+      <scriptConsole
+            class="org.meta_environment.rascal.eclipse.console.ScriptConsoleFactory">
+      </scriptConsole>
+   </extension>
+   <extension
+         id="org.meta_environment.rascal.eclipse.console.interpreter"
+         name="Rascal Interpreter"
+         point="org.eclipse.dltk.console.scriptInterpreter">
+   </extension>
+
+</plugin>
