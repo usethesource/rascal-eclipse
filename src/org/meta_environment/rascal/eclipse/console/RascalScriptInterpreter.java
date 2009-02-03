@@ -12,6 +12,7 @@ import org.eclipse.dltk.console.IScriptConsoleInterpreter;
 import org.eclipse.dltk.console.IScriptInterpreter;
 import org.eclipse.dltk.console.ScriptConsoleHistory;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
@@ -31,6 +32,9 @@ import org.meta_environment.rascal.ast.ShellCommand.Help;
 import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
+import org.meta_environment.rascal.errors.ErrorAdapter;
+import org.meta_environment.rascal.errors.SubjectAdapter;
+import org.meta_environment.rascal.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
@@ -44,7 +48,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	private final Evaluator eval = new Evaluator(vf, factory, new PrintWriter(
 			System.err));
 	private final RascalConsole console;
-    private String command;
+	private String command;
 	private String content;
 	private int state = IScriptInterpreter.WAIT_NEW_COMMAND;
 	private Runnable listener;
@@ -61,107 +65,140 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			command = "";
 			return;
 		}
-		
+
 		try {
 			command += cmd;
-			ByteArrayInputStream stream = new ByteArrayInputStream(command.getBytes());
+			ByteArrayInputStream stream = new ByteArrayInputStream(command
+					.getBytes());
 			IConstructor tree = parser.parse(stream);
 
 			Type constructor = tree.getConstructorType();
 
 			if (constructor == Factory.ParseTree_Summary) {
-				state = IScriptInterpreter.WAIT_USER_INPUT;
-				content = "";
-			} else {
-				Command stat = builder.buildCommand(tree);
-
-				IValue value = stat.accept(new NullASTVisitor<IValue>() {
-					@Override
-					public IValue visitCommandStatement(Statement x) {
-						return eval.eval(x.getStatement());
-					}
-
-					@Override
-					public IValue visitCommandDeclaration(Declaration x) {
-						return eval.eval(x.getDeclaration());
-					}
-
-					@Override
-					public IValue visitCommandImport(Import x) {
-						return eval.eval(x.getImported());
-					}
-
-					@Override
-					public IValue visitCommandAmbiguity(Ambiguity x) {
-						return null;
-					}
-
-					@Override
-					public IValue visitCommandShell(Shell x) {
-						return x.getCommand().accept(this);
-					}
-
-					@Override
-					public IValue visitShellCommandEdit(Edit x) {
-						// TODO implement opening an eclipse editor for a file
-						// for now, it opens a graph editor for the named
-						// variable
-						// just a trick to get something working...
-
-						String name = x.getName().toString();
-						try {
-							IConstructor tree = parser
-									.parse(new ByteArrayInputStream(
-											(name + ";").getBytes()));
-							Editor
-									.open(builder.buildCommand(tree).accept(
-											this));
-						} catch (FactTypeError e) {
-						} catch (IOException e) {
-						}
-						return null;
-					}
-
-					@Override
-					public IValue visitShellCommandHelp(Help x) {
-						return null;
-					}
-
-					@Override
-					public IValue visitShellCommandHistory(History x) {
-						ScriptConsoleHistory history = console.getHistory();
-
-						int i = 0;
-						while (history.next()) {
-							String command = history.get();
-							System.err.println(i + ": " + command);
-						}
-
-						return null;
-					}
-
-					@Override
-					public IValue visitShellCommandQuit(Quit x) {
-						console.terminate();
-						return null;
-					}
-				});
-
-				if (value != null) {
-					content = value.toString() + "\n";
-				} else {
-					content = "ok\n";
-				}
-				
-				command = "";
-				state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
+				execParseError(tree);
+				return;
+			}
+			else {
+				execCommand(tree);
 			}
 		} catch (Throwable e) {
-			content = e.toString();
+			content = e.toString() + "\n";
 			e.printStackTrace();
 			command = "";
 			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 		}
+	}
+
+	private void execCommand(IConstructor tree) {
+		Command stat = builder.buildCommand(tree);
+
+		IValue value = stat.accept(new NullASTVisitor<IValue>() {
+			@Override
+			public IValue visitCommandStatement(Statement x) {
+				return eval.eval(x.getStatement());
+			}
+
+			@Override
+			public IValue visitCommandDeclaration(Declaration x) {
+				return eval.eval(x.getDeclaration());
+			}
+
+			@Override
+			public IValue visitCommandImport(Import x) {
+				return eval.eval(x.getImported());
+			}
+
+			@Override
+			public IValue visitCommandAmbiguity(Ambiguity x) {
+				return null;
+			}
+
+			@Override
+			public IValue visitCommandShell(Shell x) {
+				return x.getCommand().accept(this);
+			}
+
+			@Override
+			public IValue visitShellCommandEdit(Edit x) {
+				// TODO implement opening an eclipse editor for a file
+				// for now, it opens a graph editor for the named
+				// variable
+				// just a trick to get something working...
+
+				String name = x.getName().toString();
+				try {
+					IConstructor tree = parser
+							.parse(new ByteArrayInputStream((name + ";")
+									.getBytes()));
+					Editor.open(builder.buildCommand(tree).accept(this));
+				} catch (FactTypeError e) {
+				} catch (IOException e) {
+				}
+				return null;
+			}
+
+			@Override
+			public IValue visitShellCommandHelp(Help x) {
+				return null;
+			}
+
+			@Override
+			public IValue visitShellCommandHistory(History x) {
+				ScriptConsoleHistory history = console.getHistory();
+
+				int i = 0;
+				while (history.next()) {
+					String command = history.get();
+					System.err.println(i + ": " + command);
+				}
+
+				return null;
+			}
+
+			@Override
+			public IValue visitShellCommandQuit(Quit x) {
+				console.terminate();
+				return null;
+			}
+		});
+
+		if (value != null) {
+			content = value.toString() + "\n";
+		} else {
+			content = "ok\n";
+		}
+
+		command = "";
+		state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
+	}
+
+	private void execParseError(IConstructor tree) {
+		ISourceRange range = getErrorRange(new SummaryAdapter(tree));
+		String[] commandLines = command.split("\n");
+		int lastLine = commandLines.length;
+		int lastColumn = commandLines[lastLine - 1].length();
+		
+		if (range.getEndLine() == lastLine && lastColumn <= range.getEndColumn()) { 
+			state = IScriptInterpreter.WAIT_USER_INPUT;
+			content = "";
+		}
+		else {
+			state = IScriptInterpreter.WAIT_NEW_COMMAND;
+			content = "parse error at line " + lastLine + ", column " + range.getEndColumn() + "\n";
+			command = "";
+		}
+	}
+
+	private ISourceRange getErrorRange(SummaryAdapter summaryAdapter) {
+		for (ErrorAdapter error : summaryAdapter) {
+			for (SubjectAdapter subject : error) {
+				if (subject.isLocalized()) {
+					return subject.getRange();
+				}
+			}
+		}
+		
+		return null;
 	}
 
 	public boolean isValid() {
