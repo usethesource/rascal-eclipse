@@ -1,6 +1,9 @@
 package org.meta_environment.rascal.eclipse;
 
+import java.net.URL;
+
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.meta_environment.rascal.parser.Parser;
 import org.osgi.framework.BundleContext;
 
 /**

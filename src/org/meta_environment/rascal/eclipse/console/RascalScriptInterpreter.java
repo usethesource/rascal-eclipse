@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		this.console = console;
 		this.command = "";
 	}
-
+	
 	public void exec(String cmd) throws IOException {
 		if (cmd.trim().length() == 0) {
 			content = "cancelled\n";
@@ -68,9 +69,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 		try {
 			command += cmd;
-			ByteArrayInputStream stream = new ByteArrayInputStream(command
-					.getBytes());
-			IConstructor tree = parser.parse(stream);
+			IConstructor tree = parser.parseFromString(command);
 
 			Type constructor = tree.getConstructorType();
 
@@ -127,9 +126,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 				String name = x.getName().toString();
 				try {
-					IConstructor tree = parser
-							.parse(new ByteArrayInputStream((name + ";")
-									.getBytes()));
+					IConstructor tree = parser.parseFromString(name + ";");
 					Editor.open(builder.buildCommand(tree).accept(this));
 				} catch (FactTypeError e) {
 				} catch (IOException e) {
@@ -188,6 +185,8 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			command = "";
 		}
 	}
+	
+	
 
 	private ISourceRange getErrorRange(SummaryAdapter summaryAdapter) {
 		for (ErrorAdapter error : summaryAdapter) {
