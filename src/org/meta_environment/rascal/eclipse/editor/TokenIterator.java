@@ -51,20 +51,27 @@ public class TokenIterator implements Iterator<Token> {
 		public IConstructor visitTreeAppl(IConstructor arg)
 				throws VisitorException {
 			TreeAdapter tree = new TreeAdapter(arg);
+			String category = tree.isAppl() ? tree.getProduction().getCategory() : null ;
 			
-			if (tree.isLiteral()) {
-				String yield = new TreeAdapter(arg).yield();
-				for (byte c : yield.getBytes()) {
-					if (!Character.isJavaIdentifierPart(c)) {
-						return arg;
+			if (category == null) {
+				if (tree.isLiteral()) {
+					String yield = new TreeAdapter(arg).yield();
+					for (byte c : yield.getBytes()) {
+						if (!Character.isJavaIdentifierPart(c)) {
+							return arg;
+						}
 					}
+					category = "MetaKeyword";
 				}
-				tokenList.add(new Token("MetaKeyword", new TreeAdapter(arg).getRange()));
 			}
-			else {
+			
+			if (category == null) {
 				for (IValue child : tree.getArgs()) {
 					child.accept(this);
 				}
+			}
+			else {
+				tokenList.add(new Token(category, new TreeAdapter(arg).getRange()));
 			}
 
 			return arg;
