@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,10 +15,11 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.ui.graph.Editor;
+import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.NullASTVisitor;
@@ -33,10 +33,8 @@ import org.meta_environment.rascal.ast.ShellCommand.Help;
 import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
-import org.meta_environment.rascal.errors.ErrorAdapter;
-import org.meta_environment.rascal.errors.SubjectAdapter;
-import org.meta_environment.rascal.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -47,7 +45,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	private final Parser parser = Parser.getInstance();
 	private final IValueFactory vf = ValueFactory.getInstance();
 	private final Evaluator eval = new Evaluator(vf, factory, new PrintWriter(
-			System.err));
+			System.err), new ModuleEnvironment("***shell***"));
 	private final RascalConsole console;
 	private String command;
 	private String content;
@@ -128,7 +126,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 				try {
 					IConstructor tree = parser.parseFromString(name + ";");
 					Editor.open(builder.buildCommand(tree).accept(this));
-				} catch (FactTypeError e) {
+				} catch (FactTypeUseException e) {
 				} catch (IOException e) {
 				}
 				return null;
@@ -170,7 +168,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	}
 
 	private void execParseError(IConstructor tree) {
-		ISourceRange range = getErrorRange(new SummaryAdapter(tree));
+		ISourceRange range = new SummaryAdapter(tree).getInitialErrorRange();
 		String[] commandLines = command.split("\n");
 		int lastLine = commandLines.length;
 		int lastColumn = commandLines[lastLine - 1].length();
@@ -186,20 +184,6 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		}
 	}
 	
-	
-
-	private ISourceRange getErrorRange(SummaryAdapter summaryAdapter) {
-		for (ErrorAdapter error : summaryAdapter) {
-			for (SubjectAdapter subject : error) {
-				if (subject.isLocalized()) {
-					return subject.getRange();
-				}
-			}
-		}
-		
-		return null;
-	}
-
 	public boolean isValid() {
 		return true;
 	}
@@ -212,6 +196,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		return state;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List getCompletions(String commandLine, int position)
 			throws IOException {
 		return Collections.EMPTY_LIST;

@@ -1,53 +1,25 @@
 package org.meta_environment.rascal.eclipse;
 
-import java.net.URL;
+import org.eclipse.imp.runtime.PluginBase;
 
-import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.meta_environment.rascal.parser.Parser;
-import org.osgi.framework.BundleContext;
+public class Activator extends PluginBase {
+	public static final String kPluginID = "rascal_eclipse";
+	public static final String kLanguageName = "Rascal";
 
-/**
- * The activator class controls the plug-in life cycle
- */
-public class Activator extends AbstractUIPlugin {
-
-	// The plug-in ID
-	public static final String PLUGIN_ID = "org.meta_environment.rascal.eclipse";
-
-	// The shared instance
-	private static Activator plugin;
+	private static class InstanceKeeper {
+		static Activator sInstance = new Activator();
+	}
 	
-	/**
-	 * The constructor
-	 */
-	public Activator() {
+	public static Activator getInstance() {
+		return InstanceKeeper.sInstance;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
-	 */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		plugin = this;
+	public String getID() {
+		return kPluginID;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
-	 */
-	public void stop(BundleContext context) throws Exception {
-		plugin = null;
-		super.stop(context);
+	@Override
+	public String getLanguageID() {
+		return kLanguageName;
 	}
-
-	/**
-	 * Returns the shared instance
-	 *
-	 * @return the shared instance
-	 */
-	public static Activator getDefault() {
-		return plugin;
-	}
-
 }

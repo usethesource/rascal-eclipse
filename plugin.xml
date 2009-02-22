@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
+
    <extension
          point="org.eclipse.ui.console.consoleFactories">
       <consoleFactory
-            class="org.meta_environment.rascal.eclipse.console.ConsoleFactory"
-            label="Rascal">
+            label="Rascal"
+            class="org.meta_environment.rascal.eclipse.console.ConsoleFactory">
       </consoleFactory>
    </extension>
    <extension
@@ -18,6 +19,30 @@
          id="org.meta_environment.rascal.eclipse.console.interpreter"
          name="Rascal Interpreter"
          point="org.eclipse.dltk.console.scriptInterpreter">
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.languageDescription">
+      <language
+            extensions="rsc"
+            description="Source analysis and manipulation language"
+            language="Rascal">
+      </language>
+   </extension>
+   <extension
+         id="rascal-eclipse.parserWrapper"
+         name="Rascal Parser Wrapper"
+         point="org.eclipse.imp.runtime.parser">
+      <parserWrapper
+            class="org.meta_environment.rascal.eclipse.editor.ParseController"
+            language="Rascal">
+      </parserWrapper>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.tokenColorer">
+      <tokenColorer
+            class="org.meta_environment.rascal.eclipse.editor.TokenColorer"
+            language="Rascal">
+      </tokenColorer>
    </extension>
 
 </plugin>
