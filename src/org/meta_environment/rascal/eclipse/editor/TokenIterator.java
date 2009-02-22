@@ -43,7 +43,7 @@ public class TokenIterator implements Iterator<Token> {
 		@Override
 		public IConstructor visitTreeAmb(IConstructor arg)
 				throws VisitorException {
-			tokenList.add(new Token("MetaAmbiguity", new TreeAdapter(arg).getRange()));
+			tokenList.add(new Token(TokenColorer.META_AMBIGUITY, new TreeAdapter(arg).getRange()));
 			return arg;
 		}
 
@@ -61,7 +61,7 @@ public class TokenIterator implements Iterator<Token> {
 							return arg;
 						}
 					}
-					category = "MetaKeyword";
+					category = TokenColorer.META_KEYWORD;
 				}
 			}
 			

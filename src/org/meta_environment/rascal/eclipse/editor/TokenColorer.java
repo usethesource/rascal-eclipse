@@ -12,6 +12,16 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 
 public class TokenColorer implements ITokenColorer {
+	public static final String TYPE = "Type";
+	public static final String IDENTIFIER = "Identifier";
+	public static final String VARIABLE = "Variable";
+	public static final String CONSTANT = "Constant";
+	public static final String COMMENT = "Comment";
+	public static final String TODO = "Todo";
+	public static final String META_AMBIGUITY = "MetaAmbiguity";
+	public static final String META_VARIABLE = "MetaVariable";
+	public static final String META_KEYWORD = "MetaKeyword";
+
 	private TextAttribute normal;
 
 	private Map<String,TextAttribute> map = new HashMap<String,TextAttribute>();
@@ -21,23 +31,23 @@ public class TokenColorer implements ITokenColorer {
 		normal = new TextAttribute(Display.getDefault().getSystemColor(
 				SWT.COLOR_BLACK), null, SWT.NONE);
 		
-	    map.put("MetaKeyword", new TextAttribute(new Color(Display.getDefault(), 123, 0,
+	    map.put(META_KEYWORD, new TextAttribute(new Color(Display.getDefault(), 123, 0,
 				82), null, SWT.BOLD));
-	    map.put("MetaVariable", new TextAttribute(new Color(Display.getDefault(), 0, 0,
+	    map.put(META_VARIABLE, new TextAttribute(new Color(Display.getDefault(), 0, 0,
 				255), null, SWT.ITALIC));
-	    map.put("MetaAmbiguity",  new TextAttribute(new Color(Display.getDefault(), 186,
+	    map.put(META_AMBIGUITY,  new TextAttribute(new Color(Display.getDefault(), 186,
 				29, 29), null, SWT.BOLD));
-		map.put("Todo",new TextAttribute(
+		map.put(TODO,new TextAttribute(
 				new Color(Display.getDefault(), 123, 157, 198), null, SWT.BOLD));
-		map.put("Comment",new TextAttribute(new Color(Display.getDefault(), 82, 141,
+		map.put(COMMENT,new TextAttribute(new Color(Display.getDefault(), 82, 141,
 				115), null, SWT.ITALIC));
-		map.put("Constant",new TextAttribute(new Color(Display.getDefault(), 139, 0,
+		map.put(CONSTANT,new TextAttribute(new Color(Display.getDefault(), 139, 0,
 				139), null, SWT.NONE));
-		map.put("Variable",new TextAttribute(new Color(Display.getDefault(), 144, 238,
+		map.put(VARIABLE,new TextAttribute(new Color(Display.getDefault(), 144, 238,
 				144), null, SWT.NONE));
-		map.put("Identifier",new TextAttribute(new Color(Display.getDefault(), 255, 69,
+		map.put(IDENTIFIER,new TextAttribute(new Color(Display.getDefault(), 255, 69,
 				0), null, SWT.NONE));
-		map.put("Type",new TextAttribute(new Color(Display.getDefault(), 255, 127, 36),
+		map.put(TYPE,new TextAttribute(new Color(Display.getDefault(), 255, 127, 36),
 				null, SWT.NONE));
 	}
 
