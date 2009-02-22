@@ -44,5 +44,20 @@
             language="Rascal">
       </tokenColorer>
    </extension>
+   <extension
+         point="org.eclipse.imp.runtime.labelProvider">
+      <labelProvider
+            class="org.meta_environment.rascal.eclipse.outline.LabelProvider"
+            language="Rascal">
+      </labelProvider>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.modelTreeBuilder">
+      <treeBuilder
+            class="org.meta_environment.rascal.eclipse.outline.TreeModelBuilder"
+            language="Rascal">
+      </treeBuilder>
+   </extension>
+ 
 
 </plugin>

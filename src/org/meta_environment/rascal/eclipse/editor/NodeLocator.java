@@ -2,6 +2,9 @@ package org.meta_environment.rascal.eclipse.editor;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.parser.ISourcePositionLocator;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceRange;
+import org.meta_environment.uptr.TreeAdapter;
 
 public class NodeLocator implements ISourcePositionLocator {
 
@@ -22,7 +25,7 @@ public class NodeLocator implements ISourcePositionLocator {
 
 	@Override
 	public int getLength(Object node) {
-		return ((Token) node).getRange().getLength();
+		return getRange(node).getLength();
 	}
 
 	@Override
@@ -32,7 +35,16 @@ public class NodeLocator implements ISourcePositionLocator {
 
 	@Override
 	public int getStartOffset(Object node) {
-		return ((Token) node).getRange().getStartOffset();
+		return getRange(node).getStartOffset();
 	}
-
+	
+	private ISourceRange getRange(Object node) {
+		if (node instanceof Token) {
+			return ((Token) node).getRange();
+		}
+		else if (node instanceof IConstructor) {
+			return new TreeAdapter((IConstructor) node).getRange();
+		}
+		throw new RuntimeException("Unknown node type " + node);
+	}
 }

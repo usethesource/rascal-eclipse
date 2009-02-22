@@ -16,10 +16,13 @@ public class TokenIterator implements Iterator<Token> {
 
 	public TokenIterator(IConstructor parseTree) {
 		this.tokenList = new LinkedList<Token>();
-		try {
-			parseTree.get("top").accept(new LexicalCollector());
-		} catch (VisitorException e) {
-			// is not thrown
+		
+		if (parseTree != null) {
+			try {
+				parseTree.get("top").accept(new LexicalCollector());
+			} catch (VisitorException e) {
+				// is not thrown
+			}
 		}
 		tokenIterator = tokenList.iterator();
 	}
