@@ -1,9 +1,11 @@
 package org.meta_environment.rascal.eclipse.editor;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceRange;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.uptr.TreeAdapter;
 
 public class NodeLocator implements ISourcePositionLocator {
@@ -44,6 +46,12 @@ public class NodeLocator implements ISourcePositionLocator {
 		}
 		else if (node instanceof IConstructor) {
 			return new TreeAdapter((IConstructor) node).getRange();
+		}
+		else if (node instanceof AbstractAST) {
+			return getRange(((AbstractAST) node).getTree());
+		}
+		else if (node instanceof ModelTreeNode) {
+			return getRange(((ModelTreeNode) node).getASTNode());
 		}
 		throw new RuntimeException("Unknown node type " + node);
 	}

@@ -47,9 +47,11 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 
 		@Override
 		public ModelTreeNode visitModuleDefault(Default x) {
+			pushSubItem(x.getHeader(), 0);
 			for (Toplevel t : x.getBody().getToplevels()) {
-				return t.accept(this);
+				t.accept(this);
 			}
+			popSubItem();
 			return null;
 		}
 		
@@ -65,42 +67,42 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		
 		@Override
 		public ModelTreeNode visitDeclarationAlias(Alias x) {
-			return createSubItem(x.getTree(),  CATEGORY_ALIAS);
+			return createSubItem(x,  CATEGORY_ALIAS);
 		}
 		
 		@Override
 		public ModelTreeNode visitDeclarationData(Data x) {
-			return createSubItem(x.getTree(), CATEGORY_DATA);
+			return createSubItem(x, CATEGORY_DATA);
 		}
 		
 		@Override
 		public ModelTreeNode visitDeclarationAnnotation(Annotation x) {
-			return createSubItem(x.getTree(),  CATEGORY_ANNOTATION);
+			return createSubItem(x,  CATEGORY_ANNOTATION);
 		}
 		
 		@Override
 		public ModelTreeNode visitDeclarationFunction(Function x) {
-			return createSubItem(x.getTree(),  CATEGORY_FUNCTION);
+			return createSubItem(x,  CATEGORY_FUNCTION);
 		}
 		
 		@Override
 		public ModelTreeNode visitDeclarationRule(Rule x) {
-			return createSubItem(x.getTree(),  CATEGORY_RULE);
+			return createSubItem(x,  CATEGORY_RULE);
 		}
 		
 		@Override
 		public ModelTreeNode visitDeclarationTag(Tag x) {
-			return createSubItem(x.getTree(),  CATEGORY_TAG);
+			return createSubItem(x,  CATEGORY_TAG);
 		}
 		
 		@Override
 		public ModelTreeNode visitDeclarationVariable(Variable x) {
-			return createSubItem(x.getTree(),  CATEGORY_VARIABLE);
+			return createSubItem(x,  CATEGORY_VARIABLE);
 		}
 		
 		@Override
 		public ModelTreeNode visitDeclarationView(View x) {
-			return createSubItem(x.getTree(),  CATEGORY_VIEW);
+			return createSubItem(x,  CATEGORY_VIEW);
 		}
 	}
 
