@@ -6,8 +6,8 @@ import java.util.Set;
 import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.meta_environment.rascal.eclipse.Activator;
@@ -17,17 +17,25 @@ import org.meta_environment.uptr.TreeAdapter;
 public class LabelProvider implements ILabelProvider, ILanguageService  {
 	private Set<ILabelProviderListener> fListeners = new HashSet<ILabelProviderListener>();
 
-	private static ImageRegistry sImageRegistry = Activator.getInstance()
-			.getImageRegistry();
-
-	private static Image DEFAULT_IMAGE = sImageRegistry
-			.get(IRascalResources.RASCAL_DEFAULT_IMAGE);
+//	private static ImageRegistry sImageRegistry = Activator.getInstance()
+//			.getImageRegistry();
+//
+//	private static Image DEFAULT_IMAGE = sImageRegistry
+//			.get(IRascalResources.RASCAL_DEFAULT_IMAGE);
+//
+//	@Override
+//	public Image getImage(Object element) {
+//		return DEFAULT_IMAGE;
+//	}
 
 	@Override
 	public Image getImage(Object element) {
-		return DEFAULT_IMAGE;
+		return null;
 	}
-
+	
+	public LabelProvider() {
+	}
+	
 	@Override
 	public String getText(Object element) {
 		if (element instanceof ModelTreeNode) {
