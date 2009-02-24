@@ -55,6 +55,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	public RascalScriptInterpreter(RascalConsole console) {
 		this.console = console;
 		this.command = "";
+		eval.addModuleLoader(new ProjectModuleLoader());
 	}
 	
 	public void exec(String cmd) throws IOException {
