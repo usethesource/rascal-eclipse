@@ -40,12 +40,11 @@ import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
 
 public class RascalScriptInterpreter implements IScriptInterpreter {
-	private final ASTFactory factory = new ASTFactory();
+	private final static ASTFactory factory = new ASTFactory();
 	private final ASTBuilder builder = new ASTBuilder(factory);
 	private final Parser parser = Parser.getInstance();
-	private final IValueFactory vf = ValueFactory.getInstance();
-	private final Evaluator eval = new Evaluator(vf, factory, new PrintWriter(
-			System.err), new ModuleEnvironment("***shell***"));
+	private final static IValueFactory vf = ValueFactory.getInstance();
+	private Evaluator eval;
 	private final RascalConsole console;
 	private String command;
 	private String content;
@@ -55,7 +54,14 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	public RascalScriptInterpreter(RascalConsole console) {
 		this.console = console;
 		this.command = "";
-		eval.addModuleLoader(new ProjectModuleLoader());
+		this.eval = newEval();
+	}
+	
+	private static Evaluator newEval() {
+		Evaluator tmp = new Evaluator(vf, factory, new PrintWriter(
+				System.err), new ModuleEnvironment("***shell***"));
+		tmp.addModuleLoader(new ProjectModuleLoader());
+		return tmp;
 	}
 	
 	public void exec(String cmd) throws IOException {
@@ -153,8 +159,8 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 			@Override
 			public IValue visitShellCommandQuit(Quit x) {
-				console.terminate();
-				return null;
+				eval = newEval();
+				throw new RuntimeException("Restarted interpreter");
 			}
 		});
 
