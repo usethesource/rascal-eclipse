@@ -2,7 +2,6 @@ package org.eclipse.imp.pdb.ui.graph;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.ui.PDBUIPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Canvas;
@@ -17,7 +16,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.zest.core.widgets.Graph;
-import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
 
 public class Editor extends EditorPart {
 	public static final String EditorId = "org.eclipse.imp.pdb.ui.graph.editor";
@@ -87,7 +85,8 @@ public class Editor extends EditorPart {
 		canvas = new Canvas(parent, SWT.NONE);
 		canvas.setLayout(new FillLayout());
 		graph = new Graph(canvas, SWT.NONE);
-		graph.setLayoutAlgorithm(new TreeLayoutAlgorithm(), false);
+		graph.setLayoutAlgorithm(new DirectedGraphLayoutAlgorithm(SWT.NONE), false);
+		graph.applyLayout();
 		canvas.setVisible(true);
 		canvas.pack();
 		
