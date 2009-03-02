@@ -35,6 +35,7 @@ import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
+import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -61,6 +62,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		Evaluator tmp = new Evaluator(vf, factory, new PrintWriter(
 				System.err), new ModuleEnvironment("***shell***"));
 		tmp.addModuleLoader(new ProjectModuleLoader());
+		tmp.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
 		return tmp;
 	}
 	
