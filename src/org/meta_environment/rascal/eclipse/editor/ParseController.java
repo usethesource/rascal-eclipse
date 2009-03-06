@@ -11,7 +11,7 @@ import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceRange;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
@@ -86,8 +86,8 @@ public class ParseController implements IParseController {
 			IConstructor parseTree = parser.parseFromString(input);
 			
 			if (parseTree.getConstructorType() == Factory.ParseTree_Summary) {
-				ISourceRange range = new SummaryAdapter(parseTree).getInitialErrorRange();
-				handler.handleSimpleMessage("parse error", range.getStartOffset(), range.getStartOffset() + range.getLength(), range.getStartColumn(), range.getEndColumn(), range.getStartLine(), range.getEndLine());
+				ISourceLocation range = new SummaryAdapter(parseTree).getInitialSubject().getLocation();
+				handler.handleSimpleMessage("parse error", range.getOffset(), range.getOffset() + range.getLength(), range.getBeginColumn(), range.getEndColumn(), range.getBeginLine(), range.getEndLine());
 			}
 			else {
 				parseTree = new ParsetreeAdapter(parseTree).addPositionInformation(path.toFile().getAbsolutePath());

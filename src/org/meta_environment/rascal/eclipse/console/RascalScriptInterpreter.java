@@ -12,7 +12,7 @@ import org.eclipse.dltk.console.IScriptConsoleInterpreter;
 import org.eclipse.dltk.console.IScriptInterpreter;
 import org.eclipse.dltk.console.ScriptConsoleHistory;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceRange;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -177,7 +177,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	}
 
 	private void execParseError(IConstructor tree) {
-		ISourceRange range = new SummaryAdapter(tree).getInitialErrorRange();
+		ISourceLocation range = new SummaryAdapter(tree).getInitialSubject().getLocation();
 		String[] commandLines = command.split("\n");
 		int lastLine = commandLines.length;
 		int lastColumn = commandLines[lastLine - 1].length();

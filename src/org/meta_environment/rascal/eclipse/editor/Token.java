@@ -1,22 +1,22 @@
 package org.meta_environment.rascal.eclipse.editor;
 
-import org.eclipse.imp.pdb.facts.ISourceRange;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 
 public class Token {
 	private String category;
-	private ISourceRange range;
+	private ISourceLocation loc;
 	
-	public Token(String category, ISourceRange area) {
+	public Token(String category, ISourceLocation area) {
 		this.category = category;
-		this.range = area;
+		this.loc = area;
 	}
 	
 	public String getCategory() {
 		return category;
 	}
 	
-	public ISourceRange getRange() {
-		return range;
+	public ISourceLocation getLocation() {
+		return loc;
 	}
 }

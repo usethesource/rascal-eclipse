@@ -46,7 +46,7 @@ public class TokenIterator implements Iterator<Token> {
 		@Override
 		public IConstructor visitTreeAmb(IConstructor arg)
 				throws VisitorException {
-			tokenList.add(new Token(TokenColorer.META_AMBIGUITY, new TreeAdapter(arg).getRange()));
+			tokenList.add(new Token(TokenColorer.META_AMBIGUITY, new TreeAdapter(arg).getLocation()));
 			return arg;
 		}
 
@@ -74,7 +74,7 @@ public class TokenIterator implements Iterator<Token> {
 				}
 			}
 			else {
-				tokenList.add(new Token(category, new TreeAdapter(arg).getRange()));
+				tokenList.add(new Token(category, new TreeAdapter(arg).getLocation()));
 			}
 
 			return arg;

@@ -4,7 +4,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceRange;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.uptr.TreeAdapter;
 
@@ -27,7 +27,7 @@ public class NodeLocator implements ISourcePositionLocator {
 
 	@Override
 	public int getLength(Object node) {
-		return getRange(node).getLength();
+		return getLocation(node).getLength();
 	}
 
 	@Override
@@ -37,21 +37,21 @@ public class NodeLocator implements ISourcePositionLocator {
 
 	@Override
 	public int getStartOffset(Object node) {
-		return getRange(node).getStartOffset();
+		return getLocation(node).getOffset();
 	}
 	
-	private ISourceRange getRange(Object node) {
+	private ISourceLocation getLocation(Object node) {
 		if (node instanceof Token) {
-			return ((Token) node).getRange();
+			return ((Token) node).getLocation();
 		}
 		else if (node instanceof IConstructor) {
-			return new TreeAdapter((IConstructor) node).getRange();
+			return new TreeAdapter((IConstructor) node).getLocation();
 		}
 		else if (node instanceof AbstractAST) {
-			return getRange(((AbstractAST) node).getTree());
+			return getLocation(((AbstractAST) node).getTree());
 		}
 		else if (node instanceof ModelTreeNode) {
-			return getRange(((ModelTreeNode) node).getASTNode());
+			return getLocation(((ModelTreeNode) node).getASTNode());
 		}
 		throw new RuntimeException("Unknown node type " + node);
 	}
