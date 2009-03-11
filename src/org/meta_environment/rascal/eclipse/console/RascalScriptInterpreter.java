@@ -58,12 +58,13 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		this.eval = newEval();
 	}
 	
-	private static Evaluator newEval() {
-		Evaluator tmp = new Evaluator(vf, factory, new PrintWriter(
+	private Evaluator newEval() {
+		Evaluator eval = new Evaluator(vf, factory, new PrintWriter(
 				System.err), new ModuleEnvironment("***shell***"));
-		tmp.addModuleLoader(new ProjectModuleLoader());
-		tmp.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
-		return tmp;
+		eval.addModuleLoader(new ProjectModuleLoader());
+		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
+		eval.addClassLoader(getClass().getClassLoader());
+		return eval;
 	}
 	
 	public void exec(String cmd) throws IOException {

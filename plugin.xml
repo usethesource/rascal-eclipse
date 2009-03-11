@@ -58,6 +58,28 @@
             language="Rascal">
       </treeBuilder>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.meta_environment.rascal.eclipse.perspective.Factory"
+            fixed="true"
+            icon="icons/rascal_file.gif"
+            id="rascal.perspective"
+            name="Rascal">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            category="Rascal"
+            class="org.meta_environment.rascal.eclipse.perspective.NewModuleWizard"
+            descriptionImage="icons/rascal_file.gif"
+            finalPerspective="rascal.perspective"
+            icon="icons/rascal_file.gif"
+            id="rascal.newModuleWizard"
+            name="Rascal Module">
+      </wizard>
+   </extension>
  
 
 </plugin>

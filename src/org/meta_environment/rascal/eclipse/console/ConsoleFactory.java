@@ -11,12 +11,13 @@ public class ConsoleFactory implements IConsoleFactory {
 	private RascalConsole fConsole;
 	private IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 	
-	public void openConsole() {
+	public synchronized void openConsole() {
 		if (fConsole == null) {
 			fConsole = new RascalConsole(); 
 
 			fConsoleManager.addConsoles(new IConsole[]{fConsole});
-		} 
+		}
+		
 		fConsoleManager.showConsoleView(fConsole);
 	}
 	
@@ -26,6 +27,19 @@ public class ConsoleFactory implements IConsoleFactory {
 			super("Rascal", "org.meta_environment.rascal.eclipse.console");
 			setInterpreter(new RascalScriptInterpreter(this));
 			setPrompt(new ScriptConsolePrompt(">", "?"));
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof RascalConsole) {
+				return true;
+			}
+			return false;
+		}
+		
+		@Override
+		public int hashCode() {
+			return 7;
 		}
 	}
 }
