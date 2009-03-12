@@ -4,9 +4,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.dltk.console.IScriptConsoleIO;
 import org.eclipse.dltk.console.IScriptConsoleInterpreter;
 import org.eclipse.dltk.console.IScriptInterpreter;
@@ -32,6 +38,7 @@ import org.meta_environment.rascal.ast.ShellCommand.Edit;
 import org.meta_environment.rascal.ast.ShellCommand.Help;
 import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
+import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
@@ -43,7 +50,7 @@ import org.meta_environment.uptr.Factory;
 public class RascalScriptInterpreter implements IScriptInterpreter {
 	private final static ASTFactory factory = new ASTFactory();
 	private final ASTBuilder builder = new ASTBuilder(factory);
-	private final Parser parser = Parser.getInstance();
+	private final Parser parser;
 	private final static IValueFactory vf = ValueFactory.getInstance();
 	private Evaluator eval;
 	private final RascalConsole console;
@@ -55,12 +62,28 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	public RascalScriptInterpreter(RascalConsole console) {
 		this.console = console;
 		this.command = "";
+			
+		locateRascalParseTable();	
+		this.parser = Parser.getInstance();
 		this.eval = newEval();
+	}
+
+	private void locateRascalParseTable() {
+		URL url = FileLocator.find(Platform.getBundle("rascal"), new Path(Parser.PARSETABLE_FILENAME), null);
+		try {
+			url = FileLocator.resolve(url);
+			System.setProperty(Parser.PARSETABLE_PROPERTY, url.getPath());
+		} catch (IOException e) {
+			Activator.getInstance().logException("internal error", e);
+		}
 	}
 	
 	private Evaluator newEval() {
 		Evaluator eval = new Evaluator(vf, factory, new PrintWriter(
 				System.err), new ModuleEnvironment("***shell***"));
+		
+		
+	
 		eval.addModuleLoader(new ProjectModuleLoader());
 		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
 		eval.addClassLoader(getClass().getClassLoader());
