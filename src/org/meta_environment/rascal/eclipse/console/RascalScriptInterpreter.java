@@ -4,12 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -100,7 +98,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 		try {
 			command += cmd;
-			IConstructor tree = parser.parseFromString(command);
+			IConstructor tree = parser.parseFromString(command, "console");
 
 			Type constructor = tree.getConstructorType();
 
@@ -157,7 +155,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 				String name = x.getName().toString();
 				try {
-					IConstructor tree = parser.parseFromString(name + ";");
+					IConstructor tree = parser.parseFromString(name + ";", "-");
 					Editor.open(builder.buildCommand(tree).accept(this));
 				} catch (FactTypeUseException e) {
 				} catch (IOException e) {

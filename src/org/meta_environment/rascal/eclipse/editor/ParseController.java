@@ -83,7 +83,7 @@ public class ParseController implements IParseController {
 	public Object parse(String input, boolean scanOnly, IProgressMonitor monitor) {
 		try {
 			monitor.beginTask("parsing Rascal", 1);
-			IConstructor parseTree = parser.parseFromString(input);
+			IConstructor parseTree = parser.parseFromString(input, path.toOSString());
 			
 			if (parseTree.getConstructorType() == Factory.ParseTree_Summary) {
 				ISourceLocation range = new SummaryAdapter(parseTree).getInitialSubject().getLocation();
