@@ -27,6 +27,7 @@ public class ConsoleFactory implements IConsoleFactory {
 			super("Rascal", "org.meta_environment.rascal.eclipse.console");
 			setInterpreter(new RascalScriptInterpreter(this));
 			setPrompt(new ScriptConsolePrompt(">", "?"));
+			addPatternMatchListener(new JumpToSource());
 		}
 		
 		@Override

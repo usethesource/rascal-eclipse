@@ -39,8 +39,10 @@ import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
+import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -109,9 +111,19 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			else {
 				execCommand(tree);
 			}
-		} catch (Throwable e) {
-			content = e.toString() + "\n";
-			e.printStackTrace();
+		} 
+		catch (StaticError e) {
+			content = e.getMessage() + "\n";
+			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
+			command = "";
+		}
+		catch (Throw e) {
+			content = "uncaught exception: " + e.getException().toString() + "\n";
+			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
+			command = "";
+		}
+		catch (Throwable e) {
+			content = "internal exception: " + e.toString() + "\n";
 			command = "";
 			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 		}

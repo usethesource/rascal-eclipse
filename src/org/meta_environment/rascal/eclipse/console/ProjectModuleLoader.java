@@ -15,8 +15,7 @@ import org.meta_environment.rascal.interpreter.load.AbstractModuleLoader;
 public class ProjectModuleLoader extends AbstractModuleLoader {
 	private static final String SRC_FOLDER_NAME = "src";
 
-	@Override
-	protected InputStream getStream(String name) throws IOException {
+	public IFile getFile(String name) throws IOException {
 		IWorkspaceRoot root = getWorkspaceRoot();
 		
 		for (IProject project : root.getProjects()) {
@@ -30,18 +29,25 @@ public class ProjectModuleLoader extends AbstractModuleLoader {
 				path = project.getLocation();
 			}
 
-			IFile file = root.getFileForLocation(path.append(name));
-
-			if (file != null && file.exists()) {
-				try {
-					return file.getContents();
-				} catch (CoreException e) {
-					throw new IOException(e.getMessage(), e);
-				}
+			return root.getFileForLocation(path.append(name));
+		}
+		
+		throw new IOException("File " + name + " not found");	
+	}
+	
+	@Override
+	protected InputStream getStream(String name) throws IOException {
+		IFile file = getFile(name);
+		
+		if (file != null && file.exists()) {
+			try {
+				return file.getContents();
+			} catch (CoreException e) {
+				throw new IOException(e.getMessage(), e);
 			}
 		}
 		
-		throw new IOException("File " + name + " not found");
+		throw new IOException("File " + name + " not found");	
 	}
 
 	private IWorkspaceRoot getWorkspaceRoot() {
