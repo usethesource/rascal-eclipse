@@ -4,6 +4,7 @@
 package org.meta_environment.rascal.eclipse.console;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.console.IPatternMatchListener;
 import org.eclipse.ui.console.PatternMatchEvent;
 import org.eclipse.ui.console.TextConsole;
@@ -38,10 +39,19 @@ public class JumpToSource implements IPatternMatchListener {
 
 	@Override
 	public void matchFound(PatternMatchEvent event) {
-		final int offset = event.getOffset();
-		final int len = event.getLength();
+		int linkOffset = event.getOffset();
+		int linkLength = event.getLength() - 1;
+		IDocument doc = console.getDocument();
+
 		try {
-			console.addHyperlink(new RascalErrorHyperLink(console.getDocument(), offset, len), offset, len - 1);
+			String match = doc.get(linkOffset, linkLength);
+			String[] filePosSplit = match.split(":");
+			String file = filePosSplit[0];
+			String[] lineColSplit = filePosSplit[1].split(",");
+			int line = Integer.parseInt(lineColSplit[0]);
+			int col = Integer.parseInt(lineColSplit[1]);
+			
+			console.addHyperlink(new RascalErrorHyperLink(file, line, col), linkOffset, linkLength);
 		} catch (BadLocationException e) {
 			Activator.getInstance().logException("hyperlink", e);			
 		}

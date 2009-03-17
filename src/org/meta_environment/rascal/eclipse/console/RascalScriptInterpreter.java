@@ -8,6 +8,11 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -15,6 +20,7 @@ import org.eclipse.dltk.console.IScriptConsoleIO;
 import org.eclipse.dltk.console.IScriptConsoleInterpreter;
 import org.eclipse.dltk.console.IScriptInterpreter;
 import org.eclipse.dltk.console.ScriptConsoleHistory;
+import org.eclipse.imp.builder.MarkerCreator;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -58,6 +64,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	private String content;
 	private int state = IScriptInterpreter.WAIT_NEW_COMMAND;
 	private Runnable listener;
+	private IFile lastMarked;
 
 	public RascalScriptInterpreter(RascalConsole console) {
 		this.console = console;
@@ -116,6 +123,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			content = e.getMessage() + "\n";
 			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 			command = "";
+			setMarker(e);
 		}
 		catch (Throw e) {
 			content = "uncaught exception: " + e.getException().toString() + "\n";
@@ -126,6 +134,35 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			content = "internal exception: " + e.toString() + "\n";
 			command = "";
 			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
+		}
+	}
+
+	private void setMarker(StaticError e) {
+		try {
+			ISourceLocation loc = e.getLocation();
+			URL url = loc.getURL();
+			
+			if (lastMarked != null) {
+				lastMarked.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+			}
+			
+			lastMarked = new ProjectModuleLoader().getFile(url.getAuthority() + url.getPath());
+
+			if (lastMarked != null) {
+				IMarker m = lastMarked.createMarker(IMarker.PROBLEM);
+
+				m.setAttribute(IMarker.TRANSIENT, true);
+				m.setAttribute(IMarker.CHAR_START, loc.getOffset());
+				m.setAttribute(IMarker.CHAR_END, loc.getOffset()
+						+ loc.getLength());
+				m.setAttribute(IMarker.MESSAGE, e.getMessage());
+				m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+				m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+			}
+		} catch (CoreException ex) {
+			Activator.getInstance().logException("marker", ex);
+		} catch (IOException ex) {
+			Activator.getInstance().logException("marker", ex);
 		}
 	}
 
