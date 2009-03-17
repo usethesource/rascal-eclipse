@@ -61,7 +61,7 @@ public class ParseController implements IParseController {
 
 	@Override
 	public ILanguageSyntaxProperties getSyntaxProperties() {
-		return null;
+		return new RascalSyntaxProperties();
 	}
 
 	@SuppressWarnings("unchecked")

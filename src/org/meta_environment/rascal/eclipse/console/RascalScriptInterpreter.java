@@ -11,7 +11,6 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
@@ -20,7 +19,6 @@ import org.eclipse.dltk.console.IScriptConsoleIO;
 import org.eclipse.dltk.console.IScriptConsoleInterpreter;
 import org.eclipse.dltk.console.IScriptInterpreter;
 import org.eclipse.dltk.console.ScriptConsoleHistory;
-import org.eclipse.imp.builder.MarkerCreator;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -142,8 +140,8 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			ISourceLocation loc = e.getLocation();
 			URL url = loc.getURL();
 			
-			if (lastMarked != null) {
-				lastMarked.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+			if (url.getAuthority().equals("console")) {
+				return;
 			}
 			
 			lastMarked = new ProjectModuleLoader().getFile(url.getAuthority() + url.getPath());
@@ -168,6 +166,14 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 	private void execCommand(IConstructor tree) {
 		Command stat = builder.buildCommand(tree);
+		
+		if (lastMarked != null) {
+			try {
+				lastMarked.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+			} catch (CoreException e) {
+				Activator.getInstance().logException("marker", e);
+			}
+		}
 
 		IValue value = stat.accept(new NullASTVisitor<IValue>() {
 			@Override
@@ -259,7 +265,11 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		}
 		else {
 			state = IScriptInterpreter.WAIT_NEW_COMMAND;
-			content = "parse error at line " + lastLine + ", column " + range.getEndColumn() + "\n";
+			content = "";
+			for (int i = 0; i < range.getEndColumn(); i++) {
+				content += " ";
+			}
+			content += "^\nparse error at line " + lastLine + ", column " + range.getEndColumn() + "\n";
 			command = "";
 		}
 	}

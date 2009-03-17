@@ -29,7 +29,11 @@ public class ProjectModuleLoader extends AbstractModuleLoader {
 				path = project.getLocation();
 			}
 
-			return root.getFileForLocation(path.append(name));
+			IFile file = root.getFileForLocation(path.append(name));
+			
+			if (file.exists()) {
+				return file;
+			}
 		}
 		
 		throw new IOException("File " + name + " not found");	
