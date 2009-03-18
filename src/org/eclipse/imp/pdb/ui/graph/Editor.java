@@ -16,6 +16,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.zest.core.widgets.Graph;
+import org.eclipse.zest.layouts.algorithms.RadialLayoutAlgorithm;
 
 public class Editor extends EditorPart {
 	public static final String EditorId = "org.eclipse.imp.pdb.ui.graph.editor";
@@ -85,7 +86,7 @@ public class Editor extends EditorPart {
 		canvas = new Canvas(parent, SWT.NONE);
 		canvas.setLayout(new FillLayout());
 		graph = new Graph(canvas, SWT.NONE);
-		graph.setLayoutAlgorithm(new DirectedGraphLayoutAlgorithm(SWT.NONE), false);
+		graph.setLayoutAlgorithm(new RadialLayoutAlgorithm(SWT.NONE), false);
 		graph.applyLayout();
 		canvas.setVisible(true);
 		canvas.pack();
