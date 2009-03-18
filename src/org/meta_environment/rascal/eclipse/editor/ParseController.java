@@ -88,6 +88,7 @@ public class ParseController implements IParseController {
 			if (parseTree.getConstructorType() == Factory.ParseTree_Summary) {
 				ISourceLocation range = new SummaryAdapter(parseTree).getInitialSubject().getLocation();
 				handler.handleSimpleMessage("parse error", range.getOffset(), range.getOffset() + range.getLength(), range.getBeginColumn(), range.getEndColumn(), range.getBeginLine(), range.getEndLine());
+				parseTree = null;
 			}
 			else {
 				parseTree = new ParsetreeAdapter(parseTree).addPositionInformation(path.toFile().getAbsolutePath());

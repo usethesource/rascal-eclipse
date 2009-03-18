@@ -138,6 +138,11 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	private void setMarker(StaticError e) {
 		try {
 			ISourceLocation loc = e.getLocation();
+			
+			if (loc == null) {
+				return;
+			}
+			
 			URL url = loc.getURL();
 			
 			if (url.getAuthority().equals("console")) {
