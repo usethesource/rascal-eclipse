@@ -8,17 +8,12 @@ import org.eclipse.ui.console.IConsoleFactory;
 import org.eclipse.ui.console.IConsoleManager;
 
 public class ConsoleFactory implements IConsoleFactory {
-	private RascalConsole fConsole;
 	private IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 	
 	public synchronized void openConsole() {
-		if (fConsole == null) {
-			fConsole = new RascalConsole(); 
-
-			fConsoleManager.addConsoles(new IConsole[]{fConsole});
-		}
-		
-		fConsoleManager.showConsoleView(fConsole);
+		RascalConsole console = new RascalConsole();
+		fConsoleManager.addConsoles(new IConsole[]{console});
+		fConsoleManager.showConsoleView(console);
 	}
 	
 	protected class RascalConsole extends ScriptConsole 
@@ -28,19 +23,6 @@ public class ConsoleFactory implements IConsoleFactory {
 			setInterpreter(new RascalScriptInterpreter(this));
 			setPrompt(new ScriptConsolePrompt(">", "?"));
 			addPatternMatchListener(new JumpToSource());
-		}
-		
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof RascalConsole) {
-				return true;
-			}
-			return false;
-		}
-		
-		@Override
-		public int hashCode() {
-			return 7;
 		}
 	}
 }

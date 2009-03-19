@@ -23,10 +23,10 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.ui.graph.Editor;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
@@ -43,6 +43,7 @@ import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
@@ -70,7 +71,12 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			
 		locateRascalParseTable();	
 		this.parser = Parser.getInstance();
-		this.eval = newEval();
+		this.eval = new Evaluator(vf, factory, new PrintWriter(
+				System.err), new ModuleEnvironment("***shell***"));
+		
+		eval.addModuleLoader(new ProjectModuleLoader());
+		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
+		eval.addClassLoader(getClass().getClassLoader());
 	}
 
 	private void locateRascalParseTable() {
@@ -81,18 +87,6 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		} catch (IOException e) {
 			Activator.getInstance().logException("internal error", e);
 		}
-	}
-	
-	private Evaluator newEval() {
-		Evaluator eval = new Evaluator(vf, factory, new PrintWriter(
-				System.err), new ModuleEnvironment("***shell***"));
-		
-		
-	
-		eval.addModuleLoader(new ProjectModuleLoader());
-		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
-		eval.addClassLoader(getClass().getClassLoader());
-		return eval;
 	}
 	
 	public void exec(String cmd) throws IOException {
@@ -127,6 +121,9 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			content = "uncaught exception: " + e.getException().toString() + "\n";
 			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 			command = "";
+		}
+		catch (QuitException q) {
+			ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
 		}
 		catch (Throwable e) {
 			content = "internal exception: " + e.toString() + "\n";
@@ -209,18 +206,9 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			@Override
 			public IValue visitShellCommandEdit(Edit x) {
 				// TODO implement opening an eclipse editor for a file
-				// for now, it opens a graph editor for the named
-				// variable
-				// just a trick to get something working...
-
-				String name = x.getName().toString();
-				try {
-					IConstructor tree = parser.parseFromString(name + ";", "-");
-					Editor.open(builder.buildCommand(tree).accept(this));
-				} catch (FactTypeUseException e) {
-				} catch (IOException e) {
-				}
+				
 				return null;
+
 			}
 
 			@Override
@@ -243,8 +231,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 			@Override
 			public IValue visitShellCommandQuit(Quit x) {
-				eval = newEval();
-				throw new RuntimeException("Restarted interpreter");
+				throw new QuitException();
 			}
 		});
 
