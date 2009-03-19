@@ -123,6 +123,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			command = "";
 		}
 		catch (QuitException q) {
+			
 			ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
 		}
 		catch (Throwable e) {
@@ -169,13 +170,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	private void execCommand(IConstructor tree) {
 		Command stat = builder.buildCommand(tree);
 		
-		if (lastMarked != null) {
-			try {
-				lastMarked.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
-			} catch (CoreException e) {
-				Activator.getInstance().logException("marker", e);
-			}
-		}
+		clearErrorMarker();
 
 		IValue value = stat.accept(new NullASTVisitor<IValue>() {
 			@Override
@@ -243,6 +238,16 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 		command = "";
 		state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
+	}
+
+	private void clearErrorMarker() {
+		if (lastMarked != null) {
+			try {
+				lastMarked.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+			} catch (CoreException e) {
+				Activator.getInstance().logException("marker", e);
+			}
+		}
 	}
 
 	private void execParseError(IConstructor tree) {
@@ -315,4 +320,8 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		return new ByteArrayInputStream(new byte[0]);
 	}
 
+	@Override
+	protected void finalize() throws Throwable {
+		clearErrorMarker();
+	}
 }
