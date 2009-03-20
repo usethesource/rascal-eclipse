@@ -128,6 +128,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		}
 		catch (Throwable e) {
 			content = "internal exception: " + e.toString() + "\n";
+			e.printStackTrace();
 			command = "";
 			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 		}
