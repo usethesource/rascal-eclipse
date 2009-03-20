@@ -7,4 +7,8 @@ public class View {
 	public static void viewGraph(IValue v) {
 		Editor.open(v);
 	}
+	
+	public static void browseGraph(IValue v) {
+		
+	}
 }

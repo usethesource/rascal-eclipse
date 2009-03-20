@@ -23,8 +23,9 @@
    <extension
          point="org.eclipse.imp.runtime.languageDescription">
       <language
-            extensions="rsc"
             description="Source analysis and manipulation language"
+            extensions="rsc"
+            icon="icons/rascal_file.gif"
             language="Rascal">
       </language>
    </extension>
@@ -67,6 +68,13 @@
             id="rascal.perspective"
             name="Rascal">
       </perspective>
+      <perspective
+            class="org.dancingbear.graphbrowser.editor.ui.perspective.GraphPerspective"
+            fixed="false"
+            icon="icons/jgb.png"
+            id="org.dancingbear.graphbrowser.perspectives.browser"
+            name="Graph Browsing">
+      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -81,5 +89,88 @@
       </wizard>
    </extension>
  
-
+<extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.dancingbear.graphbrowser.editor.gef.ui.parts.GraphEditor"
+            contributorClass="org.dancingbear.graphbrowser.editor.gef.GraphEditorActionbarContributor"
+            default="true"
+            extensions="dot"
+            icon="icons/jgb.png"
+            id="GraphBrowser.VisualEditor"
+            name="Graph editor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.dancingbear.graphbrowser.preferences.PreferencePage"
+            id="org.dancingbear.graphbrowser.preferences.PreferencePage"
+            name="GraphBrowser Preferences">
+      </page>
+      <page
+            category="org.dancingbear.graphbrowser.preferences.PreferencePage"
+            class="org.dancingbear.graphbrowser.preferences.PreferencePage2"
+            id="org.dancingbear.graphbrowser.preferences.SubPreferencePage"
+            name="GraphBrowser subPreference">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="org.dancingbear.graphbrowser.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+      <cheatsheet
+         contentFile="resources/cheatsheet.xml"
+         id="org.dancingbear.graphbrowser.cheatsheet.shortcuts"
+         name="GraphBrowser Cheatsheet" />
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="false"
+            id="org.dancingbear.graphbrowser.contributor.node"
+            objectClass="org.dancingbear.graphbrowser.editor.gef.editparts.NodeEditPart">
+         <action
+               class="org.dancingbear.graphbrowser.editor.ui.delegates.ExcludeFilterActionDelegate"
+               icon="assets/icons/excludefilter.png"
+               id="org.dancingbear.graphbrowser.action.exclude"
+               label="Show unselected nodes in new tab"
+               menubarPath="org.eclipse.gef.group.view"
+               tooltip="Exclude selected nodes, opening a new editor.">
+         </action>
+         <action
+               class="org.dancingbear.graphbrowser.editor.ui.delegates.FilterActionDelegate"
+               icon="assets/icons/filter.png"
+               id="org.dancingbear.graphbrowser.action.filter"
+               label="Show selected nodes in new tab (Ctrl+t)"
+               menubarPath="org.eclipse.gef.group.view"
+               tooltip="Filter selected nodes, opening a new editor.">
+         </action>
+      </objectContribution>
+            <objectContribution
+            adaptable="false"
+            id="org.dancingbear.graphbrowser.contributor.edge"
+            objectClass="org.dancingbear.graphbrowser.editor.gef.editparts.EdgeEditPart">
+         <action
+               class="org.dancingbear.graphbrowser.editor.ui.delegates.ExcludeFilterActionDelegate"
+               icon="assets/icons/excludefilter.png"
+               id="org.dancingbear.graphbrowser.action.exclude"
+               label="Show not selected edges in new tab"
+               menubarPath="org.eclipse.gef.group.view"
+               tooltip="Exclude selected edges, opening a new editor.">
+         </action>
+         <action
+               class="org.dancingbear.graphbrowser.editor.ui.delegates.FilterActionDelegate"
+               icon="assets/icons/filter.png"
+               id="org.dancingbear.graphbrowser.action.filter"
+               label="Show selected edges in new tab"
+               menubarPath="org.eclipse.gef.group.view"
+               tooltip="Filter selected edges, opening a new editor.">
+         </action>
+      </objectContribution>
+   </extension>
 </plugin>
