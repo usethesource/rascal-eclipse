@@ -19,14 +19,22 @@ import org.eclipse.dltk.console.IScriptConsoleIO;
 import org.eclipse.dltk.console.IScriptConsoleInterpreter;
 import org.eclipse.dltk.console.IScriptInterpreter;
 import org.eclipse.dltk.console.ScriptConsoleHistory;
+import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.part.FileEditorInput;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
@@ -43,6 +51,7 @@ import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
@@ -201,10 +210,34 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 			@Override
 			public IValue visitShellCommandEdit(Edit x) {
-				// TODO implement opening an eclipse editor for a file
+				try {
+					String module = Names.name(x.getName());
+					final IFile file = new ProjectModuleLoader().getFile(module);
+					IWorkbench wb = PlatformUI.getWorkbench();
+					IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+
+					if (win != null) {
+						final IWorkbenchPage page = win.getActivePage();
+
+						if (page != null) {
+							Display.getDefault().asyncExec(new Runnable() {
+								public void run() {
+									try {
+										page.openEditor(new FileEditorInput(file), UniversalEditor.EDITOR_ID);
+									} catch (PartInitException e) {
+										Activator.getInstance().logException("edit", e);
+									}
+								}
+							});
+						}
+					}
+				} catch (IOException e) {
+					Activator.getInstance().logException("edit", e);
+				} catch (CoreException e) {
+					Activator.getInstance().logException("edit", e);
+				}
 				
 				return null;
-
 			}
 
 			@Override
@@ -217,10 +250,12 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 				ScriptConsoleHistory history = console.getHistory();
 
 				int i = 0;
-				while (history.next()) {
+				while (history.prev()) {
 					String command = history.get();
-					System.err.println(i + ": " + command);
+					System.err.println(i++ + ": " + command);
 				}
+				
+				while(history.next());
 
 				return null;
 			}
