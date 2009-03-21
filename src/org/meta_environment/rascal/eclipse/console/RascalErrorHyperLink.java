@@ -6,6 +6,7 @@ package org.meta_environment.rascal.eclipse.console;
 import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -33,6 +34,8 @@ public class RascalErrorHyperLink implements IHyperlink {
 			IFile file = new ProjectModuleLoader().getFile(filename);
 			openEditor(file, line, col);
 		} catch (IOException e) {
+			Activator.getInstance().logException("hyperlink", e);
+		} catch (CoreException e) {
 			Activator.getInstance().logException("hyperlink", e);
 		}
 	}
