@@ -1,8 +1,15 @@
 package org.meta_environment.rascal.eclipse.console;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Collections;
@@ -86,6 +93,8 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		eval.addModuleLoader(new ProjectModuleLoader());
 		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
 		eval.addClassLoader(getClass().getClassLoader());
+		
+		loadCommandHistory();
 	}
 
 	private void locateRascalParseTable() {
@@ -211,26 +220,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			@Override
 			public IValue visitShellCommandEdit(Edit x) {
 				try {
-					String module = Names.name(x.getName());
-					final IFile file = new ProjectModuleLoader().getFile(module);
-					IWorkbench wb = PlatformUI.getWorkbench();
-					IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-
-					if (win != null) {
-						final IWorkbenchPage page = win.getActivePage();
-
-						if (page != null) {
-							Display.getDefault().asyncExec(new Runnable() {
-								public void run() {
-									try {
-										page.openEditor(new FileEditorInput(file), UniversalEditor.EDITOR_ID);
-									} catch (PartInitException e) {
-										Activator.getInstance().logException("edit", e);
-									}
-								}
-							});
-						}
-					}
+					editCommand(x);
 				} catch (IOException e) {
 					Activator.getInstance().logException("edit", e);
 				} catch (CoreException e) {
@@ -247,21 +237,12 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 			@Override
 			public IValue visitShellCommandHistory(History x) {
-				ScriptConsoleHistory history = console.getHistory();
-
-				int i = 0;
-				while (history.prev()) {
-					String command = history.get();
-					System.err.println(i++ + ": " + command);
-				}
-				
-				while(history.next());
-
-				return null;
+				return historyCommand();
 			}
 
 			@Override
 			public IValue visitShellCommandQuit(Quit x) {
+				saveCommandHistory();
 				throw new QuitException();
 			}
 		});
@@ -276,6 +257,29 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 	}
 
+	private void editCommand(Edit x) throws IOException, CoreException {
+		String module = Names.name(x.getName());
+		final IFile file = new ProjectModuleLoader().getFile(module);
+		IWorkbench wb = PlatformUI.getWorkbench();
+		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+
+		if (win != null) {
+			final IWorkbenchPage page = win.getActivePage();
+
+			if (page != null) {
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						try {
+							page.openEditor(new FileEditorInput(file), UniversalEditor.EDITOR_ID);
+						} catch (PartInitException e) {
+							Activator.getInstance().logException("edit", e);
+						}
+					}
+				});
+			}
+		}
+	}
+	
 	private void clearErrorMarker() {
 		if (lastMarked != null) {
 			try {
@@ -340,6 +344,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 	// IScriptConsoleProtocol
 	public void consoleConnected(IScriptConsoleIO protocol) {
+	
 	}
 
 	public void addCloseOperation(Runnable runnable) {
@@ -359,5 +364,75 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	@Override
 	protected void finalize() throws Throwable {
 		clearErrorMarker();
+		saveCommandHistory();
+	}
+
+	private void loadCommandHistory() {
+		try {
+			File historyFile = getHistoryFile();
+			BufferedReader in = new BufferedReader(new FileReader(historyFile));
+			ScriptConsoleHistory history = console.getHistory();
+
+			String command = null;
+			while ((command = in.readLine()) != null) {
+				history.update(command);
+				history.commit();
+				System.err.println("command: " + command);
+			}
+			
+			in.close();
+		} catch (IOException e) {
+			Activator.getInstance().logException("history", e);
+		}
+	}
+	
+	private void saveCommandHistory() {
+		ScriptConsoleHistory history = console.getHistory();
+
+		OutputStream out = null; 
+		try {
+			File historyFile = getHistoryFile();
+
+			out = new FileOutputStream(historyFile);
+			while (history.prev());
+			
+			while (history.next()) {
+				String command = history.get();
+				out.write(command.getBytes());
+				out.write('\n');
+			}
+		}
+		catch (FileNotFoundException e) {
+			Activator.getInstance().logException("history", e);
+		} 
+		catch (IOException e) {
+			Activator.getInstance().logException("history", e);
+		}
+		finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					Activator.getInstance().logException("history", e);
+				}
+			}
+		}
+	}
+
+	private File getHistoryFile() throws IOException {
+		File home = new File(System.getProperty("user.home"));
+		File rascal = new File(home, ".rascal");
+		if (!rascal.exists()) {
+			rascal.mkdirs();
+		}
+		File historyFile = new File(rascal, "history");
+		if (!historyFile.exists()) {
+			historyFile.createNewFile();
+		}
+		return historyFile;
+	}
+
+	private IValue historyCommand() {
+		return null;
 	}
 }
