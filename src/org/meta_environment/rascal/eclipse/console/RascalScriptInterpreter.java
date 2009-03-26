@@ -133,15 +133,16 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			content = e.getMessage() + "\n";
 			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 			command = "";
-			setMarker(e);
+			setMarker(e.getMessage(), e.getLocation());
 		}
 		catch (Throw e) {
-			content = "uncaught exception: " + e.getException().toString() + "\n";
+			content = e.getMessage() + "\n";
 			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 			command = "";
+			setMarker(e.getMessage(), e.getLocation());
 		}
 		catch (QuitException q) {
-			
+			clearErrorMarker();
 			ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
 		}
 		catch (Throwable e) {
@@ -152,10 +153,8 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		}
 	}
 
-	private void setMarker(StaticError e) {
+	private void setMarker(String message, ISourceLocation loc) {
 		try {
-			ISourceLocation loc = e.getLocation();
-			
 			if (loc == null) {
 				return;
 			}
@@ -175,7 +174,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 				m.setAttribute(IMarker.CHAR_START, loc.getOffset());
 				m.setAttribute(IMarker.CHAR_END, loc.getOffset()
 						+ loc.getLength());
-				m.setAttribute(IMarker.MESSAGE, e.getMessage());
+				m.setAttribute(IMarker.MESSAGE, message);
 				m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 				m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 			}

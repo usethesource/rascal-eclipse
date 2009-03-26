@@ -54,6 +54,8 @@ public class JumpToSource implements IPatternMatchListener {
 			console.addHyperlink(new RascalErrorHyperLink(file, line, col), linkOffset, linkLength);
 		} catch (BadLocationException e) {
 			Activator.getInstance().logException("hyperlink", e);			
+		} catch (NumberFormatException e) {
+			Activator.getInstance().logException("hyperlink", e);
 		}
 	}
 }
