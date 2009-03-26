@@ -377,7 +377,6 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			while ((command = in.readLine()) != null) {
 				history.update(command);
 				history.commit();
-				System.err.println("command: " + command);
 			}
 			
 			in.close();
@@ -412,7 +411,8 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			if (out != null) {
 				try {
 					out.close();
-				} catch (IOException e) {
+				} 
+				catch (IOException e) {
 					Activator.getInstance().logException("history", e);
 				}
 			}
