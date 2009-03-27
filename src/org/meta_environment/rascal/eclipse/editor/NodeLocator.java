@@ -6,6 +6,7 @@ import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.eclipse.outline.TreeModelBuilder.Group;
 import org.meta_environment.uptr.TreeAdapter;
 
 public class NodeLocator implements ISourcePositionLocator {
@@ -52,6 +53,9 @@ public class NodeLocator implements ISourcePositionLocator {
 		}
 		else if (node instanceof ModelTreeNode) {
 			return getLocation(((ModelTreeNode) node).getASTNode());
+		}
+		else if (node instanceof Group<?>) {
+			return ((Group<?>) node).getLocation();
 		}
 		throw new RuntimeException("Unknown node type " + node);
 	}

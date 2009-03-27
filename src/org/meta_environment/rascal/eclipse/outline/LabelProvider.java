@@ -13,6 +13,9 @@ import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Module;
+import org.meta_environment.rascal.ast.Signature;
+import org.meta_environment.rascal.ast.Declaration.Variable;
+import org.meta_environment.rascal.eclipse.outline.TreeModelBuilder.Group;
 import org.meta_environment.uptr.TreeAdapter;
 
 public class LabelProvider implements ILabelProvider, ILanguageService  {
@@ -34,9 +37,6 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 		return null;
 	}
 	
-	public LabelProvider() {
-	}
-	
 	@Override
 	public String getText(Object element) {
 		if (element instanceof ModelTreeNode) {
@@ -50,11 +50,21 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 			else if (node2 instanceof IConstructor) {
 				return getLabelFor((IConstructor) node2);
 			}
+			else if (node2 instanceof Group<?>) {
+				return getLabelFor((Group<?>) node2);
+			}
+		}
+		else if (element instanceof Group<?>) {
+			return getLabelFor((Group<?>) element);
 		}
 		else if (element instanceof IConstructor) {
 			return getLabelFor((IConstructor) element);
 		}
 		return "***";
+	}
+	
+	private String getLabelFor(Group<?> group) {
+		return group.getName();
 	}
 
 	private String getLabelFor(AbstractAST node2) {
@@ -64,13 +74,20 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 			result = ((Module) node2).getHeader().toString();
 		}
 		else if (node2 instanceof Declaration.Function) {
-			result = ((Declaration.Function) node2).getFunctionDeclaration().getSignature().toString();
+			Signature signature = ((Declaration.Function) node2).getFunctionDeclaration().getSignature();
+			result = signature.getName().toString() + signature.getParameters().toString();
 		}
 		else if (node2 instanceof FunctionDeclaration) {
-			result = ((FunctionDeclaration) node2).getSignature().toString();
+			Signature signature = ((Declaration.Function) node2).getFunctionDeclaration().getSignature();
+			result = signature.getName().toString() + signature.getParameters().toString();
+		}
+		else if (node2 instanceof org.meta_environment.rascal.ast.Variable) {
+			org.meta_environment.rascal.ast.Variable v = (org.meta_environment.rascal.ast.Variable) node2;
+			result = v.getName().toString();
 		}
 		else if (node2 instanceof Declaration.Variable) {
-			result = node2.toString();
+			Declaration.Variable var = (Variable) node2;
+			result = var.getName() + ": " + var.getType();
 		}
 		else if (node2 instanceof Declaration.Data) {
 			result = ((Declaration.Data) node2).toString();
