@@ -9,7 +9,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.services.base.TreeModelBuilderBase;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
-import org.meta_environment.rascal.ast.Alternative;
+import org.meta_environment.rascal.ast.Import;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Toplevel;
@@ -45,6 +45,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 	private Group<AbstractAST> tags;
 	private Group<AbstractAST> views;
 	private Group<AbstractAST> rules;
+	private Group<AbstractAST> imports;
 	
 	private String module;
 	private ISourceLocation loc;
@@ -68,10 +69,12 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		tags = new Group<AbstractAST>("Tags",loc);
 		views = new Group<AbstractAST>("Views",loc);
 		rules = new Group<AbstractAST>("Rules",loc);
+		imports = new Group<AbstractAST>("Imports", loc);
 
 		mod.accept(new Visitor());
 		
 		createTopItem(module);
+		addGroup(imports);
 		addGroup(variables);
 		addGroup(functions);
 		addGroups(adts);
@@ -120,6 +123,10 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			module = x.getHeader().toString();
 			for (Toplevel t : x.getBody().getToplevels()) {
 				t.accept(this);
+			}
+			
+			for (Import i : x.getHeader().getImports()) {
+				imports.add(i.getModule());
 			}
 			return x;
 		}
@@ -187,7 +194,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 	static public class Group<T> implements Iterable<T> {
 		private final String name;
 		private final List<T> contents = new LinkedList<T>();
-		private final ISourceLocation loc;
+		private ISourceLocation loc;
 		
 		public Group(String name, ISourceLocation loc) {
 			this.name = name;
@@ -210,6 +217,10 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 
 		public ISourceLocation getLocation() {
 			return loc;
+		}
+		
+		public void setLocation(ISourceLocation loc) {
+			this.loc = loc;
 		}
 	}
 }

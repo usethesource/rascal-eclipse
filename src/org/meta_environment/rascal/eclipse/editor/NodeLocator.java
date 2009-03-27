@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.eclipse.editor;
 
+import java.util.Iterator;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.parser.ISourcePositionLocator;
@@ -55,7 +57,12 @@ public class NodeLocator implements ISourcePositionLocator {
 			return getLocation(((ModelTreeNode) node).getASTNode());
 		}
 		else if (node instanceof Group<?>) {
-			return ((Group<?>) node).getLocation();
+			Group<?> group = (Group<?>) node;
+			Iterator<?> i = group.iterator();
+			if (i.hasNext()) {
+				return getLocation(i.next());
+			}
+			return group.getLocation();
 		}
 		throw new RuntimeException("Unknown node type " + node);
 	}

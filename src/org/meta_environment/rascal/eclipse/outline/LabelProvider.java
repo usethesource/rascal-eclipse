@@ -10,7 +10,6 @@ import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.meta_environment.rascal.ast.AbstractAST;
-import org.meta_environment.rascal.ast.Alternative;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Module;
