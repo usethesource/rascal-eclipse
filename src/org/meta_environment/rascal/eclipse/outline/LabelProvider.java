@@ -10,10 +10,12 @@ import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.ast.Alternative;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Signature;
+import org.meta_environment.rascal.ast.Variant;
 import org.meta_environment.rascal.ast.Declaration.Variable;
 import org.meta_environment.rascal.eclipse.outline.TreeModelBuilder.Group;
 import org.meta_environment.uptr.TreeAdapter;
@@ -94,6 +96,16 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 		}
 		else if (node2 instanceof Declaration.Rule) {
 			result = "rule " + ((Declaration.Rule) node2).getName().toString();
+		}
+		else if (node2 instanceof Declaration.Alias) {
+			result = ((Declaration.Alias) node2).getUser().toString();
+		}
+		else if (node2 instanceof Variant.NillaryConstructor) {
+			result = ((Variant) node2).getName() + "()";
+		}
+		else if (node2 instanceof Variant.NAryConstructor) {
+			Variant v = (Variant) node2;
+			result = v.getName() + "(" + v.getArguments() + ")"; 
 		}
 		else {
 		    result = node2.toString();

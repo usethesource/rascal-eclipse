@@ -9,9 +9,11 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.services.base.TreeModelBuilderBase;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.ast.Alternative;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Toplevel;
+import org.meta_environment.rascal.ast.Variant;
 import org.meta_environment.rascal.ast.Declaration.Alias;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Data;
@@ -73,6 +75,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		addGroup(variables);
 		addGroup(functions);
 		addGroups(adts);
+		addGroup(aliases);
 		addGroup(rules);
 		addGroup(annos);
 		addGroup(tags);
@@ -105,7 +108,9 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			}
 		}
 		
-		return new Group<AbstractAST>(string, loc);
+		Group<AbstractAST> group = new Group<AbstractAST>(string, loc);
+		adts.add(group);
+		return group;
 	}
 	
 	private class Visitor extends NullASTVisitor<AbstractAST> {
@@ -137,7 +142,12 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		@Override
 		public AbstractAST visitDeclarationData(Data x) {
 			Group<AbstractAST> adt = findGroup(adts, x.getUser().toString());
-			return adt.add(x);
+			
+			for (Variant a : x.getVariants()) {
+				adt.add(a);
+			}
+			
+			return x;
 		}
 		
 		@Override
