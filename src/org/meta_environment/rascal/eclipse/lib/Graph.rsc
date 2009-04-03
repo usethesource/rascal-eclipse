@@ -1,9 +1,9 @@
-module View::Graph
+module View
 
-public void java viewGraph(value v)
+public void java view(value v)
 @javaClass{org.meta_environment.rascal.eclipse.lib.View.View}
 ;
 
-public void java browseGraph(value v)
+public void java browse(value v)
 @javaClass{org.meta_environment.rascal.eclipse.lib.View.View}
 ;
