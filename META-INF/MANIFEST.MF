@@ -30,7 +30,7 @@ Eclipse-LazyStart: true
 Export-Package: org.meta_environment.rascal.eclipse,
  org.meta_environment.rascal.eclipse.console,
  org.meta_environment.rascal.eclipse.editor,
- org.meta_environment.rascal.eclipse.lib.View,
+ org.meta_environment.rascal.eclipse.lib,
  org.meta_environment.rascal.eclipse.outline
 Import-Package: org.eclipse.core.resources,
  org.eclipse.core.runtime

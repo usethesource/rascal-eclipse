@@ -1,9 +1,5 @@
 package org.meta_environment.rascal.eclipse.console;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.dltk.console.ScriptConsoleHistory;
 import org.eclipse.dltk.console.ScriptConsolePrompt;
 import org.eclipse.dltk.console.ui.ScriptConsole;
 import org.eclipse.ui.console.ConsolePlugin;
@@ -12,7 +8,7 @@ import org.eclipse.ui.console.IConsoleFactory;
 import org.eclipse.ui.console.IConsoleManager;
 
 public class ConsoleFactory implements IConsoleFactory {
-	
+	public static final String CONSOLE_ID = "org.meta_environment.rascal.eclipse.console";
 
 	private IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 	
@@ -22,10 +18,10 @@ public class ConsoleFactory implements IConsoleFactory {
 		fConsoleManager.showConsoleView(console);
 	}
 	
-	protected class RascalConsole extends ScriptConsole 
+	public class RascalConsole extends ScriptConsole 
 	{
 		public RascalConsole() {
-			super("Rascal", "org.meta_environment.rascal.eclipse.console");
+			super("Rascal", CONSOLE_ID);
 			setInterpreter(new RascalScriptInterpreter(this));
 			setPrompt(new ScriptConsolePrompt(">", "?"));
 			addPatternMatchListener(new JumpToSource());
