@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 public class Resources {
@@ -34,7 +35,7 @@ public class Resources {
 	private static final Type res = TF.abstractDataType(store, "Resource");
 	private static final Type root = TF.constructor(store, res, "root", TF.setType(res), "projects");
 	private static final Type project = TF.constructor(store, res, "project", TF.stringType(), "name", TF.setType(res), "contents");
-	private static final Type folder = TF.constructor(store, res, "folder", TF.setType(res), "contents");
+	private static final Type folder = TF.constructor(store, res, "folder", TF.stringType(), "name", TF.setType(res), "contents");
 	private static final Type file =  TF.constructor(store, res, "file", TF.stringType(), "name", TF.stringType(), "extension");
 	
 	public static ISet projects() {
@@ -152,14 +153,15 @@ public class Resources {
 					}
 					else if (resource instanceof IFolder) {
 						w.insert(getFolder((IFolder) resource));
+						return false;
 					}
 					return true;
 				}
 			}, IResource.DEPTH_ONE, false);
 		} catch (FactTypeUseException e) {
-			// does not happen
+			Activator.getInstance().logException("root", e);
 		} catch (CoreException e) {
-			// TODO what to do about this?
+			Activator.getInstance().logException("root", e);
 		}
 		
 		return w.done();
@@ -193,6 +195,7 @@ public class Resources {
 					}
 					else if (resource instanceof IFolder) {
 						w.insert(getFolder((IFolder) resource));
+						return false;
 					}
 					return true;
 				}
