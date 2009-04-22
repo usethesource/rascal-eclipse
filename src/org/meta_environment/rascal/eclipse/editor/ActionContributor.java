@@ -1,7 +1,5 @@
 package org.meta_environment.rascal.eclipse.editor;
 
-import java.io.IOException;
-
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.services.ILanguageActionsContributor;
 import org.eclipse.jface.action.Action;

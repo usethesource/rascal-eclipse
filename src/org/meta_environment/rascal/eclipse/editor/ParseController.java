@@ -45,7 +45,7 @@ public class ParseController implements IParseController {
 	}
 
 	@Override
-	public ISourcePositionLocator getNodeLocator() {
+	public ISourcePositionLocator getSourcePositionLocator() {
 		return new NodeLocator();
 	}
 
@@ -80,7 +80,7 @@ public class ParseController implements IParseController {
 	}
 
 	@Override
-	public Object parse(String input, boolean scanOnly, IProgressMonitor monitor) {
+	public Object parse(String input, IProgressMonitor monitor) {
 		try {
 			handler.clearMessages();
 			monitor.beginTask("parsing Rascal", 1);
@@ -109,5 +109,4 @@ public class ParseController implements IParseController {
 		
 		return null;
 	}
-
 }

@@ -52,7 +52,7 @@ public class TokenColorer implements ITokenColorer {
 	}
 
 	@Override
-	public IRegion calculateDamageExtent(IRegion seed) {
+	public IRegion calculateDamageExtent(IRegion seed, IParseController ctlr) {
 		return seed;
 	}
 
