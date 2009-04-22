@@ -82,6 +82,7 @@ public class ParseController implements IParseController {
 	@Override
 	public Object parse(String input, boolean scanOnly, IProgressMonitor monitor) {
 		try {
+			handler.clearMessages();
 			monitor.beginTask("parsing Rascal", 1);
 			IConstructor parseTree = parser.parseFromString(input, path.toOSString());
 			
