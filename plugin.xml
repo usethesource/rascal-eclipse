@@ -63,7 +63,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="org.meta_environment.rascal.eclipse.perspective.Factory"
-            fixed="true"
+            fixed="false"
             icon="icons/rascal_file.gif"
             id="rascal.perspective"
             name="Rascal">
