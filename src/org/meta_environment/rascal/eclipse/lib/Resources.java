@@ -65,7 +65,7 @@ public class Resources {
 			}
 		}
 		else {
-			throw new Throw(VF.string("Project does not exist"), (ISourceLocation) null);
+			throw new Throw(VF.string("Project does not exist"), (ISourceLocation) null, null);
 		}
 		
 		return w.done();
@@ -84,7 +84,7 @@ public class Resources {
 			// this does not happen
 		}
 
-		throw new Throw(VF.string("Project does not exist"), (ISourceLocation) null);
+		throw new Throw(VF.string("Project does not exist"), (ISourceLocation) null, null);
 	}
 	
 	public static ISet files(IString name) {
@@ -121,7 +121,7 @@ public class Resources {
 			}
 		}
 		else {
-			throw new Throw(VF.string("Project does not exist"), (ISourceLocation) null);
+			throw new Throw(VF.string("Project does not exist"), (ISourceLocation) null, null);
 		}
 		
 		return w.done();
