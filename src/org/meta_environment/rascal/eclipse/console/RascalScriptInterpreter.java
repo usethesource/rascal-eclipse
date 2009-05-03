@@ -138,6 +138,10 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		}
 		catch (Throw e) {
 			content = e.getMessage() + "\n";
+			String trace = e.getTrace();
+			if (trace != null) {
+				content += "stacktrace:\n" + trace;
+			}
 			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 			command = "";
 			setMarker(e.getMessage(), e.getLocation());

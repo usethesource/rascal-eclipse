@@ -44,7 +44,7 @@ public class JumpToSource implements IPatternMatchListener {
 		IDocument doc = console.getDocument();
 
 		try {
-			String match = doc.get(linkOffset, linkLength);
+			String match = doc.get(linkOffset, linkLength).trim();
 			String[] filePosSplit = match.split(":");
 			String file = filePosSplit[0];
 			String[] lineColSplit = filePosSplit[1].split(",");
