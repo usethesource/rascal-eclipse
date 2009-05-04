@@ -18,8 +18,9 @@ import java.util.Collection;
  * @since 3.1
  */
 class NodeCluster extends NodeList {
+	private static final long serialVersionUID = 3761807701937784704L;
 
-    int hashCode = new Object().hashCode();
+	int hashCode = new Object().hashCode();
 
     boolean isSetMember;
     boolean isDirty;

@@ -19,8 +19,7 @@ import java.util.ArrayList;
  * @since 2.1.2
  */
 public final class RankList {
-
-    ArrayList ranks = new ArrayList();
+    ArrayList<Rank> ranks = new ArrayList<Rank>();
 
     /**
      * Returns the specified rank.
@@ -31,7 +30,7 @@ public final class RankList {
     public Rank getRank(int rank) {
         while (ranks.size() <= rank)
             ranks.add(new Rank());
-        return (Rank) ranks.get(rank);
+        return ranks.get(rank);
     }
 
     /**

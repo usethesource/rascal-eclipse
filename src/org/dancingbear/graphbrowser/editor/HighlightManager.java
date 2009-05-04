@@ -98,7 +98,7 @@ public class HighlightManager {
         EditPart part;
 
         for (int i = 0; i < highlighted.size(); i++) {
-            part = (EditPart) highlighted.get(i);
+            part = highlighted.get(i);
             if (part instanceof HighlightEditPart) {
                 HighlightEditPart highlightable = (HighlightEditPart) part;
                 highlightable.setHighlighted(false);

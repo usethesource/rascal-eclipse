@@ -784,7 +784,7 @@ public class TopologicalKeyHandler extends KeyHandler {
 
         connectionCounter %= edges.size();
 
-        return (ConnectionEditPart) edges.get(connectionCounter % edges.size());
+        return edges.get(connectionCounter % edges.size());
 
     }
 

@@ -101,11 +101,11 @@ public class DirectedGraphLayout {
             layoutSubgraphs(graph);
 
             for (int i = 0; i < steps.size(); i++) {
-                GraphVisitor visitor = (GraphVisitor) steps.get(i);
+                GraphVisitor visitor = steps.get(i);
                 visitor.visit(graph);
             }
             for (int i = steps.size() - 1; i >= 0; i--) {
-                GraphVisitor visitor = (GraphVisitor) steps.get(i);
+                GraphVisitor visitor = steps.get(i);
                 visitor.revisit(graph);
             }
 

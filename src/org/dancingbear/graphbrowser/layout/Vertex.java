@@ -30,8 +30,9 @@ import org.eclipse.draw2d.geometry.Rectangle;
  * @since 3.0
  */
 class Vertex extends Point {
-
-    // constants for the vertex type
+	private static final long serialVersionUID = 7948969302074889386L;
+	
+	// constants for the vertex type
     static final int NOT_SET = 0;
     static final int INNIE = 1;
     static final int OUTIE = 2;
@@ -51,7 +52,7 @@ class Vertex extends Point {
     Obstacle obs;
     private List<Path> paths;
     boolean nearestObstacleChecked = false;
-    Map cachedCosines;
+    Map<Path, Double> cachedCosines;
     int positionOnObstacle = -1;
 
     private int origX, origY;
@@ -92,8 +93,8 @@ class Vertex extends Point {
      */
     void addPath(Path path, Segment start, Segment end) {
         if (getPaths() == null) {
-            setPaths(new ArrayList());
-            cachedCosines = new HashMap();
+            setPaths(new ArrayList<Path>());
+            cachedCosines = new HashMap<Path, Double>();
         }
         if (!getPaths().contains(path))
             getPaths().add(path);
@@ -133,12 +134,12 @@ class Vertex extends Point {
         label = null;
         nearestObstacleChecked = false;
         isPermanent = false;
-        if (getNeighbors() != null)
-            getNeighbors().clear();
+        if (neighbors != null)
+            neighbors = new ArrayList<Vertex>();
         if (cachedCosines != null)
-            cachedCosines.clear();
-        if (getPaths() != null)
-            getPaths().clear();
+            cachedCosines = new HashMap<Path, Double>();
+        if (paths != null)
+            paths = new ArrayList<Path>();
     }
 
     /**
@@ -222,7 +223,7 @@ class Vertex extends Point {
         }
     }
 
-    void setNeighbors(List neighbors) {
+    void setNeighbors(List<Vertex> neighbors) {
         this.neighbors = neighbors;
     }
 
@@ -230,7 +231,7 @@ class Vertex extends Point {
         return neighbors;
     }
 
-    void setPaths(List paths) {
+    void setPaths(List<Path> paths) {
         this.paths = paths;
     }
 

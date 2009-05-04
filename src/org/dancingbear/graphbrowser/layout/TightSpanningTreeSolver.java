@@ -80,7 +80,7 @@ class TightSpanningTreeSolver extends SpanningTreeVisitor {
         graph.resetEdgeFlags(true);
         graph.resetNodeFlags();
         for (int i = 0; i < graph.getNodes().size(); i++) {
-            Node node = (Node) graph.getNodes().get(i);
+            Node node = graph.getNodes().get(i);
             node.workingData[0] = new EdgeList();
         }
     }

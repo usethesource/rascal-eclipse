@@ -5,6 +5,7 @@ package org.dancingbear.graphbrowser.importer.dotparser;
 /** Token Manager Error. */
 public class TokenMgrError extends Error
 {
+	private static final long serialVersionUID = 6191049414026333340L;
 
   /**
    * The version identifier for this Serializable class.
@@ -16,7 +17,7 @@ public class TokenMgrError extends Error
    * Ordinals for various reasons why an Error of this type can be thrown.
    */
 
-  /**
+/**
    * Lexical error occurred.
    */
   static final int LEXICAL_ERROR = 0;

@@ -3,7 +3,6 @@ package org.meta_environment.rascal.eclipse.console;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -77,7 +76,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	private final RascalConsole console;
 	private String command;
 	private String content;
-	private int state = IScriptInterpreter.WAIT_NEW_COMMAND;
+	private int state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 	private Runnable listener;
 	private IFile lastMarked;
 
@@ -125,9 +124,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 				execParseError(tree);
 				return;
 			}
-			else {
-				execCommand(tree);
-			}
+			execCommand(tree);
 		} 
 		catch (StaticError e) {
 			content = e.getMessage() + "\n";
@@ -301,11 +298,11 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		int lastColumn = commandLines[lastLine - 1].length();
 		
 		if (range.getEndLine() == lastLine && lastColumn <= range.getEndColumn()) { 
-			state = IScriptInterpreter.WAIT_USER_INPUT;
+			state = IScriptConsoleInterpreter.WAIT_USER_INPUT;
 			content = "";
 		}
 		else {
-			state = IScriptInterpreter.WAIT_NEW_COMMAND;
+			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 			content = "";
 			for (int i = 0; i < range.getEndColumn(); i++) {
 				content += " ";

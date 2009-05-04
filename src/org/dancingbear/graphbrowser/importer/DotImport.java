@@ -286,7 +286,7 @@ class DotImport implements IGraphImport {
      * @param attrStmt
      * @throws ImportException
      */
-    private void parseAttrStmt(AttrStmt attrStmt) throws ImportException {
+    private void parseAttrStmt(AttrStmt attrStmt) {
         // Get the prefix (node, edge or graph)
         String prefix = (String) attrStmt.jjtGetValue();
         Hashtable<String, String> properties = getAttrList(attrStmt);

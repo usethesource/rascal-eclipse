@@ -16,7 +16,6 @@ import org.dancingbear.graphbrowser.editor.draw2d.figure.SubgraphFigure;
 import org.dancingbear.graphbrowser.editor.draw2d.figure.manipulator.AbstractFigureManipulator;
 import org.dancingbear.graphbrowser.editor.draw2d.figure.manipulator.FigureManipulatorFactory;
 import org.dancingbear.graphbrowser.editor.gef.editpolicies.NodeLayoutPolicy;
-import org.dancingbear.graphbrowser.model.IModelGraph;
 import org.dancingbear.graphbrowser.model.IModelSubgraph;
 import org.dancingbear.graphbrowser.model.IPropertyContainer;
 import org.eclipse.draw2d.ActionEvent;
@@ -81,13 +80,9 @@ public class SubgraphEditPart extends
             return children;
         }
 
-        if (getCastedModel() instanceof IModelGraph) {
-            children.addAll(getCastedModel().getDirectNodes());
-            children.addAll(getCastedModel().getDirectSubgraphs());
-            return children;
-        }
-
-        return super.getModelChildren();
+        children.addAll(getCastedModel().getDirectNodes());
+        children.addAll(getCastedModel().getDirectSubgraphs());
+        return children;
     }
 
     /**

@@ -10,7 +10,6 @@ package org.dancingbear.graphbrowser.layout;
 public class SubgraphRankSolver extends GraphVisitor {
     public void visit(DirectedGraph g) {
         for (Node node : g.getNodes()) {
-            int rank = node.getRank();
             if (node instanceof Subgraph) {
                 ((Subgraph) node).fixInternalRanks(node.getRank());
             }

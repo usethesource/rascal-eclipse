@@ -61,7 +61,7 @@ class BreakCycles extends GraphVisitor {
         }
 
         while (noLefts.size() > 0) {
-            Node node = (Node) noLefts.remove(noLefts.size() - 1);
+            Node node = noLefts.remove(noLefts.size() - 1);
             node.setFlag(true);
             for (int i = 0; i < node.getOutgoing().size(); i++) {
                 Node right = node.getOutgoing().getEdge(i).getTarget();
@@ -227,7 +227,7 @@ class BreakCycles extends GraphVisitor {
     private void sortedInsert(List<Node> list, Node node) {
         int insert = 0;
         while (insert < list.size()
-                && ((Node) list.get(insert)).getSortValue() > node
+                && list.get(insert).getSortValue() > node
                         .getSortValue())
             insert++;
         list.add(insert, node);

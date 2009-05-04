@@ -96,7 +96,7 @@ class HorizontalPlacement extends SpanningTreeVisitor {
                     delta = Math.min(delta, freedom);
                 if (delta != 0) {
                     for (int i = 0; i < members.size(); i++) {
-                        NodeCluster c = (NodeCluster) members.get(i);
+                        NodeCluster c = members.get(i);
                         c.adjustRank(delta, dirtyClusters);
                     }
                     refreshDirtyClusters();
@@ -111,7 +111,7 @@ class HorizontalPlacement extends SpanningTreeVisitor {
         void reset() {
             rawPull = pullWeight = 0;
             for (int i = 0; i < members.size(); i++)
-                ((NodeCluster) members.get(i)).isSetMember = false;
+                members.get(i).isSetMember = false;
             members.clear();
             freedom = Integer.MAX_VALUE;
         }
@@ -194,7 +194,7 @@ class HorizontalPlacement extends SpanningTreeVisitor {
 
         for (int i = 0; i < allClusters.size();) {
 
-            NodeCluster c = (NodeCluster) allClusters.get(i);
+            NodeCluster c = allClusters.get(i);
             int delta = c.getPull();
             if (delta < 0) {
                 if (c.leftFreedom > 0) {
@@ -331,10 +331,8 @@ class HorizontalPlacement extends SpanningTreeVisitor {
 
         for (int i = 0; i < prime.getEdges().size(); i++) {
             Edge e = prime.getEdges().getEdge(i);
-            NodeCluster sourceCluster = (NodeCluster) clusterMap.get(e
-                    .getSource());
-            NodeCluster targetCluster = (NodeCluster) clusterMap.get(e
-                    .getTarget());
+            NodeCluster sourceCluster = clusterMap.get(e.getSource());
+            NodeCluster targetCluster = clusterMap.get(e.getTarget());
 
             // Ignore cluster internal edges
             if (targetCluster == sourceCluster)
@@ -351,11 +349,11 @@ class HorizontalPlacement extends SpanningTreeVisitor {
             }
         }
         for (int i = 0; i < allClusters.size(); i++)
-            ((NodeCluster) allClusters.get(i)).initValues();
+            allClusters.get(i).initValues();
     }
 
     Node get(Node key) {
-        return (Node) map.get(key);
+        return map.get(key);
     }
 
     void growCluster(Node root, NodeCluster cluster) {
@@ -388,8 +386,8 @@ class HorizontalPlacement extends SpanningTreeVisitor {
     }
 
     void refreshDirtyClusters() {
-        for (Iterator iter = dirtyClusters.iterator(); iter.hasNext();)
-            ((NodeCluster) iter.next()).refreshValues();
+        for (Iterator<NodeCluster> iter = dirtyClusters.iterator(); iter.hasNext();)
+            iter.next().refreshValues();
         dirtyClusters.clear();
     }
 

@@ -19,11 +19,13 @@ import java.util.ArrayList;
  * @since 2.1.2
  */
 public class NodeList extends ArrayList<Node> {
+	private static final long serialVersionUID = 5661135709426854643L;
 
-    /**
+	/**
      * Constructs an empty NodeList.
      */
     public NodeList() {
+    	super();
     }
 
     /**
@@ -52,7 +54,7 @@ public class NodeList extends ArrayList<Node> {
      * @return the node at a given index
      */
     public Node getNode(int index) {
-        return (Node) super.get(index);
+        return super.get(index);
     }
 
     public Node getNodeById(int identifier) {

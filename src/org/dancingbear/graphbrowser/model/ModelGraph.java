@@ -235,8 +235,7 @@ class ModelGraph extends PropertyContainer implements IModelGraph {
 
         return contains;
     }
-
-    @SuppressWarnings("deprecation")
+    
     @Deprecated
     public boolean containsNode(Integer nodeId) {
         boolean contains = false;
@@ -410,8 +409,7 @@ class ModelGraph extends PropertyContainer implements IModelGraph {
     public String getName() {
         return graphName;
     }
-
-    @SuppressWarnings("deprecation")
+    
     @Deprecated
     public IModelNode getNode(Integer nodeId) {
         for (IModelNode node : getNodes()) {

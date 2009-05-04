@@ -33,9 +33,10 @@ import org.eclipse.draw2d.geometry.PointList;
  */
 public class Path {
 
-    private static class SegmentStack extends ArrayList {
+    private static class SegmentStack extends ArrayList<Object>{
+		private static final long serialVersionUID = 8919501379849631575L;
 
-        Segment pop() {
+		Segment pop() {
             return (Segment) remove(size() - 1);
         }
 
@@ -236,9 +237,9 @@ public class Path {
      */
     private void addObstacle(Obstacle newObs) {
         visibleObstacles.add(newObs);
-        Iterator oItr = new HashSet(visibleObstacles).iterator();
+        Iterator<Obstacle> oItr = new HashSet<Obstacle>(visibleObstacles).iterator(); // TODO What's with the copying; getting ConcModExceptions or something?
         while (oItr.hasNext()) {
-            Obstacle currObs = (Obstacle) oItr.next();
+            Obstacle currObs = oItr.next();
             if (newObs != currObs)
                 addSegmentsFor(newObs, currObs);
         }
@@ -293,7 +294,7 @@ public class Path {
             return;
 
         for (int i = 0; i < allObstacles.size(); i++) {
-            Obstacle obs = (Obstacle) allObstacles.get(i);
+            Obstacle obs = allObstacles.get(i);
 
             if (obs == exclude1 || obs == exclude2 || obs.exclude)
                 continue;
@@ -642,7 +643,7 @@ public class Path {
     void invertPriorVertices(Segment currentSegment) {
         int stop = grownSegments.indexOf(currentSegment);
         for (int i = 0; i < stop; i++) {
-            Vertex vertex = ((Segment) grownSegments.get(i)).end;
+            Vertex vertex = grownSegments.get(i).end;
             if (vertex.type == Vertex.INNIE)
                 vertex.type = Vertex.OUTIE;
             else
@@ -677,7 +678,7 @@ public class Path {
                 return false;
             // label neighbors if they have a new shortest path
             for (int i = 0; i < neighbors.size(); i++) {
-                neighborVertex = (Vertex) neighbors.get(i);
+                neighborVertex = neighbors.get(i);
                 if (!neighborVertex.isPermanent) {
                     newCost = vertex.cost + vertex.getDistance(neighborVertex);
                     if (neighborVertex.label == null) {
@@ -692,9 +693,9 @@ public class Path {
             // find the next none-permanent, labeled vertex with smallest cost
             double smallestCost = 0;
             Vertex tempVertex = null;
-            Iterator v = visibleVertices.iterator();
+            Iterator<Vertex> v = visibleVertices.iterator();
             while (v.hasNext()) {
-                tempVertex = (Vertex) v.next();
+                tempVertex = v.next();
                 if (!tempVertex.isPermanent
                         && tempVertex.label != null
                         && (tempVertex.cost < smallestCost || smallestCost == 0)) {
@@ -716,9 +717,9 @@ public class Path {
      */
     private void linkVertices(Segment segment) {
         if (segment.start.getNeighbors() == null)
-            segment.start.setNeighbors(new ArrayList());
+            segment.start.setNeighbors(new ArrayList<Vertex>());
         if (segment.end.getNeighbors() == null)
-            segment.end.setNeighbors(new ArrayList());
+            segment.end.setNeighbors(new ArrayList<Vertex>());
 
         if (!segment.start.getNeighbors().contains(segment.end)) {
             segment.start.getNeighbors().add(segment.end);
@@ -737,9 +738,8 @@ public class Path {
         if (subPath != null) {
             subPath.reconnectSubPaths();
 
-            Segment changedSegment = (Segment) subPath.grownSegments.remove(0);
-            Segment oldSegment = (Segment) grownSegments.get(grownSegments
-                    .size() - 1);
+            Segment changedSegment = subPath.grownSegments.remove(0);
+            Segment oldSegment = grownSegments.get(grownSegments.size() - 1);
 
             oldSegment.end = changedSegment.end;
             grownSegments.addAll(subPath.grownSegments);
@@ -765,7 +765,7 @@ public class Path {
         excludedObstacles.clear();
 
         for (int i = 0; i < allObstacles.size(); i++) {
-            Obstacle o = (Obstacle) allObstacles.get(i);
+            Obstacle o = allObstacles.get(i);
             o.exclude = false;
 
             if (o.contains(start)) {

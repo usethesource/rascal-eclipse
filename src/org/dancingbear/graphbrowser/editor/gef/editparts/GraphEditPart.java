@@ -57,15 +57,11 @@ public class GraphEditPart extends
      */
     @Override
     protected List<?> getModelChildren() {
-        if (getCastedModel() instanceof IModelGraph) {
-            List<IPropertyContainer> children = new ArrayList<IPropertyContainer>();
-            children.addAll(getCastedModel().getDirectSubgraphs());
-            children.addAll(getCastedModel().getDirectNodes());
+        List<IPropertyContainer> children = new ArrayList<IPropertyContainer>();
+        children.addAll(getCastedModel().getDirectSubgraphs());
+        children.addAll(getCastedModel().getDirectNodes());
 
-            return children;
-        }
-
-        return super.getModelChildren();
+        return children;
     }
 
     /**

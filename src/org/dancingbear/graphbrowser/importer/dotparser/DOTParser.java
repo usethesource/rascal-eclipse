@@ -3,6 +3,7 @@ package org.dancingbear.graphbrowser.importer.dotparser;
 
 import java.io.Reader;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
         DOTParserConstants {/* @bgen(jjtree) */
@@ -98,7 +99,6 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
                     break;
                 default:
                     jj_la1[0] = jj_gen;
-                    ;
                 }
                 type = jj_consume_token(DIGRAPH);
                 break;
@@ -123,13 +123,12 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
                 break;
             default:
                 jj_la1[2] = jj_gen;
-                ;
             }
             jj_consume_token(RBRACE);
             jj_consume_token(0);
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
-            properties.put("isStrict", ((Boolean) (strict != null)).toString());
+            properties.put("isStrict", Boolean.valueOf(strict != null).toString());
             properties.put("type", type.image);
             properties.put("name", name.image);
             jjtn000.value = properties;
@@ -179,7 +178,6 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
                 break;
             default:
                 jj_la1[3] = jj_gen;
-                ;
             }
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case EDGE:
@@ -192,7 +190,6 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
                 break;
             default:
                 jj_la1[4] = jj_gen;
-                ;
             }
         } catch (Throwable jjte000) {
             if (jjtc000) {
@@ -411,7 +408,6 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
                 break;
             default:
                 jj_la1[6] = jj_gen;
-                ;
             }
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case COMMA:
@@ -419,7 +415,6 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
                 break;
             default:
                 jj_la1[7] = jj_gen;
-                ;
             }
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case ID:
@@ -427,7 +422,6 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
                 break;
             default:
                 jj_la1[8] = jj_gen;
-                ;
             }
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
@@ -528,7 +522,6 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
                 break;
             default:
                 jj_la1[9] = jj_gen;
-                ;
             }
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
@@ -580,7 +573,6 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
                 break;
             default:
                 jj_la1[10] = jj_gen;
-                ;
             }
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
@@ -647,7 +639,6 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
                 break;
             default:
                 jj_la1[11] = jj_gen;
-                ;
             }
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
@@ -658,7 +649,7 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
 
                 // Additional check to determine if the id is a real id or a
                 // compass point
-                Boolean isPortCompass = "N".equals(sPortId)
+                boolean isPortCompass = "N".equals(sPortId)
                         || "NE".equals(sPortId) || "E".equals(sPortId)
                         || "SE".equals(sPortId) || "S".equals(sPortId)
                         || "SW".equals(sPortId) || "W".equals(sPortId)
@@ -720,7 +711,6 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
                 break;
             default:
                 jj_la1[13] = jj_gen;
-                ;
             }
         } catch (Throwable jjte000) {
             if (jjtc000) {
@@ -784,12 +774,11 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
                 break;
             default:
                 jj_la1[15] = jj_gen;
-                ;
             }
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             Hashtable<String, Object> value = new Hashtable<String, Object>();
-            value.put("direction", (String) direction.jjtGetValue());
+            value.put("direction", direction.jjtGetValue());
             value.put("target", target);
             jjtn000.value = value;
             {
@@ -884,12 +873,10 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
                         break;
                     default:
                         jj_la1[17] = jj_gen;
-                        ;
                     }
                     break;
                 default:
                     jj_la1[18] = jj_gen;
-                    ;
                 }
                 jj_consume_token(LBRACE);
                 StmtList();
@@ -1497,7 +1484,8 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
         throw generateParseException();
     }
 
-    static private final class LookaheadSuccess extends java.lang.Error {
+    static private final class LookaheadSuccess extends Error{
+		private static final long serialVersionUID = -8848423296442751459L;
     }
 
     final private LookaheadSuccess jj_ls = new LookaheadSuccess();
@@ -1557,8 +1545,8 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
     private int jj_ntk() {
         if ((jj_nt = token.next) == null)
             return (jj_ntk = (token.next = token_source.getNextToken()).kind);
-        else
-            return (jj_ntk = jj_nt.kind);
+        return (jj_ntk = jj_nt.kind);
+            
     }
 
     private java.util.List<int[]> jj_expentries = new java.util.ArrayList<int[]>();
@@ -1577,9 +1565,9 @@ public class DOTParser/* @bgen(jjtree) */implements DOTParserTreeConstants,
             for (int i = 0; i < jj_endpos; i++) {
                 jj_expentry[i] = jj_lasttokens[i];
             }
-            jj_entries_loop: for (java.util.Iterator it = jj_expentries
+            jj_entries_loop: for (Iterator<int[]> it = jj_expentries
                     .iterator(); it.hasNext();) {
-                int[] oldentry = (int[]) (it.next());
+                int[] oldentry = it.next();
                 if (oldentry.length == jj_expentry.length) {
                     for (int i = 0; i < jj_expentry.length; i++) {
                         if (oldentry[i] != jj_expentry[i]) {

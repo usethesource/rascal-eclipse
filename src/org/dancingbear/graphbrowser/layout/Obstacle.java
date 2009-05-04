@@ -24,8 +24,9 @@ import org.eclipse.draw2d.geometry.Rectangle;
  * @since 3.0
  */
 class Obstacle extends Rectangle {
-
-    boolean exclude;
+	private static final long serialVersionUID = -7627228465800122702L;
+	
+	boolean exclude;
     Vertex topLeft, topRight, bottomLeft, bottomRight, center;
     private ShortestPathRouter router;
 

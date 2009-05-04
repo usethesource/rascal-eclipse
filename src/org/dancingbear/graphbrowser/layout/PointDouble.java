@@ -16,8 +16,9 @@ import org.eclipse.draw2d.geometry.Point;
  * 
  */
 public class PointDouble extends Point2D.Double {
+	private static final long serialVersionUID = 182900163409449763L;
 
-    public PointDouble(double xCoordinate, double yCoordinate) {
+	public PointDouble(double xCoordinate, double yCoordinate) {
         super(xCoordinate, yCoordinate);
     }
 

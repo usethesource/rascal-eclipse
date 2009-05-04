@@ -27,7 +27,7 @@ class RouteEdges extends GraphVisitor {
         Rectangle o;
         Insets padding;
         for (int i = 0; i < edge.getVNodes().size(); i++) {
-            VirtualNode node = (VirtualNode) edge.getVNodes().get(i);
+            Node node = edge.getVNodes().get(i);
             Node neighbor;
             if (node.getLeft() != null) {
                 neighbor = node.getLeft();
@@ -62,7 +62,7 @@ class RouteEdges extends GraphVisitor {
      */
     public void revisit(DirectedGraph g) {
         for (int i = 0; i < g.getEdges().size(); i++) {
-            Edge edge = (Edge) g.getEdges().get(i);
+            Edge edge = g.getEdges().get(i);
             edge.setStart(new Point(edge.getSourceOffset()
                     + edge.getSource().getX(), edge.getSource().getY()
                     + edge.getSource().getHeight()));

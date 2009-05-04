@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.dancingbear.graphbrowser.layout;
 
-import java.util.List;
-
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.geometry.Transposer;
 
@@ -25,7 +23,7 @@ class TransposeMetrics extends GraphVisitor {
         int temp;
         g.setDefaultPadding(t.t(g.getDefaultPadding()));
         for (int i = 0; i < g.getNodes().size(); i++) {
-            Node node = (Node) g.getNodes().get(i);
+            Node node = g.getNodes().get(i);
             temp = node.getWidth();
             node.setWidth(node.getHeight());
             node.setHeight(temp);
@@ -42,11 +40,11 @@ class TransposeMetrics extends GraphVisitor {
             edge.setEnd(edge.getEnd().transpose());
 
             edge.getPoints().transpose();
-            List bends = edge.getVNodes();
+            NodeList bends = edge.getVNodes();
             if (bends == null)
                 continue;
             for (int b = 0; b < bends.size(); b++) {
-                VirtualNode vnode = (VirtualNode) bends.get(b);
+                Node vnode = bends.get(b);
                 temp = vnode.getY();
                 vnode.setY(vnode.getX());
                 vnode.setX(temp);

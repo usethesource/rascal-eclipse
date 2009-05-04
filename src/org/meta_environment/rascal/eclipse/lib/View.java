@@ -1,12 +1,10 @@
 package org.meta_environment.rascal.eclipse.lib;
 
-import org.dancingbear.graphbrowser.controller.IGraphEditor;
 import org.dancingbear.graphbrowser.editor.ui.input.GraphEditorInput;
 import org.dancingbear.graphbrowser.model.IModelGraph;
 import org.dancingbear.graphbrowser.model.ModelGraphRegister;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.ui.graph.Editor;
-import org.eclipse.imp.pdb.ui.graph.ValueEditorInput;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;

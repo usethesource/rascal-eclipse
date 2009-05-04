@@ -17,8 +17,9 @@ package org.dancingbear.graphbrowser.layout;
  * @since 2.1.2
  */
 public class Rank extends NodeList {
-
-    int bottomPadding;
+	private static final long serialVersionUID = 4773818895063752261L;
+	
+	int bottomPadding;
     int height;
     int location;
 

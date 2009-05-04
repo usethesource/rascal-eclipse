@@ -16,8 +16,9 @@ import java.util.ArrayList;
  * 
  */
 public class LineList extends ArrayList<Line> {
+	private static final long serialVersionUID = -3461974353894281521L;
 
-    /**
+	/**
      * Return a sublist of the LineList, toLine will NOT be included
      * 
      * @param fromLine the first line of the sublist

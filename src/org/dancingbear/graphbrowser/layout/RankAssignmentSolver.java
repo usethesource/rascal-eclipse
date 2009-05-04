@@ -202,17 +202,17 @@ class RankAssignmentSolver extends SpanningTreeVisitor {
         graph.resetNodeFlags();
         graph.getForestRoot().setFlag(true);
         EdgeList rootEdges = graph.getForestRoot().getOutgoing();
-        Stack stack = new Stack();
+        Stack<Node> stack = new Stack<Node>();
         for (int i = 0; i < rootEdges.size(); i++) {
             Node node = rootEdges.getEdge(i).getTarget();
             node.setFlag(true);
             stack.push(node);
             while (!stack.isEmpty()) {
-                node = (Node) stack.pop();
+                node = stack.pop();
                 tree.add(node);
-                Iterator neighbors = node.iteratorNeighbors();
+                Iterator<Node> neighbors = node.iteratorNeighbors();
                 while (neighbors.hasNext()) {
-                    Node neighbor = (Node) neighbors.next();
+                    Node neighbor = neighbors.next();
                     if (!neighbor.isFlag()) {
                         neighbor.setFlag(true);
                         stack.push(neighbor);

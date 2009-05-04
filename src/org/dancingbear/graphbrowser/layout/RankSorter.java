@@ -88,8 +88,7 @@ class RankSorter {
         if (progress > 0.25 && progress < 0.75) {
             if (flipflop.nextBoolean())
                 return (l + l + r) / 3.0;
-            else
-                return (r + r + l) / 3.0;
+            return (r + r + l) / 3.0;
         }
         return (l + r) / 2.0;
     }
@@ -127,8 +126,7 @@ class RankSorter {
         if (progress > 0.25 && progress < 0.75) {
             if (flipflop.nextBoolean())
                 return (l + l + r) / 3.0;
-            else
-                return (r + r + l) / 3.0;
+            return (r + r + l) / 3.0;
         }
         return (l + r) / 2.0;
     }

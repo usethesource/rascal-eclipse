@@ -19,15 +19,16 @@ import java.util.ArrayList;
  * @since 2.1.2
  */
 public class EdgeList extends ArrayList<Edge> {
+	private static final long serialVersionUID = -1803831349264195053L;
 
-    /**
+	/**
      * Returns the edge for the given index.
      * 
      * @param index the index of the requested edge
      * @return the edge at the given index
      */
     public Edge getEdge(int index) {
-        return (Edge) super.get(index);
+        return super.get(index);
     }
 
     /**

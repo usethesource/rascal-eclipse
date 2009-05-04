@@ -26,7 +26,7 @@ import java.util.Stack;
  */
 class PopulateRanks extends GraphVisitor {
 
-    private Stack changes = new Stack();
+    private Stack<RevertableChange> changes = new Stack<RevertableChange>();
 
     /**
      * @see GraphVisitor#revisit(DirectedGraph)
@@ -34,7 +34,7 @@ class PopulateRanks extends GraphVisitor {
     public void revisit(DirectedGraph g) {
 
         for (int i = 0; i < changes.size(); i++) {
-            RevertableChange change = (RevertableChange) changes.get(i);
+            RevertableChange change = changes.get(i);
             change.revert();
         }
 

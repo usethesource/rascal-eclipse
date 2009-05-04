@@ -276,8 +276,8 @@ public class Node {
 
     }
 
-    Iterator iteratorNeighbors() {
-        return new Iterator() {
+    Iterator<Node> iteratorNeighbors() {
+        return new Iterator<Node>() {
             int offset;
             EdgeList list = outgoing;
 
@@ -293,7 +293,7 @@ public class Node {
                 return offset < list.size();
             }
 
-            public Object next() {
+            public Node next() {
                 Edge edge = list.getEdge(offset++);
                 if (offset < list.size())
                     return edge.opposite(Node.this);

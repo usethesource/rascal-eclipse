@@ -206,28 +206,6 @@ public class Subgraph extends Node {
         setContainedAllNodesToRank(subgraphrank);
     }
 
-    // TODO
-    // runs the MIN rank assignment on the subgraph.
-    private void fixInternalRanksMIN(int subgraphrank) {
-        setContainedAllNodesToRank(subgraphrank);
-    }
-
-    // TODO
-    // runs the MAX rank assignment on the subgraph.
-    private void fixInternalRanksMAX(int subgraphrank) {
-        setContainedAllNodesToRank(subgraphrank);
-    }
-
-    // runs the SOURCE rank assignment on the subgraph.
-    private void fixInternalRanksSOURCE(int subgraphrank) {
-        setContainedAllNodesToRank(subgraphrank);
-    }
-
-    // runs the SINK rank assignment on the subgraph.
-    private void fixInternalRanksSINK(int subgraphrank) {
-        setContainedAllNodesToRank(subgraphrank);
-    }
-
     // this function sets all nodes in this subgraph to the specified rank
     private void setContainedAllNodesToRank(int rank) {
         for (Node member : getMembers()) {

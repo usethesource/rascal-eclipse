@@ -49,7 +49,7 @@ class InitialRankSolver extends GraphVisitor {
             tree = new NodeList();
             stack.push(n);
             while (!stack.isEmpty()) {
-                n = (Node) stack.pop();
+                n = stack.pop();
                 n.setFlag(true);
                 tree.add(n);
                 for (int s = 0; s < n.getIncoming().size(); s++) {
@@ -71,7 +71,7 @@ class InitialRankSolver extends GraphVisitor {
             graph.setForestRoot(new Node("the forest root")); //$NON-NLS-1$
             graph.addNode(graph.getForestRoot());
             for (int i = 0; i < forest.size(); i++) {
-                tree = (NodeList) forest.get(i);
+                tree = forest.get(i);
                 graph.addEdge(new Edge(graph.getForestRoot(), tree.getNode(0),
                         0, 0));
             }
@@ -115,40 +115,6 @@ class InitialRankSolver extends GraphVisitor {
         }
 
         return incoming;
-    }
-
-    private void solveSubgraphs() {
-        if (!graph.getNodes().isEmpty()) {
-            NodeList unranked = new NodeList(graph.getNodes());
-
-            for (Node node : unranked) {
-
-                if (node instanceof Subgraph) {
-
-                    if ("same".equals(node.getProperties().get("rank"))) {
-                        for (Node member : ((Subgraph) node).getMembers()) {
-                            member.setRank(node.getRank());
-
-                        }
-                    }
-
-                    // TODO not the best place, nodes are already ranked!
-
-                }
-                if (node.getData() instanceof Subgraph) {
-                    if ("same".equals(((Node) node.getData()).getProperties()
-                            .get("rank"))) {
-                        for (Node member : ((Subgraph) node.getData())
-                                .getMembers()) {
-                            member.setRank(node.getRank());
-
-                        }
-                    }
-
-                }
-            }
-        }
-
     }
 
     /**

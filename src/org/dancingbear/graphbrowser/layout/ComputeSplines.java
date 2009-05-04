@@ -15,11 +15,9 @@ public class ComputeSplines extends GraphVisitor {
 
     final double DELTA = 1.0e-6;
     private final static double CURVE_SAMPLE_SIZE = 0.05;
-    private static final double INITIAL_REFINE_FACTOR = 3.0;
 
     final double POINT_PADDING = 0;
 
-    private final ArrayList<ArrayList<Box>> allBoxes = new ArrayList<ArrayList<Box>>();
     List<Spline> splines = new ArrayList<Spline>();
 
     protected Spline getSpline(List<PointDouble> bendpoints,

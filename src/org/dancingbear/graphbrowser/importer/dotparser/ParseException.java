@@ -12,6 +12,7 @@ package org.dancingbear.graphbrowser.importer.dotparser;
  * mechanisms so long as you retain the public fields.
  */
 public class ParseException extends Exception {
+	private static final long serialVersionUID = 8281291353274428685L;
 
   /**
    * The version identifier for this Serializable class.
@@ -19,7 +20,7 @@ public class ParseException extends Exception {
    * class changes.
    */
 
-  /**
+/**
    * This constructor is used by the method "generateParseException"
    * in the generated parser.  Calling this constructor generates
    * a new object of this type with the fields "currentToken",
