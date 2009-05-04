@@ -1,0 +1,9 @@
+prefix=@prefix@
+Maintainers=jurgenv@cwi.nl,lankamp@cwi.nl
+Name: rascal-eclipse
+Description: 
+Version: 0.1
+EclipseRequires=org.eclipse.imp.pdb.values
+Requires: rascal,sglr-invoker
+JarFile=rascal-eclipse.jar
+Packages=
