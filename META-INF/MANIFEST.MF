@@ -2,30 +2,28 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Rascal_eclipse Plug-in
 Bundle-SymbolicName: rascal_eclipse;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 0.0.1
 Bundle-Activator: org.meta_environment.rascal.eclipse.Activator
 Require-Bundle: org.eclipse.gef;bundle-version="3.4.1",
  org.eclipse.dltk.console;bundle-version="0.95.0",
- org.eclipse.jface.text,
- org.eclipse.ui,
+ org.eclipse.jface.text;bundle-version="3.4.2",
  org.eclipse.ui.views;bundle-version="3.3.0",
  org.eclipse.dltk.console.ui;bundle-version="0.95.0",
- org.eclipse.imp.runtime,
+ org.eclipse.imp.runtime;bundle-version="0.1.97",
  org.eclipse.jface.text;bundle-version="3.4.1",
  org.eclipse.imp.pdb.values;bundle-version="0.1.14",
  org.eclipse.imp.pdb.ui;bundle-version="0.1.0",
  org.eclipse.ui.console;bundle-version="3.3.0",
- rascal;bundle-version="0.1.0",
+ rascal;bundle-version="0.0.1",
  org.eclipse.core.filesystem;bundle-version="1.2.0",
- lpg.runtime,
- org.eclipse.ui.workbench.texteditor,
- org.eclipse.ui,
+ lpg.runtime;bundle-version="2.0.16",
+ org.eclipse.ui.workbench.texteditor;bundle-version="3.4.1",
  org.eclipse.jdt.ui;bundle-version="3.4.1",
  org.eclipse.ui.ide;bundle-version="3.4.1",
  org.eclipse.osgi;bundle-version="3.4.2",
  org.eclipse.core.jobs;bundle-version="3.4.0",
- sglr_invoker;bundle-version="0.1.0",
- rascal_plugin;bundle-version="0.1.0"
+ sglr_invoker;bundle-version="0.0.1",
+ org.eclipse.ui;bundle-version="3.4.2"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-LazyStart: true

@@ -18,8 +18,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.dltk.console.IScriptConsoleIO;
 import org.eclipse.dltk.console.IScriptConsoleInterpreter;
@@ -97,13 +95,9 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	}
 
 	private void locateRascalParseTable() {
-		URL url = FileLocator.find(Platform.getBundle("rascal"), new Path(Parser.PARSETABLE_FILENAME), null);
-		try {
-			url = FileLocator.resolve(url);
-			System.setProperty(Parser.PARSETABLE_PROPERTY, url.getPath());
-		} catch (IOException e) {
-			Activator.getInstance().logException("internal error", e);
-		}
+		String parseTablePath = Activator.getFile(Platform.getBundle("rascal"), Parser.PARSETABLE_FILENAME);
+		
+		System.setProperty(Parser.PARSETABLE_PROPERTY, parseTablePath);
 	}
 	
 	public void exec(String cmd) throws IOException {

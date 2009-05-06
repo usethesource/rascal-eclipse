@@ -101,7 +101,7 @@ public class Activator extends PluginBase {
 
 	// Definitions for image management end
 	
-	private static String getFile(Bundle bundle, String path){
+	public static String getFile(Bundle bundle, String path){
 		String fileURL;
 		try{
 			fileURL = FileLocator.toFileURL(bundle.getEntry(path)).getPath();
