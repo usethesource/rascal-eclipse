@@ -93,8 +93,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			
 		locateRascalParseTable();	
 		this.parser = Parser.getInstance();
-		this.eval = new Evaluator(vf, factory, new PrintWriter(
-				System.err), new ModuleEnvironment("***shell***"));
+		this.eval = new Evaluator(vf, factory, new PrintWriter(System.err), new ModuleEnvironment("***shell***"));
 		
 		eval.addModuleLoader(new ProjectModuleLoader());
 		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
@@ -189,6 +188,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			catch (QuitException q) {
 				clearErrorMarker();
 				ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
+				executor.stop();
 			}
 			catch (Throwable e) {
 				content = "internal exception: " + e.toString() + "\n";
@@ -229,9 +229,10 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			while(running){
 				RascalCommand command;
 				synchronized(lock){
-					if(commandQueue.size() == 0){
+					if(commandQueue.size() == 0 && running){
 						lock.block();
 					}
+					if(!running) break;
 					command = commandQueue.remove(0);
 				}
 				
