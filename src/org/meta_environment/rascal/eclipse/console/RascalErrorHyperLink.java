@@ -57,13 +57,9 @@ public class RascalErrorHyperLink implements IHyperlink {
 
 			if (page != null) {
 				try {
-					page.openEditor(new FileEditorInput(file),
-							UniversalEditor.EDITOR_ID);
+					page.openEditor(new FileEditorInput(file), UniversalEditor.EDITOR_ID);
 				} catch (PartInitException e) {
-					Activator.getInstance()
-							.logException(
-									"Could not open editor for: "
-											+ filename, e);
+					Activator.getInstance().logException("Could not open editor for: " + filename, e);
 				}
 			}
 		}

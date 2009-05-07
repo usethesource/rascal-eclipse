@@ -11,8 +11,8 @@ import org.meta_environment.uptr.TreeAdapter;
 import org.meta_environment.uptr.visitors.TreeVisitor;
 
 public class TokenIterator implements Iterator<Token> {
-	private List<Token> tokenList;
-	private Iterator<Token> tokenIterator;
+	private final List<Token> tokenList;
+	private final Iterator<Token> tokenIterator;
 
 	public TokenIterator(IConstructor parseTree) {
 		this.tokenList = new LinkedList<Token>();

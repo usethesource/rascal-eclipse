@@ -4,8 +4,8 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 
 public class Token {
-	private String category;
-	private ISourceLocation loc;
+	private final String category;
+	private final ISourceLocation loc;
 	
 	public Token(String category, ISourceLocation area) {
 		this.category = category;

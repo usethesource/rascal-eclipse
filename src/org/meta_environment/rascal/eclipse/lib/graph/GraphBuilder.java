@@ -23,7 +23,7 @@ public class GraphBuilder {
 	}
 
 	public void computeGraph(IValue fact) {
-		fNodeCache.clear();
+		fNodeCache = new HashMap<IValue, IModelNode>();
     	convert(fact);
     }
 	

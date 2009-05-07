@@ -1,13 +1,18 @@
 package org.meta_environment.rascal.eclipse;
 
+import java.net.URL;
+
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.runtime.PluginBase;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.osgi.framework.Bundle;
 
 import sglr.SGLRInvoker;
@@ -62,12 +67,9 @@ public class Activator extends PluginBase {
 	public static final org.eclipse.core.runtime.IPath ICONS_PATH = new org.eclipse.core.runtime.Path(
 			"icons/"); //$NON-NLS-1$("icons/"); //$NON-NLS-1$
 
-	protected void initializeImageRegistry(
-			org.eclipse.jface.resource.ImageRegistry reg) {
-		org.eclipse.core.runtime.IPath path = ICONS_PATH
-				.append("rascal_default_image.gif");//$NON-NLS-1$
-		org.eclipse.jface.resource.ImageDescriptor imageDescriptor = createImageDescriptor(
-				getInstance().getBundle(), path);
+	protected void initializeImageRegistry(ImageRegistry reg) {
+		IPath path = ICONS_PATH.append("rascal_default_image.gif");//$NON-NLS-1$
+		ImageDescriptor imageDescriptor = createImageDescriptor(getInstance().getBundle(), path);
 		reg.put(IRascalResources.RASCAL_DEFAULT_IMAGE, imageDescriptor);
 
 		path = ICONS_PATH.append("rascal_default_outline_item.gif");//$NON-NLS-1$
@@ -87,14 +89,10 @@ public class Activator extends PluginBase {
 		reg.put(IRascalResources.RASCAL_FILE_ERROR, imageDescriptor);
 	}
 
-	public static org.eclipse.jface.resource.ImageDescriptor createImageDescriptor(
-			org.osgi.framework.Bundle bundle,
-			org.eclipse.core.runtime.IPath path) {
-		java.net.URL url = org.eclipse.core.runtime.FileLocator.find(bundle,
-				path, null);
+	public static ImageDescriptor createImageDescriptor(Bundle bundle, IPath path) {
+		URL url = org.eclipse.core.runtime.FileLocator.find(bundle, path, null);
 		if (url != null) {
-			return org.eclipse.jface.resource.ImageDescriptor
-					.createFromURL(url);
+			return org.eclipse.jface.resource.ImageDescriptor.createFromURL(url);
 		}
 		return null;
 	}

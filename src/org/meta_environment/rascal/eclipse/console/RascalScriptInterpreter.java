@@ -77,7 +77,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	private final ASTBuilder builder = new ASTBuilder(factory);
 	private final Parser parser;
 	private final static IValueFactory vf = ValueFactory.getInstance();
-	private Evaluator eval;
+	private final Evaluator eval;
 	private final RascalConsole console;
 	private String command;
 	private String content;
