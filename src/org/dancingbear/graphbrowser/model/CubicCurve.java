@@ -131,7 +131,7 @@ public class CubicCurve implements ICurve {
         double gradientSourceVector = getGradient(sourcePosition, sourceVector);
         double gradientTargetVector = getGradient(sourcePosition, targetVector);
 
-        final double delta = 0.1;
+        double delta = 0.1;
 
         boolean gradientsEqual = (Math.abs(gradient - gradientSourceVector) < delta)
                 & (Math.abs(gradient - gradientTargetVector) < delta);

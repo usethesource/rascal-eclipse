@@ -25,7 +25,7 @@ public class MinusShape extends Shape {
      */
     @Override
     protected void fillShape(Graphics graphics) {
-        final PointList points = calculatePoints();
+        PointList points = calculatePoints();
         graphics.fillPolygon(points);
     }
 
@@ -34,7 +34,7 @@ public class MinusShape extends Shape {
      */
     @Override
     protected void outlineShape(Graphics graphics) {
-        final PointList points = calculatePoints();
+        PointList points = calculatePoints();
         graphics.drawPolygon(points);
     }
 
@@ -44,7 +44,7 @@ public class MinusShape extends Shape {
      * @return points
      */
     private PointList calculatePoints() {
-        final Rectangle bounds = getBounds();
+        Rectangle bounds = getBounds();
         PointList minus = new PointList(2);
         minus.addPoint(bounds.getLeft());
         minus.addPoint(bounds.getRight());

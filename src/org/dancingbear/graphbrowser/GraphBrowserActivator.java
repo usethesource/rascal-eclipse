@@ -16,7 +16,7 @@ import org.osgi.framework.BundleContext;
 public class GraphBrowserActivator extends AbstractUIPlugin {
 
     public static final String PLUGIN_ID = "org.dancingbear.graphbrowser";
-    private static GraphBrowserActivator plugin;
+    private volatile static GraphBrowserActivator plugin;
 
     /**
      * Returns the shared instance

@@ -37,7 +37,7 @@ public class HexagonShape extends Shape {
      */
     @Override
     protected void outlineShape(Graphics graphics) {
-        final PointList points = calculatePoints();
+        PointList points = calculatePoints();
         graphics.drawPolygon(points);
     }
 
@@ -47,8 +47,8 @@ public class HexagonShape extends Shape {
      * @return points
      */
     private PointList calculatePoints() {
-        final Rectangle bounds = getBounds();
-        final Dimension distance = getSize().getScaled(1.0 / RATIO_X);
+        Rectangle bounds = getBounds();
+        Dimension distance = getSize().getScaled(1.0 / RATIO_X);
 
         PointList hexagon = new PointList(6);
         hexagon.addPoint(bounds.getTopLeft().translate(distance.width, 0));

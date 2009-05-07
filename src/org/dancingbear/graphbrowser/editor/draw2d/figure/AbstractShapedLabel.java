@@ -57,8 +57,8 @@ public abstract class AbstractShapedLabel extends Label {
      * @return Rectangle
      */
     private Rectangle getEfficientRectangle(Rectangle rect) {
-        final int width = rect.width - 1;
-        final int height = rect.height - 1;
+        int width = rect.width - 1;
+        int height = rect.height - 1;
         return new Rectangle(rect.x, rect.y, width, height);
     }
 

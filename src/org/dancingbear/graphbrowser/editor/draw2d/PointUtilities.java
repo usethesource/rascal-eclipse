@@ -25,7 +25,7 @@ public class PointUtilities {
      * @param position Position
      * @return point
      */
-    public static final Point toPoint(Position position) {
+    public static Point toPoint(Position position) {
         if (position == null) {
             return null;
         }
@@ -38,7 +38,7 @@ public class PointUtilities {
      * @param point Point
      * @return position
      */
-    public static final Position toPosition(Point point) {
+    public static Position toPosition(Point point) {
         if (point == null) {
             return null;
         }

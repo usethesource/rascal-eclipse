@@ -24,7 +24,13 @@ import org.dancingbear.graphbrowser.model.IModelGraph;
  */
 public class SaveEventHandler implements IEditorEventHandler {
 
-    private EditorController controller = null;
+    private EditorController controller;
+    
+    public SaveEventHandler(EditorController controller){
+    	super();
+    	
+    	this.controller = controller;
+    }
 
     /**
      * Fire Save event

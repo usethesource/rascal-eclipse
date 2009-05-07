@@ -29,7 +29,7 @@ public class OctagonShape extends Shape {
      */
     @Override
     protected void fillShape(Graphics graphics) {
-        final PointList points = calculatePoints();
+        PointList points = calculatePoints();
         graphics.fillPolygon(points);
     }
 
@@ -38,7 +38,7 @@ public class OctagonShape extends Shape {
      */
     @Override
     protected void outlineShape(Graphics graphics) {
-        final PointList points = calculatePoints();
+        PointList points = calculatePoints();
         graphics.drawPolygon(points);
     }
 
@@ -48,9 +48,9 @@ public class OctagonShape extends Shape {
      * @return points
      */
     private PointList calculatePoints() {
-        final Rectangle bounds = getBounds();
-        final Dimension distanceX = getSize().getScaled(1.0 / RATIO_X);
-        final Dimension distanceY = getSize().getScaled(1.0 / RATIO_Y);
+        Rectangle bounds = getBounds();
+        Dimension distanceX = getSize().getScaled(1.0 / RATIO_X);
+        Dimension distanceY = getSize().getScaled(1.0 / RATIO_Y);
 
         PointList octagon = new PointList(8);
         octagon.addPoint(bounds.getTopLeft().translate(distanceX.width, 0));

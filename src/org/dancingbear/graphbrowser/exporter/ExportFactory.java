@@ -22,6 +22,7 @@ import org.dancingbear.graphbrowser.model.IModelGraph;
 public final class ExportFactory {
 
     private ExportFactory() {
+    	super();
     }
 
     /**

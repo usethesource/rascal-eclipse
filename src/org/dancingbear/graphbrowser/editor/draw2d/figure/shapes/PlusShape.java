@@ -25,9 +25,9 @@ public class PlusShape extends Shape {
      */
     @Override
     protected void fillShape(Graphics graphics) {
-        final PointList pointsHorizontalLine = calculateHorizontalLinePoints();
+        PointList pointsHorizontalLine = calculateHorizontalLinePoints();
         graphics.fillPolygon(pointsHorizontalLine);
-        final PointList pointsVerticalLine = calculateVerticalLinePoints();
+        PointList pointsVerticalLine = calculateVerticalLinePoints();
         graphics.fillPolygon(pointsVerticalLine);
     }
 
@@ -36,15 +36,15 @@ public class PlusShape extends Shape {
      */
     @Override
     protected void outlineShape(Graphics graphics) {
-        final PointList pointsHorizontalLine = calculateHorizontalLinePoints();
+        PointList pointsHorizontalLine = calculateHorizontalLinePoints();
         graphics.drawPolygon(pointsHorizontalLine);
-        final PointList pointsVerticalLine = calculateVerticalLinePoints();
+        PointList pointsVerticalLine = calculateVerticalLinePoints();
         graphics.drawPolygon(pointsVerticalLine);
 
     }
 
     private PointList calculateVerticalLinePoints() {
-        final Rectangle bounds = getBounds();
+        Rectangle bounds = getBounds();
         PointList diamon = new PointList(2);
         diamon.addPoint(bounds.getTop());
         diamon.addPoint(bounds.getBottom());
@@ -52,7 +52,7 @@ public class PlusShape extends Shape {
     }
 
     private PointList calculateHorizontalLinePoints() {
-        final Rectangle bounds = getBounds();
+        Rectangle bounds = getBounds();
         PointList diamon = new PointList(2);
         diamon.addPoint(bounds.getLeft());
         diamon.addPoint(bounds.getRight());

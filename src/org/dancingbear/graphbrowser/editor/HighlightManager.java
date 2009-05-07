@@ -24,10 +24,7 @@ import org.eclipse.swt.widgets.Control;
  * highlighted elements and any validation.
  */
 public class HighlightManager {
-
     private EditPart focusPart;
-    @SuppressWarnings("unused")
-    private Runnable notifier;
     private List<EditPart> highlighted;
     private EditPartViewer viewer;
 
@@ -114,7 +111,7 @@ public class HighlightManager {
      * listeners. This is not (yet) implemented because it is not needed (yet).
      * 
      */
-    protected final void fireHighlightedChanged() {
+    protected void fireHighlightedChanged() {
         // no changed event (yet)
     }
 
@@ -164,7 +161,6 @@ public class HighlightManager {
             List<EditPart> highlighted, Runnable notifier) {
         this.viewer = viewer;
         this.highlighted = highlighted;
-        this.notifier = notifier;
 
         hookViewer(viewer);
     }

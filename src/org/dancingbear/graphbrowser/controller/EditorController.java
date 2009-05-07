@@ -34,7 +34,7 @@ import org.eclipse.jface.action.IAction;
  */
 public class EditorController {
 
-    private IGraphEditor editor;
+    private final IGraphEditor editor;
 
     /**
      * Creates a new EditorController
@@ -162,8 +162,7 @@ public class EditorController {
     }
 
     private void registerEventHandlers() {
-        IEditorEventHandler saveEventHandler = new SaveEventHandler();
-        saveEventHandler.setController(this);
+        IEditorEventHandler saveEventHandler = new SaveEventHandler(this);
         editor.addEditorEventHandler(saveEventHandler);
     }
 

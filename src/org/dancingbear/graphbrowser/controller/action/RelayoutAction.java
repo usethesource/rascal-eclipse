@@ -28,7 +28,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 public class RelayoutAction extends Action implements IAction {
 
     private static final int ANIMATION_TIME = 500;
-    private EditorController controller;
+    private final EditorController controller;
 
     public RelayoutAction(EditorController controller) {
         this.controller = controller;

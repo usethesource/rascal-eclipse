@@ -31,7 +31,7 @@ public abstract class AbstractObjectActionDelegate implements
     /**
      * see {@link IObjectActionDelegate#setActivePart(IAction, IWorkbenchPart)}
      */
-    public final void setActivePart(IAction action, IWorkbenchPart part) {
+    public void setActivePart(IAction action, IWorkbenchPart part) {
         this.part = part;
     }
 

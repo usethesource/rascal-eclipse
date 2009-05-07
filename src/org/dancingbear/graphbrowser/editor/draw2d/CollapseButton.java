@@ -25,8 +25,8 @@ import org.eclipse.draw2d.IFigure;
  */
 public class CollapseButton extends Button {
 
-    private IFigure collapsedFigure;
-    private IFigure expendFigure;
+    private final IFigure collapsedFigure;
+    private final IFigure expendFigure;
     private boolean collapsed;
 
     /**

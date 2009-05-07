@@ -13,7 +13,7 @@ public class ConsoleFactory implements IConsoleFactory {
 
 	private IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 	
-	public synchronized void openConsole() {
+	public void openConsole(){
 		RascalConsole console = new RascalConsole();
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);

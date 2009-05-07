@@ -41,8 +41,8 @@ public class CircleShape extends Shape {
      * @return Rectangle
      */
     private Rectangle calculateSquarePoints() {
-        final int width = getSize().width;
-        final int height = getSize().height;
+        int width = getSize().width;
+        int height = getSize().height;
         boolean isWidthMin = width <= height ? true : false;
         int min_borderSize = width <= height ? width : height;
         int x_location = getLocation().x;

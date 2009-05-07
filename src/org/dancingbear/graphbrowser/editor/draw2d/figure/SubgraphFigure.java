@@ -27,8 +27,8 @@ import org.eclipse.swt.SWT;
  */
 public class SubgraphFigure extends RectangleFigure {
 
-    private Label labelName;
-    private CollapseButton button;
+    private final Label labelName;
+    private final CollapseButton button;
 
     public SubgraphFigure() {
         setLayoutManager(new XYLayout());

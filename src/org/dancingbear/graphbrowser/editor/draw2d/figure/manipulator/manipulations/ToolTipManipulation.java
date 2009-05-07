@@ -20,7 +20,7 @@ import org.eclipse.draw2d.Label;
  */
 public class ToolTipManipulation implements IFigureManipulation {
 
-    public boolean manipulateFigure(final IFigure figure, String value) {
+    public boolean manipulateFigure(IFigure figure, String value) {
         if (figure instanceof NodeFigure) {
             NodeFigure node = (NodeFigure) figure;
             String toolTipText = value;

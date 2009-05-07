@@ -28,7 +28,7 @@ public class ParallelogramShape extends Shape {
      */
     @Override
     protected void fillShape(Graphics graphics) {
-        final PointList points = calculatePoints();
+        PointList points = calculatePoints();
         graphics.fillPolygon(points);
     }
 
@@ -37,7 +37,7 @@ public class ParallelogramShape extends Shape {
      */
     @Override
     protected void outlineShape(Graphics graphics) {
-        final PointList points = calculatePoints();
+        PointList points = calculatePoints();
         graphics.drawPolygon(points);
     }
 
@@ -47,8 +47,8 @@ public class ParallelogramShape extends Shape {
      * @return points
      */
     private PointList calculatePoints() {
-        final Rectangle bounds = getBounds();
-        final Dimension distance = getSize().getScaled(0.5 * STEEPNESS);
+        Rectangle bounds = getBounds();
+        Dimension distance = getSize().getScaled(0.5 * STEEPNESS);
         PointList parallelogram = new PointList(4);
         parallelogram
                 .addPoint(bounds.getTopLeft().translate(distance.width, 0));

@@ -18,7 +18,7 @@ public class ErrorHandler {
      * @param e The exception
      * @param viewer The viewer where to display error message from
      */
-    public final static void showErrorMessageDialog(final Exception e,
+    public static void showErrorMessageDialog(final Exception e,
             final GraphicalViewer viewer) {
         Display.getDefault().syncExec(new Runnable() {
             public void run() {
