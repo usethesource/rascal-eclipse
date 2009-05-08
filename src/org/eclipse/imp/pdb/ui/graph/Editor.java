@@ -16,13 +16,16 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.zest.core.widgets.Graph;
-import org.eclipse.zest.layouts.algorithms.RadialLayoutAlgorithm;
+import org.eclipse.zest.layouts.LayoutStyles;
+import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
+
+import sun.awt.X11.Visual;
 
 public class Editor extends EditorPart {
 	public static final String EditorId = "org.eclipse.imp.pdb.ui.graph.editor";
 	private Canvas canvas;
 	private Graph graph;
-
+	
 	public Editor() {
 	}
 
@@ -33,6 +36,10 @@ public class Editor extends EditorPart {
 	 	IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
 
+		if (win == null && wb.getWorkbenchWindowCount() != 0) {
+			win = wb.getWorkbenchWindows()[0];
+		}
+		
 		if (win != null) {
 			final IWorkbenchPage page = win.getActivePage();
 
@@ -86,7 +93,7 @@ public class Editor extends EditorPart {
 		canvas = new Canvas(parent, SWT.NONE);
 		canvas.setLayout(new FillLayout());
 		graph = new Graph(canvas, SWT.NONE);
-		graph.setLayoutAlgorithm(new RadialLayoutAlgorithm(SWT.NONE), false);
+		graph.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), false);
 		graph.applyLayout();
 		canvas.setVisible(true);
 		canvas.pack();
