@@ -23,7 +23,8 @@ Require-Bundle: org.eclipse.gef;bundle-version="3.4.1",
  org.eclipse.osgi;bundle-version="3.4.2",
  org.eclipse.core.jobs;bundle-version="3.4.0",
  sglr_invoker;bundle-version="0.0.1",
- org.eclipse.ui;bundle-version="3.4.2"
+ org.eclipse.ui;bundle-version="3.4.2",
+ rascal_plugin;bundle-version="0.0.1"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-LazyStart: true
