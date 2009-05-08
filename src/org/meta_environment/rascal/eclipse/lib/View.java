@@ -30,6 +30,10 @@ public class View {
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
 
+		if (win == null && wb.getWorkbenchWindowCount() != 0) {
+			win = wb.getWorkbenchWindows()[0];
+		}
+		
 		if (win != null) {
 			final IWorkbenchPage page = win.getActivePage();
 
