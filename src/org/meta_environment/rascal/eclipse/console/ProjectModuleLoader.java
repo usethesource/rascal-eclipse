@@ -2,6 +2,7 @@ package org.meta_environment.rascal.eclipse.console;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -43,7 +44,7 @@ public class ProjectModuleLoader extends AbstractModuleLoader {
 	}
 	
 	@Override
-	protected InputStream getStream(String name) throws IOException {
+	protected InputStream getInputStream(String name) throws IOException {
 		try {
 			IFile file = getFile(name);
 
@@ -60,5 +61,11 @@ public class ProjectModuleLoader extends AbstractModuleLoader {
 
 	private IWorkspaceRoot getWorkspaceRoot() {
 		return ResourcesPlugin.getWorkspace().getRoot();
+	}
+
+	@Override
+	protected OutputStream getOutputStream(String fileName) throws IOException {
+		// TODO 
+		return null;
 	}
 }

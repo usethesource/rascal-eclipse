@@ -314,12 +314,12 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		IValue value = stat.accept(new NullASTVisitor<IValue>() {
 			@Override
 			public IValue visitCommandStatement(Statement x) {
-				return eval.eval(x.getStatement());
+				return eval.eval(x.getStatement()).getValue();
 			}
 
 			@Override
 			public IValue visitCommandDeclaration(Declaration x) {
-				return eval.eval(x.getDeclaration());
+				return eval.eval(x.getDeclaration()).getValue();
 			}
 
 			@Override
