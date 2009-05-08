@@ -4,6 +4,7 @@ Bundle-Name: Rascal_eclipse Plug-in
 Bundle-SymbolicName: rascal_eclipse;singleton:=true
 Bundle-Version: 0.0.1
 Bundle-Activator: org.meta_environment.rascal.eclipse.Activator
+Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.gef;bundle-version="3.4.1",
  org.eclipse.dltk.console;bundle-version="0.95.0",
  org.eclipse.jface.text,
@@ -27,9 +28,7 @@ Require-Bundle: org.eclipse.gef;bundle-version="3.4.1",
  sglr_invoker,
  org.eclipse.ui,
  rascal_plugin
-Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Eclipse-LazyStart: true
 Export-Package: org.meta_environment.rascal.eclipse,
  org.meta_environment.rascal.eclipse.console,
  org.meta_environment.rascal.eclipse.editor,
