@@ -4,6 +4,6 @@ Name: rascal-eclipse
 Description: 
 Version: 0.1
 EclipseRequires=org.eclipse.imp.pdb.values
-Requires: rascal,rascal-plugin,rascal-feature,sglr-invoker
+Requires: rascal,rascal-plugin,sglr-invoker
 JarFile=rascal-eclipse.jar
 Packages=
