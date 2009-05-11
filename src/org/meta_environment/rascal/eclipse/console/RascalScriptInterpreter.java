@@ -118,6 +118,16 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	
 	public void exec(String cmd) throws IOException{
 		RascalCommand rascalCommand = new RascalCommand(cmd);
+		
+		final ScriptConsoleViewer viewer = console.getViewer();
+		Control control = viewer.getControl();
+		control.getDisplay().syncExec(new Runnable(){
+			public void run(){
+				viewer.disableProcessing();
+				viewer.setEditable(false);
+			}
+		});
+		
 		executor.executeCommand(rascalCommand);
 	}
 	
@@ -251,7 +261,6 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		
 		control.getDisplay().asyncExec(new Runnable(){
 			public void run(){
-				viewer.disableProcessing();
 				IDocument document = console.getDocument();
 				try{
 					document.replace(document.getLength() - 1, 1, text);
@@ -268,7 +277,6 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 				}
 				
 				viewer.enableProcessing();
-				
 				viewer.setEditable(true);
 			}
 		});
