@@ -119,6 +119,10 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	public void exec(String cmd) throws IOException{
 		RascalCommand rascalCommand = new RascalCommand(cmd);
 		
+		ScriptConsoleHistory history = console.getHistory();
+		history.update(cmd);
+		history.commit();
+		
 		final ScriptConsoleViewer viewer = console.getViewer();
 		Control control = viewer.getControl();
 		control.getDisplay().syncExec(new Runnable(){
