@@ -20,15 +20,15 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 public class Resources {
-	private static final IValueFactory VF = ValueFactory.getInstance();
+	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	private static final IWorkspaceRoot ROOT = ResourcesPlugin.getWorkspace().getRoot();
 	private static final TypeStore store = new TypeStore();
