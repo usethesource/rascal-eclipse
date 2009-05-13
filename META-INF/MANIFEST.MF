@@ -28,7 +28,6 @@ Require-Bundle: org.eclipse.gef;bundle-version="3.4.0",
  sglr_invoker,
  org.eclipse.ui;bundle-version="3.4.0",
  rascal_plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.meta_environment.rascal.eclipse,
  org.meta_environment.rascal.eclipse.console,
  org.meta_environment.rascal.eclipse.editor,
