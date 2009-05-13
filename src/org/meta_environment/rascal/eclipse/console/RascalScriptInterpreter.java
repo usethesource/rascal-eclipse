@@ -163,64 +163,58 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		}
 		
 		public void run(){
-			if (cmd.trim().length() == 0) {
-				content = "cancelled\n";
-				state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
-				command = "";
-				
-				updateConsole(console.getViewer(), content);
-				content = null;
-				
-				return;
-			}
-
-			try {
-				command += cmd;
-				IConstructor tree = parser.parseFromString(command, "console");
-
-				Type constructor = tree.getConstructorType();
-
-				if (constructor == Factory.ParseTree_Summary) {
-					execParseError(tree);
-					
-					updateConsole(console.getViewer(), content);
-					content = null;
-					
+			try{
+				if (cmd.trim().length() == 0) {
+					content = "cancelled\n";
+					state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
+					command = "";
 					return;
 				}
-				execCommand(tree);
-			} 
-			catch (StaticError e) {
-				content = e.getMessage() + "\n";
-				state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
-				command = "";
-				setMarker(e.getMessage(), e.getLocation());
-				e.printStackTrace();
-			}
-			catch (Throw e) {
-				content = e.getMessage() + "\n";
-				String trace = e.getTrace();
-				if (trace != null) {
-					content += "stacktrace:\n" + trace;
+	
+				try {
+					command += cmd;
+					IConstructor tree = parser.parseFromString(command, "console");
+	
+					Type constructor = tree.getConstructorType();
+	
+					if (constructor == Factory.ParseTree_Summary) {
+						execParseError(tree);
+						return;
+					}
+					execCommand(tree);
+				} 
+				catch (StaticError e) {
+					content = e.getMessage() + "\n";
+					state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
+					command = "";
+					setMarker(e.getMessage(), e.getLocation());
+					e.printStackTrace();
 				}
-				state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
-				command = "";
-				setMarker(e.getMessage(), e.getLocation());
+				catch (Throw e) {
+					content = e.getMessage() + "\n";
+					String trace = e.getTrace();
+					if (trace != null) {
+						content += "stacktrace:\n" + trace;
+					}
+					state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
+					command = "";
+					setMarker(e.getMessage(), e.getLocation());
+				}
+				catch (QuitException q) {
+					clearErrorMarker();
+					ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
+					executor.stop();
+				}
+				catch (Throwable e) {
+					content = "internal exception: " + e.toString() + "\n";
+					e.printStackTrace();
+					command = "";
+					state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
+				}
+			}finally{
+				updateConsole(console.getViewer(), content);
+				content = null;
 			}
-			catch (QuitException q) {
-				clearErrorMarker();
-				ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
-				executor.stop();
-			}
-			catch (Throwable e) {
-				content = "internal exception: " + e.toString() + "\n";
-				e.printStackTrace();
-				command = "";
-				state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
-			}
-			
-			updateConsole(console.getViewer(), content);
-			content = null;
 		}
 	}
 	
