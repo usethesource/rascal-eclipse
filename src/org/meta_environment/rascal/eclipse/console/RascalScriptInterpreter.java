@@ -431,7 +431,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		int lastColumn = commandLines[lastLine - 1].length();
 		
 		if (range.getEndLine() == lastLine && lastColumn <= range.getEndColumn()) { 
-			state = IScriptConsoleInterpreter.WAIT_USER_INPUT;
+			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;//IScriptConsoleInterpreter.WAIT_USER_INPUT;
 			content = "";
 		}
 		else {
