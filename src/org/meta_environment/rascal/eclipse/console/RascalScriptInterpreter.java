@@ -167,6 +167,10 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 				content = "cancelled\n";
 				state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 				command = "";
+				
+				updateConsole(console.getViewer(), content);
+				content = null;
+				
 				return;
 			}
 
@@ -178,6 +182,10 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 				if (constructor == Factory.ParseTree_Summary) {
 					execParseError(tree);
+					
+					updateConsole(console.getViewer(), content);
+					content = null;
+					
 					return;
 				}
 				execCommand(tree);
