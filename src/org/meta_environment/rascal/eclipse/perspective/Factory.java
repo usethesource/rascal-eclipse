@@ -5,12 +5,10 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
-import org.eclipse.ui.progress.IProgressConstants;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory;
 
 public class Factory implements IPerspectiveFactory {
 
-	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
 
@@ -35,7 +33,7 @@ public class Factory implements IPerspectiveFactory {
 		layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
 		layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
 		layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
-		layout.addShowViewShortcut(IProgressConstants.PROGRESS_VIEW_ID);
+		layout.addShowViewShortcut(IPageLayout.ID_PROGRESS_VIEW);
 
 		// new actions - Java project creation wizard
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");

@@ -13,9 +13,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.meta_environment.rascal.interpreter.load.AbstractModuleLoader;
+import org.meta_environment.rascal.interpreter.load.IModuleFileLoader;
 
-public class ProjectModuleLoader extends AbstractModuleLoader {
+public class ProjectModuleLoader implements IModuleFileLoader {
 	private static final String SRC_FOLDER_NAME = "src";
 
 	public IFile getFile(String name) throws IOException, CoreException {
@@ -43,8 +43,7 @@ public class ProjectModuleLoader extends AbstractModuleLoader {
 		throw new IOException("File " + name + " not found");	
 	}
 	
-	@Override
-	protected InputStream getInputStream(String name) throws IOException {
+	public InputStream getSourceInputStream(String name) throws IOException {
 		try {
 			IFile file = getFile(name);
 
@@ -53,7 +52,7 @@ public class ProjectModuleLoader extends AbstractModuleLoader {
 			} 
 		}
 		catch (CoreException e) {
-			throw new IOException(e.getMessage(), e);
+			throw new IOException(e.getMessage());
 		}
 		
 		throw new IOException("File " + name + " not found");	
@@ -63,8 +62,7 @@ public class ProjectModuleLoader extends AbstractModuleLoader {
 		return ResourcesPlugin.getWorkspace().getRoot();
 	}
 
-	@Override
-	protected OutputStream getOutputStream(String fileName) throws IOException {
+	public OutputStream getBinaryOutputStream(String fileName) throws IOException {
 		// TODO 
 		return null;
 	}

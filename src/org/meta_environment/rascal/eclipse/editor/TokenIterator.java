@@ -27,17 +27,14 @@ public class TokenIterator implements Iterator<Token> {
 		tokenIterator = tokenList.iterator();
 	}
 
-	@Override
 	public boolean hasNext() {
 		return tokenIterator.hasNext();
 	}
 
-	@Override
 	public Token next() {
 		return tokenIterator.next();
 	}
 
-	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}

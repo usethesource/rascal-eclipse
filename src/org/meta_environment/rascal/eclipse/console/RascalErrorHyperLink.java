@@ -28,7 +28,6 @@ public class RascalErrorHyperLink implements IHyperlink {
 		this.filename = filename;
 	}
 
-	@Override
 	public void linkActivated() {
 		try {
 			IFile file = new ProjectModuleLoader().getFile(filename);
@@ -39,12 +38,10 @@ public class RascalErrorHyperLink implements IHyperlink {
 			Activator.getInstance().logException("hyperlink", e);
 		}
 	}
-
-	@Override
+	
 	public void linkEntered() {
 	}
 
-	@Override
 	public void linkExited() {
 	}
 	

@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.eclipse.editor;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -18,73 +19,62 @@ import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.eclipse.Activator;
-import org.meta_environment.rascal.parser.Parser;
+import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 
 public class ParseController implements IParseController {
-	private Parser parser;
+	private ModuleLoader loader = new ModuleLoader();
 	private IMessageHandler handler;
 	private ISourceProject project;
 	private IConstructor parseTree;
 	private IPath path;
 
-	@Override
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
 		return null;
 	}
 
-	@Override
 	public Object getCurrentAst() {
 		return parseTree;
 	}
 
-	@Override
 	public Language getLanguage() {
 		return null;
 	}
 
-	@Override
 	public ISourcePositionLocator getSourcePositionLocator() {
 		return new NodeLocator();
 	}
 
-	@Override
 	public IPath getPath() {
 		return path;
 	}
 
-	@Override
 	public ISourceProject getProject() {
 		return project;
 	}
 
-	@Override
 	public ILanguageSyntaxProperties getSyntaxProperties() {
 		return new RascalSyntaxProperties();
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
 	public Iterator getTokenIterator(IRegion region) {
 		return new TokenIterator(parseTree);
 	}
 
-	@Override
 	public void initialize(IPath filePath, ISourceProject project,
 			IMessageHandler handler) {
 		this.path = filePath;
-		this.parser = Parser.getInstance();
 		this.handler = handler;
 		this.project = project;
 	}
 
-	@Override
 	public Object parse(String input, IProgressMonitor monitor) {
 		try {
 			handler.clearMessages();
 			monitor.beginTask("parsing Rascal", 1);
-			IConstructor parseTree = parser.parseFromString(input, path.toOSString());
+			IConstructor parseTree = loader.parseModule(path.toOSString(), "-", input);
 			
 			if (parseTree.getConstructorType() == Factory.ParseTree_Summary) {
 				ISourceLocation range = new SummaryAdapter(parseTree).getInitialSubject().getLocation();

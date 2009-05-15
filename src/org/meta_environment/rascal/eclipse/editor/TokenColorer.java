@@ -41,12 +41,10 @@ public class TokenColorer implements ITokenColorer {
 		map.put(TYPE,new TextAttribute(new Color(Display.getDefault(), 255, 127, 36), null, SWT.NONE));
 	}
 
-	@Override
 	public IRegion calculateDamageExtent(IRegion seed, IParseController ctlr) {
 		return seed;
 	}
 
-	@Override
 	public TextAttribute getColoring(IParseController controller, Object token) {
 		String category = ((Token) token).getCategory();
 		TextAttribute attr = map.get(category);

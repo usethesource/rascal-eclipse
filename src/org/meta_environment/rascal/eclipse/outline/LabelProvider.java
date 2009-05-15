@@ -33,12 +33,10 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 //		return DEFAULT_IMAGE;
 //	}
 
-	@Override
 	public Image getImage(Object element) {
 		return null;
 	}
 	
-	@Override
 	public String getText(Object element) {
 		if (element instanceof ModelTreeNode) {
 			ModelTreeNode node = (ModelTreeNode) element;
@@ -116,21 +114,17 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 		return new TreeAdapter(node).yield();
 	}
 
-	@Override
 	public void addListener(ILabelProviderListener listener) {
 		fListeners.add(listener);
 	}
 
-	@Override
 	public void dispose() {
 	}
 
-	@Override
 	public boolean isLabelProperty(Object element, String property) {
 		return false;
 	}
 
-	@Override
 	public void removeListener(ILabelProviderListener listener) {
 		fListeners.remove(listener);
 	}

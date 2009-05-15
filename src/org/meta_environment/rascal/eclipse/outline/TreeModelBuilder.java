@@ -210,7 +210,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			return node;
 		}
 		
-		@Override
 		public Iterator<T> iterator() {
 			return contents.iterator();
 		}

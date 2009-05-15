@@ -95,7 +95,6 @@ public class Resources {
 			try {
 				project.accept(new IResourceVisitor() {
 
-					@Override
 					public boolean visit(IResource resource)
 							throws CoreException {
 						if (resource.exists() && !resource.isDerived()) {
@@ -144,7 +143,6 @@ public class Resources {
 		try {
 			project.accept(new IResourceVisitor() {
 
-				@Override
 				public boolean visit(IResource resource)
 						throws CoreException {
 					if (resource instanceof IFile) {
@@ -183,7 +181,6 @@ public class Resources {
 		try {
 			folder.accept(new IResourceVisitor() {
 
-				@Override
 				public boolean visit(IResource resource)
 						throws CoreException {
 					if (resource == folder) {

@@ -23,7 +23,7 @@ public class Activator extends PluginBase {
 	
 	private final static String RASCAL_BASE_LIBRARY_PATH = "baseLibraryPath";
 	
-	public Activator(){
+	public Activator() {
 		super();
 		
 		Activator.getInstance(); // Stupid ...

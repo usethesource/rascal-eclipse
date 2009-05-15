@@ -13,32 +13,26 @@ import org.meta_environment.uptr.TreeAdapter;
 
 public class NodeLocator implements ISourcePositionLocator {
 
-	@Override
 	public Object findNode(Object ast, int offset) {
 		return null;
 	}
 
-	@Override
 	public Object findNode(Object ast, int startOffset, int endOffset) {
 		return null;
 	}
 
-	@Override
 	public int getEndOffset(Object node) {
 		return getStartOffset(node) + getLength(node) - 1;
 	}
 
-	@Override
 	public int getLength(Object node) {
 		return getLocation(node).getLength();
 	}
 
-	@Override
 	public IPath getPath(Object node) {
 		return null;
 	}
 
-	@Override
 	public int getStartOffset(Object node) {
 		return getLocation(node).getOffset();
 	}

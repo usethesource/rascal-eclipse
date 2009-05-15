@@ -19,7 +19,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.dltk.console.IScriptConsoleIO;
 import org.eclipse.dltk.console.IScriptConsoleInterpreter;
 import org.eclipse.dltk.console.IScriptInterpreter;
@@ -69,13 +68,13 @@ import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.parser.ASTBuilder;
-import org.meta_environment.rascal.parser.Parser;
+import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 
 public class RascalScriptInterpreter implements IScriptInterpreter {
 	private final static ASTFactory factory = new ASTFactory();
 	private final ASTBuilder builder = new ASTBuilder(factory);
-	private final Parser parser;
+	private final ModuleParser parser = new ModuleParser();
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final Evaluator eval;
 	private final RascalConsole console;
@@ -91,8 +90,6 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		this.console = console;
 		this.command = "";
 			
-		locateRascalParseTable();	
-		this.parser = Parser.getInstance();
 		this.eval = new Evaluator(vf, factory, new PrintWriter(System.err), new ModuleEnvironment("***shell***"));
 		
 		eval.addModuleLoader(new ProjectModuleLoader());
@@ -110,12 +107,6 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		executorThread.start();
 	}
 
-	private void locateRascalParseTable() {
-		String parseTablePath = Activator.getFile(Platform.getBundle("rascal"), Parser.PARSETABLE_FILENAME);
-		
-		System.setProperty(Parser.PARSETABLE_PROPERTY, parseTablePath);
-	}
-	
 	public void exec(String cmd) throws IOException{
 		RascalCommand rascalCommand = new RascalCommand(cmd);
 		
@@ -173,7 +164,9 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	
 				try {
 					command += cmd;
-					IConstructor tree = parser.parseFromString(command, "console");
+					
+					// TODO add support for sdf search path to support concrete syntax
+					IConstructor tree = parser.parseCommand(Collections.<String>emptySet(), Collections.<String>emptyList(), "-", command);
 	
 					Type constructor = tree.getConstructorType();
 	

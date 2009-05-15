@@ -17,21 +17,17 @@ import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
 
 public class ActionContributor implements ILanguageActionsContributor {
 
-	@Override
 	public void contributeToEditorMenu(UniversalEditor editor,
 			IMenuManager menuManager) {
 	}
 
-	@Override
 	public void contributeToMenuBar(UniversalEditor editor, IMenuManager menu) {
 	}
 
-	@Override
 	public void contributeToStatusLine(UniversalEditor editor,
 			IStatusLineManager statusLineManager) {
 	}
 
-	@Override
 	public void contributeToToolBar(final UniversalEditor editor,
 			IToolBarManager toolbarManager) {
 		IAction action = new Action("Copy to Console") {
