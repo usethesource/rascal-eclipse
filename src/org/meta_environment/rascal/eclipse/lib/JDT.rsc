@@ -20,6 +20,11 @@ public tuple[TypeOrNameRel[&T], JDTFactRel] mapLocations(JDTFactRel jdtf, Locati
     if (search != {}) {
       found += search;
     } else {
+      // If a declaration is preceded by Javadoc comments, the JDT parser includes them
+      // in the location info of the declaration node. Then the node's location doesn't
+      // match with 'ours'. Here we try to find the longest location that ends at the same
+      // position as the JDT node, but starts after the JDT node's offset position.
+        
       int closest = offset + length;
       &T candidate;
 
