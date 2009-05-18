@@ -19,8 +19,6 @@ import org.eclipse.zest.core.widgets.Graph;
 import org.eclipse.zest.layouts.LayoutStyles;
 import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
 
-import sun.awt.X11.Visual;
-
 public class Editor extends EditorPart {
 	public static final String EditorId = "org.eclipse.imp.pdb.ui.graph.editor";
 	private Canvas canvas;
