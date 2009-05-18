@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.eclipse.lib.jdt;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -20,6 +22,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
@@ -29,9 +32,11 @@ import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
@@ -47,6 +52,7 @@ public class JDTImporter extends ASTVisitor {
     private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	private static final Type locType = TF.tupleType(TF.integerType(), TF.integerType());
+	private static final Type factTupleType = TF.tupleType(locType, TF.stringType());
 	private static final Type factType = TF.relType(locType, TF.stringType());
 	
 	private IRelationWriter types;
@@ -69,7 +75,6 @@ public class JDTImporter extends ASTVisitor {
 		parser.setSource(icu);
 		
 		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
-		AST ast = cu.getAST();
 		
 		IProblem[] problems = cu.getProblems();
 		for (i = 0; i < problems.length; i++) {
@@ -79,11 +84,11 @@ public class JDTImporter extends ASTVisitor {
 			//System.out.println(problems[i].getMessage());
 		}
 		
-		types = VF.relationWriter(factType);
-		methods = VF.relationWriter(factType);
-		constructors = VF.relationWriter(factType);
-		fields = VF.relationWriter(factType);
-		vars = VF.relationWriter(factType);
+		types = VF.relationWriter(factTupleType);
+		methods = VF.relationWriter(factTupleType);
+		constructors = VF.relationWriter(factTupleType);
+		fields = VF.relationWriter(factTupleType);
+		vars = VF.relationWriter(factTupleType);
 		
 		cu.accept(this);
 		
@@ -218,7 +223,7 @@ public class JDTImporter extends ASTVisitor {
 
 		return s;
 	}
-		
+
 	void addFact(IRelationWriter rw, ASTNode n, String value) {				
 		ITuple loc = VF.tuple(VF.integer(n.getStartPosition()), VF.integer(n.getLength()));
 		ITuple fact = VF.tuple(loc, VF.string(value));
