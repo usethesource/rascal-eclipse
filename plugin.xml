@@ -185,7 +185,7 @@
          point="rascal_eclipse.baseLibraryPath">
       <rascal_eclipse.baseLibraryPath
             bundle="rascal_plugin"
-            path="install/lib/">
+            path="installed/lib/">
       </rascal_eclipse.baseLibraryPath>
    </extension>
 </plugin>
