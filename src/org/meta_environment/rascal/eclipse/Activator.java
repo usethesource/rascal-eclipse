@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.eclipse;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -13,6 +15,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.meta_environment.rascal.interpreter.Configuration;
 import org.osgi.framework.Bundle;
 
 import sglr.SGLRInvoker;
@@ -31,6 +34,7 @@ public class Activator extends PluginBase {
 
 	private static class InstanceKeeper {
 		private final static Activator sInstance = new Activator();
+		// Base Library Path
 		static{
 			IExtensionRegistry registry = Platform.getExtensionRegistry();
 			IExtensionPoint point = registry.getExtensionPoint(PLUGIN_ID, RASCAL_BASE_LIBRARY_PATH);
@@ -46,6 +50,19 @@ public class Activator extends PluginBase {
 				
 				SGLRInvoker.setBaseLibraryPath(baseLibraryPath); // Set the base library path
 			}
+		}
+		// Base Path
+		static{
+			String pluginRoot = getFile(Platform.getBundle(PLUGIN_ID), "/");
+			
+			String basePath = null;
+			try{
+				basePath = new File(pluginRoot).getParentFile().getCanonicalPath();
+			}catch(IOException ioex){
+				throw new RuntimeException(ioex);
+			}
+			System.out.println(basePath);
+			Configuration.setBasePath(basePath);
 		}
 	}
 
