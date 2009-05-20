@@ -20,6 +20,7 @@ import org.eclipse.jface.text.IRegion;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
+import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 
@@ -78,7 +79,7 @@ public class ParseController implements IParseController {
 			
 			if (parseTree.getConstructorType() == Factory.ParseTree_Summary) {
 				ISourceLocation range = new SummaryAdapter(parseTree).getInitialSubject().getLocation();
-				handler.handleSimpleMessage("parse error", range.getOffset(), range.getOffset() + range.getLength(), range.getBeginColumn(), range.getEndColumn(), range.getBeginLine(), range.getEndLine());
+				handler.handleSimpleMessage("parse error: " + range, range.getOffset(), range.getOffset() + range.getLength(), range.getBeginColumn(), range.getEndColumn(), range.getBeginLine(), range.getEndLine());
 				parseTree = null;
 			}
 			else {
@@ -92,6 +93,10 @@ public class ParseController implements IParseController {
 			monitor.done();
 		} catch (IOException e) {
 			Activator.getInstance().logException("parsing rascal failed", e);
+		} catch (SyntaxError e) {
+			ISourceLocation loc = e.getLocation();
+			handler.handleSimpleMessage("parse error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
+			parseTree = null;
 		}
 		finally {
 			monitor.done();
