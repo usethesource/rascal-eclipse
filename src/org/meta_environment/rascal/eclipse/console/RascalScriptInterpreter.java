@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,6 +62,7 @@ import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.IDebugger;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
@@ -83,37 +85,37 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	private int state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 	private Runnable listener;
 	private IFile lastMarked;
-	
-	private final RascalExecutor executor;
 
+	private final RascalExecutor executor;
+	
 	public RascalScriptInterpreter(RascalConsole console) {
 		this.console = console;
 		this.command = "";
-			
+
 		this.eval = new Evaluator(vf, factory, new PrintWriter(System.err), new ModuleEnvironment("***shell***"));
-		
+
 		eval.addModuleLoader(new ProjectModuleLoader());
 		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
 		eval.addClassLoader(getClass().getClassLoader());
-		
+
 		loadCommandHistory();
-		
+
 		executor = new RascalExecutor();
 	}
-	
+
 	public void initialize(){
 		Thread executorThread = new Thread(executor);
 		executorThread.setDaemon(true);
 		executorThread.start();
 	}
-
+	
 	public void exec(String cmd) throws IOException{
 		RascalCommand rascalCommand = new RascalCommand(cmd);
-		
+
 		ScriptConsoleHistory history = console.getHistory();
 		history.update(cmd);
 		history.commit();
-		
+
 		final ScriptConsoleViewer viewer = console.getViewer();
 		Control control = viewer.getControl();
 		control.getDisplay().syncExec(new Runnable(){
@@ -122,18 +124,18 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 				viewer.setEditable(false);
 			}
 		});
-		
+
 		executor.executeCommand(rascalCommand);
 	}
-	
+
 	private static class NotifiableLock{
 		private boolean notified = false;
-		
+
 		public void wake(){
 			notified = true;
 			notify();
 		}
-		
+
 		public void block(){
 			notified = false;
 			do{
@@ -143,16 +145,16 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			}while(!notified);
 		}
 	}
-	
+
 	private class RascalCommand implements Runnable{
 		private final String cmd;
-		
+
 		public RascalCommand(String cmd){
 			super();
-			
+
 			this.cmd = cmd;
 		}
-		
+
 		public void run(){
 			try{
 				if (cmd.trim().length() == 0) {
@@ -161,15 +163,15 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 					command = "";
 					return;
 				}
-	
+
 				try {
 					command += cmd;
-					
+
 					// TODO add support for sdf search path to support concrete syntax
 					IConstructor tree = parser.parseCommand(Collections.<String>emptySet(), Collections.<String>emptyList(), "-", command);
-	
+
 					Type constructor = tree.getConstructorType();
-	
+
 					if (constructor == Factory.ParseTree_Summary) {
 						execParseError(tree);
 						return;
@@ -210,30 +212,39 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			}
 		}
 	}
-	
+
+	public List<Runnable> getRunnables() {
+		List<Runnable> l = new ArrayList<Runnable>();
+		l.add(executor);
+		if (listener!=null) {
+			l.add(listener);
+		}
+		return l;
+	}
+
 	private static class RascalExecutor implements Runnable{
 		private final LinkedList<RascalCommand> commandQueue;
-		
+
 		private volatile boolean running;
-		
+
 		private final NotifiableLock lock = new NotifiableLock();
-		
+
 		public RascalExecutor(){
 			super();
-			
+
 			commandQueue = new LinkedList<RascalCommand>();
-			
+
 			running = true;
 		}
-		
+
 		public void executeCommand(RascalCommand rascalCommand){
 			synchronized(lock){
 				commandQueue.add(rascalCommand);
-				
+
 				lock.wake();
 			}
 		}
-		
+
 		public void run(){
 			while(running){
 				RascalCommand command;
@@ -244,20 +255,20 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 					if(!running) break;
 					command = commandQueue.remove(0);
 				}
-				
+
 				command.run();
 			}
-		}
-		
+		}	
+
 		public void stop(){
 			running = false;
 		}
 	}
-	
+
 	private void updateConsole(final ScriptConsoleViewer viewer, final String text){
 		Control control = viewer.getControl();
 		if(control == null) return;
-		
+
 		control.getDisplay().asyncExec(new Runnable(){
 			public void run(){
 				IDocument document = console.getDocument();
@@ -269,30 +280,30 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 						scriptConsolePartitioner.clearRanges();
 						viewer.getTextWidget().redraw();
 					}
-					
+
 					console.getDocumentListener().appendInvitation();
 				}catch(BadLocationException e){
 					// Won't happen
 				}
-				
+
 				viewer.enableProcessing();
 				viewer.setEditable(true);
 			}
 		});
 	}
-	
+
 	private void setMarker(String message, ISourceLocation loc) {
 		try {
 			if (loc == null) {
 				return;
 			}
-			
+
 			URL url = loc.getURL();
-			
+
 			if (url.getAuthority().equals("console")) {
 				return;
 			}
-			
+
 			lastMarked = new ProjectModuleLoader().getFile(url.getAuthority() + url.getPath());
 
 			if (lastMarked != null) {
@@ -315,7 +326,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 	private void execCommand(IConstructor tree) {
 		Command stat = builder.buildCommand(tree);
-		
+
 		clearErrorMarker();
 
 		IValue value = stat.accept(new NullASTVisitor<IValue>() {
@@ -353,7 +364,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 				} catch (CoreException e) {
 					Activator.getInstance().logException("edit", e);
 				}
-				
+
 				return null;
 			}
 
@@ -406,7 +417,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			}
 		}
 	}
-	
+
 	private void clearErrorMarker() {
 		if (lastMarked != null) {
 			try {
@@ -422,7 +433,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		String[] commandLines = command.split("\n");
 		int lastLine = commandLines.length;
 		int lastColumn = commandLines[lastLine - 1].length();
-		
+
 		if (range.getEndLine() == lastLine && lastColumn <= range.getEndColumn()) { 
 			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;//IScriptConsoleInterpreter.WAIT_USER_INPUT;
 			content = "";
@@ -437,7 +448,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			command = "";
 		}
 	}
-	
+
 	public boolean isValid() {
 		return true;
 	}
@@ -452,13 +463,13 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 	@SuppressWarnings("unchecked")
 	public List getCompletions(String commandLine, int position)
-			throws IOException {
+	throws IOException {
 		return Collections.EMPTY_LIST;
 
 	}
 
 	public String getDescription(String commandLine, int position)
-			throws IOException {
+	throws IOException {
 		return "description???";
 	}
 
@@ -471,7 +482,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 	// IScriptConsoleProtocol
 	public void consoleConnected(IScriptConsoleIO protocol) {
-	
+
 	}
 
 	public void addCloseOperation(Runnable runnable) {
@@ -505,13 +516,13 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 				history.update(command);
 				history.commit();
 			}
-			
+
 			in.close();
 		} catch (IOException e) {
 			Activator.getInstance().logException("history", e);
 		}
 	}
-	
+
 	private void saveCommandHistory() {
 		ScriptConsoleHistory history = console.getHistory();
 
@@ -521,7 +532,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 			out = new FileOutputStream(historyFile);
 			while (history.prev());
-			
+
 			while (history.next()) {
 				String command = history.get();
 				out.write(command.getBytes());
@@ -562,4 +573,14 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	private IValue historyCommand() {
 		return null;
 	}
+
+	public void setDebugger(IDebugger debugger) {
+		eval.setDebugger(debugger);
+	}
+
+	public Evaluator getEval() {
+		return eval;
+	}
+
+
 }

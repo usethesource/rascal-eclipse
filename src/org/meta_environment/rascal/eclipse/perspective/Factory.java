@@ -38,8 +38,8 @@ public class Factory implements IPerspectiveFactory {
 		// new actions - Java project creation wizard
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");
-		
-		new ConsoleFactory().openConsole();
+
+		ConsoleFactory.getInstance().openConsole();
 	}
 
 }

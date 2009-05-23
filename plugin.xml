@@ -101,6 +101,15 @@
             id="GraphBrowser.VisualEditor"
             name="Graph editor">
       </editor>
+      <editor
+            class="org.meta_environment.rascal.eclipse.editor.RascalEditor"
+            default="true"
+            extensions="rsc"
+            filenames="*.rsc"
+            icon="icons/rascal_file.gif"
+            id="rascal.editor"
+            name="Rascal Editor">
+      </editor>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
@@ -187,5 +196,49 @@
             bundle="rascal_plugin"
             path="installed/lib/">
       </rascal_eclipse.baseLibraryPath>
+   </extension>
+   <extension
+         point="org.eclipse.core.variables.valueVariables">
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="org.meta_environment.rascal.eclipse.debug.core.launcher.LaunchDelegate"
+            id="rascal.launchType"
+            modes="run, debug"
+            name="Rascal Application"
+            sourceLocatorId="rascal-eclipse.sourceLocator"
+            sourcePathComputerId="rascal-eclipse.sourcePathComputer">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="org.meta_environment.rascal.eclipse.debug.ui.launcher.TabGroup"
+            description="Specify and launch a Rascal program"
+            id="rascal.tabGroup"
+            type="rascal.launchType">
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.sourceLocators">
+      <sourceLocator
+            class="org.meta_environment.rascal.eclipse.debug.core.sourcelookup.RascalSourceLookupDirector"
+            id="rascal-eclipse.sourceLocator"
+            name="Rascal source Locator">
+      </sourceLocator>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.sourcePathComputers">
+      <sourcePathComputer
+            class="org.meta_environment.rascal.eclipse.debug.core.sourcelookup.RascalSourcePathComputerDelegate"
+            id="rascal-eclipse.sourcePathComputer">
+      </sourcePathComputer>
+   </extension>
+     <extension
+         point="org.eclipse.debug.ui.debugModelPresentations">
+      <debugModelPresentation
+            class="org.meta_environment.rascal.eclipse.debug.ui.presentation.RascalModelPresentation"
+            id="rascal.debugModel"/>
    </extension>
 </plugin>

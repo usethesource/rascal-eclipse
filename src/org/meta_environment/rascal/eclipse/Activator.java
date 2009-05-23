@@ -28,7 +28,6 @@ public class Activator extends PluginBase {
 	
 	public Activator() {
 		super();
-		
 		Activator.getInstance(); // Stupid ...
 	}
 
@@ -48,7 +47,10 @@ public class Activator extends PluginBase {
 				
 				String baseLibraryPath = getFile(Platform.getBundle(bundle), path);
 				
-				SGLRInvoker.setBaseLibraryPath(baseLibraryPath); // Set the base library path
+				//SGLRInvoker.setBaseLibraryPath(baseLibraryPath); // Set the base library path
+				// EMILIE don't commit this!
+		        SGLRInvoker.setBaseLibraryPath("/Applications/Rascal/lib"); // Set the base library path
+
 			}
 		}
 		// Base Path
@@ -86,23 +88,23 @@ public class Activator extends PluginBase {
 
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		IPath path = ICONS_PATH.append("rascal_default_image.gif");//$NON-NLS-1$
-		ImageDescriptor imageDescriptor = createImageDescriptor(getInstance().getBundle(), path);
+		ImageDescriptor imageDescriptor = createImageDescriptor(Platform.getBundle(PLUGIN_ID), path);
 		reg.put(IRascalResources.RASCAL_DEFAULT_IMAGE, imageDescriptor);
 
 		path = ICONS_PATH.append("rascal_default_outline_item.gif");//$NON-NLS-1$
-		imageDescriptor = createImageDescriptor(getInstance().getBundle(), path);
+		imageDescriptor = createImageDescriptor(Platform.getBundle(PLUGIN_ID), path);
 		reg.put(IRascalResources.RASCAL_DEFAULT_OUTLINE_ITEM, imageDescriptor);
 
 		path = ICONS_PATH.append("rascal_file.gif");//$NON-NLS-1$
-		imageDescriptor = createImageDescriptor(getInstance().getBundle(), path);
+		imageDescriptor = createImageDescriptor(Platform.getBundle(PLUGIN_ID), path);
 		reg.put(IRascalResources.RASCAL_FILE, imageDescriptor);
 
 		path = ICONS_PATH.append("rascal_file_warning.gif");//$NON-NLS-1$
-		imageDescriptor = createImageDescriptor(getInstance().getBundle(), path);
+		imageDescriptor = createImageDescriptor(Platform.getBundle(PLUGIN_ID), path);
 		reg.put(IRascalResources.RASCAL_FILE_WARNING, imageDescriptor);
 
 		path = ICONS_PATH.append("rascal_file_error.gif");//$NON-NLS-1$
-		imageDescriptor = createImageDescriptor(getInstance().getBundle(), path);
+		imageDescriptor = createImageDescriptor(Platform.getBundle(PLUGIN_ID), path);
 		reg.put(IRascalResources.RASCAL_FILE_ERROR, imageDescriptor);
 	}
 
