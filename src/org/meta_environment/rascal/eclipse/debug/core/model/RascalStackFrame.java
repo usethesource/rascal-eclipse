@@ -5,37 +5,48 @@ import org.eclipse.debug.core.model.IRegisterGroup;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+
 import java.util.Set;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
 public class RascalStackFrame<var> extends RascalDebugElement implements IStackFrame{
 
 	private Environment envt;
+	private ISourceLocation loc;
 
 	public RascalStackFrame(RascalDebugTarget target, Environment envt) {
 		super(target);
 		this.envt = envt;
+		this.loc = envt.getLocation();
 	}
 
+	public RascalStackFrame(RascalDebugTarget target, Environment envt, ISourceLocation loc) {
+		super(target);
+		this.envt = envt;
+		this.loc = loc;
+	}
+
+
 	public int getCharEnd() throws DebugException {
-		if(envt.getLocation() != null){
-			return envt.getLocation().getOffset()+envt.getLocation().getLength();
+		if(loc != null){
+			return loc.getOffset()+loc.getLength();
 		} else {
 			return 0;
 		}
 	}
 
 	public int getCharStart() throws DebugException {
-		if(envt.getLocation() != null){
-			return envt.getLocation().getOffset();
+		if(loc != null){
+			return loc.getOffset();
 		} else {
 			return 0;
 		}	
 	}
 
 	public int getLineNumber() throws DebugException {
-		if(envt.getLocation() != null){
-			return envt.getLocation().getBeginLine();
+		if(loc != null){
+			return loc.getBeginLine();
 		} else {
 			return 0;
 		}

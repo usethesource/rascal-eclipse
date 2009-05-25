@@ -8,6 +8,7 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleManager;
 
@@ -47,7 +48,10 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 			Stack<Environment> callStack = getRascalDebugTarget().getConsole().getInterpreter().getEval().getCallStack();
 			int size = callStack.size();
 			IStackFrame[] theFrames = new IStackFrame[size];
-			for (int i = 0; i < size; i++) {
+			// for the top, use the current AST location
+			ISourceLocation currentLoc = getRascalDebugTarget().getConsole().getInterpreter().getEval().getCurrentAST().getLocation();
+			theFrames[0] = new RascalStackFrame(getRascalDebugTarget(), callStack.get(size-1), currentLoc);
+			for (int i = 1; i < size; i++) {
 				theFrames[i] = new RascalStackFrame(getRascalDebugTarget(),callStack.get(size-i-1));
 			}
 			return theFrames;

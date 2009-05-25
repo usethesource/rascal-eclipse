@@ -102,7 +102,7 @@
             name="Graph editor">
       </editor>
       <editor
-            class="org.meta_environment.rascal.eclipse.editor.RascalEditor"
+            class="org.eclipse.imp.editor.UniversalEditor"
             default="true"
             extensions="rsc"
             filenames="*.rsc"
@@ -241,4 +241,30 @@
             class="org.meta_environment.rascal.eclipse.debug.ui.presentation.RascalModelPresentation"
             id="rascal.debugModel"/>
    </extension>
+     <extension
+           point="org.eclipse.ui.views">
+        <view
+              class="org.meta_environment.rascal.eclipse.debug.ui.views.FunctionView"
+              icon="icons/rascal_file.gif"
+              id="rascal-eclipse.functionview"
+              name="Rascal functions"
+              restorable="true">
+        </view>
+     </extension>
+     <extension
+           point="org.eclipse.debug.ui.contextViewBindings">
+        <contextViewBinding
+              contextId="rascal.debugging"
+              viewId="rascal-eclipse.functionview">
+        </contextViewBinding>
+     </extension>
+     <extension
+           point="org.eclipse.ui.contexts">
+        <context
+              description="Debugging Rascal Programs"
+              id="rascal.debugging"
+              name="Debugging Rascal Programs"
+              parentId="org.eclipse.debug.ui.debugging">
+        </context>
+     </extension>
 </plugin>

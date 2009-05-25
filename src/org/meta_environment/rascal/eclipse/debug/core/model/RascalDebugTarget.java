@@ -1,5 +1,8 @@
 package org.meta_environment.rascal.eclipse.debug.core.model;
 
+import java.util.List;
+import java.util.Map.Entry;
+
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugException;
@@ -10,6 +13,7 @@ import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
+import org.meta_environment.rascal.interpreter.env.Lambda;
 
 /**
  *  Debug Target
@@ -195,5 +199,9 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 
 	public RascalConsole getConsole() {
 		return console;
+	}
+
+	public List<Entry<String, List<Lambda>>> getFunctions() {
+		return console.getInterpreter().getEval().getFunctions();
 	}
 }
