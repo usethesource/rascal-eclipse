@@ -12,16 +12,18 @@ public class RascalValue implements IValue {
 	private RascalDebugTarget target;
 	private Result<org.eclipse.imp.pdb.facts.IValue> value;
 
-	public RascalValue(RascalDebugTarget rascalDebugTarget,
+	public RascalValue(RascalDebugTarget target,
 			Result<org.eclipse.imp.pdb.facts.IValue> value) {
 		this.value = value;
+		this.target = target;
 	}
 
 	public String getReferenceTypeName() throws DebugException {
-		return value.getValue().getType().toString();
+		return value.getType().toString();
 	}
 
 	public String getValueString() throws DebugException {
+		if (value.getValue() == null) return "";
 		return value.getValue().toString();
 	}
 

@@ -31,7 +31,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IVariable#getValue()
 	 */
 	public IValue getValue() throws DebugException {
-		Result<org.eclipse.imp.pdb.facts.IValue> value = fFrame.getEnvt().getLocalVariable(fName);
+		Result<org.eclipse.imp.pdb.facts.IValue> value = fFrame.getEnvt().getVariable(fName);
 		return new RascalValue(this.getRascalDebugTarget(), value);
 	}
 
@@ -60,6 +60,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 		//TODO: set variable in envt
 		fireChangeEvent(DebugEvent.CONTENT);
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValueModification#setValue(org.eclipse.debug.core.model.IValue)
 	 */
