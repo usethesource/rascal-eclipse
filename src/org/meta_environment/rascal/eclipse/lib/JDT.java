@@ -17,8 +17,8 @@ public class JDT {
 	private static final IWorkspaceRoot ROOT = ResourcesPlugin.getWorkspace().getRoot();
     private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
-	public static IMap facts(IString project, IString file) {
-		IProject p = ROOT.getProject(project.getValue());
+    private static IFile getFile(IString project, IString file) {
+    	IProject p = ROOT.getProject(project.getValue());
 		
 		if (p == null) {
 			throw new Throw(VF.string("Project does not exist"), (ISourceLocation) null, null);
@@ -29,7 +29,20 @@ public class JDT {
 			throw new Throw(VF.string("File does not exist"), (ISourceLocation) null, null);
 		}
 		
+		return f;
+    }
+    
+	public static IMap getBindings(IString project, IString file) {
+		IFile f = getFile(project, file);
+		
 		JDTImporter importer = new JDTImporter();
-		return importer.importFacts(f);
+		return importer.importBindings(f);
+	}
+	
+	public static IMap getTypeInfo(IString project, IString file) {
+		IFile f = getFile(project, file);
+		
+		JDTImporter importer = new JDTImporter();
+		return importer.importTypeInfo(f);
 	}
 }

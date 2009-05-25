@@ -1,20 +1,42 @@
 module JDT
 
-public alias JDTFactRel = rel[tuple[int, int], str];
+// TBD: ADT definition for types/names?
+
+public alias BindingRel = rel[tuple[int, int], str];
+public alias TypeInfoRel = rel[str, str];
 public alias TypeOrNameRel[&T] = rel[&T, str];
 public alias LocationRel[&T] = rel[&T, loc];
 
-
-public map[str, JDTFactRel] java facts(str project, str file)
+/*
+Imports the following binding relations:
+- typeBindings
+- methodBindings
+- constructorBindings
+- fieldBindings
+- variableBindings 
+*/
+public map[str, BindingRel] java getBindings(str project, str file)
 @javaClass{org.meta_environment.rascal.eclipse.lib.JDT}
 ;
 
-public tuple[TypeOrNameRel[&T], JDTFactRel] mapLocations(JDTFactRel jdtf, LocationRel[&T] locs) {
+/*
+Imports the following relations:
+- implements
+- extends
+- declaredTypes
+- declaredMethods
+- declaredFields
+*/
+public map[str, TypeInfoRel] java getTypeInfo(str project, str file)
+@javaClass{org.meta_environment.rascal.eclipse.lib.JDT}
+;
+
+public tuple[TypeOrNameRel[&T], BindingRel] mapLocations(BindingRel bindings, LocationRel[&T] locs) {
 
   TypeOrNameRel[&T] found = {};
-  JDTFactRel notfound = {};
+  BindingRel notfound = {};
 
-  for ( <<int offset, int length>, str s> <- jdtf ) {
+  for ( <<int offset, int length>, str s> <- bindings ) {
     TypeOrNameRel[&T] search = { <n,s> | <&T n, loc l> <- locs, l.offset == offset, l.length == length };
 
     if (search != {}) {
@@ -49,12 +71,12 @@ public tuple[TypeOrNameRel[&T], JDTFactRel] mapLocations(JDTFactRel jdtf, Locati
 }
 
 
-public tuple[map[str, TypeOrNameRel[&T]], map[str, JDTFactRel]] mapAll(map[str, JDTFactRel] facts, LocationRel[&T] locations) {
+public tuple[map[str, TypeOrNameRel[&T]], map[str, BindingRel]] mapAll(map[str, BindingRel] facts, LocationRel[&T] locations) {
   map[str, TypeOrNameRel[&T]] found = ();
-  map[str, JDTFactRel] notfound = ();
+  map[str, BindingRel] notfound = ();
 
   for ( str s <- facts ) {
-    tuple[TypeOrNameRel[&T], JDTFactRel] r = mapLocations(facts[s], locations);
+    tuple[TypeOrNameRel[&T], BindingRel] r = mapLocations(facts[s], locations);
     found += (s : r[0]);
     notfound += (s : r[1]);
   }
