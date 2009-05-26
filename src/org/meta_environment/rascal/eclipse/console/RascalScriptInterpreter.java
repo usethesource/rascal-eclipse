@@ -87,7 +87,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	private IFile lastMarked;
 
 	private final RascalExecutor executor;
-	
+
 	public RascalScriptInterpreter(RascalConsole console) {
 		this.console = console;
 		this.command = "";
@@ -108,7 +108,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		executorThread.setDaemon(true);
 		executorThread.start();
 	}
-	
+
 	public void exec(String cmd) throws IOException{
 		RascalCommand rascalCommand = new RascalCommand(cmd);
 

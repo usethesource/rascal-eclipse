@@ -3,22 +3,31 @@ package org.meta_environment.rascal.eclipse.debug.core.model;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IMarkerDelta;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.IBreakpointManager;
+import org.eclipse.debug.core.IBreakpointManagerListener;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
+import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
+import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
 import org.meta_environment.rascal.interpreter.env.Lambda;
+
 
 /**
  *  Debug Target
  */
-public class RascalDebugTarget extends RascalDebugElement implements IDebugTarget {
+public class RascalDebugTarget extends RascalDebugElement implements IDebugTarget, IBreakpointManagerListener {
 
 	// associated Rascal console
 	private RascalConsole console;
@@ -44,6 +53,9 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		fThread = new RascalThread(this);
 		console.setDebugger(fThread);
 		fThreads = new IThread[] {fThread};
+		IBreakpointManager breakpointManager = getBreakpointManager();
+		breakpointManager.addBreakpointListener(this);
+		breakpointManager.addBreakpointManagerListener(this);
 	}
 
 	public IThread[] getThreads() throws DebugException {
@@ -65,9 +77,33 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @see org.eclipse.debug.core.model.IDebugTarget#supportsBreakpoint(org.eclipse.debug.core.model.IBreakpoint)
 	 */
 	public boolean supportsBreakpoint(IBreakpoint breakpoint) {
-		//TODO
+		//TODO: redefine supportsBreakpoint
+		/**
+		if (!isTerminated() && breakpoint.getModelIdentifier().equals(getModelIdentifier())) {
+			try {
+				String program = getLaunch().getLaunchConfiguration().getAttribute(IRascalResources.ATTR_RASCAL_PROGRAM, (String)null);
+				if (program != null) {
+					IResource resource = null;
+					if (breakpoint instanceof RascalLineBreakpoint) {
+
+						IMarker marker = breakpoint.getMarker();
+						if (marker != null) {
+							resource = marker.getResource();
+						}
+					}
+					if (resource != null) {
+						IPath p = new Path(program);
+						return resource.getFullPath().equals(p);
+					}
+				}
+			} catch (CoreException e) {
+			}			
+		}
 		return false;
+		 */
+		return true;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IDebugElement#getDebugTarget()
 	 */
@@ -133,17 +169,48 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	public void suspend() throws DebugException {
 		getThread().suspend();
 	}
+
+	/**
+	 * When the breakpoint manager disables, remove all registered breakpoints
+	 * requests from the VM. When it enables, reinstall them.
+	 */
+	public void breakpointManagerEnablementChanged(boolean enabled) {
+		IBreakpoint[] breakpoints = getBreakpointManager().getBreakpoints(getModelIdentifier());
+		for (int i = 0; i < breakpoints.length; i++) {
+			if (enabled) {
+				breakpointAdded(breakpoints[i]);
+			} else {
+				breakpointRemoved(breakpoints[i], null);
+			}
+		}
+	}	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.IBreakpointListener#breakpointAdded(org.eclipse.debug.core.model.IBreakpoint)
 	 */
 	public void breakpointAdded(IBreakpoint breakpoint) {
-		//TODO
+		if (supportsBreakpoint(breakpoint)) {
+			try {
+				if ((breakpoint.isEnabled() && getBreakpointManager().isEnabled()) || !breakpoint.isRegistered()) {
+					RascalLineBreakpoint rascalBreakpoint = (RascalLineBreakpoint)breakpoint;
+					rascalBreakpoint.install(this);
+				}
+			} catch (CoreException e) {
+			}
+		}
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.IBreakpointListener#breakpointRemoved(org.eclipse.debug.core.model.IBreakpoint, org.eclipse.core.resources.IMarkerDelta)
 	 */
 	public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
-		//TODO
+		if (supportsBreakpoint(breakpoint)) {
+			try {
+				RascalLineBreakpoint rascalBreakpoint = (RascalLineBreakpoint)breakpoint;
+				rascalBreakpoint.remove(this);
+			} catch (CoreException e) {
+			}
+		}
 	}
 
 	/* (non-Javadoc)
@@ -187,14 +254,33 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		return fThread;
 	}
 
-	
+
 	public IProcess getProcess() {
 		return null;
 	}
 
 	public void breakpointChanged(IBreakpoint breakpoint, IMarkerDelta delta) {
-		// TODO Auto-generated method stub
+		if (supportsBreakpoint(breakpoint)) {
+			try {
+				if (breakpoint.isEnabled() && getBreakpointManager().isEnabled()) {
+					breakpointAdded(breakpoint);
+				} else {
+					breakpointRemoved(breakpoint, null);
+				}
+			} catch (CoreException e) {
+			}
+		}
+	}
 
+	/**
+	 * Install breakpoints that are already registered with the breakpoint
+	 * manager.
+	 */
+	private void installDeferredBreakpoints() {
+		IBreakpoint[] breakpoints = getBreakpointManager().getBreakpoints(getModelIdentifier());
+		for (int i = 0; i < breakpoints.length; i++) {
+			breakpointAdded(breakpoints[i]);
+		}
 	}
 
 	public RascalConsole getConsole() {
@@ -204,4 +290,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	public List<Entry<String, List<Lambda>>> getFunctions() {
 		return console.getInterpreter().getEval().getFunctions();
 	}
+
+
+
 }

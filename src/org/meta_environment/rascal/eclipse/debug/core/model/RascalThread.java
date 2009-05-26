@@ -1,17 +1,22 @@
 package org.meta_environment.rascal.eclipse.debug.core.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.debug.core.model.LineBreakpoint;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleManager;
 
+import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
 import org.meta_environment.rascal.interpreter.IDebugger;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
@@ -20,15 +25,31 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	private boolean fStepping = false;
 	private boolean fTerminated = false;
 	private boolean fSuspended = false;
-
+	private List<RascalLineBreakpoint> lineBreakpoints;
 
 	public RascalThread(IDebugTarget target) {
 		super(target);
+		lineBreakpoints = new ArrayList<RascalLineBreakpoint>();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IThread#getBreakpoints()
+	 */
 	public IBreakpoint[] getBreakpoints() {
-		// TODO Auto-generated method stub
-		return null;
+		return lineBreakpoints.toArray(new LineBreakpoint[]{});
+	}
+
+	public boolean hasBreakpoint(ISourceLocation loc)  {
+		for (RascalLineBreakpoint b: lineBreakpoints) {
+			int l;
+			try {
+				l = b.getLineNumber();
+			} catch (CoreException e) {
+				throw new RuntimeException(e);
+			}
+			if(l==loc.getBeginLine() && b.getResource().getName().equals(loc.getURL().getHost())) return true;
+		}
+		return false;
 	}
 
 	public String getName() throws DebugException {
@@ -195,6 +216,14 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	 */
 	public void setStepping(boolean stepping) {
 		fStepping = stepping;
+	}
+
+	public void removeBreakpoint(RascalLineBreakpoint rascalLineBreakpoint) {
+		lineBreakpoints.remove(rascalLineBreakpoint);
+	}
+
+	public void addBreakpoint(RascalLineBreakpoint rascalLineBreakpoint) {
+			lineBreakpoints.add(rascalLineBreakpoint);
 	}
 
 }

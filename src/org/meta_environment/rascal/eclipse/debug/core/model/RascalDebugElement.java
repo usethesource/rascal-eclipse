@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.eclipse.debug.core.model;
 
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.model.DebugElement;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.meta_environment.rascal.eclipse.IRascalResources;
@@ -33,5 +35,14 @@ public class RascalDebugElement extends DebugElement {
 	protected RascalDebugTarget getRascalDebugTarget() {
 	    return (RascalDebugTarget) getDebugTarget();
 	}
+	
+	/**
+	 * Returns the breakpoint manager
+	 * 
+     * @return the breakpoint manager
+     */
+    protected IBreakpointManager getBreakpointManager() {
+        return DebugPlugin.getDefault().getBreakpointManager();
+    }	
 	
 }
