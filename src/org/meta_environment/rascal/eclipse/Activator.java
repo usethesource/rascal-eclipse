@@ -60,7 +60,6 @@ public class Activator extends PluginBase {
 			}catch(IOException ioex){
 				throw new RuntimeException(ioex);
 			}
-			System.out.println(basePath);
 			Configuration.setBasePath(basePath);
 		}
 	}
