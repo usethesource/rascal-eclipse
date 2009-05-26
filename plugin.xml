@@ -34,10 +34,10 @@
          id="rascal-eclipse.parserWrapper"
          name="Rascal Parser Wrapper"
          point="org.eclipse.imp.runtime.parser">
-      <parserWrapper
+      <parser
             class="org.meta_environment.rascal.eclipse.editor.ParseController"
             language="Rascal">
-      </parserWrapper>
+      </parser>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.tokenColorer">
