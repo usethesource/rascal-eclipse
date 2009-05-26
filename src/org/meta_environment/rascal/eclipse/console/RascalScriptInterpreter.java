@@ -61,6 +61,7 @@ import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
+import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.IDebugger;
 import org.meta_environment.rascal.interpreter.Names;
@@ -78,7 +79,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	private final ASTBuilder builder = new ASTBuilder(factory);
 	private final ModuleParser parser = new ModuleParser();
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	private final Evaluator eval;
+	private Evaluator eval;
 	private final RascalConsole console;
 	private String command;
 	private String content;
@@ -574,13 +575,17 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		return null;
 	}
 
-	public void setDebugger(IDebugger debugger) {
-		eval.setDebugger(debugger);
-	}
-
 	public Evaluator getEval() {
 		return eval;
 	}
 
+	public void setDebugger(IDebugger debugger) {
+		eval = new DebuggableEvaluator(vf, factory, new PrintWriter(System.err), new ModuleEnvironment("***shell***"),debugger);
+		eval.addModuleLoader(new ProjectModuleLoader());
+		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
+		eval.addClassLoader(getClass().getClassLoader());
+
+	
+	}
 
 }
