@@ -12,14 +12,8 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 
 public class RascalStackFrame<var> extends RascalDebugElement implements IStackFrame{
 
-	private Environment envt;
-	private ISourceLocation loc;
-
-	public RascalStackFrame(RascalDebugTarget target, Environment envt) {
-		super(target);
-		this.envt = envt;
-		this.loc = envt.getLocation();
-	}
+	private Environment envt; // Environment corresponding to the current scope
+	private ISourceLocation loc; // Location of the call
 
 	public RascalStackFrame(RascalDebugTarget target, Environment envt, ISourceLocation loc) {
 		super(target);

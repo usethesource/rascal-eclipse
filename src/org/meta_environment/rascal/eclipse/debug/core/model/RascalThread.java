@@ -73,7 +73,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 			ISourceLocation currentLoc = getRascalDebugTarget().getConsole().getInterpreter().getEval().getCurrentAST().getLocation();
 			theFrames[0] = new RascalStackFrame(getRascalDebugTarget(), callStack.get(size-1), currentLoc);
 			for (int i = 1; i < size; i++) {
-				theFrames[i] = new RascalStackFrame(getRascalDebugTarget(),callStack.get(size-i-1));
+				theFrames[i] = new RascalStackFrame(getRascalDebugTarget(),callStack.get(size-i-1), callStack.get(size-i).getCallerLocation());
 			}
 			return theFrames;
 		}
