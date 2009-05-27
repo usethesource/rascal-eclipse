@@ -35,6 +35,13 @@ public class RascalLineBreakpoint extends LineBreakpoint {
 	public RascalLineBreakpoint() {
 	}
 	
+	@Override
+	public void setMarker(IMarker marker) throws CoreException {
+		super.setMarker(marker);
+		//restore the resource for persisted breakpoints
+		resource = marker.getResource();
+	}
+	
 	/**
 	 * Constructs a line breakpoint on the given resource at the given
 	 * line number. The line number is 1-based (i.e. the first line of a
@@ -46,7 +53,6 @@ public class RascalLineBreakpoint extends LineBreakpoint {
 	 * @throws CoreException if unable to create the breakpoint
 	 */
 	public RascalLineBreakpoint(final IResource resource, final int lineNumber) throws CoreException {
-		System.out.println("resource "+resource);
 		this.resource = resource;
 		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {

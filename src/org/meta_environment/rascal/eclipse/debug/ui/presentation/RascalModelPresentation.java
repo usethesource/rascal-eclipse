@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.ui.IDebugModelPresentation;
@@ -24,6 +25,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.meta_environment.rascal.eclipse.IRascalResources;
+import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalStackFrame;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalThread;
@@ -105,7 +107,12 @@ public class RascalModelPresentation extends LabelProvider implements IDebugMode
 			label = "noname";
 		}
 		if (thread.isSuspended()) {
-			label += " (suspended)";
+			IBreakpoint[] breakpoints = thread.getBreakpoints();
+			if (breakpoints.length == 0) {
+				label += " (suspended)";
+			} else {
+				label += " (suspended at line breakpoint)";
+			}
 		} else if (thread.isStepping()) {
 			label += " (stepping)";
 		} else if (thread.isTerminated()) {

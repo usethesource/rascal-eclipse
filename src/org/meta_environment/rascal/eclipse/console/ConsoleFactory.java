@@ -13,6 +13,8 @@ public class ConsoleFactory implements IConsoleFactory {
 	public static final String CONSOLE_ID = "org.meta_environment.rascal.eclipse.console";
 
 	private static ConsoleFactory instance;
+	
+	private RascalConsole lastConsole;
 
 	private IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 
@@ -28,9 +30,13 @@ public class ConsoleFactory implements IConsoleFactory {
 	}
 
 	public void openConsole(){
-		RascalConsole console = new RascalConsole();
-		fConsoleManager.addConsoles(new IConsole[]{console});
-		fConsoleManager.showConsoleView(console);
+		lastConsole = new RascalConsole();
+		fConsoleManager.addConsoles(new IConsole[]{lastConsole});
+		fConsoleManager.showConsoleView(lastConsole);
+	}
+	
+	public RascalConsole getLastConsole() {
+		return lastConsole;
 	}
 
 	public class RascalConsole extends ScriptConsole{

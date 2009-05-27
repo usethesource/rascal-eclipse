@@ -172,7 +172,6 @@ public class RascalStackFrame<var> extends RascalDebugElement implements IStackF
 	}
 
 	public String getSourceName() {
-		//TODO: find how to obtain the file name of the current module from the Environment
 		if (envt.getLocation() != null) {
 			return envt.getRoot().getName()+".rsc";
 		} else {

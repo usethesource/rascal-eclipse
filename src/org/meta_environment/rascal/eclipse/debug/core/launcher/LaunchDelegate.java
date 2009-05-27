@@ -11,9 +11,6 @@
  *******************************************************************************/
 package org.meta_environment.rascal.eclipse.debug.core.launcher;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
@@ -21,8 +18,6 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget;
@@ -32,16 +27,9 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate {
 
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 		if (mode.equals(ILaunchManager.DEBUG_MODE)) {
-			// open a Debug Rascal Console
-			RascalConsole console = null;
+			// open a Rascal Console
 			ConsoleFactory.getInstance().openConsole();
-			List<IConsole> consoles = Arrays.asList(ConsolePlugin.getDefault().getConsoleManager().getConsoles());
-			for(IConsole c:consoles) {
-				if (c instanceof RascalConsole) {
-					console = (RascalConsole) c;
-					break;
-				}
-			}
+			RascalConsole console = ConsoleFactory.getInstance().getLastConsole();
 			IDebugTarget target = new RascalDebugTarget(launch, console);
 			launch.addDebugTarget(target);
 		}

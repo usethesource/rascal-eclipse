@@ -56,6 +56,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		IBreakpointManager breakpointManager = getBreakpointManager();
 		breakpointManager.addBreakpointListener(this);
 		breakpointManager.addBreakpointManagerListener(this);
+		fThread.restoreBreakpoints(breakpointManager.getBreakpoints());
 	}
 
 	public IThread[] getThreads() throws DebugException {

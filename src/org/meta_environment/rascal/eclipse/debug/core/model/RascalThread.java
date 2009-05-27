@@ -133,7 +133,6 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 
 	public void notifySuspend() {
-		System.out.println("suspend");
 		synchronized (this) {
 			fSuspended = true;
 			fireSuspendEvent(DebugEvent.SUSPEND);
@@ -225,5 +224,13 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	public void addBreakpoint(RascalLineBreakpoint rascalLineBreakpoint) {
 			lineBreakpoints.add(rascalLineBreakpoint);
 	}
-
+	
+	public void restoreBreakpoints(IBreakpoint[] breakpoints) {
+		lineBreakpoints.clear();
+		for (int i = 0; i < breakpoints.length; i++) {
+			if (breakpoints[i] instanceof RascalLineBreakpoint) {
+				lineBreakpoints.add((RascalLineBreakpoint)breakpoints[i]);
+			}
+		}
+	}
 }
