@@ -1,8 +1,6 @@
 package org.meta_environment.rascal.eclipse.lib.jdt;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
@@ -45,17 +43,15 @@ import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 public class JDTImporter extends ASTVisitor {
 
-	private static final IWorkspaceRoot ROOT = ResourcesPlugin.getWorkspace().getRoot();
+	//private static final IWorkspaceRoot ROOT = ResourcesPlugin.getWorkspace().getRoot();
     private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	
-	private boolean extractBindings = false;
-	private boolean extractTypeInfo = false;
+	private IFile file;
 	
 	// bindings
-	private static final Type locType = TF.tupleType(TF.integerType(), TF.integerType());
+	private static final Type locType = TF.tupleType(TF.stringType(), TF.integerType(), TF.integerType());
 	private static final Type bindingTupleType = TF.tupleType(locType, TF.stringType());
-	private static final Type bindingRelType = TF.relType(locType, TF.stringType());
 
 	private IRelationWriter typeBindings;
 	private IRelationWriter methodBindings;
@@ -65,7 +61,6 @@ public class JDTImporter extends ASTVisitor {
 
 	// type facts
 	private static final Type typeFactTupleType = TF.tupleType(TF.stringType(), TF.stringType());
-	private static final Type typeFactRelType = TF.relType(TF.stringType(), TF.stringType());
 
 	private IRelationWriter extnds;
 	private IRelationWriter implmnts;
@@ -77,37 +72,29 @@ public class JDTImporter extends ASTVisitor {
 		super();
 	}
 	
-	public IMap importBindings(IFile file) {
+	public IMap importFacts(IFile file) {
 		typeBindings = VF.relationWriter(bindingTupleType);
 		methodBindings = VF.relationWriter(bindingTupleType);
 		constructorBindings = VF.relationWriter(bindingTupleType);
 		fieldBindings = VF.relationWriter(bindingTupleType);
 		variableBindings = VF.relationWriter(bindingTupleType);
 		
-		extractBindings = true;
-		visitCompilationUnit(file);
-		
-		IMapWriter mw = VF.mapWriter(TF.stringType(), bindingRelType);
-		mw.put(VF.string("typeBindings"), typeBindings.done());
-		mw.put(VF.string("methodBindings"), methodBindings.done());
-		mw.put(VF.string("constructorBindings"), constructorBindings.done());
-		mw.put(VF.string("fieldBindings"), fieldBindings.done());
-		mw.put(VF.string("variableBindings"), variableBindings.done());
-		
-		return mw.done();
-	}
-	
-	public IMap importTypeInfo(IFile file) {
 		implmnts = VF.relationWriter(typeFactTupleType);
 		extnds = VF.relationWriter(typeFactTupleType);
 		declaredTypes = VF.relationWriter(typeFactTupleType);
 		declaredMethods = VF.relationWriter(typeFactTupleType);
 		declaredFields = VF.relationWriter(typeFactTupleType);
+
+		this.file = file;
+		visitCompilationUnit();
 		
-		extractTypeInfo = true;
-		visitCompilationUnit(file);
-		
-		IMapWriter mw = VF.mapWriter(TF.stringType(), typeFactRelType);
+		IMapWriter mw = VF.mapWriter(TF.stringType(), TF.valueType());
+		mw.put(VF.string("typeBindings"), typeBindings.done());
+		mw.put(VF.string("methodBindings"), methodBindings.done());
+		mw.put(VF.string("constructorBindings"), constructorBindings.done());
+		mw.put(VF.string("fieldBindings"), fieldBindings.done());
+		mw.put(VF.string("variableBindings"), variableBindings.done());
+
 		mw.put(VF.string("implements"), implmnts.done());
 		mw.put(VF.string("extends"), extnds.done());
 		mw.put(VF.string("declaredTypes"), declaredTypes.done());
@@ -117,7 +104,7 @@ public class JDTImporter extends ASTVisitor {
 		return mw.done();
 	}
 	
-	private void visitCompilationUnit(IFile file) {
+	private void visitCompilationUnit() {
 		int i;
 		
 		ICompilationUnit icu = JavaCore.createCompilationUnitFrom(file);
@@ -140,13 +127,8 @@ public class JDTImporter extends ASTVisitor {
 	}
 	
 	public void preVisit(ASTNode n) {
-		if (extractBindings) {
-			importBindingInfo(n);
-		}
-		
-		if (extractTypeInfo) {
-			importTypeInfo(n);
-		}
+		importBindingInfo(n);
+		importTypeInfo(n);
 	}
 	
 	private void importBindingInfo(ASTNode n) {
@@ -240,40 +222,43 @@ public class JDTImporter extends ASTVisitor {
 		if (n instanceof TypeDeclaration) {
 			// TBD: generic and parameterized types
 			ITypeBinding tb = ((TypeDeclaration) n).resolveBinding();
-			IString thisType = VF.string(importTypeBinding(tb));
 			
-			ITypeBinding superclass = tb.getSuperclass();
-			if (superclass != null) {
-				ITuple tup = VF.tuple(thisType, VF.string(importTypeBinding(superclass)));
-				extnds.insert(tup);
-			}
-			
-			ITypeBinding[] interfaces = tb.getInterfaces();
-			for (ITypeBinding interf : interfaces) {
-				ITuple tup = VF.tuple(thisType, VF.string(importTypeBinding(interf)));
-				if (tb.isClass()) {
-					implmnts.insert(tup);
-				} else {
+			if (tb != null) {
+				IString thisType = VF.string(importTypeBinding(tb));
+				
+				ITypeBinding superclass = tb.getSuperclass();
+				if (superclass != null) {
+					ITuple tup = VF.tuple(thisType, VF.string(importTypeBinding(superclass)));
 					extnds.insert(tup);
 				}
-			}
-			
-			ITypeBinding[] innertypes = tb.getDeclaredTypes();
-			for (ITypeBinding innertype : innertypes) {
-				ITuple tup = VF.tuple(thisType, VF.string(importTypeBinding(innertype)));
-				declaredTypes.insert(tup);
-			}
-			
-			IMethodBinding[] methods = tb.getDeclaredMethods();
-			for (IMethodBinding method : methods) {
-				ITuple tup = VF.tuple(thisType, VF.string(importMethodBinding(method)));
-				declaredMethods.insert(tup);
-			}
-			
-			IVariableBinding[] fields = tb.getDeclaredFields();
-			for (IVariableBinding field : fields) {
-				ITuple tup = VF.tuple(thisType, VF.string(importVariableBinding(field)));
-				declaredFields.insert(tup);
+				
+				ITypeBinding[] interfaces = tb.getInterfaces();
+				for (ITypeBinding interf : interfaces) {
+					ITuple tup = VF.tuple(thisType, VF.string(importTypeBinding(interf)));
+					if (tb.isClass()) {
+						implmnts.insert(tup);
+					} else {
+						extnds.insert(tup);
+					}
+				}
+				
+				ITypeBinding[] innertypes = tb.getDeclaredTypes();
+				for (ITypeBinding innertype : innertypes) {
+					ITuple tup = VF.tuple(thisType, VF.string(importTypeBinding(innertype)));
+					declaredTypes.insert(tup);
+				}
+				
+				IMethodBinding[] methods = tb.getDeclaredMethods();
+				for (IMethodBinding method : methods) {
+					ITuple tup = VF.tuple(thisType, VF.string(importMethodBinding(method)));
+					declaredMethods.insert(tup);
+				}
+				
+				IVariableBinding[] fields = tb.getDeclaredFields();
+				for (IVariableBinding field : fields) {
+					ITuple tup = VF.tuple(thisType, VF.string(importVariableBinding(field)));
+					declaredFields.insert(tup);
+				}
 			}
 		}
 		//EnumDeclaration
@@ -321,15 +306,18 @@ public class JDTImporter extends ASTVisitor {
 		if (mb != null) {
 			s += importMethodBinding(mb) + ".";
 		} else {
-			s += vb.getDeclaringClass().getQualifiedName() + ".";
+			ITypeBinding declaringClass = vb.getDeclaringClass();
+			if (declaringClass != null) {
+				s += declaringClass.getQualifiedName() + ".";
+			}
 		}
 		s += vb.getName();
 
 		return s;
 	}
 
-	void addBinding(IRelationWriter rw, ASTNode n, String value) {				
-		ITuple loc = VF.tuple(VF.integer(n.getStartPosition()), VF.integer(n.getLength()));
+	void addBinding(IRelationWriter rw, ASTNode n, String value) {
+		ITuple loc = VF.tuple(VF.string(file.getLocation().toString()), VF.integer(n.getStartPosition()), VF.integer(n.getLength()));
 		ITuple fact = VF.tuple(loc, VF.string(value));
 		
 		rw.insert(fact);

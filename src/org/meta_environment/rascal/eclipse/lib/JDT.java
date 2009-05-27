@@ -4,6 +4,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -17,32 +18,36 @@ public class JDT {
 	private static final IWorkspaceRoot ROOT = ResourcesPlugin.getWorkspace().getRoot();
     private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
-    private static IFile getFile(IString project, IString file) {
+    private static IProject getProject(IString project) {
     	IProject p = ROOT.getProject(project.getValue());
 		
 		if (p == null) {
 			throw new Throw(VF.string("Project does not exist"), (ISourceLocation) null, null);
 		}
 		
-		IFile f = p.getFile(file.getValue());
-		if (!f.exists()) {
-			throw new Throw(VF.string("File does not exist"), (ISourceLocation) null, null);
-		}
-		
-		return f;
+		return p;
     }
-    
-	public static IMap getBindings(IString project, IString file) {
-		IFile f = getFile(project, file);
-		
+
+	private static IMap getFacts(IFile f) {
 		JDTImporter importer = new JDTImporter();
-		return importer.importBindings(f);
+		return importer.importFacts(f);
+	}
+    
+	public static IMap getFacts(IString project, IString file) {
+		IProject p = getProject(project);
+		IFile f = p.getFile(file.getValue());
+		
+		return getFacts(f);
 	}
 	
-	public static IMap getTypeInfo(IString project, IString file) {
-		IFile f = getFile(project, file);
+	public static IMap getFacts(IString project, ISourceLocation file) {
+		IProject p = getProject(project);
+		IFile f = ROOT.getFileForLocation(new Path(file.getURL().getPath()));
 		
-		JDTImporter importer = new JDTImporter();
-		return importer.importTypeInfo(f);
+		if (f.exists() && f.getProject() == p) {
+			return getFacts(f);
+		}
+
+		throw new Throw(VF.string("File does not exist"), (ISourceLocation) null, null);
 	}
 }
