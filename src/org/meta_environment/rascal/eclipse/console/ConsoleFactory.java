@@ -42,7 +42,7 @@ public class ConsoleFactory implements IConsoleFactory {
 			interpreter = new RascalScriptInterpreter(this);
 			interpreter.initialize();
 			setInterpreter(interpreter);
-			setPrompt(new ScriptConsolePrompt(">", "?"));
+			setPrompt(new ScriptConsolePrompt("rascal>", ">>>>>>>"));
 			addPatternMatchListener(new JumpToSource());
 		}
 		
