@@ -36,7 +36,7 @@ public class Resources {
 	private static final Type root = TF.constructor(store, res, "root", TF.setType(res), "projects");
 	private static final Type project = TF.constructor(store, res, "project", TF.stringType(), "name", TF.setType(res), "contents");
 	private static final Type folder = TF.constructor(store, res, "folder", TF.stringType(), "name", TF.setType(res), "contents");
-	private static final Type file =  TF.constructor(store, res, "file", TF.stringType(), "name", TF.stringType(), "extension");
+	private static final Type file =  TF.constructor(store, res, "file", TF.stringType(), "name", TF.stringType(), "extension", TF.sourceLocationType(), "location");
 	
 	public static ISet projects() {
 		IProject[] projects = ROOT.getProjects();
@@ -50,77 +50,64 @@ public class Resources {
 	}
 	
 	public static ISet references(IString name) {
-		IProject project = ROOT.getProject(name.getValue());
+		IProject project = getIProject(name.getValue());
 		ISetWriter w = VF.setWriter(TF.stringType());
 		
-		if (project != null) {
-			try {
-				for (IProject r : project.getReferencedProjects()) {
-					w.insert(VF.string(r.getName()));
-				}
-			} catch (FactTypeUseException e) {
-				// does not happen
-			} catch (CoreException e) {
-				// TODO what to do about this?
+		try {
+			for (IProject r : project.getReferencedProjects()) {
+				w.insert(VF.string(r.getName()));
 			}
-		}
-		else {
-			throw new Throw(VF.string("Project does not exist"), (ISourceLocation) null, null);
+		} catch (FactTypeUseException e) {
+			// does not happen
+		} catch (CoreException e) {
+			// TODO what to do about this?
 		}
 		
 		return w.done();
 	}
 	
 	public static ISourceLocation location(IString name) {
-		IProject project = ROOT.getProject(name.getValue());
+		IProject project = getIProject(name.getValue());
 		
 		try {
-			if (project != null) {
-				URL url = new URL("file://" + project.getLocation().toString());
-				return VF.sourceLocation(url, 0, 0, 1, 1, 0, 0);
-			}
+			URL url = new URL("file://" + project.getLocation().toString());
+			return VF.sourceLocation(url, 0, 0, 1, 1, 0, 0);
 		} 
 		catch (MalformedURLException e) {
 			// this does not happen
+			return null;
 		}
-
-		throw new Throw(VF.string("Project does not exist"), (ISourceLocation) null, null);
 	}
 	
 	public static ISet files(IString name) {
-		IProject project = ROOT.getProject(name.getValue());
+		IProject project = getIProject(name.getValue());
 		final ISetWriter w = VF.setWriter(TF.sourceLocationType());
 		
-		if (project != null) {
-			try {
-				project.accept(new IResourceVisitor() {
+		try {
+			project.accept(new IResourceVisitor() {
 
-					public boolean visit(IResource resource)
-							throws CoreException {
-						if (resource.exists() && !resource.isDerived()) {
-							if (resource instanceof IFile) {
-								try {
-									URL url = new URL("file://" + resource.getLocation().toString());
-									w.insert(VF.sourceLocation(url, 0, 0, 1, 1, 0, 0));	
-									
-									return false;
-								} catch (MalformedURLException e) {
-									// does not happen
-								}
-							
+				public boolean visit(IResource resource)
+						throws CoreException {
+					if (resource.exists() && !resource.isDerived()) {
+						if (resource instanceof IFile) {
+							try {
+								URL url = new URL("file://" + resource.getLocation().toString());
+								w.insert(VF.sourceLocation(url, 0, 0, 1, 1, 0, 0));	
+								
+								return false;
+							} catch (MalformedURLException e) {
+								// does not happen
 							}
+						
 						}
-						return true;
 					}
-				});
-			} catch (FactTypeUseException e) {
-				// does not happen
-			} catch (CoreException e) {
-				// TODO what to do about this?
-			}
-		}
-		else {
-			throw new Throw(VF.string("Project does not exist"), (ISourceLocation) null, null);
+					return true;
+				}
+			});
+		} catch (FactTypeUseException e) {
+			// does not happen
+		} catch (CoreException e) {
+			// TODO what to do about this?
 		}
 		
 		return w.done();
@@ -135,6 +122,20 @@ public class Resources {
 		}
 		
 		return (IConstructor) root.make(VF, projects.done());
+	}
+	
+	public static IConstructor getProject(IString projectName) {
+		IProject p = getIProject(projectName.getValue());
+		ISet contents = getProjectContents(p);
+		return (IConstructor) project.make(VF, VF.string(p.getName()), contents);
+	}
+	
+	private static IProject getIProject(String projectName) {
+		IProject p = ROOT.getProject(projectName);
+		if (p != null) {
+			return p;
+		}
+		throw new Throw(VF.string("Project does not exist: " + projectName), (ISourceLocation) null, null);
 	}
 	
 	private static ISet getProjectContents(IProject project) {
@@ -172,7 +173,16 @@ public class Resources {
 	private static IValue getFile(IFile resource) {
 		IPath fullPath = resource.getFullPath();
 		String fileExtension = resource.getFileExtension();
-		return file.make(VF, VF.string(fullPath.segment(fullPath.segmentCount() - 1)), VF.string(fileExtension == null ? "": fileExtension));
+		try {
+			URL url = new URL("file://" + resource.getLocation().toString());
+			return file.make(VF, VF.string(fullPath.segment(fullPath.segmentCount() - 1)),
+					VF.string(fileExtension == null ? "": fileExtension),
+					VF.sourceLocation(url, 0, 0, 1, 1, 0, 0));
+		}
+		catch (MalformedURLException e) {
+			// this does not happen
+			return null;
+		}
 	}
 
 	private static ISet getFolderContents(final IFolder folder) {
