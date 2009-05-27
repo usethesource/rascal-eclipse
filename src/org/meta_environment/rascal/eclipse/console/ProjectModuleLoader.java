@@ -2,7 +2,6 @@ package org.meta_environment.rascal.eclipse.console;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -43,7 +42,7 @@ public class ProjectModuleLoader implements IModuleFileLoader {
 		throw new IOException("File " + name + " not found");	
 	}
 	
-	public InputStream getSourceInputStream(String name) throws IOException {
+	public InputStream getInputStream(String name) throws IOException {
 		try {
 			IFile file = getFile(name);
 
@@ -60,10 +59,5 @@ public class ProjectModuleLoader implements IModuleFileLoader {
 
 	private IWorkspaceRoot getWorkspaceRoot() {
 		return ResourcesPlugin.getWorkspace().getRoot();
-	}
-
-	public OutputStream getBinaryOutputStream(String fileName) throws IOException {
-		// TODO 
-		return null;
 	}
 }
