@@ -166,7 +166,7 @@ class DotExport implements IGraphExport {
      * Representation of a list of NODES
      */
     private String getNodes(IModelGraph graph, boolean includeProperties) {
-        ArrayList<IModelNode> nodes = new ArrayList(graph.getNodes());
+        ArrayList<IModelNode> nodes = new ArrayList<IModelNode>(graph.getNodes());
         Collections.reverse(nodes);
 
         StringBuilder builder = new StringBuilder();

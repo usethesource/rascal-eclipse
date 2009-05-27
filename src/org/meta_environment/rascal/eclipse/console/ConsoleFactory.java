@@ -7,7 +7,6 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleFactory;
 import org.eclipse.ui.console.IConsoleManager;
-import org.meta_environment.rascal.eclipse.debug.core.model.RascalThread;
 import org.meta_environment.rascal.interpreter.IDebugger;
 
 public class ConsoleFactory implements IConsoleFactory {
@@ -17,7 +16,9 @@ public class ConsoleFactory implements IConsoleFactory {
 
 	private IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 
-	public ConsoleFactory() {}
+	public ConsoleFactory() {
+		super();
+	}
 
 	public static ConsoleFactory getInstance() {
 		if (instance == null) {

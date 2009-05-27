@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.eclipse.editor;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -58,9 +57,8 @@ public class ParseController implements IParseController {
 	public ILanguageSyntaxProperties getSyntaxProperties() {
 		return new RascalSyntaxProperties();
 	}
-
-	@SuppressWarnings("unchecked")
-	public Iterator getTokenIterator(IRegion region) {
+	
+	public Iterator<Token> getTokenIterator(IRegion region) {
 		return new TokenIterator(parseTree);
 	}
 
