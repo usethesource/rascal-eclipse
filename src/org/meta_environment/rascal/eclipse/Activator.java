@@ -47,8 +47,7 @@ public class Activator extends PluginBase {
 				
 				String baseLibraryPath = getFile(Platform.getBundle(bundle), path);
 				
-				//SGLRInvoker.setBaseLibraryPath(baseLibraryPath); // Set the base library path
-				SGLRInvoker.setBaseLibraryPath("/Applications/Rascal/lib"); // Set the base library path
+				SGLRInvoker.setBaseLibraryPath(baseLibraryPath); // Set the base library path
 			}
 		}
 		// Base Path
