@@ -49,15 +49,14 @@ public class Activator extends PluginBase {
 		}
 		// Rascal Paths
 		static{
-			Bundle rascalGrammarBundle = Platform.getBundle("rascal_grammar");
+			Bundle rascalPluginBundle = Platform.getBundle("rascal_plugin");
 			
-			System.setProperty("rascal.parsetable.default.file", getFile(rascalGrammarBundle, "spec/rascal.tbl"));
-			System.setProperty("rascal.parsetable.header.file", getFile(rascalGrammarBundle, "spec/rascal-header.tbl"));
-			System.setProperty("rascal.rascal2table.command", getFile(rascalGrammarBundle, "src/rascal2table"));
-			System.setProperty("rascal.rascal2table.dir", getFile(rascalGrammarBundle, "src"));
+			System.setProperty("rascal.parsetable.default.file", getFile(rascalPluginBundle, "installed/share/rascal-grammar/rascal.tbl"));
+			System.setProperty("rascal.parsetable.header.file", getFile(rascalPluginBundle, "installed/share/rascal-grammar/rascal-header.tbl"));
+			System.setProperty("rascal.rascal2table.command", getFile(rascalPluginBundle, "installed/bin/rascal2table"));
+			System.setProperty("rascal.rascal2table.dir", getFile(rascalPluginBundle, "installed/bin"));
 
-			Bundle sdfLibraryBundle = Platform.getBundle("sdf_library");
-			System.setProperty("rascal.sdf.library.dir", getFile(sdfLibraryBundle, "library"));
+			System.setProperty("rascal.sdf.library.dir", getFile(rascalPluginBundle, "installed/share/sdf-library/library"));
 
 			System.setProperty("rascal.parsetable.cache.dir", System.getProperty("java.io.tmpdir"));
 		}
