@@ -1,7 +1,5 @@
 package org.meta_environment.rascal.eclipse;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -15,7 +13,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
-import org.meta_environment.rascal.interpreter.Configuration;
 import org.osgi.framework.Bundle;
 
 import sglr.SGLRInvoker;
@@ -50,17 +47,19 @@ public class Activator extends PluginBase {
 				SGLRInvoker.setBaseLibraryPath(baseLibraryPath); // Set the base library path
 			}
 		}
-		// Base Path
+		// Rascal Paths
 		static{
-			String pluginRoot = getFile(Platform.getBundle(PLUGIN_ID), "/");
+			Bundle rascalGrammarBundle = Platform.getBundle("rascal_grammar");
 			
-			String basePath = null;
-			try{
-				basePath = new File(pluginRoot).getParentFile().getCanonicalPath();
-			}catch(IOException ioex){
-				throw new RuntimeException(ioex);
-			}
-			Configuration.setBasePath(basePath);
+			System.setProperty("rascal.parsetable.default.file", getFile(rascalGrammarBundle, "spec/rascal.tbl"));
+			System.setProperty("rascal.parsetable.header.file", getFile(rascalGrammarBundle, "spec/rascal-header.tbl"));
+			System.setProperty("rascal.rascal2table.command", getFile(rascalGrammarBundle, "src/rascal2table"));
+			System.setProperty("rascal.rascal2table.dir", getFile(rascalGrammarBundle, "src"));
+
+			Bundle sdfLibraryBundle = Platform.getBundle("sdf_library");
+			System.setProperty("rascal.sdf.library.dir", getFile(sdfLibraryBundle, "library"));
+
+			System.setProperty("rascal.parsetable.cache.dir", System.getProperty("java.io.tmpdir"));
 		}
 	}
 
@@ -122,7 +121,13 @@ public class Activator extends PluginBase {
 			try{
 				fileURL = FileLocator.toFileURL(bundle.getResource(path)).getPath();
 			}catch(Exception ex2){
-				fileURL = FileLocator.find(bundle, new Path(path), null).getPath();
+				try{
+					fileURL = FileLocator.find(bundle, new Path(path), null).getPath();
+				}catch(RuntimeException rex){
+					System.err.println("Can't find: "+bundle+" / "+path);
+					rex.printStackTrace();
+					throw rex;
+				}
 			}
 		}
 		return fileURL;
