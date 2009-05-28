@@ -274,7 +274,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 			public void run(){
 				IDocument document = console.getDocument();
 				try{
-					document.replace(document.getLength() - 1, 1, text);
+					document.replace(document.getLength() - 7, 7, text);
 					IDocumentPartitioner partitioner = viewer.getDocument().getDocumentPartitioner();
 					if(partitioner instanceof ScriptConsolePartitioner){
 						ScriptConsolePartitioner scriptConsolePartitioner = (ScriptConsolePartitioner) partitioner;
