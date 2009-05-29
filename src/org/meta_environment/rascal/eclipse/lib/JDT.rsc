@@ -27,12 +27,12 @@ Imports the following relations:
 */
 
 // import JDT facts from file (path relative to project root)
-private FactMap java getFacts(str project, str file)
+public FactMap java extractFacts(str project, str file)
 @javaClass{org.meta_environment.rascal.eclipse.lib.JDT}
 ;
 
 // import JDT facts from file (absolute file system path)
-private FactMap java getFacts(str project, loc file)
+public FactMap java extractFacts(str project, loc file)
 @javaClass{org.meta_environment.rascal.eclipse.lib.JDT}
 ;
 
@@ -91,11 +91,6 @@ public FactMap extractFacts(str projectName) {
 	}
 	
 	return result;
-}
-
-// extract facts from a single java file
-public FactMap extractFacts(str project, str file) {
-	return getFacts(project, file);
 }
 
 // retrieve typed facts from a fact map

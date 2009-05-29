@@ -28,24 +28,24 @@ public class JDT {
 		return p;
     }
 
-	private static IMap getFacts(IFile f) {
+	private static IMap importFacts(IFile f) {
 		JDTImporter importer = new JDTImporter();
 		return importer.importFacts(f);
 	}
     
-	public static IMap getFacts(IString project, IString file) {
+	public static IMap extractFacts(IString project, IString file) {
 		IProject p = getProject(project);
 		IFile f = p.getFile(file.getValue());
 		
-		return getFacts(f);
+		return importFacts(f);
 	}
 	
-	public static IMap getFacts(IString project, ISourceLocation file) {
+	public static IMap extractFacts(IString project, ISourceLocation file) {
 		IProject p = getProject(project);
 		IFile f = ROOT.getFileForLocation(new Path(file.getURL().getPath()));
 		
 		if (f.exists() && f.getProject() == p) {
-			return getFacts(f);
+			return importFacts(f);
 		}
 
 		throw new Throw(VF.string("File does not exist"), (ISourceLocation) null, null);
