@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.eclipse.debug.core.model;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -16,14 +15,10 @@ import org.eclipse.debug.core.model.LineBreakpoint;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleManager;
-
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
-import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.IDebugger;
 import org.meta_environment.rascal.interpreter.env.Environment;
-
-import sun.rmi.runtime.GetThreadPoolAction;
 
 public class RascalThread extends RascalDebugElement implements IThread, IDebugger {
 
