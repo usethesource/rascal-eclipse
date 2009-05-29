@@ -296,4 +296,17 @@
 			<adapter type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget"/>
       </factory>
    </extension>
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            targetID="rascal.editor"
+            id="rascal.rulerActions">
+         <action
+               label="Double click breakpoint action"
+               class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+               style="push"
+               actionID="RulerDoubleClick"
+               id="rascal.doubleClickBreakpointAction"/>
+      </editorContribution>
+   </extension>
 </plugin>
