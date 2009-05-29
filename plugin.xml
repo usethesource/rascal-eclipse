@@ -309,4 +309,35 @@
                id="rascal.doubleClickBreakpointAction"/>
       </editorContribution>
    </extension>
+   <extension
+         id="rascal_nature"
+         name="rascal_nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.meta_environment.rascal.eclipse.nature.Nature">
+         </run>
+      </runtime>
+      <content-type
+            id="rascal-eclipse.content-type1">
+      </content-type>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/rascal_file.gif"
+            id="rascal_nature_image"
+            natureId="rascal_nature">
+      </image>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.contentTypes">
+      <content-type
+            describer="org.meta_environment.rascal.eclipse.nature.Describer"
+            file-extensions=".rsc"
+            id="rascal.content-type"
+            name="Rascal"
+            priority="normal">
+      </content-type>
+   </extension>
 </plugin>
