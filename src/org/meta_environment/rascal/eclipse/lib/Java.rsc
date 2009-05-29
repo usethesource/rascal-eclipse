@@ -8,22 +8,22 @@ data Id = package(str name)
         | interface(str name)
         | interface(str name, list[Entity] params)
         | anonymousClass(int nr)
+        | enum(str name)
         
         | method(str name, list[Entity] params, Entity returnType)
         | constructor(list[Entity] params)
         | initializer
         | initializer(int nr)
+
         | field(str name)
-        | param(str name)
-        | var(str name)
-        
-        | primitive(PrimitiveType type)
-        | array(Entity)
-        
-        | enum(str name)
+        | parameter(str name)
+        | variable(str name)
         | enumConstant(str name)
         
-        | paramType(str name)
+        | primitive(PrimitiveType type)
+        | array(Entity elementType)
+        
+        | typeParameter(str name)
         | wildcard
 ;
 
@@ -36,6 +36,8 @@ data PrimitiveType = byte
                    | double
                    | char
                    | boolean
+                   | \void
+                   | null
 ;
 
 
