@@ -88,6 +88,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	private IFile lastMarked;
 
 	private final RascalExecutor executor;
+	private Thread executorThread;
 
 	public RascalScriptInterpreter(RascalConsole console) {
 		this.console = console;
@@ -105,9 +106,13 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	}
 
 	public void initialize(){
-		Thread executorThread = new Thread(executor);
+		executorThread = new Thread(executor);
 		executorThread.setDaemon(true);
 		executorThread.start();
+	}
+	
+	public Thread getExecutorThread() {
+		return executorThread;
 	}
 
 	public void exec(String cmd) throws IOException{
@@ -584,8 +589,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		eval.addModuleLoader(new ProjectModuleLoader());
 		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
 		eval.addClassLoader(getClass().getClassLoader());
-
-	
 	}
+	
 
 }

@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.eclipse.debug.core.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -17,14 +18,19 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleManager;
 
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
+import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
+import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.IDebugger;
 import org.meta_environment.rascal.interpreter.env.Environment;
+
+import sun.rmi.runtime.GetThreadPoolAction;
 
 public class RascalThread extends RascalDebugElement implements IThread, IDebugger {
 
 	private boolean fStepping = false;
 	private boolean fTerminated = false;
 	private boolean fSuspended = false;
+	private boolean fSuspendedByBreakpoint = false;
 	private List<RascalLineBreakpoint> lineBreakpoints;
 
 	public RascalThread(IDebugTarget target) {
@@ -39,15 +45,27 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		return lineBreakpoints.toArray(new LineBreakpoint[]{});
 	}
 
-	public boolean hasBreakpoint(ISourceLocation loc)  {
+	public boolean hasEnabledBreakpoint(ISourceLocation loc)  {
 		for (RascalLineBreakpoint b: lineBreakpoints) {
-			int l;
 			try {
-				l = b.getLineNumber();
+				if (b.isEnabled()) {
+					int l;
+					try {
+						l = b.getLineNumber();
+					} catch (CoreException e) {
+						throw new RuntimeException(e);
+					}
+					if (l==loc.getBeginLine() && 
+							b.getResource().getName().equals(loc.getURL().getHost())) {
+						//TODO: avoid side effect
+						fSuspendedByBreakpoint = true;
+						return true;
+					}
+				}
 			} catch (CoreException e) {
-				throw new RuntimeException(e);
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			if(l==loc.getBeginLine() && b.getResource().getName().equals(loc.getURL().getHost())) return true;
 		}
 		return false;
 	}
@@ -113,29 +131,33 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		return fSuspended && !isTerminated();
 	}
 
+	public boolean isSuspendedByBreakpoint() {
+		return fSuspendedByBreakpoint && !isTerminated();
+	}
 
 	public void resume() throws DebugException {
-		System.out.println("resume");
 		setStepping(false);
-		fSuspended = false;
+		resumed(DebugEvent.CLIENT_REQUEST);
 		synchronized (this) {
 			this.notify();
 		}
-		fireResumeEvent(DebugEvent.RESUME);
 	}
 
 
 
 	public void suspend() {
-		fSuspended = true;
-		setStepping(true);
+		fireSuspendEvent(DebugEvent.CLIENT_REQUEST);
+		((DebuggableEvaluator) getRascalDebugTarget().getConsole().getInterpreter().getEval()).suspendRequest();
+		//setStepping(true);
 	}
 
 
 	public void notifySuspend() {
 		synchronized (this) {
 			fSuspended = true;
-			fireSuspendEvent(DebugEvent.SUSPEND);
+			if (isStepping()) {
+				fireSuspendEvent(DebugEvent.STEP_END);
+			}
 			try {
 				this.wait();
 			} catch (InterruptedException e) {
@@ -169,12 +191,18 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 
 	public void stepInto() throws DebugException {
-		System.out.println("step");	
-		fSuspended = false;
+		System.out.println("step into");
+		setStepping(true);
+		resumed(DebugEvent.STEP_INTO);
 		synchronized (this) {
 			this.notify();
 		}
-		fireChangeEvent(DebugEvent.STEP_INTO);
+	}
+
+	public void resumed(int detail)  {
+		fSuspended = false;
+		fSuspendedByBreakpoint = false;
+		fireResumeEvent(detail);
 	}
 
 
@@ -202,8 +230,11 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 	public void terminate() throws DebugException {
 		IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
-		fConsoleManager.removeConsoles(new org.eclipse.ui.console.IConsole[]{getRascalDebugTarget().getConsole()});		
-		fTerminated = true;
+		fConsoleManager.removeConsoles(new org.eclipse.ui.console.IConsole[]{getRascalDebugTarget().getConsole()});
+        //stop the thread of the interpreter
+		Thread executorThread = getRascalDebugTarget().getConsole().getInterpreter().getExecutorThread();
+		executorThread.interrupt();
+	    fTerminated = true;
 		fireTerminateEvent();
 	}
 
@@ -222,9 +253,9 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	}
 
 	public void addBreakpoint(RascalLineBreakpoint rascalLineBreakpoint) {
-			lineBreakpoints.add(rascalLineBreakpoint);
+		lineBreakpoints.add(rascalLineBreakpoint);
 	}
-	
+
 	public void restoreBreakpoints(IBreakpoint[] breakpoints) {
 		lineBreakpoints.clear();
 		for (int i = 0; i < breakpoints.length; i++) {
