@@ -14,6 +14,7 @@ import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
 
 public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtension {
+	
 
 	public boolean canToggleBreakpoints(IWorkbenchPart part,
 			ISelection selection) {

@@ -15,6 +15,7 @@ import org.eclipse.debug.core.model.LineBreakpoint;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleManager;
+import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.IDebugger;
@@ -50,11 +51,21 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 					} catch (CoreException e) {
 						throw new RuntimeException(e);
 					}
-					if (l==loc.getBeginLine() && 
-							b.getResource().getName().equals(loc.getURL().getHost())) {
-						//TODO: avoid side effect
-						fSuspendedByBreakpoint = true;
-						return true;
+
+					if (b.getResource().getName().equals(loc.getURL().getHost())) {
+						// special case for expression breakpoints
+						if (b instanceof RascalExpressionBreakpoint) {
+							if (b.getCharStart() <= loc.getOffset() && loc.getOffset()+loc.getLength() <= b.getCharEnd()) {
+								//TODO: avoid side effect
+								fSuspendedByBreakpoint = true;
+								return true;
+							}
+						} else if (l==loc.getBeginLine()) {
+							//TODO: avoid side effect
+							fSuspendedByBreakpoint = true;
+							return true;
+						}
+
 					}
 				}
 			} catch (CoreException e) {
@@ -226,10 +237,10 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	public void terminate() throws DebugException {
 		IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 		fConsoleManager.removeConsoles(new org.eclipse.ui.console.IConsole[]{getRascalDebugTarget().getConsole()});
-        //stop the thread of the interpreter
+		//stop the thread of the interpreter
 		Thread executorThread = getRascalDebugTarget().getConsole().getInterpreter().getExecutorThread();
 		executorThread.interrupt();
-	    fTerminated = true;
+		fTerminated = true;
 		fireTerminateEvent();
 	}
 

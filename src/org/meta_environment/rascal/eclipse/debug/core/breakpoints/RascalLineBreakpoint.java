@@ -19,8 +19,8 @@ import org.meta_environment.rascal.eclipse.debug.core.model.RascalThread;
 public class RascalLineBreakpoint extends LineBreakpoint {
 	
 	// target currently installed in
-	private RascalDebugTarget fTarget;
-	private IResource resource;
+	protected RascalDebugTarget target;
+	protected IResource resource;
 	
 	public IResource getResource() {
 		return resource;
@@ -90,7 +90,7 @@ public class RascalLineBreakpoint extends LineBreakpoint {
      * @throws CoreException if installation fails
      */
     public void install(RascalDebugTarget target) throws CoreException {
-    	fTarget = target;
+    	target = target;
     	target.getThread().addBreakpoint(this);
     }
     
@@ -105,7 +105,7 @@ public class RascalLineBreakpoint extends LineBreakpoint {
      */
     public void remove(RascalDebugTarget target) throws CoreException {
     	target.getThread().removeBreakpoint(this);
-    	fTarget = null;
+    	target = null;
     }
     
     /**
@@ -114,7 +114,7 @@ public class RascalLineBreakpoint extends LineBreakpoint {
      * @return the target this breakpoint is installed in or <code>null</code>
      */
     protected RascalDebugTarget getDebugTarget() {
-    	return fTarget;
+    	return target;
     }
         
 }
