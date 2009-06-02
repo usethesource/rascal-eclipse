@@ -1,13 +1,14 @@
 module JDT
 
-import Resources;
 import Map;
+import Resources;
+import Java;
 
 // TBD: ADT definition for types/names?
 
 public alias JDTlocation = tuple[str, int, int];
-public alias BindingRel = rel[JDTlocation, str];
-public alias TypeInfoRel = rel[str, str];
+public alias BindingRel = rel[JDTlocation, Entity];
+public alias TypeInfoRel = rel[Entity, Entity];
 
 public alias FactMap = map[str, value];
 
@@ -21,7 +22,7 @@ Imports the following relations:
   BindingRel variableBindings 
   TypeInfoRel implements
   TypeInfoRel extends
-  TypeInfoRel declaredTypes
+  TypeInfoRel declaredTypes //TBD: methods -> types ?
   TypeInfoRel declaredMethods
   TypeInfoRel declaredFields
 */
@@ -85,7 +86,7 @@ public FactMap extractFacts(str projectName) {
 	
 	for (file(filename, "java", location) <- project) {
 	    try {
-			temp = getFacts(projectName, location);
+			temp = extractFacts(projectName, location);
 			result = unionFacts(result, temp);
 		} catch: ;
 	}
