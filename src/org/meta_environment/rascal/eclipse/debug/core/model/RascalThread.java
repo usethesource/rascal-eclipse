@@ -7,6 +7,7 @@ import java.util.Stack;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
@@ -15,6 +16,7 @@ import org.eclipse.debug.core.model.LineBreakpoint;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleManager;
+import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
@@ -27,51 +29,53 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	private boolean fTerminated = false;
 	private boolean fSuspended = false;
 	private boolean fSuspendedByBreakpoint = false;
-	private List<RascalLineBreakpoint> lineBreakpoints;
 
 	public RascalThread(IDebugTarget target) {
 		super(target);
-		lineBreakpoints = new ArrayList<RascalLineBreakpoint>();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IThread#getBreakpoints()
 	 */
 	public IBreakpoint[] getBreakpoints() {
-		return lineBreakpoints.toArray(new LineBreakpoint[]{});
+		return 	getBreakpointManager().getBreakpoints(IRascalResources.ID_RASCAL_DEBUG_MODEL);
 	}
 
 	public boolean hasEnabledBreakpoint(ISourceLocation loc)  {
-		synchronized (lineBreakpoints) { 
-			for (RascalLineBreakpoint b: lineBreakpoints) {
-				try {
-					if (b.isEnabled()) {
-						int l;
-						try {
-							l = b.getLineNumber();
-						} catch (CoreException e) {
-							throw new RuntimeException(e);
-						}
+		IBreakpoint[] breakpoints = getBreakpointManager().getBreakpoints(IRascalResources.ID_RASCAL_DEBUG_MODEL);
+		synchronized (breakpoints) { 
+			for (IBreakpoint bp: breakpoints) {
+				if (bp instanceof RascalLineBreakpoint) {
+					RascalLineBreakpoint b = (RascalLineBreakpoint) bp;
+					try {
+						if (b.isEnabled()) {
+							int l;
+							try {
+								l = b.getLineNumber();
+							} catch (CoreException e) {
+								throw new RuntimeException(e);
+							}
 
-						if (b.getResource().getName().equals(loc.getURL().getHost())) {
-							// special case for expression breakpoints
-							if (b instanceof RascalExpressionBreakpoint) {
-								if (b.getCharStart() <= loc.getOffset() && loc.getOffset()+loc.getLength() <= b.getCharEnd()) {
+							if (b.getResource().getName().equals(loc.getURL().getHost())) {
+								// special case for expression breakpoints
+								if (b instanceof RascalExpressionBreakpoint) {
+									if (b.getCharStart() <= loc.getOffset() && loc.getOffset()+loc.getLength() <= b.getCharEnd()) {
+										//TODO: avoid side effect
+										fSuspendedByBreakpoint = true;
+										return true;
+									}
+								} else if (l==loc.getBeginLine()) {
 									//TODO: avoid side effect
 									fSuspendedByBreakpoint = true;
 									return true;
 								}
-							} else if (l==loc.getBeginLine()) {
-								//TODO: avoid side effect
-								fSuspendedByBreakpoint = true;
-								return true;
-							}
 
+							}
 						}
+					} catch (CoreException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-				} catch (CoreException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
 			}
 		}
@@ -256,20 +260,4 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		fStepping = stepping;
 	}
 
-	public void removeBreakpoint(RascalLineBreakpoint rascalLineBreakpoint) {
-		lineBreakpoints.remove(rascalLineBreakpoint);
-	}
-
-	public void addBreakpoint(RascalLineBreakpoint rascalLineBreakpoint) {
-		lineBreakpoints.add(rascalLineBreakpoint);
-	}
-
-	public void restoreBreakpoints(IBreakpoint[] breakpoints) {
-		lineBreakpoints.clear();
-		for (int i = 0; i < breakpoints.length; i++) {
-			if (breakpoints[i] instanceof RascalLineBreakpoint) {
-				lineBreakpoints.add((RascalLineBreakpoint)breakpoints[i]);
-			}
-		}
-	}
 }

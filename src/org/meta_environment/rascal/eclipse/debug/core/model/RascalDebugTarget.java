@@ -33,7 +33,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 
 	// associated Rascal console
 	private RascalConsole console;
-	
+
 	// containing launch object
 	private ILaunch fLaunch;
 
@@ -58,7 +58,8 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		IBreakpointManager breakpointManager = getBreakpointManager();
 		breakpointManager.addBreakpointListener(this);
 		breakpointManager.addBreakpointManagerListener(this);
-		fThread.restoreBreakpoints(breakpointManager.getBreakpoints());
+		// to restore the persistent breakpoints
+		this.breakpointManagerEnablementChanged(true);
 	}
 
 	public IThread[] getThreads() throws DebugException {
@@ -80,31 +81,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @see org.eclipse.debug.core.model.IDebugTarget#supportsBreakpoint(org.eclipse.debug.core.model.IBreakpoint)
 	 */
 	public boolean supportsBreakpoint(IBreakpoint breakpoint) {
-		//TODO: redefine supportsBreakpoint
-		/**
-		if (!isTerminated() && breakpoint.getModelIdentifier().equals(getModelIdentifier())) {
-			try {
-				String program = getLaunch().getLaunchConfiguration().getAttribute(IRascalResources.ATTR_RASCAL_PROGRAM, (String)null);
-				if (program != null) {
-					IResource resource = null;
-					if (breakpoint instanceof RascalLineBreakpoint) {
-
-						IMarker marker = breakpoint.getMarker();
-						if (marker != null) {
-							resource = marker.getResource();
-						}
-					}
-					if (resource != null) {
-						IPath p = new Path(program);
-						return resource.getFullPath().equals(p);
-					}
-				}
-			} catch (CoreException e) {
-			}			
-		}
-		return false;
-		 */
-		return true;
+		return breakpoint instanceof RascalLineBreakpoint;
 	}
 
 	/* (non-Javadoc)
@@ -289,11 +266,11 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	public RascalConsole getConsole() {
 		return console;
 	}
-	
+
 	public DebuggableEvaluator getEvaluator() {
 		return (DebuggableEvaluator) getInterpreter().getEval();
 	}
-	
+
 	public  RascalScriptInterpreter getInterpreter() {
 		return console.getInterpreter();
 	}

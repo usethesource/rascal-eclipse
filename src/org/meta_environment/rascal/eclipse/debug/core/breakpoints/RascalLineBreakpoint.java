@@ -90,8 +90,7 @@ public class RascalLineBreakpoint extends LineBreakpoint {
      * @throws CoreException if installation fails
      */
     public void install(RascalDebugTarget target) throws CoreException {
-    	target = target;
-    	target.getThread().addBreakpoint(this);
+    	this.target = target;
     }
     
     
@@ -104,7 +103,6 @@ public class RascalLineBreakpoint extends LineBreakpoint {
      * @throws CoreException if removal fails
      */
     public void remove(RascalDebugTarget target) throws CoreException {
-    	target.getThread().removeBreakpoint(this);
     	target = null;
     }
     

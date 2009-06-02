@@ -36,7 +36,7 @@ public class RascalExpressionBreakpoint extends RascalLineBreakpoint {
 				IMarker marker = resource.createMarker("rascal.markerType.lineBreakpoint");
 				setMarker(marker);
 				marker.setAttribute(IBreakpoint.ENABLED, Boolean.TRUE);
-				marker.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine());
+				marker.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine()+1);
 				marker.setAttribute(IMarker.CHAR_START, selection.getOffset());
 				marker.setAttribute(IMarker.CHAR_END, selection.getOffset() + selection.getLength());
 				marker.setAttribute(IBreakpoint.ID, getModelIdentifier());
