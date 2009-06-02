@@ -19,8 +19,10 @@ import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
 import org.meta_environment.rascal.eclipse.IRascalResources;
+import org.meta_environment.rascal.eclipse.console.RascalScriptInterpreter;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
+import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.env.Lambda;
 
 
@@ -31,7 +33,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 
 	// associated Rascal console
 	private RascalConsole console;
-
+	
 	// containing launch object
 	private ILaunch fLaunch;
 
@@ -286,6 +288,14 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 
 	public RascalConsole getConsole() {
 		return console;
+	}
+	
+	public DebuggableEvaluator getEvaluator() {
+		return (DebuggableEvaluator) getInterpreter().getEval();
+	}
+	
+	public  RascalScriptInterpreter getInterpreter() {
+		return console.getInterpreter();
 	}
 
 	public List<Entry<String, List<Lambda>>> getFunctions() {

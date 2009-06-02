@@ -49,6 +49,7 @@ import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
+import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Command.Ambiguity;
 import org.meta_environment.rascal.ast.Command.Declaration;
@@ -110,7 +111,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		executorThread.setDaemon(true);
 		executorThread.start();
 	}
-	
+
 	public Thread getExecutorThread() {
 		return executorThread;
 	}
@@ -590,6 +591,12 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
 		eval.addClassLoader(getClass().getClassLoader());
 	}
-	
+
+	/* construct an Expression AST from a String */ 
+	public Expression getExpression(String expression) throws IOException {
+		IConstructor tree = parser.parseCommand(Collections.<String>emptySet(), Collections.<String>emptyList(), "-", expression+";");
+		Command c = builder.buildCommand(tree);	
+		return c.getStatement().getExpression();
+	}
 
 }

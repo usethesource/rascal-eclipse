@@ -42,35 +42,37 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	}
 
 	public boolean hasEnabledBreakpoint(ISourceLocation loc)  {
-		for (RascalLineBreakpoint b: lineBreakpoints) {
-			try {
-				if (b.isEnabled()) {
-					int l;
-					try {
-						l = b.getLineNumber();
-					} catch (CoreException e) {
-						throw new RuntimeException(e);
-					}
+		synchronized (lineBreakpoints) { 
+			for (RascalLineBreakpoint b: lineBreakpoints) {
+				try {
+					if (b.isEnabled()) {
+						int l;
+						try {
+							l = b.getLineNumber();
+						} catch (CoreException e) {
+							throw new RuntimeException(e);
+						}
 
-					if (b.getResource().getName().equals(loc.getURL().getHost())) {
-						// special case for expression breakpoints
-						if (b instanceof RascalExpressionBreakpoint) {
-							if (b.getCharStart() <= loc.getOffset() && loc.getOffset()+loc.getLength() <= b.getCharEnd()) {
+						if (b.getResource().getName().equals(loc.getURL().getHost())) {
+							// special case for expression breakpoints
+							if (b instanceof RascalExpressionBreakpoint) {
+								if (b.getCharStart() <= loc.getOffset() && loc.getOffset()+loc.getLength() <= b.getCharEnd()) {
+									//TODO: avoid side effect
+									fSuspendedByBreakpoint = true;
+									return true;
+								}
+							} else if (l==loc.getBeginLine()) {
 								//TODO: avoid side effect
 								fSuspendedByBreakpoint = true;
 								return true;
 							}
-						} else if (l==loc.getBeginLine()) {
-							//TODO: avoid side effect
-							fSuspendedByBreakpoint = true;
-							return true;
-						}
 
+						}
 					}
+				} catch (CoreException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			} catch (CoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 		return false;

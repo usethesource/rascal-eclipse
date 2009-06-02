@@ -58,4 +58,8 @@ public class RascalValue implements IValue {
 		return target.getAdapter(adapter);
 	}
 
+	public String toString() {
+		return value.getValue().toString();	
+	}
+
 }

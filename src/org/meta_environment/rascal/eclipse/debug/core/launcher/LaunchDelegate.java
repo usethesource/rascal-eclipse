@@ -30,7 +30,10 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate {
 			// open a Rascal Console
 			ConsoleFactory.getInstance().openConsole();
 			RascalConsole console = ConsoleFactory.getInstance().getLastConsole();
-			IDebugTarget target = new RascalDebugTarget(launch, console);
+			RascalDebugTarget target = new RascalDebugTarget(launch, console);
+			//activate the step by step expression and statement mode by default
+			target.getEvaluator().setExpressionStepMode(true);
+			target.getEvaluator().setStatementStepMode(true);
 			launch.addDebugTarget(target);
 		}
 	}

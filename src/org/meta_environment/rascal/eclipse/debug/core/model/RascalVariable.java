@@ -1,18 +1,23 @@
 package org.meta_environment.rascal.eclipse.debug.core.model;
 
+import java.io.IOException;
+
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
+import org.meta_environment.rascal.eclipse.console.RascalScriptInterpreter;
 import org.meta_environment.rascal.interpreter.result.Result;
+
+import com.sun.org.apache.xpath.internal.Expression;
 
 /* manage only local variables for the moment */
 
 public class RascalVariable extends RascalDebugElement implements IVariable {
 
 	// name & stack frame
-	private String fName;
-	private RascalStackFrame fFrame;
+	private String name;
+	private RascalStackFrame frame;
 
 	/**
 	 * Constructs a variable contained in the given stack frame
@@ -23,15 +28,15 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 */
 	public RascalVariable(RascalStackFrame frame, String name) {
 		super(frame.getRascalDebugTarget());
-		fFrame = frame;
-		fName = name;
+		this.frame = frame;
+		this.name = name;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IVariable#getValue()
 	 */
 	public IValue getValue() throws DebugException {
-		Result<org.eclipse.imp.pdb.facts.IValue> value = fFrame.getEnvt().getVariable(fName);
+		Result<org.eclipse.imp.pdb.facts.IValue> value = frame.getEnvt().getVariable(name);
 		return new RascalValue(this.getRascalDebugTarget(), value);
 	}
 
@@ -39,7 +44,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IVariable#getName()
 	 */
 	public String getName() throws DebugException {
-		return fName;
+		return name;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IVariable#getReferenceTypeName()
@@ -57,14 +62,37 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IValueModification#setValue(java.lang.String)
 	 */
 	public void setValue(String expression) throws DebugException {
-		//TODO: set variable in envt
-		fireChangeEvent(DebugEvent.CONTENT);
+		try {
+			//parse the expression
+			org.meta_environment.rascal.ast.Expression ast = getRascalDebugTarget().getInterpreter().getExpression(expression);
+
+			boolean expressionStepMode = getRascalDebugTarget().getEvaluator().expressionStepModeEnabled();
+			if (expressionStepMode) {
+				//deactivate the step by step
+				getRascalDebugTarget().getEvaluator().setExpressionStepMode(false);
+			}
+			
+			//evaluate
+			Result<org.eclipse.imp.pdb.facts.IValue> result = getRascalDebugTarget().getEvaluator().eval(ast);
+		
+			//store the result in the current environment
+			frame.getEnvt().storeVariable(name, result);
+		
+			//reactivate the expression step by step if necessary
+			getRascalDebugTarget().getEvaluator().setExpressionStepMode(expressionStepMode);
+			
+			fireChangeEvent(DebugEvent.CONTENT);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValueModification#setValue(org.eclipse.debug.core.model.IValue)
 	 */
 	public void setValue(IValue value) throws DebugException {
+		//TODO
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValueModification#supportsValueModification()
@@ -91,7 +119,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @return the stack frame owning this variable
 	 */
 	protected RascalStackFrame getStackFrame() {
-		return fFrame;
+		return frame;
 	}
 
 }
