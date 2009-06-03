@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -63,8 +64,8 @@ import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 public class JDTImporter extends ASTVisitor {
 
-	//private static final IWorkspaceRoot ROOT = ResourcesPlugin.getWorkspace().getRoot();
-    private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	//private static final IValueFactory VF = ValueFactory.getInstance(); // to test validity of created pdb values
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	private static Map<String, IValue> primitiveTypes;
 	private static IValue javaLangObject;
@@ -250,7 +251,8 @@ public class JDTImporter extends ASTVisitor {
 			if (exp.resolveTypeBinding().isArray() && fb.getName().equals("length")) {
 				// 'length' access of array object
 				// put arrayLengthField in idStore, so it doesn't have to call importVariableBinding()
-				// (which cannot distinguish between 'length' access and a local var inside an initializer)
+				// (which cannot distinguish between 'length' access and a local var inside an initializer).
+				// don't include type of exp, b/c we can't do the same further down
 				idStore.put(fb.getKey(), arrayLengthField);
 			}
 		} else if (n instanceof SuperFieldAccess) {
@@ -276,9 +278,10 @@ public class JDTImporter extends ASTVisitor {
 							&& parent != null
 							&& parent instanceof QualifiedName
 							&& vb.toString().equals("public final int length")) {
-						// assume 'length' access of array object
+						// assume 'length' access of array object (local variables can't be public)
 						// put arrayLengthField in idStore, so it doesn't have to call importVariableBinding()
-						// (which cannot distinguish between 'length' access and a local var inside an initializer)
+						// (which cannot distinguish between 'length' access and a local var inside an initializer).
+						// we can't get the array type of the object of which the field was accessed
 						idStore.put(vb.getKey(), arrayLengthField);						
 					}
 				}					
@@ -413,13 +416,9 @@ public class JDTImporter extends ASTVisitor {
 		
 		if (n instanceof TypeDeclaration) {
 			tb = ((TypeDeclaration) n).resolveBinding();
-		}
-		
-		if (n instanceof TypeDeclarationStatement) {
+		} else if (n instanceof TypeDeclarationStatement) {
 			tb = ((TypeDeclarationStatement) n).getDeclaration().resolveBinding();
-		}
-		
-		if (n instanceof AnonymousClassDeclaration) {
+		} else if (n instanceof AnonymousClassDeclaration) {
 			tb = ((AnonymousClassDeclaration) n).resolveBinding();
 		}
 		
@@ -565,7 +564,12 @@ public class JDTImporter extends ASTVisitor {
 			} else
 			
 			if (tb.isWildcardType()) {
-				lw.append(VF.constructor(CONS_WILDCARD));
+				ITypeBinding bound = tb.getBound();
+				if (bound != null) {
+					lw.append(VF.constructor(CONS_WILDCARD_BOUND, createEntity(getIds(bound))));
+				} else {
+					lw.append(VF.constructor(CONS_WILDCARD));
+				}
 			} else
 				
 			if (tb.isCapture()) {

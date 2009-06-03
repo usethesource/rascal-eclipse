@@ -25,6 +25,7 @@ data Id = package(str name)
         
         | typeParameter(str name)
         | wildcard
+        | wildcard(Entity bound)
 ;
 
 
