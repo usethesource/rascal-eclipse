@@ -7,8 +7,18 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import org.meta_environment.rascal.ast.Name;
+import org.meta_environment.rascal.ast.QualifiedName;
+import org.meta_environment.rascal.eclipse.debug.ui.presentation.RascalModelPresentation;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 
 public class RascalStackFrame<var> extends RascalDebugElement implements IStackFrame{
 
@@ -60,10 +70,17 @@ public class RascalStackFrame<var> extends RascalDebugElement implements IStackF
 	}
 
 	public IVariable[] getVariables() throws DebugException {
-		//TODO: manage the list of visible variables
+		//manage the list of variables local to the current module
 		Set<String> vars = envt.getVariables().keySet();
-		IVariable[] ivars = new IVariable[vars.size()];
+		//manage the list of imported modules
+		Set<String> modules = envt.getImports();
+
+		IVariable[] ivars = new IVariable[vars.size()+modules.size()];
 		int i = 0;
+		for (String m : modules) {
+			ivars[i] = new RascalImportedModule(this, m);
+			i++;
+		}
 		for (String v : vars) {
 			ivars[i] = new RascalVariable(this, v);
 			i++;

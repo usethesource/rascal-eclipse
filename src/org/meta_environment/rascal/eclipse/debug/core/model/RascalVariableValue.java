@@ -7,12 +7,12 @@ import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 import org.meta_environment.rascal.interpreter.result.Result;
 
-public class RascalValue implements IValue {
+public class RascalVariableValue implements IValue {
 
 	private RascalDebugTarget target;
 	private Result<org.eclipse.imp.pdb.facts.IValue> value;
 
-	public RascalValue(RascalDebugTarget target,
+	public RascalVariableValue(RascalDebugTarget target,
 			Result<org.eclipse.imp.pdb.facts.IValue> value) {
 		this.value = value;
 		this.target = target;
