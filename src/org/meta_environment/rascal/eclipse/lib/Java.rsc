@@ -1,5 +1,11 @@
 module Java
 
+import List;
+import Integer;
+import Node;
+import Exception;
+
+
 data Entity = entity(list[Id] id);
 
 data Id = package(str name)
@@ -42,3 +48,56 @@ data PrimitiveType = byte
 ;
 
 
+public str toString(Entity entity) {
+	str result = "";
+	list[Id] ids = entity.id;
+	
+	if (size(ids) > 0) {
+		result = toString(head(ids));	
+		for (id <- tail(ids)) {
+			result += "." + toString(id);	
+		}
+	}
+	
+	return result;
+}
+
+private str toString(list[Entity] entities) {
+	str result = "";
+	
+	if (size(entities) > 0) {
+		result = toString(head(entities));
+		for (entity <- tail(entities)) {
+			result += "." + toString(entity);	
+		}
+	}
+	
+	return result;
+}
+
+private str toString(Id id) {
+	switch (id) {
+		case class(name, params):
+			return name + "<" + toString(params) + ">"; 		
+		case interface(name, params):
+			return name + "<" + toString(params) + ">"; 		
+        case method(name, params, returnType):
+			return name + "(" + toString(params) + ")"; 		
+	}
+
+	try {
+		return id.name;
+	} catch : ;
+	
+	switch (id) {
+		case anonymousClass(nr): return "anonymousClass$" + toString(nr);		
+		case constructor(params): return "constructor(" + toString(params) + ")";		
+		case initializer: return "initializer";
+		case initializer(nr): return "initializer$" + toString(nr);		
+		case primitive(p): return getName(p);
+		case array(elementType): return toString(elementType) + "[]";		
+		case wildcard: return "?";
+		case wildcard(bound): return "? extends " + toString(bound);
+		default : throw IllegalArgument(id);
+	}
+}
