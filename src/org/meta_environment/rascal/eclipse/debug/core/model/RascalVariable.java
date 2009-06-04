@@ -6,23 +6,17 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
-import org.meta_environment.rascal.ast.QualifiedName;
-import org.meta_environment.rascal.eclipse.console.RascalScriptInterpreter;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
-
-import com.sun.org.apache.xpath.internal.Expression;
 
 /* model for the local variable of a module */
 
 public class RascalVariable extends RascalDebugElement implements IVariable {
 
-	// name & stack frame
+	// name & corresponding environment
 	private String name;
-	private RascalStackFrame frame;
-
-	//imported module if necessary
-	private ModuleEnvironment module;
+	private Environment envt;
 
 	/**
 	 * Constructs a variable contained in the given stack frame
@@ -33,13 +27,13 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 */
 	public RascalVariable(RascalStackFrame frame, String name) {
 		super(frame.getRascalDebugTarget());
-		this.frame = frame;
+		this.envt = frame.getEnvt();
 		this.name = name;
 	}
 
 	/**
 	 * Constructs a variable contained in the given stack frame
-	 * with the given name and the given module.
+	 * with the given name and the given imported module.
 	 * 
 	 * @param frame owning stack frame
 	 * @param name variable name
@@ -47,9 +41,8 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 */
 	public RascalVariable(RascalStackFrame frame, String name, ModuleEnvironment module) {
 		super(frame.getRascalDebugTarget());
-		this.frame = frame;
 		this.name = name;
-		this.module = module;
+		this.envt = module;
 	}
 
 	/* (non-Javadoc)
@@ -57,13 +50,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 */
 	public IValue getValue() throws DebugException {
 		Result<org.eclipse.imp.pdb.facts.IValue> value;
-		if (module == null) {
-			// variable local to the current module
-			value = frame.getEnvt().getVariable(name);
-		} else {
-			// global variable from an imported module
-			value = module.getVariable(name);
-		}
+		value = envt.getVariable(name);
 		return new RascalVariableValue(this.getRascalDebugTarget(), value);
 	}
 
@@ -102,8 +89,8 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 			//evaluate
 			Result<org.eclipse.imp.pdb.facts.IValue> result = getRascalDebugTarget().getEvaluator().eval(ast);
 
-			//store the result in the current environment
-			frame.getEnvt().storeVariable(name, result);
+			//store the result in its environment
+			envt.storeVariable(name, result);
 
 			//reactivate the expression step by step if necessary
 			getRascalDebugTarget().getEvaluator().setExpressionStepMode(expressionStepMode);
@@ -138,15 +125,6 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 */
 	public boolean verifyValue(IValue value) throws DebugException {
 		return false;
-	}
-
-	/**
-	 * Returns the stack frame owning this variable.
-	 * 
-	 * @return the stack frame owning this variable
-	 */
-	protected RascalStackFrame getStackFrame() {
-		return frame;
 	}
 
 }
