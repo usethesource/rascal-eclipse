@@ -101,7 +101,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 */
 
 	public boolean canTerminate() {
-		return true;
+		return !isTerminated();
 	}
 
 	/* (non-Javadoc)

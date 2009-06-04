@@ -1,25 +1,21 @@
 package org.meta_environment.rascal.eclipse.debug.core.model;
 
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Stack;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.debug.core.model.LineBreakpoint;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleManager;
 import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
-import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.IDebugger;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
@@ -135,12 +131,12 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 
 	public boolean canSuspend() {
-		return !isSuspended();
+		return !isSuspended() && !isTerminated();
 	}
 
 
 	public boolean isSuspended() {
-		return fSuspended && !isTerminated();
+		return (fSuspended || fSuspendedByBreakpoint) && !isTerminated();
 	}
 
 	public boolean isSuspendedByBreakpoint() {
@@ -148,19 +144,12 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	}
 
 	public void resume() throws DebugException {
-		setStepping(false);
-		resumed(DebugEvent.CLIENT_REQUEST);
-		synchronized (this) {
-			this.notify();
-		}
+		fStepping =  false;
+		resumed(DebugEvent.CLIENT_REQUEST);	
 	}
 
-
-
 	public void suspend() {
-		fireSuspendEvent(DebugEvent.CLIENT_REQUEST);
-		((DebuggableEvaluator) getRascalDebugTarget().getConsole().getInterpreter().getEval()).suspendRequest();
-		//setStepping(true);
+		getRascalDebugTarget().getEvaluator().suspendRequest();
 	}
 
 
@@ -169,6 +158,8 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 			fSuspended = true;
 			if (isStepping()) {
 				fireSuspendEvent(DebugEvent.STEP_END);
+			} else {
+				fireSuspendEvent(DebugEvent.CLIENT_REQUEST);
 			}
 			try {
 				this.wait();
@@ -204,20 +195,23 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 	public void stepInto() throws DebugException {
 		System.out.println("step into");
-		setStepping(true);
+		fStepping = true;
 		resumed(DebugEvent.STEP_INTO);
+	}
+
+	public void resumed(int detail)  {
+		// clear the thread state
+		fSuspended = false;
+		fSuspendedByBreakpoint = false;
+		fireResumeEvent(detail);
+		// need also to explicitly notify it to the debug target
+		// for refreshing the icons associated to the debug target
+		// I do not understand why...
+		getRascalDebugTarget().fireResumeEvent(detail);
 		synchronized (this) {
 			this.notify();
 		}
 	}
-
-	public void resumed(int detail)  {
-		fSuspended = false;
-		fSuspendedByBreakpoint = false;
-		fireResumeEvent(detail);
-	}
-
-
 
 	public void stepOver() throws DebugException {
 		// TODO Auto-generated method stub
@@ -244,20 +238,13 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 		fConsoleManager.removeConsoles(new org.eclipse.ui.console.IConsole[]{getRascalDebugTarget().getConsole()});
 		//stop the thread of the interpreter
+		//TODO: fix the bug when the thread is suspended
 		Thread executorThread = getRascalDebugTarget().getConsole().getInterpreter().getExecutorThread();
 		executorThread.interrupt();
 		fTerminated = true;
 		fireTerminateEvent();
-	}
-
-
-	/**
-	 * Sets whether this thread is stepping
-	 * 
-	 * @param stepping whether stepping
-	 */
-	public void setStepping(boolean stepping) {
-		fStepping = stepping;
+		// for refreshing the icons associated to the debug target
+		getRascalDebugTarget().fireTerminateEvent();
 	}
 
 }

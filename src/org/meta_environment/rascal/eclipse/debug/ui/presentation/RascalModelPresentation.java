@@ -130,6 +130,7 @@ public class RascalModelPresentation extends LabelProvider implements IDebugMode
 		}
 		listener.detailComputed(value, detail);
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.ui.ISourcePresentation#getEditorInput(java.lang.Object)
 	 */
