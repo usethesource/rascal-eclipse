@@ -99,6 +99,9 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 		eval.addModuleLoader(new ProjectModuleLoader());
 		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
+		
+		eval.addSdfSearchPathContributor(new ProjectSDFModuleContributor());
+		
 		eval.addClassLoader(getClass().getClassLoader());
 
 		loadCommandHistory();
