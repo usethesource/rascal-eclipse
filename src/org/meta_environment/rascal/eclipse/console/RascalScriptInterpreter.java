@@ -75,9 +75,7 @@ import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 
-public class RascalScriptInterpreter implements IScriptInterpreter {
-	private final static ASTFactory factory = new ASTFactory();
-	private final ASTBuilder builder = new ASTBuilder(factory);
+public class RascalScriptInterpreter implements IScriptInterpreter{
 	private final ModuleParser parser = new ModuleParser();
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private Evaluator eval;
@@ -95,7 +93,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 		this.console = console;
 		this.command = "";
 
-		this.eval = new Evaluator(vf, factory, new PrintWriter(System.err), new ModuleEnvironment("***shell***"));
+		this.eval = new Evaluator(vf, new PrintWriter(System.err), new ModuleEnvironment("***shell***"));
 
 		eval.addModuleLoader(new ProjectModuleLoader());
 		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
@@ -336,7 +334,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	}
 
 	private void execCommand(IConstructor tree) {
-		Command stat = builder.buildCommand(tree);
+		Command stat = new ASTBuilder(new ASTFactory()).buildCommand(tree);
 
 		clearErrorMarker();
 
@@ -590,7 +588,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	}
 
 	public void setDebugger(IDebugger debugger) {
-		eval = new DebuggableEvaluator(vf, factory, new PrintWriter(System.err), new ModuleEnvironment("***shell***"),debugger);
+		eval = new DebuggableEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment("***shell***"),debugger);
 		eval.addModuleLoader(new ProjectModuleLoader());
 		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
 		eval.addClassLoader(getClass().getClassLoader());
@@ -599,7 +597,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 	/* construct an Expression AST from a String */ 
 	public Expression getExpression(String expression) throws IOException {
 		IConstructor tree = parser.parseCommand(Collections.<String>emptySet(), Collections.<String>emptyList(), "-", expression+";");
-		Command c = builder.buildCommand(tree);	
+		Command c = new ASTBuilder(new ASTFactory()).buildCommand(tree);	
 		return c.getStatement().getExpression();
 	}
 
