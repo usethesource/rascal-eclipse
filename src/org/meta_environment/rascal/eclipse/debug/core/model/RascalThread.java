@@ -16,7 +16,9 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
+import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.IDebugger;
+import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
 public class RascalThread extends RascalDebugElement implements IThread, IDebugger {
@@ -153,19 +155,19 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	}
 
 
-	public void notifySuspend() {
-		synchronized (this) {
-			fSuspended = true;
-			if (isStepping()) {
-				fireSuspendEvent(DebugEvent.STEP_END);
-			} else {
-				fireSuspendEvent(DebugEvent.CLIENT_REQUEST);
-			}
-			try {
+	public synchronized void notifySuspend() throws QuitException {
+		fSuspended = true;
+		if (isStepping()) {
+			fireSuspendEvent(DebugEvent.STEP_END);
+		} else {
+			fireSuspendEvent(DebugEvent.CLIENT_REQUEST);
+		}
+		try {
+			while (isSuspended()) {
 				this.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
 			}
+		} catch (InterruptedException e) {
+			throw new QuitException();
 		}
 
 	}
@@ -199,7 +201,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		resumed(DebugEvent.STEP_INTO);
 	}
 
-	public void resumed(int detail)  {
+	public synchronized void resumed(int detail)  {
 		// clear the thread state
 		fSuspended = false;
 		fSuspendedByBreakpoint = false;
@@ -208,9 +210,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		// for refreshing the icons associated to the debug target
 		// I do not understand why...
 		getRascalDebugTarget().fireResumeEvent(detail);
-		synchronized (this) {
-			this.notify();
-		}
+		this.notify();
 	}
 
 	public void stepOver() throws DebugException {
@@ -237,8 +237,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	public void terminate() throws DebugException {
 		IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 		fConsoleManager.removeConsoles(new org.eclipse.ui.console.IConsole[]{getRascalDebugTarget().getConsole()});
-		//stop the thread of the interpreter
-		//TODO: fix the bug when the thread is suspended
+		//interrupt the Rascal interpreter thread
 		Thread executorThread = getRascalDebugTarget().getConsole().getInterpreter().getExecutorThread();
 		executorThread.interrupt();
 		fTerminated = true;

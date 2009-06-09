@@ -13,11 +13,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.eclipse.debug.ui.presentation.RascalModelPresentation;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 
 public class RascalStackFrame<var> extends RascalDebugElement implements IStackFrame{
@@ -198,6 +200,10 @@ public class RascalStackFrame<var> extends RascalDebugElement implements IStackF
 
 	public Environment getEnvt() {
 		return envt;
+	}
+
+	public List<Entry<String, List<Lambda>>> getFunctions() {
+		return envt.getFunctions();
 	}
 
 }

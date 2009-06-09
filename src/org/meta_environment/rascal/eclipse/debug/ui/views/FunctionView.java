@@ -4,42 +4,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.debug.core.model.IDebugElement;
-import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.ui.AbstractDebugView;
-import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugUIConstants;
-import org.eclipse.draw2d.GridData;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.AbstractTableViewer;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
-import org.meta_environment.rascal.eclipse.IRascalResources;
-import org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget;
+import org.meta_environment.rascal.eclipse.debug.core.model.RascalStackFrame;
 import org.meta_environment.rascal.interpreter.env.Lambda;
 
 
 
 public class FunctionView extends AbstractDebugView implements ISelectionListener {
 
-	private RascalDebugTarget fTarget;
+	private RascalStackFrame frame;
 	private TableViewer viewer;
 
 	// Set column names
@@ -55,7 +45,7 @@ public class FunctionView extends AbstractDebugView implements ISelectionListene
 	 * interface since it must register changeListeners with the 
 	 * FunctionList 
 	 */
-	class ContentProvider implements IStructuredContentProvider {
+	class FunctionContentProvider implements IStructuredContentProvider {
 
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {}
 
@@ -63,7 +53,7 @@ public class FunctionView extends AbstractDebugView implements ISelectionListene
 
 		// Return the functions as an array of Objects
 		public Object[] getElements(Object parent) {
-			return fTarget.getFunctions().toArray();
+			return frame.getFunctions().toArray();
 		}
 
 	}
@@ -129,7 +119,7 @@ public class FunctionView extends AbstractDebugView implements ISelectionListene
 		viewer = new TableViewer(table);
 		viewer.setUseHashlookup(true);
 		viewer.setColumnProperties(columnNames);
-		viewer.setContentProvider(new ContentProvider());
+		viewer.setContentProvider(new FunctionContentProvider());
 		viewer.setLabelProvider(new FunctionLabelProvider());
 		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(IDebugUIConstants.ID_DEBUG_VIEW, this);
 		getSite().setSelectionProvider(viewer);
@@ -147,21 +137,14 @@ public class FunctionView extends AbstractDebugView implements ISelectionListene
 	}
 
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-		IAdaptable adaptable = DebugUITools.getDebugContext();
-		fTarget = null;
-		if (adaptable != null) {
-			IDebugElement element = (IDebugElement) adaptable.getAdapter(IDebugElement.class);
-			if (element != null) {
-				if (element.getModelIdentifier().equals(IRascalResources.ID_RASCAL_DEBUG_MODEL)) {
-					fTarget = (RascalDebugTarget) element.getDebugTarget();
-				}
+		frame = null;
+		if (selection instanceof TreeSelection) {
+			Object element = ((TreeSelection) selection).getFirstElement();
+			if (element instanceof RascalStackFrame) {
+				frame = (RascalStackFrame) element;
 			}
-		}        
-		Object input = null;
-		if (fTarget != null && fTarget.isSuspended()) {
-			input = fTarget;
 		}
-		viewer.setInput(input);
+		viewer.setInput(frame);
 		viewer.refresh();
 	}
 

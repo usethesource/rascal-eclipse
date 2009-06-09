@@ -206,6 +206,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 					setMarker(e.getMessage(), e.getLocation());
 				}
 				catch (QuitException q) {
+					content = null;
 					clearErrorMarker();
 					ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
 					executor.stop();
@@ -277,7 +278,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter {
 
 	private void updateConsole(final ScriptConsoleViewer viewer, final String text){
 		Control control = viewer.getControl();
-		if(control == null) return;
+		if(control == null || text == null) return;
 
 		control.getDisplay().asyncExec(new Runnable(){
 			public void run(){

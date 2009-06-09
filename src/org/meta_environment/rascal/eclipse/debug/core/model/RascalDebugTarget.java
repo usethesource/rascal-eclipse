@@ -274,11 +274,5 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	public  RascalScriptInterpreter getInterpreter() {
 		return console.getInterpreter();
 	}
-
-	public List<Entry<String, List<Lambda>>> getFunctions() {
-		return console.getInterpreter().getEval().getFunctions();
-	}
-
-
-
+	
 }

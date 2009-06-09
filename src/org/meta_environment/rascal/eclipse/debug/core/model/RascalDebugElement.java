@@ -32,7 +32,7 @@ public class RascalDebugElement extends DebugElement {
 	 * 
 	 * @return  debug target
 	 */
-	protected RascalDebugTarget getRascalDebugTarget() {
+	public RascalDebugTarget getRascalDebugTarget() {
 	    return (RascalDebugTarget) getDebugTarget();
 	}
 	
