@@ -144,8 +144,10 @@ public class FunctionView extends AbstractDebugView implements ISelectionListene
 				frame = (RascalStackFrame) element;
 			}
 		}
-		viewer.setInput(frame);
-		viewer.refresh();
+		if (viewer.getContentProvider() != null)  {
+			viewer.setInput(frame);
+			viewer.refresh();
+		}
 	}
 
 }
