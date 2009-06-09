@@ -8,6 +8,9 @@ import org.eclipse.debug.core.model.IVariable;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 public class RascalVariableValue implements IValue {
+	
+	/* do not print more than MAX_VALUE_STRING characters */
+	private final static int MAX_VALUE_STRING = 100;
 
 	private RascalDebugTarget target;
 	private Result<org.eclipse.imp.pdb.facts.IValue> value;
@@ -24,7 +27,12 @@ public class RascalVariableValue implements IValue {
 
 	public String getValueString() throws DebugException {
 		if (value.getValue() == null) return "";
-		return value.getValue().toString();
+		String s = value.getValue().toString();
+		if (s.length() > MAX_VALUE_STRING) {
+			return s.substring(0,MAX_VALUE_STRING)+"...";
+		} else {
+			return s;
+		}
 	}
 
 	public IVariable[] getVariables() throws DebugException {

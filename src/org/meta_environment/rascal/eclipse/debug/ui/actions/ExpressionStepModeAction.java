@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.eclipse.debug.ui.adapters;
+package org.meta_environment.rascal.eclipse.debug.ui.actions;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -14,7 +14,7 @@ import org.meta_environment.rascal.eclipse.debug.core.model.RascalThread;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 
 
-public class ExpressionStepModeAdapter  implements IObjectActionDelegate, IActionDelegate2 {
+public class ExpressionStepModeAction  implements IObjectActionDelegate, IActionDelegate2 {
 
 	private DebuggableEvaluator evaluator;
 
