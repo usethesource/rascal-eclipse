@@ -192,6 +192,18 @@
                      label="Add an Expression Breakpoint"
                      menubarPath="additions"/>
             </viewerContribution>
+            <objectContribution
+                  adaptable="false"
+                  id="rascal-eclipse.stepmode"
+                  objectClass="org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget">
+               <action
+                     class="org.meta_environment.rascal.eclipse.debug.ui.adapters.ExpressionStepModeAdapter"
+                     icon="icons/rascal_file.gif"
+                     id="rascal-eclipse.exprstepmode"
+                     label="Expression Stepping"
+                     style="toggle">
+               </action>
+            </objectContribution>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.editorActionContributions">
@@ -264,7 +276,6 @@
      <extension
            point="org.eclipse.debug.ui.contextViewBindings">
         <contextViewBinding
-              autoOpen="true"
               contextId="rascal.debugging"
               viewId="rascal-eclipse.functionview">
         </contextViewBinding>
