@@ -179,8 +179,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 
 	public boolean canStepOver() {
-		// TODO Auto-generated method stub
-		return false;
+		return !isTerminated() && isSuspended();
 	}
 
 
@@ -214,15 +213,16 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	}
 
 	public void stepOver() throws DebugException {
-		// TODO Auto-generated method stub
+		System.out.println("step over");
+		fStepping = true;
+		getRascalDebugTarget().getEvaluator().setStepOver(true);
+		resumed(DebugEvent.STEP_OVER);
 	}
-
 
 	public void stepReturn() throws DebugException {
 		// TODO Auto-generated method stub
 
 	}
-
 
 	public boolean canTerminate() {
 		return !isTerminated();

@@ -191,7 +191,7 @@ public class RascalStackFrame<var> extends RascalDebugElement implements IStackF
 	}
 
 	public String getSourceName() {
-		if (envt.getLocation() != null) {
+		if (envt.getRoot().getName() != null) {
 			return envt.getRoot().getName()+".rsc";
 		} else {
 			return null;
