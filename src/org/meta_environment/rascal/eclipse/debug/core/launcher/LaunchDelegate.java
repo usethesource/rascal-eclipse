@@ -27,10 +27,7 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate {
 
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 		if (mode.equals(ILaunchManager.DEBUG_MODE)) {
-			// open a Rascal Console
-			ConsoleFactory.getInstance().openConsole();
-			RascalConsole console = ConsoleFactory.getInstance().getLastConsole();
-			RascalDebugTarget target = new RascalDebugTarget(launch, console);
+		    RascalDebugTarget target = new RascalDebugTarget(launch);
 			//activate the step by step statement mode by default
 			target.getEvaluator().setStatementStepMode(true);
 			launch.addDebugTarget(target);

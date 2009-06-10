@@ -77,7 +77,6 @@ import org.meta_environment.uptr.Factory;
 
 public class RascalScriptInterpreter implements IScriptInterpreter{
 	private final ModuleParser parser = new ModuleParser();
-	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private Evaluator eval;
 	private final RascalConsole console;
 	private String command;
@@ -89,11 +88,11 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 	private final RascalExecutor executor;
 	private Thread executorThread;
 
-	public RascalScriptInterpreter(RascalConsole console) {
+	public RascalScriptInterpreter(RascalConsole console, Evaluator eval) {
 		this.console = console;
 		this.command = "";
+		this.eval = eval;
 
-		this.eval = new Evaluator(vf, new PrintWriter(System.err), new ModuleEnvironment("***shell***"));
 
 		eval.addModuleLoader(new ProjectModuleLoader());
 		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
@@ -585,13 +584,6 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 
 	public Evaluator getEval() {
 		return eval;
-	}
-
-	public void setDebugger(IDebugger debugger) {
-		eval = new DebuggableEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment("***shell***"),debugger);
-		eval.addModuleLoader(new ProjectModuleLoader());
-		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
-		eval.addClassLoader(getClass().getClassLoader());
 	}
 
 	/* construct an Expression AST from a String */ 

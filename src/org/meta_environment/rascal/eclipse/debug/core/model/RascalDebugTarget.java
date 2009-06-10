@@ -19,6 +19,7 @@ import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
 import org.meta_environment.rascal.eclipse.IRascalResources;
+import org.meta_environment.rascal.eclipse.console.ConsoleFactory;
 import org.meta_environment.rascal.eclipse.console.RascalScriptInterpreter;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
@@ -48,13 +49,14 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @param console Rascal console
 	 * @exception CoreException if unable to connect to host
 	 */
-	public RascalDebugTarget(ILaunch launch, RascalConsole console) throws CoreException {
+	public RascalDebugTarget(ILaunch launch) throws CoreException {
 		super(null);
 		fLaunch = launch;
-		this.console = console;
 		fThread = new RascalThread(this);
+		// open a Rascal Console
+		ConsoleFactory.getInstance().openDebuggableConsole(fThread);
+		console = ConsoleFactory.getInstance().getLastConsole();
 		fThreads = new IThread[] {fThread};
-		console.setDebugger(fThread);
 		IBreakpointManager breakpointManager = getBreakpointManager();
 		breakpointManager.addBreakpointListener(this);
 		breakpointManager.addBreakpointManagerListener(this);
