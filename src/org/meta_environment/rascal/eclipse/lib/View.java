@@ -17,23 +17,29 @@ public class View {
 	public static void show(IValue v) {
 		Editor.open(v);
 	}
-	
+
 	public static void browse(IValue v) {
 		Editor.open(v);
 	}
-	
+
 	public static void dot(IValue v) {
-		IModelGraph graph = ModelGraphRegister.getInstance().getModelGraph(v.getType().toString());
-		new GraphBuilder(graph).computeGraph(v);
+		String name = v.toString();
+		IModelGraph graph = null;
+		if (ModelGraphRegister.getInstance().isGraphOpen(name)) {
+			graph = ModelGraphRegister.getInstance().getModelGraph(name);
+		} else {
+			graph = ModelGraphRegister.getInstance().forceNewGraph(name);
+			new GraphBuilder(graph).computeGraph(v);
+		}
 		final GraphEditorInput input = new GraphEditorInput(graph);
-		
+
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
 
 		if (win == null && wb.getWorkbenchWindowCount() != 0) {
 			win = wb.getWorkbenchWindows()[0];
 		}
-		
+
 		if (win != null) {
 			final IWorkbenchPage page = win.getActivePage();
 
@@ -50,5 +56,5 @@ public class View {
 			}
 		}
 	}
+
 }
- 
