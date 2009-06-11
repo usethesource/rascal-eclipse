@@ -8,6 +8,7 @@
 package org.dancingbear.graphbrowser.editor.ui.input;
 
 import org.dancingbear.graphbrowser.model.IModelGraph;
+import org.eclipse.imp.pdb.ui.graph.ValueEditorInput;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -27,6 +28,16 @@ public class GraphEditorInput implements IEditorInput {
     public GraphEditorInput(IModelGraph graph) {
         this.graph = graph;
     }
+    
+    @Override
+	public boolean equals(Object obj) {
+		if (obj instanceof GraphEditorInput) {
+			if (exists()) {
+			return graph.equals(((GraphEditorInput) obj).getGraph());
+			}
+		}
+		return false;
+	}
 
     /**
      * Does the input exists
@@ -89,5 +100,9 @@ public class GraphEditorInput implements IEditorInput {
 
         return null;
     }
+    
+    public IModelGraph getGraph() {
+		return graph;
+	}
 
 }
