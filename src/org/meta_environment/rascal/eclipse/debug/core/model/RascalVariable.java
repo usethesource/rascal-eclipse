@@ -6,6 +6,7 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.imp.pdb.facts.IRelation;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -17,6 +18,8 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	// name & corresponding environment
 	private String name;
 	private Environment envt;
+	private Result<org.eclipse.imp.pdb.facts.IValue> value;
+
 
 	/**
 	 * Constructs a variable contained in the given stack frame
@@ -29,6 +32,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 		super(frame.getRascalDebugTarget());
 		this.envt = frame.getEnvt();
 		this.name = name;
+		this.value = envt.getVariable(name);
 	}
 
 	/**
@@ -43,15 +47,18 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 		super(frame.getRascalDebugTarget());
 		this.name = name;
 		this.envt = module;
+		this.value = envt.getVariable(name);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IVariable#getValue()
 	 */
 	public IValue getValue() throws DebugException {
-		Result<org.eclipse.imp.pdb.facts.IValue> value;
-		value = envt.getVariable(name);
 		return new RascalVariableValue(this.getRascalDebugTarget(), value);
+	}
+	
+	public boolean isRelation() {
+		return value.getType().isRelationType() && value.getType().getArity() == 2;
 	}
 
 	/* (non-Javadoc)
@@ -87,10 +94,10 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 			}
 
 			//evaluate
-			Result<org.eclipse.imp.pdb.facts.IValue> result = getRascalDebugTarget().getEvaluator().eval(ast);
+			value = getRascalDebugTarget().getEvaluator().eval(ast);
 
 			//store the result in its environment
-			envt.storeVariable(name, result);
+			envt.storeVariable(name, value);
 
 			//reactivate the expression step by step if necessary
 			getRascalDebugTarget().getEvaluator().setExpressionStepMode(expressionStepMode);

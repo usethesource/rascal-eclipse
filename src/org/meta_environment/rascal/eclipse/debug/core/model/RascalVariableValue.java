@@ -69,5 +69,9 @@ public class RascalVariableValue implements IValue {
 	public String toString() {
 		return value.getValue().toString();	
 	}
+	
+	public org.eclipse.imp.pdb.facts.IValue getValue() {
+		return value.getValue();
+	}
 
 }
