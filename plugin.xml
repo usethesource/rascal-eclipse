@@ -204,6 +204,16 @@
                      style="toggle">
                </action>
             </objectContribution>
+            <objectContribution
+                  adaptable="false"
+                  id="rascal-eclispe.variablemenu"
+                  objectClass="org.meta_environment.rascal.eclipse.debug.core.model.RascalVariable">
+               <action
+                     class="org.meta_environment.rascal.eclipse.debug.ui.actions.OpenGraphEditor"
+                     id="rascal-eclipse.showRelationGraph"
+                     label="Show Graph">
+               </action>
+            </objectContribution>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.editorActionContributions">
