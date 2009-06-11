@@ -253,6 +253,36 @@
       </launchConfigurationTabGroup>
    </extension>
    <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            icon="icons/rascal_file.gif"
+            configTypeID="rascal.launchType"
+            id="rascal.typeImage"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            label="Rascal Application"
+            icon="icons/rascal_file.gif"
+            class="org.meta_environment.rascal.eclipse.debug.ui.launcher.LaunchShortcut"
+            modes="run, debug"
+            id="rascal.launchShortcut">
+         <contextualLaunch>
+            <enablement>
+               <with variable="selection">
+                  <count value="1"/>
+                  <iterate>
+                     <instanceof value="org.eclipse.core.resources.IFile"/>
+                     <test
+                           value="*.rsc"
+                           property="org.eclipse.debug.ui.matchesPattern"/>
+                  </iterate>
+               </with>
+            </enablement>
+         </contextualLaunch>
+      </shortcut>
+   </extension>
+  <extension
          point="org.eclipse.debug.core.sourceLocators">
       <sourceLocator
             class="org.meta_environment.rascal.eclipse.debug.core.sourcelookup.RascalSourceLookupDirector"
@@ -387,5 +417,6 @@
         </view>
      </perspectiveExtension>
   </extension>
+  
    
 </plugin>
