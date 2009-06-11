@@ -7,20 +7,13 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.meta_environment.rascal.ast.Name;
-import org.meta_environment.rascal.ast.QualifiedName;
-import org.meta_environment.rascal.eclipse.debug.ui.presentation.RascalModelPresentation;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Lambda;
-import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
+
 
 public class RascalStackFrame<var> extends RascalDebugElement implements IStackFrame{
 
@@ -191,8 +184,7 @@ public class RascalStackFrame<var> extends RascalDebugElement implements IStackF
 	}
 
 	public String getSourceName() {
-		
-		if (envt.getRoot().getName() != null) {
+		if (envt.getRoot() != null) {
 			return envt.getRoot().getName().replaceAll("::", "/")+".rsc";
 		} else {
 			return null;
@@ -205,6 +197,27 @@ public class RascalStackFrame<var> extends RascalDebugElement implements IStackF
 
 	public List<Entry<String, List<Lambda>>> getFunctions() {
 		return envt.getFunctions();
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 * used by eclipse to refresh the view 
+	 * (see the fireDeltaUpdatingSelectedFrame of the ThreadEventHandler class)
+	 */
+	public boolean equals(Object obj) {
+		if (obj instanceof RascalStackFrame) {
+			RascalStackFrame sf = (RascalStackFrame)obj;
+			return sf.getThread().equals(getThread()) && 
+			    sf.getSourceName()==null?getSourceName()==null:sf.getSourceName().equals(getSourceName()) &&
+				sf.getEnvt().equals(getEnvt()) &&
+				sf.getLocation().equals(getLocation());
+		}
+		return false;
+	}
+
+
+	private ISourceLocation getLocation() {
+		return loc;
 	}
 
 }
