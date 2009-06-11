@@ -26,12 +26,8 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 		if (path != null) {
 			IResource resource = ResourcesPlugin.getWorkspace().getRoot().findMember(new Path(path));
 			if (resource != null) {
-				IContainer container = resource.getParent();
-				if (container.getType() == IResource.PROJECT) {
-					sourceContainer = new ProjectSourceContainer((IProject)container, false);
-				} else if (container.getType() == IResource.FOLDER) {
-					sourceContainer = new FolderSourceContainer(container, false);
-				}
+				IProject project = resource.getProject();
+				sourceContainer = new ProjectSourceContainer(project, false);
 			}
 		}
 		if (sourceContainer == null) {
