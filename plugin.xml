@@ -214,6 +214,25 @@
                      label="Show Graph">
                </action>
             </objectContribution>
+            <objectContribution
+                  adaptable="false"
+                  id="org.dancingbear.graphbrowser.contributor.container"
+                  objectClass="org.dancingbear.graphbrowser.editor.gef.editparts.GraphEditPart">
+               <action
+                     class="org.dancingbear.graphbrowser.editor.ui.delegates.CreateNodeActionDelegate"
+                     icon="assets/icons/filter.png"
+                     id="org.dancingbear.graphbrowser.action.createnode"
+                     label="Create Node"
+                     menubarPath="org.eclipse.gef.group.view">
+               </action>
+               <action
+                     class="org.dancingbear.graphbrowser.editor.ui.delegates.CreateEdgeActionDelegate"
+                     icon="assets/icons/filter.png"
+                     id="org.dancingbear.graphbrowser.action.createedge"
+                     label="Create edge"
+                     menubarPath="org.eclipse.gef.group.view">
+               </action>
+            </objectContribution>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.editorActionContributions">

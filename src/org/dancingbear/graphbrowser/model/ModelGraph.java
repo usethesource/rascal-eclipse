@@ -92,7 +92,6 @@ class ModelGraph extends PropertyContainer implements IModelGraph {
                 properties);
         edges.put(edge.getId(), edge);
         firePropertyChange(IModelGraph.GRAPH_EDGE, null, edge);
-
         return edge;
     }
 

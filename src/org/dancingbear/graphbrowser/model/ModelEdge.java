@@ -42,7 +42,6 @@ class ModelEdge extends PropertyContainer implements IModelEdge {
 
         edgeSource = source;
         edgeTarget = target;
-
         edgeSpline = new Spline();
     }
 
