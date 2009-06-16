@@ -4,6 +4,8 @@ import javax.swing.JOptionPane;
 
 import org.dancingbear.graphbrowser.editor.gef.ui.parts.GraphEditor;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 
 public class CreateNodeAction extends Action {
@@ -19,17 +21,23 @@ public class CreateNodeAction extends Action {
 	 * selected. If no nodes are selected nothing is done.
 	 */
 	public void run() {
-		GraphEditor activeEditor;
+		final GraphEditor activeEditor;
 		if (page.getActiveEditor() instanceof GraphEditor) {
 			activeEditor = (GraphEditor) page.getActiveEditor();
 		} else {
 			return; // do nothing if no active editor could be determined
 		}
 
-		String s = (String) JOptionPane.showInputDialog( "Give the name of the node");
-		if ((s != null)) {
-			activeEditor.getGraph().addNode(s);
-			activeEditor.relayout();
+		InputDialog input = new  InputDialog(Display.getCurrent().getActiveShell(), "Adding Node", "Give the name of the node", null, null);
+		input.open();
+		final String nodeName = input.getValue();
+		if ((nodeName != null)) {
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					activeEditor.getGraph().addNode(nodeName);
+					activeEditor.relayout();
+				}
+			});
 		}
 
 	}

@@ -9,6 +9,10 @@ import javax.swing.JOptionPane;
 import org.dancingbear.graphbrowser.editor.gef.ui.parts.GraphEditor;
 import org.dancingbear.graphbrowser.model.DefaultEdgeProperties;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IWorkbenchPage;
 
 public class CreateEdgeAction extends Action {
@@ -24,18 +28,26 @@ public class CreateEdgeAction extends Action {
 	 * selected. If no nodes are selected nothing is done.
 	 */
 	public void run() {
-		GraphEditor activeEditor;
+		final GraphEditor activeEditor;
 		if (page.getActiveEditor() instanceof GraphEditor) {
 			activeEditor = (GraphEditor) page.getActiveEditor();
 		} else {
 			return; // do nothing if no active editor could be determined
 		}
+		InputDialog input = new  InputDialog(Display.getCurrent().getActiveShell(), "Adding Edge", "Give the name of the source node", null, null);
+		input.open();
+		final String sourceName = input.getValue();
+		input = new  InputDialog(Display.getCurrent().getActiveShell(), "Adding Edge", "Give the name of the target node", null, null);
+		input.open();
+		final String targetName = input.getValue();
 
-		String s1 = (String) JOptionPane.showInputDialog( "Give the name of the source node");
-		String s2 = (String) JOptionPane.showInputDialog( "Give the name of the target node");
-		if (s1 != null && s2 != null) {
-			activeEditor.getGraph().addEdge(s1, s2, DefaultEdgeProperties.getDefaultProperties());
-			activeEditor.relayout();
+		if (sourceName != null && targetName != null) {
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					activeEditor.getGraph().addEdge(sourceName, targetName, DefaultEdgeProperties.getDefaultProperties());
+					activeEditor.relayout();
+				}
+			});
 		}
 
 	}
