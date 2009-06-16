@@ -14,6 +14,7 @@ import org.eclipse.ui.PlatformUI;
 import org.meta_environment.rascal.eclipse.lib.graph.GraphBuilder;
 
 public class View {
+	
 	public static void show(IValue v) {
 		Editor.open(v);
 	}
@@ -23,7 +24,10 @@ public class View {
 	}
 
 	public static void dot(IValue v) {
-		String name = v.toString();
+		dot(v.toString(),v);
+	}
+	
+	public static void dot(String name, IValue v) {
 		IModelGraph graph = null;
 		if (ModelGraphRegister.getInstance().isGraphOpen(name)) {
 			graph = ModelGraphRegister.getInstance().getModelGraph(name);
@@ -56,5 +60,6 @@ public class View {
 			}
 		}
 	}
+
 	
 }

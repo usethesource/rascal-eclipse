@@ -2,11 +2,14 @@ package org.meta_environment.rascal.eclipse.debug.core.model;
 
 import java.io.IOException;
 
+import org.dancingbear.graphbrowser.model.IModelGraph;
+import org.dancingbear.graphbrowser.model.ModelGraphRegister;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
-import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.swt.widgets.Display;
+import org.meta_environment.rascal.eclipse.lib.graph.GraphBuilder;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -29,10 +32,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @param name variable name
 	 */
 	public RascalVariable(RascalStackFrame frame, String name) {
-		super(frame.getRascalDebugTarget());
-		this.envt = frame.getEnvt();
-		this.name = name;
-		this.value = envt.getVariable(name);
+		this(frame, name, frame.getEnvt());
 	}
 
 	/**
@@ -43,12 +43,35 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @param name variable name
 	 * @param module imported module
 	 */
-	public RascalVariable(RascalStackFrame frame, String name, ModuleEnvironment module) {
+	public RascalVariable(RascalStackFrame frame, ModuleEnvironment module) {
+		this(frame, module.getName(), module);
+	}
+
+	protected RascalVariable(RascalStackFrame frame, String name, Environment envt) {
 		super(frame.getRascalDebugTarget());
 		this.name = name;
-		this.envt = module;
+		this.envt = envt;
 		this.value = envt.getVariable(name);
+		if (isRelation()) {
+			/* update the graph model if the view is already open */
+			if (ModelGraphRegister.getInstance().isGraphOpen(name)) {
+				updateRelationModel();
+			}
+
+		}
 	}
+
+	public void updateRelationModel() {
+		final IModelGraph graph = ModelGraphRegister.getInstance().getModelGraph(name);
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				GraphBuilder builder = new GraphBuilder(graph);
+				graph.clearGraph();
+				builder.computeGraph(value.getValue());
+			}
+		});
+	}
+
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IVariable#getValue()
@@ -56,7 +79,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	public IValue getValue() throws DebugException {
 		return new RascalVariableValue(this.getRascalDebugTarget(), value);
 	}
-	
+
 	public boolean isRelation() {
 		return value.getType().isRelationType() && value.getType().getArity() == 2;
 	}
@@ -71,7 +94,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IVariable#getReferenceTypeName()
 	 */
 	public String getReferenceTypeName() throws DebugException {
-		return null;
+		return value.getType().toString();
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IVariable#hasValueChanged()
@@ -113,7 +136,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IValueModification#setValue(org.eclipse.debug.core.model.IValue)
 	 */
 	public void setValue(IValue value) throws DebugException {
-		//TODO
+
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValueModification#supportsValueModification()

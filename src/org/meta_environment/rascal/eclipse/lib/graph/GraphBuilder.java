@@ -17,19 +17,21 @@ import org.eclipse.imp.pdb.facts.type.Type;
 public class GraphBuilder {
 	private HashMap<IValue, IModelNode> fNodeCache = new HashMap<IValue, IModelNode>();
 	private final IModelGraph graph;
-	
+
 	public GraphBuilder(IModelGraph graph) {
-    	this.graph = graph;
+		this.graph = graph;
 	}
 
 	public void computeGraph(IValue fact) {
-		fNodeCache = new HashMap<IValue, IModelNode>();
-    	convert(fact);
-    }
-	
+		synchronized (graph) {
+			fNodeCache = new HashMap<IValue, IModelNode>();
+			convert(fact);
+		}
+	}
+
 	private IModelNode convert(IValue fact) {
 		Type type = fact.getType();
-		
+
 		if (type.isRelationType()) {
 			return convertRelation(fact);
 		}
@@ -55,63 +57,63 @@ public class GraphBuilder {
 
 	private IModelNode convertMap(IMap fact) {
 		IModelNode root = getOrCreateNode(fact, "(...)");
-		
-		for (IValue key : fact) {
-	        IModelNode from = convert(key);
-	        IModelNode to = convert(fact.get(key));
 
-	        if (from != null && to != null) {
-	        	graph.addEdge(root, from);
-	        	graph.addEdge(from, to);
-	        }
-	    }
-		
+		for (IValue key : fact) {
+			IModelNode from = convert(key);
+			IModelNode to = convert(fact.get(key));
+
+			if (from != null && to != null) {
+				graph.addEdge(root, from);
+				graph.addEdge(from, to);
+			}
+		}
+
 		return root;
 	}
 
 	private IModelNode convertTuple(ITuple fact) {
 		IModelNode node = getOrCreateNode(fact, "<...>");
-		
+
 		for (int i = 0; i < fact.arity(); i++) {
 			graph.addEdge(node, convert(fact.get(i)));
 		}
-		
+
 		return node;
 	}
 
 	private IModelNode convertTree(INode fact) {
 		IModelNode node = getOrCreateNode(fact, fact.getName());
-		
+
 		for (IValue child : fact) {
 			graph.addEdge(node, convert(child));
 		}
-		
+
 		return node;
 	}
 
 	private IModelNode convertRelation(IValue fact) {
 		Type type = fact.getType();
 		IRelation rel = (IRelation) fact;
-		
+
 		if (type.getArity() == 2) {
 			for (IValue value : rel) {
-		    	ITuple tuple = (ITuple) value;
-		    	IModelNode from = convert(tuple.get(0));
-		    	IModelNode to = convert(tuple.get(1));
+				ITuple tuple = (ITuple) value;
+				IModelNode from = convert(tuple.get(0));
+				IModelNode to = convert(tuple.get(1));
 
-		        if (from != null && to != null) {
-		        	graph.addEdge(from, to);
-		        }
-		    }
-			
+				if (from != null && to != null) {
+					graph.addEdge(from, to);
+				}
+			}
+
 			IModelNode root = getOrCreateNode(fact, "{...}");
 			ISet top = rel.domain().subtract(rel.range());
-			
+
 			for (IValue elem : top) {
 				IModelNode to = convert(elem);
 				graph.addEdge(root, to);
 			}
-			
+
 			return root;
 		}
 		else if (rel.arity() == 3) { // assume labeled graph
@@ -120,7 +122,7 @@ public class GraphBuilder {
 		else {
 			return convertSet(fact);
 		}
-			
+
 	}
 
 	private IModelNode convertSet(IValue fact) {
@@ -129,12 +131,12 @@ public class GraphBuilder {
 
 	private IModelNode convertIterator(Iterator<IValue> iterator, IValue value, String label) {
 		IModelNode root = getOrCreateNode(value, label);
-		
+
 		while (iterator.hasNext()) {
 			IValue e = iterator.next();
 			graph.addEdge(root, convert(e));
 		}
-		
+
 		return root;
 	}
 
@@ -142,17 +144,17 @@ public class GraphBuilder {
 		return true;
 	}
 
-    private IModelNode getOrCreateNode(IValue value, String label) {
-    	IModelNode node;
-    	
-        if (fNodeCache.containsKey(value)) {
-            node = fNodeCache.get(value);
-        } 
-        else {
-            node = graph.addNode(label);
-            fNodeCache.put(value, node);
-        }
+	private IModelNode getOrCreateNode(IValue value, String label) {
+		IModelNode node;
 
-        return node;
-    }
+		if (fNodeCache.containsKey(value)) {
+			node = fNodeCache.get(value);
+		} 
+		else {
+			node = graph.addNode(label);
+			fNodeCache.put(value, node);
+		}
+
+		return node;
+	}
 }
