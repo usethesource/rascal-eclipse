@@ -17,6 +17,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.ui.dialogs.ListSelectionDialog;
 
 /**
@@ -125,9 +126,14 @@ class ModelGraph extends PropertyContainer implements IModelGraph {
 
 	public  IModelNode addNode(IModelGraph parent, String name,
 			Map<String, String> properties) {
+		return addNode(parent, name, properties, null);
+	}
+
+	public  IModelNode addNode(IModelGraph parent, String name,
+			Map<String, String> properties, IValue value) {
 		IModelNode node = getNode(name);
 		if (node == null) {
-			node = new ModelNode(parent, createNodeId(), name, properties);
+			node = new ModelNode(parent, createNodeId(), name, properties, value);
 			nodes.put(name, node);
 		} else {
 			node.addProperties(properties);
@@ -144,7 +150,11 @@ class ModelGraph extends PropertyContainer implements IModelGraph {
 	 * org.dancingbear.graphbrowser.model.IModelGraph#addNode(java.lang.String)
 	 */
 	public IModelNode addNode(String name) {
-		return addNode(name, null);
+		return addNode(this, name, null, null);
+	}
+
+	public IModelNode addNode(String name, IValue value) {
+		return addNode(this, name, null, value);
 	}
 
 	/*
@@ -670,4 +680,6 @@ class ModelGraph extends PropertyContainer implements IModelGraph {
 	public void setName(String graphName) {
 		this.graphName = graphName;
 	}
+
+
 }

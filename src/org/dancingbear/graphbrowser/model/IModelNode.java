@@ -9,6 +9,9 @@ package org.dancingbear.graphbrowser.model;
 
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
+
 /**
  * Node model interface.
  * 
@@ -133,6 +136,13 @@ public interface IModelNode extends IPropertyContainer, IPropertyPublisher {
      * @return String name of Node
      */
     String getName();
+    
+    /**
+     * Get the value of the node
+     * 
+     * @return IValue value of Node
+     */
+    IValue getValue();
 
     /**
      * Get the id of the node

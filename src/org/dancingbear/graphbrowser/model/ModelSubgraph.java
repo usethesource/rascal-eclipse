@@ -120,7 +120,7 @@ class ModelSubgraph extends ModelGraph implements IModelSubgraph {
      */
     @Override
     public IModelNode addNode(String name) {
-        return this.addNode(name, null);
+		return addNode(this, name, null, null);
     }
 
     /**

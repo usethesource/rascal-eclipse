@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 /**
  * Graph model interface.
  * 
@@ -404,5 +406,18 @@ public interface IModelGraph extends IPropertyContainer, IPropertyPublisher {
      * Clear subgraphs, nodes, edges and properties
      */
     void clearGraph();
+
+    /**
+     * Add a node to the graph.
+     * 
+     * If the node already exists in the graph, only the properties are updated
+     * (if applicable). Use the value as a name
+     * 
+     *
+     * @param label The unique label of the node 
+     * @param value The value of the node 
+     * @return The node
+     */
+	IModelNode addNode(String label, IValue value);
 
 }

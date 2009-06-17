@@ -84,7 +84,7 @@ public class GraphBuilder {
 	private IModelNode convertTree(INode fact) {
 		IModelNode node = getOrCreateNode(fact, fact.getName());
 
-		for (IValue child : fact) {
+		for (IValue child : fact.getChildren()) {
 			graph.addEdge(node, convert(child));
 		}
 
@@ -98,8 +98,8 @@ public class GraphBuilder {
 		if (type.getArity() == 2) {
 			for (IValue value : rel) {
 				ITuple tuple = (ITuple) value;
-				IModelNode from = convert(tuple.get(0));
-				IModelNode to = convert(tuple.get(1));
+				IModelNode from = getOrCreateNode(tuple.get(0), tuple.get(0).toString());
+				IModelNode to = getOrCreateNode(tuple.get(1), tuple.get(1).toString());
 
 				if (from != null && to != null) {
 					graph.addEdge(from, to);
@@ -110,7 +110,7 @@ public class GraphBuilder {
 			ISet top = rel.domain().subtract(rel.range());
 
 			for (IValue elem : top) {
-				IModelNode to = convert(elem);
+				IModelNode to = getOrCreateNode(elem, elem.toString());
 				graph.addEdge(root, to);
 			}
 
@@ -151,10 +151,11 @@ public class GraphBuilder {
 			node = fNodeCache.get(value);
 		} 
 		else {
-			node = graph.addNode(label);
+			node = graph.addNode(label, value);
 			fNodeCache.put(value, node);
 		}
 
 		return node;
 	}
+
 }

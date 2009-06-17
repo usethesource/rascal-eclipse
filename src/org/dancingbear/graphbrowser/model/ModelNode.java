@@ -12,6 +12,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IValue;
+
 class ModelNode extends PropertyContainer implements IModelNode {
 
     private IModelGraph parent;
@@ -19,13 +21,18 @@ class ModelNode extends PropertyContainer implements IModelNode {
     private String name;
 
     private Position nodePosition;
+	private IValue value;
+	
+	public ModelNode(IModelGraph graph, Integer nodeId, String nodeName, IValue value) {
+        this(graph, nodeId, nodeName, new Hashtable<String, String>(), value);
+    }
 
     public ModelNode(IModelGraph graph, Integer nodeId, String nodeName) {
-        this(graph, nodeId, nodeName, new Hashtable<String, String>());
+        this(graph, nodeId, nodeName, new Hashtable<String, String>(), null);
     }
 
     public ModelNode(IModelGraph parent, Integer nodeId, String nodeName,
-            Map<String, String> properties) {
+            Map<String, String> properties, IValue value) {
         super(DefaultNodeProperties.getDefaultProperties());
         this.parent = parent;
         identifier = nodeId;
@@ -34,6 +41,7 @@ class ModelNode extends PropertyContainer implements IModelNode {
         setProperties(properties);
 
         nodePosition = new Position();
+        this.value = value;
     }
 
     public IModelEdge addIncomingEdge(IModelNode sourceNode) {
@@ -197,5 +205,9 @@ class ModelNode extends PropertyContainer implements IModelNode {
     public void setParent(IModelGraph parent) {
         this.parent = parent;
     }
+
+	public IValue getValue() {
+		return value;
+	}
 
 }
