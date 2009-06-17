@@ -160,6 +160,14 @@
                menubarPath="org.eclipse.gef.group.view"
                tooltip="Filter selected nodes, opening a new editor.">
          </action>
+         <action
+               class="org.dancingbear.graphbrowser.editor.ui.delegates.ShowNodeActionDelegate"
+               icon="icons/rascal_file.gif"
+               id="org.dancingbear.graphbrowser.action.show"
+               label="Show"
+               menubarPath="org.eclipse.gef.group.view"
+               tooltip="detail the selected node">
+         </action>
       </objectContribution>
             <objectContribution
             adaptable="false"
