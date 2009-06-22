@@ -681,5 +681,15 @@ class ModelGraph extends PropertyContainer implements IModelGraph {
 		this.graphName = graphName;
 	}
 
+	public List<IModelEdge> getDirectEdges() {
+		List<IModelEdge> children = new ArrayList<IModelEdge>();
+		for (IModelEdge edge : edges.values()) {
+			if (edge.getGraph().equals(this)) {
+				children.add(edge);
+			}
+		}
+		return children;
+	}
+
 
 }

@@ -8,18 +8,25 @@
 package org.dancingbear.graphbrowser.editor.gef.editparts;
 
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.dancingbear.graphbrowser.editor.draw2d.figure.NodeFigure;
 import org.dancingbear.graphbrowser.editor.draw2d.figure.manipulator.AbstractFigureManipulator;
 import org.dancingbear.graphbrowser.editor.draw2d.figure.manipulator.FigureManipulatorFactory;
 import org.dancingbear.graphbrowser.editor.gef.commands.SourceLinkCommand;
 import org.dancingbear.graphbrowser.editor.gef.editpolicies.EdgeLayoutPolicy;
+import org.dancingbear.graphbrowser.model.IModelEdge;
+import org.dancingbear.graphbrowser.model.IModelGraph;
 import org.dancingbear.graphbrowser.model.IModelNode;
 import org.dancingbear.graphbrowser.model.IPropertyContainer;
+import org.eclipse.debug.internal.ui.viewers.ModelNode;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.gef.ConnectionEditPart;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.Request;
@@ -67,6 +74,47 @@ public class NodeEditPart extends AbstractPropertyContainerEditPart<IModelNode> 
         IModelNode model = getCastedModel();
         return model.getOutgoingEdges();
     }
+    
+    protected void refreshTargetConnections() {
+    	int i;
+    	ConnectionEditPart editPart;
+    	Object model;
+
+    	Map mapModelToEditPart = new HashMap();
+    	List connections = getTargetConnections();
+
+    	for (i = 0; i < connections.size(); i++) {
+    		editPart = (ConnectionEditPart)connections.get(i);
+    		mapModelToEditPart.put(editPart.getModel(), editPart);
+    	}
+
+    	List modelObjects = getModelTargetConnections();
+    	if (modelObjects == null) modelObjects = new ArrayList();
+
+    	for (i = 0; i < modelObjects.size(); i++) {
+    		model = modelObjects.get(i);
+    		
+    		if (i < connections.size()
+    			&& ((EditPart) connections.get(i)).getModel() == model)
+    				continue;
+
+    		editPart = (ConnectionEditPart)mapModelToEditPart.get(model);
+    		if (editPart != null)
+    			reorderTargetConnection(editPart, i);
+    		else {
+    			editPart = createOrFindConnection(model);
+    			addTargetConnection(editPart, i);
+    		}
+    	}
+
+    	//Remove the remaining Connection EditParts
+    	List trash = new ArrayList ();
+    	for (; i < connections.size(); i++)
+    		trash.add(connections.get(i));
+    	for (i = 0; i < trash.size(); i++)
+    		removeTargetConnection((ConnectionEditPart)trash.get(i));
+    }
+
 
     /**
      * Get TargetConnections for this node
@@ -89,6 +137,7 @@ public class NodeEditPart extends AbstractPropertyContainerEditPart<IModelNode> 
         figure.setParentConstraint(getBounds(getCastedModel()));
         manipulator.manipulateFigure(getCastedModel(), figure);
     }
+    
 
     /**
      * Get bounds of the specified node
@@ -132,7 +181,6 @@ public class NodeEditPart extends AbstractPropertyContainerEditPart<IModelNode> 
         } else if (event.getPropertyName().equals(IModelNode.NODE_OUTGOING)) {
             refreshSourceConnections();
         }
-
         figureCheckForUIAttributes();
     }
 

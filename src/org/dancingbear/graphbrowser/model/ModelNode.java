@@ -209,5 +209,9 @@ class ModelNode extends PropertyContainer implements IModelNode {
 	public IValue getValue() {
 		return value;
 	}
-
+	
+	public String toString() {
+		return getName();
+	}
+	
 }

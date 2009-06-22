@@ -16,7 +16,9 @@ import org.dancingbear.graphbrowser.editor.draw2d.figure.manipulator.AbstractFig
 import org.dancingbear.graphbrowser.editor.draw2d.figure.manipulator.FigureManipulatorFactory;
 import org.dancingbear.graphbrowser.editor.gef.editpolicies.EdgeLayoutPolicy;
 import org.dancingbear.graphbrowser.editor.gef.editpolicies.NodeLayoutPolicy;
+import org.dancingbear.graphbrowser.model.IModelEdge;
 import org.dancingbear.graphbrowser.model.IModelGraph;
+import org.dancingbear.graphbrowser.model.IModelNode;
 import org.dancingbear.graphbrowser.model.IPropertyContainer;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.gef.EditPolicy;
@@ -83,8 +85,31 @@ AbstractPropertyContainerEditPart<IModelGraph> {
 			refreshVisuals();
 		} else if (event.getPropertyName().equals(IModelGraph.GRAPH_NODE)) {
 			refreshChildren();
+			if (event.getOldValue()!= null && event.getOldValue() instanceof IModelNode) {
+				IModelNode oldNode = (IModelNode) event.getOldValue();
+				oldNode.firePropertyChange(IModelNode.NODE_LAYOUT, oldNode, null);
+			}
+			if (event.getNewValue()!= null && event.getNewValue() instanceof IModelNode) {
+				IModelNode newNode = (IModelNode) event.getNewValue();
+				newNode.firePropertyChange(IModelNode.NODE_LAYOUT, null, newNode);
+			}
 		} else if (event.getPropertyName().equals(IModelGraph.GRAPH_EDGE)) {
 			refreshChildren();
+			// need to indicate this change to the source and targets nodes
+			if (event.getOldValue() != null && event.getOldValue() instanceof IModelEdge) {
+				IModelEdge oldEdge = (IModelEdge) event.getOldValue();
+				IModelNode oldSource = oldEdge.getSource();
+				IModelNode oldTarget = oldEdge.getTarget();
+				oldSource.firePropertyChange(IModelNode.NODE_OUTGOING, oldEdge, null);
+				oldTarget.firePropertyChange(IModelNode.NODE_INCOMING, oldEdge, null);
+			}
+			if (event.getNewValue() != null && event.getNewValue() instanceof IModelEdge) {
+				IModelEdge newEdge = (IModelEdge) event.getNewValue();
+				IModelNode newSource = newEdge.getSource();
+				IModelNode newTarget = newEdge.getTarget();
+				newSource.firePropertyChange(IModelNode.NODE_OUTGOING, null, newEdge);
+				newTarget.firePropertyChange(IModelNode.NODE_INCOMING, null, newEdge);
+			}
 		} else if (event.getPropertyName().equals(IModelGraph.GRAPH_SUBGRAPH)) {
 			refreshChildren();
 		}

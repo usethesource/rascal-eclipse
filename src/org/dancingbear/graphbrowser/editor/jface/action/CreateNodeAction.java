@@ -3,6 +3,8 @@ package org.dancingbear.graphbrowser.editor.jface.action;
 import javax.swing.JOptionPane;
 
 import org.dancingbear.graphbrowser.editor.gef.ui.parts.GraphEditor;
+import org.eclipse.draw2d.Animation;
+import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.swt.widgets.Display;

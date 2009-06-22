@@ -53,23 +53,24 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 		this.envt = envt;
 		this.value = envt.getVariable(name);
 		if (isRelation()) {
-			/* update the graph model if the view is already open */
-			if (ModelGraphRegister.getInstance().isGraphOpen(name)) {
-				updateRelationModel();
-			}
-
+			updateRelationModel();
 		}
 	}
 
 	public void updateRelationModel() {
-		final IModelGraph graph = ModelGraphRegister.getInstance().getModelGraph(name);
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
-				GraphBuilder builder = new GraphBuilder(graph);
-				graph.clearGraph();
-				builder.computeGraph(value.getValue());
-			}
-		});
+		/* update the graph model if the view is already open */
+		if (ModelGraphRegister.getInstance().isGraphOpen(name)) {
+			final IModelGraph graph = ModelGraphRegister.getInstance().getModelGraph(name);
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					GraphBuilder builder = new GraphBuilder(graph);
+					graph.clearGraph();
+					/*
+					builder.computeGraph(value.getValue());
+					*/
+				}
+			});
+		}
 	}
 
 
