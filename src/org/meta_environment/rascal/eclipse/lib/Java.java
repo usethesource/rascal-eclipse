@@ -17,6 +17,7 @@ public class Java {
 	public static final Type ADT_ID = TF.abstractDataType(store, "Id");
 	public static final Type ADT_ENTITY = TF.abstractDataType(store, "Entity");
 	public static final Type ADT_PRIMITIVETYPE = TF.abstractDataType(store, "PrimitiveType");
+	public static final Type ADT_BOUND = TF.abstractDataType(store, "Bound");
 
 	public static final Type CONS_ENTITY = TF.constructor(store, ADT_ENTITY, "entity", TF.listType(ADT_ID), "id");
 
@@ -39,7 +40,7 @@ public class Java {
 	public static final Type CONS_ENUM_CONSTANT = TF.constructor(store, ADT_ID, "enumConstant", TF.stringType(), "name");
 	public static final Type CONS_TYPE_PARAMETER = TF.constructor(store, ADT_ID, "typeParameter", TF.stringType(), "name");
 	public static final Type CONS_WILDCARD = TF.constructor(store, ADT_ID, "wildcard");
-	public static final Type CONS_WILDCARD_BOUND = TF.constructor(store, ADT_ID, "wildcard", ADT_ENTITY, "bound");
+	public static final Type CONS_WILDCARD_BOUND = TF.constructor(store, ADT_ID, "wildcard", ADT_BOUND, "bound");
 
 	public static final Type CONS_BYTE = TF.constructor(store, ADT_PRIMITIVETYPE, "byte");
 	public static final Type CONS_SHORT = TF.constructor(store, ADT_PRIMITIVETYPE, "short");
@@ -52,4 +53,6 @@ public class Java {
 	public static final Type CONS_VOID = TF.constructor(store, ADT_PRIMITIVETYPE, "void");
 	public static final Type CONS_NULL = TF.constructor(store, ADT_PRIMITIVETYPE, "null");
 
+	public static final Type CONS_EXTENDS = TF.constructor(store, ADT_BOUND, "extends", ADT_ENTITY, "type");
+	public static final Type CONS_SUPER = TF.constructor(store, ADT_BOUND, "super", ADT_ENTITY, "type");
 }

@@ -31,7 +31,7 @@ data Id = package(str name)
         
         | typeParameter(str name)
         | wildcard
-        | wildcard(Entity bound)
+        | wildcard(Bound bound)
 ;
 
 
@@ -46,6 +46,9 @@ data PrimitiveType = byte
                    | \void
                    | null
 ;
+
+data Bound = extends(Entity type)
+           | super(Entity type);
 
 
 public str toString(Entity entity) {
@@ -78,9 +81,9 @@ private str toString(list[Entity] entities) {
 private str toString(Id id) {
 	switch (id) {
 		case class(name, params):
-			return name + "<" + toString(params) + ">"; 		
+			return name + "\<" + toString(params) + ">"; 		
 		case interface(name, params):
-			return name + "<" + toString(params) + ">"; 		
+			return name + "\<" + toString(params) + ">"; 		
         case method(name, params, returnType):
 			return name + "(" + toString(params) + ")"; 		
 	}
@@ -97,7 +100,8 @@ private str toString(Id id) {
 		case primitive(p): return getName(p);
 		case array(elementType): return toString(elementType) + "[]";		
 		case wildcard: return "?";
-		case wildcard(bound): return "? extends " + toString(bound);
+		case wildcard(extends(bound)): return "? extends " + toString(bound);
+		case wildcard(super(bound)): return "? super " + toString(bound);
 		default : throw IllegalArgument(id);
 	}
 }
