@@ -15,14 +15,14 @@ import org.eclipse.jface.action.IAction;
 public interface IGraphEditor {
 
     /**
-     * Set the graph that is editted
+     * Set the graph that is edited
      * 
      * @param graph the graph
      */
     public void setGraph(IModelGraph graph);
 
     /**
-     * Get the graph that is editted
+     * Get the graph that is edited
      * 
      * @return the graph
      */
