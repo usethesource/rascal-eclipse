@@ -13,6 +13,8 @@ import org.eclipse.draw2d.LayoutAnimator;
 import org.eclipse.draw2d.XYLayout;
 import org.eclipse.swt.SWT;
 
+import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
+
 /**
  * Visual representation of a graph
  * 

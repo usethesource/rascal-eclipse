@@ -168,6 +168,14 @@
                menubarPath="org.eclipse.gef.group.view"
                tooltip="detail the selected node">
          </action>
+            <action
+               class="org.dancingbear.graphbrowser.editor.ui.delegates.HyperbolicCenterActionDelegate"
+               icon="icons/rascal_file.gif"
+               id="org.dancingbear.graphbrowser.action.hyperbolicroot"
+               label="Choose as Hyperbolic Origin"
+               menubarPath="org.eclipse.gef.group.view"
+               tooltip="select as the new root of the hyperbolic plan">
+         </action>
       </objectContribution>
             <objectContribution
             adaptable="false"

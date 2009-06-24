@@ -52,7 +52,7 @@ public class ShowNodeAction extends Action {
 			return; // no nodes, so don't do anything
 		}
 
-		// construct new graph to use in new editor
+		// construct the new graph to use in the new editor
 		int graphNumber = 1;
 		IModelGraph newGraph = null;
 		boolean nameDetermined = false;

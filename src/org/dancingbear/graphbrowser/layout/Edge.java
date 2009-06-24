@@ -405,7 +405,7 @@ public class Edge {
         this.padding = padding;
     }
 
-    void setPoints(PointList points) {
+    public void setPoints(PointList points) {
         this.points = points;
         start = points.getFirstPoint();
         end = points.getLastPoint();
