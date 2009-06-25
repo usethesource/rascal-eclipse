@@ -172,9 +172,9 @@
                class="org.dancingbear.graphbrowser.editor.ui.delegates.HyperbolicCenterActionDelegate"
                icon="icons/rascal_file.gif"
                id="org.dancingbear.graphbrowser.action.hyperbolicroot"
-               label="Choose as Hyperbolic Origin"
+               label="Fisheye"
                menubarPath="org.eclipse.gef.group.view"
-               tooltip="select as the new root of the hyperbolic plan">
+               tooltip="select the new origin of the hyperbolic plan and apply the hyperbolic layout">
          </action>
       </objectContribution>
             <objectContribution

@@ -138,13 +138,6 @@ public class EditorController {
 		// Apply layout
 		DirectedGraphLayout layout = new DirectedGraphLayout();
 		layout.visit(directedGraph);
-
-		// Apply fisheye layout
-
-		HyperbolicLayout layout2 = new HyperbolicLayout();
-		//choose the root as a default center
-		layout2.setCenter(directedGraph.getNode(0, 0));
-		layout2.visit(directedGraph);
 		
 		// Store graph
 		graphToModelConvert.convertToModel(directedGraph, graph.getName());

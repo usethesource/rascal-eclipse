@@ -14,7 +14,6 @@ import org.dancingbear.graphbrowser.model.IModelGraph;
 import org.dancingbear.graphbrowser.model.IModelNode;
 import org.eclipse.draw2d.Animation;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IWorkbenchPage;
 
 public class HyperbolicCenterAction extends Action {
@@ -48,27 +47,30 @@ public class HyperbolicCenterAction extends Action {
 			}
 
 			IModelGraph graph = editor.getGraph();
-			
+
 			final ModelToDirectedGraphConverter modelToGraphConv = new ModelToDirectedGraphConverter();
 			final DirectedGraphToModelConverter graphToModelConvert = new DirectedGraphToModelConverter();
 
 			// Convert graph to directed graph
 			DirectedGraph directedGraph = modelToGraphConv.convertToGraph(graph.getName());
 
-			// Apply layout
+			// Apply dot layout
 			DirectedGraphLayout layout = new DirectedGraphLayout();
 			layout.visit(directedGraph);
-			
-			// Apply fisheye layout
-			//find the selected root using its name
-			HyperbolicLayout layout2 = new HyperbolicLayout();
+
+			//find the selected origin in the directed graph (by name)
+			Node origin = null;
 			for (Node n : directedGraph.getNodes()) {
 				if (n.getData().equals(node.getName())) {
-					layout2.setCenter(n);
+					origin = n;
+					break;
 				}
 			}
-			
-			layout2.visit(directedGraph);
+
+			// Apply fisheye layout
+			if (origin != null) {
+				new HyperbolicLayout(directedGraph, origin).applyLayout();
+			}
 
 			// Store graph
 			graphToModelConvert.convertToModel(directedGraph, graph.getName());

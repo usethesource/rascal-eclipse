@@ -1,13 +1,10 @@
 package org.dancingbear.graphbrowser.layout.hypergraph;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dancingbear.graphbrowser.layout.ComputeSplines;
 import org.dancingbear.graphbrowser.layout.CubicBezierCurve;
 import org.dancingbear.graphbrowser.layout.DirectedGraph;
-import org.dancingbear.graphbrowser.layout.DirectedGraphLayout;
 import org.dancingbear.graphbrowser.layout.Edge;
 import org.dancingbear.graphbrowser.layout.Node;
 import org.dancingbear.graphbrowser.layout.PointDouble;
@@ -15,38 +12,62 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.PointList;
 
 public class HyperbolicLayout {
-	
-	private double delta_x, delta_y, max_radius;
-	
+
+	private double delta_x;
+	private double delta_y;
+	private double max_radius;
+	private DirectedGraph graph;
+
+	public HyperbolicLayout(DirectedGraph graph, Node origin) {
+		this.graph = graph;
+		delta_x = -origin.getX();
+		delta_y = -origin.getY();
+		max_radius = 0;
+		List<PolarCoordinate> polars = new ArrayList<PolarCoordinate>();
+		for (Node n : graph.getNodes()) {
+			polars.add(new CartesianCoordinate(n.getX(), n.getY()).getPolar());
+		}
+		for (PolarCoordinate p : polars) {
+			if (p.getRadius() > max_radius)
+				max_radius = p.getRadius();
+		}
+	}
+
 	/**
 	 * Lays out the given graph
 	 * 
-	 * @param graph the graph to layout
 	 */
-	public void visit(DirectedGraph graph) {
-		List<PolarCoordinate> polars = new ArrayList<PolarCoordinate>();
-		//setCenter(graph.getNode(1, 0));
-		for(Node n: graph.getNodes()) {
-			polars.add(new CartesianCoordinate(n.getX(), n.getY()).getPolar());
-		}
-		for(PolarCoordinate p: polars) {
-			if (p.getRadius() >max_radius) max_radius = p.getRadius();
-		}
-			
-		
-		for(Node n: graph.getNodes()) modifyNode(n);
-		for(Edge e: graph.getEdges()) {
-			if (e.getVNodes()!=null) {
-				for (Node n : e.getVNodes()) {
-					modifyNode(n);
-				}
-			}
+	public void applyLayout() {
+		translateInHyperbolicPlan();
+		centering();
+	}
+
+	public CartesianCoordinate calculateHyperbolicCoordinate(
+			CartesianCoordinate c) {
+		double factor = 10.0 / max_radius;
+		return c.translate(delta_x, delta_y).getPolar().getHyperbolic(factor)
+		.getCartesian().translate(500, 500);
+	}
+
+	public void calculateHyperbolicNode(Node n) {
+		CartesianCoordinate new_coordinate = calculateHyperbolicCoordinate(new CartesianCoordinate(
+				n.getX(), n.getY()));
+		n.setX((int) new_coordinate.getAbscissa());
+		n.setY((int) new_coordinate.getOrdinate());
+	}
+
+	public void translateInHyperbolicPlan() {
+		for (Node n : graph.getNodes())
+			calculateHyperbolicNode(n);
+		for (Edge e : graph.getEdges()) {
 			PointList old_points = e.getPoints();
 			PointList new_points = new PointList(old_points.size());
 			for (int i = 0; i < old_points.size(); i++) {
 				Point p = old_points.getPoint(i);
-				CartesianCoordinate new_coordinate = newCoordinate(new CartesianCoordinate(p.preciseX(), p.preciseY()));
-				new_points.addPoint(new Point(new_coordinate.getAbscissa(), new_coordinate.getOrdinate()));
+				CartesianCoordinate new_coordinate = calculateHyperbolicCoordinate(new CartesianCoordinate(
+						p.preciseX(), p.preciseY()));
+				new_points.addPoint(new Point(new_coordinate.getAbscissa(),
+						new_coordinate.getOrdinate()));
 			}
 			e.setPoints(new_points);
 			if (e.getSpline() != null) {
@@ -54,9 +75,11 @@ public class HyperbolicLayout {
 				int i = 0;
 				for (CubicBezierCurve curve : curves) {
 					List<PointDouble> newpoints = new ArrayList<PointDouble>();
-					for(PointDouble p: curve.getControlPoints()) {
-						CartesianCoordinate new_coordinate = newCoordinate(new CartesianCoordinate(p.getX(), p.getY()));
-						newpoints.add(new PointDouble(new_coordinate.getAbscissa(), new_coordinate.getOrdinate()));		
+					for (PointDouble p : curve.getControlPoints()) {
+						CartesianCoordinate new_coordinate = calculateHyperbolicCoordinate(new CartesianCoordinate(
+								p.getX(), p.getY()));
+						newpoints.add(new PointDouble(new_coordinate
+								.getAbscissa(), new_coordinate.getOrdinate()));
 					}
 					curves.set(i, new CubicBezierCurve(newpoints));
 					i++;
@@ -65,22 +88,61 @@ public class HyperbolicLayout {
 		}
 	}
 
+	public void centering() {
+		double min_x = Double.MAX_VALUE;
+		double min_y = Double.MAX_VALUE;
+		double max_x = 0;
+		double max_y = 0;
+		for (Node n : graph.getNodes()) {
+			if (min_x > n.getX())
+				min_x = n.getX();
+			if (min_y > n.getY())
+				min_y = n.getY();
+			if (max_x < n.getX())
+				max_x = n.getX();
+			if (max_y < n.getY())
+				max_y = n.getY();
+		}
+		double delta_x = 100;
+		double delta_y = 100;
+		if (min_x < 0)
+			delta_x -= min_x;
+		if (min_y < 0)
+			delta_y -= min_y;
+		for (Node n : graph.getNodes()) {
+			CartesianCoordinate new_coordinate = new CartesianCoordinate(n
+					.getX(), n.getY()).translate(delta_x, delta_y);
+			n.setX((int) new_coordinate.getAbscissa());
+			n.setY((int) new_coordinate.getOrdinate());
+		}
 
-	public CartesianCoordinate newCoordinate(CartesianCoordinate c) {
-		return c.translate(delta_x,delta_y).getPolar().getHyperbolic(10.0 / max_radius).getCartesian().translate(500,500);
+		for (Edge e : graph.getEdges()) {
+			PointList old_points = e.getPoints();
+			PointList new_points = new PointList(old_points.size());
+			for (int i = 0; i < old_points.size(); i++) {
+				Point p = old_points.getPoint(i);
+				CartesianCoordinate new_coordinate = new CartesianCoordinate(p
+						.preciseX(), p.preciseY()).translate(delta_x, delta_y);
+				new_points.addPoint(new Point(new_coordinate.getAbscissa(),
+						new_coordinate.getOrdinate()));
+			}
+			e.setPoints(new_points);
+			if (e.getSpline() != null) {
+				List<CubicBezierCurve> curves = e.getSpline().getCurves();
+				int i = 0;
+				for (CubicBezierCurve curve : curves) {
+					List<PointDouble> newpoints = new ArrayList<PointDouble>();
+					for (PointDouble p : curve.getControlPoints()) {
+						CartesianCoordinate new_coordinate = new CartesianCoordinate(
+								p.getX(), p.getY()).translate(delta_x, delta_y);
+						newpoints.add(new PointDouble(new_coordinate
+								.getAbscissa(), new_coordinate.getOrdinate()));
+					}
+					curves.set(i, new CubicBezierCurve(newpoints));
+					i++;
+				}
+			}
+		}
 	}
-	
-	public void setCenter(Node n) {
-		delta_x = - n.getX();
-		delta_y = - n.getY();
-	}
-	
-	public void modifyNode(Node n) {
-		CartesianCoordinate new_coordinate = newCoordinate(new CartesianCoordinate(n.getX(), n.getY()));
-		n.setX((int)new_coordinate.getAbscissa());
-		n.setY((int)new_coordinate.getOrdinate());
-	}
-
-
 
 }
