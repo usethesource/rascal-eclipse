@@ -194,6 +194,15 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	public boolean isStepping() {
 		return fStepping;
 	}
+	
+	public void stopStepping() {
+		try {
+			resume();
+		} catch (DebugException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 
 	public void stepInto() throws DebugException {

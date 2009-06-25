@@ -399,6 +399,11 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 			content = "ok\n";
 		}
 
+		if (eval instanceof DebuggableEvaluator) {
+			// need to notify the debugger that the command is finished
+			DebuggableEvaluator debugEval = (DebuggableEvaluator) eval;
+			debugEval.getDebugger().stopStepping();
+		}
 		command = "";
 		state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 	}
