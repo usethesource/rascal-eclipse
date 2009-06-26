@@ -19,6 +19,9 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.ui.dialogs.ListSelectionDialog;
+import org.eclipse.zest.layouts.LayoutEntity;
+import org.eclipse.zest.layouts.LayoutGraph;
+import org.eclipse.zest.layouts.LayoutRelationship;
 
 /**
  * 
@@ -99,7 +102,14 @@ class ModelGraph extends PropertyContainer implements IModelGraph {
 		firePropertyChange(IModelGraph.GRAPH_EDGE, null, edge);
 		return edge;
 	}
-
+	
+	public  IModelEdge addEdge(IModelEdge edge) throws NoSuchElementException {
+		hasNodes(edge.getSource(), edge.getTarget());
+		edges.put(edge.getId(), edge);
+		firePropertyChange(IModelGraph.GRAPH_EDGE, null, edge);
+		return edge;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -139,6 +149,12 @@ class ModelGraph extends PropertyContainer implements IModelGraph {
 			node.addProperties(properties);
 			node.setParent(parent);
 		}
+		firePropertyChange(IModelGraph.GRAPH_NODE, null, node);
+		return node;
+	}
+
+	public IModelNode addNode(IModelNode node) {
+		nodes.put(node.getName(), node);
 		firePropertyChange(IModelGraph.GRAPH_NODE, null, node);
 		return node;
 	}
@@ -189,6 +205,12 @@ class ModelGraph extends PropertyContainer implements IModelGraph {
 	public IModelSubgraph addSubgraph(String name,
 			Map<String, String> properties) {
 		return addSubgraph(this, name, properties);
+	}
+	
+	public IModelSubgraph addSubgraph(IModelSubgraph subgraph) {
+		subgraphs.put(subgraph.getId(), subgraph);
+		firePropertyChange(IModelGraph.GRAPH_SUBGRAPH, null, subgraph);
+		return subgraph;
 	}
 
 	public  void clearGraph() {
@@ -691,5 +713,6 @@ class ModelGraph extends PropertyContainer implements IModelGraph {
 		return children;
 	}
 
+	
 
 }

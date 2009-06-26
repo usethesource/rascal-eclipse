@@ -10,11 +10,15 @@
  *******************************************************************************/
 package org.dancingbear.graphbrowser.layout;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Insets;
+import org.eclipse.zest.layouts.LayoutEntity;
+import org.eclipse.zest.layouts.LayoutGraph;
+import org.eclipse.zest.layouts.LayoutRelationship;
 
 /**
  * A graph consisting of nodes and directed edges. A DirectedGraph serves as the
@@ -25,310 +29,335 @@ import org.eclipse.draw2d.geometry.Insets;
  * @author hudsonr
  * @since 2.1.2
  */
-public class DirectedGraph {
+public class DirectedGraph implements LayoutGraph {
 
-    private int direction = PositionConstants.SOUTH;
+	private int direction = PositionConstants.SOUTH;
 
-    /**
-     * The default padding to be used for nodes which don't specify any padding.
-     * Padding is the amount of empty space to be left around a node. The
-     * default value is undefined.
-     */
-    private Insets defaultPadding = new Insets(16);
+	/**
+	 * The default padding to be used for nodes which don't specify any padding.
+	 * Padding is the amount of empty space to be left around a node. The
+	 * default value is undefined.
+	 */
+	private Insets defaultPadding = new Insets(16);
 
-    /**
-     * All of the edges in the graph.
-     */
-    private EdgeList edges = new EdgeList();
+	/**
+	 * All of the edges in the graph.
+	 */
+	private EdgeList edges = new EdgeList();
 
-    /**
-     * All of the nodes in the graph.
-     */
-    private NodeList nodes = new NodeList();
+	/**
+	 * All of the nodes in the graph.
+	 */
+	private NodeList nodes = new NodeList();
 
-    /**
-     * For internal use only. The list of rows which makeup the final graph
-     * layout.
-     * 
-     * @deprecated
-     */
-    private RankList ranks = new RankList();
+	/**
+	 * For internal use only. The list of rows which makeup the final graph
+	 * layout.
+	 * 
+	 * @deprecated
+	 */
+	private RankList ranks = new RankList();
 
-    private Node forestRoot;
-    private Insets margin = new Insets();
-    private int[] rankLocations;
-    private int[][] cellLocations = null;
-    private int tensorStrength;
-    private int tensorSize;
-    private Dimension size = new Dimension();
+	private Node forestRoot;
+	private Insets margin = new Insets();
+	private int[] rankLocations;
+	private int[][] cellLocations = null;
+	private int tensorStrength;
+	private int tensorSize;
+	private Dimension size = new Dimension();
 
-    private Map<String, String> properties;
+	private Map<String, String> properties;
 
-    /**
-     * When DirectedGraph used as Subgraph, this is the original Subgraph
-     */
-    private Subgraph subgraph;
+	/**
+	 * When DirectedGraph used as Subgraph, this is the original Subgraph
+	 */
+	private Subgraph subgraph;
 
-    public DirectedGraph() {
-    }
+	public DirectedGraph() {
+	}
 
-    int[] getCellLocations(int rank) {
-        return cellLocations[rank];
-    }
+	int[] getCellLocations(int rank) {
+		return cellLocations[rank];
+	}
 
-    /**
-     * Returns the default padding for nodes.
-     * 
-     * @return the default padding
-     * @since 3.2
-     */
-    public Insets getDefaultPadding() {
-        return defaultPadding;
-    }
+	/**
+	 * Returns the default padding for nodes.
+	 * 
+	 * @return the default padding
+	 * @since 3.2
+	 */
+	public Insets getDefaultPadding() {
+		return defaultPadding;
+	}
 
-    /**
-     * Returns the direction in which the graph will be layed out.
-     * 
-     * @return the layout direction
-     * @since 3.2
-     */
-    public int getDirection() {
-        return direction;
-    }
+	/**
+	 * Returns the direction in which the graph will be layed out.
+	 * 
+	 * @return the layout direction
+	 * @since 3.2
+	 */
+	public int getDirection() {
+		return direction;
+	}
 
-    public Dimension getLayoutSize() {
-        return getSize();
-    }
+	public Dimension getLayoutSize() {
+		return getSize();
+	}
 
-    /**
-     * Sets the outer margin for the entire graph. The margin is the space in
-     * which nodes should not be placed.
-     * 
-     * @return the graph's margin
-     * @since 3.2
-     */
-    public Insets getMargin() {
-        return margin;
-    }
+	/**
+	 * Sets the outer margin for the entire graph. The margin is the space in
+	 * which nodes should not be placed.
+	 * 
+	 * @return the graph's margin
+	 * @since 3.2
+	 */
+	public Insets getMargin() {
+		return margin;
+	}
 
-    public Node getNode(int rank, int index) {
-        if (ranks.size() <= rank)
-            return null;
-        Rank r = ranks.getRank(rank);
-        if (r.size() <= index)
-            return null;
-        return r.getNode(index);
-    }
+	public Node getNode(int rank, int index) {
+		if (ranks.size() <= rank)
+			return null;
+		Rank r = ranks.getRank(rank);
+		if (r.size() <= index)
+			return null;
+		return r.getNode(index);
+	}
 
-    /**
-     * Returns the effective padding for the given node. If the node has a
-     * specified padding, it will be used, otherwise, the graph's defaultPadding
-     * is returned. The returned value must not be modified.
-     * 
-     * @param node the node
-     * @return the effective padding for that node
-     */
-    public Insets getPadding(Node node) {
-        Insets pad = node.getPadding();
-        if (pad == null)
-            return defaultPadding;
-        return pad;
-    }
+	/**
+	 * Returns the effective padding for the given node. If the node has a
+	 * specified padding, it will be used, otherwise, the graph's defaultPadding
+	 * is returned. The returned value must not be modified.
+	 * 
+	 * @param node the node
+	 * @return the effective padding for that node
+	 */
+	public Insets getPadding(Node node) {
+		Insets pad = node.getPadding();
+		if (pad == null)
+			return defaultPadding;
+		return pad;
+	}
 
-    int[] getRankLocations() {
-        return rankLocations;
-    }
+	int[] getRankLocations() {
+		return rankLocations;
+	}
 
-    /**
-     * Removes the given edge from the graph.
-     * 
-     * @param edge the edge to be removed
-     */
-    public void removeEdge(Edge edge) {
-        edges.remove(edge);
+	/**
+	 * Removes the given edge from the graph.
+	 * 
+	 * @param edge the edge to be removed
+	 */
+	public void removeEdge(Edge edge) {
+		edges.remove(edge);
 
-        Node sourceNode = edge.getSource();
-        sourceNode.removeOutgoingEdge(edge);
-        edge.setSource(sourceNode);
-        // edge.source.outgoing.remove(edge);
+		Node sourceNode = edge.getSource();
+		sourceNode.removeOutgoingEdge(edge);
+		edge.setSource(sourceNode);
+		// edge.source.outgoing.remove(edge);
 
-        edge.getTarget().getIncoming().remove(edge);
-        if (edge.getVNodes() != null)
-            for (int j = 0; j < edge.getVNodes().size(); j++)
-                removeNode(edge.getVNodes().getNode(j));
-    }
+		edge.getTarget().getIncoming().remove(edge);
+		if (edge.getVNodes() != null)
+			for (int j = 0; j < edge.getVNodes().size(); j++)
+				removeNode(edge.getVNodes().getNode(j));
+	}
 
-    /**
-     * Removes the given node from the graph. Does not remove the node's edges.
-     * 
-     * @param node the node to remove
-     */
-    public void removeNode(Node node) {
-        nodes.remove(node);
-        if (ranks != null)
-            ranks.getRank(node.getRank()).remove(node);
-    }
+	/**
+	 * Removes the given node from the graph. Does not remove the node's edges.
+	 * 
+	 * @param node the node to remove
+	 */
+	public void removeNode(Node node) {
+		nodes.remove(node);
+		if (ranks != null)
+			ranks.getRank(node.getRank()).remove(node);
+	}
 
-    /**
-     * Sets the default padding for all nodes in the graph. Padding is the empty
-     * space left around the <em>outside</em> of each node. The default padding
-     * is used for all nodes which do not specify a specific amount of padding
-     * (i.e., their padding is <code>null</code>).
-     * 
-     * @param insets the padding
-     */
-    public void setDefaultPadding(Insets insets) {
-        defaultPadding = insets;
-    }
+	/**
+	 * Sets the default padding for all nodes in the graph. Padding is the empty
+	 * space left around the <em>outside</em> of each node. The default padding
+	 * is used for all nodes which do not specify a specific amount of padding
+	 * (i.e., their padding is <code>null</code>).
+	 * 
+	 * @param insets the padding
+	 */
+	public void setDefaultPadding(Insets insets) {
+		defaultPadding = insets;
+	}
 
-    // public void setGraphTensor(int length, int strength) {
-    // tensorStrength = strength;
-    // tensorSize = length;
-    // }
+	// public void setGraphTensor(int length, int strength) {
+	// tensorStrength = strength;
+	// tensorSize = length;
+	// }
 
-    /**
-     * Sets the layout direction for the graph. Edges will be layed out in the
-     * specified direction (unless the graph contains cycles). Supported values
-     * are:
-     * <UL>
-     * <LI>{@link org.eclipse.draw2d.PositionConstants#EAST}
-     * <LI>{@link org.eclipse.draw2d.PositionConstants#SOUTH}
-     * </UL>
-     * <P>
-     * The default direction is south.
-     * 
-     * @param direction the layout direction
-     * @since 3.2
-     */
-    public void setDirection(int direction) {
-        this.direction = direction;
-    }
+	/**
+	 * Sets the layout direction for the graph. Edges will be layed out in the
+	 * specified direction (unless the graph contains cycles). Supported values
+	 * are:
+	 * <UL>
+	 * <LI>{@link org.eclipse.draw2d.PositionConstants#EAST}
+	 * <LI>{@link org.eclipse.draw2d.PositionConstants#SOUTH}
+	 * </UL>
+	 * <P>
+	 * The default direction is south.
+	 * 
+	 * @param direction the layout direction
+	 * @since 3.2
+	 */
+	public void setDirection(int direction) {
+		this.direction = direction;
+	}
 
-    /**
-     * Sets the graphs margin.
-     * 
-     * @param insets the graph's margin
-     * @since 3.2
-     */
-    public void setMargin(Insets insets) {
-        this.margin = insets;
-    }
+	/**
+	 * Sets the graphs margin.
+	 * 
+	 * @param insets the graph's margin
+	 * @since 3.2
+	 */
+	public void setMargin(Insets insets) {
+		this.margin = insets;
+	}
 
-    public EdgeList getEdges() {
-        return edges;
-    }
+	public EdgeList getEdges() {
+		return edges;
+	}
 
-    public void setEdges(EdgeList edges) {
-        this.edges = edges;
-    }
+	public void setEdges(EdgeList edges) {
+		this.edges = edges;
+	}
 
-    public NodeList getNodes() {
-        return nodes;
-    }
+	public NodeList getNodes() {
+		return nodes;
+	}
 
-    public void setNodes(NodeList nodes) {
-        this.nodes = nodes;
-    }
+	public void setNodes(NodeList nodes) {
+		this.nodes = nodes;
+	}
 
-    public RankList getRanks() {
-        return ranks;
-    }
+	public RankList getRanks() {
+		return ranks;
+	}
 
-    public void setRanks(RankList ranks) {
-        this.ranks = ranks;
-    }
+	public void setRanks(RankList ranks) {
+		this.ranks = ranks;
+	}
 
-    /**
-     * adjust the rank of the graph's nodes
-     * 
-     * @param delta the amount by which to adjust
-     */
-    public void adjustRank(int delta) {
-        this.nodes.adjustRank(delta);
-    }
+	/**
+	 * adjust the rank of the graph's nodes
+	 * 
+	 * @param delta the amount by which to adjust
+	 */
+	public void adjustRank(int delta) {
+		this.nodes.adjustRank(delta);
+	}
 
-    public void resetNodeFlags() {
-        nodes.resetFlags();
-    }
+	public void resetNodeFlags() {
+		nodes.resetFlags();
+	}
 
-    public void addNode(Node node) {
-        nodes.add(node);
-    }
+	public void addNode(Node node) {
+		nodes.add(node);
+	}
 
-    public void resetEdgeFlags(boolean resetTree) {
-        edges.resetFlags(resetTree);
-    }
+	public void resetEdgeFlags(boolean resetTree) {
+		edges.resetFlags(resetTree);
+	}
 
-    public void addEdge(Edge e) {
-        edges.add(e);
-    }
+	public void addEdge(Edge e) {
+		edges.add(e);
+	}
 
-    public void setProperties(Map<String, String> properties) {
-        this.properties = properties;
-    }
+	public void setProperties(Map<String, String> properties) {
+		this.properties = properties;
+	}
 
-    public Map<String, String> getProperties() {
-        return properties;
-    }
+	public Map<String, String> getProperties() {
+		return properties;
+	}
 
-    void setForestRoot(Node forestRoot) {
-        this.forestRoot = forestRoot;
-    }
+	void setForestRoot(Node forestRoot) {
+		this.forestRoot = forestRoot;
+	}
 
-    Node getForestRoot() {
-        return forestRoot;
-    }
+	Node getForestRoot() {
+		return forestRoot;
+	}
 
-    void setRankLocations(int[] rankLocations) {
-        this.rankLocations = rankLocations;
-    }
+	void setRankLocations(int[] rankLocations) {
+		this.rankLocations = rankLocations;
+	}
 
-    void setCellLocations(int[][] cellLocations) {
-        this.cellLocations = cellLocations;
-    }
+	void setCellLocations(int[][] cellLocations) {
+		this.cellLocations = cellLocations;
+	}
 
-    int[][] getCellLocations() {
-        return cellLocations;
-    }
+	int[][] getCellLocations() {
+		return cellLocations;
+	}
 
-    void setTensorStrength(int tensorStrength) {
-        this.tensorStrength = tensorStrength;
-    }
+	void setTensorStrength(int tensorStrength) {
+		this.tensorStrength = tensorStrength;
+	}
 
-    int getTensorStrength() {
-        return tensorStrength;
-    }
+	int getTensorStrength() {
+		return tensorStrength;
+	}
 
-    void setTensorSize(int tensorSize) {
-        this.tensorSize = tensorSize;
-    }
+	void setTensorSize(int tensorSize) {
+		this.tensorSize = tensorSize;
+	}
 
-    int getTensorSize() {
-        return tensorSize;
-    }
+	int getTensorSize() {
+		return tensorSize;
+	}
 
-    void setSize(Dimension size) {
-        this.size = size;
-    }
+	void setSize(Dimension size) {
+		this.size = size;
+	}
 
-    Dimension getSize() {
-        return size;
-    }
+	Dimension getSize() {
+		return size;
+	}
 
-    /**
-     * Check whether this graph is a subgraph
-     * 
-     * @return if this graph has a subgraph , return true
-     */
-    public boolean isSubgraph() {
-        return null != subgraph;
-    }
+	/**
+	 * Check whether this graph is a subgraph
+	 * 
+	 * @return if this graph has a subgraph , return true
+	 */
+	 public boolean isSubgraph() {
+		 return null != subgraph;
+	 }
 
-    public Subgraph getSubgraph() {
-        return subgraph;
-    }
+	public Subgraph getSubgraph() {
+		return subgraph;
+	}
 
-    public void setSubgraph(Subgraph subgraph) {
-        this.subgraph = subgraph;
-    }
+	public void setSubgraph(Subgraph subgraph) {
+		this.subgraph = subgraph;
+	}
+
+	public void addEntity(LayoutEntity arg0) {
+		if (arg0 instanceof Node) {
+			addNode((Node) arg0);
+		}
+	}
+
+	public void addRelationship(LayoutRelationship arg0) {
+		if (arg0 instanceof Edge) {
+			addEdge((Edge) arg0);
+		}
+	}
+
+	public List getEntities() {
+		return getNodes();
+	}
+
+	public List getRelationships() {
+		return getEdges();
+	}
+
+	public boolean isBidirectional() {
+			return false;
+	}
+	
 }

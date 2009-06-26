@@ -16,12 +16,13 @@ import org.eclipse.draw2d.Animation;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.IWorkbenchPage;
 
-public class HyperbolicCenterAction extends Action {
+
+public class FisheyeAction extends Action {
 
 	private static final int ANIMATION_TIME = 500;
 	private IWorkbenchPage page;
 
-	public HyperbolicCenterAction(IWorkbenchPage page) {
+	public FisheyeAction(IWorkbenchPage page) {
 		this.page = page;
 	}
 
@@ -52,11 +53,30 @@ public class HyperbolicCenterAction extends Action {
 			final DirectedGraphToModelConverter graphToModelConvert = new DirectedGraphToModelConverter();
 
 			// Convert graph to directed graph
-			DirectedGraph directedGraph = modelToGraphConv.convertToGraph(graph.getName());
+			final DirectedGraph directedGraph = modelToGraphConv.convertToGraph(graph.getName());
 
 			// Apply dot layout
 			DirectedGraphLayout layout = new DirectedGraphLayout();
 			layout.visit(directedGraph);
+			
+			/**
+		    // Apply zest layouts
+			List entities = directedGraph.getEntities();
+			List relationships = directedGraph.getRelationships();
+
+			final LayoutEntity[] layoutEntities = new LayoutEntity[entities.size()];
+			entities.toArray(layoutEntities);
+			final LayoutRelationship[] layoutRelationships = new LayoutRelationship[relationships.size()];
+			relationships.toArray(layoutRelationships);
+
+			try {
+				RadialLayoutAlgorithm zestlayout = new  RadialLayoutAlgorithm(LayoutStyles.NONE);
+				zestlayout.applyLayout(layoutEntities, layoutRelationships, 0, 0, directedGraph.getLayoutSize().height, directedGraph.getLayoutSize().width, false, false);
+			} catch (InvalidLayoutConfiguration e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			*/
 
 			//find the selected origin in the directed graph (by name)
 			Node origin = null;
@@ -71,7 +91,7 @@ public class HyperbolicCenterAction extends Action {
 			if (origin != null) {
 				new HyperbolicLayout(directedGraph, origin).applyLayout();
 			}
-
+		
 			// Store graph
 			graphToModelConvert.convertToModel(directedGraph, graph.getName());
 
