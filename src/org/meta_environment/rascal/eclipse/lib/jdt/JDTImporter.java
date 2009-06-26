@@ -53,7 +53,6 @@ import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 // entity([package("jdtimporter"),class("Activator   ",[entity([typeParameter("A")])]),anonymousClass(0),    method("set",[entity([package("java"),package("lang"),class("Integer")]),entity([primitive(int())])],entity([package("java"),package("lang"),class("Integer")])),parameter("element")])
 // entity([package("jdtimporter"),class("Activator<A>",[entity([typeParameter("A")])]),class("new List(){}"),method("get",[                                                           entity([primitive(int())])],entity([package("java"),package("lang"),class("Integer")])),parameter("index")])
 
-// TBD: look at class declarations inside initializers
 
 
 public class JDTImporter extends ASTVisitor {
@@ -204,7 +203,14 @@ public class JDTImporter extends ASTVisitor {
 		}
 		
 		if (tb != null) {
-			addBinding(typeBindings, n, bindingCache.getEntity(tb));
+			Initializer possibleParent = null;
+			try {
+				possibleParent = initializerStack.peek();
+			} catch (EmptyStackException e) {
+				// ignore
+			}
+			
+			addBinding(typeBindings, n, bindingCache.getEntity(tb, possibleParent));
 		}
 		
 		// method and constructor bindings
@@ -397,7 +403,7 @@ public class JDTImporter extends ASTVisitor {
 		
 		IVariableBinding[] fields = tb.getDeclaredFields();
 		for (IVariableBinding field : fields) {
-			ITuple tup = VF.tuple(thisType, bindingCache.getEntity(field, null));
+			ITuple tup = VF.tuple(thisType, bindingCache.getEntity(field));
 			declaredFields.insert(tup);
 		}
 	}

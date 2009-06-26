@@ -23,7 +23,7 @@ data Id = package(str name)
 
         | field(str name)
         | parameter(str name)
-        | variable(str name)
+        | variable(str name, int id)
         | enumConstant(str name)
         
         | primitive(PrimitiveType type)

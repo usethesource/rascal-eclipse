@@ -33,7 +33,7 @@ public class Java {
 	public static final Type CONS_INITIALIZER_NUMBERED = TF.constructor(store, ADT_ID, "initializer", TF.integerType(), "nr");
 	public static final Type CONS_FIELD = TF.constructor(store, ADT_ID, "field", TF.stringType(), "name");
 	public static final Type CONS_PARAMETER = TF.constructor(store, ADT_ID, "parameter", TF.stringType(), "name");
-	public static final Type CONS_VARIABLE = TF.constructor(store, ADT_ID, "variable", TF.stringType(), "name");
+	public static final Type CONS_VARIABLE = TF.constructor(store, ADT_ID, "variable", TF.stringType(), "name", TF.integerType(), "id");
 	public static final Type CONS_PRIMITIVE = TF.constructor(store, ADT_ID, "primitive", ADT_PRIMITIVETYPE, "type");
 	public static final Type CONS_ARRAY = TF.constructor(store, ADT_ID, "array", ADT_ENTITY, "elementType");
 	public static final Type CONS_ENUM = TF.constructor(store, ADT_ID, "enum", TF.stringType(), "name");

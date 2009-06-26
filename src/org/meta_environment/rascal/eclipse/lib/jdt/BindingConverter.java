@@ -90,15 +90,27 @@ public class BindingConverter extends ASTVisitor {
     public IValue getEntity(ITypeBinding binding) {
     	return createEntity(getIds(binding));
     }
+
+    public IValue getEntity(ITypeBinding binding, Initializer possibleParent) {
+    	return createEntity(getIds(binding, possibleParent));
+    }
     
     public IValue getEntity(IMethodBinding binding) {
     	return createEntity(getIds(binding));
     }
     
+    public IValue getEntity(IVariableBinding binding) {
+    	return createEntity(getIds(binding, null));
+    }
+
     public IValue getEntity(IVariableBinding binding, Initializer possibleParent) {
     	return createEntity(getIds(binding, possibleParent));
     }
     
+    public IValue getEntity(Initializer binding) {
+    	return createEntity(getIds(binding, null));
+    }
+
     public IValue getEntity(Initializer binding, ITypeBinding possibleParent) {
     	return createEntity(getIds(binding, possibleParent));
     }
@@ -121,11 +133,21 @@ public class BindingConverter extends ASTVisitor {
 		String key = tb.getKey();
 		IList l = idStore.get(key); 
 		if (l == null) {
-			l = importTypeBinding(tb);
+			l = importTypeBinding(tb, null);
 			idStore.put(key, l);
 		}
 		return l;
 	}
+	
+	private IList getIds(ITypeBinding tb, Initializer possibleParent) {
+		String key = tb.getKey();
+		IList l = idStore.get(key); 
+		if (l == null) {
+			l = importTypeBinding(tb, possibleParent);
+			idStore.put(key, l);
+		}
+		return l;
+	}	
 
 	private IList getIds(IMethodBinding mb) {
 		String key = mb.getKey();
@@ -156,22 +178,28 @@ public class BindingConverter extends ASTVisitor {
 		return l;
 	}
 
-	private IList importTypeBinding(ITypeBinding tb) {
+	private IList importTypeBinding(ITypeBinding tb, Initializer possibleParent) {
 		IListWriter lw = VF.listWriter(ADT_ID);
 		IList prefix = VF.list(ADT_ID);
 		IPackageBinding pb = tb.getPackage();
 		
 		if (!tb.isTypeVariable()) {
 			ITypeBinding declaringClass = tb.getDeclaringClass();
-			if (declaringClass != null) {
+			if (declaringClass != null && possibleParent == null) {
+				// for innerclasses in initializers, getDeclaringClass() returns
+				// the parent class of the initializer :-(
 				prefix = getIds(declaringClass);
 			} else {
 				IMethodBinding declaringMethod = tb.getDeclaringMethod();
 				if (declaringMethod != null) {
 					prefix = getIds(declaringMethod);
 				} else {
-					if (pb != null) {
-						prefix = getIds(pb);
+					if (possibleParent != null) {
+						prefix = getIds(possibleParent, null);
+					} else {
+						if (pb != null) {
+							prefix = getIds(pb);
+						}
 					}
 				}			
 			}
@@ -302,10 +330,23 @@ public class BindingConverter extends ASTVisitor {
 			IMethodBinding declaringMethod = vb.getDeclaringMethod();
 			if (declaringMethod != null) {			
 				prefix = getIds(declaringMethod);
-			} else {
+			} else {				
+				/* Excerpt from VariableBinding.getDeclaringMethod():				  
+				 *
+				 *	ASTNode node = this.resolver.findDeclaringNode(this);
+				 *	while (true) {
+				 *		if (node == null) break;
+				 *		switch(node.getNodeType()) {
+				 *			case ASTNode.INITIALIZER :
+				 *				return null;
+				 *				
+				 *	(btw: this is not seen in TypeBinding.getDeclaringMethod()) 
+				 */
+				
 				//local variable in initializer
 				if (possibleParent != null) {
-					prefix = getIds(possibleParent, null); // initializer should be in cache already
+					prefix = getIds(possibleParent, null); // initializer should be in cache already				
+					
 				} else {
 					//let prefix remain empty
 					System.err.println("dangling var " + vb.getName());
@@ -322,7 +363,7 @@ public class BindingConverter extends ASTVisitor {
 			lw.append(VF.constructor(CONS_PARAMETER, VF.string(vb.getName())));
 		} else {
 			// local variable
-			lw.append(VF.constructor(CONS_VARIABLE, VF.string(vb.getName())));
+			lw.append(VF.constructor(CONS_VARIABLE, VF.string(vb.getName()), VF.integer(vb.getVariableId())));
 		}
 	
 		return prefix.concat(lw.done());
