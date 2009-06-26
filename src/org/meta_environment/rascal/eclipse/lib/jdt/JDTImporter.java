@@ -50,17 +50,19 @@ import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 // TBD: why the difference?:
-// entity([package("jdtimporter"),class("Activator",[entity([typeParameter("A")])]),anonymousClass(0),method("set",[entity([package("java"),package("lang"),class("Integer")]),entity([primitive(int())])],entity([package("java"),package("lang"),class("Integer")])),parameter("element")])
-// entity([package("jdtimporter"),class("Activator<A>",[entity([typeParameter("A")])]),class("new List(){}"),method("get",[entity([primitive(int())])],entity([package("java"),package("lang"),class("Integer")])),parameter("index")])
+// entity([package("jdtimporter"),class("Activator   ",[entity([typeParameter("A")])]),anonymousClass(0),    method("set",[entity([package("java"),package("lang"),class("Integer")]),entity([primitive(int())])],entity([package("java"),package("lang"),class("Integer")])),parameter("element")])
+// entity([package("jdtimporter"),class("Activator<A>",[entity([typeParameter("A")])]),class("new List(){}"),method("get",[                                                           entity([primitive(int())])],entity([package("java"),package("lang"),class("Integer")])),parameter("index")])
 
 // TBD: look at class declarations inside initializers
 
 
-public class JDTImporter extends ASTVisitor {//NodeConverter {
+public class JDTImporter extends ASTVisitor {
 
 	protected static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	private BindingConverter bindingCache = new BindingConverter();
+	private Stack<ITypeBinding> classStack = new Stack<ITypeBinding>();
+	private Stack<Initializer> initializerStack = new Stack<Initializer>();
 	private IFile file;
 	
 	// bindings
@@ -81,8 +83,6 @@ public class JDTImporter extends ASTVisitor {//NodeConverter {
 	private IRelationWriter declaredMethods;
 	private IRelationWriter declaredFields;
 	private IRelationWriter declaredTypes;
-	private Stack<ITypeBinding> classStack = new Stack<ITypeBinding>();
-	private Stack<Initializer> initializerStack = new Stack<Initializer>();
 	
 	public JDTImporter() {
 		super();
@@ -136,7 +136,6 @@ public class JDTImporter extends ASTVisitor {//NodeConverter {
 			if (problems[i].isError()) {
 				throw new Throw(VF.string("Error(s) in compilation unit"), (ISourceLocation) null, null);
 			}
-			//System.out.println(problems[i].getMessage());
 		}
 		
 		cu.accept(this);

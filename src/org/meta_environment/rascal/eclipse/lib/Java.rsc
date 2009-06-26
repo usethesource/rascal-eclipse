@@ -34,7 +34,6 @@ data Id = package(str name)
         | wildcard(Bound bound)
 ;
 
-
 data PrimitiveType = byte
                    | short
                    | \int
@@ -65,20 +64,20 @@ public str toString(Entity entity) {
 	return result;
 }
 
-private str toString(list[Entity] entities) {
+public str toString(list[Entity] entities) {
 	str result = "";
 	
 	if (size(entities) > 0) {
 		result = toString(head(entities));
 		for (entity <- tail(entities)) {
-			result += "." + toString(entity);	
+			result += ", " + toString(entity);	
 		}
 	}
 	
 	return result;
 }
 
-private str toString(Id id) {
+public str toString(Id id) {
 	switch (id) {
 		case class(name, params):
 			return name + "\<" + toString(params) + ">"; 		

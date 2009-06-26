@@ -9,6 +9,7 @@ import static org.meta_environment.rascal.eclipse.lib.Java.CONS_CONSTRUCTOR;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_ENTITY;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_ENUM;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_ENUM_CONSTANT;
+import static org.meta_environment.rascal.eclipse.lib.Java.CONS_EXTENDS;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_FIELD;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_GENERIC_CLASS;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_GENERIC_INTERFACE;
@@ -18,12 +19,11 @@ import static org.meta_environment.rascal.eclipse.lib.Java.CONS_METHOD;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_PACKAGE;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_PARAMETER;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_PRIMITIVE;
+import static org.meta_environment.rascal.eclipse.lib.Java.CONS_SUPER;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_TYPE_PARAMETER;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_VARIABLE;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_WILDCARD;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_WILDCARD_BOUND;
-import static org.meta_environment.rascal.eclipse.lib.Java.CONS_EXTENDS;
-import static org.meta_environment.rascal.eclipse.lib.Java.CONS_SUPER;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +32,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
@@ -84,27 +83,27 @@ public class BindingConverter extends ASTVisitor {
 		return VF.constructor(CONS_ENTITY, ids);
 	}
 
-    IValue getEntity(IPackageBinding binding) {
+    public IValue getEntity(IPackageBinding binding) {
     	return createEntity(getIds(binding));
     }
     
-    IValue getEntity(ITypeBinding binding) {
+    public IValue getEntity(ITypeBinding binding) {
     	return createEntity(getIds(binding));
     }
     
-    IValue getEntity(IMethodBinding binding) {
+    public IValue getEntity(IMethodBinding binding) {
     	return createEntity(getIds(binding));
     }
     
-    IValue getEntity(IVariableBinding binding, Initializer possibleParent) {
+    public IValue getEntity(IVariableBinding binding, Initializer possibleParent) {
     	return createEntity(getIds(binding, possibleParent));
     }
     
-    IValue getEntity(Initializer binding, ITypeBinding possibleParent) {
+    public IValue getEntity(Initializer binding, ITypeBinding possibleParent) {
     	return createEntity(getIds(binding, possibleParent));
     }
 
-	void put(Object key, IList value) {
+    public void put(Object key, IList value) {
 		idStore.put(key, value);
 	}
 	
