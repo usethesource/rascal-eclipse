@@ -9,7 +9,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +29,6 @@ import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -45,7 +43,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.part.FileEditorInput;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
@@ -64,19 +61,15 @@ import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.Evaluator;
-import org.meta_environment.rascal.interpreter.IDebugger;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
-import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.parser.ASTBuilder;
-import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 
 public class RascalScriptInterpreter implements IScriptInterpreter{
-	private final ModuleParser parser = new ModuleParser();
 	private Evaluator eval;
 	private final RascalConsole console;
 	private String command;
@@ -174,8 +167,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 				try {
 					command += cmd;
 
-					// TODO add support for sdf search path to support concrete syntax
-					IConstructor tree = parser.parseCommand(Collections.<String>emptySet(), Collections.<String>emptyList(), "-", command);
+					IConstructor tree = eval.parseCommand(command);
 
 					Type constructor = tree.getConstructorType();
 
@@ -402,7 +394,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 		if (eval instanceof DebuggableEvaluator) {
 			// need to notify the debugger that the command is finished
 			DebuggableEvaluator debugEval = (DebuggableEvaluator) eval;
-			debugEval.getDebugger().stopStepping();
+//			debugEval.getDebugger().stopStepping();
 		}
 		command = "";
 		state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
@@ -593,7 +585,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 
 	/* construct an Expression AST from a String */ 
 	public Expression getExpression(String expression) throws IOException {
-		IConstructor tree = parser.parseCommand(Collections.<String>emptySet(), Collections.<String>emptyList(), "-", expression+";");
+		IConstructor tree = eval.parseCommand(expression+";");
 		Command c = new ASTBuilder(new ASTFactory()).buildCommand(tree);	
 		return c.getStatement().getExpression();
 	}

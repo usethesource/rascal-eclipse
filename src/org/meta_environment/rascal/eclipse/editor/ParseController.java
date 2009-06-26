@@ -2,6 +2,7 @@ package org.meta_environment.rascal.eclipse.editor;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -18,6 +19,14 @@ import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.eclipse.Activator;
+import org.meta_environment.rascal.eclipse.console.ProjectModuleLoader;
+import org.meta_environment.rascal.eclipse.console.ProjectSDFModuleContributor;
+import org.meta_environment.rascal.eclipse.console.RascalScriptInterpreter;
+import org.meta_environment.rascal.interpreter.Configuration;
+import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.load.FromCurrentWorkingDirectoryLoader;
+import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
+import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
@@ -25,11 +34,12 @@ import org.meta_environment.uptr.ParsetreeAdapter;
 
 public class ParseController implements IParseController {
 	private ModuleLoader loader = new ModuleLoader();
+	
 	private IMessageHandler handler;
 	private ISourceProject project;
 	private IConstructor parseTree;
 	private IPath path;
-
+	
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
 		return null;
 	}
@@ -67,12 +77,34 @@ public class ParseController implements IParseController {
 		this.path = filePath;
 		this.handler = handler;
 		this.project = project;
+		loader.addFileLoader(new ProjectModuleLoader());
+		loader.addFileLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
+		loader.addSdfSearchPathContributor(new ProjectSDFModuleContributor());
+		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
+		
+		// everything rooted at the src directory 
+		loader.addFileLoader(new FromResourceLoader(this.getClass()));
+
+		// add current wd and sdf-library to search path for SDF modules
+		loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
+			public java.util.List<String> contributePaths() {
+				java.util.List<String> result = new LinkedList<String>();
+				//System.err.println("getproperty user.dir: " + System.getProperty("user.dir"));
+				result.add(System.getProperty("user.dir"));
+				result.add(Configuration.getSdfLibraryPathProperty());
+				return result;
+			}
+		});
+
 	}
 
 	public Object parse(String input, IProgressMonitor monitor) {
 		try {
 			handler.clearMessages();
 			monitor.beginTask("parsing Rascal", 1);
+			
+			
+
 			IConstructor parseTree = loader.parseModule(path.toOSString(), "-", input);
 			
 			if (parseTree.getConstructorType() == Factory.ParseTree_Summary) {

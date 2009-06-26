@@ -11,10 +11,13 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleFactory;
 import org.eclipse.ui.console.IConsoleManager;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.rascal.interpreter.CommandEvaluator;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.IDebugger;
+import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
+import org.meta_environment.rascal.parser.ConsoleParser;
 
 public class ConsoleFactory implements IConsoleFactory {
 	public static final String CONSOLE_ID = "org.meta_environment.rascal.eclipse.console";
@@ -54,30 +57,29 @@ public class ConsoleFactory implements IConsoleFactory {
 		return lastConsole;
 	}
 
-	public class RascalConsole extends ScriptConsole{
+	public class RascalConsole extends ScriptConsole {
 
+		private static final String SHELL_MODULE = "***shell***";
 		protected RascalScriptInterpreter interpreter;
 
 		public RascalConsole(){
-			super("Rascal", CONSOLE_ID);
-			Evaluator eval = new Evaluator(vf, new PrintWriter(System.err), new ModuleEnvironment("***shell***"));
-			interpreter = new RascalScriptInterpreter(this, eval);
-			interpreter.initialize();
-			setInterpreter(interpreter);
-			setPrompt(new ScriptConsolePrompt("rascal>", ">>>>>>>"));
-			addPatternMatchListener(new JumpToSource());
+			this(new CommandEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment(SHELL_MODULE) , 
+					new GlobalEnvironment(), new ConsoleParser()));
 		}
 		
 		public RascalConsole(IDebugger debugger){
+			this(new DebuggableEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment(SHELL_MODULE), new ConsoleParser(), debugger));
+		}
+		
+		
+		private RascalConsole(Evaluator eval) {
 			super("Rascal", CONSOLE_ID);
-			Evaluator eval = new DebuggableEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment("***shell***"),debugger);
 			interpreter = new RascalScriptInterpreter(this, eval);
 			interpreter.initialize();
 			setInterpreter(interpreter);
 			setPrompt(new ScriptConsolePrompt("rascal>", ">>>>>>>"));
 			addPatternMatchListener(new JumpToSource());
 		}
-		
 		
 		public RascalScriptInterpreter getInterpreter() {
 			return interpreter;			
