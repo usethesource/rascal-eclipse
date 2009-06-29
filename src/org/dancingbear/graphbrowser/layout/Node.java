@@ -276,12 +276,7 @@ public class Node implements LayoutEntity  {
 	 */
 	@SuppressWarnings("deprecation")
 	public boolean isVirtualNode() {
-		if (this instanceof VirtualNode) {
-			return true;
-		}
-
-		return false;
-
+		return (this instanceof VirtualNode);
 	}
 
 	Iterator<Node> iteratorNeighbors() {
@@ -459,7 +454,7 @@ public class Node implements LayoutEntity  {
 	public int getRank() {
 		if (getProperties().get("rankvalue") != null) {
 			try {
-				this.rank = Integer.valueOf(this.getProperties().get(
+				this.rank = Integer.parseInt(this.getProperties().get(
 				"rankvalue"));
 			} catch (Exception e) {
 				System.err.println("Invalid rank in hashmap for "
@@ -610,10 +605,10 @@ public class Node implements LayoutEntity  {
 		}
 	}
 
-	public List getRelatedEntities() {
+	public List<Node> getRelatedEntities() {
 		List<Node> related = new ArrayList<Node>();
-		for (Iterator iter = outgoing.iterator(); iter.hasNext();) {
-			related.add(((Edge)iter.next()).getTarget());
+		for (Iterator<Edge> iter = outgoing.iterator(); iter.hasNext();) {
+			related.add(iter.next().getTarget());
 		}
 		return related;
 	}

@@ -22,7 +22,6 @@ import org.dancingbear.graphbrowser.layout.DirectedGraph;
 import org.dancingbear.graphbrowser.layout.DirectedGraphLayout;
 import org.dancingbear.graphbrowser.layout.DirectedGraphToModelConverter;
 import org.dancingbear.graphbrowser.layout.ModelToDirectedGraphConverter;
-import org.dancingbear.graphbrowser.layout.hypergraph.HyperbolicLayout;
 import org.dancingbear.graphbrowser.model.IModelGraph;
 import org.eclipse.jface.action.IAction;
 

@@ -76,7 +76,7 @@ public class FunctionView extends AbstractDebugView implements ISelectionListene
 				result = entry.getKey();
 				break;
 			case 1 : // LAMBDA HEADERS
-				List l = new ArrayList();
+				List<String> l = new ArrayList<String>();
 				for (Lambda lambda: entry.getValue()) {
 					l.add(lambda.getHeader());
 				}

@@ -18,10 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.ui.dialogs.ListSelectionDialog;
-import org.eclipse.zest.layouts.LayoutEntity;
-import org.eclipse.zest.layouts.LayoutGraph;
-import org.eclipse.zest.layouts.LayoutRelationship;
 
 /**
  * 

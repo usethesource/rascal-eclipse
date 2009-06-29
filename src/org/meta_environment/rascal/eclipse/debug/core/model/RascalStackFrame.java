@@ -28,27 +28,21 @@ public class RascalStackFrame<var> extends RascalDebugElement implements IStackF
 
 
 	public int getCharEnd() throws DebugException {
-		if(loc != null){
-			return loc.getOffset()+loc.getLength();
-		} else {
-			return 0;
-		}
+		if(loc == null) return 0;
+		
+		return loc.getOffset()+loc.getLength();
 	}
 
 	public int getCharStart() throws DebugException {
-		if(loc != null){
-			return loc.getOffset();
-		} else {
-			return 0;
-		}	
+		if(loc == null)return 0;
+		
+		return loc.getOffset();
 	}
 
 	public int getLineNumber() throws DebugException {
-		if(loc != null){
-			return loc.getBeginLine();
-		} else {
-			return 0;
-		}
+		if(loc == null) return 0;
+		
+		return loc.getBeginLine();
 	}
 
 	public String getName() throws DebugException {
@@ -184,11 +178,9 @@ public class RascalStackFrame<var> extends RascalDebugElement implements IStackF
 	}
 
 	public String getSourceName() {
-		if (envt.getRoot() != null) {
-			return envt.getRoot().getName().replaceAll("::", "/")+".rsc";
-		} else {
-			return null;
-		}
+		if(envt.getRoot() == null) return null;
+		
+		return envt.getRoot().getName().replaceAll("::", "/")+".rsc";
 	}
 
 	public Environment getEnvt() {
@@ -208,7 +200,7 @@ public class RascalStackFrame<var> extends RascalDebugElement implements IStackF
 		if (obj instanceof RascalStackFrame) {
 			RascalStackFrame sf = (RascalStackFrame)obj;
 			return sf.getThread().equals(getThread()) && 
-			    sf.getSourceName()==null?getSourceName()==null:sf.getSourceName().equals(getSourceName()) &&
+			    sf.getSourceName() == null ? getSourceName() == null : sf.getSourceName().equals(getSourceName()) &&
 				sf.getEnvt().equals(getEnvt()) &&
 				sf.getLocation().equals(getLocation());
 		}

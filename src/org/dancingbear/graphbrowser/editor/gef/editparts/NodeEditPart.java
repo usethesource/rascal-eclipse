@@ -18,11 +18,8 @@ import org.dancingbear.graphbrowser.editor.draw2d.figure.manipulator.AbstractFig
 import org.dancingbear.graphbrowser.editor.draw2d.figure.manipulator.FigureManipulatorFactory;
 import org.dancingbear.graphbrowser.editor.gef.commands.SourceLinkCommand;
 import org.dancingbear.graphbrowser.editor.gef.editpolicies.EdgeLayoutPolicy;
-import org.dancingbear.graphbrowser.model.IModelEdge;
-import org.dancingbear.graphbrowser.model.IModelGraph;
 import org.dancingbear.graphbrowser.model.IModelNode;
 import org.dancingbear.graphbrowser.model.IPropertyContainer;
-import org.eclipse.debug.internal.ui.viewers.ModelNode;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
@@ -80,16 +77,16 @@ public class NodeEditPart extends AbstractPropertyContainerEditPart<IModelNode> 
     	ConnectionEditPart editPart;
     	Object model;
 
-    	Map mapModelToEditPart = new HashMap();
-    	List connections = getTargetConnections();
+    	Map<Object, ConnectionEditPart> mapModelToEditPart = new HashMap<Object, ConnectionEditPart>();
+    	List<?> connections = getTargetConnections();
 
     	for (i = 0; i < connections.size(); i++) {
     		editPart = (ConnectionEditPart)connections.get(i);
     		mapModelToEditPart.put(editPart.getModel(), editPart);
     	}
 
-    	List modelObjects = getModelTargetConnections();
-    	if (modelObjects == null) modelObjects = new ArrayList();
+    	List<?> modelObjects = getModelTargetConnections();
+    	if (modelObjects == null) modelObjects = new ArrayList<Object>();
 
     	for (i = 0; i < modelObjects.size(); i++) {
     		model = modelObjects.get(i);
@@ -98,7 +95,7 @@ public class NodeEditPart extends AbstractPropertyContainerEditPart<IModelNode> 
     			&& ((EditPart) connections.get(i)).getModel() == model)
     				continue;
 
-    		editPart = (ConnectionEditPart)mapModelToEditPart.get(model);
+    		editPart = mapModelToEditPart.get(model);
     		if (editPart != null)
     			reorderTargetConnection(editPart, i);
     		else {
@@ -108,7 +105,7 @@ public class NodeEditPart extends AbstractPropertyContainerEditPart<IModelNode> 
     	}
 
     	//Remove the remaining Connection EditParts
-    	List trash = new ArrayList ();
+    	List<Object> trash = new ArrayList<Object>();
     	for (; i < connections.size(); i++)
     		trash.add(connections.get(i));
     	for (i = 0; i < trash.size(); i++)

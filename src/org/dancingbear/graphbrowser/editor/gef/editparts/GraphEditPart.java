@@ -14,7 +14,6 @@ import java.util.List;
 import org.dancingbear.graphbrowser.editor.draw2d.figure.GraphFigure;
 import org.dancingbear.graphbrowser.editor.draw2d.figure.manipulator.AbstractFigureManipulator;
 import org.dancingbear.graphbrowser.editor.draw2d.figure.manipulator.FigureManipulatorFactory;
-import org.dancingbear.graphbrowser.editor.gef.editpolicies.EdgeLayoutPolicy;
 import org.dancingbear.graphbrowser.editor.gef.editpolicies.NodeLayoutPolicy;
 import org.dancingbear.graphbrowser.model.IModelEdge;
 import org.dancingbear.graphbrowser.model.IModelGraph;

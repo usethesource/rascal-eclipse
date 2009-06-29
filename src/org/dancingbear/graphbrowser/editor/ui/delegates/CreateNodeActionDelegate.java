@@ -1,7 +1,6 @@
 package org.dancingbear.graphbrowser.editor.ui.delegates;
 
 import org.dancingbear.graphbrowser.editor.jface.action.CreateNodeAction;
-import org.dancingbear.graphbrowser.editor.jface.action.FilterAction;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.ui.IWorkbenchPage;
 

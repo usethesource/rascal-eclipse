@@ -3,14 +3,11 @@ package org.meta_environment.rascal.eclipse.debug.ui.actions;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.IActionDelegate2;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget;
-import org.meta_environment.rascal.eclipse.debug.core.model.RascalStackFrame;
-import org.meta_environment.rascal.eclipse.debug.core.model.RascalThread;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 
 

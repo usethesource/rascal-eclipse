@@ -30,9 +30,9 @@ public class RascalVariableValue implements IValue {
 		String s = value.getValue().toString();
 		if (s.length() > MAX_VALUE_STRING) {
 			return s.substring(0,MAX_VALUE_STRING)+"...";
-		} else {
-			return s;
 		}
+		
+		return s;
 	}
 
 	public IVariable[] getVariables() throws DebugException {

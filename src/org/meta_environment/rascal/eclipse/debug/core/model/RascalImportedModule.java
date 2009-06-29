@@ -1,15 +1,9 @@
 package org.meta_environment.rascal.eclipse.debug.core.model;
 
-import java.io.IOException;
-
-import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
-import org.meta_environment.rascal.interpreter.result.Result;
 
 public class RascalImportedModule extends RascalDebugElement implements IVariable {
 

@@ -1,6 +1,5 @@
 package org.dancingbear.graphbrowser.editor.jface.action;
 
-import java.util.Hashtable;
 import java.util.List;
 
 import org.dancingbear.graphbrowser.editor.gef.editparts.NodeEditPart;

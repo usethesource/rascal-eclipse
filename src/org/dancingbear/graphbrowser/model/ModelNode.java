@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.zest.layouts.LayoutEntity;
-import org.eclipse.zest.layouts.constraints.LayoutConstraint;
 
 class ModelNode extends PropertyContainer implements IModelNode {
 

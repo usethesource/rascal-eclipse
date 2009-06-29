@@ -1,9 +1,6 @@
 package org.meta_environment.rascal.eclipse.debug.ui.actions;
 
-import org.dancingbear.graphbrowser.model.IModelGraph;
-import org.dancingbear.graphbrowser.model.ModelGraphRegister;
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -11,13 +8,9 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.IActionDelegate2;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.zest.core.viewers.GraphViewer;
-import org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalVariable;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalVariableValue;
 import org.meta_environment.rascal.eclipse.lib.View;
-import org.meta_environment.rascal.eclipse.lib.graph.GraphBuilder;
-import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 
 public class OpenGraphEditor implements IObjectActionDelegate, IActionDelegate2 {
 

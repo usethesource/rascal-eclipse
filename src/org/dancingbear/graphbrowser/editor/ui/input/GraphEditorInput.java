@@ -8,7 +8,6 @@
 package org.dancingbear.graphbrowser.editor.ui.input;
 
 import org.dancingbear.graphbrowser.model.IModelGraph;
-import org.eclipse.imp.pdb.ui.graph.ValueEditorInput;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
