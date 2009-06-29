@@ -3,7 +3,7 @@ Maintainers=jurgenv@cwi.nl,lankamp@cwi.nl
 Name: rascal-eclipse
 Description: 
 Version: 0.1
-EclipseRequires=org.eclipse.imp.pdb.values,org.eclipse.jdt.core,org.eclipse.core.resources,org.eclipse.core.runtime,org.eclipse.jface.text,org.eclipse.swt,org.eclipse.imp.runtime,org.eclipse.jface,org.eclipse.ui,org.eclipse.draw2d,org.eclipse.gef,org.eclipse.dltk,org.eclipse.ui.console,org.eclipse.imp.pdb.ui,org.eclipse.ui.ide,org.eclipse.core.filesystem,org.eclipse.ui.workbench.texteditor,org.eclipse.dltk.console,org.eclipse.jdt.ui,org.eclipse.dltk.console.ui
+EclipseRequires=org.eclipse.imp.pdb.values,org.eclipse.jdt.core,org.eclipse.core.resources,org.eclipse.core.runtime,org.eclipse.jface.text,org.eclipse.swt,org.eclipse.imp.runtime,org.eclipse.jface,org.eclipse.ui,org.eclipse.draw2d,org.eclipse.gef,org.eclipse.dltk,org.eclipse.ui.console,org.eclipse.imp.pdb.ui,org.eclipse.ui.ide,org.eclipse.core.filesystem,org.eclipse.ui.workbench.texteditor,org.eclipse.dltk.console,org.eclipse.jdt.ui,org.eclipse.dltk.console.ui,org.eclipse.zest.layouts,org.eclipse.zest.core
 Requires: rascal,rascal-plugin,sglr-invoker
 JarFile=rascal-eclipse.jar
 Packages=
