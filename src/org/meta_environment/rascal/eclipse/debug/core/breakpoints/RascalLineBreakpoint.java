@@ -30,6 +30,7 @@ public class RascalLineBreakpoint extends LineBreakpoint {
 	 * this breakpoint's attributes.
 	 */
 	public RascalLineBreakpoint() {
+		super();
 	}
 	
 	@Override

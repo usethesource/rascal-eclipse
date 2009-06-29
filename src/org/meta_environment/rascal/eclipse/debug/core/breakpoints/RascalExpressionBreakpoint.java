@@ -23,6 +23,7 @@ public class RascalExpressionBreakpoint extends RascalLineBreakpoint {
 	 * this breakpoint's attributes.
 	 */
 	public RascalExpressionBreakpoint() {
+		super();
 	}
 	
 	public RascalExpressionBreakpoint(final IResource resource, final ITextSelection selection) throws CoreException {

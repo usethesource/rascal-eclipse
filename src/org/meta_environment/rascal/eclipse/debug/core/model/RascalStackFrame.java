@@ -15,7 +15,7 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Lambda;
 
 
-public class RascalStackFrame<var> extends RascalDebugElement implements IStackFrame{
+public class RascalStackFrame extends RascalDebugElement implements IStackFrame{
 
 	private Environment envt; // Environment corresponding to the current scope
 	private ISourceLocation loc; // Location of the call
