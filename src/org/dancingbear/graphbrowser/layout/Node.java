@@ -24,8 +24,6 @@ import org.eclipse.zest.layouts.constraints.LayoutConstraint;
 import org.eclipse.zest.layouts.dataStructures.InternalNode;
 import org.eclipse.zest.layouts.exampleStructures.SimpleRelationship;
 
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
-
 /**
  * A node in a DirectedGraph. A node has 0 or more incoming and outgoing
  * {@link Edge}s. A node is given a width and height by the client. When a

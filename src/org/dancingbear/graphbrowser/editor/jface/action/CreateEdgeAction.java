@@ -1,20 +1,10 @@
 package org.dancingbear.graphbrowser.editor.jface.action;
 
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-
-import javax.swing.JOptionPane;
-
 import org.dancingbear.graphbrowser.editor.gef.ui.parts.GraphEditor;
 import org.dancingbear.graphbrowser.model.DefaultEdgeProperties;
-import org.eclipse.draw2d.Animation;
-import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.InputDialog;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IWorkbenchPage;
 
 public class CreateEdgeAction extends Action {
