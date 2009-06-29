@@ -138,10 +138,9 @@ class RankSorter {
 
             // Sort the ranks based on their constraints. Constraints are
             // preserved throughout.
-            Collections.sort(rank, new Comparator() {
-                public int compare(Object left, Object right) {
-                    return ((Node) left).getRowOrder()
-                            - ((Node) right).getRowOrder();
+            Collections.sort(rank, new Comparator<Node>() {
+                public int compare(Node left, Node right) {
+                    return left.getRowOrder() - right.getRowOrder();
                 }
             });
             postSort();
