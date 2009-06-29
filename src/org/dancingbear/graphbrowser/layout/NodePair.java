@@ -20,6 +20,7 @@ class NodePair {
     public Node n2;
 
     public NodePair() {
+    	super();
     }
 
     public NodePair(Node n1, Node n2) {

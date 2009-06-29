@@ -74,6 +74,7 @@ public class DirectedGraph implements LayoutGraph {
 	private Subgraph subgraph;
 
 	public DirectedGraph() {
+		super();
 	}
 
 	int[] getCellLocations(int rank) {

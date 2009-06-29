@@ -24,6 +24,7 @@ import org.dancingbear.graphbrowser.model.ModelGraphRegister;
 public final class ImportFactory {
 
     private ImportFactory() {
+    	super();
     }
 
     /**

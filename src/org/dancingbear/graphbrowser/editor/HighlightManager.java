@@ -34,6 +34,7 @@ public class HighlightManager {
      * @since 3.2
      */
     protected HighlightManager() {
+    	super();
     }
 
     /**

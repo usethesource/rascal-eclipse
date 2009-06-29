@@ -75,7 +75,9 @@ public class Token implements java.io.Serializable {
   /**
    * No-argument constructor
    */
-  public Token() {}
+  public Token() {
+	  super();
+  }
 
   /**
    * Constructs a new token for the specified Image.

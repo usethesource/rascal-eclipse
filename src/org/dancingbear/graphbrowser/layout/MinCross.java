@@ -24,6 +24,7 @@ class MinCross extends GraphVisitor {
     private RankSorter sorter = new RankSorter();
 
     public MinCross() {
+    	super();
     }
 
     /**
