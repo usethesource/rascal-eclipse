@@ -68,6 +68,7 @@ import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.uptr.Factory;
+import org.meta_environment.uptr.TreeAdapter;
 
 public class RascalScriptInterpreter implements IScriptInterpreter{
 	private Evaluator eval;
@@ -385,8 +386,18 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 			}
 		});
 
+
+		
 		if (value != null) {
-			content = value.toString() + "\n";
+			Type type = value.getType();
+			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
+				content = "[|" + new TreeAdapter((IConstructor) value).yield() + "|]\n" + 
+					type + ": " + value.toString().substring(0, 50) + "...\n";
+			}
+			else {
+				content = value.getType() + ": " + (value != null ? 
+						value.toString() : "") + "\n";
+			}
 		} else {
 			content = "ok\n";
 		}
