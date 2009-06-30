@@ -12,6 +12,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.meta_environment.rascal.interpreter.load.IModuleFileLoader;
 
 public class ProjectModuleLoader implements IModuleFileLoader {
@@ -42,19 +43,37 @@ public class ProjectModuleLoader implements IModuleFileLoader {
 		throw new IOException("File " + name + " not found");	
 	}
 	
-	public InputStream getInputStream(String name) throws IOException {
+	public boolean fileExists(String filename){
+		try{
+			IFile file = getFile(filename);
+
+			return (file != null && file.exists());
+		}catch(Exception ex){
+			return false;
+		}
+	}
+	
+	public InputStream getInputStream(String filename){
 		try {
-			IFile file = getFile(name);
+			IFile file = getFile(filename);
 
 			if (file != null && file.exists()) {
 				return file.getContents();
 			} 
-		}
-		catch (CoreException e) {
-			throw new IOException(e.getMessage());
+		}catch(Exception e){
+			// Ignore, this is fine.
 		}
 		
-		throw new IOException("File " + name + " not found");	
+		return null;
+	}
+	
+	public boolean supportsLoadingBinaries(){
+		return false;
+	}
+	
+	public boolean tryWriteBinary(String filename, String binaryName, IConstructor tree){
+		// Not implemented (yet).
+		return false;
 	}
 
 	private IWorkspaceRoot getWorkspaceRoot() {
