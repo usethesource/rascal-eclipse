@@ -157,20 +157,24 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 
 	public synchronized void notifySuspend() throws QuitException {
+		if(isTerminated()) throw new QuitException();
+			
 		fSuspended = true;
 		if (isStepping()) {
 			fireSuspendEvent(DebugEvent.STEP_END);
 		} else {
 			fireSuspendEvent(DebugEvent.CLIENT_REQUEST);
 		}
-		try {
-			while (isSuspended()) {
+		
+		while (isSuspended()) {
+			try {
 				this.wait();
+			} catch (InterruptedException e) {
+				// Ignore
 			}
-		} catch (InterruptedException e) {
-			throw new QuitException();
+			
+			if(isTerminated()) throw new QuitException();
 		}
-
 	}
 
 
@@ -244,13 +248,11 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	}
 
 
-	public void terminate() throws DebugException {
+	public synchronized void terminate() throws DebugException {
 		IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 		fConsoleManager.removeConsoles(new org.eclipse.ui.console.IConsole[]{getRascalDebugTarget().getConsole()});
-		//interrupt the Rascal interpreter thread
-		Thread executorThread = getRascalDebugTarget().getConsole().getInterpreter().getExecutorThread();
-		executorThread.interrupt();
 		fTerminated = true;
+		notify();
 		fireTerminateEvent();
 		// for refreshing the icons associated to the debug target
 		getRascalDebugTarget().fireTerminateEvent();
