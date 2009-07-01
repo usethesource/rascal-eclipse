@@ -27,6 +27,7 @@ import static org.meta_environment.rascal.eclipse.lib.Java.CONS_WILDCARD_BOUND;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -48,9 +49,11 @@ public class BindingConverter extends ASTVisitor {
 	public static final Map<String, IValue> primitiveTypes;
 	public static final IValue javaLangObject;
 	public static final IList arrayLengthField;
+	private Stack<Integer> anonymousClassCounterStack = new Stack<Integer>();
+	private Stack<Integer> initializerCounterStack = new Stack<Integer>();
 	private int anonymousClassCounter = 0;
-	private Map<Object, IList> idStore = new HashMap<Object, IList>();
 	private int initializerCounter = 0;
+	private Map<Object, IList> idStore = new HashMap<Object, IList>();
 	
 	static {
 		primitiveTypes = new HashMap<String, IValue>();
@@ -118,6 +121,24 @@ public class BindingConverter extends ASTVisitor {
     public void put(Object key, IList value) {
 		idStore.put(key, value);
 	}
+    
+    public void pushAnonymousClassCounterStack() {
+    	anonymousClassCounterStack.push(anonymousClassCounter);
+    	anonymousClassCounter = 0;
+    }
+    
+    public void popAnonymousClassCounterStack() {
+    	anonymousClassCounter = anonymousClassCounterStack.pop();
+    }
+
+    public void pushInitializerCounterStack() {
+    	initializerCounterStack.push(initializerCounter);
+    	initializerCounter = 0;
+    }
+    
+    public void popInitializerCounterStack() {
+    	initializerCounter = initializerCounterStack.pop();
+    }
 	
 	private IList getIds(IPackageBinding pb) {
 		String key = pb.getKey();
@@ -184,15 +205,16 @@ public class BindingConverter extends ASTVisitor {
 		IPackageBinding pb = tb.getPackage();
 		
 		if (!tb.isTypeVariable()) {
-			ITypeBinding declaringClass = tb.getDeclaringClass();
-			if (declaringClass != null && possibleParent == null) {
-				// for innerclasses in initializers, getDeclaringClass() returns
-				// the parent class of the initializer :-(
-				prefix = getIds(declaringClass);
+			// anonymous classes have a declaring method and class -> prefer method prefix
+			IMethodBinding declaringMethod = tb.getDeclaringMethod();
+			if (declaringMethod != null) {
+				prefix = getIds(declaringMethod);
 			} else {
-				IMethodBinding declaringMethod = tb.getDeclaringMethod();
-				if (declaringMethod != null) {
-					prefix = getIds(declaringMethod);
+				ITypeBinding declaringClass = tb.getDeclaringClass();
+				if (declaringClass != null && possibleParent == null) {
+					// for innerclasses within initializers, getDeclaringClass() returns
+					// the parent class of the initializer :-(
+					prefix = getIds(declaringClass);
 				} else {
 					if (possibleParent != null) {
 						prefix = getIds(possibleParent, null);
@@ -283,7 +305,7 @@ public class BindingConverter extends ASTVisitor {
 		IListWriter lw = VF.listWriter(ADT_ENTITY);
 		
 		for (ITypeBinding tb : tbs) {
-			lw.insert(createEntity(getIds(tb)));
+			lw.append(createEntity(getIds(tb)));
 		}
 		
 		return lw.done();

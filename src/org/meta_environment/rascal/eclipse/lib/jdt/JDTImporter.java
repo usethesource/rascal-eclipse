@@ -166,10 +166,16 @@ public class JDTImporter extends ASTVisitor {
 			if (tb.isClass()) {
 				if (push) {
 					classStack.push(tb);
+					bindingCache.pushInitializerCounterStack();
+					bindingCache.pushAnonymousClassCounterStack();
 				} else {
 					classStack.pop();
+					bindingCache.popInitializerCounterStack();
+					bindingCache.popAnonymousClassCounterStack();
 				}
 			}
+			
+			return;
 		}
 		
 		if (n instanceof Initializer) {
@@ -177,8 +183,20 @@ public class JDTImporter extends ASTVisitor {
 			
 			if (push) {
 				initializerStack.push(init);
+				bindingCache.pushAnonymousClassCounterStack();
 			} else {
 				initializerStack.pop();
+				bindingCache.popAnonymousClassCounterStack();
+			}
+			
+			return;
+		}
+		
+		if (n instanceof MethodDeclaration) {
+			if (push) {
+				bindingCache.pushAnonymousClassCounterStack();
+			} else {
+				bindingCache.popAnonymousClassCounterStack();
 			}
 		}
 	}

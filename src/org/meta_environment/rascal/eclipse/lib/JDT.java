@@ -37,7 +37,11 @@ public class JDT {
 		IProject p = getProject(project);
 		IFile f = p.getFile(file.getValue());
 		
-		return importFacts(f);
+		if (f.exists() && f.getProject() == p) {
+			return importFacts(f);
+		}
+
+		throw new Throw(VF.string("File does not exist"), (ISourceLocation) null, null);
 	}
 	
 	public static IMap extractFacts(IString project, ISourceLocation file) {
