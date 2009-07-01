@@ -260,7 +260,7 @@
    <extension
          point="rascal_eclipse.baseLibraryPath">
       <rascal_eclipse.baseLibraryPath
-            bundle="rascal_fragment"
+            bundle="rascal_plugin"
             path="installed/lib/">
       </rascal_eclipse.baseLibraryPath>
    </extension>

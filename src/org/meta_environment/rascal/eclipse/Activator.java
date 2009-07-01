@@ -49,7 +49,7 @@ public class Activator extends PluginBase {
 		}
 		// Rascal Paths
 		static{
-			Bundle rascalPluginBundle = Platform.getBundle("rascal_fragment");
+			Bundle rascalPluginBundle = Platform.getBundle("rascal_plugin");
 			
 			System.setProperty("rascal.parsetable.default.file", getFile(rascalPluginBundle, "installed/share/rascal-grammar/rascal.tbl"));
 			System.setProperty("rascal.parsetable.header.file", getFile(rascalPluginBundle, "installed/share/rascal-grammar/rascal-header.tbl"));
