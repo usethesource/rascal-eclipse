@@ -7,22 +7,22 @@ import Java;
 
 public alias JDTlocation = tuple[str fileName, int offset, int length];
 public alias BindingRel = rel[JDTlocation, Entity];
-public alias TypeInfoRel = rel[Entity, Entity];
+public alias EntityRel = rel[Entity, Entity];
 
 public alias FactMap = map[str, value];
 
 /*
 FactMaps contain the following relations:
-  BindingRel  typeBindings        (loc x type)
-  BindingRel  methodBindings      (loc x method)
-  BindingRel  constructorBindings (loc x constructor)
-  BindingRel  fieldBindings       (loc x field)
-  BindingRel  variableBindings    (loc x variable) (local variables and method parameters)
-  TypeInfoRel implements          (class x interface)
-  TypeInfoRel extends             (class x class)
-  TypeInfoRel declaredTypes       (type x type) (innerclasses)
-  TypeInfoRel declaredMethods     (type x method)
-  TypeInfoRel declaredFields      (type x field)
+  BindingRel typeBindings        (loc x type)
+  BindingRel methodBindings      (loc x method)
+  BindingRel constructorBindings (loc x constructor)
+  BindingRel fieldBindings       (loc x field)
+  BindingRel variableBindings    (loc x variable) (local variables and method parameters)
+  EntityRel  implements          (class x interface)
+  EntityRel  extends             (class x class)
+  EntityRel  declaredTypes       (type x type) (innerclasses)
+  EntityRel  declaredMethods     (type x method)
+  EntityRel  declaredFields      (type x field)
 */
 
 
@@ -82,11 +82,11 @@ public BindingRel getMethodBindings(FactMap fm) { return (BindingRel r := fm["me
 public BindingRel getConstructorBindings(FactMap fm) { return (BindingRel r := fm["constructorBindings"]) ? r : {}; }
 public BindingRel getFieldBindings(FactMap fm) { return (BindingRel r := fm["fieldBindings"]) ? r : {}; }
 public BindingRel getVariableBindings (FactMap fm) { return (BindingRel r := fm["variableBindings"]) ? r : {}; }
-public TypeInfoRel getImplements(FactMap fm) { return (TypeInfoRel r := fm["implements"]) ? r : {}; }
-public TypeInfoRel getExtends(FactMap fm) { return (TypeInfoRel r := fm["extends"]) ? r : {}; }
-public TypeInfoRel getDeclaredTypes(FactMap fm) { return (TypeInfoRel r := fm["declaredTypes"]) ? r : {}; }
-public TypeInfoRel getDeclaredMethods(FactMap fm) { return (TypeInfoRel r := fm["declaredMethods"]) ? r : {}; }
-public TypeInfoRel getDeclaredFields(FactMap fm) { return (TypeInfoRel r := fm["declaredFields"]) ? r : {}; }
+public EntityRel getImplements(FactMap fm) { return (EntityRel r := fm["implements"]) ? r : {}; }
+public EntityRel getExtends(FactMap fm) { return (EntityRel r := fm["extends"]) ? r : {}; }
+public EntityRel getDeclaredTypes(FactMap fm) { return (EntityRel r := fm["declaredTypes"]) ? r : {}; }
+public EntityRel getDeclaredMethods(FactMap fm) { return (EntityRel r := fm["declaredMethods"]) ? r : {}; }
+public EntityRel getDeclaredFields(FactMap fm) { return (EntityRel r := fm["declaredFields"]) ? r : {}; }
 
 
 // compose two relations by matching JDT locations with Rascal locations
@@ -139,7 +139,7 @@ public FactMap unionFacts(FactMap m1, FactMap m2) {
 		if (BindingRel br1 := m1[s] && BindingRel br2 := m2[s]) {
 			m1[s] = br1 + br2;
 		}
-		else if (TypeInfoRel ti1 := m1[s] && TypeInfoRel ti2 := m2[s]) {
+		else if (EntityRel ti1 := m1[s] && EntityRel ti2 := m2[s]) {
 			m1[s] = ti1 + ti2;
 		}
 	}

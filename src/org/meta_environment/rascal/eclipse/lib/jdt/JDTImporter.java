@@ -75,7 +75,7 @@ public class JDTImporter extends ASTVisitor {
 	private IRelationWriter variableBindings;
 
 	// type facts
-	private static final Type typeFactTupleType = TF.tupleType(ADT_ENTITY, ADT_ENTITY);
+	private static final Type entityTupleType = TF.tupleType(ADT_ENTITY, ADT_ENTITY);
 
 	private IRelationWriter extnds;
 	private IRelationWriter implmnts;
@@ -94,11 +94,11 @@ public class JDTImporter extends ASTVisitor {
 		fieldBindings = VF.relationWriter(bindingTupleType);
 		variableBindings = VF.relationWriter(bindingTupleType);
 		
-		implmnts = VF.relationWriter(typeFactTupleType);
-		extnds = VF.relationWriter(typeFactTupleType);
-		declaredTypes = VF.relationWriter(typeFactTupleType);
-		declaredMethods = VF.relationWriter(typeFactTupleType);
-		declaredFields = VF.relationWriter(typeFactTupleType);
+		implmnts = VF.relationWriter(entityTupleType);
+		extnds = VF.relationWriter(entityTupleType);
+		declaredTypes = VF.relationWriter(entityTupleType);
+		declaredMethods = VF.relationWriter(entityTupleType);
+		declaredFields = VF.relationWriter(entityTupleType);
 
 		this.file = file;
 		visitCompilationUnit();
