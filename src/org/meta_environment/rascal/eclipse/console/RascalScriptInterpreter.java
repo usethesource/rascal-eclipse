@@ -395,8 +395,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 					type + ": " + value.toString().substring(0, 50) + "...\n";
 			}
 			else {
-				content = value.getType() + ": " + (value != null ? 
-						value.toString() : "") + "\n";
+				content = value.getType() + ": " + value.toString() + "\n";
 			}
 		} else {
 			content = "ok\n";
