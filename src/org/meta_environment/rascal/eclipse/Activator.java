@@ -15,6 +15,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.osgi.framework.Bundle;
 
+import sglr.LegacySGLRInvoker;
 import sglr.SGLRInvoker;
 
 public class Activator extends PluginBase {
@@ -22,6 +23,7 @@ public class Activator extends PluginBase {
 	public static final String kLanguageName = "Rascal";
 	
 	private final static String RASCAL_BASE_LIBRARY_PATH = "baseLibraryPath";
+	private final static String RASCAL_BASE_BINARY_PATH = "baseBinaryPath";
 	
 	public Activator() {
 		super();
@@ -30,14 +32,14 @@ public class Activator extends PluginBase {
 
 	private static class InstanceKeeper {
 		private final static Activator sInstance = new Activator();
-		// Base Library Path
+		// Base Paths
 		static{
 			IExtensionRegistry registry = Platform.getExtensionRegistry();
-			IExtensionPoint point = registry.getExtensionPoint(PLUGIN_ID, RASCAL_BASE_LIBRARY_PATH);
+			IExtensionPoint baseLibraryPoint = registry.getExtensionPoint(PLUGIN_ID, RASCAL_BASE_LIBRARY_PATH);
 			
-			IExtension extensions[] = point.getExtensions();
-			if(extensions.length > 0){
-				IConfigurationElement[] binaryProviderElements = extensions[0].getConfigurationElements();
+			IExtension baseLibraryxtensions[] = baseLibraryPoint.getExtensions();
+			if(baseLibraryxtensions.length > 0){
+				IConfigurationElement[] binaryProviderElements = baseLibraryxtensions[0].getConfigurationElements();
 				IConfigurationElement ce = binaryProviderElements[0];
 				String bundle = ce.getAttribute("bundle");
 				String path = ce.getAttribute("path");
@@ -45,6 +47,20 @@ public class Activator extends PluginBase {
 				String baseLibraryPath = getFile(Platform.getBundle(bundle), path);
 				
 				SGLRInvoker.setBaseLibraryPath(baseLibraryPath); // Set the base library path
+			}
+			
+			IExtensionPoint baseBinaryPoint = registry.getExtensionPoint(PLUGIN_ID, RASCAL_BASE_BINARY_PATH);
+			
+			IExtension baseBinaryExtensions[] = baseBinaryPoint.getExtensions();
+			if(baseBinaryExtensions.length > 0){
+				IConfigurationElement[] binaryProviderElements = baseBinaryExtensions[0].getConfigurationElements();
+				IConfigurationElement ce = binaryProviderElements[0];
+				String bundle = ce.getAttribute("bundle");
+				String path = ce.getAttribute("path");
+				
+				String baseBinaryPath = getFile(Platform.getBundle(bundle), path);
+				
+				LegacySGLRInvoker.setBaseBinaryPath(baseBinaryPath); // Set the base binary path
 			}
 		}
 		// Rascal Paths
