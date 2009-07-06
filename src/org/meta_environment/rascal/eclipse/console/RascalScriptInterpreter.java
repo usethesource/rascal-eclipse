@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,6 +68,7 @@ import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.parser.ASTBuilder;
+import org.meta_environment.rascal.std.IO;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.TreeAdapter;
 
@@ -81,6 +83,8 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 
 	private final RascalExecutor executor;
 	private Thread executorThread;
+	
+	private RascalOutputCollector rascalOutputCollector;
 
 	public RascalScriptInterpreter(RascalConsole console, Evaluator eval) {
 		this.console = console;
@@ -96,6 +100,9 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 		eval.addClassLoader(getClass().getClassLoader());
 
 		loadCommandHistory();
+		
+		rascalOutputCollector = new RascalOutputCollector();
+		IO.setOutputStream(new RascalOutputPrintStream(rascalOutputCollector));
 
 		executor = new RascalExecutor();
 	}
@@ -266,15 +273,22 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 		}
 	}
 
-	private void updateConsole(final ScriptConsoleViewer viewer, final String text){
+	private void updateConsole(final ScriptConsoleViewer viewer, String text){
 		Control control = viewer.getControl();
 		if(control == null || text == null) return;
+		
+		String collectedOutput = rascalOutputCollector.getCollectedData();
+		rascalOutputCollector.reset();
+		
+		final StringBuilder sb = new StringBuilder();
+		sb.append(collectedOutput);
+		sb.append(text);
 
 		control.getDisplay().asyncExec(new Runnable(){
 			public void run(){
 				IDocument document = console.getDocument();
 				try{
-					document.replace(document.getLength() - 7, 7, text);
+					document.replace(document.getLength() - 7, 7, sb.toString());
 					IDocumentPartitioner partitioner = viewer.getDocument().getDocumentPartitioner();
 					if(partitioner instanceof ScriptConsolePartitioner){
 						ScriptConsolePartitioner scriptConsolePartitioner = (ScriptConsolePartitioner) partitioner;
@@ -291,6 +305,47 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 				viewer.setEditable(true);
 			}
 		});
+	}
+	
+	private static class RascalOutputCollector extends OutputStream{
+		private final static int DEFAULT_SIZE = 64;
+		
+		private byte[] data = new byte[DEFAULT_SIZE];
+		private int index = 0;
+		
+		public RascalOutputCollector(){
+			super();
+		}
+		
+		public void write(int arg) throws IOException{
+			int currentSize = data.length;
+			if(index == currentSize){
+				byte[] newData = new byte[currentSize << 1];
+				System.arraycopy(data, 0, newData, 0, currentSize);
+				data = newData;
+			}
+			
+			data[index++] = (byte) arg;
+		}
+		
+		public String getCollectedData(){
+			byte[] collectedData = new byte[index];
+			System.arraycopy(data, 0, collectedData, 0, index);
+			
+			return new String(collectedData);
+		}
+		
+		public void reset(){
+			data = new byte[DEFAULT_SIZE];
+			index = 0;
+		}
+	}
+	
+	private static class RascalOutputPrintStream extends PrintStream{
+		
+		public RascalOutputPrintStream(OutputStream out){
+			super(out);
+		}
 	}
 
 	private void setMarker(String message, ISourceLocation loc) {
@@ -385,8 +440,6 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 				throw new QuitException();
 			}
 		});
-
-
 		
 		if (value != null) {
 			Type type = value.getType();
