@@ -81,8 +81,14 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 	private Runnable listener;
 	private IFile lastMarked;
 
-	private final RascalExecutor executor;
-	private Thread executorThread;
+	private final static RascalExecutor executor = new RascalExecutor();
+	private static Thread executorThread = new Thread(executor);
+	static{
+		executorThread.setDaemon(true);
+		executorThread.start();
+	}
+	
+	private RascalOutputCollector rascalOutputCollector;
 	
 	private RascalOutputCollector rascalOutputCollector;
 
@@ -102,15 +108,6 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 		loadCommandHistory();
 		
 		rascalOutputCollector = new RascalOutputCollector();
-		IO.setOutputStream(new RascalOutputPrintStream(rascalOutputCollector));
-
-		executor = new RascalExecutor();
-	}
-
-	public void initialize(){
-		executorThread = new Thread(executor);
-		executorThread.setDaemon(true);
-		executorThread.start();
 	}
 
 	public Thread getExecutorThread() {
@@ -183,6 +180,9 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 						execParseError(tree);
 						return;
 					}
+					
+					IO.setOutputStream(new RascalOutputPrintStream(rascalOutputCollector)); // Set output collector.
+					
 					execCommand(tree);
 				} 
 				catch (StaticError e) {
@@ -456,7 +456,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 
 		if (eval instanceof DebuggableEvaluator) {
 			// need to notify the debugger that the command is finished
-			DebuggableEvaluator debugEval = (DebuggableEvaluator) eval;
+			//DebuggableEvaluator debugEval = (DebuggableEvaluator) eval;
 //			debugEval.getDebugger().stopStepping();
 		}
 		command = "";
