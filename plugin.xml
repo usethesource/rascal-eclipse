@@ -27,7 +27,7 @@
       <language
             description="Source analysis and manipulation language"
             extensions="rsc"
-            icon="icons/rascal_file.gif"
+            icon="icons/rascal3D_2-16px.gif"
             language="Rascal">
       </language>
    </extension>
@@ -66,7 +66,7 @@
       <perspective
             class="org.meta_environment.rascal.eclipse.perspective.Factory"
             fixed="false"
-            icon="icons/rascal_file.gif"
+            icon="icons/rascal3D_2-16px.gif"
             id="rascal.perspective"
             name="Rascal">
       </perspective>
@@ -94,7 +94,7 @@
             default="true"
             extensions="rsc"
             filenames="*.rsc"
-            icon="icons/rascal_file.gif"
+            icon="icons/rascal3D_2-16px.gif"
             id="rascal.editor"
             name="Rascal Editor">
       </editor>
@@ -131,7 +131,7 @@
          </action>
          <action
                class="org.dancingbear.graphbrowser.editor.ui.delegates.ShowNodeActionDelegate"
-               icon="icons/rascal_file.gif"
+               icon="icons/rascal3D_2-16px.gif"
                id="org.dancingbear.graphbrowser.action.show"
                label="Show"
                menubarPath="org.eclipse.gef.group.view"
@@ -139,7 +139,7 @@
          </action>
             <action
                class="org.dancingbear.graphbrowser.editor.ui.delegates.HyperbolicCenterActionDelegate"
-               icon="icons/rascal_file.gif"
+               icon="icons/rascal3D_2-16px.gif"
                id="org.dancingbear.graphbrowser.action.hyperbolicroot"
                label="Fisheye"
                menubarPath="org.eclipse.gef.group.view"
@@ -181,7 +181,7 @@
                   objectClass="org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget">
                <action
                      class="org.meta_environment.rascal.eclipse.debug.ui.actions.ExpressionStepModeAction"
-                     icon="icons/rascal_file.gif"
+                     icon="icons/rascal3D_2-16px.gif"
                      id="rascal-eclipse.exprstepmode"
                      label="Expression Stepping"
                      style="toggle">
@@ -255,7 +255,7 @@
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
-            icon="icons/rascal_file.gif"
+            icon="icons/rascal3D_2-16px.gif"
             configTypeID="rascal.launchType"
             id="rascal.typeImage"/>
    </extension>
@@ -263,7 +263,7 @@
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             label="Rascal Application"
-            icon="icons/rascal_file.gif"
+            icon="icons/rascal3D_2-16px.gif"
             class="org.meta_environment.rascal.eclipse.debug.ui.launcher.LaunchShortcut"
             modes="run, debug"
             id="rascal.launchShortcut">
@@ -307,7 +307,7 @@
            point="org.eclipse.ui.views">
         <view
               class="org.meta_environment.rascal.eclipse.debug.ui.views.FunctionView"
-              icon="icons/rascal_file.gif"
+              icon="icons/rascal3D_2-16px.gif"
               id="rascal-eclipse.functionview"
               name="Rascal functions"
               restorable="true">
