@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalStackFrame;
-import org.meta_environment.rascal.interpreter.env.Lambda;
+import org.meta_environment.rascal.interpreter.result.Lambda;
 
 
 

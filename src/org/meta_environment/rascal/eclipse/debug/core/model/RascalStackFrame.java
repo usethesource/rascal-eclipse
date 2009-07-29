@@ -1,18 +1,17 @@
 package org.meta_environment.rascal.eclipse.debug.core.model;
 
+import java.util.List;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IRegisterGroup;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-
-import java.util.List;
-import java.util.Set;
-import java.util.Map.Entry;
-
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.env.Lambda;
+import org.meta_environment.rascal.interpreter.result.Lambda;
 
 
 public class RascalStackFrame extends RascalDebugElement implements IStackFrame{
