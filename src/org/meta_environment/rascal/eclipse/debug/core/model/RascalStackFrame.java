@@ -11,6 +11,7 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.CalleeCandidatesResult;
 import org.meta_environment.rascal.interpreter.result.Lambda;
 
 
@@ -186,7 +187,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame{
 		return envt;
 	}
 
-	public List<Entry<String, List<Lambda>>> getFunctions() {
+	public List<Entry<String, CalleeCandidatesResult>> getFunctions() {
 		return envt.getFunctions();
 	}
 	
