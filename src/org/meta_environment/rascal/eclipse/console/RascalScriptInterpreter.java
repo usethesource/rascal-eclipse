@@ -88,7 +88,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 		executorThread.start();
 	}
 	
-	private RascalOutputCollector rascalOutputCollector;
+	private final RascalOutputCollector rascalOutputCollector;
 
 	public RascalScriptInterpreter(RascalConsole console, Evaluator eval) {
 		this.console = console;
