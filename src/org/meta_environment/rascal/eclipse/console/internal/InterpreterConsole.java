@@ -25,6 +25,7 @@ public class InterpreterConsole extends TextConsole{
 	
 	private final IInterpreter interpreter;
 	
+	private final CommandExecutor commandExecutor;
 	private final CommandHistory commandHistory;
 	private final ConsoleDocumentListener documentListener;
 	private final ConsoleOutputStream consoleOutputStream;
@@ -39,20 +40,41 @@ public class InterpreterConsole extends TextConsole{
 		super(name, CONSOLE_TYPE, null, false);
 		
 		this.interpreter = interpreter;
+		commandExecutor = new CommandExecutor(this);
 		consoleOutputStream = new ConsoleOutputStream(this);
+		interpreter.setConsole(this); // Sucks but has to happen.
 		
 		this.prompt = prompt;
 		this.continuationPrompt = continuationPrompt;
 		
 		commandHistory = new CommandHistory();
 		documentListener = new ConsoleDocumentListener(this);
+		documentListener.registerListener();
 		
 		partitioner = new InterpreterConsolePartitioner();
+		getDocument().setDocumentPartitioner(partitioner);
+		partitioner.connect(getDocument());
 		
-		// Initialize console output.
-		disableEditing();
-		emitPrompt();
-		enableEditing();
+		documentListener.enable();
+	}
+	
+	public void initializeConsole(){
+		Thread commandExecutorThread = new Thread(commandExecutor);
+		commandExecutorThread.setDaemon(true);
+		commandExecutorThread.start();
+		
+		// TODO Fix stuff below; it bugs out when called.
+		//disableEditing();
+		//emitPrompt();
+		//enableEditing();
+	}
+	
+	public void terminate(){
+		// TODO Implement.
+	}
+	
+	public IInterpreter getInterpreter(){
+		return interpreter;
 	}
 	
 	protected IConsoleDocumentPartitioner getPartitioner(){
@@ -127,6 +149,10 @@ public class InterpreterConsole extends TextConsole{
 		return new ConsoleOutputStream(this);
 	}
 	
+	public void executeCommand(String command){
+		commandExecutor.execute(command);
+	}
+	
 	private static class ConsoleOutputStream extends OutputStream{
 		private final static int DEFAULT_SIZE = 64;
 		
@@ -180,7 +206,7 @@ public class InterpreterConsole extends TextConsole{
 		}
 
 		public StyleRange[] getStyleRanges(int offset, int length){
-			return new StyleRange[]{ new StyleRange(offset, length, null, null, SWT.NO) };
+			return new StyleRange[]{ new StyleRange(offset, length, null, null, SWT.NORMAL) };
 		}
 
 		public boolean isReadOnly(int offset){
@@ -197,7 +223,6 @@ public class InterpreterConsole extends TextConsole{
 	
 	private static class ConsoleDocumentListener implements IDocumentListener{
 		private final InterpreterConsole console;
-		private final CommandExecutor commandExecutor;
 		
 		private volatile boolean enabled;
 		
@@ -207,7 +232,6 @@ public class InterpreterConsole extends TextConsole{
 			super();
 			
 			this.console = console;
-			commandExecutor = new CommandExecutor(console);
 			
 			buffer = new StringBuffer();
 			
@@ -235,11 +259,13 @@ public class InterpreterConsole extends TextConsole{
 			if(!enabled) return;
 			
 			String text = event.getText();
+			buffer.append(text);
 			
-			String rest = text;
+			String rest = buffer.toString();
 			do{
 				int index = rest.indexOf('\n');
 				if(index == -1){
+					buffer = new StringBuffer();
 					buffer.append(rest);
 					break;
 				}
@@ -247,7 +273,7 @@ public class InterpreterConsole extends TextConsole{
 				String command = rest.substring(0, index);
 				
 				console.commandHistory.addToHistory(command);
-				commandExecutor.execute(command);
+				console.commandExecutor.execute(command);
 				
 				rest = rest.substring(index + 1); // Does this work?
 			}while(true);
@@ -309,7 +335,7 @@ public class InterpreterConsole extends TextConsole{
 					String command = commandQueue.remove(0);
 					try{
 						boolean promptType = console.interpreter.execute(command);
-						if(!promptType){
+						if(promptType){
 							console.printOutput(console.interpreter.getOutput());
 						}else{
 							console.printContinuationPrompt();
