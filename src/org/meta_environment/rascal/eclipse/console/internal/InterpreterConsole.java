@@ -70,7 +70,7 @@ public class InterpreterConsole extends TextConsole{
 	}
 	
 	public void terminate(){
-		// TODO Implement.
+		commandExecutor.terminate();
 	}
 	
 	public IInterpreter getInterpreter(){
@@ -82,13 +82,14 @@ public class InterpreterConsole extends TextConsole{
 	}
 
 	public IPageBookViewPage createPage(IConsoleView view){
+		//return page;
 		return (page = new TextConsolePage(this, view));
 	}
 	
 	private void writeToConsole(final String line){
 		final IDocument doc = getDocument();
 
-		Display.getCurrent().syncExec(new Runnable(){
+		Display.getDefault().syncExec(new Runnable(){
 			public void run(){
 				try{
 					doc.replace(doc.getLength(), 0, line);
@@ -109,7 +110,7 @@ public class InterpreterConsole extends TextConsole{
 	}
 	
 	private void enableEditing(){
-		Display.getCurrent().syncExec(new Runnable(){
+		Display.getDefault().syncExec(new Runnable(){
 			public void run(){
 				documentListener.enable();
 				page.getViewer().setEditable(true);
@@ -118,7 +119,7 @@ public class InterpreterConsole extends TextConsole{
 	}
 	
 	private void disableEditing(){
-		Display.getCurrent().syncExec(new Runnable(){
+		Display.getDefault().syncExec(new Runnable(){
 			public void run(){
 				page.getViewer().setEditable(false);
 				documentListener.disable();
@@ -345,6 +346,10 @@ public class InterpreterConsole extends TextConsole{
 					}
 				}
 			}
+		}
+		
+		public void terminate(){
+			running = false;
 		}
 	}
 }
