@@ -82,6 +82,10 @@ public BindingRel getMethodBindings(FactMap fm) { return (BindingRel r := fm["me
 public BindingRel getConstructorBindings(FactMap fm) { return (BindingRel r := fm["constructorBindings"]) ? r : {}; }
 public BindingRel getFieldBindings(FactMap fm) { return (BindingRel r := fm["fieldBindings"]) ? r : {}; }
 public BindingRel getVariableBindings (FactMap fm) { return (BindingRel r := fm["variableBindings"]) ? r : {}; }
+	// *** JOPPE ADDED START ***
+public BindingRel getPackageBindings (FactMap fm) { return (BindingRel r := fm["packageBindings"]) ? r : {}; }
+public BindingRel getTopTypeBindings (FactMap fm) { return (BindingRel r := fm["topTypeBindings"]) ? r : {}; }
+	// *** JOPPE ADDED END ***
 public EntityRel getImplements(FactMap fm) { return (EntityRel r := fm["implements"]) ? r : {}; }
 public EntityRel getExtends(FactMap fm) { return (EntityRel r := fm["extends"]) ? r : {}; }
 public EntityRel getDeclaredTypes(FactMap fm) { return (EntityRel r := fm["declaredTypes"]) ? r : {}; }

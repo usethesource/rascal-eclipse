@@ -32,11 +32,13 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
@@ -73,6 +75,10 @@ public class JDTImporter extends ASTVisitor {
 	private IRelationWriter constructorBindings;
 	private IRelationWriter fieldBindings;
 	private IRelationWriter variableBindings;
+	// *** JOPPE ADDED START ***
+	private IRelationWriter packageBindings;
+	private IRelationWriter topTypeBindings;
+	// *** JOPPE ADDED END ***
 
 	// type facts
 	private static final Type entityTupleType = TF.tupleType(ADT_ENTITY, ADT_ENTITY);
@@ -94,6 +100,11 @@ public class JDTImporter extends ASTVisitor {
 		fieldBindings = VF.relationWriter(bindingTupleType);
 		variableBindings = VF.relationWriter(bindingTupleType);
 		
+		// *** JOPPE ADDED START ***
+		packageBindings = VF.relationWriter(bindingTupleType);
+		topTypeBindings = VF.relationWriter(bindingTupleType);
+		// *** JOPPE ADDED END ***
+		
 		implmnts = VF.relationWriter(entityTupleType);
 		extnds = VF.relationWriter(entityTupleType);
 		declaredTypes = VF.relationWriter(entityTupleType);
@@ -109,6 +120,10 @@ public class JDTImporter extends ASTVisitor {
 		mw.put(VF.string("constructorBindings"), constructorBindings.done());
 		mw.put(VF.string("fieldBindings"), fieldBindings.done());
 		mw.put(VF.string("variableBindings"), variableBindings.done());
+		// *** JOPPE ADDED START ***
+		mw.put(VF.string("packageBindings"), packageBindings.done());
+		mw.put(VF.string("topTypeBindings"), topTypeBindings.done());
+		// *** JOPPE ADDED END ***		
 
 		mw.put(VF.string("implements"), implmnts.done());
 		mw.put(VF.string("extends"), extnds.done());
@@ -202,13 +217,23 @@ public class JDTImporter extends ASTVisitor {
 	}
 	
 	private void importBindingInfo(ASTNode n) {
-	
+		//System.out.println(n.getClass().toString() + " : " + n.toString());
+		
 		// type bindings
 		ITypeBinding tb = null;
 		
+		// *** JOPPE ADDED START ***
+		ITypeBinding top = null;
+		// *** JOPPE ADDED END ***
+		
 		if (n instanceof org.eclipse.jdt.core.dom.Type) {
-			tb = ((org.eclipse.jdt.core.dom.Type)n).resolveBinding();
+			tb = ((org.eclipse.jdt.core.dom.Type)n).resolveBinding(); 	
 		} else if (n instanceof AbstractTypeDeclaration) {
+			// *** JOPPE ADDED START ***
+			if (n instanceof TypeDeclaration) {
+				top = ((TypeDeclaration) n).resolveBinding();
+			}
+			// *** JOPPE ADDED END ***
 			tb = ((AbstractTypeDeclaration) n).resolveBinding();
 		} else if (n instanceof AnonymousClassDeclaration) {
 			tb = ((AnonymousClassDeclaration) n).resolveBinding();			
@@ -230,6 +255,19 @@ public class JDTImporter extends ASTVisitor {
 			
 			addBinding(typeBindings, n, bindingCache.getEntity(tb, possibleParent));
 		}
+		
+		// *** JOPPE ADDED START ***
+		if (top != null) {
+			Initializer possibleParent = null;
+			try {
+				possibleParent = initializerStack.peek();
+			} catch (EmptyStackException e) {
+				// ignore
+			}
+			
+			addBinding(topTypeBindings, n, bindingCache.getEntity(top, possibleParent));
+		}
+		// *** JOPPE ADDED END ***
 		
 		// method and constructor bindings
 		IMethodBinding mb = null;
@@ -324,6 +362,17 @@ public class JDTImporter extends ASTVisitor {
 	
 		
 		// package bindings	
+		// *** JOPPE ADDED START ***
+		IPackageBinding pb = null; 
+		if (n instanceof PackageDeclaration) {
+			pb = ((PackageDeclaration) n).resolveBinding();
+		}
+		
+		if (pb != null) {
+			addBinding(packageBindings, n, bindingCache.getEntity(pb));
+		}
+		// *** JOPPE ADDED END ***
+		
 		// these only exists for package declarations, which must use the fully qualified name
 		// therefore we skip these
 	}
