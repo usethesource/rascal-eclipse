@@ -114,7 +114,7 @@ public class InterpreterConsole extends TextConsole{
 		writeToConsole(continuationPrompt);
 	}
 	
-	private void enableEditing(){
+	protected void enableEditing(){
 		Display.getDefault().syncExec(new Runnable(){
 			public void run(){
 				documentListener.enable();
@@ -123,7 +123,7 @@ public class InterpreterConsole extends TextConsole{
 		});
 	}
 	
-	private void disableEditing(){
+	protected void disableEditing(){
 		Display.getDefault().syncExec(new Runnable(){
 			public void run(){
 				page.getViewer().setEditable(false);
@@ -200,22 +200,15 @@ public class InterpreterConsole extends TextConsole{
 	private static class InterpreterConsolePartitioner extends FastPartitioner implements IConsoleDocumentPartitioner{
 		
 		public InterpreterConsolePartitioner(){
-			super(new PartitionScanner(), new String[]{});
+			super(new RuleBasedPartitionScanner(), new String[]{});
 		}
 
 		public StyleRange[] getStyleRanges(int offset, int length){
-			return new StyleRange[]{ new StyleRange(offset, length, null, null, SWT.NORMAL) };
+			return new StyleRange[]{new StyleRange(offset, length, null, null, SWT.NORMAL)};
 		}
 
 		public boolean isReadOnly(int offset){
 			return false;
-		}
-		
-		private static class PartitionScanner extends RuleBasedPartitionScanner{
-			
-			public PartitionScanner(){
-				super();
-			}
 		}
 	}
 	
