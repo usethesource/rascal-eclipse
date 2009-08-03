@@ -62,11 +62,18 @@ public class InterpreterConsole extends TextConsole{
 		Thread commandExecutorThread = new Thread(commandExecutor);
 		commandExecutorThread.setDaemon(true);
 		commandExecutorThread.start();
-		
-		// TODO Fix stuff below; it bugs out when called.
-		//disableEditing();
-		//emitPrompt();
-		//enableEditing();
+
+		// This stinks, but works.
+		Runnable r = new Runnable(){
+			public void run(){
+				if(page == null) Display.getDefault().asyncExec(this);
+				
+				disableEditing();
+				emitPrompt();
+				enableEditing();
+			}
+		};
+		Display.getDefault().asyncExec(r);
 	}
 	
 	public void terminate(){
@@ -82,7 +89,6 @@ public class InterpreterConsole extends TextConsole{
 	}
 
 	public IPageBookViewPage createPage(IConsoleView view){
-		//return page;
 		return (page = new TextConsolePage(this, view));
 	}
 	
@@ -93,7 +99,6 @@ public class InterpreterConsole extends TextConsole{
 			public void run(){
 				try{
 					doc.replace(doc.getLength(), 0, line);
-					doc.replace(doc.getLength(), 0, "\n");
 				}catch(BadLocationException blex){
 					// Ignore, never happens.
 				}
@@ -256,7 +261,7 @@ public class InterpreterConsole extends TextConsole{
 			// Don't care.
 		}
 
-		public void documentChanged(DocumentEvent event){
+		public void documentChanged(DocumentEvent event){ // TODO Fix text editing stuff.
 			if(!enabled) return;
 			
 			String text = event.getText();
