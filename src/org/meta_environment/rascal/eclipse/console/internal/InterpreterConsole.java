@@ -2,6 +2,8 @@ package org.meta_environment.rascal.eclipse.console.internal;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
@@ -28,7 +30,7 @@ public class InterpreterConsole extends TextConsole{
 	private final ConsoleOutputStream consoleOutputStream;
 	
 	private final InterpreterConsolePartitioner partitioner;
-	private InterpreterConsolePage page;
+	private TextConsolePage page;
 	
 	private final String prompt;
 	private final String continuationPrompt;
@@ -38,7 +40,6 @@ public class InterpreterConsole extends TextConsole{
 		
 		this.interpreter = interpreter;
 		consoleOutputStream = new ConsoleOutputStream(this);
-		interpreter.setOutputStream(consoleOutputStream);
 		
 		this.prompt = prompt;
 		this.continuationPrompt = continuationPrompt;
@@ -48,7 +49,10 @@ public class InterpreterConsole extends TextConsole{
 		
 		partitioner = new InterpreterConsolePartitioner();
 		
+		// Initialize console output.
+		disableEditing();
 		emitPrompt();
+		enableEditing();
 	}
 	
 	protected IConsoleDocumentPartitioner getPartitioner(){
@@ -56,44 +60,30 @@ public class InterpreterConsole extends TextConsole{
 	}
 
 	public IPageBookViewPage createPage(IConsoleView view){
-		return (page = new InterpreterConsolePage(this, view));
+		return (page = new TextConsolePage(this, view));
 	}
 	
 	private void writeToConsole(final String line){
 		final IDocument doc = getDocument();
 
-		disableEditing();
-		
 		Display.getCurrent().syncExec(new Runnable(){
 			public void run(){
 				try{
-					
 					doc.replace(doc.getLength(), 0, line);
 					doc.replace(doc.getLength(), 0, "\n");
-					
 				}catch(BadLocationException blex){
 					// Ignore, never happens.
 				}
 			}
 		});
-		
-		enableEditing();
 	}
 	
 	private void emitPrompt(){
-		disableEditing();
-		
 		writeToConsole(prompt);
-		
-		enableEditing();
 	}
 	
 	private void emitContinuationPrompt(){
-		disableEditing();
-		
 		writeToConsole(continuationPrompt);
-		
-		enableEditing();
 	}
 	
 	private void enableEditing(){
@@ -112,6 +102,25 @@ public class InterpreterConsole extends TextConsole{
 				documentListener.disable();
 			}
 		});
+	}
+	
+	protected void printOutput(String output){
+		disableEditing();
+		
+		consoleOutputStream.print();
+		writeToConsole(output);
+		emitPrompt();
+		
+		enableEditing();
+	}
+	
+	protected void printContinuationPrompt(){
+		disableEditing();
+		
+		consoleOutputStream.print();
+		emitContinuationPrompt();
+		
+		enableEditing();
 	}
 	
 	public OutputStream getConsoleOutputStream(){
@@ -164,13 +173,6 @@ public class InterpreterConsole extends TextConsole{
 		}
 	}
 	
-	private static class InterpreterConsolePage extends TextConsolePage{
-
-		public InterpreterConsolePage(TextConsole console, IConsoleView view){
-			super(console, view);
-		}
-	}
-	
 	private static class InterpreterConsolePartitioner extends FastPartitioner implements IConsoleDocumentPartitioner{
 		
 		public InterpreterConsolePartitioner(){
@@ -195,6 +197,7 @@ public class InterpreterConsole extends TextConsole{
 	
 	private static class ConsoleDocumentListener implements IDocumentListener{
 		private final InterpreterConsole console;
+		private final CommandExecutor commandExecutor;
 		
 		private volatile boolean enabled;
 		
@@ -204,6 +207,7 @@ public class InterpreterConsole extends TextConsole{
 			super();
 			
 			this.console = console;
+			commandExecutor = new CommandExecutor(console);
 			
 			buffer = new StringBuffer();
 			
@@ -227,29 +231,92 @@ public class InterpreterConsole extends TextConsole{
 			// Don't care.
 		}
 
-		public void documentChanged(DocumentEvent event){ // TODO Run asynch.
+		public void documentChanged(DocumentEvent event){
 			if(!enabled) return;
 			
 			String text = event.getText();
 			
-			buffer.append(text);
-			
-			if(text.charAt(text.length() - 1) == '\n'){ // TODO Make portable.
-				String command = buffer.toString();
+			String rest = text;
+			do{
+				int index = rest.indexOf('\n');
+				if(index == -1){
+					buffer.append(rest);
+					break;
+				}
+				
+				String command = rest.substring(0, index);
 				
 				console.commandHistory.addToHistory(command);
+				commandExecutor.execute(command);
 				
+				rest = rest.substring(index + 1); // Does this work?
+			}while(true);
+		}
+	}
+	
+	private static class NotifiableLock{
+		private boolean notified = false;
+		
+		public synchronized void block(){
+			while(!notified){
 				try{
-					boolean promptType = console.interpreter.execute(command);
-					if(promptType){
-						console.consoleOutputStream.print();
-						console.writeToConsole(console.interpreter.getOutput());
-						console.emitPrompt();
-					}else{
-						console.emitContinuationPrompt();
+					wait();
+				}catch(InterruptedException irex){
+					// Ignore.
+				}
+			}
+			notified = false;
+		}
+		
+		public synchronized void wakeUp(){
+			notified = true;
+			notify();
+		}
+	}
+	
+	private static class CommandExecutor implements Runnable{
+		private final InterpreterConsole console;
+		
+		private List<String> commandQueue;
+		
+		private volatile boolean running;
+		
+		private final NotifiableLock lock = new NotifiableLock();
+		
+		public CommandExecutor(InterpreterConsole console){
+			super();
+
+			this.console = console;
+			
+			commandQueue = new ArrayList<String>();
+			
+			running = false;
+		}
+		
+		public void execute(String command){
+			synchronized(commandQueue){
+				commandQueue.add(command);
+				lock.wakeUp();
+			}
+		}
+		
+		public void run(){
+			running = true;
+			while(running){
+				lock.block();
+				
+				while(commandQueue.size() > 0){
+					String command = commandQueue.remove(0);
+					try{
+						boolean promptType = console.interpreter.execute(command);
+						if(!promptType){
+							console.printOutput(console.interpreter.getOutput());
+						}else{
+							console.printContinuationPrompt();
+						}
+					}catch(CommandExecutionException ceex){
+						console.printOutput(ceex.getMessage());
 					}
-				}catch(CommandExecutionException cex){
-					console.writeToConsole(cex.getMessage());
 				}
 			}
 		}
