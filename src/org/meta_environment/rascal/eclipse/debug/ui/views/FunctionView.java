@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalStackFrame;
+import org.meta_environment.rascal.interpreter.result.CalleeCandidatesResult;
 import org.meta_environment.rascal.interpreter.result.Lambda;
 
 
@@ -61,16 +62,13 @@ public class FunctionView extends AbstractDebugView implements ISelectionListene
 	class FunctionLabelProvider extends LabelProvider implements ITableLabelProvider {
 
 
-		private Image getImage(boolean isSelected) {
-			return null;
-		}
-
 		/**
 		 * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object, int)
 		 */
+		@SuppressWarnings("unchecked")
 		public String getColumnText(Object element, int columnIndex) {
 			String result = "";
-			Entry<String, List<Lambda>> entry = (Entry<String, List<Lambda>>) element;
+			Entry<String, CalleeCandidatesResult> entry = (Entry<String, CalleeCandidatesResult>) element;
 			switch (columnIndex) {
 			case 0:  // NAME
 				result = entry.getKey();
