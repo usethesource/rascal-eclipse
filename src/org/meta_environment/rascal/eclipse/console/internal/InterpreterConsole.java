@@ -133,22 +133,14 @@ public class InterpreterConsole extends TextConsole{
 	}
 	
 	protected void printOutput(String output){
-		disableEditing();
-		
 		consoleOutputStream.print();
 		writeToConsole(output);
 		emitPrompt();
-		
-		enableEditing();
 	}
 	
 	protected void printContinuationPrompt(){
-		disableEditing();
-		
 		consoleOutputStream.print();
 		emitContinuationPrompt();
-		
-		enableEditing();
 	}
 	
 	public OutputStream getConsoleOutputStream(){
@@ -338,6 +330,8 @@ public class InterpreterConsole extends TextConsole{
 				lock.block();
 				
 				while(commandQueue.size() > 0){
+					console.disableEditing();
+					
 					String command = commandQueue.remove(0);
 					try{
 						boolean promptType = console.interpreter.execute(command);
@@ -350,6 +344,8 @@ public class InterpreterConsole extends TextConsole{
 						console.printOutput(ceex.getMessage());
 					}
 				}
+				
+				console.enableEditing();
 			}
 		}
 		
