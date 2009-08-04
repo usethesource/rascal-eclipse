@@ -36,6 +36,9 @@ public class InterpreterConsole extends TextConsole{
 	private final String prompt;
 	private final String continuationPrompt;
 	
+	private int inputOffset;
+	private String currentContent;
+	
 	public InterpreterConsole(IInterpreter interpreter, String name, String prompt, String continuationPrompt){
 		super(name, CONSOLE_TYPE, null, false);
 		
@@ -123,6 +126,9 @@ public class InterpreterConsole extends TextConsole{
 			public void run(){
 				documentListener.enable();
 				page.getViewer().setEditable(true);
+				
+				inputOffset = getDocument().getLength(); // Update the input offset; note however that this is not the proper place to do this (just the most convenient).
+				currentContent = getDocument().get();
 			}
 		});
 	}
@@ -139,11 +145,13 @@ public class InterpreterConsole extends TextConsole{
 	protected void printOutput(String output){
 		consoleOutputStream.print();
 		writeToConsole(output);
+		
 		emitPrompt();
 	}
 	
 	protected void printContinuationPrompt(){
 		consoleOutputStream.print();
+		
 		emitContinuationPrompt();
 	}
 	
@@ -153,6 +161,32 @@ public class InterpreterConsole extends TextConsole{
 	
 	public void executeCommand(String command){
 		commandExecutor.execute(command);
+	}
+	
+	public int getInputOffset(){
+		return inputOffset;
+	}
+	
+	public void revert(){
+		Display.getDefault().syncExec(new Runnable(){
+			public void run(){
+				page.getViewer().setEditable(false);
+				documentListener.disable();
+				
+				// Reset the content.
+				IDocument doc = getDocument();
+				doc.set(currentContent);
+				
+				// Move the cursor to the end.
+				int moveToOffset = doc.getLength();
+				System.out.println(moveToOffset);
+				page.getViewer().getTextWidget().setCaretOffset(moveToOffset);
+				page.getViewer().revealRange(moveToOffset, 0);
+				
+				documentListener.enable();
+				page.getViewer().setEditable(true);
+			}
+		});
 	}
 	
 	private static class ConsoleOutputStream extends OutputStream{
@@ -254,24 +288,32 @@ public class InterpreterConsole extends TextConsole{
 			if(!enabled) return;
 			
 			String text = event.getText();
-			buffer.append(text);
-			
-			String rest = buffer.toString();
-			do{
-				int index = rest.indexOf('\n');
-				if(index == -1){
-					buffer = new StringBuffer();
-					buffer.append(rest);
-					break;
-				}
+			int offset = event.getOffset();
+			int length = event.getLength();
+
+			int start = offset - console.getInputOffset();
+			if(start >= 0){
+				buffer.replace(start, start + length, text);
 				
-				String command = rest.substring(0, index);
-				
-				console.commandHistory.addToHistory(command);
-				console.commandExecutor.execute(command);
-				
-				rest = rest.substring(index + 1); // Does this work?
-			}while(true);
+				String rest = buffer.toString();
+				do{
+					int index = rest.indexOf('\n');
+					if(index == -1){
+						buffer = new StringBuffer();
+						buffer.append(rest);
+						break;
+					}
+					
+					String command = rest.substring(0, index);
+					
+					console.commandHistory.addToHistory(command);
+					console.commandExecutor.execute(command);
+					
+					rest = rest.substring(index + 1); // Does this work?
+				}while(true);
+			}else{
+				console.revert();
+			}
 		}
 	}
 	
