@@ -17,14 +17,25 @@ public class CommandHistory{
 	
 	public void addToHistory(String command){
 		history.add(command);
+		resetState();
 	}
 	
-	public String getNextPreviousCommand(){
+	// Sooner
+	public String getPreviousCommand(){
 		if(index == 0){
 			return "";
 		}
 		
 		return history.get(--index);
+	}
+	
+	// Later
+	public String getNextCommand(){
+		if(index == history.size() - 1){
+			return "";
+		}
+		
+		return history.get(++index);
 	}
 	
 	public void resetState(){

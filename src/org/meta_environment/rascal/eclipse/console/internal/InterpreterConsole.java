@@ -13,11 +13,13 @@ import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.console.TextConsolePage;
+import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.part.IPageBookViewPage;
 
 public class InterpreterConsole extends TextConsole{
@@ -87,12 +89,16 @@ public class InterpreterConsole extends TextConsole{
 		return interpreter;
 	}
 	
+	public CommandHistory getHistory(){
+		return commandHistory;
+	}
+	
 	protected IConsoleDocumentPartitioner getPartitioner(){
 		return partitioner;
 	}
 
 	public IPageBookViewPage createPage(IConsoleView view){
-		return (page = new TextConsolePage(this, view));
+		return (page = new InterpreterConsolePage(this, view));
 	}
 	
 	private void writeToConsole(final String line){
@@ -187,6 +193,32 @@ public class InterpreterConsole extends TextConsole{
 				page.getViewer().setEditable(true);
 			}
 		});
+	}
+	
+	public void historyCommand(String command){ // TODO Implement.
+		System.out.println(command);
+	}
+	
+	private static class InterpreterConsolePage extends TextConsolePage{
+		private final InterpreterConsole console;
+		
+		private InterpreterConsoleViewer viewer;
+		
+		public InterpreterConsolePage(InterpreterConsole console, IConsoleView view){
+			super(console, view);
+			
+			this.console = console;
+			
+			viewer = null;
+		}
+
+		public TextConsoleViewer createViewer(Composite parent){
+			return (viewer = new InterpreterConsoleViewer(console, parent));
+		}
+		
+		public InterpreterConsoleViewer getConsoleViewer(){
+			return viewer;
+		}
 	}
 	
 	private static class ConsoleOutputStream extends OutputStream{
