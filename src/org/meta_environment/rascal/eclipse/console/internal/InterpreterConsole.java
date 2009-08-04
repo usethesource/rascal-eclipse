@@ -99,7 +99,10 @@ public class InterpreterConsole extends TextConsole{
 			public void run(){
 				try{
 					doc.replace(doc.getLength(), 0, line);
-					page.getViewer().getTextWidget().setCaretOffset(doc.getLength());
+					
+					int moveToOffset = doc.getLength();
+					page.getViewer().getTextWidget().setCaretOffset(moveToOffset);
+					page.getViewer().revealRange(moveToOffset, 0);
 				}catch(BadLocationException blex){
 					// Ignore, never happens.
 				}
@@ -247,7 +250,6 @@ public class InterpreterConsole extends TextConsole{
 			// Don't care.
 		}
 		
-		// TODO Fix cursor position.
 		public void documentChanged(DocumentEvent event){ // TODO Fix text editing stuff.
 			if(!enabled) return;
 			
