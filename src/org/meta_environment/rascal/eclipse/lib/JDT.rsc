@@ -7,7 +7,7 @@ import Java;
 public alias JDTlocation = tuple[str fileName, int offset, int length];
 public alias BindingRel = rel[JDTlocation, Entity];
 public alias EntityRel = rel[Entity, Entity];
-public alias SingleEntityRel = rel[Entity];
+public alias EntitySet = set[Entity];
 
 public alias FactMap = map[str, value];
 
@@ -18,9 +18,11 @@ FactMaps contain the following relations:
   BindingRel constructorBindings (loc x constructor)
   BindingRel fieldBindings       (loc x field)
   BindingRel variableBindings    (loc x variable) (local variables and method parameters)
+  BindingRel packageBindings     (loc x package)
   EntityRel  implements          (class x interface)
   EntityRel  extends             (class x class)
-  EntityRel  declaredTypes       (type x type) (innerclasses)
+  EntitySet  declaredTopTypes    (type) (top classes)
+  EntityRel  declaredSubTypes    (type x type) (innerclasses)
   EntityRel  declaredMethods     (type x method)
   EntityRel  declaredFields      (type x field)
 */
@@ -84,7 +86,7 @@ public BindingRel getFieldBindings(FactMap fm) { return (BindingRel r := fm["fie
 public BindingRel getVariableBindings (FactMap fm) { return (BindingRel r := fm["variableBindings"]) ? r : {}; }
 	// *** JOPPE ADDED START ***
 public BindingRel getPackageBindings (FactMap fm) { return (BindingRel r := fm["packageBindings"]) ? r : {}; }
-public EntityRel getDeclaredTopTypes (FactMap fm) { return (EntityRel r := fm["declaredTopTypes"]) ? r : {}; }
+public EntitySet getDeclaredTopTypes (FactMap fm) { return (EntitySet r := fm["declaredTopTypes"]) ? r : {}; }
 	// *** JOPPE ADDED END ***
 public EntityRel getImplements(FactMap fm) { return (EntityRel r := fm["implements"]) ? r : {}; }
 public EntityRel getExtends(FactMap fm) { return (EntityRel r := fm["extends"]) ? r : {}; }
@@ -145,6 +147,9 @@ public FactMap unionFacts(FactMap m1, FactMap m2) {
 		}
 		else if (EntityRel ti1 := m1[s] && EntityRel ti2 := m2[s]) {
 			m1[s] = ti1 + ti2;
+		}
+		else if (EntitySet si1 := m1[s] && EntitySet si2 := m2[s]) {
+			m1[s] = si1 + si2;
 		}
 	}
 	

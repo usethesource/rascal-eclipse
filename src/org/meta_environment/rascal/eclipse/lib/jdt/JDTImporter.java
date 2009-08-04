@@ -82,6 +82,7 @@ public class JDTImporter extends ASTVisitor {
 
 	// type facts
 	private static final Type entityTupleType = TF.tupleType(ADT_ENTITY, ADT_ENTITY);
+	private static final Type entitySetType = TF.setType(ADT_ENTITY);
 
 	private IRelationWriter extnds;
 	private IRelationWriter implmnts;
@@ -102,7 +103,7 @@ public class JDTImporter extends ASTVisitor {
 		
 		// *** JOPPE ADDED START ***
 		packageBindings = VF.relationWriter(bindingTupleType);
-		declaredTopTypes = VF.relationWriter(entityTupleType);
+		declaredTopTypes = VF.relationWriter(entitySetType);
 		// *** JOPPE ADDED END ***
 		
 		implmnts = VF.relationWriter(entityTupleType);
@@ -434,18 +435,15 @@ public class JDTImporter extends ASTVisitor {
 
 		// *** JOPPE ADDED START ***
 		if (tb.isClass() && tb.getDeclaringClass() == null) {
-			declaredTopTypes.insert(VF.tuple(thisType,bindingCache.getEntity(tb)));
-		} else {
-		// *** JOPPE ADDED END ***	
-			ITypeBinding[] innertypes = tb.getDeclaredTypes();
-			for (ITypeBinding innertype : innertypes) {
-				ITuple tup = VF.tuple(thisType, bindingCache.getEntity(innertype));
-				declaredSubTypes.insert(tup);
-			}
-		// *** JOPPE ADDED START ***
-		}
-		// *** JOPPE ADDED END ***	
+			declaredTopTypes.insert(thisType);
+		} 
+		// *** JOPPE ADDED END ***
 		
+		ITypeBinding[] innertypes = tb.getDeclaredTypes();
+		for (ITypeBinding innertype : innertypes) {
+			ITuple tup = VF.tuple(thisType, bindingCache.getEntity(innertype));
+			declaredSubTypes.insert(tup);
+		}	
 		// doesn't include initializers
 		// these are added in importTypeInfo(ASTNode n)
 		IMethodBinding[] methods = tb.getDeclaredMethods();
