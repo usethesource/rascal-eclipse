@@ -4,10 +4,10 @@ import Map;
 import Resources;
 import Java;
 
-
 public alias JDTlocation = tuple[str fileName, int offset, int length];
 public alias BindingRel = rel[JDTlocation, Entity];
 public alias EntityRel = rel[Entity, Entity];
+public alias SingleEntityRel = rel[Entity];
 
 public alias FactMap = map[str, value];
 
@@ -84,11 +84,11 @@ public BindingRel getFieldBindings(FactMap fm) { return (BindingRel r := fm["fie
 public BindingRel getVariableBindings (FactMap fm) { return (BindingRel r := fm["variableBindings"]) ? r : {}; }
 	// *** JOPPE ADDED START ***
 public BindingRel getPackageBindings (FactMap fm) { return (BindingRel r := fm["packageBindings"]) ? r : {}; }
-public BindingRel getTopTypeBindings (FactMap fm) { return (BindingRel r := fm["topTypeBindings"]) ? r : {}; }
+public EntityRel getDeclaredTopTypes (FactMap fm) { return (EntityRel r := fm["declaredTopTypes"]) ? r : {}; }
 	// *** JOPPE ADDED END ***
 public EntityRel getImplements(FactMap fm) { return (EntityRel r := fm["implements"]) ? r : {}; }
 public EntityRel getExtends(FactMap fm) { return (EntityRel r := fm["extends"]) ? r : {}; }
-public EntityRel getDeclaredTypes(FactMap fm) { return (EntityRel r := fm["declaredTypes"]) ? r : {}; }
+public EntityRel getDeclaredSubTypes(FactMap fm) { return (EntityRel r := fm["declaredSubTypes"]) ? r : {}; }
 public EntityRel getDeclaredMethods(FactMap fm) { return (EntityRel r := fm["declaredMethods"]) ? r : {}; }
 public EntityRel getDeclaredFields(FactMap fm) { return (EntityRel r := fm["declaredFields"]) ? r : {}; }
 
