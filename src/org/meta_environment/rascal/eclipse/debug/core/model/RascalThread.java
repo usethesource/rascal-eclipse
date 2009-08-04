@@ -157,22 +157,20 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 
 	public synchronized void notifySuspend() throws QuitException {
-		if(isTerminated()) throw new QuitException();
-			
 		fSuspended = true;
 		if (isStepping()) {
 			fireSuspendEvent(DebugEvent.STEP_END);
 		} else {
 			fireSuspendEvent(DebugEvent.CLIENT_REQUEST);
 		}
-		
+
 		while (isSuspended()) {
 			try {
 				this.wait();
 			} catch (InterruptedException e) {
 				// Ignore
 			}
-			
+
 			if(isTerminated()) throw new QuitException();
 		}
 	}
@@ -197,7 +195,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	public boolean isStepping() {
 		return fStepping;
 	}
-	
+
 	public void stopStepping() {
 		try {
 			resume();
