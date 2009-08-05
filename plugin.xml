@@ -138,7 +138,7 @@
                tooltip="detail the selected node">
          </action>
             <action
-               class="org.dancingbear.graphbrowser.editor.ui.delegates.HyperbolicCenterActionDelegate"
+               class="org.dancingbear.graphbrowser.editor.ui.delegates.FisheyeActionDelegate"
                icon="icons/rascal3D_2-16px.gif"
                id="org.dancingbear.graphbrowser.action.hyperbolicroot"
                label="Fisheye"
@@ -211,6 +211,12 @@
                      class="org.dancingbear.graphbrowser.editor.ui.delegates.CreateEdgeActionDelegate"
                      id="org.dancingbear.graphbrowser.action.createedge"
                      label="Create edge"
+                     menubarPath="org.eclipse.gef.group.view">
+               </action>
+               <action
+                     class="org.dancingbear.graphbrowser.editor.ui.delegates.ZestLayoutActionDelegate"
+                     id="org.dancingbear.graphbrowser.action.zestlayout"
+                     label="Apply Zest Layout"
                      menubarPath="org.eclipse.gef.group.view">
                </action>
             </objectContribution>
