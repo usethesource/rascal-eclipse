@@ -210,6 +210,8 @@ public class InterpreterConsole extends TextConsole{
 				IDocument doc = getDocument();
 				doc.set(currentContent);
 				
+				documentListener.reset();
+				
 				documentListener.enable();
 				page.getViewer().setEditable(true);
 				
@@ -354,6 +356,18 @@ public class InterpreterConsole extends TextConsole{
 			if(!enabled) return;
 			
 			String text = event.getText();
+			
+			if(text.equals("\n")){ // If we just get a new-line token, execute the current 'thing'.
+				if(buffer.length() > 0){
+					buffer.append('\n');
+					String command = buffer.toString();
+					reset();
+					
+					console.revertAndAppend(command);
+				} // Ignore single new-lines when the buffer is empty (since it's pointless to execute 'nothing').
+				return;
+			}
+			
 			int offset = event.getOffset();
 			int length = event.getLength();
 
@@ -365,21 +379,29 @@ public class InterpreterConsole extends TextConsole{
 				do{
 					int index = rest.indexOf('\n');
 					if(index == -1){
-						buffer = new StringBuffer();
+						reset();
 						buffer.append(rest);
 						break;
 					}
 					
 					String command = rest.substring(0, index);
 					
-					console.commandHistory.addToHistory(command);
-					console.commandExecutor.execute(command);
+					execute(command);
 					
 					rest = rest.substring(index + 1); // Does this work?
 				}while(true);
 			}else{
 				console.revertAndAppend(text);
 			}
+		}
+		
+		public void execute(String command){
+			console.commandHistory.addToHistory(command);
+			console.commandExecutor.execute(command);
+		}
+		
+		public void reset(){
+			buffer = new StringBuffer();
 		}
 	}
 	
