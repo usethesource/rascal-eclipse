@@ -38,7 +38,8 @@ public class FisheyeAction extends LayoutAction {
 
 			// We need to re-apply the last layout to distribute 
 			// the nodes from the translated directed graph
-			Layout last = editor.getController().getLastLayout();
+			//Layout last = editor.getController().getLastLayout();
+			Layout last = new DotLayout();
 			Layout fisheye = new FisheyeLayout(node.getId());
 			Layout l = new LayoutSequence(last, fisheye);
 
