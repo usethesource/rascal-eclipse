@@ -22,20 +22,24 @@ public class CommandHistory{
 	
 	// Sooner
 	public String getPreviousCommand(){
-		if(index == 0){
+		if(index == -1){
+			return "";
+		}else if((--index) == -1){
 			return "";
 		}
 		
-		return history.get(--index);
+		return history.get(index);
 	}
 	
 	// Later
 	public String getNextCommand(){
-		if(index == history.size() - 1){
+		if(index == history.size()){
+			return "";
+		}else if((++index) == history.size()){
 			return "";
 		}
 		
-		return history.get(++index);
+		return history.get(index);
 	}
 	
 	public void resetState(){
