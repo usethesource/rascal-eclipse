@@ -174,8 +174,8 @@ public class InterpreterConsole extends TextConsole{
 		return inputOffset;
 	}
 	
-	public void revert(){
-		Display.getDefault().syncExec(new Runnable(){
+	public void revertAndAppend(final String input){
+		Display.getDefault().asyncExec(new Runnable(){
 			public void run(){
 				page.getViewer().setEditable(false);
 				documentListener.disable();
@@ -184,11 +184,17 @@ public class InterpreterConsole extends TextConsole{
 				IDocument doc = getDocument();
 				doc.set(currentContent);
 				
-				// Move the cursor to the end.
-				int endOfDocument = doc.getLength();
-				moveCaretTo(endOfDocument);
-				
 				documentListener.enable();
+				
+				try{
+					doc.replace(doc.getLength(), 0, input);
+				}catch(BadLocationException blex){
+					// Ignore, can't happen.
+				}
+				
+				// Move the cursor to the end.
+				moveCaretTo(doc.getLength());
+				
 				page.getViewer().setEditable(true);
 			}
 		});
@@ -207,15 +213,13 @@ public class InterpreterConsole extends TextConsole{
 				documentListener.enable();
 				page.getViewer().setEditable(true);
 				
-				int endOfDocument = doc.getLength();
 				try{
-					doc.replace(endOfDocument, 0, command);
+					doc.replace(inputOffset, 0, command);
 				}catch(BadLocationException blex){
 					// Ignore, can't happen.
 				}
 				
-				endOfDocument = doc.getLength();
-				moveCaretTo(endOfDocument);
+				moveCaretTo(doc.getLength());
 			}
 		});
 	}
@@ -374,7 +378,7 @@ public class InterpreterConsole extends TextConsole{
 					rest = rest.substring(index + 1); // Does this work?
 				}while(true);
 			}else{
-				console.revert();
+				console.revertAndAppend(text);
 			}
 		}
 	}
