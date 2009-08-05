@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dancingbear.graphbrowser.layout.Layout;
+import org.dancingbear.graphbrowser.layout.dot.DotLayout;
 import org.dancingbear.graphbrowser.layout.dot.PointDouble;
 import org.dancingbear.graphbrowser.layout.model.CubicBezierCurve;
 import org.dancingbear.graphbrowser.layout.model.DirectedGraph;
@@ -18,11 +19,10 @@ public class FisheyeLayout implements Layout {
 	private double delta_y;
 	private double max_radius;
 	private DirectedGraph graph;
+	private int originId;
 
-	public FisheyeLayout(Node origin) {
-		delta_x = -origin.getX();
-		delta_y = -origin.getY();
-		max_radius = 0;
+	public FisheyeLayout(int originId) {
+		this.originId = originId;
 	}
 
 	/**
@@ -37,6 +37,18 @@ public class FisheyeLayout implements Layout {
 
 	private void init(DirectedGraph graph) {
 		this.graph = graph;
+		//find the selected origin in the directed graph (by id)
+		Node origin = null;
+		for (Node n : graph.getNodes()) {
+			if (n.getId()==originId) {
+				origin = n;
+				break;
+			}
+		}
+
+		delta_x = -origin.getX();
+		delta_y = -origin.getY();
+		max_radius = 0;
 		List<PolarCoordinate> polars = new ArrayList<PolarCoordinate>();
 		for (Node n : graph.getNodes()) {
 			polars.add(new CartesianCoordinate(n.getX(), n.getY()).getPolar());

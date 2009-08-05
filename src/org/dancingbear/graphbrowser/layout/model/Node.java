@@ -21,7 +21,6 @@ import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.graph.CompoundDirectedGraphLayout;
 import org.eclipse.zest.layouts.LayoutEntity;
 import org.eclipse.zest.layouts.constraints.LayoutConstraint;
-import org.eclipse.zest.layouts.dataStructures.InternalNode;
 import org.eclipse.zest.layouts.exampleStructures.SimpleRelationship;
 
 /**

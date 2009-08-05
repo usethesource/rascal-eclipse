@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.dancingbear.graphbrowser.layout.Layout;
 import org.dancingbear.graphbrowser.layout.model.DirectedGraph;
+import org.dancingbear.graphbrowser.layout.model.Edge;
+import org.eclipse.draw2d.geometry.PointList;
 import org.eclipse.zest.layouts.InvalidLayoutConfiguration;
 import org.eclipse.zest.layouts.LayoutEntity;
 import org.eclipse.zest.layouts.LayoutRelationship;
@@ -35,6 +37,18 @@ public class ZestLayout implements Layout {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		//it seems that the algorithm only updates the nodes but not the points of the edge
+		//we need an extra phase to update the edges
+		for (Edge e: graph.getEdges()) {
+			PointList pts = new PointList();
+			pts.addPoint(e.getSource().getX(), e.getSource().getY());
+			pts.addPoint(e.getTarget().getX(),  e.getTarget().getY());
+			e.setPoints(pts);
+			// no spline defined for this edge so the translation will draw a straight line
+			e.setSpline(null);
+		}
+
 	}
 
 }

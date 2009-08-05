@@ -8,6 +8,7 @@
 package org.dancingbear.graphbrowser.controller.action;
 
 import org.dancingbear.graphbrowser.controller.EditorController;
+import org.dancingbear.graphbrowser.layout.dot.DotLayout;
 import org.eclipse.draw2d.Animation;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.jface.action.Action;
@@ -25,12 +26,12 @@ import org.eclipse.jface.resource.ImageDescriptor;
  * @author Jeroen van Schagen
  * @date 13-03-09
  */
-public class RelayoutAction extends Action implements IAction {
+public class DotLayoutAction extends Action implements IAction {
 
     private static final int ANIMATION_TIME = 500;
     private final EditorController controller;
 
-    public RelayoutAction(EditorController controller) {
+    public DotLayoutAction(EditorController controller) {
         this.controller = controller;
     }
 
@@ -40,7 +41,7 @@ public class RelayoutAction extends Action implements IAction {
     @Override
     public void run() {
         Animation.markBegin();
-        controller.applyLayout();
+        controller.applyLayout(new DotLayout());
         Animation.run(ANIMATION_TIME);
         GraphicalViewer viewer = controller.getEditor().getViewer();
         if (viewer != null) {

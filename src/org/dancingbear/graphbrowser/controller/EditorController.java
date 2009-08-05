@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import org.dancingbear.graphbrowser.controller.action.RelayoutAction;
+import org.dancingbear.graphbrowser.controller.action.DotLayoutAction;
 import org.dancingbear.graphbrowser.controller.events.SaveEventHandler;
 import org.dancingbear.graphbrowser.editor.gef.ui.parts.IEditorEventHandler;
 import org.dancingbear.graphbrowser.exporter.ExportException;
@@ -19,8 +19,8 @@ import org.dancingbear.graphbrowser.exporter.ExportFactory;
 import org.dancingbear.graphbrowser.importer.ImportException;
 import org.dancingbear.graphbrowser.importer.ImportFactory;
 import org.dancingbear.graphbrowser.layout.DirectedGraphToModelConverter;
+import org.dancingbear.graphbrowser.layout.Layout;
 import org.dancingbear.graphbrowser.layout.ModelToDirectedGraphConverter;
-import org.dancingbear.graphbrowser.layout.dot.DirectedGraphLayout;
 import org.dancingbear.graphbrowser.layout.model.DirectedGraph;
 import org.dancingbear.graphbrowser.model.IModelGraph;
 import org.eclipse.jface.action.IAction;
@@ -34,7 +34,9 @@ import org.eclipse.jface.action.IAction;
  */
 public class EditorController {
 
+	private static final int ANIMATION_TIME = 500;
 	private final IGraphEditor editor;
+	private Layout lastLayout;
 
 	/**
 	 * Creates a new EditorController
@@ -125,22 +127,21 @@ public class EditorController {
 	 * Apply the layout on the graph in the editor
 	 * 
 	 */
-	public void applyLayout() {
+	public void applyLayout(Layout l) {
 		IModelGraph graph = editor.getGraph();
 		final ModelToDirectedGraphConverter modelToGraphConv = new ModelToDirectedGraphConverter();
 		final DirectedGraphToModelConverter graphToModelConvert = new DirectedGraphToModelConverter();
 
-		// Convert graph to directed graph
+		// Convert graph to directed graph (= model for the layouts)
 		DirectedGraph directedGraph = modelToGraphConv.convertToGraph(graph
 				.getName());
 
 		// Apply layout
-		DirectedGraphLayout layout = new DirectedGraphLayout();
-		layout.visit(directedGraph);
-		
+		l.visit(directedGraph);
+		lastLayout = l;
+
 		// Store graph
 		graphToModelConvert.convertToModel(directedGraph, graph.getName());
-
 	}
 
 	/**
@@ -157,7 +158,7 @@ public class EditorController {
 	}
 
 	private void registerContextMenuActions() {
-		IAction relayoutAction = new RelayoutAction(this);
+		IAction relayoutAction = new DotLayoutAction(this);
 		editor.addContextMenuActionItem(relayoutAction);
 	}
 
@@ -175,4 +176,8 @@ public class EditorController {
 		return editor;
 	}
 
+	public Layout getLastLayout() {
+		return lastLayout;
+	}
+	
 }

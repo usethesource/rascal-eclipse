@@ -76,11 +76,11 @@ import org.dancingbear.graphbrowser.layout.model.Subgraph;
  * @author Randy Hudson
  * @since 2.1.2
  */
-public class DirectedGraphLayout implements Layout {
+public class DotLayout implements Layout {
 
     List<GraphVisitor> steps = new ArrayList<GraphVisitor>();
 
-    public DirectedGraphLayout() {
+    public DotLayout() {
         steps.add(new TransposeMetrics());
         steps.add(new BreakCycles());
         steps.add(new RouteEdges());

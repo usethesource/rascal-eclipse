@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.dancingbear.graphbrowser.layout.model;
 
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Map;
 
 import org.eclipse.draw2d.geometry.Point;
@@ -20,8 +19,6 @@ import org.eclipse.zest.layouts.LayoutBendPoint;
 import org.eclipse.zest.layouts.LayoutEntity;
 import org.eclipse.zest.layouts.LayoutRelationship;
 import org.eclipse.zest.layouts.constraints.LayoutConstraint;
-import org.eclipse.zest.layouts.dataStructures.InternalNode;
-import org.eclipse.zest.layouts.dataStructures.InternalRelationship;
 
 /**
  * A directed Edge joining a source and target Node. Edges indicate the

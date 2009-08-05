@@ -327,9 +327,9 @@ public class DirectedGraph implements LayoutGraph {
 	 * 
 	 * @return if this graph has a subgraph , return true
 	 */
-	 public boolean isSubgraph() {
-		 return null != subgraph;
-	 }
+	public boolean isSubgraph() {
+		return null != subgraph;
+	}
 
 	public Subgraph getSubgraph() {
 		return subgraph;
@@ -360,7 +360,7 @@ public class DirectedGraph implements LayoutGraph {
 	}
 
 	public boolean isBidirectional() {
-			return false;
+		return false;
 	}
-	
+
 }

@@ -20,8 +20,9 @@ import org.dancingbear.graphbrowser.editor.gef.TopologicalKeyHandler;
 import org.dancingbear.graphbrowser.editor.gef.factories.GraphEditPartFactory;
 import org.dancingbear.graphbrowser.editor.gef.ui.parts.palette.PaletteFactory;
 import org.dancingbear.graphbrowser.editor.jface.action.FilterAction;
-import org.dancingbear.graphbrowser.editor.jface.action.RelayoutAction;
+import org.dancingbear.graphbrowser.editor.jface.action.DotlayoutAction;
 import org.dancingbear.graphbrowser.editor.ui.input.GraphEditorInput;
+import org.dancingbear.graphbrowser.layout.dot.DotLayout;
 import org.dancingbear.graphbrowser.model.IModelGraph;
 import org.dancingbear.graphbrowser.model.ModelGraphRegister;
 import org.eclipse.core.resources.IFile;
@@ -334,7 +335,7 @@ IGraphEditor {
 					 monitor.worked(1);
 
 					 monitor.subTask("Applying layout");
-					 controller.applyLayout();
+					 controller.applyLayout(new DotLayout());
 					 monitor.worked(1);
 
 					 monitor.subTask("Drawing graph");
@@ -485,7 +486,7 @@ IGraphEditor {
 	  * @see org.dancingbear.graphbrowser.controller.IGraphEditor#Relayout()
 	  */
 	 public boolean relayout() {
-		 RelayoutAction relayoutAction = new RelayoutAction(this.getSite()
+		 DotlayoutAction relayoutAction = new DotlayoutAction(this.getSite()
 				 .getPage());
 		 relayoutAction.run();
 
