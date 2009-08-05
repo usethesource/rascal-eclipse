@@ -264,8 +264,8 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		return (DebuggableEvaluator) getInterpreter().getEval();
 	}
 
-	public  RascalScriptInterpreter getInterpreter() {
-		return console.getInterpreter();
+	public RascalScriptInterpreter getInterpreter() {
+		return console.getRascalInterpreter();
 	}
 	
 }

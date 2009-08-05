@@ -95,11 +95,11 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	 */
 	public IStackFrame[] getStackFrames() throws DebugException {
 		if (isSuspended()) {
-			Stack<Environment> callStack = getRascalDebugTarget().getConsole().getInterpreter().getEval().getCallStack();
+			Stack<Environment> callStack = getRascalDebugTarget().getConsole().getRascalInterpreter().getEval().getCallStack();
 			int size = callStack.size();
 			IStackFrame[] theFrames = new IStackFrame[size];
 			// for the top, use the current AST location
-			ISourceLocation currentLoc = getRascalDebugTarget().getConsole().getInterpreter().getEval().getCurrentAST().getLocation();
+			ISourceLocation currentLoc = getRascalDebugTarget().getConsole().getRascalInterpreter().getEval().getCurrentAST().getLocation();
 			theFrames[0] = new RascalStackFrame(getRascalDebugTarget(), callStack.get(size-1), currentLoc);
 			for (int i = 1; i < size; i++) {
 				theFrames[i] = new RascalStackFrame(getRascalDebugTarget(),callStack.get(size-i-1), callStack.get(size-i).getCallerLocation());

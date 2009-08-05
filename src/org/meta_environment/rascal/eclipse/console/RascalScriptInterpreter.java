@@ -1,40 +1,18 @@
 package org.meta_environment.rascal.eclipse.console;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.dltk.console.IScriptConsoleIO;
-import org.eclipse.dltk.console.IScriptConsoleInterpreter;
-import org.eclipse.dltk.console.IScriptInterpreter;
-import org.eclipse.dltk.console.ScriptConsoleHistory;
-import org.eclipse.dltk.console.ui.ScriptConsolePartitioner;
-import org.eclipse.dltk.console.ui.internal.ScriptConsoleViewer;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentPartitioner;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -59,7 +37,9 @@ import org.meta_environment.rascal.ast.ShellCommand.Help;
 import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.eclipse.Activator;
-import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
+import org.meta_environment.rascal.eclipse.console.internal.CommandExecutionException;
+import org.meta_environment.rascal.eclipse.console.internal.IInterpreter;
+import org.meta_environment.rascal.eclipse.console.internal.InterpreterConsole;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
@@ -72,29 +52,16 @@ import org.meta_environment.rascal.std.IO;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.TreeAdapter;
 
-public class RascalScriptInterpreter implements IScriptInterpreter{
-	private Evaluator eval;
-	private final RascalConsole console;
+public class RascalScriptInterpreter implements IInterpreter{
+	private final Evaluator eval;
+	private volatile InterpreterConsole console;
 	private String command;
 	private String content;
-	private int state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
-	private Runnable listener;
 	private IFile lastMarked;
 
-	private final static RascalExecutor executor = new RascalExecutor();
-	private static Thread executorThread = new Thread(executor);
-	static{
-		executorThread.setDaemon(true);
-		executorThread.start();
-	}
-	
-	private final RascalOutputCollector rascalOutputCollector;
-
-	public RascalScriptInterpreter(RascalConsole console, Evaluator eval) {
-		this.console = console;
+	public RascalScriptInterpreter(Evaluator eval) {
 		this.command = "";
 		this.eval = eval;
-
 
 		eval.addModuleLoader(new ProjectModuleLoader());
 		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
@@ -103,247 +70,59 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 		
 		eval.addClassLoader(getClass().getClassLoader());
 
-		loadCommandHistory();
-		
-		rascalOutputCollector = new RascalOutputCollector();
-	}
-
-	public Thread getExecutorThread() {
-		return executorThread;
-	}
-
-	public void exec(String cmd) throws IOException{
-		RascalCommand rascalCommand = new RascalCommand(cmd);
-
-		ScriptConsoleHistory history = console.getHistory();
-		history.update(cmd);
-		history.commit();
-
-		final ScriptConsoleViewer viewer = console.getViewer();
-		Control control = viewer.getControl();
-		control.getDisplay().syncExec(new Runnable(){
-			public void run(){
-				viewer.disableProcessing();
-				viewer.setEditable(false);
-			}
-		});
-
-		executor.executeCommand(rascalCommand);
-	}
-
-	private static class NotifiableLock{
-		private boolean notified = false;
-
-		public void wake(){
-			notified = true;
-			notify();
-		}
-
-		public void block(){
-			notified = false;
-			do{
-				try{
-					wait();
-				}catch(InterruptedException irex){/* Ignore.*/}
-			}while(!notified);
-		}
-	}
-
-	private class RascalCommand implements Runnable{
-		private final String cmd;
-
-		public RascalCommand(String cmd){
-			super();
-
-			this.cmd = cmd;
-		}
-
-		public void run(){
-			try{
-				if (cmd.trim().length() == 0) {
-					content = "cancelled\n";
-					state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
-					command = "";
-					return;
-				}
-
-				try {
-					command += cmd;
-
-					IConstructor tree = eval.parseCommand(command);
-
-					Type constructor = tree.getConstructorType();
-
-					if (constructor == Factory.ParseTree_Summary) {
-						execParseError(tree);
-						return;
-					}
-					
-					IO.setOutputStream(new RascalOutputPrintStream(rascalOutputCollector)); // Set output collector.
-					
-					execCommand(tree);
-				} 
-				catch (StaticError e) {
-					content = e.getMessage() + "\n";
-					state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
-					command = "";
-					setMarker(e.getMessage(), e.getLocation());
-					e.printStackTrace();
-				}
-				catch (Throw e) {
-					content = e.getMessage() + "\n";
-					String trace = e.getTrace();
-					if (trace != null) {
-						content += "stacktrace:\n" + trace;
-					}
-					state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
-					command = "";
-					setMarker(e.getMessage(), e.getLocation());
-				}
-				catch (QuitException q) {
-					content = null;
-					clearErrorMarker();
-					ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
-					executor.stop();
-				}
-				catch (Throwable e) {
-					content = "internal exception: " + e.toString() + "\n";
-					e.printStackTrace();
-					command = "";
-					state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
-				}
-			}finally{
-				updateConsole(console.getViewer(), content);
-				content = null;
-			}
-		}
-	}
-
-	public List<Runnable> getRunnables() {
-		List<Runnable> l = new ArrayList<Runnable>();
-		l.add(executor);
-		if (listener!=null) {
-			l.add(listener);
-		}
-		return l;
-	}
-
-	private static class RascalExecutor implements Runnable{
-		private final LinkedList<RascalCommand> commandQueue;
-
-		private volatile boolean running;
-
-		private final NotifiableLock lock = new NotifiableLock();
-
-		public RascalExecutor(){
-			super();
-
-			commandQueue = new LinkedList<RascalCommand>();
-
-			running = true;
-		}
-
-		public void executeCommand(RascalCommand rascalCommand){
-			synchronized(lock){
-				commandQueue.add(rascalCommand);
-
-				lock.wake();
-			}
-		}
-
-		public void run(){
-			while(running){
-				RascalCommand command;
-				synchronized(lock){
-					if(commandQueue.size() == 0 && running){
-						lock.block();
-					}
-					if(!running) break;
-					command = commandQueue.remove(0);
-				}
-
-				command.run();
-			}
-		}	
-
-		public void stop(){
-			running = false;
-		}
-	}
-
-	private void updateConsole(final ScriptConsoleViewer viewer, String text){
-		Control control = viewer.getControl();
-		if(control == null || text == null) return;
-		
-		String collectedOutput = rascalOutputCollector.getCollectedData();
-		rascalOutputCollector.reset();
-		
-		final StringBuilder sb = new StringBuilder();
-		sb.append(collectedOutput);
-		sb.append(text);
-
-		control.getDisplay().asyncExec(new Runnable(){
-			public void run(){
-				IDocument document = console.getDocument();
-				try{
-					document.replace(document.getLength() - 7, 7, sb.toString());
-					IDocumentPartitioner partitioner = viewer.getDocument().getDocumentPartitioner();
-					if(partitioner instanceof ScriptConsolePartitioner){
-						ScriptConsolePartitioner scriptConsolePartitioner = (ScriptConsolePartitioner) partitioner;
-						scriptConsolePartitioner.clearRanges();
-						viewer.getTextWidget().redraw();
-					}
-
-					console.getDocumentListener().appendInvitation();
-				}catch(BadLocationException e){
-					// Won't happen
-				}
-
-				viewer.enableProcessing();
-				viewer.setEditable(true);
-			}
-		});
+		//loadCommandHistory();
 	}
 	
-	private static class RascalOutputCollector extends OutputStream{
-		private final static int DEFAULT_SIZE = 64;
-		
-		private byte[] data = new byte[DEFAULT_SIZE];
-		private int index = 0;
-		
-		public RascalOutputCollector(){
-			super();
+	public void setConsole(InterpreterConsole console){
+		this.console = console;
+	}
+
+	public boolean execute(String cmd) throws CommandExecutionException{
+		if(cmd.trim().length() == 0){
+			content = "cancelled\n";
+			command = "";
+			return true;
 		}
-		
-		public void write(int arg) throws IOException{
-			int currentSize = data.length;
-			if(index == currentSize){
-				byte[] newData = new byte[currentSize << 1];
-				System.arraycopy(data, 0, newData, 0, currentSize);
-				data = newData;
+
+		try{
+			command += cmd;
+
+			IConstructor tree = eval.parseCommand(command);
+
+			Type constructor = tree.getConstructorType();
+
+			if (constructor == Factory.ParseTree_Summary) {
+				execParseError(tree);
+				return false;
 			}
 			
-			data[index++] = (byte) arg;
-		}
-		
-		public String getCollectedData(){
-			byte[] collectedData = new byte[index];
-			System.arraycopy(data, 0, collectedData, 0, index);
+			IO.setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
 			
-			return new String(collectedData);
+			execCommand(tree);
+		}catch (StaticError e) {
+			content = e.getMessage() + "\n";
+			command = "";
+			setMarker(e.getMessage(), e.getLocation());
+			e.printStackTrace();
+		}catch (Throw e) {
+			content = e.getMessage() + "\n";
+			String trace = e.getTrace();
+			if (trace != null) {
+				content += "stacktrace:\n" + trace;
+			}
+			command = "";
+			setMarker(e.getMessage(), e.getLocation());
+		}catch (QuitException q) {
+			content = null;
+			clearErrorMarker();
+			ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
+			console.terminate();
+		}catch (Throwable e) {
+			content = "internal exception: " + e.toString() + "\n";
+			e.printStackTrace();
+			command = "";
 		}
-		
-		public void reset(){
-			data = new byte[DEFAULT_SIZE];
-			index = 0;
-		}
-	}
-	
-	private static class RascalOutputPrintStream extends PrintStream{
-		
-		public RascalOutputPrintStream(OutputStream out){
-			super(out);
-		}
+		return true;
 	}
 
 	private void setMarker(String message, ISourceLocation loc) {
@@ -365,8 +144,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 
 				m.setAttribute(IMarker.TRANSIENT, true);
 				m.setAttribute(IMarker.CHAR_START, loc.getOffset());
-				m.setAttribute(IMarker.CHAR_END, loc.getOffset()
-						+ loc.getLength());
+				m.setAttribute(IMarker.CHAR_END, loc.getOffset() + loc.getLength());
 				m.setAttribute(IMarker.MESSAGE, message);
 				m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 				m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
@@ -434,7 +212,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 
 			@Override
 			public IValue visitShellCommandQuit(Quit x) {
-				saveCommandHistory();
+				//saveCommandHistory();
 				throw new QuitException();
 			}
 		});
@@ -458,7 +236,6 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 //			debugEval.getDebugger().stopStepping();
 		}
 		command = "";
-		state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 	}
 
 	private void editCommand(Edit x) throws IOException, CoreException {
@@ -501,11 +278,9 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 		int lastColumn = commandLines[lastLine - 1].length();
 
 		if (range.getEndLine() == lastLine && lastColumn <= range.getEndColumn()) { 
-			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;//IScriptConsoleInterpreter.WAIT_USER_INPUT;
 			content = "";
 		}
 		else {
-			state = IScriptConsoleInterpreter.WAIT_NEW_COMMAND;
 			content = "";
 			for (int i = 0; i < range.getEndColumn(); i++) {
 				content += " ";
@@ -515,61 +290,17 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 		}
 	}
 
-	public boolean isValid() {
-		return true;
-	}
-
-	public String getOutput() {
-		return null;
-	}
-
-	public int getState() {
-		return state;
-	}
-
-	@SuppressWarnings("unchecked")
-	public List getCompletions(String commandLine, int position)
-	throws IOException {
-		return Collections.EMPTY_LIST;
-
-	}
-
-	public String getDescription(String commandLine, int position)
-	throws IOException {
-		return "description???";
-	}
-
-	public String[] getNames(String type) throws IOException {
-		return null;
-	}
-
-	public void close() throws IOException {
-	}
-
-	// IScriptConsoleProtocol
-	public void consoleConnected(IScriptConsoleIO protocol) {
-
-	}
-
-	public void addCloseOperation(Runnable runnable) {
-	}
-
-	public void addInitialListenerOperation(Runnable runnable) {
-		if (listener == null) {
-			new Thread(runnable).start();
-			listener = runnable;
-		}
-	}
-
-	public InputStream getInitialOutputStream() {
-		return new ByteArrayInputStream(new byte[0]);
+	public String getOutput(){
+		String output = content;
+		content = "";
+		return output;
 	}
 
 	@Override
 	protected void finalize() throws Throwable {
 		clearErrorMarker();
-		saveCommandHistory();
-	}
+		//saveCommandHistory();
+	}/*
 
 	private void loadCommandHistory() {
 		try {
@@ -634,7 +365,7 @@ public class RascalScriptInterpreter implements IScriptInterpreter{
 			historyFile.createNewFile();
 		}
 		return historyFile;
-	}
+	}*/
 
 	private IValue historyCommand() {
 		return null;

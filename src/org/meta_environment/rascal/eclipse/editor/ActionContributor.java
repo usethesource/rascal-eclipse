@@ -54,8 +54,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 				ConsoleFactory.RascalConsole rascal = (RascalConsole) console;
 				try {
 					rascal.activate();
-					String result = rascal.handleCommand(cmd);
-					System.err.println(result);
+					rascal.executeCommand(cmd);
 				} catch (Throwable e) {
 					Activator.getInstance().logException("copyToConsole", e);
 				}

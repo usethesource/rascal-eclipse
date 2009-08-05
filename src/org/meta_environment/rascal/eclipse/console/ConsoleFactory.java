@@ -2,15 +2,13 @@ package org.meta_environment.rascal.eclipse.console;
 
 import java.io.PrintWriter;
 
-import org.eclipse.dltk.console.ScriptConsolePrompt;
-import org.eclipse.dltk.console.ui.ScriptConsole;
-import org.eclipse.dltk.console.ui.internal.ScriptConsoleViewer;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleFactory;
 import org.eclipse.ui.console.IConsoleManager;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.rascal.eclipse.console.internal.InterpreterConsole;
 import org.meta_environment.rascal.interpreter.CommandEvaluator;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.Evaluator;
@@ -57,40 +55,27 @@ public class ConsoleFactory implements IConsoleFactory {
 		return lastConsole;
 	}
 
-	public class RascalConsole extends ScriptConsole {
-
+	public class RascalConsole extends InterpreterConsole{
 		private static final String SHELL_MODULE = "***shell***";
-		protected RascalScriptInterpreter interpreter;
 
 		public RascalConsole(){
-			this(new CommandEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment(SHELL_MODULE) , 
-					new GlobalEnvironment(), new ConsoleParser()));
+			this(new CommandEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment(SHELL_MODULE), new GlobalEnvironment(), new ConsoleParser()));
 		}
 		
 		public RascalConsole(IDebugger debugger){
 			this(new DebuggableEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment(SHELL_MODULE), new ConsoleParser(), debugger));
 		}
 		
-		
 		private RascalConsole(Evaluator eval) {
-			super("Rascal", CONSOLE_ID);
-			interpreter = new RascalScriptInterpreter(this, eval);
-			setInterpreter(interpreter);
-			setPrompt(new ScriptConsolePrompt("rascal>", ">>>>>>>"));
+			super(new RascalScriptInterpreter(eval), "Rascal", "rascal>", ">>>>>>>");
+			initializeConsole();
 			addPatternMatchListener(new JumpToSource());
 		}
 		
-		public RascalScriptInterpreter getInterpreter() {
-			return interpreter;			
+		public RascalScriptInterpreter getRascalInterpreter(){
+			return (RascalScriptInterpreter) getInterpreter();
 		}
-
-		public ScriptConsoleViewer getViewer(){
-			return (ScriptConsoleViewer) page.getViewer();
-		}
-
 	}
-
-
 }
 
 
