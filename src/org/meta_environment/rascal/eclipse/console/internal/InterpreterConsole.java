@@ -184,10 +184,9 @@ public class InterpreterConsole extends TextConsole{
 				doc.set(currentContent);
 				
 				// Move the cursor to the end.
-				int moveToOffset = doc.getLength();
-				System.out.println(moveToOffset);
-				page.getViewer().getTextWidget().setCaretOffset(moveToOffset);
-				page.getViewer().revealRange(moveToOffset, 0);
+				int endOfDocument = doc.getLength();
+				page.getViewer().getTextWidget().setCaretOffset(endOfDocument);
+				page.getViewer().revealRange(endOfDocument, 0);
 				
 				documentListener.enable();
 				page.getViewer().setEditable(true);
@@ -195,8 +194,31 @@ public class InterpreterConsole extends TextConsole{
 		});
 	}
 	
-	public void historyCommand(String command){ // TODO Implement.
-		System.out.println(command);
+	public void historyCommand(final String command){
+		Display.getDefault().syncExec(new Runnable(){
+			public void run(){
+				page.getViewer().setEditable(false);
+				documentListener.disable();
+				
+				// Reset the content.
+				IDocument doc = getDocument();
+				doc.set(currentContent);
+				
+				documentListener.enable();
+				page.getViewer().setEditable(true);
+				
+				int endOfDocument = doc.getLength();
+				try{
+					doc.replace(endOfDocument, 0, command);
+				}catch(BadLocationException blex){
+					// Ignore, can't happen.
+				}
+				
+				endOfDocument = doc.getLength();
+				page.getViewer().getTextWidget().setCaretOffset(endOfDocument);
+				page.getViewer().revealRange(endOfDocument, 0);
+			}
+		});
 	}
 	
 	private static class InterpreterConsolePage extends TextConsolePage{
