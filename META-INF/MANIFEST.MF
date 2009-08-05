@@ -39,4 +39,8 @@ Export-Package: org.meta_environment.rascal.eclipse,
  org.meta_environment.rascal.eclipse.lib,
  org.meta_environment.rascal.eclipse.lib.graph,
  org.meta_environment.rascal.eclipse.lib.jdt,
- org.meta_environment.rascal.eclipse.outline
+ org.meta_environment.rascal.eclipse.outline,
+ org.meta_environment.rascal.eclipse.debug.ui.launcher,
+ org.meta_environment.rascal.eclipse.debug.ui.presentation
+ 
+ 
