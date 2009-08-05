@@ -367,7 +367,9 @@ public class InterpreterConsole extends TextConsole{
 					reset();
 					
 					console.revertAndAppend(command);
-				} // Ignore single new-lines when the buffer is empty (since it's pointless to execute 'nothing').
+				}else{
+					execute("\n");
+				}
 				return;
 			}
 			
