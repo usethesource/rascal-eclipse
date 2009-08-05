@@ -3,6 +3,7 @@ package org.meta_environment.rascal.eclipse.console;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -22,6 +23,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.part.FileEditorInput;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
@@ -36,17 +38,19 @@ import org.meta_environment.rascal.ast.ShellCommand.Edit;
 import org.meta_environment.rascal.ast.ShellCommand.Help;
 import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
+import org.meta_environment.rascal.ast.ShellCommand.Test;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.internal.CommandExecutionException;
 import org.meta_environment.rascal.eclipse.console.internal.IInterpreter;
 import org.meta_environment.rascal.eclipse.console.internal.InterpreterConsole;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
-import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.std.IO;
 import org.meta_environment.uptr.Factory;
@@ -162,6 +166,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 		clearErrorMarker();
 
 		IValue value = stat.accept(new NullASTVisitor<IValue>() {
+			private Type TestReportType;
+
 			@Override
 			public IValue visitCommandStatement(Statement x) {
 				return eval.eval(x.getStatement()).getValue();
@@ -215,6 +221,12 @@ public class RascalScriptInterpreter implements IInterpreter{
 				//saveCommandHistory();
 				throw new QuitException();
 			}
+			
+			@Override
+			public IValue visitShellCommandTest(Test x) {
+				List<FailedTestError> report = eval.runTests();
+				return ValueFactoryFactory.getValueFactory().string(eval.report(report));
+			}
 		});
 		
 		if (value != null) {
@@ -239,7 +251,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 
 	private void editCommand(Edit x) throws IOException, CoreException {
-		String module = Names.name(x.getName());
+		String module = x.getName().toString();
 		final IFile file = new ProjectModuleLoader().getFile(module);
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();

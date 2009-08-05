@@ -97,9 +97,6 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 		else if (node2 instanceof Declaration.Alias) {
 			result = ((Declaration.Alias) node2).getUser().toString();
 		}
-		else if (node2 instanceof Variant.NillaryConstructor) {
-			result = ((Variant) node2).getName() + "()";
-		}
 		else if (node2 instanceof Variant.NAryConstructor) {
 			Variant v = (Variant) node2;
 			result = v.getName() + "(" + v.getArguments() + ")"; 
