@@ -7,6 +7,13 @@
  ************************************************************************/
 package org.dancingbear.graphbrowser.layout;
 
+import org.dancingbear.graphbrowser.layout.model.CubicBezierCurve;
+import org.dancingbear.graphbrowser.layout.model.DirectedGraph;
+import org.dancingbear.graphbrowser.layout.model.Edge;
+import org.dancingbear.graphbrowser.layout.model.EdgeList;
+import org.dancingbear.graphbrowser.layout.model.Node;
+import org.dancingbear.graphbrowser.layout.model.NodeList;
+import org.dancingbear.graphbrowser.layout.model.Subgraph;
 import org.dancingbear.graphbrowser.model.CubicCurve;
 import org.dancingbear.graphbrowser.model.IModelEdge;
 import org.dancingbear.graphbrowser.model.IModelGraph;
@@ -85,6 +92,12 @@ public class DirectedGraphToModelConverter {
                     .getSource().getY()));
             curve.setTargetPosition(new Position(edge.getTarget().getX(), edge
                     .getTarget().getY()));
+           curve.setDirectionVector(CubicCurve.SOURCE_VECTOR_INDEX,
+                    new Position(edge.getSource().getX(), edge
+                            .getSource().getY()));
+            curve.setDirectionVector(CubicCurve.TARGET_VECTOR_INDEX,
+                    new Position(edge.getTarget().getX(), edge
+                            .getTarget().getY()));
             spline.add(curve);
             return spline;
         }

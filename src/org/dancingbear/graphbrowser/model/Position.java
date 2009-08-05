@@ -7,7 +7,7 @@
  ************************************************************************/
 package org.dancingbear.graphbrowser.model;
 
-import org.dancingbear.graphbrowser.layout.PointDouble;
+import org.dancingbear.graphbrowser.layout.dot.PointDouble;
 
 /**
  * Position model, used to represent a location in a two-dimensional space.

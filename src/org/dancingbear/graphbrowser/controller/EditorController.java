@@ -18,10 +18,10 @@ import org.dancingbear.graphbrowser.exporter.ExportException;
 import org.dancingbear.graphbrowser.exporter.ExportFactory;
 import org.dancingbear.graphbrowser.importer.ImportException;
 import org.dancingbear.graphbrowser.importer.ImportFactory;
-import org.dancingbear.graphbrowser.layout.DirectedGraph;
-import org.dancingbear.graphbrowser.layout.DirectedGraphLayout;
 import org.dancingbear.graphbrowser.layout.DirectedGraphToModelConverter;
 import org.dancingbear.graphbrowser.layout.ModelToDirectedGraphConverter;
+import org.dancingbear.graphbrowser.layout.dot.DirectedGraphLayout;
+import org.dancingbear.graphbrowser.layout.model.DirectedGraph;
 import org.dancingbear.graphbrowser.model.IModelGraph;
 import org.eclipse.jface.action.IAction;
 

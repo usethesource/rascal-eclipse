@@ -10,6 +10,12 @@ package org.dancingbear.graphbrowser.layout;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.dancingbear.graphbrowser.layout.model.DirectedGraph;
+import org.dancingbear.graphbrowser.layout.model.Edge;
+import org.dancingbear.graphbrowser.layout.model.EdgeList;
+import org.dancingbear.graphbrowser.layout.model.Node;
+import org.dancingbear.graphbrowser.layout.model.NodeList;
+import org.dancingbear.graphbrowser.layout.model.Subgraph;
 import org.dancingbear.graphbrowser.model.IModelEdge;
 import org.dancingbear.graphbrowser.model.IModelGraph;
 import org.dancingbear.graphbrowser.model.IModelNode;
