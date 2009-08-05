@@ -291,10 +291,13 @@ public class InterpreterConsole extends TextConsole{
 		}
 		
 		public void print(){
-			byte[] collectedData = new byte[index];
-			System.arraycopy(buffer, 0, collectedData, 0, index);
-			
-			rascalConsole.writeToConsole(new String(collectedData));
+			if(index != 0){
+				byte[] collectedData = new byte[index + 1];
+				System.arraycopy(buffer, 0, collectedData, 0, index);
+				collectedData[index] = '\n';
+				
+				rascalConsole.writeToConsole(new String(collectedData));
+			}
 		}
 		
 		public void reset(){
