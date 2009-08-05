@@ -13,6 +13,7 @@ import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
@@ -33,7 +34,7 @@ public class InterpreterConsole extends TextConsole{
 	private final ConsoleOutputStream consoleOutputStream;
 	
 	private final InterpreterConsolePartitioner partitioner;
-	private TextConsolePage page;
+	private volatile TextConsolePage page;
 	
 	private final String prompt;
 	private final String continuationPrompt;
@@ -69,16 +70,17 @@ public class InterpreterConsole extends TextConsole{
 		commandExecutorThread.start();
 
 		// This stinks, but works.
-		Runnable r = new Runnable(){
+		new Thread(){
 			public void run(){
-				if(page == null) Display.getDefault().asyncExec(this);
+				do{
+					Thread.yield();
+				}while(page == null);
 				
 				disableEditing();
 				emitPrompt();
 				enableEditing();
 			}
-		};
-		Display.getDefault().asyncExec(r);
+		}.start();
 	}
 	
 	public void terminate(){
@@ -109,9 +111,8 @@ public class InterpreterConsole extends TextConsole{
 				try{
 					doc.replace(doc.getLength(), 0, line);
 					
-					int moveToOffset = doc.getLength();
-					page.getViewer().getTextWidget().setCaretOffset(moveToOffset);
-					page.getViewer().revealRange(moveToOffset, 0);
+					int endOfDocument = doc.getLength();
+					moveCaretTo(endOfDocument);
 				}catch(BadLocationException blex){
 					// Ignore, never happens.
 				}
@@ -185,8 +186,7 @@ public class InterpreterConsole extends TextConsole{
 				
 				// Move the cursor to the end.
 				int endOfDocument = doc.getLength();
-				page.getViewer().getTextWidget().setCaretOffset(endOfDocument);
-				page.getViewer().revealRange(endOfDocument, 0);
+				moveCaretTo(endOfDocument);
 				
 				documentListener.enable();
 				page.getViewer().setEditable(true);
@@ -215,10 +215,18 @@ public class InterpreterConsole extends TextConsole{
 				}
 				
 				endOfDocument = doc.getLength();
-				page.getViewer().getTextWidget().setCaretOffset(endOfDocument);
-				page.getViewer().revealRange(endOfDocument, 0);
+				moveCaretTo(endOfDocument);
 			}
 		});
+	}
+	
+	// Only call from inside the UI-thread.
+	private void moveCaretTo(int index){
+		TextConsoleViewer consoleViewer = page.getViewer();
+		StyledText styledText = consoleViewer.getTextWidget();
+		
+		styledText.setCaretOffset(index);
+		consoleViewer.revealRange(index, 0);
 	}
 	
 	private static class InterpreterConsolePage extends TextConsolePage{
