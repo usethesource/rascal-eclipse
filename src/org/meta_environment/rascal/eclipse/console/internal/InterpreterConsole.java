@@ -174,6 +174,36 @@ public class InterpreterConsole extends TextConsole{
 		return inputOffset;
 	}
 	
+	public void revertAndAppend(final int offset, final String input){
+		Display.getDefault().asyncExec(new Runnable(){
+			public void run(){
+				page.getViewer().setEditable(false);
+				documentListener.disable();
+				
+				// Reset the content.
+				IDocument doc = getDocument();
+				try{
+					doc.replace(offset, input.length(), "");
+				}catch(BadLocationException blex){
+					// Ignore, can't happen.
+				}
+				
+				documentListener.enable();
+				
+				try{
+					doc.replace(doc.getLength(), 0, input);
+				}catch(BadLocationException blex){
+					// Ignore, can't happen.
+				}
+				
+				// Move the cursor to the end.
+				moveCaretTo(doc.getLength());
+				
+				page.getViewer().setEditable(true);
+			}
+		});
+	}
+	
 	public void revertAndAppend(final String input){
 		Display.getDefault().asyncExec(new Runnable(){
 			public void run(){
@@ -385,12 +415,12 @@ public class InterpreterConsole extends TextConsole{
 					rest = rest.substring(index + 1);
 				}while(true);
 			}else{
-				console.revertAndAppend(text);
+				console.revertAndAppend(offset, text);
 			}
 		}
 		
 		public void execute(String command){
-			console.commandHistory.addToHistory(command);
+			if(!command.equals("\n")) console.commandHistory.addToHistory(command);
 			console.commandExecutor.execute(command);
 		}
 		
