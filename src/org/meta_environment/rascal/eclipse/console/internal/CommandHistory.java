@@ -19,15 +19,14 @@ public class CommandHistory{
 	
 	public void addToHistory(String command){
 		if(history.size() == COMMAND_LIMIT) history.remove(0);
+		
 		history.add(command);
 		resetState();
 	}
 	
 	// Sooner
 	public String getPreviousCommand(){
-		if(index == -1){
-			return "";
-		}else if((--index) == -1){
+		if(index == -1 || (--index) == -1){
 			return "";
 		}
 		
@@ -36,9 +35,7 @@ public class CommandHistory{
 	
 	// Later
 	public String getNextCommand(){
-		if(index == history.size()){
-			return "";
-		}else if((++index) == history.size()){
+		if(index == history.size() || (++index) == history.size()){
 			return "";
 		}
 		

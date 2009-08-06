@@ -88,6 +88,7 @@ public class InterpreterConsole extends TextConsole{
 						IActionBars actionBars = page.getSite().getActionBars();
 						IToolBarManager toolBarManager = actionBars.getToolBarManager();
 						toolBarManager.add(new StoreHistoryAction(InterpreterConsole.this));
+						toolBarManager.add(new TerminationAction(InterpreterConsole.this));
 						actionBars.updateActionBars();
 					}
 				});
@@ -106,6 +107,20 @@ public class InterpreterConsole extends TextConsole{
 		
 		public void run(){
 			console.interpreter.storeHistory(console.commandHistory);
+		}
+	}
+	
+	private static class TerminationAction extends Action{
+		private final InterpreterConsole console;
+		
+		public TerminationAction(InterpreterConsole console){
+			super("Terminate");
+			
+			this.console = console;
+		}
+		
+		public void run(){
+			console.terminate();
 		}
 	}
 	
@@ -507,6 +522,8 @@ public class InterpreterConsole extends TextConsole{
 			while(running){
 				lock.block();
 				
+				if(!running) return;
+				
 				while(commandQueue.size() > 0){
 					console.disableEditing();
 					
@@ -529,6 +546,7 @@ public class InterpreterConsole extends TextConsole{
 		
 		public void terminate(){
 			running = false;
+			lock.wakeUp();
 		}
 	}
 }

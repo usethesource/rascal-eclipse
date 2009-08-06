@@ -96,7 +96,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 	
 	public void terminate(){
-		// TODO Implement.
+		content = null;
+		clearErrorMarker();
+		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
 	}
 
 	public boolean execute(String cmd) throws CommandExecutionException{
@@ -134,12 +136,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 			}
 			command = "";
 			setMarker(e.getMessage(), e.getLocation());
-		}catch (QuitException q) {
-			content = null;
-			clearErrorMarker();
-			ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
+		}catch(QuitException q){
 			console.terminate();
-		}catch (Throwable e) {
+		}catch(Throwable e){
 			content = "internal exception: " + e.toString() + "\n";
 			e.printStackTrace();
 			command = "";
