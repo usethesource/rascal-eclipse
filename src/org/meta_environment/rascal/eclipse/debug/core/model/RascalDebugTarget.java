@@ -45,8 +45,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		fLaunch = launch;
 		fThread = new RascalThread(this);
 		// open a Rascal Console
-		ConsoleFactory.getInstance().openDebuggableConsole(fThread);
-		console = ConsoleFactory.getInstance().getLastConsole();
+		console = ConsoleFactory.getInstance().openDebuggableConsole(fThread);
 		fThreads = new IThread[] {fThread};
 		IBreakpointManager breakpointManager = getBreakpointManager();
 		breakpointManager.addBreakpointListener(this);

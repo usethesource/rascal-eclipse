@@ -20,11 +20,8 @@ import org.meta_environment.rascal.parser.ConsoleParser;
 public class ConsoleFactory implements IConsoleFactory {
 	public static final String CONSOLE_ID = "org.meta_environment.rascal.eclipse.console";
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
-
-
-	private static ConsoleFactory instance;
 	
-	protected RascalConsole lastConsole;
+	private static ConsoleFactory instance;
 
 	protected IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 
@@ -40,19 +37,17 @@ public class ConsoleFactory implements IConsoleFactory {
 	}
 
 	public void openConsole(){
-		lastConsole = new RascalConsole();
-		fConsoleManager.addConsoles(new IConsole[]{lastConsole});
-		fConsoleManager.showConsoleView(lastConsole);
+		RascalConsole console = new RascalConsole();
+		fConsoleManager.addConsoles(new IConsole[]{console});
+		fConsoleManager.showConsoleView(console);
 	}
 	
-	public void openDebuggableConsole(IDebugger debugger){
-		lastConsole = new RascalConsole(debugger);
-		fConsoleManager.addConsoles(new IConsole[]{lastConsole});
-		fConsoleManager.showConsoleView(lastConsole);
-	}
-	
-	public RascalConsole getLastConsole() {
-		return lastConsole;
+	public RascalConsole openDebuggableConsole(IDebugger debugger){
+		RascalConsole console = new RascalConsole(debugger);
+		fConsoleManager.addConsoles(new IConsole[]{console});
+		fConsoleManager.showConsoleView(console);
+		
+		return console;
 	}
 
 	public class RascalConsole extends InterpreterConsole{
