@@ -69,6 +69,7 @@ public class ConsoleFactory implements IConsoleFactory {
 		private RascalConsole(Evaluator eval) {
 			super(new RascalScriptInterpreter(eval), "Rascal", "rascal>", ">>>>>>>");
 			initializeConsole();
+			getInterpreter().initialize();
 			addPatternMatchListener(new JumpToSource());
 		}
 		

@@ -1,6 +1,12 @@
 package org.meta_environment.rascal.eclipse.console;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.List;
@@ -41,6 +47,7 @@ import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.ast.ShellCommand.Test;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.internal.CommandExecutionException;
+import org.meta_environment.rascal.eclipse.console.internal.CommandHistory;
 import org.meta_environment.rascal.eclipse.console.internal.IInterpreter;
 import org.meta_environment.rascal.eclipse.console.internal.InterpreterConsole;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
@@ -49,7 +56,6 @@ import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestErro
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
-import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.std.IO;
@@ -63,7 +69,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 	private String content;
 	private IFile lastMarked;
 
-	public RascalScriptInterpreter(Evaluator eval) {
+	public RascalScriptInterpreter(Evaluator eval){
+		super();
+		
 		this.command = "";
 		this.eval = eval;
 
@@ -73,8 +81,10 @@ public class RascalScriptInterpreter implements IInterpreter{
 		eval.addSdfSearchPathContributor(new ProjectSDFModuleContributor());
 		
 		eval.addClassLoader(getClass().getClassLoader());
-
-		//loadCommandHistory();
+	}
+	
+	public void initialize(){
+		loadCommandHistory();
 	}
 	
 	public void setConsole(InterpreterConsole console){
@@ -309,89 +319,86 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 
 	@Override
-	protected void finalize() throws Throwable {
+	protected void finalize() throws Throwable{
 		clearErrorMarker();
-		//saveCommandHistory();
-	}/*
+		saveCommandHistory();
+	}
 
-	private void loadCommandHistory() {
-		try {
+	private void loadCommandHistory(){
+		try{
 			File historyFile = getHistoryFile();
 			BufferedReader in = new BufferedReader(new FileReader(historyFile));
-			ScriptConsoleHistory history = console.getHistory();
+			CommandHistory history = console.getHistory();
 
 			String command = null;
-			while ((command = in.readLine()) != null) {
-				history.update(command);
-				history.commit();
+			while((command = in.readLine()) != null){
+				history.addToHistory(command);
 			}
 
 			in.close();
-		} catch (IOException e) {
+		}catch(IOException e){
+			e.printStackTrace();
 			Activator.getInstance().logException("history", e);
+		}catch(Throwable t){
+			t.printStackTrace();
 		}
 	}
 
-	private void saveCommandHistory() {
-		ScriptConsoleHistory history = console.getHistory();
+	private void saveCommandHistory(){
+		CommandHistory history = console.getHistory();
 
 		OutputStream out = null; 
-		try {
+		try{
 			File historyFile = getHistoryFile();
 
 			out = new FileOutputStream(historyFile);
-			while (history.prev());
-
-			while (history.next()) {
-				String command = history.get();
+			while(history.getPreviousCommand() != "");
+			
+			String command;
+			while((command = history.getNextCommand()) != ""){
 				out.write(command.getBytes());
 				out.write('\n');
 			}
-		}
-		catch (FileNotFoundException e) {
+		}catch(FileNotFoundException e){
 			Activator.getInstance().logException("history", e);
-		} 
-		catch (IOException e) {
+		}catch(IOException e){
 			Activator.getInstance().logException("history", e);
-		}
-		finally {
-			if (out != null) {
-				try {
+		}finally{
+			if(out != null){
+				try{
 					out.close();
-				} 
-				catch (IOException e) {
+				}catch(IOException e){
 					Activator.getInstance().logException("history", e);
 				}
 			}
 		}
 	}
 
-	private File getHistoryFile() throws IOException {
+	private File getHistoryFile() throws IOException{
 		File home = new File(System.getProperty("user.home"));
 		File rascal = new File(home, ".rascal");
-		if (!rascal.exists()) {
+		if(!rascal.exists()){
 			rascal.mkdirs();
 		}
 		File historyFile = new File(rascal, "history");
-		if (!historyFile.exists()) {
+		if(!historyFile.exists()){
 			historyFile.createNewFile();
 		}
 		return historyFile;
-	}*/
+	}
 
-	private IValue historyCommand() {
+	private IValue historyCommand(){
 		return null;
 	}
 
-	public Evaluator getEval() {
+	public Evaluator getEval(){
 		return eval;
 	}
 
 	/* construct an Expression AST from a String */ 
-	public Expression getExpression(String expression) throws IOException {
+	public Expression getExpression(String expression) throws IOException{
 		IConstructor tree = eval.parseCommand(expression+";");
 		Command c = new ASTBuilder(new ASTFactory()).buildCommand(tree);	
 		return c.getStatement().getExpression();
 	}
-
 }
