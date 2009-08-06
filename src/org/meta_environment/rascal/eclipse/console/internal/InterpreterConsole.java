@@ -203,20 +203,9 @@ public class InterpreterConsole extends TextConsole{
 	public void historyCommand(final String command){
 		Display.getDefault().syncExec(new Runnable(){
 			public void run(){
-				page.getViewer().setEditable(false);
-				documentListener.disable();
-				
-				// Reset the content.
 				IDocument doc = getDocument();
-				doc.set(currentContent);
-				
-				documentListener.reset();
-				
-				documentListener.enable();
-				page.getViewer().setEditable(true);
-				
 				try{
-					doc.replace(inputOffset, 0, command);
+					doc.replace(inputOffset, doc.getLength() - inputOffset, command);
 				}catch(BadLocationException blex){
 					// Ignore, can't happen.
 				}
