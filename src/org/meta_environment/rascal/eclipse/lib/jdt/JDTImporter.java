@@ -9,6 +9,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -77,12 +78,11 @@ public class JDTImporter extends ASTVisitor {
 	private IRelationWriter variableBindings;
 	// *** JOPPE ADDED START ***
 	private IRelationWriter packageBindings;
-	private IRelationWriter declaredTopTypes;
+	private ISetWriter declaredTopTypes;
 	// *** JOPPE ADDED END ***
 
 	// type facts
 	private static final Type entityTupleType = TF.tupleType(ADT_ENTITY, ADT_ENTITY);
-	private static final Type entitySetType = TF.setType(ADT_ENTITY);
 
 	private IRelationWriter extnds;
 	private IRelationWriter implmnts;
@@ -103,7 +103,7 @@ public class JDTImporter extends ASTVisitor {
 		
 		// *** JOPPE ADDED START ***
 		packageBindings = VF.relationWriter(bindingTupleType);
-		declaredTopTypes = VF.relationWriter(entitySetType);
+		declaredTopTypes = VF.setWriter(ADT_ENTITY);
 		// *** JOPPE ADDED END ***
 		
 		implmnts = VF.relationWriter(entityTupleType);
