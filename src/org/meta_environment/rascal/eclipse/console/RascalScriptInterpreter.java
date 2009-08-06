@@ -352,7 +352,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 			File historyFile = getHistoryFile();
 
 			out = new FileOutputStream(historyFile);
-			while(history.getPreviousCommand() != "");
+			do{/* Nothing */}while(history.getPreviousCommand() != "");
 			
 			String command;
 			while((command = history.getNextCommand()) != ""){
