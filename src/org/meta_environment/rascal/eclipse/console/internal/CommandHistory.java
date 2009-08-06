@@ -3,6 +3,8 @@ package org.meta_environment.rascal.eclipse.console.internal;
 import java.util.ArrayList;
 
 public class CommandHistory{
+	private final static int COMMAND_LIMIT = 1000;
+	
 	private ArrayList<String> history;
 	
 	private int index;
@@ -16,6 +18,7 @@ public class CommandHistory{
 	}
 	
 	public void addToHistory(String command){
+		if(history.size() == COMMAND_LIMIT) history.remove(0);
 		history.add(command);
 		resetState();
 	}
