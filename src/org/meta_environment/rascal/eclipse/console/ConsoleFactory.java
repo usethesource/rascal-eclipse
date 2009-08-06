@@ -19,11 +19,12 @@ import org.meta_environment.rascal.parser.ConsoleParser;
 
 public class ConsoleFactory implements IConsoleFactory {
 	public static final String CONSOLE_ID = "org.meta_environment.rascal.eclipse.console";
+	
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	protected IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
+	private IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 
-	public ConsoleFactory() {
+	private ConsoleFactory() {
 		super();
 	}
 	
