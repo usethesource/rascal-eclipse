@@ -21,18 +21,17 @@ public class ConsoleFactory implements IConsoleFactory {
 	public static final String CONSOLE_ID = "org.meta_environment.rascal.eclipse.console";
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	private static ConsoleFactory instance;
+	private volatile static ConsoleFactory instance;
+	
+	private IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 
-	protected IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
-
-	public ConsoleFactory() {
+	public ConsoleFactory(){
 		super();
+		
+		instance = this; // Eclipse stinks, since this is a bad idea.
 	}
 
-	public static ConsoleFactory getInstance() {
-		if (instance == null) {
-			instance = new ConsoleFactory();
-		} 
+	public static ConsoleFactory getInstance(){
 		return instance;
 	}
 
