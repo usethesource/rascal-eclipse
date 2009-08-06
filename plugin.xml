@@ -12,17 +12,6 @@
       </consoleFactory>
    </extension>
    <extension
-         point="org.eclipse.dltk.console.ui.scriptConsole">
-      <scriptConsole
-            class="org.meta_environment.rascal.eclipse.console.ConsoleFactory">
-      </scriptConsole>
-   </extension>
-   <extension
-         id="org.meta_environment.rascal.eclipse.console.interpreter"
-         name="Rascal Interpreter"
-         point="org.eclipse.dltk.console.scriptInterpreter">
-   </extension>
-   <extension
          point="org.eclipse.imp.runtime.languageDescription">
       <language
             description="Source analysis and manipulation language"
