@@ -26,7 +26,7 @@ public class LaunchShortcut implements ILaunchShortcut {
         // must be a structured selection with one file selected
         IFile file = (IFile) ((IStructuredSelection)selection).getFirstElement();
 
-        // check for an existing launch config for the pda file
+        // check for an existing launch config for the rascal file
         String path = file.getFullPath().toString(); 
         ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(IRascalResources.ID_RASCAL_LAUNCH_CONFIGURATION_TYPE);
@@ -45,7 +45,7 @@ public class LaunchShortcut implements ILaunchShortcut {
         }
         
         try {
-            // create a new configuration for the pda file
+            // create a new configuration for the rascal file
             ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, file.getName());
             workingCopy.setAttribute(IRascalResources.ATTR_RASCAL_PROGRAM, path);
             ILaunchConfiguration configuration = workingCopy.doSave();

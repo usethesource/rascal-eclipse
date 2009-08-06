@@ -24,9 +24,9 @@ public class ConsoleFactory implements IConsoleFactory {
 
 	private static ConsoleFactory instance;
 	
-	private RascalConsole lastConsole;
+	protected RascalConsole lastConsole;
 
-	private IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
+	protected IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 
 	public ConsoleFactory() {
 		super();
