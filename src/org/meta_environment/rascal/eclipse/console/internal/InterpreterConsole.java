@@ -355,19 +355,19 @@ public class InterpreterConsole extends TextConsole{
 			// Don't care.
 		}
 		
-		public void documentChanged(DocumentEvent event){ // TODO Fix text editing stuff.
+		public void documentChanged(DocumentEvent event){
 			if(!enabled) return;
 			
 			String text = event.getText();
 			
-			if(text.equals("\n")){ // If we just get a new-line token, execute the current 'thing'.
-				if(buffer.length() > 0){
+			if(text.equals("\n")){
+				if(buffer.length() > 0){ // If we just get a new-line token, execute the current 'thing'.
 					buffer.append('\n');
 					String command = buffer.toString();
 					reset();
 					
 					console.revertAndAppend(command);
-				}else{
+				}else{ // If there is no current 'thing', just execute the '\n' command.
 					execute("\n");
 				}
 				return;
@@ -393,7 +393,7 @@ public class InterpreterConsole extends TextConsole{
 					
 					execute(command);
 					
-					rest = rest.substring(index + 1); // Does this work?
+					rest = rest.substring(index + 1);
 				}while(true);
 			}else{
 				console.revertAndAppend(text);
