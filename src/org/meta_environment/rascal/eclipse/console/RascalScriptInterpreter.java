@@ -96,6 +96,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 	
 	public void terminate(){
+		saveCommandHistory();
 		content = null;
 		clearErrorMarker();
 		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
