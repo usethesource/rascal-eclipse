@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dancingbear.graphbrowser.layout.Layout;
-import org.dancingbear.graphbrowser.layout.dot.DotLayout;
 import org.dancingbear.graphbrowser.layout.dot.PointDouble;
 import org.dancingbear.graphbrowser.layout.model.CubicBezierCurve;
 import org.dancingbear.graphbrowser.layout.model.DirectedGraph;

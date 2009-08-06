@@ -1,13 +1,7 @@
 package org.dancingbear.graphbrowser.editor.jface.action;
 
-import java.util.List;
-
-import org.dancingbear.graphbrowser.editor.gef.editparts.NodeEditPart;
 import org.dancingbear.graphbrowser.editor.gef.ui.parts.GraphEditor;
 import org.dancingbear.graphbrowser.layout.Layout;
-import org.dancingbear.graphbrowser.layout.LayoutSequence;
-import org.dancingbear.graphbrowser.layout.fisheye.FisheyeLayout;
-import org.dancingbear.graphbrowser.model.IModelNode;
 import org.eclipse.draw2d.Animation;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.IWorkbenchPage;
