@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
@@ -87,8 +88,17 @@ public class InterpreterConsole extends TextConsole{
 					public void run(){
 						IActionBars actionBars = page.getSite().getActionBars();
 						IToolBarManager toolBarManager = actionBars.getToolBarManager();
+						
+						// Removed default stuff.
+						IContributionItem[] ci = toolBarManager.getItems();
+						for(int i = 0; i < ci.length; i++){
+							toolBarManager.remove(ci[i]);
+						}
+						
+						// Add custom stuff.
 						toolBarManager.add(new StoreHistoryAction(InterpreterConsole.this));
 						toolBarManager.add(new TerminationAction(InterpreterConsole.this));
+						
 						actionBars.updateActionBars();
 					}
 				});
