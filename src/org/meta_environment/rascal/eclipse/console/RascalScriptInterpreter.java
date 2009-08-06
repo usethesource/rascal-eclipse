@@ -90,6 +90,14 @@ public class RascalScriptInterpreter implements IInterpreter{
 	public void setConsole(InterpreterConsole console){
 		this.console = console;
 	}
+	
+	public void storeHistory(CommandHistory history){
+		saveCommandHistory();
+	}
+	
+	public void terminate(){
+		// TODO Implement.
+	}
 
 	public boolean execute(String cmd) throws CommandExecutionException{
 		if(cmd.trim().length() == 0){
@@ -228,7 +236,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 			@Override
 			public IValue visitShellCommandQuit(Quit x) {
-				//saveCommandHistory();
+				saveCommandHistory();
 				throw new QuitException();
 			}
 			

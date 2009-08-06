@@ -5,4 +5,6 @@ public interface IInterpreter{
 	boolean execute(String command) throws CommandExecutionException;
 	void setConsole(InterpreterConsole console);
 	String getOutput();
+	void terminate();
+	void storeHistory(CommandHistory history);
 }

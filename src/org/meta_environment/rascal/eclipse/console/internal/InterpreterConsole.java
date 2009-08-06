@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -16,6 +18,7 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsole;
@@ -79,12 +82,36 @@ public class InterpreterConsole extends TextConsole{
 				disableEditing();
 				emitPrompt();
 				enableEditing();
+				
+				Display.getDefault().asyncExec(new Runnable(){
+					public void run(){
+						IActionBars actionBars = page.getSite().getActionBars();
+						IToolBarManager toolBarManager = actionBars.getToolBarManager();
+						toolBarManager.add(new StoreHistoryAction(InterpreterConsole.this));
+						actionBars.updateActionBars();
+					}
+				});
 			}
 		}.start();
 	}
 	
+	private static class StoreHistoryAction extends Action{
+		private final InterpreterConsole console;
+		
+		public StoreHistoryAction(InterpreterConsole console){
+			super("Store history");
+			
+			this.console = console;
+		}
+		
+		public void run(){
+			console.interpreter.storeHistory(console.commandHistory);
+		}
+	}
+	
 	public void terminate(){
 		commandExecutor.terminate();
+		interpreter.terminate();
 	}
 	
 	public IInterpreter getInterpreter(){
