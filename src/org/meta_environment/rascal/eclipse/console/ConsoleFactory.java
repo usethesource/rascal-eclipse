@@ -8,7 +8,7 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleFactory;
 import org.eclipse.ui.console.IConsoleManager;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.eclipse.console.internal.InterpreterConsole;
+import org.meta_environment.rascal.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.meta_environment.rascal.interpreter.CommandEvaluator;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.Evaluator;
@@ -50,7 +50,7 @@ public class ConsoleFactory implements IConsoleFactory {
 		return lastCreatedConsole;
 	}
 
-	public class RascalConsole extends InterpreterConsole {
+	public class RascalConsole extends InteractiveInterpreterConsole {
 		private static final String SHELL_MODULE = "***shell***";
 
 		public RascalConsole(){

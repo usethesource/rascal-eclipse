@@ -49,7 +49,7 @@ import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.internal.CommandExecutionException;
 import org.meta_environment.rascal.eclipse.console.internal.CommandHistory;
 import org.meta_environment.rascal.eclipse.console.internal.IInterpreter;
-import org.meta_environment.rascal.eclipse.console.internal.InterpreterConsole;
+import org.meta_environment.rascal.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.meta_environment.rascal.eclipse.console.internal.TerminationException;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.Evaluator;
@@ -65,7 +65,7 @@ import org.meta_environment.uptr.TreeAdapter;
 
 public class RascalScriptInterpreter implements IInterpreter{
 	private final Evaluator eval;
-	private volatile InterpreterConsole console;
+	private volatile InteractiveInterpreterConsole console;
 	private String command;
 	private String content;
 	private IFile lastMarked;
@@ -88,7 +88,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		loadCommandHistory();
 	}
 
-	public void setConsole(InterpreterConsole console){
+	public void setConsole(InteractiveInterpreterConsole console){
 		this.console = console;
 	}
 

@@ -27,8 +27,8 @@ import org.eclipse.ui.console.TextConsolePage;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.part.IPageBookViewPage;
 
-public class InterpreterConsole extends TextConsole{
-	private final static String CONSOLE_TYPE = InterpreterConsole.class.getName();
+public class InteractiveInterpreterConsole extends TextConsole implements IInterpreterConsole{
+	private final static String CONSOLE_TYPE = InteractiveInterpreterConsole.class.getName();
 	
 	private final IInterpreter interpreter;
 	
@@ -46,7 +46,7 @@ public class InterpreterConsole extends TextConsole{
 	private int inputOffset;
 	private String currentContent;
 	
-	public InterpreterConsole(IInterpreter interpreter, String name, String prompt, String continuationPrompt){
+	public InteractiveInterpreterConsole(IInterpreter interpreter, String name, String prompt, String continuationPrompt){
 		super(name, CONSOLE_TYPE, null, false);
 		
 		this.interpreter = interpreter;
@@ -96,10 +96,11 @@ public class InterpreterConsole extends TextConsole{
 						}
 						
 						// Add custom stuff.
-						toolBarManager.add(new StoreHistoryAction(InterpreterConsole.this));
-						toolBarManager.add(new TerminationAction(InterpreterConsole.this));
+						toolBarManager.add(new StoreHistoryAction(InteractiveInterpreterConsole.this));
+						toolBarManager.add(new TerminationAction(InteractiveInterpreterConsole.this));
 						
 						actionBars.updateActionBars();
+						
 						commandExecutorThread.start();
 
 					}
@@ -109,9 +110,9 @@ public class InterpreterConsole extends TextConsole{
 	}
 	
 	private static class StoreHistoryAction extends Action{
-		private final InterpreterConsole console;
+		private final InteractiveInterpreterConsole console;
 		
-		public StoreHistoryAction(InterpreterConsole console){
+		public StoreHistoryAction(InteractiveInterpreterConsole console){
 			super("Store history");
 			
 			this.console = console;
@@ -123,9 +124,9 @@ public class InterpreterConsole extends TextConsole{
 	}
 	
 	private static class TerminationAction extends Action{
-		private final InterpreterConsole console;
+		private final InteractiveInterpreterConsole console;
 		
-		public TerminationAction(InterpreterConsole console){
+		public TerminationAction(InteractiveInterpreterConsole console){
 			super("Terminate");
 			
 			this.console = console;
@@ -279,9 +280,9 @@ public class InterpreterConsole extends TextConsole{
 	}
 	
 	private static class InterpreterConsolePage extends TextConsolePage{
-		private final InterpreterConsole console;
+		private final InteractiveInterpreterConsole console;
 		
-		public InterpreterConsolePage(InterpreterConsole console, IConsoleView view){
+		public InterpreterConsolePage(InteractiveInterpreterConsole console, IConsoleView view){
 			super(console, view);
 			
 			this.console = console;
@@ -298,9 +299,9 @@ public class InterpreterConsole extends TextConsole{
 		private byte[] buffer;
 		private int index;
 		
-		private final InterpreterConsole console;
+		private final InteractiveInterpreterConsole console;
 		
-		public ConsoleOutputStream(InterpreterConsole console){
+		public ConsoleOutputStream(InteractiveInterpreterConsole console){
 			super();
 			
 			this.console = console;
@@ -357,13 +358,13 @@ public class InterpreterConsole extends TextConsole{
 	}
 	
 	private static class ConsoleDocumentListener implements IDocumentListener{
-		private final InterpreterConsole console;
+		private final InteractiveInterpreterConsole console;
 		
 		private volatile boolean enabled;
 		
 		private StringBuffer buffer;
 		
-		public ConsoleDocumentListener(InterpreterConsole console){
+		public ConsoleDocumentListener(InteractiveInterpreterConsole console){
 			super();
 			
 			this.console = console;
@@ -466,7 +467,7 @@ public class InterpreterConsole extends TextConsole{
 	}
 	
 	private static class CommandExecutor implements Runnable{
-		private final InterpreterConsole console;
+		private final InteractiveInterpreterConsole console;
 		
 		private List<String> commandQueue;
 		
@@ -474,7 +475,7 @@ public class InterpreterConsole extends TextConsole{
 		
 		private final NotifiableLock lock = new NotifiableLock();
 		
-		public CommandExecutor(InterpreterConsole console){
+		public CommandExecutor(InteractiveInterpreterConsole console){
 			super();
 
 			this.console = console;

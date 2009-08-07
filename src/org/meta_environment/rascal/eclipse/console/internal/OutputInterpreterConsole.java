@@ -2,6 +2,8 @@ package org.meta_environment.rascal.eclipse.console.internal;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
@@ -26,17 +28,23 @@ import org.eclipse.ui.console.TextConsolePage;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.part.IPageBookViewPage;
 
-public class OutputConsole extends TextConsole{
-	private final static String CONSOLE_TYPE = OutputConsole.class.getName();
+public class OutputInterpreterConsole extends TextConsole implements IInterpreterConsole{
+	private final static String CONSOLE_TYPE = OutputInterpreterConsole.class.getName();
 	
+	private final IInterpreter interpreter;
+
+	private final CommandExecutor commandExecutor;
 	private final OutputConsolePartitioner partitioner;
 	private final ConsoleOutputStream consoleOutputStream;
 	
 	private volatile TextConsolePage page;
 	
-	public OutputConsole(String name){
+	public OutputInterpreterConsole(IInterpreter interpreter, String name){
 		super(name, CONSOLE_TYPE, null, false);
 		
+		this.interpreter = interpreter;
+
+		commandExecutor = new CommandExecutor(this);
 		consoleOutputStream = new ConsoleOutputStream(this);
 		
 		partitioner = new OutputConsolePartitioner();
@@ -46,6 +54,9 @@ public class OutputConsole extends TextConsole{
 	}
 	
 	public void initializeConsole(){
+		final Thread commandExecutorThread = new Thread(commandExecutor);
+		commandExecutorThread.setDaemon(true);
+		
 		// This stinks, but works.
 		new Thread(){
 			public void run(){
@@ -67,10 +78,11 @@ public class OutputConsole extends TextConsole{
 						}
 						
 						// Add custom stuff.
-						toolBarManager.add(new RemoveAction(OutputConsole.this));
+						toolBarManager.add(new RemoveAction(OutputInterpreterConsole.this));
 						
 						actionBars.updateActionBars();
-
+						
+						commandExecutorThread.start();
 					}
 				});
 			}
@@ -85,7 +97,7 @@ public class OutputConsole extends TextConsole{
 		});
 	}
 	
-	public void writeToConsole(final String line){
+	private void writeToConsole(final String line){
 		final IDocument doc = getDocument();
 
 		Display.getDefault().syncExec(new Runnable(){
@@ -114,15 +126,33 @@ public class OutputConsole extends TextConsole{
 		return consoleOutputStream;
 	}
 	
+	public IInterpreter getInterpreter(){
+		return interpreter;
+	}
+	
+	public void executeCommand(String command){
+		commandExecutor.execute(command);
+	}
+	
+	public void terminate(){
+		commandExecutor.terminate();
+		interpreter.terminate();
+	}
+	
+	protected void printOutput(String output){
+		consoleOutputStream.print();
+		writeToConsole(output);
+	}
+	
 	private static class ConsoleOutputStream extends OutputStream{
 		private final static int DEFAULT_SIZE = 64;
 		
 		private byte[] buffer;
 		private int index;
 		
-		private final OutputConsole console;
+		private final OutputInterpreterConsole console;
 		
-		public ConsoleOutputStream(OutputConsole console){
+		public ConsoleOutputStream(OutputInterpreterConsole console){
 			super();
 			
 			this.console = console;
@@ -164,16 +194,16 @@ public class OutputConsole extends TextConsole{
 	}
 	
 	private static class RemoveAction extends Action{
-		private final OutputConsole console;
+		private final OutputInterpreterConsole console;
 		
-		public RemoveAction(OutputConsole console){
+		public RemoveAction(OutputInterpreterConsole console){
 			super("Remove");
 			
 			this.console = console;
 		}
 		
 		public void run(){
-			OutputConsole.close(console);
+			OutputInterpreterConsole.close(console);
 		}
 	}
 	
@@ -201,9 +231,9 @@ public class OutputConsole extends TextConsole{
 	}
 	
 	private static class OutputConsolePage extends TextConsolePage{
-		private final OutputConsole console;
+		private final OutputInterpreterConsole console;
 		
-		public OutputConsolePage(OutputConsole console, IConsoleView view){
+		public OutputConsolePage(OutputInterpreterConsole console, IConsoleView view){
 			super(console, view);
 			
 			this.console = console;
@@ -214,17 +244,96 @@ public class OutputConsole extends TextConsole{
 		}
 	}
 	
-	public static OutputConsole open(String name){
+	private static class NotifiableLock{
+		private boolean notified = false;
+		
+		public synchronized void block(){
+			while(!notified){
+				try{
+					wait();
+				}catch(InterruptedException irex){
+					// Ignore.
+				}
+			}
+			notified = false;
+		}
+		
+		public synchronized void wakeUp(){
+			notified = true;
+			notify();
+		}
+	}
+	
+	private static class CommandExecutor implements Runnable{
+		private final OutputInterpreterConsole console;
+		
+		private List<String> commandQueue;
+		
+		private volatile boolean running;
+		
+		private final NotifiableLock lock = new NotifiableLock();
+		
+		public CommandExecutor(OutputInterpreterConsole console){
+			super();
+
+			this.console = console;
+			
+			commandQueue = new ArrayList<String>();
+			
+			running = false;
+		}
+		
+		public void execute(String command){
+			synchronized(commandQueue){
+				commandQueue.add(command);
+				lock.wakeUp();
+			}
+		}
+		
+		public void run(){
+			running = true;
+			while(running){
+				lock.block();
+				
+				if(!running) return;
+				
+				while(commandQueue.size() > 0){
+					console.disableEditing();
+					
+					String command = commandQueue.remove(0);
+					try{
+						boolean promptType = console.interpreter.execute(command);
+						if(promptType){
+							console.printOutput(console.interpreter.getOutput());
+						}
+					}catch(CommandExecutionException ceex){
+						console.printOutput(ceex.getMessage());
+					}catch(TerminationException tex){
+						// Roll over and die.
+						console.terminate();
+						return;
+					}
+				}
+			}
+		}
+		
+		public void terminate(){
+			running = false;
+			lock.wakeUp();
+		}
+	}
+	
+	public static OutputInterpreterConsole open(IInterpreter interpreter, String name){
 		IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 		
-		OutputConsole console = new OutputConsole(name);
+		OutputInterpreterConsole console = new OutputInterpreterConsole(interpreter, name);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		
 		return console;
 	}
 	
-	public static void close(OutputConsole console){
+	public static void close(OutputInterpreterConsole console){
 		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[]{console});
 	}
 }

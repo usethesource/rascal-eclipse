@@ -6,10 +6,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.console.TextConsoleViewer;
 
 public class InterpreterConsoleViewer extends TextConsoleViewer{
-	private final InterpreterConsole console;
+	private final InteractiveInterpreterConsole console;
 	private final CommandHistory history;
 
-	public InterpreterConsoleViewer(InterpreterConsole console, Composite parent){
+	public InterpreterConsoleViewer(InteractiveInterpreterConsole console, Composite parent){
 		super(parent, console);
 		
 		this.console = console;
