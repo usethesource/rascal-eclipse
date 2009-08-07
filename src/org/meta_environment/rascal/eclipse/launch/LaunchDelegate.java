@@ -29,23 +29,40 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate {
 
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 
+		if (mode.equals(ILaunchManager.RUN_MODE)) {
 
+			// open a Rascal Console
+			ConsoleFactory.getInstance().openConsole();
+
+		} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
+
+			//launch a debug session which opens automatically a new console
+			RascalDebugTarget target = new RascalDebugTarget(launch);
+			//activate the step by step statement mode by default
+			target.getEvaluator().setStatementStepMode(true);
+			launch.addDebugTarget(target);
+
+		}
+
+		// find if there is a rascal file associated to this configuration
+		String path = configuration.getAttribute(IRascalResources.ATTR_RASCAL_PROGRAM, (String)null);
 		// TODO should find a way to specify the src folders for a Rascal project
 		// see also ProjectModuleLoader
-		String path = configuration.getAttribute(IRascalResources.ATTR_RASCAL_PROGRAM, (String)null);
-		int index = path.indexOf('/', 1);
-		String moduleFullName = path.substring(index+1);
-		if (moduleFullName.startsWith("src")) {
-			moduleFullName.replaceFirst("src/", "");		
-		}
-		moduleFullName = moduleFullName.replaceAll("/", "::");
-		moduleFullName = moduleFullName.substring(0, moduleFullName.length()-Configuration.RASCAL_FILE_EXT.length());
 
-		if (mode.equals(ILaunchManager.RUN_MODE)) {
-			ConsoleFactory factory = ConsoleFactory.getInstance();
-			// open a Rascal Console
-			factory.openConsole();
+		if (path != null) {
+
+			//construct the corresponding module name
+			int index = path.indexOf('/', 1);
+			String moduleFullName = path.substring(index+1);
+			if (moduleFullName.startsWith("src")) {
+				moduleFullName.replaceFirst("src/", "");		
+			}
+			moduleFullName = moduleFullName.replaceAll("/", "::");
+			moduleFullName = moduleFullName.substring(0, moduleFullName.length()-Configuration.RASCAL_FILE_EXT.length());
+
+			//import the module and launch the main function
 			try {
+				ConsoleFactory factory = ConsoleFactory.getInstance();
 				factory.getLastConsole().getRascalInterpreter().execute("import "+moduleFullName+";");
 				factory.getLastConsole().getRascalInterpreter().execute("main();");
 			} catch (CommandExecutionException e) {
@@ -55,23 +72,8 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
-			RascalDebugTarget target = new RascalDebugTarget(launch);
-			//activate the step by step statement mode by default
-			target.getEvaluator().setStatementStepMode(true);
-			launch.addDebugTarget(target);
-			try {
-				target.getInterpreter().execute("import "+moduleFullName+";");
-				target.getInterpreter().execute("main();");
-			} catch (CommandExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (TerminationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
-	}
 
+	}
 
 }
