@@ -1,5 +1,8 @@
 package org.meta_environment.rascal.eclipse.console.internal;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
@@ -27,11 +30,14 @@ public class OutputConsole extends TextConsole{
 	private final static String CONSOLE_TYPE = OutputConsole.class.getName();
 	
 	private final OutputConsolePartitioner partitioner;
+	private final ConsoleOutputStream consoleOutputStream;
 	
 	private volatile TextConsolePage page;
 	
 	public OutputConsole(String name){
 		super(name, CONSOLE_TYPE, null, false);
+		
+		consoleOutputStream = new ConsoleOutputStream(this);
 		
 		partitioner = new OutputConsolePartitioner();
 		IDocument doc = getDocument();
@@ -102,6 +108,59 @@ public class OutputConsole extends TextConsole{
 		
 		styledText.setCaretOffset(index);
 		consoleViewer.revealRange(index, 0);
+	}
+	
+	public OutputStream getConsoleOutputStream(){
+		return consoleOutputStream;
+	}
+	
+	private static class ConsoleOutputStream extends OutputStream{
+		private final static int DEFAULT_SIZE = 64;
+		
+		private byte[] buffer;
+		private int index;
+		
+		private final OutputConsole console;
+		
+		public ConsoleOutputStream(OutputConsole console){
+			super();
+			
+			this.console = console;
+			
+			reset();
+		}
+		
+		public void write(int arg) throws IOException{
+			if(arg == '\n'){ // If we encounter a new-line, print the content of the buffer.
+				print();
+				reset();
+				return;
+			}
+			
+			int currentSize = buffer.length;
+			if(index == currentSize){
+				byte[] newData = new byte[currentSize << 1];
+				System.arraycopy(buffer, 0, newData, 0, currentSize);
+				buffer = newData;
+			}
+			
+			buffer[index++] = (byte) arg;
+		}
+		
+		public void print(){
+			if(index != 0){
+				byte[] collectedData = new byte[index + 1];
+				System.arraycopy(buffer, 0, collectedData, 0, index);
+				collectedData[index] = '\n';
+				
+				console.writeToConsole(new String(collectedData));
+			}
+		}
+		
+		public void reset(){
+			buffer = new byte[DEFAULT_SIZE];
+			index = 0;
+		}
 	}
 	
 	private static class RemoveAction extends Action{

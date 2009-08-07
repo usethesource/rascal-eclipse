@@ -217,7 +217,7 @@ public class InterpreterConsole extends TextConsole{
 	}
 	
 	public OutputStream getConsoleOutputStream(){
-		return new ConsoleOutputStream(this);
+		return consoleOutputStream;
 	}
 	
 	public void executeCommand(String command){
@@ -298,12 +298,12 @@ public class InterpreterConsole extends TextConsole{
 		private byte[] buffer;
 		private int index;
 		
-		private final InterpreterConsole rascalConsole;
+		private final InterpreterConsole console;
 		
-		public ConsoleOutputStream(InterpreterConsole rascalConsole){
+		public ConsoleOutputStream(InterpreterConsole console){
 			super();
 			
-			this.rascalConsole = rascalConsole;
+			this.console = console;
 			
 			reset();
 		}
@@ -331,7 +331,7 @@ public class InterpreterConsole extends TextConsole{
 				System.arraycopy(buffer, 0, collectedData, 0, index);
 				collectedData[index] = '\n';
 				
-				rascalConsole.writeToConsole(new String(collectedData));
+				console.writeToConsole(new String(collectedData));
 			}
 		}
 		
