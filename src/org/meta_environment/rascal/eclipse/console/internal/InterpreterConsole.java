@@ -280,22 +280,14 @@ public class InterpreterConsole extends TextConsole{
 	private static class InterpreterConsolePage extends TextConsolePage{
 		private final InterpreterConsole console;
 		
-		private InterpreterConsoleViewer viewer;
-		
 		public InterpreterConsolePage(InterpreterConsole console, IConsoleView view){
 			super(console, view);
 			
 			this.console = console;
-			
-			viewer = null;
 		}
 
 		public TextConsoleViewer createViewer(Composite parent){
-			return (viewer = new InterpreterConsoleViewer(console, parent));
-		}
-		
-		public InterpreterConsoleViewer getConsoleViewer(){
-			return viewer;
+			return new InterpreterConsoleViewer(console, parent);
 		}
 	}
 	
