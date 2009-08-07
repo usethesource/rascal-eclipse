@@ -69,38 +69,40 @@ public class RascalScriptInterpreter implements IInterpreter{
 	private String command;
 	private String content;
 	private IFile lastMarked;
-
+	
 	public RascalScriptInterpreter(Evaluator eval){
 		super();
-		
+
 		this.command = "";
 		this.eval = eval;
 
 		eval.addModuleLoader(new ProjectModuleLoader());
 		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
-		
+
 		eval.addSdfSearchPathContributor(new ProjectSDFModuleContributor());
-		
+
 		eval.addClassLoader(getClass().getClassLoader());
 	}
-	
+
 	public void initialize(){
 		loadCommandHistory();
 	}
-	
+
 	public void setConsole(InterpreterConsole console){
 		this.console = console;
 	}
-	
+
 	public void storeHistory(CommandHistory history){
 		saveCommandHistory();
 	}
-	
+
 	public void terminate(){
 		saveCommandHistory();
 		content = null;
 		clearErrorMarker();
 		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
+		if (eval instanceof DebuggableEvaluator) ((DebuggableEvaluator) eval).getDebugger().destroy();
+
 	}
 
 	public boolean execute(String cmd) throws CommandExecutionException, TerminationException{
@@ -121,9 +123,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 				execParseError(tree);
 				return false;
 			}
-			
+
 			IO.setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
-			
+
 			execCommand(tree);
 		}catch (StaticError e) {
 			content = e.getMessage() + "\n";
@@ -240,19 +242,19 @@ public class RascalScriptInterpreter implements IInterpreter{
 				saveCommandHistory();
 				throw new QuitException();
 			}
-			
+
 			@Override
 			public IValue visitShellCommandTest(Test x) {
 				List<FailedTestError> report = eval.runTests();
 				return ValueFactoryFactory.getValueFactory().string(eval.report(report));
 			}
 		});
-		
+
 		if (value != null) {
 			Type type = value.getType();
 			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
 				content = "[|" + new TreeAdapter((IConstructor) value).yield() + "|]\n" + 
-					type + ": " + value.toString().substring(0, 50) + "...\n";
+				type + ": " + value.toString().substring(0, 50) + "...\n";
 			}
 			else {
 				content = value.getType() + ": " + value.toString() + "\n";
@@ -264,7 +266,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		if (eval instanceof DebuggableEvaluator) {
 			// need to notify the debugger that the command is finished
 			//DebuggableEvaluator debugEval = (DebuggableEvaluator) eval;
-//			debugEval.getDebugger().stopStepping();
+			//			debugEval.getDebugger().stopStepping();
 		}
 		command = "";
 	}
@@ -362,7 +364,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 			out = new FileOutputStream(historyFile);
 			do{/* Nothing */}while(history.getPreviousCommand() != "");
-			
+
 			String command;
 			while((command = history.getNextCommand()) != ""){
 				out.write(command.getBytes());

@@ -20,29 +20,31 @@ public class ProjectModuleLoader implements IModuleFileLoader {
 
 	public IFile getFile(String name) throws IOException, CoreException {
 		IWorkspaceRoot root = getWorkspaceRoot();
-		
-		for (IProject project : root.getProjects()) {
-			IFolder srcFolder = project.getFolder(SRC_FOLDER_NAME);
-			IPath path;
-			
-			if (srcFolder.exists()) {
-				path = srcFolder.getLocation();
-			}
-			else {
-				path = project.getLocation();
-			}
 
-			IFile file = root.getFileForLocation(path.append(name));
-			
-			if (file.exists()) {
-				file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-				return file;
+		for (IProject project : root.getProjects()) {
+			if (project.isOpen()) {
+				IFolder srcFolder = project.getFolder(SRC_FOLDER_NAME);
+				IPath path;
+
+				if (srcFolder.exists()) {
+					path = srcFolder.getLocation();
+				}
+				else {
+					path = project.getLocation();
+				}
+
+				IFile file = root.getFileForLocation(path.append(name));
+
+				if (file.exists()) {
+					file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+					return file;
+				}
 			}
 		}
-		
+
 		throw new IOException("File " + name + " not found");	
 	}
-	
+
 	public boolean fileExists(String filename){
 		try{
 			IFile file = getFile(filename);
@@ -52,7 +54,7 @@ public class ProjectModuleLoader implements IModuleFileLoader {
 			return false;
 		}
 	}
-	
+
 	public InputStream getInputStream(String filename){
 		try {
 			IFile file = getFile(filename);
@@ -63,14 +65,14 @@ public class ProjectModuleLoader implements IModuleFileLoader {
 		}catch(Exception e){
 			// Ignore, this is fine.
 		}
-		
+
 		return null;
 	}
-	
+
 	public boolean supportsLoadingBinaries(){
 		return false;
 	}
-	
+
 	public boolean tryWriteBinary(String filename, String binaryName, IConstructor tree){
 		// Not implemented (yet).
 		return false;

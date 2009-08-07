@@ -10,6 +10,7 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
@@ -233,24 +234,30 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	public boolean canTerminate(){
 		return !isTerminated();
 	}
-	
+
 	public boolean isTerminated(){
 		return fTerminated;
 	}
-	
-	public synchronized void terminate() throws DebugException{
+
+
+	public synchronized void destroy() {
 		fTerminated = true;
-		
+
 		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
-		rascalDebugTarget.getConsole().terminate();
-		
+
 		notify();
 		fireTerminateEvent();
 		// for refreshing the icons associated to the debug target
 		rascalDebugTarget.fireTerminateEvent();
+		
+	}
+
+	public synchronized void terminate() throws DebugException{
+		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
+		rascalDebugTarget.getConsole().terminate();
 	}
 }

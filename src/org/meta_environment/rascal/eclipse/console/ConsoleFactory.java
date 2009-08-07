@@ -19,14 +19,14 @@ import org.meta_environment.rascal.parser.ConsoleParser;
 
 public class ConsoleFactory implements IConsoleFactory {
 	public final static String CONSOLE_ID = "org.meta_environment.rascal.eclipse.console";
-	
+
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final static IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
-	
+
 	public ConsoleFactory(){
 		super();
 	}
-	
+
 	private static class InstanceKeeper{
 		private final static ConsoleFactory instance = new ConsoleFactory();
 	}
@@ -40,36 +40,37 @@ public class ConsoleFactory implements IConsoleFactory {
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 	}
-	
+
 	public RascalConsole openDebuggableConsole(IDebugger debugger){
 		RascalConsole console = new RascalConsole(debugger);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
-		
+
 		return console;
 	}
 
-	public class RascalConsole extends InterpreterConsole{
+	public class RascalConsole extends InterpreterConsole {
 		private static final String SHELL_MODULE = "***shell***";
 
 		public RascalConsole(){
 			this(new CommandEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment(SHELL_MODULE), new GlobalEnvironment(), new ConsoleParser()));
 		}
-		
+
 		public RascalConsole(IDebugger debugger){
 			this(new DebuggableEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment(SHELL_MODULE), new ConsoleParser(), debugger));
 		}
-		
+
 		private RascalConsole(Evaluator eval) {
 			super(new RascalScriptInterpreter(eval), "Rascal", "rascal>", ">>>>>>>");
 			initializeConsole();
 			getInterpreter().initialize();
 			addPatternMatchListener(new JumpToSource());
 		}
-		
+
 		public RascalScriptInterpreter getRascalInterpreter(){
 			return (RascalScriptInterpreter) getInterpreter();
 		}
+
 	}
 }
 

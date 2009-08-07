@@ -11,7 +11,7 @@ import org.eclipse.ui.console.IConsoleFactory;
 import org.meta_environment.rascal.eclipse.IRascalResources;
 
 public class DebuggableConsoleFactory implements IConsoleFactory {
-	
+
 	public DebuggableConsoleFactory() {
 		super();
 	}

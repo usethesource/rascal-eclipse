@@ -69,9 +69,8 @@ public class InterpreterConsole extends TextConsole{
 	}
 	
 	public void initializeConsole(){
-		Thread commandExecutorThread = new Thread(commandExecutor);
+		final Thread commandExecutorThread = new Thread(commandExecutor);
 		commandExecutorThread.setDaemon(true);
-		commandExecutorThread.start();
 
 		// This stinks, but works.
 		new Thread(){
@@ -100,6 +99,8 @@ public class InterpreterConsole extends TextConsole{
 						toolBarManager.add(new TerminationAction(InterpreterConsole.this));
 						
 						actionBars.updateActionBars();
+						commandExecutorThread.start();
+
 					}
 				});
 			}
