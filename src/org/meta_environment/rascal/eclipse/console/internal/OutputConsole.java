@@ -34,6 +34,9 @@ public class OutputConsole extends TextConsole{
 		super(name, CONSOLE_TYPE, null, false);
 		
 		partitioner = new OutputConsolePartitioner();
+		IDocument doc = getDocument();
+		doc.setDocumentPartitioner(partitioner);
+		partitioner.connect(doc);
 	}
 	
 	public void initializeConsole(){

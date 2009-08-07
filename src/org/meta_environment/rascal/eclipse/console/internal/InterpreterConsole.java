@@ -62,8 +62,9 @@ public class InterpreterConsole extends TextConsole{
 		documentListener.registerListener();
 		
 		partitioner = new InterpreterConsolePartitioner();
-		getDocument().setDocumentPartitioner(partitioner);
-		partitioner.connect(getDocument());
+		IDocument doc = getDocument();
+		doc.setDocumentPartitioner(partitioner);
+		partitioner.connect(doc);
 		
 		documentListener.enable();
 	}
