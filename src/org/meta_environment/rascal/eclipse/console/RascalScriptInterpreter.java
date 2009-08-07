@@ -50,6 +50,7 @@ import org.meta_environment.rascal.eclipse.console.internal.CommandExecutionExce
 import org.meta_environment.rascal.eclipse.console.internal.CommandHistory;
 import org.meta_environment.rascal.eclipse.console.internal.IInterpreter;
 import org.meta_environment.rascal.eclipse.console.internal.InterpreterConsole;
+import org.meta_environment.rascal.eclipse.console.internal.TerminationException;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
@@ -102,7 +103,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
 	}
 
-	public boolean execute(String cmd) throws CommandExecutionException{
+	public boolean execute(String cmd) throws CommandExecutionException, TerminationException{
 		if(cmd.trim().length() == 0){
 			content = "cancelled\n";
 			command = "";
@@ -138,7 +139,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 			command = "";
 			setMarker(e.getMessage(), e.getLocation());
 		}catch(QuitException q){
-			console.terminate();
+			throw new TerminationException();
 		}catch(Throwable e){
 			content = "internal exception: " + e.toString() + "\n";
 			e.printStackTrace();

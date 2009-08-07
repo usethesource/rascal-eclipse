@@ -517,6 +517,10 @@ public class InterpreterConsole extends TextConsole{
 						}
 					}catch(CommandExecutionException ceex){
 						console.printOutput(ceex.getMessage());
+					}catch(TerminationException tex){
+						// Roll over and die.
+						console.terminate();
+						return;
 					}
 				}
 				

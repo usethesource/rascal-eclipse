@@ -23,16 +23,16 @@ public class ConsoleFactory implements IConsoleFactory {
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final static IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 	
-	private volatile static ConsoleFactory instance;
-	
 	public ConsoleFactory(){
 		super();
-		
-		instance = this; // Eclipse stinks, since this is a bad idea.
+	}
+	
+	private static class InstanceKeeper{
+		private final static ConsoleFactory instance = new ConsoleFactory();
 	}
 
 	public static ConsoleFactory getInstance(){
-		return instance;
+		return InstanceKeeper.instance;
 	}
 
 	public void openConsole(){
