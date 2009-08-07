@@ -23,6 +23,8 @@ public class ConsoleFactory implements IConsoleFactory {
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final static IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 
+	private RascalConsole lastCreatedConsole;
+
 	public ConsoleFactory(){
 		super();
 	}
@@ -36,17 +38,16 @@ public class ConsoleFactory implements IConsoleFactory {
 	}
 
 	public void openConsole(){
-		RascalConsole console = new RascalConsole();
-		fConsoleManager.addConsoles(new IConsole[]{console});
-		fConsoleManager.showConsoleView(console);
+		lastCreatedConsole = new RascalConsole();
+		fConsoleManager.addConsoles(new IConsole[]{lastCreatedConsole});
+		fConsoleManager.showConsoleView(lastCreatedConsole);
 	}
 
 	public RascalConsole openDebuggableConsole(IDebugger debugger){
-		RascalConsole console = new RascalConsole(debugger);
-		fConsoleManager.addConsoles(new IConsole[]{console});
-		fConsoleManager.showConsoleView(console);
-
-		return console;
+		lastCreatedConsole = new RascalConsole(debugger);
+		fConsoleManager.addConsoles(new IConsole[]{lastCreatedConsole});
+		fConsoleManager.showConsoleView(lastCreatedConsole);
+		return lastCreatedConsole;
 	}
 
 	public class RascalConsole extends InterpreterConsole {
@@ -71,6 +72,10 @@ public class ConsoleFactory implements IConsoleFactory {
 			return (RascalScriptInterpreter) getInterpreter();
 		}
 
+	}
+
+	public RascalConsole getLastConsole() {
+		return lastCreatedConsole;
 	}
 }
 

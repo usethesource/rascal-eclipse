@@ -29,6 +29,7 @@ public interface IRascalResources {
 	 * location of a local Rascal executable (value <code>rascalExecutable</code>).
 	 */
 	public static final String VARIABLE_RASCAL_EXECUTABLE = "rascalExecutable";
+	
 	/**
 	 * Launch configuration attribute key. Value is a path to a rascal
 	 * program. The path is a string representing a full path
