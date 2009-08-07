@@ -49,7 +49,7 @@ import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.internal.CommandExecutionException;
 import org.meta_environment.rascal.eclipse.console.internal.CommandHistory;
 import org.meta_environment.rascal.eclipse.console.internal.IInterpreter;
-import org.meta_environment.rascal.eclipse.console.internal.InteractiveInterpreterConsole;
+import org.meta_environment.rascal.eclipse.console.internal.IInterpreterConsole;
 import org.meta_environment.rascal.eclipse.console.internal.TerminationException;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.Evaluator;
@@ -65,7 +65,7 @@ import org.meta_environment.uptr.TreeAdapter;
 
 public class RascalScriptInterpreter implements IInterpreter{
 	private final Evaluator eval;
-	private volatile InteractiveInterpreterConsole console;
+	private volatile IInterpreterConsole console;
 	private String command;
 	private String content;
 	private IFile lastMarked;
@@ -88,7 +88,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		loadCommandHistory();
 	}
 
-	public void setConsole(InteractiveInterpreterConsole console){
+	public void setConsole(IInterpreterConsole console){
 		this.console = console;
 	}
 
@@ -187,7 +187,6 @@ public class RascalScriptInterpreter implements IInterpreter{
 		clearErrorMarker();
 
 		IValue value = stat.accept(new NullASTVisitor<IValue>() {
-			private Type TestReportType;
 
 			@Override
 			public IValue visitCommandStatement(Statement x) {
@@ -336,50 +335,60 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 
 	private void loadCommandHistory(){
-		try{
-			File historyFile = getHistoryFile();
-			BufferedReader in = new BufferedReader(new FileReader(historyFile));
-			CommandHistory history = console.getHistory();
-
-			String command = null;
-			while((command = in.readLine()) != null){
-				history.addToHistory(command);
+		CommandHistory history = console.getHistory();
+		if(history != null){
+			BufferedReader in = null;
+			try{
+				File historyFile = getHistoryFile();
+				in = new BufferedReader(new FileReader(historyFile));
+	
+				String command = null;
+				while((command = in.readLine()) != null){
+					history.addToHistory(command);
+				}
+			}catch(IOException e){
+				e.printStackTrace();
+				Activator.getInstance().logException("history", e);
+			}catch(Throwable t){
+				t.printStackTrace();
+			}finally{
+				if(in != null){
+					try{
+						in.close();
+					}catch(IOException e){
+						Activator.getInstance().logException("history", e);
+					}
+				}
 			}
-
-			in.close();
-		}catch(IOException e){
-			e.printStackTrace();
-			Activator.getInstance().logException("history", e);
-		}catch(Throwable t){
-			t.printStackTrace();
 		}
 	}
 
 	private void saveCommandHistory(){
 		CommandHistory history = console.getHistory();
-
-		OutputStream out = null; 
-		try{
-			File historyFile = getHistoryFile();
-
-			out = new FileOutputStream(historyFile);
-			do{/* Nothing */}while(history.getPreviousCommand() != "");
-
-			String command;
-			while((command = history.getNextCommand()) != ""){
-				out.write(command.getBytes());
-				out.write('\n');
-			}
-		}catch(FileNotFoundException e){
-			Activator.getInstance().logException("history", e);
-		}catch(IOException e){
-			Activator.getInstance().logException("history", e);
-		}finally{
-			if(out != null){
-				try{
-					out.close();
-				}catch(IOException e){
-					Activator.getInstance().logException("history", e);
+		if(history != null){
+			OutputStream out = null; 
+			try{
+				File historyFile = getHistoryFile();
+	
+				out = new FileOutputStream(historyFile);
+				do{/* Nothing */}while(history.getPreviousCommand() != "");
+	
+				String command;
+				while((command = history.getNextCommand()) != ""){
+					out.write(command.getBytes());
+					out.write('\n');
+				}
+			}catch(FileNotFoundException e){
+				Activator.getInstance().logException("history", e);
+			}catch(IOException e){
+				Activator.getInstance().logException("history", e);
+			}finally{
+				if(out != null){
+					try{
+						out.close();
+					}catch(IOException e){
+						Activator.getInstance().logException("history", e);
+					}
 				}
 			}
 		}

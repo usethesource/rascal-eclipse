@@ -53,6 +53,10 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		partitioner.connect(doc);
 	}
 	
+	public CommandHistory getHistory(){
+		return null; // Unsupported
+	}
+	
 	public void initializeConsole(){
 		final Thread commandExecutorThread = new Thread(commandExecutor);
 		commandExecutorThread.setDaemon(true);
