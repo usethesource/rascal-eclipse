@@ -12,6 +12,13 @@
       </consoleFactory>
    </extension>
    <extension
+         point="org.eclipse.ui.console.consoleFactories">
+      <consoleFactory
+            label="Rascal debug"
+            class="org.meta_environment.rascal.eclipse.console.DebuggableConsoleFactory">
+      </consoleFactory>
+   </extension>
+   <extension
          point="org.eclipse.imp.runtime.languageDescription">
       <language
             description="Source analysis and manipulation language"
