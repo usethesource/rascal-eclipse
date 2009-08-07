@@ -237,7 +237,7 @@
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-            delegate="org.meta_environment.rascal.eclipse.debug.core.launcher.LaunchDelegate"
+            delegate="org.meta_environment.rascal.eclipse.launch.LaunchDelegate"
             id="rascal.launchType"
             modes="run, debug"
             name="Rascal Application"
