@@ -16,6 +16,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
+import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.console.TextConsolePage;
@@ -100,10 +101,6 @@ public class OutputConsole extends TextConsole{
 		consoleViewer.revealRange(index, 0);
 	}
 	
-	public void remove(){
-		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[]{this});
-	}
-	
 	private static class RemoveAction extends Action{
 		private final OutputConsole console;
 		
@@ -114,7 +111,7 @@ public class OutputConsole extends TextConsole{
 		}
 		
 		public void run(){
-			console.remove();
+			OutputConsole.close(console);
 		}
 	}
 	
@@ -153,5 +150,19 @@ public class OutputConsole extends TextConsole{
 		public TextConsoleViewer createViewer(Composite parent){
 			return new TextConsoleViewer(parent, console);
 		}
+	}
+	
+	public static OutputConsole open(String name){
+		IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
+		
+		OutputConsole console = new OutputConsole(name);
+		fConsoleManager.addConsoles(new IConsole[]{console});
+		fConsoleManager.showConsoleView(console);
+		
+		return console;
+	}
+	
+	public static void close(OutputConsole console){
+		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[]{console});
 	}
 }
