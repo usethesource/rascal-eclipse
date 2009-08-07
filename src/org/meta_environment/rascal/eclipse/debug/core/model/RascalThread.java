@@ -11,8 +11,6 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsoleManager;
 import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
@@ -23,7 +21,7 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 public class RascalThread extends RascalDebugElement implements IThread, IDebugger {
 
 	private boolean fStepping = false;
-	private boolean fTerminated = false;
+	private volatile boolean fTerminated = false;
 	private boolean fSuspended = false;
 	private boolean fSuspendedByBreakpoint = false;
 
@@ -235,25 +233,24 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		// TODO Auto-generated method stub
 
 	}
-
-	public boolean canTerminate() {
+	
+	public boolean canTerminate(){
 		return !isTerminated();
 	}
-
-
-	public boolean isTerminated() {
+	
+	public boolean isTerminated(){
 		return fTerminated;
 	}
-
-
-	public synchronized void terminate() throws DebugException {
-		IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
-		fConsoleManager.removeConsoles(new org.eclipse.ui.console.IConsole[]{getRascalDebugTarget().getConsole()});
+	
+	public synchronized void terminate() throws DebugException{
 		fTerminated = true;
+		
+		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
+		rascalDebugTarget.getConsole().terminate();
+		
 		notify();
 		fireTerminateEvent();
 		// for refreshing the icons associated to the debug target
-		getRascalDebugTarget().fireTerminateEvent();
+		rascalDebugTarget.fireTerminateEvent();
 	}
-
 }
