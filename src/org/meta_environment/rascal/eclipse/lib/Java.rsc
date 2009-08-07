@@ -18,7 +18,7 @@ data Id = package(str name)
         
         | method(str name, list[Entity] params, Entity returnType)
         | constructor(list[Entity] params)
-        | initializer
+        | initializer()
         | initializer(int nr)
 
         | field(str name)
@@ -30,20 +30,20 @@ data Id = package(str name)
         | array(Entity elementType)
         
         | typeParameter(str name)
-        | wildcard
+        | wildcard()
         | wildcard(Bound bound)
 ;
 
-data PrimitiveType = byte
-                   | short
-                   | \int
-                   | long
-                   | float
-                   | double
-                   | char
-                   | boolean
-                   | \void
-                   | null
+data PrimitiveType = byte()
+                   | short()
+                   | \int()
+                   | long()
+                   | float()
+                   | double()
+                   | char()
+                   | boolean()
+                   | \void()
+                   | null()
 ;
 
 data Bound = extends(Entity type)
