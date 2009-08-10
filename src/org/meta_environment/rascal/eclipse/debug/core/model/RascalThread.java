@@ -10,7 +10,6 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
