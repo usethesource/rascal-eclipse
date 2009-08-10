@@ -163,11 +163,10 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	}
 	
 	private void writeToConsole(final String line){
-		final IDocument doc = getDocument();
-
 		Display.getDefault().syncExec(new Runnable(){
 			public void run(){
 				try{
+					IDocument doc = getDocument();
 					doc.replace(doc.getLength(), 0, line);
 					
 					int endOfDocument = doc.getLength();
@@ -193,8 +192,9 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				documentListener.enable();
 				page.getViewer().setEditable(true);
 				
-				inputOffset = getDocument().getLength(); // Update the input offset; note however that this is not the proper place to do this (just the most convenient).
-				currentContent = getDocument().get();
+				IDocument doc = getDocument();
+				inputOffset = doc.getLength(); // Update the input offset; note however that this is not the proper place to do this (just the most convenient).
+				currentContent = doc.get();
 			}
 		});
 	}
@@ -469,7 +469,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	private static class CommandExecutor implements Runnable{
 		private final InteractiveInterpreterConsole console;
 		
-		private List<String> commandQueue;
+		private final List<String> commandQueue;
 		
 		private volatile boolean running;
 		

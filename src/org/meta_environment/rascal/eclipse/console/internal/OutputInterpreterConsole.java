@@ -106,10 +106,9 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 	}
 	
 	private void writeToConsole(final String line){
-		final IDocument doc = getDocument();
-
 		Display.getDefault().syncExec(new Runnable(){
 			public void run(){
+				IDocument doc = getDocument();
 				try{
 					doc.replace(doc.getLength(), 0, line);
 					
@@ -275,7 +274,7 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 	private static class CommandExecutor implements Runnable{
 		private final OutputInterpreterConsole console;
 		
-		private List<String> commandQueue;
+		private final List<String> commandQueue;
 		
 		private volatile boolean running;
 		
@@ -306,12 +305,10 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 				if(!running) return;
 				
 				while(commandQueue.size() > 0){
-					console.disableEditing();
-					
 					String command = commandQueue.remove(0);
 					try{
-						boolean promptType = console.interpreter.execute(command);
-						if(promptType){
+						boolean completeCommand = console.interpreter.execute(command);
+						if(completeCommand){
 							console.printOutput(console.interpreter.getOutput());
 						}
 					}catch(CommandExecutionException ceex){
