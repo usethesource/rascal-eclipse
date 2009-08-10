@@ -19,7 +19,8 @@ public interface IInterpreter{
 	 *          The command to execute.
 	 * @return True if the command was completed; false if it wasn't.
 	 * @throws CommandExecutionException
-	 *          Thrown when an exception occurs during the processing of a command.
+	 *          Thrown when an exception occurs during the processing of a command. The message
+	 *          contained in the exception will be printed in the console.
 	 * @throws TerminationException
 	 *          Thrown when the executed command triggers a termination request for the console.
 	 */

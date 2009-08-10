@@ -301,18 +301,23 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		
 		private final InteractiveInterpreterConsole console;
 		
+		private volatile boolean enabled;
+		
 		public ConsoleOutputStream(InteractiveInterpreterConsole console){
 			super();
 			
 			this.console = console;
 			
+			enabled = false;
+			
 			reset();
 		}
 		
 		public void write(int arg) throws IOException{
+			if(!enabled) throw new RuntimeException("Unable to write data while no commands are being executed");
+			
 			if(arg == '\n'){ // If we encounter a new-line, print the content of the buffer.
 				print();
-				reset();
 				return;
 			}
 			
@@ -333,7 +338,17 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				collectedData[index] = '\n';
 				
 				console.writeToConsole(new String(collectedData));
+				
+				reset();
 			}
+		}
+		
+		public void enable(){
+			enabled = true;
+		}
+		
+		public void disable(){
+			enabled = false;
 		}
 		
 		public void reset(){
@@ -500,6 +515,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				if(!running) return;
 				
 				console.disableEditing();
+				console.consoleOutputStream.enable();
 				
 				boolean completeCommand = true;
 				while(commandQueue.size() > 0){
@@ -519,6 +535,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 						return;
 					}
 				}
+				
+				console.consoleOutputStream.disable();
 				
 				if(completeCommand){
 					console.emitPrompt();

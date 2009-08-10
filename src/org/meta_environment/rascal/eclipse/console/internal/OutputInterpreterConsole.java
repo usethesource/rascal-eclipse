@@ -159,6 +159,8 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		
 		private final OutputInterpreterConsole console;
 		
+		private volatile boolean enabled;
+		
 		public ConsoleOutputStream(OutputInterpreterConsole console){
 			super();
 			
@@ -168,9 +170,10 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		}
 		
 		public void write(int arg) throws IOException{
+			if(!enabled) throw new RuntimeException("Unable to write data while no commands are being executed");
+			
 			if(arg == '\n'){ // If we encounter a new-line, print the content of the buffer.
 				print();
-				reset();
 				return;
 			}
 			
@@ -191,7 +194,17 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 				collectedData[index] = '\n';
 				
 				console.writeToConsole(new String(collectedData));
+				
+				reset();
 			}
+		}
+		
+		public void enable(){
+			enabled = true;
+		}
+		
+		public void disable(){
+			enabled = false;
 		}
 		
 		public void reset(){
@@ -304,6 +317,8 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 				
 				if(!running) return;
 				
+				console.consoleOutputStream.enable();
+				
 				while(commandQueue.size() > 0){
 					String command = commandQueue.remove(0);
 					try{
@@ -319,6 +334,8 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 						return;
 					}
 				}
+				
+				console.consoleOutputStream.disable();
 			}
 		}
 		
