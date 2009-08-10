@@ -18,10 +18,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
-import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.console.TextConsolePage;
@@ -43,6 +40,7 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		super(name, CONSOLE_TYPE, null, false);
 		
 		this.interpreter = interpreter;
+		interpreter.setConsole(this);
 
 		commandExecutor = new CommandExecutor(this);
 		consoleOutputStream = new ConsoleOutputStream(this);
@@ -217,13 +215,13 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		private final OutputInterpreterConsole console;
 		
 		public RemoveAction(OutputInterpreterConsole console){
-			super("Remove");
+			super("Close");
 			
 			this.console = console;
 		}
 		
 		public void run(){
-			OutputInterpreterConsole.close(console);
+			console.terminate();
 		}
 	}
 	
@@ -343,19 +341,5 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 			running = false;
 			lock.wakeUp();
 		}
-	}
-	
-	public static OutputInterpreterConsole open(IInterpreter interpreter, String name){
-		IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
-		
-		OutputInterpreterConsole console = new OutputInterpreterConsole(interpreter, name);
-		fConsoleManager.addConsoles(new IConsole[]{console});
-		fConsoleManager.showConsoleView(console);
-		
-		return console;
-	}
-	
-	public static void close(OutputInterpreterConsole console){
-		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[]{console});
 	}
 }

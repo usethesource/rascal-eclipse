@@ -39,7 +39,7 @@ public class Factory implements IPerspectiveFactory {
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");
 
-		ConsoleFactory.getInstance().openConsole();
+		ConsoleFactory.getInstance().openRunConsole();
 	}
 
 }

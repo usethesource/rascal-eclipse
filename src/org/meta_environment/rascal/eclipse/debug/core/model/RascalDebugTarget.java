@@ -11,9 +11,8 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
-import org.meta_environment.rascal.eclipse.console.ConsoleFactory;
 import org.meta_environment.rascal.eclipse.console.RascalScriptInterpreter;
-import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
+import org.meta_environment.rascal.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 
@@ -24,7 +23,7 @@ import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 public class RascalDebugTarget extends RascalDebugElement implements IDebugTarget, IBreakpointManagerListener {
 
 	// associated Rascal console
-	private RascalConsole console;
+	private volatile IRascalConsole console;
 
 	// containing launch object
 	private ILaunch fLaunch;
@@ -44,9 +43,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		super(null);
 		fLaunch = launch;
 		fThread = new RascalThread(this);
-		// open a Rascal Console
-		console = ConsoleFactory.getInstance().openDebuggableConsole(fThread);
-		fThreads = new IThread[] {fThread};
+		fThreads = new IThread[]{fThread};
 		IBreakpointManager breakpointManager = getBreakpointManager();
 		breakpointManager.addBreakpointListener(this);
 		breakpointManager.addBreakpointManagerListener(this);
@@ -254,8 +251,12 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 			breakpointAdded(breakpoints[i]);
 		}
 	}
+	
+	public void setConsole(IRascalConsole console){
+		this.console = console;
+	}
 
-	public RascalConsole getConsole() {
+	public IRascalConsole getConsole() {
 		return console;
 	}
 

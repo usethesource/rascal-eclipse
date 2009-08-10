@@ -13,7 +13,7 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory;
-import org.meta_environment.rascal.eclipse.console.ConsoleFactory.RascalConsole;
+import org.meta_environment.rascal.eclipse.console.ConsoleFactory.IRascalConsole;
 
 public class ActionContributor implements ILanguageActionsContributor {
 
@@ -51,7 +51,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 		
 		for (IConsole console : man.getConsoles()) {
 			if (console.getType().equals(ConsoleFactory.CONSOLE_ID)) {
-				ConsoleFactory.RascalConsole rascal = (RascalConsole) console;
+				IRascalConsole rascal = (IRascalConsole) console;
 				try {
 					rascal.activate();
 					rascal.executeCommand(cmd);
