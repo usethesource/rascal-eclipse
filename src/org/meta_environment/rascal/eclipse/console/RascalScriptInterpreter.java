@@ -335,8 +335,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 
 	private void loadCommandHistory(){
-		CommandHistory history = console.getHistory();
-		if(history != null){
+		if(console.hasHistory()){
+			CommandHistory history = console.getHistory();
 			BufferedReader in = null;
 			try{
 				File historyFile = getHistoryFile();
@@ -364,8 +364,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 
 	private void saveCommandHistory(){
-		CommandHistory history = console.getHistory();
-		if(history != null){
+		if(console.hasHistory()){
+			CommandHistory history = console.getHistory();
 			OutputStream out = null; 
 			try{
 				File historyFile = getHistoryFile();

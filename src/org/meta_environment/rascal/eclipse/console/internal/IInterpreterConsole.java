@@ -9,5 +9,6 @@ public interface IInterpreterConsole extends IConsole{
 	void terminate();
 	void executeCommand(String command);
 	IInterpreter getInterpreter();
+	boolean hasHistory();
 	CommandHistory getHistory(); // NOTE: Optional operation; just return null if you don't have it.
 }

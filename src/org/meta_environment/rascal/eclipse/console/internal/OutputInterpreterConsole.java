@@ -53,6 +53,10 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		partitioner.connect(doc);
 	}
 	
+	public boolean hasHistory(){
+		return false;
+	}
+	
 	public CommandHistory getHistory(){
 		return null; // Unsupported
 	}

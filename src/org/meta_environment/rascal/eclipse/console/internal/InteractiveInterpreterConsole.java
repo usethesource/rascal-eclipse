@@ -146,6 +146,10 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		return interpreter;
 	}
 	
+	public boolean hasHistory(){
+		return true;
+	}
+	
 	public CommandHistory getHistory(){
 		return commandHistory;
 	}
@@ -175,11 +179,11 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		});
 	}
 	
-	private void emitPrompt(){
+	protected void emitPrompt(){
 		writeToConsole(prompt);
 	}
 	
-	private void emitContinuationPrompt(){
+	protected void emitContinuationPrompt(){
 		writeToConsole(continuationPrompt);
 	}
 	
@@ -207,14 +211,10 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	protected void printOutput(String output){
 		consoleOutputStream.print();
 		writeToConsole(output);
-		
-		emitPrompt();
 	}
 	
-	protected void printContinuationPrompt(){
+	protected void printOutput(){
 		consoleOutputStream.print();
-		
-		emitContinuationPrompt();
 	}
 	
 	public OutputStream getConsoleOutputStream(){
@@ -499,16 +499,17 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				
 				if(!running) return;
 				
+				console.disableEditing();
+				
+				boolean completeCommand = true;
 				while(commandQueue.size() > 0){
-					console.disableEditing();
-					
 					String command = commandQueue.remove(0);
 					try{
-						boolean promptType = console.interpreter.execute(command);
-						if(promptType){
+						completeCommand = console.interpreter.execute(command);
+						if(completeCommand){
 							console.printOutput(console.interpreter.getOutput());
 						}else{
-							console.printContinuationPrompt();
+							console.printOutput();
 						}
 					}catch(CommandExecutionException ceex){
 						console.printOutput(ceex.getMessage());
@@ -517,6 +518,12 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 						console.terminate();
 						return;
 					}
+				}
+				
+				if(completeCommand){
+					console.emitPrompt();
+				}else{
+					console.emitContinuationPrompt();
 				}
 				
 				console.enableEditing();
