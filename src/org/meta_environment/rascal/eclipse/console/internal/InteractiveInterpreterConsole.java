@@ -222,7 +222,28 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	}
 	
 	public void executeCommand(String command){
-		commandExecutor.execute(command);
+		final String cmd;
+		if(command.endsWith("\n")){
+			cmd = command;
+		}else{
+			StringBuilder sb = new StringBuilder();
+			sb.append(command);
+			sb.append('\n');
+			cmd = sb.toString();
+		}
+		
+		Display.getDefault().syncExec(new Runnable(){
+			public void run(){
+				IDocument doc = getDocument();
+				try{
+					doc.replace(inputOffset, doc.getLength() - inputOffset, cmd);
+				}catch(BadLocationException blex){
+					// Ignore, can't happen.
+				}
+				
+				moveCaretTo(doc.getLength());
+			}
+		});
 	}
 	
 	public int getInputOffset(){
@@ -419,7 +440,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 					
 					console.revertAndAppend(command);
 				}else{ // If there is no current 'thing', just execute the '\n' command.
-					execute("\n");
+					queue("\n");
+					execute();
 				}
 				return;
 			}
@@ -442,18 +464,24 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 					
 					String command = rest.substring(0, index);
 					
-					execute(command);
+					queue(command);
 					
 					rest = rest.substring(index + 1);
 				}while(true);
+				
+				execute();
 			}else{
 				console.revertAndAppend(text);
 			}
 		}
 		
-		public void execute(String command){
+		public void queue(String command){
 			if(!command.equals("\n")) console.commandHistory.addToHistory(command);
-			console.commandExecutor.execute(command);
+			console.commandExecutor.queue(command);
+		}
+		
+		public void execute(){
+			console.commandExecutor.execute();
 		}
 		
 		public void reset(){
@@ -500,11 +528,14 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			running = false;
 		}
 		
-		public void execute(String command){
+		public void queue(String command){
 			synchronized(commandQueue){
 				commandQueue.add(command);
-				lock.wakeUp();
 			}
+		}
+		
+		public void execute(){
+			lock.wakeUp();
 		}
 		
 		public void run(){
