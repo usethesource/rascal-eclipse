@@ -2,8 +2,7 @@ package org.meta_environment.rascal.eclipse.console.internal;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Vector;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
@@ -285,7 +284,7 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 	private static class CommandExecutor implements Runnable{
 		private final OutputInterpreterConsole console;
 		
-		private final List<String> commandQueue;
+		private final Vector<String> commandQueue;
 		
 		private volatile boolean running;
 		
@@ -296,16 +295,14 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 
 			this.console = console;
 			
-			commandQueue = new ArrayList<String>();
+			commandQueue = new Vector<String>();
 			
 			running = false;
 		}
 		
 		public void execute(String command){
-			synchronized(commandQueue){
-				commandQueue.add(command);
-				lock.wakeUp();
-			}
+			commandQueue.add(command);
+			lock.wakeUp();
 		}
 		
 		public void run(){

@@ -3,7 +3,7 @@ package org.meta_environment.rascal.eclipse.console.internal;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Vector;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
@@ -440,7 +440,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 					
 					console.revertAndAppend(command);
 				}else{ // If there is no current 'thing', just execute the '\n' command.
-					execute("\n");
+					queue("\n");
+					execute();
 				}
 				return;
 			}
@@ -453,6 +454,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				buffer.replace(start, start + length, text);
 				
 				String rest = buffer.toString();
+				boolean commandsQueued = false;
 				do{
 					int index = rest.indexOf('\n');
 					if(index == -1){
@@ -463,18 +465,25 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 					
 					String command = rest.substring(0, index);
 					
-					execute(command);
+					queue(command);
+					commandsQueued = true;
 					
 					rest = rest.substring(index + 1);
 				}while(true);
+				
+				if(commandsQueued) execute();
 			}else{
 				console.revertAndAppend(text);
 			}
 		}
 		
-		public void execute(String command){
+		public void queue(String command){
 			if(!command.equals("\n")) console.commandHistory.addToHistory(command);
-			console.commandExecutor.execute(command);
+			console.commandExecutor.queue(command);
+		}
+		
+		public void execute(){
+			console.commandExecutor.execute();
 		}
 		
 		public void reset(){
@@ -505,7 +514,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	private static class CommandExecutor implements Runnable{
 		private final InteractiveInterpreterConsole console;
 		
-		private final List<String> commandQueue;
+		private final Vector<String> commandQueue;
 		
 		private volatile boolean running;
 		
@@ -516,16 +525,17 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 
 			this.console = console;
 			
-			commandQueue = new ArrayList<String>();
+			commandQueue = new Vector<String>();
 			
 			running = false;
 		}
 		
-		public void execute(String command){
-			synchronized(commandQueue){
-				commandQueue.add(command);
-				lock.wakeUp();
-			}
+		public void queue(String command){
+			commandQueue.add(command);
+		}
+		
+		public void execute(){
+			lock.wakeUp();
 		}
 		
 		public void run(){
@@ -535,37 +545,40 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				
 				if(!running) return;
 				
-				console.disableEditing();
-				console.consoleOutputStream.enable();
-				
-				boolean completeCommand = true;
-				while(commandQueue.size() > 0){
-					String command = commandQueue.remove(0);
-					try{
-						completeCommand = console.interpreter.execute(command);
-						if(completeCommand){
-							console.printOutput(console.interpreter.getOutput());
-						}else{
-							console.printOutput();
+				if(commandQueue.size() > 0){
+					console.disableEditing();
+					console.consoleOutputStream.enable();
+					
+					boolean completeCommand = true;
+					
+					do{
+						String command = commandQueue.remove(0);
+						try{
+							completeCommand = console.interpreter.execute(command);
+							if(completeCommand){
+								console.printOutput(console.interpreter.getOutput());
+							}else{
+								console.printOutput();
+							}
+						}catch(CommandExecutionException ceex){
+							console.printOutput(ceex.getMessage());
+						}catch(TerminationException tex){
+							// Roll over and die.
+							console.terminate();
+							return;
 						}
-					}catch(CommandExecutionException ceex){
-						console.printOutput(ceex.getMessage());
-					}catch(TerminationException tex){
-						// Roll over and die.
-						console.terminate();
-						return;
+					}while(commandQueue.size() > 0);
+					
+					console.consoleOutputStream.disable();
+					
+					if(completeCommand){
+						console.emitPrompt();
+					}else{
+						console.emitContinuationPrompt();
 					}
+					
+					console.enableEditing();
 				}
-				
-				console.consoleOutputStream.disable();
-				
-				if(completeCommand){
-					console.emitPrompt();
-				}else{
-					console.emitContinuationPrompt();
-				}
-				
-				console.enableEditing();
 			}
 		}
 		
