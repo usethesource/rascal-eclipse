@@ -50,7 +50,7 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 				target.setConsole(console);
 				
 				//activate the step by step statement mode by default
-				((DebuggableEvaluator) console.getRascalInterpreter().getEval()).setStatementStepMode(true);
+				target.getEvaluator().setStatementStepMode(true);
 				launch.addDebugTarget(target);
 			}else{
 				throw new RuntimeException("Unknown mode: "+mode);
@@ -72,7 +72,7 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 				target.setConsole(console);
 				
 				//activate the step by step statement mode by default
-				((DebuggableEvaluator) console.getRascalInterpreter().getEval()).setStatementStepMode(true);
+				target.getEvaluator().setStatementStepMode(true);
 				launch.addDebugTarget(target);
 			}else{
 				throw new RuntimeException("Unknown mode: "+mode);
