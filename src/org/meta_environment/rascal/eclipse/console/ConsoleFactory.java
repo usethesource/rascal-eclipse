@@ -21,6 +21,7 @@ import org.meta_environment.rascal.parser.ConsoleParser;
 
 public class ConsoleFactory implements IConsoleFactory {
 	public final static String INTERACTIVE_CONSOLE_ID = InteractiveInterpreterConsole.class.getName();
+	private static final String SHELL_MODULE = "***shell***";
 
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final static IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
@@ -39,34 +40,34 @@ public class ConsoleFactory implements IConsoleFactory {
 	
 	// TODO I'd like to get rid of this
 	public void openConsole(){
-		IRascalConsole console = new InteractiveRascalConsole();
+		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE));
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 	}
 
 	public IRascalConsole openRunConsole(){
-		IRascalConsole console = new InteractiveRascalConsole();
+		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE));
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
 	}
 
 	public IRascalConsole openRunOutputConsole(){
-		IRascalConsole console = new OutputRascalConsole();
+		IRascalConsole console = new OutputRascalConsole(new ModuleEnvironment(SHELL_MODULE));
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
 	}
 
 	public IRascalConsole openDebuggableConsole(IDebugger debugger){
-		IRascalConsole console = new InteractiveRascalConsole(debugger);
+		IRascalConsole console = new InteractiveRascalConsole(debugger, new ModuleEnvironment(SHELL_MODULE));
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
 	}
 
 	public IRascalConsole openDebuggableOutputConsole(IDebugger debugger){
-		IRascalConsole console = new OutputRascalConsole(debugger);
+		IRascalConsole console = new OutputRascalConsole(debugger, new ModuleEnvironment(SHELL_MODULE));
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
@@ -78,18 +79,15 @@ public class ConsoleFactory implements IConsoleFactory {
 	}
 
 	private class InteractiveRascalConsole extends InteractiveInterpreterConsole implements IRascalConsole{
-		private static final String SHELL_MODULE = "***shell***";
-
-		public InteractiveRascalConsole(){
-			this(new CommandEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment(SHELL_MODULE), new GlobalEnvironment(), new ConsoleParser()));
+		public InteractiveRascalConsole(ModuleEnvironment shell){
+			super(new RascalScriptInterpreter(new CommandEvaluator(vf, new PrintWriter(System.err), shell, new GlobalEnvironment(), new ConsoleParser(shell))), "Rascal", "rascal>", ">>>>>>>");
+			initializeConsole();
+			getInterpreter().initialize();
+			addPatternMatchListener(new JumpToSource());
 		}
 
-		public InteractiveRascalConsole(IDebugger debugger){
-			this(new DebuggableEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment(SHELL_MODULE), new ConsoleParser(), debugger));
-		}
-
-		private InteractiveRascalConsole(Evaluator eval){
-			super(new RascalScriptInterpreter(eval), "Rascal", "rascal>", ">>>>>>>");
+		public InteractiveRascalConsole(IDebugger debugger, ModuleEnvironment shell){
+			super(new RascalScriptInterpreter(new DebuggableEvaluator(vf, new PrintWriter(System.err), shell, new ConsoleParser(shell), debugger)), "Rascal", "rascal>", ">>>>>>>");
 			initializeConsole();
 			getInterpreter().initialize();
 			addPatternMatchListener(new JumpToSource());
@@ -101,14 +99,12 @@ public class ConsoleFactory implements IConsoleFactory {
 	}
 
 	private class OutputRascalConsole extends OutputInterpreterConsole implements IRascalConsole{
-		private static final String SHELL_MODULE = "***shell***";
-
-		public OutputRascalConsole(){
-			this(new CommandEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment(SHELL_MODULE), new GlobalEnvironment(), new ConsoleParser()));
+		public OutputRascalConsole(ModuleEnvironment shell){
+			this(new CommandEvaluator(vf, new PrintWriter(System.err), shell, new GlobalEnvironment(), new ConsoleParser(shell)));
 		}
 
-		public OutputRascalConsole(IDebugger debugger){
-			this(new DebuggableEvaluator(vf, new PrintWriter(System.err), new ModuleEnvironment(SHELL_MODULE), new ConsoleParser(), debugger));
+		public OutputRascalConsole(IDebugger debugger, ModuleEnvironment shell){
+			this(new DebuggableEvaluator(vf, new PrintWriter(System.err), shell, new ConsoleParser(shell), debugger));
 		}
 
 		private OutputRascalConsole(Evaluator eval){

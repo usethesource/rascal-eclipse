@@ -23,6 +23,7 @@ import org.meta_environment.rascal.eclipse.console.ProjectModuleLoader;
 import org.meta_environment.rascal.eclipse.console.ProjectSDFModuleContributor;
 import org.meta_environment.rascal.eclipse.console.RascalScriptInterpreter;
 import org.meta_environment.rascal.interpreter.Configuration;
+import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.FromCurrentWorkingDirectoryLoader;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
@@ -102,9 +103,7 @@ public class ParseController implements IParseController {
 			handler.clearMessages();
 			monitor.beginTask("parsing Rascal", 1);
 			
-			
-
-			IConstructor parseTree = loader.parseModule(path.toOSString(), "-", input);
+			IConstructor parseTree = loader.parseModule(path.toOSString(), "-", input, new ModuleEnvironment("***editor***"));
 			
 			if (parseTree.getConstructorType() == Factory.ParseTree_Summary) {
 				ISourceLocation range = new SummaryAdapter(parseTree).getInitialSubject().getLocation();
