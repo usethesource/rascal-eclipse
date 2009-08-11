@@ -440,8 +440,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 					
 					console.revertAndAppend(command);
 				}else{ // If there is no current 'thing', just execute the '\n' command.
-					queue("\n");
-					execute();
+					execute("\n");
 				}
 				return;
 			}
@@ -464,24 +463,18 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 					
 					String command = rest.substring(0, index);
 					
-					queue(command);
+					execute(command);
 					
 					rest = rest.substring(index + 1);
 				}while(true);
-				
-				execute();
 			}else{
 				console.revertAndAppend(text);
 			}
 		}
 		
-		public void queue(String command){
+		public void execute(String command){
 			if(!command.equals("\n")) console.commandHistory.addToHistory(command);
-			console.commandExecutor.queue(command);
-		}
-		
-		public void execute(){
-			console.commandExecutor.execute();
+			console.commandExecutor.execute(command);
 		}
 		
 		public void reset(){
@@ -528,14 +521,11 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			running = false;
 		}
 		
-		public void queue(String command){
+		public void execute(String command){
 			synchronized(commandQueue){
 				commandQueue.add(command);
+				lock.wakeUp();
 			}
-		}
-		
-		public void execute(){
-			lock.wakeUp();
 		}
 		
 		public void run(){
