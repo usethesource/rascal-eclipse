@@ -118,6 +118,13 @@
             </objectContribution>
    </extension>
    <extension
+         point="org.eclipse.imp.runtime.editorActionContributions">
+      <editorActionContributor
+            class="org.meta_environment.rascal.eclipse.editor.ActionContributor"
+            language="Rascal">
+      </editorActionContributor>
+   </extension>
+   <extension
          point="rascal_eclipse.baseLibraryPath">
       <rascal_eclipse.baseLibraryPath
             bundle="rascal_plugin"
