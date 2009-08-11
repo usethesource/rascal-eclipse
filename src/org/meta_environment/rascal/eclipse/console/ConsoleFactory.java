@@ -20,7 +20,7 @@ import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.parser.ConsoleParser;
 
 public class ConsoleFactory implements IConsoleFactory {
-	public final static String CONSOLE_ID = "org.meta_environment.rascal.eclipse.console";
+	public final static String INTERACTIVE_CONSOLE_ID = InteractiveInterpreterConsole.class.getName();
 
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final static IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();

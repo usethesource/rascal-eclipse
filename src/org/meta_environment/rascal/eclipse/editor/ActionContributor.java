@@ -50,7 +50,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 		IConsoleManager man = ConsolePlugin.getDefault().getConsoleManager();
 		
 		for (IConsole console : man.getConsoles()) {
-			if (console.getType().equals(ConsoleFactory.CONSOLE_ID)) {
+			if (console.getType().equals(ConsoleFactory.INTERACTIVE_CONSOLE_ID)) {
 				IRascalConsole rascal = (IRascalConsole) console;
 				try {
 					rascal.activate();
