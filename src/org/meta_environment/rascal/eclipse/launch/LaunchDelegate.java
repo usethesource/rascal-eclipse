@@ -24,37 +24,60 @@ import org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget;
 import org.meta_environment.rascal.interpreter.Configuration;
 import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 
+// TODO Tidy up here.
 public class LaunchDelegate implements ILaunchConfigurationDelegate{
 
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
-		ConsoleFactory consoleFactory = ConsoleFactory.getInstance();
-		
-		IRascalConsole console;
-		
-		if (mode.equals(ILaunchManager.RUN_MODE)) {
-			// open a Rascal Console
-			console = consoleFactory.openRunConsole();
-		} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
-			//launch a debug session which opens automatically a new console
-			RascalDebugTarget target = new RascalDebugTarget(launch);
-			
-			// open a Rascal Console
-			console = ConsoleFactory.getInstance().openDebuggableConsole(target.getThread());
-			target.setConsole(console);
-			
-			//activate the step by step statement mode by default
-			((DebuggableEvaluator) console.getRascalInterpreter().getEval()).setStatementStepMode(true);
-			launch.addDebugTarget(target);
-		}else{
-			throw new RuntimeException("Unknown mode: "+mode);
-		}
-
 		// find if there is a rascal file associated to this configuration
 		String path = configuration.getAttribute(IRascalResources.ATTR_RASCAL_PROGRAM, (String) null);
 		// TODO should find a way to specify the src folders for a Rascal project
 		// see also ProjectModuleLoader
 		
-		if(path != null){
+		if(path == null){
+			ConsoleFactory consoleFactory = ConsoleFactory.getInstance();
+			
+			IRascalConsole console;
+			
+			if (mode.equals(ILaunchManager.RUN_MODE)) {
+				// open a Rascal Console
+				console = consoleFactory.openRunConsole();
+			} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
+				//launch a debug session which opens automatically a new console
+				RascalDebugTarget target = new RascalDebugTarget(launch);
+				
+				// open a Rascal Console
+				console = ConsoleFactory.getInstance().openDebuggableConsole(target.getThread());
+				target.setConsole(console);
+				
+				//activate the step by step statement mode by default
+				((DebuggableEvaluator) console.getRascalInterpreter().getEval()).setStatementStepMode(true);
+				launch.addDebugTarget(target);
+			}else{
+				throw new RuntimeException("Unknown mode: "+mode);
+			}
+		}else{
+			ConsoleFactory consoleFactory = ConsoleFactory.getInstance();
+			
+			IRascalConsole console;
+			
+			if (mode.equals(ILaunchManager.RUN_MODE)) {
+				// open a Rascal Console
+				console = consoleFactory.openRunOutputConsole();
+			} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
+				//launch a debug session which opens automatically a new console
+				RascalDebugTarget target = new RascalDebugTarget(launch);
+				
+				// open a Rascal Console
+				console = ConsoleFactory.getInstance().openDebuggableOutputConsole(target.getThread());
+				target.setConsole(console);
+				
+				//activate the step by step statement mode by default
+				((DebuggableEvaluator) console.getRascalInterpreter().getEval()).setStatementStepMode(true);
+				launch.addDebugTarget(target);
+			}else{
+				throw new RuntimeException("Unknown mode: "+mode);
+			}
+			
 			//construct the corresponding module name
 			int index = path.indexOf('/', 1);
 			String moduleFullName = path.substring(index+1);
