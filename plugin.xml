@@ -66,25 +66,9 @@
             id="rascal.perspective"
             name="Rascal">
       </perspective>
-      <perspective
-            class="org.dancingbear.graphbrowser.editor.ui.perspective.GraphPerspective"
-            fixed="false"
-            icon="icons/jgb.png"
-            id="org.dancingbear.graphbrowser.perspectives.browser"
-            name="Graph Browsing">
-      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
-      <editor
-            class="org.dancingbear.graphbrowser.editor.gef.ui.parts.GraphEditor"
-            contributorClass="org.dancingbear.graphbrowser.editor.gef.GraphEditorActionbarContributor"
-            default="true"
-            extensions="dot"
-            icon="icons/jgb.png"
-            id="GraphBrowser.VisualEditor"
-            name="Graph editor">
-      </editor>
       <editor
             class="org.meta_environment.rascal.eclipse.editor.RascalEditor"
             default="true"
@@ -99,68 +83,7 @@
          point="org.eclipse.core.runtime.preferences">
    </extension>
    <extension
-         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
-      <cheatsheet
-         contentFile="resources/cheatsheet.xml"
-         id="org.dancingbear.graphbrowser.cheatsheet.shortcuts"
-         name="GraphBrowser Cheatsheet" />
-   </extension>
-   <extension
          point="org.eclipse.ui.popupMenus">
-      <objectContribution
-            adaptable="false"
-            id="org.dancingbear.graphbrowser.contributor.node"
-            objectClass="org.dancingbear.graphbrowser.editor.gef.editparts.NodeEditPart">
-         <action
-               class="org.dancingbear.graphbrowser.editor.ui.delegates.ExcludeFilterActionDelegate"
-               id="org.dancingbear.graphbrowser.action.exclude"
-               label="Show unselected nodes in new tab"
-               menubarPath="org.eclipse.gef.group.view"
-               tooltip="Exclude selected nodes, opening a new editor.">
-         </action>
-         <action
-               class="org.dancingbear.graphbrowser.editor.ui.delegates.FilterActionDelegate"
-               id="org.dancingbear.graphbrowser.action.filter"
-               label="Show selected nodes in new tab (Ctrl+t)"
-               menubarPath="org.eclipse.gef.group.view"
-               tooltip="Filter selected nodes, opening a new editor.">
-         </action>
-         <action
-               class="org.dancingbear.graphbrowser.editor.ui.delegates.ShowNodeActionDelegate"
-               icon="icons/rascal3D_2-16px.gif"
-               id="org.dancingbear.graphbrowser.action.show"
-               label="Show"
-               menubarPath="org.eclipse.gef.group.view"
-               tooltip="detail the selected node">
-         </action>
-            <action
-               class="org.dancingbear.graphbrowser.editor.ui.delegates.FisheyeActionDelegate"
-               icon="icons/rascal3D_2-16px.gif"
-               id="org.dancingbear.graphbrowser.action.hyperbolicroot"
-               label="Fisheye"
-               menubarPath="org.eclipse.gef.group.view"
-               tooltip="select the new origin of the hyperbolic plan and apply the hyperbolic layout">
-         </action>
-      </objectContribution>
-            <objectContribution
-            adaptable="false"
-            id="org.dancingbear.graphbrowser.contributor.edge"
-            objectClass="org.dancingbear.graphbrowser.editor.gef.editparts.EdgeEditPart">
-         <action
-               class="org.dancingbear.graphbrowser.editor.ui.delegates.ExcludeFilterActionDelegate"
-               id="org.dancingbear.graphbrowser.action.exclude"
-               label="Show not selected edges in new tab"
-               menubarPath="org.eclipse.gef.group.view"
-               tooltip="Exclude selected edges, opening a new editor.">
-         </action>
-         <action
-               class="org.dancingbear.graphbrowser.editor.ui.delegates.FilterActionDelegate"
-               id="org.dancingbear.graphbrowser.action.filter"
-               label="Show selected edges in new tab"
-               menubarPath="org.eclipse.gef.group.view"
-               tooltip="Filter selected edges, opening a new editor.">
-         </action>
-      </objectContribution>
             <viewerContribution
                   id="rascal.editorpopupmenu"
                   targetID="rascal.editor.contextMenu">
@@ -193,36 +116,6 @@
                      label="Show Graph">
                </action>
             </objectContribution>
-            <objectContribution
-                  adaptable="false"
-                  id="org.dancingbear.graphbrowser.contributor.container"
-                  objectClass="org.dancingbear.graphbrowser.editor.gef.editparts.GraphEditPart">
-               <action
-                     class="org.dancingbear.graphbrowser.editor.ui.delegates.CreateNodeActionDelegate"
-                     id="org.dancingbear.graphbrowser.action.createnode"
-                     label="Create Node"
-                     menubarPath="org.eclipse.gef.group.view">
-               </action>
-               <action
-                     class="org.dancingbear.graphbrowser.editor.ui.delegates.CreateEdgeActionDelegate"
-                     id="org.dancingbear.graphbrowser.action.createedge"
-                     label="Create edge"
-                     menubarPath="org.eclipse.gef.group.view">
-               </action>
-               <action
-                     class="org.dancingbear.graphbrowser.editor.ui.delegates.ZestLayoutActionDelegate"
-                     id="org.dancingbear.graphbrowser.action.zestlayout"
-                     label="Apply Zest Layout"
-                     menubarPath="org.eclipse.gef.group.view">
-               </action>
-            </objectContribution>
-   </extension>
-   <extension
-         point="org.eclipse.imp.runtime.editorActionContributions">
-      <editorActionContributor
-            class="org.meta_environment.rascal.eclipse.editor.ActionContributor"
-            language="Rascal">
-      </editorActionContributor>
    </extension>
    <extension
          point="rascal_eclipse.baseLibraryPath">
