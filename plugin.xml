@@ -148,7 +148,7 @@
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
-            class="org.meta_environment.rascal.eclipse.debug.ui.launcher.TabGroup"
+            class="org.meta_environment.rascal.eclipse.launch.TabGroup"
             description="Specify and launch a Rascal program"
             id="rascal.tabGroup"
             type="rascal.launchType">
@@ -166,7 +166,7 @@
       <shortcut
             label="Rascal Application"
             icon="icons/rascal3D_2-16px.gif"
-            class="org.meta_environment.rascal.eclipse.debug.ui.launcher.LaunchShortcut"
+            class="org.meta_environment.rascal.eclipse.launch.LaunchShortcut"
             modes="run, debug"
             id="rascal.launchShortcut">
          <contextualLaunch>
