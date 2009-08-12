@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.eclipse.debug.ui.launcher;
+package org.meta_environment.rascal.eclipse.launch;
 
 
 import org.meta_environment.rascal.eclipse.Activator;

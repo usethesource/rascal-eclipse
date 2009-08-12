@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.eclipse.debug.ui.launcher;
+package org.meta_environment.rascal.eclipse.launch;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;

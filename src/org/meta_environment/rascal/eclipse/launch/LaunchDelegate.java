@@ -22,7 +22,6 @@ import org.meta_environment.rascal.eclipse.console.ConsoleFactory;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget;
 import org.meta_environment.rascal.interpreter.Configuration;
-import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
 
 // TODO Tidy up here.
 public class LaunchDelegate implements ILaunchConfigurationDelegate{
