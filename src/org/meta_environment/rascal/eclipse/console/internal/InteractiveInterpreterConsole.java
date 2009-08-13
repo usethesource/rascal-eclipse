@@ -2,7 +2,6 @@ package org.meta_environment.rascal.eclipse.console.internal;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Vector;
 
 import org.eclipse.jface.action.Action;
