@@ -157,3 +157,13 @@ public FactMap unionFacts(FactMap m1, FactMap m2) {
 
 	return m1;
 }
+
+//Joppe: simple but useful addition I thought
+public FactMap unionFacts(set[FactMap] facts) { 
+	FactMap union = ();
+	for (FactMap fact <- facts) {
+		union = unionFacts(union, fact);
+	}	
+	
+	return union;
+}
