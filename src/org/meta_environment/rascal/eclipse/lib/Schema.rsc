@@ -17,7 +17,7 @@ private alias SupFMRel = rel[Entity super, FactMap facts];
 
 public alias IntermediateRepresentation = tuple[str astPackagePath, Nodes nodes, EntityMap extraClasses, list[str] extraMethods];
 public alias EntityMap = map[Entity fqn, str mapping];
-public alias Nodes = rel[Entity type, map[str methodName, Id method] children];
+public alias Nodes = rel[Entity type, map[str methodName, Id method] children, set[Entity] subNodes];
 public alias additions = tuple[map[str fqn, str mapping] extraRTs, list[str] extraMeths];
 public alias filters = tuple[set[str] exclFilePatterns, set[str] inclMethPatterns, set[str] exclMethPatterns];
 
@@ -135,13 +135,13 @@ private Nodes buildDataSchemeHierarchically(set[str] astFiles, filters fs, Entit
 		
 		set[FactMap] level = getFirstLevel(supFMs);
 		for (FactMap fm <- level) {
-			result += {<getOneFrom(getDeclaredTopTypes(fm)), getMethods(fm, allRTClasses, fs)>};
+			result += {<getOneFrom(getDeclaredTopTypes(fm)), getMethods(fm, allRTClasses, fs), {}>};
 		}
 	
 		level = getNextLevel(supFMs, level);
 		while(!isEmpty(level)) {
 			for (FactMap fm <- level) {
-				result += {<getOneFrom(getDeclaredTopTypes(fm)), getOneFrom(result[getSuperClass(fm)]) + getMethods(fm, allRTClasses, fs)>};
+				result += {<getOneFrom(getDeclaredTopTypes(fm)), getOneFrom(result[getSuperClass(fm)]) + getMethods(fm, allRTClasses, fs), {}>};
 			}
 			level = getNextLevel(supFMs, level);
 		}
@@ -220,7 +220,7 @@ private Nodes removeUnusedNodes(Nodes nodes) {
 		last = current;
 		current = {};
 		set[Entity] used = getUsedReturnTypes(last);
-		for(tuple[Entity type, map[str, Id]] t <- last) {
+		for(tuple[Entity type, map[str, Id], set[Entity]] t <- last) {
 			if(t.type in used) {
 				current += {t};
 			}
@@ -238,6 +238,10 @@ private set[Entity] getUsedReturnTypes(Nodes nodes) {
 			rts += id.returnType;
 		}		
 	}
+
+	for(set[Entity] subs <- nodes.subNodes) {
+		rts += subs;
+	} 
 
 	return rts;
 }
@@ -313,7 +317,7 @@ public void toFile(str newModulePath, IntermediateRepresentation ir) {
 		def += toLowerCase(dsParent) + "(";
 		
 		bool separate = false;
-		map[str, Id] children = getOneFrom(ir.nodes[entParent]); // always one element 
+		map[str, Id] children = getOneFrom(ir.nodes<0,1>[entParent]); // always one element 
 		for(str name <- children) {
 			if(separate) { def += ", "; } else { separate = true; }
 			def += getChildEntry(children[name], ir.extraClasses, ir.astPackagePath);
