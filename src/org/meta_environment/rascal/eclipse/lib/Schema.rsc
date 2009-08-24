@@ -114,8 +114,6 @@ public IntermediateRepresentation buildDataSchemeHalfway(str astPackagePath, fil
 	return <astPackagePath, nodes, extraClasses, ads.extraMeths>;
 }
 
-
-
 /*---------------------------------------------------------------------*\
 |                              PRIVATE SECTION                          |
 \*---------------------------------------------------------------------*/
@@ -291,7 +289,7 @@ public void toFile(str newModulePath, IntermediateRepresentation ir) {
 	list[str] datadefs = [];
 	
 	for(Entity entParent <- domain(ir.nodes)) {
-		str dsParent = compact(ir.packagePath, toString(entParent)); 
+		str dsParent = compact(ir.astPackagePath, toString(entParent)); 
 		str def = "data " + dsParent + " = ";
 		def += toLowerCase(dsParent) + "(";
 		
