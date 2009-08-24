@@ -244,29 +244,44 @@ private Entity convertToEntity(str fqn) {
 *                                                                       *
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-private str toDataString(Entity fqn, str packagePath) {
- 	str S = toString(fqn);
-	str prefix = packagePath + ".";
-	if (startsWith(S, prefix)) {
-		S = substring(S, size(prefix));	
-	}
-
- 	result = "";
- 	while (/^<before:[^\.]*>\.<after:.*$>/ := S) {
-    	result += before + "_";
-    	S = after;
-  	}
-  	return result + S;
-}
-
 private alias NodeChildRel = rel[Entity type, map[str methodName, Id method] children];
 
+
+private str compact(str packagePath, str fqn) {
+	if(/^<primaryFQNSection: [^\.]*>\.<fqnRemain:.*>$/ := fqn) {
+		str packTemp = packagePath;
+		while(/^<packSection: [^\/]*>\/<packRemain:.*>$/ := packTemp) {
+			if(packSection == primaryFQNSection) {
+				return getCompactedFQN(packTemp, fqn);
+			} else {
+				packTemp = packRemain;
+			}
+		}
+	}
+	
+	return fqn; // fqn does not match the package
+}
+
+private str getCompactedFQN(str strippedPackagePath, str fqn) {
+	str dottedPath = "";
+	str tempPath = strippedPackagePath;
+	while(/^\/?<section:[^\/]+><remain:.*?>$/ := tempPath) {
+		dottedPath += section + ".";
+		tempPath = remain;
+	}
+	
+	if (startsWith(fqn, dottedPath)) {
+		return substring(fqn, size(dottedPath));
+	}
+	
+	return fqn; // fqn does not match the package
+}
 
 private void toFile(str newModulePath, str packagePath, NodeChildRel nodes, EntityMap extraClasses, list[str] extraChildren) {
 	list[str] datadefs = [];
 	
 	for(Entity entParent <- domain(nodes)) {
-		str dsParent = toDataString(entParent, packagePath); 
+		str dsParent = compact(packagePath, toString(entParent)); 
 		str def = "data " + dsParent + " = ";
 		def += toLowerCase(dsParent) + "(";
 		
@@ -294,18 +309,18 @@ private void toFile(str newModulePath, str packagePath, NodeChildRel nodes, Enti
 }
 
 private str getChildEntry(Id child, EntityMap extraClasses, str packagePath) {
-		str result = "";
+	str result = "";
 
-		Entity rt = child.returnType;
-		if (rt in domain(extraClasses)) { //TODO pull domain() out of the loop
-			result += extraClasses[rt];
-		} else {
-			result += toDataString(rt, packagePath);
-		}
-		// name
-		result += " " + child.name;
-		
-		return result;
+	Entity rt = child.returnType;
+	if (rt in domain(extraClasses)) { //TODO pull domain() out of the loop
+		result += extraClasses[rt];
+	} else {
+		result += compact(packagePath, toString(rt));
+	}
+	// name
+	result += " " + child.name;
+	
+	return result;
 }
 
 private bool isCompliant(filters fs, str method) {
