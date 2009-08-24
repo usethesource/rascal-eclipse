@@ -103,7 +103,7 @@ public void buildDataScheme(str astPackagePath, str newModulePath) {
 public void buildDataScheme(str astPackagePath, str newModulePath, filters fs, additions ads) {
 	EntityMap extraClasses = convertToEntityMap(ads.extraRTs);
 	NodeChildRel nodes = buildDataSchemeHierarchically(getASTFiles(astPackagePath), fs, extraClasses);  
-	toFile(newModulePath, nodes, extraClasses, ads.extraMeths);	
+	toFile(newModulePath, astPackagePath, nodes, extraClasses, ads.extraMeths);	
 }
 
 /*---------------------------------------------------------------------*\
@@ -244,9 +244,13 @@ private Entity convertToEntity(str fqn) {
 *                                                                       *
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-private str toDataString(Entity fqn) {
+private str toDataString(Entity fqn, str packagePath) {
  	str S = toString(fqn);
- 	
+	str prefix = packagePath + ".";
+	if (startsWith(S, prefix)) {
+		S = substring(S, size(prefix));	
+	}
+
  	result = "";
  	while (/^<before:[^\.]*>\.<after:.*$>/ := S) {
     	result += before + "_";
@@ -258,11 +262,11 @@ private str toDataString(Entity fqn) {
 private alias NodeChildRel = rel[Entity type, map[str methodName, Id method] children];
 
 
-private void toFile(str modulePath, NodeChildRel nodes, EntityMap extraClasses, list[str] extraChildren) {
+private void toFile(str newModulePath, str packagePath, NodeChildRel nodes, EntityMap extraClasses, list[str] extraChildren) {
 	list[str] datadefs = [];
 	
 	for(Entity entParent <- domain(nodes)) {
-		str dsParent = toDataString(entParent); 
+		str dsParent = toDataString(entParent, packagePath); 
 		str def = "data " + dsParent + " = ";
 		def += toLowerCase(dsParent) + "(";
 		
@@ -270,7 +274,7 @@ private void toFile(str modulePath, NodeChildRel nodes, EntityMap extraClasses, 
 		map[str, Id] children = getOneFrom(nodes[entParent]); // always one element 
 		for(str name <- children) {
 			if(separate) { def += ", "; } else { separate = true; }
-			def += getChildEntry(children[name], extraClasses);
+			def += getChildEntry(children[name], extraClasses, packagePath);
 		}
 		
 		for(str additional <- extraChildren) {
@@ -282,21 +286,21 @@ private void toFile(str modulePath, NodeChildRel nodes, EntityMap extraClasses, 
 		datadefs += [def];
 	}
 	
-	if (/^\/?<proj:[^\/]*><middle:.*?><mod:[^\/]*><ext: \.rsc>$/ := modulePath) {
+	if (/^\/?<proj:[^\/]*><middle:.*?><mod:[^\/]*><ext: \.rsc>$/ := newModulePath) {
 		printData(location(proj).url + middle + mod + ext, mod, datadefs);
 	}
 	// TODO throw malformed path error
 	
 }
 
-private str getChildEntry(Id child, EntityMap extraClasses) {
+private str getChildEntry(Id child, EntityMap extraClasses, str packagePath) {
 		str result = "";
 
 		Entity rt = child.returnType;
 		if (rt in domain(extraClasses)) { //TODO pull domain() out of the loop
 			result += extraClasses[rt];
 		} else {
-			result += toDataString(rt);
+			result += toDataString(rt, packagePath);
 		}
 		// name
 		result += " " + child.name;
