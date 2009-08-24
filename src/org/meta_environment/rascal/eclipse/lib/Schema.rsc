@@ -222,9 +222,10 @@ private FactMap extractFrom(str file) {
 
 private NodeChildRel removeUnusedNodes(NodeChildRel nodes) {
 	NodeChildRel current = nodes;
+	NodeChildRel last;
 	
 	do {
-		NodeChildRel last = current;
+		last = current;
 		current = {};
 		set[Entity] used = getUsedReturnTypes(nodes);
 		for(tuple[Entity type, map[str, Id]] t <- nodes) {
