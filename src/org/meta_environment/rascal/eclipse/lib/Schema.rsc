@@ -297,7 +297,7 @@ public void toFile(str newModulePath, IntermediateRepresentation ir) {
 		map[str, Id] children = getOneFrom(ir.nodes[entParent]); // always one element 
 		for(str name <- children) {
 			if(separate) { def += ", "; } else { separate = true; }
-			def += getChildEntry(children[name], ir.extraClasses, ir.packagePath);
+			def += getChildEntry(children[name], ir.extraClasses, ir.astPackagePath);
 		}
 		
 		for(str additional <- ir.extraChildren) {
@@ -320,7 +320,7 @@ private str getChildEntry(Id child, EntityMap extraClasses, str packagePath) {
 	str result = "";
 
 	Entity rt = child.returnType;
-	if (rt in domain(extraClasses)) { //TODO pull domain() out of the loop
+	if (rt in domain(extraClasses)) {
 		result += extraClasses[rt];
 	} else {
 		result += compact(packagePath, toString(rt));
