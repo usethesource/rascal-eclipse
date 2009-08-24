@@ -15,9 +15,9 @@ private alias classMethods = rel[Entity class, set[Id] method];
 private alias SupFMRel = rel[Entity super, FactMap facts];
 
 
-public alias IntermediateRepresentation = tuple[str astPackagePath, NodeChildRel nodes, EntityMap extraClasses, list[str] extraMethods];
+public alias IntermediateRepresentation = tuple[str astPackagePath, Nodes nodes, EntityMap extraClasses, list[str] extraMethods];
 public alias EntityMap = map[Entity fqn, str mapping];
-public alias NodeChildRel = rel[Entity type, map[str methodName, Id method] children];
+public alias Nodes = rel[Entity type, map[str methodName, Id method] children];
 public alias additions = tuple[map[str fqn, str mapping] extraRTs, list[str] extraMeths];
 public alias filters = tuple[set[str] exclFilePatterns, set[str] inclMethPatterns, set[str] exclMethPatterns];
 
@@ -108,7 +108,7 @@ public void buildDataScheme(str astPackagePath, str newModulePath, filters fs, a
 
 public IntermediateRepresentation buildDataSchemeHalfway(str astPackagePath, filters fs, additions ads) {
 	EntityMap extraClasses = convertToEntityMap(ads.extraRTs);
-	NodeChildRel nodes = buildDataSchemeHierarchically(getASTFiles(astPackagePath), fs, extraClasses); 
+	Nodes nodes = buildDataSchemeHierarchically(getASTFiles(astPackagePath), fs, extraClasses); 
 	nodes = removeUnusedNodes(nodes); 
 	
 	return <astPackagePath, nodes, extraClasses, ads.extraMeths>;
@@ -127,29 +127,21 @@ public IntermediateRepresentation buildDataSchemeHalfway(str astPackagePath, fil
 // builds the node(child, child, ...) relation top-down. i.e. from classes that do not inherit from any 
 // class within the package to the classes that do not have any classes that inherit from them 
 // getwithin the package
-private NodeChildRel buildDataSchemeHierarchically(set[str] astFiles, filters fs, EntityMap extraClasses) {
+private Nodes buildDataSchemeHierarchically(set[str] astFiles, filters fs, EntityMap extraClasses) {
 	SupFMRel supFMs = getSuperTypedFactMaps(astFiles, fs.exclFilePatterns);
-	NodeChildRel result = {};
-	println("start build"); // TODO remove debug
+	Nodes result = {};
 	if (!isEmpty(supFMs)) {
 		set[Entity] allRTClasses = getDeclaredTopTypes(unionFacts(range(supFMs))) + domain(extraClasses);
 		
 		set[FactMap] level = getFirstLevel(supFMs);
 		for (FactMap fm <- level) {
-			Entity type  = getOneFrom(getDeclaredTopTypes(fm)); // TODO remove debug
-			println(type);// TODO remove debug
 			result += {<getOneFrom(getDeclaredTopTypes(fm)), getMethods(fm, allRTClasses, fs)>};
 		}
-
-		println("halfway build"); // TODO remove debug
 	
 		level = getNextLevel(supFMs, level);
 		while(!isEmpty(level)) {
 			for (FactMap fm <- level) {
-				Entity type  = getOneFrom(getDeclaredTopTypes(fm)); // TODO remove debug
-				println(type);// TODO remove debug
-				m = getOneFrom(result[getSuperClass(fm)]) + getMethods(fm, allRTClasses, fs); // TODO inline, debug
-				result += {<getOneFrom(getDeclaredTopTypes(fm)), m>};
+				result += {<getOneFrom(getDeclaredTopTypes(fm)), getOneFrom(result[getSuperClass(fm)]) + getMethods(fm, allRTClasses, fs)>};
 			}
 			level = getNextLevel(supFMs, level);
 		}
@@ -220,9 +212,9 @@ private FactMap extractFrom(str file) {
 	return ();	
 }
 
-private NodeChildRel removeUnusedNodes(NodeChildRel nodes) {
-	NodeChildRel current = nodes;
-	NodeChildRel last;
+private Nodes removeUnusedNodes(Nodes nodes) {
+	Nodes current = nodes;
+	Nodes last;
 	
 	do {
 		last = current;
@@ -239,7 +231,7 @@ private NodeChildRel removeUnusedNodes(NodeChildRel nodes) {
 }
 
 
-private set[Entity] getUsedReturnTypes(NodeChildRel nodes) {
+private set[Entity] getUsedReturnTypes(Nodes nodes) {
 	set[Entity] rts = {};
 	for (map[str, Id] mm <- nodes.children) {
 		for(Id id <- range(mm)) {
@@ -281,9 +273,6 @@ private Entity convertToEntity(str fqn) {
 *                              PRINTING                                 *
 *                                                                       *
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-private alias NodeChildRel = rel[Entity type, map[str methodName, Id method] children];
-
 
 private str compact(str packagePath, str fqn) {
 	if(/^<primaryFQNSection: [^\.]*>\.<fqnRemain:.*>$/ := fqn) {
