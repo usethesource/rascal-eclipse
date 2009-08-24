@@ -15,7 +15,7 @@ private alias classMethods = rel[Entity class, set[Id] method];
 private alias SupFMRel = rel[Entity super, FactMap facts];
 
 
-public alias IntermediateRepresentation = tuple[str newModulePath, str astPackagePath, NodeChildRel nodes, EntityMap extraClasses, list[str] extraMethods];
+public alias IntermediateRepresentation = tuple[str astPackagePath, NodeChildRel nodes, EntityMap extraClasses, list[str] extraMethods];
 public alias EntityMap = map[Entity fqn, str mapping];
 public alias NodeChildRel = rel[Entity type, map[str methodName, Id method] children];
 public alias additions = tuple[map[str fqn, str mapping] extraRTs, list[str] extraMeths];
@@ -103,15 +103,15 @@ public void buildDataScheme(str astPackagePath, str newModulePath) {
 }
 
 public void buildDataScheme(str astPackagePath, str newModulePath, filters fs, additions ads) {
-	ItermediateRepresentation ir = buildDataSchemeHalfway(astPackagePath, newModulePath, fs, ads);		
-	toFile(ir);	
+	ItermediateRepresentation ir = buildDataSchemeHalfway(astPackagePath, fs, ads);		
+	toFile(newModulePath, ir);	
 }
 
-public IntermediateRepresentation buildDataSchemeHalfway(str astPackagePath, str newModulePath, filters fs, additions ads) {
+public IntermediateRepresentation buildDataSchemeHalfway(str astPackagePath, filters fs, additions ads) {
 	EntityMap extraClasses = convertToEntityMap(ads.extraRTs);
 	NodeChildRel nodes = buildDataSchemeHierarchically(getASTFiles(astPackagePath), fs, extraClasses);  
 	
-	return <newModulePath, astPackagePath, nodes, extraClasses, ads.extraMeths>;
+	return <astPackagePath, nodes, extraClasses, ads.extraMeths>;
 }
 
 
@@ -287,7 +287,7 @@ private str getCompactedFQN(str strippedPackagePath, str fqn) {
 	return fqn; // fqn does not match the package
 }
 
-public void toFile(IntermediateRepresentation ir) {
+public void toFile(str newModulePath, IntermediateRepresentation ir) {
 	list[str] datadefs = [];
 	
 	for(Entity entParent <- domain(ir.nodes)) {
@@ -311,7 +311,7 @@ public void toFile(IntermediateRepresentation ir) {
 		datadefs += [def];
 	}
 	
-	if (/^\/?<proj:[^\/]*><middle:.*?><mod:[^\/]*><ext: \.rsc>$/ := ir.newModulePath) {
+	if (/^\/?<proj:[^\/]*><middle:.*?><mod:[^\/]*><ext: \.rsc>$/ := newModulePath) {
 		printData(location(proj).url + middle + mod + ext, mod, datadefs);
 	}
 	// TODO throw malformed path error
