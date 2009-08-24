@@ -102,14 +102,14 @@ public void buildDataScheme(str astPackagePath, str newModulePath) {
 	buildDataScheme(astPackagePath, newModulePath, <{},{".*"},{}>, <(),[]>); //include all, exclude nothing, add nothing 
 }
 
-public void buildDataScheme(str astPackagePath, str newModulePath, filters fs, additions ads) {
-	ItermediateRepresentation ir = buildDataSchemeHalfway(astPackagePath, fs, ads);		
-	toFile(newModulePath, ir);	
+public void buildDataScheme(str astPackagePath, str newModulePath, filters fs, additions ads) {	
+	toFile(newModulePath, buildDataSchemeHalfway(astPackagePath, fs, ads));	
 }
 
 public IntermediateRepresentation buildDataSchemeHalfway(str astPackagePath, filters fs, additions ads) {
 	EntityMap extraClasses = convertToEntityMap(ads.extraRTs);
-	NodeChildRel nodes = buildDataSchemeHierarchically(getASTFiles(astPackagePath), fs, extraClasses);  
+	NodeChildRel nodes = buildDataSchemeHierarchically(getASTFiles(astPackagePath), fs, extraClasses); 
+	nodes = removeUnusedNodes(nodes); 
 	
 	return <astPackagePath, nodes, extraClasses, ads.extraMeths>;
 }
@@ -218,6 +218,31 @@ private FactMap extractFrom(str file) {
 	}
 	
 	return ();	
+}
+
+private NodeChildRel removeUnusedNodes(NodeChildRel nodes) {
+	NodeChildRel result = {};
+
+	set[Entity] used = getUsedReturnTypes(ir.nodes);
+	for(tuple[Entity type, map[str, Id]] t <- ir.nodes) {
+		if(t.type in used) {
+			result.nodes += {t};
+		}
+	}	
+
+	return result;
+}
+
+
+private set[Entity] getUsedReturnTypes(NodeChildRel nodes) {
+	set[Entity] rts = {};
+	for (map[str, Id] mm <- nodes.children) {
+		for(Id id <- range(mm)) {
+			rts += id.returnType;
+		}		
+	}
+
+	return rts;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
