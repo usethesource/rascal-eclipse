@@ -227,8 +227,8 @@ private NodeChildRel removeUnusedNodes(NodeChildRel nodes) {
 	do {
 		last = current;
 		current = {};
-		set[Entity] used = getUsedReturnTypes(nodes);
-		for(tuple[Entity type, map[str, Id]] t <- nodes) {
+		set[Entity] used = getUsedReturnTypes(last);
+		for(tuple[Entity type, map[str, Id]] t <- last) {
 			if(t.type in used) {
 				current += {t};
 			}
