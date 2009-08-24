@@ -221,16 +221,20 @@ private FactMap extractFrom(str file) {
 }
 
 private NodeChildRel removeUnusedNodes(NodeChildRel nodes) {
-	NodeChildRel result = {};
+	NodeChildRel current = nodes;
+	
+	do {
+		NodeChildRel last = current;
+		current = {};
+		set[Entity] used = getUsedReturnTypes(nodes);
+		for(tuple[Entity type, map[str, Id]] t <- nodes) {
+			if(t.type in used) {
+				result += {t};
+			}
+		}	
+	} while (size(last) > size(current));
 
-	set[Entity] used = getUsedReturnTypes(nodes);
-	for(tuple[Entity type, map[str, Id]] t <- nodes) {
-		if(t.type in used) {
-			result += {t};
-		}
-	}	
-
-	return result;
+	return current;
 }
 
 
