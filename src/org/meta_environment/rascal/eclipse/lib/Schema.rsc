@@ -317,7 +317,7 @@ public void toFile(str newModulePath, IntermediateRepresentation ir) {
 		def += toLowerCase(dsParent) + "(";
 		
 		bool separate = false;
-		map[str, Id] children = getOneFrom(ir.nodes<0,1>[entParent]); // always one element 
+		map[str, Id] children = getOneFrom(ir.nodes<0,2,1>[entParent,_]); // always one element 
 		for(str name <- children) {
 			if(separate) { def += ", "; } else { separate = true; }
 			def += getChildEntry(children[name], ir.extraClasses, ir.astPackagePath);
