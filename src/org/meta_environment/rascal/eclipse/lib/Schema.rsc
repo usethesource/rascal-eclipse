@@ -300,7 +300,7 @@ public void toFile(str newModulePath, IntermediateRepresentation ir) {
 			def += getChildEntry(children[name], ir.extraClasses, ir.astPackagePath);
 		}
 		
-		for(str additional <- ir.extraChildren) {
+		for(str additional <- ir.extraMethods) {
 			if(separate) { def += ", "; } else { separate = true; }
 			def += additional;
 		}
