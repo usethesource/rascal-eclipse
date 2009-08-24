@@ -12,10 +12,12 @@ import List;
 import IO; // TODO remove, debug
 
 private alias classMethods = rel[Entity class, set[Id] method];
-private alias EntityMap = map[Entity fqn, str mapping];
 private alias SupFMRel = rel[Entity super, FactMap facts];
-private alias NodeChildRel = rel[Entity type, map[str methodName, Id method] children];
 
+
+public alias IntermediateRepresentation = tuple[str newModulePath, str astPackagePath, NodeChildRel nodes, EntityMap extraClasses, list[str] extraMethods];
+public alias EntityMap = map[Entity fqn, str mapping];
+public alias NodeChildRel = rel[Entity type, map[str methodName, Id method] children];
 public alias additions = tuple[map[str fqn, str mapping] extraRTs, list[str] extraMeths];
 public alias filters = tuple[set[str] exclFilePatterns, set[str] inclMethPatterns, set[str] exclMethPatterns];
 
@@ -101,10 +103,18 @@ public void buildDataScheme(str astPackagePath, str newModulePath) {
 }
 
 public void buildDataScheme(str astPackagePath, str newModulePath, filters fs, additions ads) {
+	ItermediateRepresentation ir = buildDataSchemeHalfway(astPackagePath, newModulePath, fs, ads);		
+	toFile(ir);	
+}
+
+public IntermediateRepresentation buildDataSchemeHalfway(str astPackagePath, str newModulePath, filters fs, additions ads) {
 	EntityMap extraClasses = convertToEntityMap(ads.extraRTs);
 	NodeChildRel nodes = buildDataSchemeHierarchically(getASTFiles(astPackagePath), fs, extraClasses);  
-	toFile(newModulePath, astPackagePath, nodes, extraClasses, ads.extraMeths);	
+	
+	return <newModulePath, astPackagePath, nodes, extraClasses, ads.extraMeths>;
 }
+
+
 
 /*---------------------------------------------------------------------*\
 |                              PRIVATE SECTION                          |
@@ -277,22 +287,22 @@ private str getCompactedFQN(str strippedPackagePath, str fqn) {
 	return fqn; // fqn does not match the package
 }
 
-private void toFile(str newModulePath, str packagePath, NodeChildRel nodes, EntityMap extraClasses, list[str] extraChildren) {
+public void toFile(IntermediateRepresentation ir) {
 	list[str] datadefs = [];
 	
-	for(Entity entParent <- domain(nodes)) {
-		str dsParent = compact(packagePath, toString(entParent)); 
+	for(Entity entParent <- domain(ir.nodes)) {
+		str dsParent = compact(ir.packagePath, toString(entParent)); 
 		str def = "data " + dsParent + " = ";
 		def += toLowerCase(dsParent) + "(";
 		
 		bool separate = false;
-		map[str, Id] children = getOneFrom(nodes[entParent]); // always one element 
+		map[str, Id] children = getOneFrom(ir.nodes[entParent]); // always one element 
 		for(str name <- children) {
 			if(separate) { def += ", "; } else { separate = true; }
-			def += getChildEntry(children[name], extraClasses, packagePath);
+			def += getChildEntry(children[name], ir.extraClasses, ir.packagePath);
 		}
 		
-		for(str additional <- extraChildren) {
+		for(str additional <- ir.extraChildren) {
 			if(separate) { def += ", "; } else { separate = true; }
 			def += additional;
 		}
@@ -301,7 +311,7 @@ private void toFile(str newModulePath, str packagePath, NodeChildRel nodes, Enti
 		datadefs += [def];
 	}
 	
-	if (/^\/?<proj:[^\/]*><middle:.*?><mod:[^\/]*><ext: \.rsc>$/ := newModulePath) {
+	if (/^\/?<proj:[^\/]*><middle:.*?><mod:[^\/]*><ext: \.rsc>$/ := ir.newModulePath) {
 		printData(location(proj).url + middle + mod + ext, mod, datadefs);
 	}
 	// TODO throw malformed path error
