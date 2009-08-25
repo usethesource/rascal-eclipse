@@ -147,7 +147,7 @@ private Nodes buildDataSchemeHierarchically(set[str] astFiles, filters fs, Entit
 			for (FactMap fm <- level) {
 				Entity type = getOneFrom(getDeclaredTopTypes(fm));
 				Entity supertype = getSuperClass(fm);
-				snResult += {type, supertype};
+				snResult += {<type, supertype>};
 				tnResult += {<type, getOneFrom(tnResult[supertype]) + getMethods(fm, allRTClasses, fs)>};
 			}
 			level = getNextLevel(supFMs, level);
