@@ -331,7 +331,14 @@ public void toFile(str newModulePath, IntermediateRepresentation ir) {
 			def += additional;
 		}
 		
-		def += ");";
+		def += ")";
+		for(Entity subnode <- range(ir.nodes[entParent])) {
+			str subNodeString = compact(ir.astPackagePath, toString(subNode));
+			def += " | " + toLowerCase(subNodeString) + "_labda(" + subNodeString + ")"; 
+		}
+
+
+		def += ";";
 		datadefs += [def];
 	}
 	
