@@ -242,7 +242,7 @@ private Nodes removeUnusedNodes(Nodes nodes) {
 
 
 	Nodes current = nodes;
-	Nodes last = {};
+	Nodes last = <{},{}>;
 	do {
 		last = current;
 		current = {};
@@ -250,7 +250,7 @@ private Nodes removeUnusedNodes(Nodes nodes) {
 		set[Entity] used = getUsedReturnTypes(last);
 		current = <domainR(used, last.top), domainR(used, last.sub)>;
 
-	} while(size(last) > size(current));
+	} while(size(last.top) > size(current.top));
 }
 
 private set[Entity] getUsedReturnTypes(Nodes nodes) {
