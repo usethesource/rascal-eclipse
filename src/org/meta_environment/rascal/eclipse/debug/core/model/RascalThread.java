@@ -50,10 +50,10 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 							} catch (CoreException e) {
 								throw new RuntimeException(e);
 							}
-							//only compare the relative paths from projects
-							//TODO: verify that the bp belongs to the same project than the debug target
-							//TODO: manage the case where the bp resource or the loc is not in the debug target project
-							if (b.getResource().getProjectRelativePath().toString().equals(loc.getURL().getHost()+loc.getURL().getPath())) {
+							//only compare the relative paths from src folders
+							String bp_path = b.getResource().getProjectRelativePath().toString().replaceFirst(IRascalResources.RASCAL_SRC+"/", "");
+							String loc_path = loc.getURL().getHost()+loc.getURL().getPath();
+								if (bp_path.equals(loc_path)) {
 								// special case for expression breakpoints
 								if (b instanceof RascalExpressionBreakpoint) {
 									if (b.getCharStart() <= loc.getOffset() && loc.getOffset()+loc.getLength() <= b.getCharEnd()) {
