@@ -349,7 +349,7 @@ public void toFile(str newModulePath, IntermediateRepresentation ir) {
 		def += ")";
 		
 		for(Entity sub <- ir.nodes.sub[entParent]) {
-			str dsSub = compact(ir.astPackagePath, toString sub);
+			str dsSub = compact(ir.astPackagePath, toString(sub));
 			def += " | " + toLowercase(dsSub) + "_labda(" + dsSub + ")";
 		}		
 
