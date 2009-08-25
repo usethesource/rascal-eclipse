@@ -2,6 +2,8 @@ package org.meta_environment.rascal.eclipse.console;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.LinkedList;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -13,32 +15,38 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.interpreter.load.IModuleFileLoader;
 
 public class ProjectModuleLoader implements IModuleFileLoader {
-	private static final String SRC_FOLDER_NAME = "src";
+
+	private final IProject project;
+	
+	public ProjectModuleLoader(IProject project) {
+		this.project = project;
+	}
 
 	public IFile getFile(String name) throws IOException, CoreException {
 		IWorkspaceRoot root = getWorkspaceRoot();
+		LinkedList<IProject> projects = new LinkedList<IProject>();
+		projects.add(project);
 
-		for (IProject project : root.getProjects()) {
+		while (! projects.isEmpty()) {
+			IProject project = projects.removeFirst();
 			if (project.isOpen()) {
-				IFolder srcFolder = project.getFolder(SRC_FOLDER_NAME);
+				IFolder srcFolder = project.getFolder(IRascalResources.RASCAL_SRC);
 				IPath path;
-
 				if (srcFolder.exists()) {
 					path = srcFolder.getLocation();
-				}
-				else {
-					path = project.getLocation();
-				}
+					IFile file = root.getFileForLocation(path.append(name));
 
-				IFile file = root.getFileForLocation(path.append(name));
-
-				if (file.exists()) {
-					file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-					return file;
+					if (file.exists()) {
+						file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+						return file;
+					}
 				}
+				projects.addAll(Arrays.asList(project.getDescription().getReferencedProjects()));
+
 			}
 		}
 
@@ -48,7 +56,6 @@ public class ProjectModuleLoader implements IModuleFileLoader {
 	public boolean fileExists(String filename){
 		try{
 			IFile file = getFile(filename);
-
 			return (file != null && file.exists());
 		}catch(Exception ex){
 			return false;

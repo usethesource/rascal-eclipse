@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.editor.UniversalEditor;
@@ -69,18 +70,37 @@ public class RascalScriptInterpreter implements IInterpreter{
 	private String command;
 	private String content;
 	private IFile lastMarked;
+	/* module loader associated to a given Eclipse project */
+	/* used for hyperlinks */
+	private ProjectModuleLoader moduleLoader;
 	
+	public RascalScriptInterpreter(Evaluator eval, IProject project){
+		this(eval);
+		// initialize to the moduleLoader associated to a project
+		moduleLoader = new ProjectModuleLoader(project);
+		eval.addModuleLoader(moduleLoader);
+		eval.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project));
+	}
+	
+	
+	public IFile getFile(String fileName) throws IOException, CoreException {
+		if (moduleLoader != null) {
+			moduleLoader.getFile(fileName);
+		}
+		return null;
+	}
+
 	public RascalScriptInterpreter(Evaluator eval){
 		super();
 
 		this.command = "";
 		this.eval = eval;
 
-		eval.addModuleLoader(new ProjectModuleLoader());
+		/* do not load any more all the modules accessible in open Eclipse projects */
+		//eval.addModuleLoader(new ProjectModuleLoader(project));
+		//eval.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project));
+
 		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
-
-		eval.addSdfSearchPathContributor(new ProjectSDFModuleContributor());
-
 		eval.addClassLoader(getClass().getClassLoader());
 	}
 
@@ -114,18 +134,14 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 		try{
 			command += cmd;
-
 			IConstructor tree = eval.parseCommand(command);
-
 			Type constructor = tree.getConstructorType();
-
 			if (constructor == Factory.ParseTree_Summary) {
 				execParseError(tree);
 				return false;
 			}
 
 			IO.setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
-
 			execCommand(tree);
 		}catch (StaticError e) {
 			content = e.getMessage() + "\n";
@@ -162,7 +178,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 				return;
 			}
 
-			lastMarked = new ProjectModuleLoader().getFile(url.getAuthority() + url.getPath());
+			lastMarked = getFile(url.getAuthority() + url.getPath());
 
 			if (lastMarked != null) {
 				IMarker m = lastMarked.createMarker(IMarker.PROBLEM);
@@ -264,15 +280,15 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 		if (eval instanceof DebuggableEvaluator) {
 			// need to notify the debugger that the command is finished
-			//DebuggableEvaluator debugEval = (DebuggableEvaluator) eval;
-			//			debugEval.getDebugger().stopStepping();
+			DebuggableEvaluator debugEval = (DebuggableEvaluator) eval;
+			debugEval.getDebugger().stopStepping();
 		}
 		command = "";
 	}
 
 	private void editCommand(Edit x) throws IOException, CoreException {
 		String module = x.getName().toString();
-		final IFile file = new ProjectModuleLoader().getFile(module);
+		final IFile file = getFile(module);
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
 
@@ -341,7 +357,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 			try{
 				File historyFile = getHistoryFile();
 				in = new BufferedReader(new FileReader(historyFile));
-	
+
 				String command = null;
 				while((command = in.readLine()) != null){
 					history.addToHistory(command);
@@ -369,10 +385,10 @@ public class RascalScriptInterpreter implements IInterpreter{
 			OutputStream out = null; 
 			try{
 				File historyFile = getHistoryFile();
-	
+
 				out = new FileOutputStream(historyFile);
 				do{/* Nothing */}while(history.getPreviousCommand() != "");
-	
+
 				String command;
 				while((command = history.getNextCommand()) != ""){
 					out.write(command.getBytes());

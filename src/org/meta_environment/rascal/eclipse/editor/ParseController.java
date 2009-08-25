@@ -77,9 +77,9 @@ public class ParseController implements IParseController {
 		this.path = filePath;
 		this.handler = handler;
 		this.project = project;
-		loader.addFileLoader(new ProjectModuleLoader());
+		loader.addFileLoader(new ProjectModuleLoader(project.getRawProject()));
 		loader.addFileLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
-		loader.addSdfSearchPathContributor(new ProjectSDFModuleContributor());
+		loader.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project.getRawProject()));
 		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
 		
 		// everything rooted at the src directory 

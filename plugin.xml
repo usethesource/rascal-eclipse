@@ -90,6 +90,7 @@
                <action
                      class="org.meta_environment.rascal.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
                      definitionId="rascal-eclipse.AddExprBreakpoint"
+                     icon="icons/rascal3D_2-16px.gif"
                      id="rascal.editor.context.ExprBreakpointAction"
                      label="Add an Expression Breakpoint"
                      menubarPath="additions"/>
@@ -112,8 +113,31 @@
                   objectClass="org.meta_environment.rascal.eclipse.debug.core.model.RascalVariable">
                <action
                      class="org.meta_environment.rascal.eclipse.debug.ui.actions.OpenGraphEditor"
+                     icon="icons/rascal3D_2-16px.gif"
                      id="rascal-eclipse.showRelationGraph"
                      label="Show Graph">
+               </action>
+            </objectContribution>
+            <objectContribution
+                  id="rascal.project"
+                  objectClass="org.eclipse.core.resources.IProject">
+               <visibility>
+                  <objectState
+                        name="projectNature"
+                        value="rascal.nature">
+                  </objectState>
+               </visibility>
+               <action
+                     class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchConsoleAction"
+                     icon="icons/rascal3D_2-16px.gif"
+                     id="rascal.launchconsole"
+                     label="Launch Console">
+               </action>
+               <action
+                     class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
+                     icon="icons/rascal3D_2-16px.gif"
+                     id="rascal.launchdebugconsole"
+                     label="Launch Debuggable Console">
                </action>
             </objectContribution>
    </extension>
@@ -325,6 +349,28 @@
            bundle="rascal_plugin"
            path="installed/bin/">
      </rascal_eclipse.baseBinaryPath>
+  </extension>
+  <extension
+        point="org.eclipse.ui.newWizards">
+     <wizard
+           class="org.meta_environment.rascal.eclipse.perspective.RascalProjectWizard"
+           descriptionImage="icons/rascal3D_2-16px.gif"
+           finalPerspective="rascal.perspective"
+           icon="icons/rascal3D_2-16px.gif"
+           id="rascal-eclipse.projectwizard"
+           name="Rascal Project"
+           project="true">
+     </wizard>
+  </extension>
+  <extension
+        id="rascal.nature"
+        name="Rascal Nature"
+        point="org.eclipse.core.resources.natures">
+     <runtime>
+        <run
+              class="org.meta_environment.rascal.eclipse.nature.Nature">
+        </run>
+     </runtime>
   </extension>
   
    

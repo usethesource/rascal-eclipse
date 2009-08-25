@@ -23,7 +23,20 @@ public interface IRascalResources {
 	 * <code>rascal.debugModel</code>).
 	 */
 	public static final String ID_RASCAL_DEBUG_MODEL = "rascal.debugModel";
+	
+	/**
+	 * Unique identifier for the RASCAL nature (value 
+	 * <code>rascal.nature</code>).
+	 */
+	public static final String ID_RASCAL_NATURE = "rascal.nature";
 
+	/**
+	 * name of the src folder for a rascal project (value 
+	 * <code>rascal.nature</code>).
+	 */
+	public static final String RASCAL_SRC = "src";
+
+	
 	/**
 	 * Name of the string substitution variable that resolves to the
 	 * location of a local Rascal executable (value <code>rascalExecutable</code>).
@@ -38,6 +51,13 @@ public interface IRascalResources {
 	public static final String ATTR_RASCAL_PROGRAM = ID_RASCAL_DEBUG_MODEL + ".ATTR_RASCAL_PROGRAM";
 
 	/**
+	 * Launch configuration attribute key. Value is an Eclipse project (instance of IProject).
+	 * The module path is set relatively to this project and its referenced projects
+	 * in the workspace. 
+	 */
+	public static final String ATTR_RASCAL_PROJECT = ID_RASCAL_DEBUG_MODEL + ".ATTR_RASCAL_PROJECT";
+;	
+	/**
 	 * Identifier for the RASCAL launch configuration type
 	 * (value <code>rascal.launchType</code>)
 	 */
@@ -45,6 +65,6 @@ public interface IRascalResources {
 
 	public static final String ID_RASCAL_EDITOR = "rascal.editor";
 
-	public static final String RASCAL_EDITOR_MESSAGES = "rascal.editor.messages";	
+	public static final String RASCAL_EDITOR_MESSAGES = "rascal.editor.messages";
 
 }

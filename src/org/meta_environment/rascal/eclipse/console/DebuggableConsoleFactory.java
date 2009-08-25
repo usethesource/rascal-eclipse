@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.eclipse.console;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -15,8 +16,32 @@ public class DebuggableConsoleFactory implements IConsoleFactory {
 	public DebuggableConsoleFactory() {
 		super();
 	}
+	
+	private static class InstanceKeeper{
+		private final static DebuggableConsoleFactory instance = new DebuggableConsoleFactory();
+	}
+
+	public static DebuggableConsoleFactory getInstance(){
+		return InstanceKeeper.instance;
+	}
 
 	public void openConsole(){
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(IRascalResources.ID_RASCAL_LAUNCH_CONFIGURATION_TYPE);
+
+		// create a new configuration which will launch the debuggable console
+		ILaunchConfigurationWorkingCopy workingCopy;
+		try {
+			workingCopy = type.newInstance(null, "console debug");
+			ILaunchConfiguration configuration = workingCopy.doSave();
+			DebugUITools.launch(configuration, ILaunchManager.DEBUG_MODE);
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void openConsole(IProject project) {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(IRascalResources.ID_RASCAL_LAUNCH_CONFIGURATION_TYPE);
 

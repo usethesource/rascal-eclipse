@@ -2,11 +2,15 @@ package org.meta_environment.rascal.eclipse.console;
 
 import java.io.PrintWriter;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleFactory;
 import org.eclipse.ui.console.IConsoleManager;
+import org.eclipse.ui.console.IHyperlink;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.eclipse.console.internal.IInterpreterConsole;
 import org.meta_environment.rascal.eclipse.console.internal.InteractiveInterpreterConsole;
@@ -51,6 +55,13 @@ public class ConsoleFactory implements IConsoleFactory {
 		fConsoleManager.showConsoleView(console);
 		return console;
 	}
+	
+	public IRascalConsole openRunConsole(IProject project){
+		IRascalConsole console = new InteractiveRascalConsole(project, new ModuleEnvironment(SHELL_MODULE));
+		fConsoleManager.addConsoles(new IConsole[]{console});
+		fConsoleManager.showConsoleView(console);
+		return console;
+	}
 
 	public IRascalConsole openRunOutputConsole(){
 		IRascalConsole console = new OutputRascalConsole(new ModuleEnvironment(SHELL_MODULE));
@@ -61,6 +72,13 @@ public class ConsoleFactory implements IConsoleFactory {
 
 	public IRascalConsole openDebuggableConsole(IDebugger debugger){
 		IRascalConsole console = new InteractiveRascalConsole(debugger, new ModuleEnvironment(SHELL_MODULE));
+		fConsoleManager.addConsoles(new IConsole[]{console});
+		fConsoleManager.showConsoleView(console);
+		return console;
+	}
+	
+	public IRascalConsole openDebuggableConsole(IProject project, IDebugger debugger){
+		IRascalConsole console = new InteractiveRascalConsole(project, debugger, new ModuleEnvironment(SHELL_MODULE));
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
@@ -76,11 +94,26 @@ public class ConsoleFactory implements IConsoleFactory {
 	public interface IRascalConsole extends IInterpreterConsole{
 		void activate(); // Eclipse thing.
 		RascalScriptInterpreter getRascalInterpreter();
+		IDocument getDocument();
+	    void addHyperlink(IHyperlink hyperlink, int offset, int length) throws BadLocationException;
 	}
 
 	private class InteractiveRascalConsole extends InteractiveInterpreterConsole implements IRascalConsole{
 		public InteractiveRascalConsole(ModuleEnvironment shell){
 			super(new RascalScriptInterpreter(new CommandEvaluator(vf, new PrintWriter(System.err), shell, new GlobalEnvironment(), new ConsoleParser(shell))), "Rascal", "rascal>", ">>>>>>>");
+			initializeConsole();
+			getInterpreter().initialize();
+			addPatternMatchListener(new JumpToSource());
+		}
+		
+
+		/* 
+		 * console associated to a given Eclipse project 
+		 * used to initialize the path with modules accessible 
+		 * from the selected project and all its referenced projects
+		 * */
+		public InteractiveRascalConsole(IProject project, ModuleEnvironment shell){
+			super(new RascalScriptInterpreter(new CommandEvaluator(vf, new PrintWriter(System.err), shell, new GlobalEnvironment(), new ConsoleParser(shell)), project), "Rascal ["+project.getName()+"]", "rascal>", ">>>>>>>");
 			initializeConsole();
 			getInterpreter().initialize();
 			addPatternMatchListener(new JumpToSource());
@@ -92,6 +125,15 @@ public class ConsoleFactory implements IConsoleFactory {
 			getInterpreter().initialize();
 			addPatternMatchListener(new JumpToSource());
 		}
+		
+		
+		public InteractiveRascalConsole(IProject project, IDebugger debugger, ModuleEnvironment shell){
+			super(new RascalScriptInterpreter(new DebuggableEvaluator(vf, new PrintWriter(System.err), shell, new ConsoleParser(shell), debugger), project), "Rascal ["+project.getName()+"]", "rascal>", ">>>>>>>");
+			initializeConsole();
+			getInterpreter().initialize();
+			addPatternMatchListener(new JumpToSource());
+		}
+		
 
 		public RascalScriptInterpreter getRascalInterpreter(){
 			return (RascalScriptInterpreter) getInterpreter();
