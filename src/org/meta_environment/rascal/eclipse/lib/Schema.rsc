@@ -17,7 +17,10 @@ private alias SupFMRel = rel[Entity super, FactMap facts];
 
 public alias IntermediateRepresentation = tuple[str astPackagePath, Nodes nodes, EntityMap extraClasses, list[str] extraMethods];
 public alias EntityMap = map[Entity fqn, str mapping];
-public alias Nodes = rel[Entity type, map[str methodName, Id method] children, set[Entity] subNodes];
+public alias Nodes = tuple[TopNodes top, SubNodes sub];
+
+public alias TopNodes = rel[Entity type, map[str methodName, Id method] children];
+public alias SubNodes = rel[Entity type, Entity subType];
 public alias additions = tuple[map[str fqn, str mapping] extraRTs, list[str] extraMeths];
 public alias filters = tuple[set[str] exclFilePatterns, set[str] inclMethPatterns, set[str] exclMethPatterns];
 
@@ -129,27 +132,28 @@ public IntermediateRepresentation buildDataSchemeHalfway(str astPackagePath, fil
 // getwithin the package
 private Nodes buildDataSchemeHierarchically(set[str] astFiles, filters fs, EntityMap extraClasses) {
 	SupFMRel supFMs = getSuperTypedFactMaps(astFiles, fs.exclFilePatterns);
-	Nodes result = {};
+	TopNodes tnResult = {};
+	SubNodes snResult = {};
 	if (!isEmpty(supFMs)) {
 		set[Entity] allRTClasses = getDeclaredTopTypes(unionFacts(range(supFMs))) + domain(extraClasses);
 		
 		set[FactMap] level = getFirstLevel(supFMs);
 		for (FactMap fm <- level) {
-			result += {<getOneFrom(getDeclaredTopTypes(fm)), getMethods(fm, allRTClasses, fs), {}>};
+			tnResult += {<getOneFrom(getDeclaredTopTypes(fm)), getMethods(fm, allRTClasses, fs)>};
 		}
 	
 		level = getNextLevel(supFMs, level);
 		while(!isEmpty(level)) {
 			for (FactMap fm <- level) {
-				rel[map[str, Id] children, set[Entity] subNodes] super = result[getSuperClass(fm)];
 				Entity type = getOneFrom(getDeclaredTopTypes(fm));
-				super.subNodes += {type};
-				result += {<type, getOneFrom(super.children) + getMethods(fm, allRTClasses, fs), {}>};
+				Entity supertype = getSuperClass(fm);
+				snResult += {type, supertype};
+				tnResult += {<type, getOneFrom(tnResult[supertype]) + getMethods(fm, allRTClasses, fs)>};
 			}
 			level = getNextLevel(supFMs, level);
 		}
 	}
-	return result;
+	return <tnResult, snResult>;
 }
 
 private map[str, Id] getMethods(FactMap fm, set[Entity] returnTypes, filters fs) {
@@ -216,35 +220,46 @@ private FactMap extractFrom(str file) {
 }
 
 private Nodes removeUnusedNodes(Nodes nodes) {
-	Nodes current = nodes;
+	/*Nodes current = nodes;
 	Nodes last;
 	
 	do {
 		last = current;
 		current = {};
-		set[Entity] used = getUsedReturnTypes(last);
-		for(tuple[Entity type, map[str, Id], set[Entity]] t <- last) {
+		// all  has to change incrementally because of this line
+		set[Entity] used = getUsedReturnTypes(last); // hier moeten gewoon de hele tuple nodes in blijven gaan
+		for(tuple[Entity type, map[str, Id]] t <- last) { //restrict met domainR
 			if(t.type in used) {
 				current += {t};
+				// add subnodes here too
 			}
 		}	
 	} while (size(last) > size(current));
 
-	return current;
+	return current;*/
+
+
+
+
+	Nodes current = nodes;
+	Nodes last = {};
+	do {
+		last = current;
+		current = {};
+	
+		set[Entity] used = getUsedReturnTypes(last);
+		current = <domainR(used, last.top), domainR(used, last.sub)>;
+
+	} while(size(last) > size(current));
 }
 
-
 private set[Entity] getUsedReturnTypes(Nodes nodes) {
-	set[Entity] rts = {};
-	for (map[str, Id] mm <- nodes.children) {
+	set[Entity] rts = range(nodes.sub);
+	for (map[str, Id] mm <- nodes.top.children) {
 		for(Id id <- range(mm)) {
 			rts += id.returnType;
 		}		
 	}
-
-	for(set[Entity] subs <- nodes.subNodes) {
-		rts += subs;
-	} 
 
 	return rts;
 }
@@ -314,13 +329,13 @@ private str getCompactedFQN(str strippedPackagePath, str fqn) {
 public void toFile(str newModulePath, IntermediateRepresentation ir) {
 	list[str] datadefs = [];
 	
-	for(Entity entParent <- domain(ir.nodes)) {
+	for(Entity entParent <- domain(ir.nodes.top)) {
 		str dsParent = compact(ir.astPackagePath, toString(entParent)); 
 		str def = "data " + dsParent + " = ";
 		def += toLowerCase(dsParent) + "(";
 		
 		bool separate = false;
-		map[str, Id] children = getOneFrom(domain(ir.nodes[entParent])); // always one element 
+		map[str, Id] children = getOneFrom(ir.nodes.top[entParent]); // always one element 
 		for(str name <- children) {
 			if(separate) { def += ", "; } else { separate = true; }
 			def += getChildEntry(children[name], ir.extraClasses, ir.astPackagePath);
@@ -332,11 +347,11 @@ public void toFile(str newModulePath, IntermediateRepresentation ir) {
 		}
 		
 		def += ")";
-		for(Entity subnode <- range(ir.nodes[entParent])) {
-			str subNodeString = compact(ir.astPackagePath, toString(subNode));
-			def += " | " + toLowerCase(subNodeString) + "_labda(" + subNodeString + ")"; 
-		}
-
+		
+		for(Entity sub <- ir.nodes.sub[entParent]) {
+			str dsSub = compact(ir.astPackagePath, toString sub);
+			def += " | " + toLowercase(dsSub) + "_labda(" + dsSub + ")";
+		}		
 
 		def += ";";
 		datadefs += [def];
