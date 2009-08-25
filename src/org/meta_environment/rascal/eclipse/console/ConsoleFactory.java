@@ -69,6 +69,13 @@ public class ConsoleFactory implements IConsoleFactory {
 		fConsoleManager.showConsoleView(console);
 		return console;
 	}
+	
+	public IRascalConsole openRunOutputConsole(IProject project){
+		IRascalConsole console = new OutputRascalConsole(project, new ModuleEnvironment(SHELL_MODULE));
+		fConsoleManager.addConsoles(new IConsole[]{console});
+		fConsoleManager.showConsoleView(console);
+		return console;
+	}
 
 	public IRascalConsole openDebuggableConsole(IDebugger debugger){
 		IRascalConsole console = new InteractiveRascalConsole(debugger, new ModuleEnvironment(SHELL_MODULE));
@@ -86,6 +93,13 @@ public class ConsoleFactory implements IConsoleFactory {
 
 	public IRascalConsole openDebuggableOutputConsole(IDebugger debugger){
 		IRascalConsole console = new OutputRascalConsole(debugger, new ModuleEnvironment(SHELL_MODULE));
+		fConsoleManager.addConsoles(new IConsole[]{console});
+		fConsoleManager.showConsoleView(console);
+		return console;
+	}
+	
+	public IRascalConsole openDebuggableOutputConsole(IProject project, IDebugger debugger){
+		IRascalConsole console = new OutputRascalConsole(project, debugger, new ModuleEnvironment(SHELL_MODULE));
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
@@ -149,6 +163,13 @@ public class ConsoleFactory implements IConsoleFactory {
 			this(new DebuggableEvaluator(vf, new PrintWriter(System.err), shell, new ConsoleParser(shell), debugger));
 		}
 
+		private OutputRascalConsole(Evaluator eval, IProject project){
+			super(new RascalScriptInterpreter(eval, project), "Rascal");
+			initializeConsole();
+			getInterpreter().initialize();
+			addPatternMatchListener(new JumpToSource());
+		}
+	
 		private OutputRascalConsole(Evaluator eval){
 			super(new RascalScriptInterpreter(eval), "Rascal");
 			initializeConsole();
@@ -156,10 +177,22 @@ public class ConsoleFactory implements IConsoleFactory {
 			addPatternMatchListener(new JumpToSource());
 		}
 
+		public OutputRascalConsole(IProject project, IDebugger debugger,
+				ModuleEnvironment shell) {
+			this(new DebuggableEvaluator(vf, new PrintWriter(System.err), shell, new ConsoleParser(shell), debugger), project);
+		}
+
+		public OutputRascalConsole(IProject project,
+				ModuleEnvironment shell) {
+			this(new CommandEvaluator(vf, new PrintWriter(System.err), shell, new GlobalEnvironment(), new ConsoleParser(shell)), project);
+		}
+
 		public RascalScriptInterpreter getRascalInterpreter(){
 			return (RascalScriptInterpreter) getInterpreter();
 		}
 	}
+
+
 }
 
 

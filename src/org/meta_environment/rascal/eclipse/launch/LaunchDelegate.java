@@ -50,10 +50,7 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 					// open a Rascal Console
 					console = consoleFactory.openRunConsole();
 				} else {
-					/**
-					 * open a Rascal Console where the module path 
-					 * is set relatively to the corresponding project
-					 */
+					// open a Rascal Console associated to the given project
 					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 					IProject project = root.getProject(path_project);
 					if (project != null) {
@@ -61,10 +58,7 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 					} 
 				}
 			} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
-				//launch a debug session which opens automatically a new console
 				RascalDebugTarget target = new RascalDebugTarget(launch);
-
-				// open a Rascal Console
 				if (path_project == null) {
 					// open a Rascal Console
 					console = ConsoleFactory.getInstance().openDebuggableConsole(target.getThread());
@@ -73,6 +67,7 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 					IProject project = root.getProject(path_project);
 					if (project != null) {
+						// open a Rascal Console associated to the given project
 						console = consoleFactory.openDebuggableConsole(project, target.getThread());
 						target.setConsole(console);
 					} 
@@ -85,18 +80,20 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			}
 		}else{
 			ConsoleFactory consoleFactory = ConsoleFactory.getInstance();
-
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IProject project = root.findMember(path_mainModule).getProject();
+		
 			IRascalConsole console;
 
 			if (mode.equals(ILaunchManager.RUN_MODE)) {
 				// open a Rascal Console
-				console = consoleFactory.openRunOutputConsole();
+				console = consoleFactory.openRunOutputConsole(project);
 			} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
 				//launch a debug session which opens automatically a new console
 				RascalDebugTarget target = new RascalDebugTarget(launch);
 
 				// open a Rascal Console
-				console = ConsoleFactory.getInstance().openDebuggableOutputConsole(target.getThread());
+				console = ConsoleFactory.getInstance().openDebuggableOutputConsole(project, target.getThread());
 				target.setConsole(console);
 
 				//activate the step by step statement mode by default
