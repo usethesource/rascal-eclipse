@@ -87,7 +87,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		if (moduleLoader != null) {
 			moduleLoader.getFile(fileName);
 		}
-		return null;
+		throw new IOException("File " + fileName + " not found");	
 	}
 
 	public RascalScriptInterpreter(Evaluator eval){
@@ -195,6 +195,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		} catch (IOException ex) {
 			Activator.getInstance().logException("marker", ex);
 		}
+		
 	}
 
 	private void execCommand(IConstructor tree) {
