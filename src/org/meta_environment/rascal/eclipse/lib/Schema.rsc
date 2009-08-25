@@ -141,7 +141,7 @@ private Nodes buildDataSchemeHierarchically(set[str] astFiles, filters fs, Entit
 		level = getNextLevel(supFMs, level);
 		while(!isEmpty(level)) {
 			for (FactMap fm <- level) {
-				result += {<getOneFrom(getDeclaredTopTypes(fm)), getOneFrom(result[getSuperClass(fm)]) + getMethods(fm, allRTClasses, fs), {}>};
+				result += {<getOneFrom(getDeclaredTopTypes(fm)), getOneFrom(domain(result[getSuperClass(fm)])) + getMethods(fm, allRTClasses, fs), {}>};
 			}
 			level = getNextLevel(supFMs, level);
 		}
@@ -317,7 +317,7 @@ public void toFile(str newModulePath, IntermediateRepresentation ir) {
 		def += toLowerCase(dsParent) + "(";
 		
 		bool separate = false;
-		map[str, Id] children = getOneFrom(ir.nodes<0,2,1>[entParent,_]); // always one element 
+		map[str, Id] children = getOneFrom(domain(ir.nodes[entParent])); // always one element 
 		for(str name <- children) {
 			if(separate) { def += ", "; } else { separate = true; }
 			def += getChildEntry(children[name], ir.extraClasses, ir.astPackagePath);
