@@ -76,10 +76,8 @@ public class JDTImporter extends ASTVisitor {
 	private IRelationWriter constructorBindings;
 	private IRelationWriter fieldBindings;
 	private IRelationWriter variableBindings;
-	// *** JOPPE ADDED START ***
 	private IRelationWriter packageBindings;
 	private ISetWriter declaredTopTypes;
-	// *** JOPPE ADDED END ***
 
 	// type facts
 	private static final Type entityTupleType = TF.tupleType(ADT_ENTITY, ADT_ENTITY);
@@ -121,10 +119,8 @@ public class JDTImporter extends ASTVisitor {
 		mw.put(VF.string("constructorBindings"), constructorBindings.done());
 		mw.put(VF.string("fieldBindings"), fieldBindings.done());
 		mw.put(VF.string("variableBindings"), variableBindings.done());
-		// *** JOPPE ADDED START ***
 		mw.put(VF.string("packageBindings"), packageBindings.done());
 		mw.put(VF.string("declaredTopTypes"), declaredTopTypes.done());
-		// *** JOPPE ADDED END ***		
 
 		mw.put(VF.string("implements"), implmnts.done());
 		mw.put(VF.string("extends"), extnds.done());
@@ -340,7 +336,6 @@ public class JDTImporter extends ASTVisitor {
 	
 		
 		// package bindings	
-		// *** JOPPE ADDED START ***
 		IPackageBinding pb = null; 
 		if (n instanceof PackageDeclaration) {
 			pb = ((PackageDeclaration) n).resolveBinding();
@@ -349,7 +344,6 @@ public class JDTImporter extends ASTVisitor {
 		if (pb != null) {
 			addBinding(packageBindings, n, bindingCache.getEntity(pb));
 		}
-		// *** JOPPE ADDED END ***
 		
 		// these only exists for package declarations, which must use the fully qualified name
 		// therefore we skip these
@@ -433,11 +427,9 @@ public class JDTImporter extends ASTVisitor {
 			}
 		}
 
-		// *** JOPPE ADDED START ***
 		if (tb.isClass() && tb.getDeclaringClass() == null) {
 			declaredTopTypes.insert(thisType);
 		} 
-		// *** JOPPE ADDED END ***
 		
 		ITypeBinding[] innertypes = tb.getDeclaredTypes();
 		for (ITypeBinding innertype : innertypes) {
