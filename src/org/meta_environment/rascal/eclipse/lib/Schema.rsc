@@ -220,27 +220,6 @@ private FactMap extractFrom(str file) {
 }
 
 private Nodes removeUnusedNodes(Nodes nodes) {
-	/*Nodes current = nodes;
-	Nodes last;
-	
-	do {
-		last = current;
-		current = {};
-		// all  has to change incrementally because of this line
-		set[Entity] used = getUsedReturnTypes(last); // hier moeten gewoon de hele tuple nodes in blijven gaan
-		for(tuple[Entity type, map[str, Id]] t <- last) { //restrict met domainR
-			if(t.type in used) {
-				current += {t};
-				// add subnodes here too
-			}
-		}	
-	} while (size(last) > size(current));
-
-	*/
-
-
-
-	println("SUBS: ", nodes.sub);
 	Nodes current = nodes;
 	Nodes last = <{},{}>;
 	do {
