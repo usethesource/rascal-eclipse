@@ -72,8 +72,6 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 						target.setConsole(console);
 					} 
 				}
-				//activate the step by step statement mode by default
-				target.getEvaluator().setStatementStepMode(true);
 				launch.addDebugTarget(target);
 			}else{
 				throw new RuntimeException("Unknown mode: "+mode);
@@ -96,8 +94,6 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 				console = ConsoleFactory.getInstance().openDebuggableOutputConsole(project, target.getThread());
 				target.setConsole(console);
 
-				//activate the step by step statement mode by default
-				target.getEvaluator().setStatementStepMode(true);
 				launch.addDebugTarget(target);
 			}else{
 				throw new RuntimeException("Unknown mode: "+mode);

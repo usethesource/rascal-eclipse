@@ -14,9 +14,10 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
-import org.meta_environment.rascal.interpreter.DebugSuspendMode;
 import org.meta_environment.rascal.interpreter.IDebugger;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
+import org.meta_environment.rascal.interpreter.debug.DebugStepMode;
+import org.meta_environment.rascal.interpreter.debug.DebugSuspendMode;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
 public class RascalThread extends RascalDebugElement implements IThread, IDebugger {
@@ -206,6 +207,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 	public void stepInto() throws DebugException {
 		fStepping = true;
+		getRascalDebugTarget().getEvaluator().setStepMode(DebugStepMode.STEP_INTO);
 		resumed(DebugEvent.STEP_INTO);
 	}
 
@@ -223,7 +225,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 	public void stepOver() throws DebugException {
 		fStepping = true;
-		getRascalDebugTarget().getEvaluator().setStepOver(true);
+		getRascalDebugTarget().getEvaluator().setStepMode(DebugStepMode.STEP_OVER);
 		resumed(DebugEvent.STEP_OVER);
 	}
 

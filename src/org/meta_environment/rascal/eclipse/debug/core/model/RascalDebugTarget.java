@@ -14,7 +14,7 @@ import org.eclipse.debug.core.model.IThread;
 import org.meta_environment.rascal.eclipse.console.RascalScriptInterpreter;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
-import org.meta_environment.rascal.interpreter.DebuggableEvaluator;
+import org.meta_environment.rascal.interpreter.debug.DebuggableEvaluator;
 
 
 /**

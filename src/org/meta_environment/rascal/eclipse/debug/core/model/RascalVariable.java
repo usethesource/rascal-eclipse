@@ -130,20 +130,11 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 			//parse the expression
 			org.meta_environment.rascal.ast.Expression ast = getRascalDebugTarget().getInterpreter().getExpression(expression);
 
-			boolean expressionStepMode = getRascalDebugTarget().getEvaluator().expressionStepModeEnabled();
-			if (expressionStepMode) {
-				//deactivate the step by step
-				getRascalDebugTarget().getEvaluator().setExpressionStepMode(false);
-			}
-
 			//evaluate
 			value = getRascalDebugTarget().getEvaluator().eval(ast);
 
 			//store the result in its environment
 			envt.storeVariable(name, value);
-
-			//reactivate the expression step by step if necessary
-			getRascalDebugTarget().getEvaluator().setExpressionStepMode(expressionStepMode);
 
 			fireChangeEvent(DebugEvent.CONTENT);
 		} catch (IOException e) {

@@ -97,18 +97,6 @@
             </viewerContribution>
             <objectContribution
                   adaptable="false"
-                  id="rascal-eclipse.stepmode"
-                  objectClass="org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget">
-               <action
-                     class="org.meta_environment.rascal.eclipse.debug.ui.actions.ExpressionStepModeAction"
-                     icon="icons/rascal3D_2-16px.gif"
-                     id="rascal-eclipse.exprstepmode"
-                     label="Expression Stepping"
-                     style="toggle">
-               </action>
-            </objectContribution>
-            <objectContribution
-                  adaptable="false"
                   id="rascal-eclispe.variablemenu"
                   objectClass="org.meta_environment.rascal.eclipse.debug.core.model.RascalVariable">
                <action
