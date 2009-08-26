@@ -147,7 +147,7 @@ private Nodes buildDataSchemeHierarchically(set[str] astFiles, filters fs, Entit
 			for (FactMap fm <- level) {
 				Entity type = getOneFrom(getDeclaredTopTypes(fm));
 				Entity supertype = getSuperClass(fm);
-				snResult += {<type, supertype>};
+				snResult += {<supertype, type>};
 				tnResult += {<type, getOneFrom(tnResult[supertype]) + getMethods(fm, allRTClasses, fs)>};
 			}
 			level = getNextLevel(supFMs, level);
@@ -236,21 +236,22 @@ private Nodes removeUnusedNodes(Nodes nodes) {
 		}	
 	} while (size(last) > size(current));
 
-	return current;*/
+	*/
 
 
 
-
+	println("SUBS: ", nodes.sub);
 	Nodes current = nodes;
 	Nodes last = <{},{}>;
 	do {
 		last = current;
-		current = {};
 	
 		set[Entity] used = getUsedReturnTypes(last);
-		current = <domainR(used, last.top), domainR(used, last.sub)>;
+		current = <domainR(last.top, used), domainR(last.sub, used)>;
 
 	} while(size(last.top) > size(current.top));
+	
+	return current;
 }
 
 private set[Entity] getUsedReturnTypes(Nodes nodes) {
@@ -350,7 +351,7 @@ public void toFile(str newModulePath, IntermediateRepresentation ir) {
 		
 		for(Entity sub <- ir.nodes.sub[entParent]) {
 			str dsSub = compact(ir.astPackagePath, toString(sub));
-			def += " | " + toLowercase(dsSub) + "_labda(" + dsSub + ")";
+			def += " | " + toLowerCase(dsSub) + "_labda(" + dsSub + ")";
 		}		
 
 		def += ";";
