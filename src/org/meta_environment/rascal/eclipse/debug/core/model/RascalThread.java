@@ -44,12 +44,6 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 					RascalLineBreakpoint b = (RascalLineBreakpoint) bp;
 					try {
 						if (b.isEnabled()) {
-							int l;
-							try {
-								l = b.getLineNumber();
-							} catch (CoreException e) {
-								throw new RuntimeException(e);
-							}
 							//only compare the relative paths from src folders
 							String bp_path = b.getResource().getProjectRelativePath().toString().replaceFirst(IRascalResources.RASCAL_SRC+"/", "");
 							String loc_path = loc.getURL().getHost()+loc.getURL().getPath();
@@ -61,7 +55,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 										fSuspendedByBreakpoint = true;
 										return true;
 									}
-								} else if (l==loc.getBeginLine()) {
+								} else if (b.getLineNumber()==loc.getBeginLine()) {
 									//TODO: avoid side effect
 									fSuspendedByBreakpoint = true;
 									return true;
@@ -70,8 +64,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 							}
 						}
 					} catch (CoreException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						throw new RuntimeException(e);
 					}
 				}
 			}
