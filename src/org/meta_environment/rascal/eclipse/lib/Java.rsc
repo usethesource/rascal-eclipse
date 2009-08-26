@@ -49,6 +49,18 @@ data PrimitiveType = byte()
 data Bound = extends(Entity type)
            | super(Entity type);
 
+data Modifier = public()
+			  | protected()
+			  | private()
+			  | static()
+			  | abstract()
+			  | final()
+			  | native()
+			  | synchronized()
+			  | transient()
+			  | volatile()
+			  | strictfp
+;
 
 public str toString(Entity entity) {
 	str result = "";
