@@ -85,7 +85,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 	
 	public IFile getFile(String fileName) throws IOException, CoreException {
 		if (moduleLoader != null) {
-			moduleLoader.getFile(fileName);
+			return moduleLoader.getFile(fileName);
 		}
 		throw new IOException("File " + fileName + " not found");	
 	}
