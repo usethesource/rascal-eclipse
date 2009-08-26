@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
+import org.meta_environment.rascal.interpreter.DebugSuspendMode;
 import org.meta_environment.rascal.interpreter.IDebugger;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -47,17 +48,13 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 							//only compare the relative paths from src folders
 							String bp_path = b.getResource().getProjectRelativePath().toString().replaceFirst(IRascalResources.RASCAL_SRC+"/", "");
 							String loc_path = loc.getURL().getHost()+loc.getURL().getPath();
-								if (bp_path.equals(loc_path)) {
+							if (bp_path.equals(loc_path)) {
 								// special case for expression breakpoints
 								if (b instanceof RascalExpressionBreakpoint) {
 									if (b.getCharStart() <= loc.getOffset() && loc.getOffset()+loc.getLength() <= b.getCharEnd()) {
-										//TODO: avoid side effect
-										fSuspendedByBreakpoint = true;
 										return true;
 									}
 								} else if (b.getLineNumber()==loc.getBeginLine()) {
-									//TODO: avoid side effect
-									fSuspendedByBreakpoint = true;
 									return true;
 								}
 
@@ -77,7 +74,6 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	}
 
 	public int getPriority() throws DebugException {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -147,12 +143,25 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	}
 
 
-	public synchronized void notifySuspend() throws QuitException {
+	public synchronized void notifySuspend(DebugSuspendMode mode) throws QuitException {
 		fSuspended = true;
-		if (isStepping()) {
-			fireSuspendEvent(DebugEvent.STEP_END);
-		} else {
+
+		switch (mode) {
+		case BREAKPOINT:
+			fSuspendedByBreakpoint = true;
+			fireSuspendEvent(DebugEvent.BREAKPOINT);
+			break;
+
+		case CLIENT_REQUEST:
 			fireSuspendEvent(DebugEvent.CLIENT_REQUEST);
+			break;
+
+		case STEP_END:
+			fireSuspendEvent(DebugEvent.STEP_END);
+			break;
+
+		default:
+			break;
 		}
 
 		while (isSuspended()) {
@@ -178,7 +187,6 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 
 	public boolean canStepReturn() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -191,14 +199,12 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		try {
 			resume();
 		} catch (DebugException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 
 
 	public void stepInto() throws DebugException {
-		System.out.println("step into");
 		fStepping = true;
 		resumed(DebugEvent.STEP_INTO);
 	}
@@ -223,8 +229,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	}
 
 	public void stepReturn() throws DebugException {
-		// TODO Auto-generated method stub
-
+		//TODO: not implemented
 	}
 
 	public boolean canTerminate(){
@@ -245,11 +250,16 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		fireTerminateEvent();
 		// for refreshing the icons associated to the debug target
 		rascalDebugTarget.fireTerminateEvent();
-		
+
 	}
 
 	public synchronized void terminate() throws DebugException{
 		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
 		rascalDebugTarget.getConsole().terminate();
 	}
+
+	public void notifySuspendByBreakpoint() {
+		fSuspendedByBreakpoint = true;
+	}
+
 }
