@@ -8,6 +8,7 @@ public alias JDTlocation = tuple[str fileName, int offset, int length];
 public alias BindingRel = rel[JDTlocation, Entity];
 public alias EntityRel = rel[Entity, Entity];
 public alias EntitySet = set[Entity];
+public alias ModifierRel = rel[Entity, Modifier];
 
 public alias FactMap = map[str, value];
 
@@ -84,15 +85,14 @@ public BindingRel getMethodBindings(FactMap fm) { return (BindingRel r := fm["me
 public BindingRel getConstructorBindings(FactMap fm) { return (BindingRel r := fm["constructorBindings"]) ? r : {}; }
 public BindingRel getFieldBindings(FactMap fm) { return (BindingRel r := fm["fieldBindings"]) ? r : {}; }
 public BindingRel getVariableBindings (FactMap fm) { return (BindingRel r := fm["variableBindings"]) ? r : {}; }
-	// *** JOPPE ADDED START ***
 public BindingRel getPackageBindings (FactMap fm) { return (BindingRel r := fm["packageBindings"]) ? r : {}; }
 public EntitySet getDeclaredTopTypes (FactMap fm) { return (EntitySet r := fm["declaredTopTypes"]) ? r : {}; }
-	// *** JOPPE ADDED END ***
 public EntityRel getImplements(FactMap fm) { return (EntityRel r := fm["implements"]) ? r : {}; }
 public EntityRel getExtends(FactMap fm) { return (EntityRel r := fm["extends"]) ? r : {}; }
 public EntityRel getDeclaredSubTypes(FactMap fm) { return (EntityRel r := fm["declaredSubTypes"]) ? r : {}; }
 public EntityRel getDeclaredMethods(FactMap fm) { return (EntityRel r := fm["declaredMethods"]) ? r : {}; }
 public EntityRel getDeclaredFields(FactMap fm) { return (EntityRel r := fm["declaredFields"]) ? r : {}; }
+public ModifierRel getModifiers(FactMap fm) {return (ModifierRel r := fm["modifiers"]) ? r : {};}
 
 
 // compose two relations by matching JDT locations with Rascal locations
