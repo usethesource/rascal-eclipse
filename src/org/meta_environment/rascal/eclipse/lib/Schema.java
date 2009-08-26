@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -19,8 +18,8 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.ValueFactoryFactory;
 
 public class Schema {
 	
@@ -55,7 +54,7 @@ public class Schema {
 	}
 	
 	private static ISet getASTFiles(IContainer cont) {	
-		IValueFactory vf = ValueFactory.getInstance();	
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();	
 		ISetWriter classes = vf.setWriter(TypeFactory.getInstance().stringType());
 		
 		if (cont != null) {
@@ -77,7 +76,7 @@ public class Schema {
 	}
 	
 	public static ISet getCompliantSet(ISet universe, IString searchString) {
-		ISetWriter result = ValueFactory.getInstance().setWriter(universe.getElementType());  
+		ISetWriter result = ValueFactoryFactory.getValueFactory().setWriter(universe.getElementType());  
 		
 		Pattern pattern = Pattern.compile(searchString.getValue());
 		
