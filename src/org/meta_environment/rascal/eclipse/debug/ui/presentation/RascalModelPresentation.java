@@ -107,14 +107,12 @@ public class RascalModelPresentation extends LabelProvider implements IDebugMode
 		if (thread.isTerminated()) {
 			label = "<terminated> " + label;
 		} else if (thread.isStepping()) {
-	        label += " (stepping)";
-	    } else if (thread.isSuspended()) {
-			if (thread.isSuspendedByBreakpoint()) {
-				label += " (suspended by line breakpoint)";
-			} else {
-				label += " (suspended)";
-			}
-	    }
+			label += " (stepping)";
+		} else if (thread.isSuspendedByBreakpoint()) {
+			label += " (suspended by line breakpoint)";
+		} else if (thread.isSuspended()) {
+			label += " (suspended)";
+		}
 		return label;
 	}
 
@@ -129,7 +127,7 @@ public class RascalModelPresentation extends LabelProvider implements IDebugMode
 		}
 		listener.detailComputed(value, detail);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.ui.ISourcePresentation#getEditorInput(java.lang.Object)
 	 */

@@ -222,7 +222,6 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	}
 
 	public void stepOver() throws DebugException {
-		System.out.println("step over");
 		fStepping = true;
 		getRascalDebugTarget().getEvaluator().setStepOver(true);
 		resumed(DebugEvent.STEP_OVER);
@@ -240,12 +239,9 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		return fTerminated;
 	}
 
-
 	public synchronized void destroy() {
 		fTerminated = true;
-
 		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
-
 		notify();
 		fireTerminateEvent();
 		// for refreshing the icons associated to the debug target
@@ -256,10 +252,6 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	public synchronized void terminate() throws DebugException{
 		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
 		rascalDebugTarget.getConsole().terminate();
-	}
-
-	public void notifySuspendByBreakpoint() {
-		fSuspendedByBreakpoint = true;
 	}
 
 }
