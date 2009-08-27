@@ -160,7 +160,7 @@ private map[str, Id] getMethods(FactMap fm, set[Entity] returnTypes, filters fs)
 	result = ();
 	rel[Entity, Modifier] modifiers = getModifiers(fm);  
 	for(tuple[Entity clss, Entity meth] declMethod <- getDeclaredMethods(fm)) {
-		if(\public() in modifiers[meth]) {
+		if(\public() in modifiers[declMethod.meth]) {
 			Id m = (declMethod.meth.id - declMethod.clss.id)[0];
 			if(method(str NAME,_,Entity RT) := m && isCompliant(fs, NAME) && RT in returnTypes) {		
 				result += (NAME: m);
