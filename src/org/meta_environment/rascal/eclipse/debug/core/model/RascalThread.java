@@ -14,7 +14,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
-import org.meta_environment.rascal.interpreter.IDebugger;
+import org.meta_environment.rascal.interpreter.debug.IDebugger;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.debug.DebugStepMode;
 import org.meta_environment.rascal.interpreter.debug.DebugSuspendMode;
