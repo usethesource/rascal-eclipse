@@ -135,7 +135,7 @@ private Nodes buildDataSchemeHierarchically(set[str] astFiles, filters fs, Entit
 	TopNodes tnResult = {};
 	SubNodes snResult = {};
 	if (!isEmpty(supFMs)) {
-		set[Entity] allRTClasses = getDeclaredTopTypes(unionFacts(range(supFMs))) + domain(extraClasses);
+		set[Entity] allRTClasses = getUnhiddenTypes(unionFacts(range(supFMs))) + domain(extraClasses);
 		
 		set[FactMap] level = getFirstLevel(supFMs);
 		for (FactMap fm <- level) {
@@ -156,13 +156,27 @@ private Nodes buildDataSchemeHierarchically(set[str] astFiles, filters fs, Entit
 	return <tnResult, snResult>;
 }
 
+private set[Entity] getUnhiddenTypes(FactMap allFacts) {
+	set[Entity] unhidden = getDeclaredTopTypes(allFacts);
+	for (Entity subType <- getDeclaredSubTypes(allFacts)) {
+		if (!isHidden(subType, allFacts)) {
+			unhidden += {subType};
+		}
+	}
+
+	return unhidden;
+} 
+
+private bool isHidden(Entity ent, FactMap fm) {
+	set[Modifier] mods = getModifiers(fm)[ent];
+	return \private() notin  mods && \protected() notin mods;
+}
+
 private map[str, Id] getMethods(FactMap fm, set[Entity] returnTypes, filters fs) {
-	result = ();
-	rel[Entity, Modifier] modifiers = getModifiers(fm);  
+	result = ();  
 	for(tuple[Entity clss, Entity meth] declMethod <- getDeclaredMethods(fm)) {
-		if(\public() in modifiers[declMethod.meth]) {
 			Id m = (declMethod.meth.id - declMethod.clss.id)[0];
-			if(method(str NAME,_,Entity RT) := m && isCompliant(fs, NAME) && RT in returnTypes) {		
+			if(method(str NAME,_,Entity RT) := m && isCompliant(fs, NAME) && RT in returnTypes && !isHidden(declMethod.meth, fm)) {		
 				result += (NAME: m);
 			}
 		} 
