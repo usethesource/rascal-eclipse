@@ -17,8 +17,8 @@ import org.meta_environment.rascal.eclipse.console.internal.InteractiveInterpret
 import org.meta_environment.rascal.eclipse.console.internal.OutputInterpreterConsole;
 import org.meta_environment.rascal.interpreter.CommandEvaluator;
 import org.meta_environment.rascal.interpreter.Evaluator;
-import org.meta_environment.rascal.interpreter.IDebugger;
 import org.meta_environment.rascal.interpreter.debug.DebuggableEvaluator;
+import org.meta_environment.rascal.interpreter.debug.IDebugger;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.parser.ConsoleParser;
