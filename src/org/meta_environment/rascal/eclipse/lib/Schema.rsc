@@ -139,16 +139,23 @@ private Nodes buildDataSchemeHierarchically(set[str] astFiles, filters fs, Entit
 		
 		set[FactMap] level = getFirstLevel(supFMs);
 		for (FactMap fm <- level) {
-			tnResult += {<getOneFrom(getDeclaredTopTypes(fm)), getMethods(fm, allRTClasses, fs)>};
+			for(Entity type <- (getDeclaredTopTypes(fm) + getDeclaredSubTypes(fm))) { 
+				if (!isHidden(type, fm)) {
+					tnResult += {<type, getMethods(type, fm, allRTClasses, fs)>};
+				}
+			}
 		}
 	
 		level = getNextLevel(supFMs, level);
 		while(!isEmpty(level)) {
 			for (FactMap fm <- level) {
-				Entity type = getOneFrom(getDeclaredTopTypes(fm));
-				Entity supertype = getSuperClass(fm);
-				snResult += {<supertype, type>};
-				tnResult += {<type, getOneFrom(tnResult[supertype]) + getMethods(fm, allRTClasses, fs)>};
+				for(Entity type <- (getDeclaredTopTypes(fm) + getDeclaredSubTypes(fm))) { 
+					if (!isHidden(type, fm)) {
+						Entity supertype = getSuperClass(fm);
+						snResult += {<supertype, type>};
+						tnResult += {<type, getOneFrom(tnResult[supertype]) + getMethods(type, fm, allRTClasses, fs)>};
+					}
+				}
 			}
 			level = getNextLevel(supFMs, level);
 		}
@@ -172,12 +179,11 @@ private bool isHidden(Entity ent, FactMap fm) {
 	return \private() in mods || protected() in mods;
 }
 
-private map[str, Id] getMethods(FactMap fm, set[Entity] returnTypes, filters fs) {
-	result = ();  
-	for(tuple[Entity clss, Entity meth] declMethod <- getDeclaredMethods(fm)) {
-		Id m = (declMethod.meth.id - declMethod.clss.id)[0];
-		if(method(str NAME,_,Entity RT) := m && isCompliant(fs, NAME) && RT in returnTypes && !isHidden(declMethod.meth, fm)) {		
-			result += (NAME: m);
+private map[str, Id] getMethods(Entity type, FactMap fm, set[Entity] returnTypes, filters fs) {
+	map[str, Id] result = ();  
+	for(Entity meth <- getDeclaredMethods(fm)[type]) {		
+		if(/method(str NAME,_,Entity RT) := meth && isCompliant(fs, NAME) && RT in returnTypes && !isHidden(meth, fm)) {		
+			result += (NAME: (meth.id - type.id)[0]);
 		} 
 	}
 	
