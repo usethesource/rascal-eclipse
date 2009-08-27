@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.eclipse.debug.core.model;
 
 
+import java.util.HashMap;
 import java.util.Stack;
 
 import org.eclipse.core.runtime.CoreException;
@@ -26,6 +27,8 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	private volatile boolean fTerminated = false;
 	private boolean fSuspended = false;
 	private boolean fSuspendedByBreakpoint = false;
+	
+	private HashMap<RascalLineBreakpoint, ISourceLocation> lineBPLocations = new HashMap<RascalLineBreakpoint, ISourceLocation>();
 
 	public RascalThread(IDebugTarget target) {
 		super(target);
@@ -56,9 +59,14 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 										return true;
 									}
 								} else if (b.getLineNumber()==loc.getBeginLine()) {
-									return true;
+									// test if it is really the complete line and not a sub-expression
+									if (lineBPLocations.containsKey(b)) {
+										return loc.equals(lineBPLocations.get(b));
+									} else {
+										lineBPLocations.put(b, loc);
+										return true;
+									}
 								}
-
 							}
 						}
 					} catch (CoreException e) {
