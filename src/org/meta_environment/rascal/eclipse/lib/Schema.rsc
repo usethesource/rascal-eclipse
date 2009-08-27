@@ -169,16 +169,15 @@ private set[Entity] getUnhiddenTypes(FactMap allFacts) {
 
 private bool isHidden(Entity ent, FactMap fm) {
 	set[Modifier] mods = getModifiers(fm)[ent];
-	return \private() notin  mods && \protected() notin mods;
+	return \private() in mods || protected() in mods;
 }
 
 private map[str, Id] getMethods(FactMap fm, set[Entity] returnTypes, filters fs) {
 	result = ();  
 	for(tuple[Entity clss, Entity meth] declMethod <- getDeclaredMethods(fm)) {
-			Id m = (declMethod.meth.id - declMethod.clss.id)[0];
-			if(method(str NAME,_,Entity RT) := m && isCompliant(fs, NAME) && RT in returnTypes && !isHidden(declMethod.meth, fm)) {		
-				result += (NAME: m);
-			}
+		Id m = (declMethod.meth.id - declMethod.clss.id)[0];
+		if(method(str NAME,_,Entity RT) := m && isCompliant(fs, NAME) && RT in returnTypes && !isHidden(declMethod.meth, fm)) {		
+			result += (NAME: m);
 		} 
 	}
 	
