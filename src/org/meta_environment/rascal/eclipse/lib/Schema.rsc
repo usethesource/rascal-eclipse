@@ -158,10 +158,13 @@ private Nodes buildDataSchemeHierarchically(set[str] astFiles, filters fs, Entit
 
 private map[str, Id] getMethods(FactMap fm, set[Entity] returnTypes, filters fs) {
 	result = ();
-	for(tuple[Entity clss, Entity type] declMethod <- getDeclaredMethods(fm)) {
-		Id m = (declMethod.type.id - declMethod.clss.id)[0];
-		if(method(str NAME,_,Entity RT) := m && isCompliant(fs, NAME) && RT in returnTypes) {		
-			result += (NAME: m);
+	rel[Entity, Modifier] modifiers = getModifiers(fm);  
+	for(tuple[Entity clss, Entity meth] declMethod <- getDeclaredMethods(fm)) {
+		if(\public() in modifiers[meth]) {
+			Id m = (declMethod.meth.id - declMethod.clss.id)[0];
+			if(method(str NAME,_,Entity RT) := m && isCompliant(fs, NAME) && RT in returnTypes) {		
+				result += (NAME: m);
+			}
 		} 
 	}
 	
