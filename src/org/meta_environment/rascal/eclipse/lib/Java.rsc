@@ -47,11 +47,12 @@ data PrimitiveType = byte()
 ;
 
 data Bound = extends(Entity type)
-           | super(Entity type);
+           | super(Entity type)
+;
 
-data Modifier = public()
+data Modifier = \public()
 			  | protected()
-			  | private()
+			  | \private()
 			  | static()
 			  | abstract()
 			  | final()
@@ -59,7 +60,7 @@ data Modifier = public()
 			  | synchronized()
 			  | transient()
 			  | volatile()
-			  | strictfp
+			  | strictfp()
 ;
 
 public str toString(Entity entity) {

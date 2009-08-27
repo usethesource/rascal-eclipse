@@ -1,8 +1,11 @@
 package org.meta_environment.rascal.eclipse.lib.jdt;
 
 import static org.meta_environment.rascal.eclipse.lib.Java.ADT_ENTITY;
+import static org.meta_environment.rascal.eclipse.lib.Java.ADT_MODIFIER;
 
+import java.util.ArrayList;
 import java.util.EmptyStackException;
+import java.util.List;
 import java.util.Stack;
 
 import org.eclipse.core.resources.IFile;
@@ -24,13 +27,17 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
@@ -49,6 +56,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
@@ -77,16 +85,19 @@ public class JDTImporter extends ASTVisitor {
 	private IRelationWriter fieldBindings;
 	private IRelationWriter variableBindings;
 	private IRelationWriter packageBindings;
-	private ISetWriter declaredTopTypes;
 
 	// type facts
 	private static final Type entityTupleType = TF.tupleType(ADT_ENTITY, ADT_ENTITY);
+	private static final Type modifierTupleType = TF.tupleType(ADT_ENTITY, ADT_MODIFIER); // <---- Joppe added
 
 	private IRelationWriter extnds;
 	private IRelationWriter implmnts;
 	private IRelationWriter declaredMethods;
 	private IRelationWriter declaredFields;
 	private IRelationWriter declaredSubTypes;
+	private ISetWriter declaredTopTypes;
+	
+	private IRelationWriter modifiers; // <---- Joppe added
 	
 	public JDTImporter() {
 		super();
@@ -109,6 +120,7 @@ public class JDTImporter extends ASTVisitor {
 		declaredSubTypes = VF.relationWriter(entityTupleType);
 		declaredMethods = VF.relationWriter(entityTupleType);
 		declaredFields = VF.relationWriter(entityTupleType);
+		modifiers = VF.relationWriter(modifierTupleType); // <---- Joppe added
 
 		this.file = file;
 		visitCompilationUnit();
@@ -127,6 +139,7 @@ public class JDTImporter extends ASTVisitor {
 		mw.put(VF.string("declaredSubTypes"), declaredSubTypes.done());
 		mw.put(VF.string("declaredMethods"), declaredMethods.done());
 		mw.put(VF.string("declaredFields"), declaredFields.done());
+		mw.put(VF.string("modifiers"), modifiers.done());
 		
 		return mw.done();
 	}
@@ -385,6 +398,37 @@ public class JDTImporter extends ASTVisitor {
 				System.err.println("dangling initializer " + init.toString());
 			}
 		}
+		
+		// <---- Joppe added begin
+		if (n instanceof BodyDeclaration) {
+			
+			
+			List<IValue> owners = new ArrayList<IValue>();
+			if (n instanceof AbstractTypeDeclaration) {
+				 owners.add(bindingCache.getEntity(((AbstractTypeDeclaration) n).resolveBinding()));
+			} else if (n instanceof AnnotationTypeMemberDeclaration) {
+				owners.add(bindingCache.getEntity(((AnnotationTypeMemberDeclaration)n).resolveBinding()));
+			} else if (n instanceof Initializer) {
+				owners.add(bindingCache.getEntity((Initializer) n));
+			} else if (n instanceof MethodDeclaration) {
+				owners.add(bindingCache.getEntity(((MethodDeclaration)n).resolveBinding()));
+			} else if (n instanceof FieldDeclaration) {
+				for (Object fragment: ((FieldDeclaration)n).fragments()) {
+					owners.add(bindingCache.getEntity(((VariableDeclarationFragment) fragment).resolveBinding()));
+				}
+			} else if (n instanceof EnumConstantDeclaration) {
+				owners.add(bindingCache.getEntity(((EnumConstantDeclaration)n).resolveConstructorBinding()));
+				owners.add(bindingCache.getEntity(((EnumConstantDeclaration)n).resolveVariable()));
+			}
+			
+			
+			for (IValue owner: owners) {
+				for (IValue modifier: bindingCache.getModifiers(((BodyDeclaration) n).modifiers())) {
+					modifiers.insert(VF.tuple(owner, modifier));
+				}
+			}
+		}
+		// <---- Joppe added end
 		
 		//method -> parameters?
 		

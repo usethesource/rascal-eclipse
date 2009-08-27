@@ -18,6 +18,7 @@ public class Java {
 	public static final Type ADT_ENTITY = TF.abstractDataType(store, "Entity");
 	public static final Type ADT_PRIMITIVETYPE = TF.abstractDataType(store, "PrimitiveType");
 	public static final Type ADT_BOUND = TF.abstractDataType(store, "Bound");
+	public static final Type ADT_MODIFIER = TF.abstractDataType(store, "Modifier"); // <---- Joppe added
 
 	public static final Type CONS_ENTITY = TF.constructor(store, ADT_ENTITY, "entity", TF.listType(ADT_ID), "id");
 
@@ -55,4 +56,17 @@ public class Java {
 
 	public static final Type CONS_EXTENDS = TF.constructor(store, ADT_BOUND, "extends", ADT_ENTITY, "type");
 	public static final Type CONS_SUPER = TF.constructor(store, ADT_BOUND, "super", ADT_ENTITY, "type");
+	
+	
+	public static final Type CONS_PUBLIC = TF.constructor(store, ADT_MODIFIER, "public"); // <---- Joppe added
+	public static final Type CONS_PROTECTED = TF.constructor(store, ADT_MODIFIER, "protected"); // <---- Joppe added
+	public static final Type CONS_PRIVATE = TF.constructor(store, ADT_MODIFIER, "private"); // <---- Joppe added
+	public static final Type CONS_STATIC = TF.constructor(store, ADT_MODIFIER, "static"); // <---- Joppe added
+	public static final Type CONS_ABSTRACT = TF.constructor(store, ADT_MODIFIER, "abstract"); // <---- Joppe added
+	public static final Type CONS_FINAL = TF.constructor(store, ADT_MODIFIER, "final"); // <---- Joppe added
+	public static final Type CONS_NATIVE = TF.constructor(store, ADT_MODIFIER, "native"); // <---- Joppe added
+	public static final Type CONS_SYNCHRONIZED = TF.constructor(store, ADT_MODIFIER, "synchronized"); // <---- Joppe added
+	public static final Type CONS_TRANSIENT = TF.constructor(store, ADT_MODIFIER, "transient"); // <---- Joppe added
+	public static final Type CONS_VOLATILE = TF.constructor(store, ADT_MODIFIER, "volatile"); // <---- Joppe added
+	public static final Type CONS_STRICTFP = TF.constructor(store, ADT_MODIFIER, "strictfp"); // <---- Joppe added
 }
