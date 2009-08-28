@@ -33,7 +33,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	public RascalThread(IDebugTarget target) {
 		super(target);
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IThread#getBreakpoints()
 	 */
@@ -60,6 +60,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 									}
 								} else if (b.getLineNumber()==loc.getBeginLine()) {
 									// test if it is really the complete line and not a sub-expression
+									//TODO: find a better solution...
 									if (lineBPLocations.containsKey(b)) {
 										return loc.equals(lineBPLocations.get(b));
 									} else {
