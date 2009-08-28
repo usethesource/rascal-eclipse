@@ -15,14 +15,14 @@ private alias classMethods = rel[Entity class, set[Id] method];
 private alias SupFMRel = rel[Entity super, FactMap facts];
 
 
-public alias IntermediateRepresentation = tuple[str astPackagePath, Nodes nodes, EntityMap extraClasses, list[str] extraMethods];
+//public alias IntermediateRepresentation = tuple[str astPackagePath, Nodes nodes, EntityMap extraClasses, list[str] extraMethods];
 public alias EntityMap = map[Entity fqn, str mapping];
-public alias Nodes = tuple[TopNodes top, SubNodes sub];
+public alias Nodes = rel[Entity type, FactMap facts, rel[str, Entity] methods, set[Entity] children]; //tuple[TopNodes top, SubNodes sub];
 
-public alias TopNodes = rel[Entity type, map[str methodName, Id method] children];
-public alias SubNodes = rel[Entity type, Entity subType];
-public alias additions = tuple[map[str fqn, str mapping] extraRTs, list[str] extraMeths];
-public alias filters = tuple[set[str] exclFilePatterns, set[str] inclMethPatterns, set[str] exclMethPatterns];
+// public alias TopNodes = rel[Entity type, map[str methodName, Id method] children];
+// public alias SubNodes = rel[Entity type, Entity subType];
+public alias Additions = tuple[map[str fqn, str mapping] extraRTs, list[str] extraMeths];
+public alias Filters = tuple[set[str] exclFilePatterns, set[str] inclMethPatterns, set[str] exclMethPatterns];
 
 
 /*---------------------------------------------------------------------*\
@@ -105,16 +105,12 @@ public void buildDataScheme(str astPackagePath, str newModulePath) {
 	buildDataScheme(astPackagePath, newModulePath, <{},{".*"},{}>, <(),[]>); //include all, exclude nothing, add nothing 
 }
 
-public void buildDataScheme(str astPackagePath, str newModulePath, filters fs, additions ads) {	
-	toFile(newModulePath, buildDataSchemeHalfway(astPackagePath, fs, ads));	
+public void buildDataScheme(str astPackagePath, str newModulePath, Filters fs, Additions ads) {	
+	toFile(newModulePath, astPackagePath, buildDataSchemeHalfway(astPackagePath, fs, ads), ads);	
 }
 
-public IntermediateRepresentation buildDataSchemeHalfway(str astPackagePath, filters fs, additions ads) {
-	EntityMap extraClasses = convertToEntityMap(ads.extraRTs);
-	Nodes nodes = buildDataSchemeHierarchically(getASTFiles(astPackagePath), fs, extraClasses); 
-	nodes = removeUnusedNodes(nodes); 
-	
-	return <astPackagePath, nodes, extraClasses, ads.extraMeths>;
+public Nodes buildDataSchemeHalfway(str astPackagePath, Filters fs, Additions ads) {
+	return buildDataSchemeHierarchically(getASTFiles(astPackagePath), fs, convertToEntities(domain(ads.extraRTs)));  
 }
 
 /*---------------------------------------------------------------------*\
@@ -129,108 +125,110 @@ public IntermediateRepresentation buildDataSchemeHalfway(str astPackagePath, fil
 
 // builds the node(child, child, ...) relation top-down. i.e. from classes that do not inherit from any 
 // class within the package to the classes that do not have any classes that inherit from them 
-// getwithin the package
-private Nodes buildDataSchemeHierarchically(set[str] astFiles, filters fs, EntityMap extraClasses) {
-	SupFMRel supFMs = getSuperTypedFactMaps(astFiles, fs.exclFilePatterns);
-	TopNodes tnResult = {};
-	SubNodes snResult = {};
-	if (!isEmpty(supFMs)) {
-		set[Entity] allRTClasses = getUnhiddenTypes(unionFacts(range(supFMs))) + domain(extraClasses);
-		
-		set[FactMap] level = getFirstLevel(supFMs);
-		for (FactMap fm <- level) {
-			for(Entity type <- (getDeclaredTopTypes(fm) + getDeclaredSubTypes(fm))) { 
-				if (!isHidden(type, fm)) {
-					tnResult += {<type, getMethods(type, fm, allRTClasses, fs)>};
-				}
-			}
-		}
-	
-		level = getNextLevel(supFMs, level);
-		while(!isEmpty(level)) {
-			for (FactMap fm <- level) {
-				for(Entity type <- (getDeclaredTopTypes(fm) + getDeclaredSubTypes(fm))) { 
-					if (!isHidden(type, fm)) {
-						Entity supertype = getSuperClass(fm);
-						snResult += {<supertype, type>};
-						tnResult += {<type, getOneFrom(tnResult[supertype]) + getMethods(type, fm, allRTClasses, fs)>};
-					}
-				}
-			}
-			level = getNextLevel(supFMs, level);
-		}
-	}
-	return <tnResult, snResult>;
+// within the package
+private Nodes buildDataSchemeHierarchically(set[str] astFiles, Filters fs, set[Entity] additionalTypes) {
+	rel[Entity, FactMap] alltypes = getAllTypes(astFiles, fs.exclFilePatterns);
+	rel[Entity, Entity] subtypes = getSubtypes(alltypes);
+	rel[Entity, rel[str, Entity]] methods = getMethods(domain(alltypes) + additionaltypes, invert(subtypes), getHierarchy(allTypes, subtypes), fs);
+
+	set[Entity] used = getUsedTypes(methods);
+
+	return relate(domainR(used,alltypes), domainR(used,methods), domainR(subtypes)); 
 }
 
-private set[Entity] getUnhiddenTypes(FactMap allFacts) {
-	set[Entity] unhidden = getDeclaredTopTypes(allFacts);
-	for (Entity subType <- getDeclaredSubTypes(allFacts)) {
-		if (!isHidden(subType, allFacts)) {
-			unhidden += {subType};
+private Nodes relate(rel[Entity, FactMap] alltypes, rel[Entity, rel[str, Entity]] methods, rel[Entity, Entity] subtypes) {
+	Nodes result = {};
+	for(Entity type <- alltypes) {
+		result += {<type, getOneFrom(alltypes[type]), getOneFrom(methods[type]), subtypes[type]>};
+	}
+
+	return result;
+}
+
+private set[Entity] getUsedTypes(rel[Entity, rel[str, Entity]] methods) {
+	set[Entity] result;	
+	set[Entity] used = domain(methods);
+
+	do {
+		result = used;
+		used = {};
+		for(rel[str, Entity] perType <- rangeR(methods, result)) {
+			used += range(perType);
+		}
+	} while(size(result) > size(used));
+
+	return result;
+}
+
+
+private rel[Entity, rel[str, Entity]] getMethods(set[Entity] returntypes, rel[Entity, Entity] supertypes, list[rel[Entity, FactMap]] hierarchy, Filters fs) {
+	rel[Entity, rel[str, Entity]] methods = {};
+	for(rel[Entity, FactMap] level <- hierarchy) {
+		for(tuple[Entity e, FactMap f] type <- level) {
+			rel[str, Entity] daddysMeths = getOneFrom(methods[supertypes[e]]);
+			rel[str, Entity] ownMeths = getMethodsForType(e, f, returntypes, fs);
+			methods += {<e, daddysMeths + ownMeths>};
 		}
 	}
 
-	return unhidden;
-} 
+	return methods;
+}
+
+private list[rel[Entity, FactMap]] getHierarchy(rel[Entity type, FactMap fm] allTypes, rel[Entity super, Entity type] subtypes) {
+	list[rel[Entity, FactMap]] hierarchy = [];
+
+	set[Entity] level = supertypes[domain(subtype) - range(subtype)];
+
+	while (!isEmpty(level)) {
+		hierarchy += [domainR(allTypes, level)];
+		processed += size(level);
+				
+		level = subtypes[level];
+	}
+ 
+ 	return hierarchy;
+}
+
+private rel[Entity, Entity] getSubtypes(rel[Entity, FactMap] alltypes) {
+	rel[Entity, Entity] subtypes = {};
+	for(tuple[Entity type, FactMap fm] tup <- allTypes) {
+		subtypes += {<getOneFrom(getExtends(tup.fm)[tup.type]) ,tup.type>};
+	}
+
+	return subtypes;
+}
+
+
+private rel[Entity, Factmap] getAllTypes(set[str] astFiles, set[str] excludeFiles) {
+	rel[Entity, FactMap] allTypes = {};
+	for(str file <- astFiles) {
+		if(!isEmpty(getComplement({file}, excludeFiles))) {
+			fm = extractFrom(file);
+			for(Entity declaredType <- getDeclaredTopTypes(fm) + getDeclaredSubTypes(fm)) {
+				if(!isHidden(declaredType, fm)) {
+					allTypes += {<declaredType, fm>};
+				}
+			}
+		}
+	}
+
+	return allTypes;
+}
 
 private bool isHidden(Entity ent, FactMap fm) {
 	set[Modifier] mods = getModifiers(fm)[ent];
 	return \private() in mods || protected() in mods;
 }
 
-private map[str, Id] getMethods(Entity type, FactMap fm, set[Entity] returnTypes, filters fs) {
-	map[str, Id] result = ();  
+private rel[str, Entity] getMethodsForType(Entity type, FactMap fm, set[Entity] returnTypes, Filters fs) {
+	rel[str, Entity] result = ();  
 	for(Entity meth <- getDeclaredMethods(fm)[type]) {		
 		if(/method(str NAME,_,Entity RT) := meth && isCompliant(fs, NAME) && RT in returnTypes && !isHidden(meth, fm)) {		
-			result += (NAME: (meth.id - type.id)[0]);
+			result += {<NAME,RT>};
 		} 
 	}
 	
 	return result;
-}
-
-
-
-private SupFMRel getSuperTypedFactMaps(set[str] astFiles, set[str] excludeFiles) {
-	SupFMRel result = {};
-	for(str file <- astFiles) {
-		if(!isEmpty(getComplement({file}, excludeFiles))) {
-			fm = extractFrom(file);
-			Entity super = getSuperClass(fm); 
-			if (!isEmpty(super.id)) {
-				result += {<super, fm>}; 
-			}
-		}
-	}
-	
-	return result;
-}
-
-private Entity getSuperClass(FactMap fm) {
-	// innerclasses occur here too thats why the domainR on toptypes
-	rel[Entity, Entity] super = domainR(getExtends(fm), getDeclaredTopTypes(fm));
-	if (!isEmpty(super)) {
-		return getOneFrom(super).field1;
-	}
-	
-	return entity([]); 
-}
-
-private set[FactMap] getFirstLevel(SupFMRel supFMs) {
-	if(!isEmpty(supFMs)) {
-		return range(domainX(supFMs, getDeclaredTopTypes(unionFacts(range(supFMs)))));
-	}
-	
-	return {};
-}
-
-private set[FactMap] getNextLevel(SupFMRel supFMs, set[FactMap] currentLevel) {
-	if(!isEmpty(currentLevel)) { 
-		return range(domainR(supFMs, getDeclaredTopTypes(unionFacts(currentLevel))));
-	}
-	
-	return {};
 }
 
 private FactMap extractFrom(str file) {
@@ -239,31 +237,6 @@ private FactMap extractFrom(str file) {
 	}
 	
 	return ();	
-}
-
-private Nodes removeUnusedNodes(Nodes nodes) {
-	Nodes current = nodes;
-	Nodes last = <{},{}>;
-	do {
-		last = current;
-	
-		set[Entity] used = getUsedReturnTypes(last);
-		current = <domainR(last.top, used), domainR(last.sub, used)>;
-
-	} while(size(last.top) > size(current.top));
-	
-	return current;
-}
-
-private set[Entity] getUsedReturnTypes(Nodes nodes) {
-	set[Entity] rts = range(nodes.sub);
-	for (map[str, Id] mm <- nodes.top.children) {
-		for(Id id <- range(mm)) {
-			rts += id.returnType;
-		}		
-	}
-
-	return rts;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
@@ -281,15 +254,54 @@ private EntityMap convertToEntityMap(map[str, str] strMap) {
 	return result;
 }
 
+private set[Entity] convertToEntities(set[str] fqns) {
+	set[Entity] result = {};
+	for(str fqn <- fqns) {
+		result += {convertEntity(fqn)};
+	}
+
+	return result;
+}
+
+
 private Entity convertToEntity(str fqn) {
-		list[Id] ids = [];
-		while(/^<pack:[^\.]*>\.<rest:.*>$/ := fqn) {
-			ids += package(pack);
-			fqn = rest;
-		}  	
-		ids += class(fqn);
-		
-		return entity(ids);
+	list[Id] ids = [];
+	while(/^<pack:[^\.]*>\.<rest:.*>$/ := fqn) {
+		ids += package(pack);
+		fqn = rest;
+	}  	
+	ids += class(fqn);
+	
+	return entity(ids);
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
+*                                                                       *
+*                              FILTERS                                  *
+*                                                                       *
+\* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+private bool isCompliant(Filters fs, str method) {
+	return !isEmpty(getIntersection(getComplement({method}, fs.exclMethPatterns), fs.inclMethPatterns));
+}
+
+private set[str] getIntersection(set[str] universe, set[str] subsetPatterns) {
+	set[str] result = {};
+	for (str s <- subsetPatterns) {
+		// no need to check a string if it is already included
+		result += getCompliantSet(universe - result, s); 
+	}
+
+	return result;
+}
+
+private set[str] getComplement(set[str] universe, set[str] subsetPatterns) {
+	set[str] result = universe;
+	for (str s <- subsetPatterns) {
+		result -= getCompliantSet(result, s);
+	}
+
+	return result;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
@@ -297,6 +309,48 @@ private Entity convertToEntity(str fqn) {
 *                              PRINTING                                 *
 *                                                                       *
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+public void toFile(str newModulePath, str astPackagePath, Nodes nodes, Additions ads) {
+	list[str] datadefs = [];
+	EntityMap extraRTs = convertToEntityMap(ads.extraRTs);	
+
+	for(Enity type <- domain(nodes)) {
+		str result = "";
+		
+		// begin
+		str typeStr = compact(astPackagePath, toString(type));
+		result += "data " + typeStr + " = " + toLowerCase(typeStr) + "(";
+		
+		// methods
+		bool separate = false;
+		for(tuple[str s, Entity e] method <- nodes[type].methods) {
+			if(separate){result += ", "; } else { separate = true;}
+			result += (e in domain(extraRTs))? extraRTs[e] : compact(astPackagePath, toString(e)) + " " + s;
+		}
+
+		for (str method <- ads.extraMeths) {
+			if(separate){result += ", "; } else { separate = true;}
+			result += method;
+		}
+
+		result += ")";
+		
+		// children
+		for(Entity child <- nodes[type].children) {
+			str childStr = compact(astPackagePath, toString(child));
+			result += " | " + toLowerCase(childStr) + "_labda(" + childStr + ")";
+		}
+		result += ";";
+		datadefs += [result];
+	}
+
+	
+	if (/^\/?<proj:[^\/]*><middle:.*?><mod:[^\/]*><ext: \.rsc>$/ := newModulePath) {
+		printData(location(proj).url + middle + mod + ext, mod, datadefs);
+	}
+	// TODO throw malformed path error
+	
+}
 
 private str compact(str packagePath, str fqn) {
 	if(/^<primaryFQNSection: [^\.]*>\.<fqnRemain:.*>$/ := fqn) {
@@ -327,80 +381,3 @@ private str getCompactedFQN(str strippedPackagePath, str fqn) {
 	
 	return fqn; // fqn does not match the package
 }
-
-public void toFile(str newModulePath, IntermediateRepresentation ir) {
-	list[str] datadefs = [];
-	
-	for(Entity entParent <- domain(ir.nodes.top)) {
-		str dsParent = compact(ir.astPackagePath, toString(entParent)); 
-		str def = "data " + dsParent + " = ";
-		def += toLowerCase(dsParent) + "(";
-		
-		bool separate = false;
-		map[str, Id] children = getOneFrom(ir.nodes.top[entParent]); // always one element 
-		for(str name <- children) {
-			if(separate) { def += ", "; } else { separate = true; }
-			def += getChildEntry(children[name], ir.extraClasses, ir.astPackagePath);
-		}
-		
-		for(str additional <- ir.extraMethods) {
-			if(separate) { def += ", "; } else { separate = true; }
-			def += additional;
-		}
-		
-		def += ")";
-		
-		for(Entity sub <- ir.nodes.sub[entParent]) {
-			str dsSub = compact(ir.astPackagePath, toString(sub));
-			def += " | " + toLowerCase(dsSub) + "_labda(" + dsSub + ")";
-		}		
-
-		def += ";";
-		datadefs += [def];
-	}
-	
-	if (/^\/?<proj:[^\/]*><middle:.*?><mod:[^\/]*><ext: \.rsc>$/ := newModulePath) {
-		printData(location(proj).url + middle + mod + ext, mod, datadefs);
-	}
-	// TODO throw malformed path error
-	
-}
-
-private str getChildEntry(Id child, EntityMap extraClasses, str packagePath) {
-	str result = "";
-
-	Entity rt = child.returnType;
-	if (rt in domain(extraClasses)) {
-		result += extraClasses[rt];
-	} else {
-		result += compact(packagePath, toString(rt));
-	}
-	// name
-	result += " " + child.name;
-	
-	return result;
-}
-
-private bool isCompliant(filters fs, str method) {
-	return !isEmpty(getIntersection(getComplement({method}, fs.exclMethPatterns), fs.inclMethPatterns));
-}
-
-private set[str] getIntersection(set[str] universe, set[str] subsetPatterns) {
-	set[str] result = {};
-	for (str s <- subsetPatterns) {
-		// no need to check a string if it is already included
-		result += getCompliantSet(universe - result, s); 
-	}
-
-	return result;
-}
-
-private set[str] getComplement(set[str] universe, set[str] subsetPatterns) {
-	set[str] result = universe;
-	for (str s <- subsetPatterns) {
-		result -= getCompliantSet(result, s);
-	}
-
-	return result;
-}
-
