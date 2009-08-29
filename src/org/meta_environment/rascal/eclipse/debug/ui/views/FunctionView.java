@@ -23,8 +23,8 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalStackFrame;
-import org.meta_environment.rascal.interpreter.result.CalleeCandidatesResult;
-import org.meta_environment.rascal.interpreter.result.Lambda;
+import org.meta_environment.rascal.interpreter.result.OverloadedFunctionResult;
+import org.meta_environment.rascal.interpreter.result.AbstractFunction;
 
 
 
@@ -68,14 +68,14 @@ public class FunctionView extends AbstractDebugView implements ISelectionListene
 		@SuppressWarnings("unchecked")
 		public String getColumnText(Object element, int columnIndex) {
 			String result = "";
-			Entry<String, CalleeCandidatesResult> entry = (Entry<String, CalleeCandidatesResult>) element;
+			Entry<String, OverloadedFunctionResult> entry = (Entry<String, OverloadedFunctionResult>) element;
 			switch (columnIndex) {
 			case 0:  // NAME
 				result = entry.getKey();
 				break;
 			case 1 : // LAMBDA HEADERS
 				List<String> l = new ArrayList<String>();
-				for (Lambda lambda: entry.getValue()) {
+				for (AbstractFunction lambda: entry.getValue().iterable()) {
 					l.add(lambda.getHeader());
 				}
 				result = l.toString();
