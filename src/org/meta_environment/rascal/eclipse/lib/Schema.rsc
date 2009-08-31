@@ -11,16 +11,13 @@ import List;
 
 import IO; // TODO remove, debug
 
-private alias classMethods = rel[Entity class, set[Id] method];
-private alias SupFMRel = rel[Entity super, FactMap facts];
+//private alias classMethods = rel[Entity class, set[Id] method];
+//private alias SupFMRel = rel[Entity super, FactMap facts];
 
 
-//public alias IntermediateRepresentation = tuple[str astPackagePath, Nodes nodes, EntityMap extraClasses, list[str] extraMethods];
 public alias EntityMap = map[Entity fqn, str mapping];
-public alias Nodes = rel[Entity type, FactMap facts, rel[str, Entity] methods, set[Entity] children]; //tuple[TopNodes top, SubNodes sub];
+public alias Nodes = rel[Entity type, FactMap facts, rel[str, Entity] methods, set[Entity] children]; 
 
-// public alias TopNodes = rel[Entity type, map[str methodName, Id method] children];
-// public alias SubNodes = rel[Entity type, Entity subType];
 public alias Additions = tuple[map[str fqn, str mapping] extraRTs, list[str] extraMeths];
 public alias Filters = tuple[set[str] exclFilePatterns, set[str] inclMethPatterns, set[str] exclMethPatterns];
 
@@ -133,12 +130,12 @@ private Nodes buildDataSchemeHierarchically(set[str] astFiles, Filters fs, set[E
 
 	set[Entity] used = getUsedTypes(methods);
 
-	return relate(domainR(used,alltypes), domainR(used,methods), domainR(subtypes)); 
+	return relate(domainR(alltypes, used), domainR(methods, used), domainR(subtypes, used)); 
 }
 
 private Nodes relate(rel[Entity, FactMap] alltypes, rel[Entity, rel[str, Entity]] methods, rel[Entity, Entity] subtypes) {
 	Nodes result = {};
-	for(Entity type <- alltypes) {
+	for(Entity type <- domain(alltypes)) {
 		result += {<type, getOneFrom(alltypes[type]), getOneFrom(methods[type]), subtypes[type]>};
 	}
 
@@ -146,16 +143,19 @@ private Nodes relate(rel[Entity, FactMap] alltypes, rel[Entity, rel[str, Entity]
 }
 
 private set[Entity] getUsedTypes(rel[Entity, rel[str, Entity]] methods) {
-	set[Entity] result;	
-	set[Entity] used = domain(methods);
-
-	do {
-		result = used;
-		used = {};
-		for(rel[str, Entity] perType <- rangeR(methods, result)) {
-			used += range(perType);
-		}
-	} while(size(result) > size(used));
+	set[Entity] used;
+	set[Entity] result = domain(methods);	
+	
+	do  {
+		used = result;
+		result = {};
+			
+		for(Entity type <- used) {
+			for(rel[str, Entity] perType <- methods[type]) {
+				result += range(perType);
+			}
+		}	
+	} while (size(result) < size(used));
 
 	return result;
 }
@@ -224,7 +224,7 @@ private bool isHidden(Entity ent, FactMap fm) {
 }
 
 private rel[str, Entity] getMethodsForType(Entity type, FactMap fm, set[Entity] returnTypes, Filters fs) {
-	rel[str, Entity] result = ();  
+	rel[str, Entity] result = {};  
 	for(Entity meth <- getDeclaredMethods(fm)[type]) {		
 		if(/method(str NAME,_,Entity RT) := meth && isCompliant(fs, NAME) && RT in returnTypes && !isHidden(meth, fm)) {		
 			result += {<NAME,RT>};
@@ -260,7 +260,7 @@ private EntityMap convertToEntityMap(map[str, str] strMap) {
 private set[Entity] convertToEntities(set[str] fqns) {
 	set[Entity] result = {};
 	for(str fqn <- fqns) {
-		result += {convertEntity(fqn)};
+		result += {convertToEntity(fqn)};
 	}
 
 	return result;
@@ -317,7 +317,7 @@ public void toFile(str newModulePath, str astPackagePath, Nodes nodes, Additions
 	list[str] datadefs = [];
 	EntityMap extraRTs = convertToEntityMap(ads.extraRTs);	
 
-	for(Enity type <- domain(nodes)) {
+	for(Entity type <- domain(nodes)) {
 		str result = "";
 		
 		// begin
@@ -326,9 +326,14 @@ public void toFile(str newModulePath, str astPackagePath, Nodes nodes, Additions
 		
 		// methods
 		bool separate = false;
-		for(tuple[str s, Entity e] method <- nodes[type].methods) {
-			if(separate){result += ", "; } else { separate = true;}
-			result += (e in domain(extraRTs))? extraRTs[e] : compact(astPackagePath, toString(e)) + " " + s;
+		
+		rel[FactMap facts, rel[str, Entity] methods, set[Entity] children] nodeInfo = nodes[type];
+		
+		for(rel[str s, Entity e] methods <- nodeInfo.methods) {
+			for (tuple [str s, Entity e] method <- methods) {
+				if(separate){result += ", "; } else { separate = true;}
+				result += (method.e in domain(extraRTs))? extraRTs[method.e] : compact(astPackagePath, toString(method.e)) + " " + method.s;
+			}
 		}
 
 		for (str method <- ads.extraMeths) {
@@ -339,9 +344,11 @@ public void toFile(str newModulePath, str astPackagePath, Nodes nodes, Additions
 		result += ")";
 		
 		// children
-		for(Entity child <- nodes[type].children) {
-			str childStr = compact(astPackagePath, toString(child));
-			result += " | " + toLowerCase(childStr) + "_labda(" + childStr + ")";
+		for(set[Entity] children <- nodeInfo.children) {
+			for (Entity child <- children) {
+				str childStr = compact(astPackagePath, toString(child));
+				result += " | " + toLowerCase(childStr) + "_labda(" + childStr + ")";
+			}
 		}
 		result += ";";
 		datadefs += [result];
