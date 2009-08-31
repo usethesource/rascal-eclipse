@@ -269,7 +269,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		if (value != null) {
 			Type type = value.getType();
 			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
-				content = "[|" + new TreeAdapter((IConstructor) value).yield() + "|]\n" + 
+				content = "`" + new TreeAdapter((IConstructor) value).yield() + "`\n" + 
 				type + ": " + value.toString().substring(0, 50) + "...\n";
 			}
 			else {
