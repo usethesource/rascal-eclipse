@@ -126,10 +126,10 @@ public Nodes buildDataSchemeHalfway(str astPackagePath, Filters fs, Additions ad
 // builds the node(child, child, ...) relation top-down. i.e. from classes that do not inherit from any 
 // class within the package to the classes that do not have any classes that inherit from them 
 // within the package
-private Nodes buildDataSchemeHierarchically(set[str] astFiles, Filters fs, set[Entity] additionalTypes) {
+private Nodes buildDataSchemeHierarchically(set[str] astFiles, Filters fs, set[Entity] additionaltypes) {
 	rel[Entity, FactMap] alltypes = getAllTypes(astFiles, fs.exclFilePatterns);
 	rel[Entity, Entity] subtypes = getSubtypes(alltypes);
-	rel[Entity, rel[str, Entity]] methods = getMethods(domain(alltypes) + additionaltypes, invert(subtypes), getHierarchy(allTypes, subtypes), fs);
+	rel[Entity, rel[str, Entity]] methods = getMethods(domain(alltypes) + additionaltypes, invert(subtypes), getHierarchy(alltypes, subtypes), fs);
 
 	set[Entity] used = getUsedTypes(methods);
 
@@ -165,23 +165,23 @@ private rel[Entity, rel[str, Entity]] getMethods(set[Entity] returntypes, rel[En
 	rel[Entity, rel[str, Entity]] methods = {};
 	for(rel[Entity, FactMap] level <- hierarchy) {
 		for(tuple[Entity e, FactMap f] type <- level) {
-			rel[str, Entity] daddysMeths = getOneFrom(methods[supertypes[e]]);
-			rel[str, Entity] ownMeths = getMethodsForType(e, f, returntypes, fs);
-			methods += {<e, daddysMeths + ownMeths>};
+			rel[str, Entity] daddysMeths = getOneFrom(methods[supertypes[type.e]]);
+			rel[str, Entity] ownMeths = getMethodsForType(type.e, type.f, returntypes, fs);
+			methods += {<type.e, daddysMeths + ownMeths>};
 		}
 	}
 
 	return methods;
 }
 
-private list[rel[Entity, FactMap]] getHierarchy(rel[Entity type, FactMap fm] allTypes, rel[Entity super, Entity type] subtypes) {
+private list[rel[Entity, FactMap]] getHierarchy(rel[Entity type, FactMap fm] alltypes, rel[Entity super, Entity type] subtypes) {
 	list[rel[Entity, FactMap]] hierarchy = [];
 
-	set[Entity] level = supertypes[domain(subtype) - range(subtype)];
+	// We need those types just below java.lang.object 
+	set[Entity] level = subtypes[domain(subtypes) - range(subtypes)];
 
 	while (!isEmpty(level)) {
-		hierarchy += [domainR(allTypes, level)];
-		processed += size(level);
+		hierarchy += [domainR(alltypes, level)];
 				
 		level = subtypes[level];
 	}
@@ -191,7 +191,7 @@ private list[rel[Entity, FactMap]] getHierarchy(rel[Entity type, FactMap fm] all
 
 private rel[Entity, Entity] getSubtypes(rel[Entity, FactMap] alltypes) {
 	rel[Entity, Entity] subtypes = {};
-	for(tuple[Entity type, FactMap fm] tup <- allTypes) {
+	for(tuple[Entity type, FactMap fm] tup <- alltypes) {
 		subtypes += {<getOneFrom(getExtends(tup.fm)[tup.type]) ,tup.type>};
 	}
 
@@ -199,7 +199,7 @@ private rel[Entity, Entity] getSubtypes(rel[Entity, FactMap] alltypes) {
 }
 
 
-private rel[Entity, Factmap] getAllTypes(set[str] astFiles, set[str] excludeFiles) {
+private rel[Entity, FactMap] getAllTypes(set[str] astFiles, set[str] excludeFiles) {
 	rel[Entity, FactMap] allTypes = {};
 	for(str file <- astFiles) {
 		if(!isEmpty(getComplement({file}, excludeFiles))) {
