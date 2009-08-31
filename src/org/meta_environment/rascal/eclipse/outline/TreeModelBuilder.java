@@ -23,7 +23,6 @@ import org.meta_environment.rascal.ast.Declaration.Tag;
 import org.meta_environment.rascal.ast.Declaration.Variable;
 import org.meta_environment.rascal.ast.Declaration.View;
 import org.meta_environment.rascal.ast.Module.Default;
-import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.parser.ASTBuilder;
 
@@ -129,11 +128,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 				imports.add(i.getModule());
 			}
 			return x;
-		}
-		
-		@Override
-		public AbstractAST visitToplevelDefaultVisibility(DefaultVisibility x) {
-			return x.getDeclaration().accept(this);
 		}
 		
 		@Override
