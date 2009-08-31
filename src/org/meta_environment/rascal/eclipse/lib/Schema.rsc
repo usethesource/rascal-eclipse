@@ -165,7 +165,10 @@ private rel[Entity, rel[str, Entity]] getMethods(set[Entity] returntypes, rel[En
 	rel[Entity, rel[str, Entity]] methods = {};
 	for(rel[Entity, FactMap] level <- hierarchy) {
 		for(tuple[Entity e, FactMap f] type <- level) {
-			rel[str, Entity] daddysMeths = getOneFrom(methods[supertypes[type.e]]);
+			rel[str, Entity] daddysMeths = {};
+			for (rel[str, Entity] meth <- methods[supertypes[type.e]]) {
+				daddysMeths += meth;
+			}
 			rel[str, Entity] ownMeths = getMethodsForType(type.e, type.f, returntypes, fs);
 			methods += {<type.e, daddysMeths + ownMeths>};
 		}
