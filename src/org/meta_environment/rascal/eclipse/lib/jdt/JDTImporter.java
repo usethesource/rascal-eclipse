@@ -110,10 +110,8 @@ public class JDTImporter extends ASTVisitor {
 		fieldBindings = VF.relationWriter(bindingTupleType);
 		variableBindings = VF.relationWriter(bindingTupleType);
 		
-		// *** JOPPE ADDED START ***
 		packageBindings = VF.relationWriter(bindingTupleType);
 		declaredTopTypes = VF.setWriter(ADT_ENTITY);
-		// *** JOPPE ADDED END ***
 		
 		implmnts = VF.relationWriter(entityTupleType);
 		extnds = VF.relationWriter(entityTupleType);
@@ -471,7 +469,7 @@ public class JDTImporter extends ASTVisitor {
 			}
 		}
 
-		if (tb.isClass() && tb.getDeclaringClass() == null) {
+		if ((tb.isClass() || tb.isInterface()) && tb.getDeclaringClass() == null) {
 			declaredTopTypes.insert(thisType);
 		} 
 		
