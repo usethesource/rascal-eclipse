@@ -393,6 +393,7 @@ private str getCompactedFQN(str strippedPackagePath, str fqn) {
 	return makeSafe(result); // fqn does not match the package
 }
 
+//TODO are there any more characters that are allowed in paths but not in data declarations?
 private str makeSafe(str input) {
 	result = "";
 	while (/^<before:[^.]*>\.<after:.*$>/ := input) {

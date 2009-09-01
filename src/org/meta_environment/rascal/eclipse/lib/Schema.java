@@ -3,6 +3,8 @@ package org.meta_environment.rascal.eclipse.lib;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IContainer;
@@ -37,8 +39,14 @@ public class Schema {
 			pw = new PrintWriter(file);
 			pw.println("module " + module.getValue() + "\n");
 			
+			ArrayList<String> al = new ArrayList<String>();
 			for(IValue def: datadefs) {
-				pw.println(((IString)def).getValue());
+				al.add(((IString)def).getValue());
+			}
+			Collections.sort(al);
+			
+			for(String data: al) {
+				pw.println(data);
 			}
 			
 			pw.close();
