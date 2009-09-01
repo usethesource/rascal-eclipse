@@ -11,10 +11,6 @@ import List;
 
 import IO; // TODO remove, debug
 
-//private alias classMethods = rel[Entity class, set[Id] method];
-//private alias SupFMRel = rel[Entity super, FactMap facts];
-
-
 public alias EntityMap = map[Entity fqn, str mapping];
 public alias Nodes = rel[Entity type, FactMap facts, rel[str, Entity] methods, set[Entity] children]; 
 
@@ -128,7 +124,7 @@ private Nodes buildDataSchemeHierarchically(set[str] astFiles, Filters fs, set[E
 	rel[Entity, Entity] subtypes = getSubtypes(alltypes);
 	rel[Entity, rel[str, Entity]] methods = getMethods(domain(alltypes) + additionaltypes, invert(subtypes), getHierarchy(alltypes, subtypes), fs);
 
-	set[Entity] used = getUsedTypes(methods);
+	set[Entity] used = getUsedTypes(methods, subtypes);
 
 	return relate(domainR(alltypes, used), domainR(methods, used), domainR(subtypes, used)); 
 }
@@ -142,7 +138,7 @@ private Nodes relate(rel[Entity, FactMap] alltypes, rel[Entity, rel[str, Entity]
 	return result;
 }
 
-private set[Entity] getUsedTypes(rel[Entity, rel[str, Entity]] methods) {
+private set[Entity] getUsedTypes(rel[Entity, rel[str, Entity]] methods, rel[Entity, Entity] subtypes) {
 	set[Entity] used;
 	set[Entity] result = domain(methods);	
 	
@@ -151,6 +147,8 @@ private set[Entity] getUsedTypes(rel[Entity, rel[str, Entity]] methods) {
 		result = {};
 			
 		for(Entity type <- used) {
+			result += subtypes[type];
+		
 			for(rel[str, Entity] perType <- methods[type]) {
 				result += range(perType);
 			}
@@ -201,13 +199,12 @@ private rel[Entity, Entity] getSubtypes(rel[Entity, FactMap] alltypes) {
 	return subtypes;
 }
 
-
 private rel[Entity, FactMap] getAllTypes(set[str] astFiles, set[str] excludeFiles) {
 	rel[Entity, FactMap] allTypes = {};
 	for(str file <- astFiles) {
 		if(!isEmpty(getComplement({file}, excludeFiles))) {
 			fm = extractFrom(file);
-			for(Entity declaredType <- getDeclaredTopTypes(fm) + getDeclaredSubTypes(fm)) {
+			for(Entity declaredType <- getDeclaredTopTypes(fm) + range(getDeclaredSubTypes(fm))) {
 				if(!isHidden(declaredType, fm)) {
 					allTypes += {<declaredType, fm>};
 				}
@@ -313,6 +310,7 @@ private set[str] getComplement(set[str] universe, set[str] subsetPatterns) {
 *                                                                       *
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+//FIXME change patchToString to toString when toSTring on entity is fixed
 public void toFile(str newModulePath, str astPackagePath, Nodes nodes, Additions ads) {
 	list[str] datadefs = [];
 	EntityMap extraRTs = convertToEntityMap(ads.extraRTs);	
@@ -332,7 +330,7 @@ public void toFile(str newModulePath, str astPackagePath, Nodes nodes, Additions
 		for(rel[str s, Entity e] methods <- nodeInfo.methods) {
 			for (tuple [str s, Entity e] method <- methods) {
 				if(separate){result += ", "; } else { separate = true;}
-				result += (method.e in domain(extraRTs))? extraRTs[method.e] : compact(astPackagePath, toString(method.e)) + " " + method.s;
+				result += (method.e in domain(extraRTs))? extraRTs[method.e] : compact(astPackagePath, patchToString(method.e)) + " " + method.s;
 			}
 		}
 
@@ -346,7 +344,7 @@ public void toFile(str newModulePath, str astPackagePath, Nodes nodes, Additions
 		// children
 		for(set[Entity] children <- nodeInfo.children) {
 			for (Entity child <- children) {
-				str childStr = compact(astPackagePath, toString(child));
+				str childStr = compact(astPackagePath, patchToString(child));
 				result += " | " + toLowerCase(childStr) + "_labda(" + childStr + ")";
 			}
 		}
@@ -385,9 +383,21 @@ private str getCompactedFQN(str strippedPackagePath, str fqn) {
 		tempPath = remain;
 	}
 	
+	str result;
 	if (startsWith(fqn, dottedPath)) {
-		return substring(fqn, size(dottedPath));
+		result = substring(fqn, size(dottedPath));
+	} else {
+		result = fqn;
 	}
 	
-	return fqn; // fqn does not match the package
+	return makeSafe(result); // fqn does not match the package
+}
+
+private str makeSafe(str input) {
+	result = "";
+	while (/^<before:[^.]*>\.<after:.*$>/ := input) {
+		result += before + "_";
+		input = after;
+	}
+	return result + input;	
 }

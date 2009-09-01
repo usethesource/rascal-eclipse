@@ -117,3 +117,18 @@ public str toString(Id id) {
 		default : throw IllegalArgument(id);
 	}
 }
+
+
+public str patchToString(Entity entity) {
+	str result = "";
+	list[Id] ids = entity.id;
+	
+	if (size(ids) > 0) {
+		result = toString(head(ids));	
+		for (id <- tail(ids)) {
+			result += "." + toString(id);	
+		}
+	}
+	
+	return result;
+}
