@@ -469,7 +469,7 @@ public class JDTImporter extends ASTVisitor {
 			}
 		}
 
-		if ((tb.isClass() || tb.isInterface()) && tb.getDeclaringClass() == null) {
+		if ((tb.isClass() || tb.isInterface() || tb.isEnum()) && tb.getDeclaringClass() == null) {
 			declaredTopTypes.insert(thisType);
 		} 
 		
