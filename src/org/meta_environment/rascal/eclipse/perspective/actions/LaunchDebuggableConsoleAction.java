@@ -16,9 +16,6 @@ import org.eclipse.ui.IActionDelegate2;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.meta_environment.rascal.eclipse.IRascalResources;
-import org.meta_environment.rascal.eclipse.console.ConsoleFactory;
-import org.meta_environment.rascal.eclipse.console.ConsoleFactory.IRascalConsole;
-import org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget;
 
 public class LaunchDebuggableConsoleAction implements IObjectActionDelegate, IActionDelegate2 {
 
