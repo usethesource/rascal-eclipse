@@ -7,6 +7,7 @@ import static org.meta_environment.rascal.eclipse.lib.Java.CONS_ANONYMOUS_CLASS;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_ARRAY;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_CLASS;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_CONSTRUCTOR;
+import static org.meta_environment.rascal.eclipse.lib.Java.CONS_DEPRECATED;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_ENTITY;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_ENUM;
 import static org.meta_environment.rascal.eclipse.lib.Java.CONS_ENUM_CONSTANT;
@@ -47,6 +48,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.IExtendedModifier;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
@@ -135,15 +137,19 @@ public class BindingConverter extends ASTVisitor {
 	public IValue getEntity(Initializer binding, ITypeBinding possibleParent) {
 		return createEntity(getIds(binding, possibleParent));
 	}
+	
+	public IValue getDeprecatedModifier() {
+		return VF.constructor(CONS_DEPRECATED);
+	}
 
-	// <---- Joppe added begin
 	@SuppressWarnings("unchecked")
 	public List<IValue> getModifiers(List list) {
 		List<IValue> result = new ArrayList<IValue>();
 		for (Object element : list) {
 			IExtendedModifier extMod = (IExtendedModifier) element;
-
-			// otherwise its an annotation, no use to us here
+			
+			// otherwise the modifier is an annotation. This might be @Deprecated 
+			// which already has a CONS_ due to the Javadoc @deprecated tag. 
 			if (extMod.isModifier()) { 
 				Modifier mod = (Modifier) extMod;
 				if (mod.isAbstract()) {
@@ -169,14 +175,11 @@ public class BindingConverter extends ASTVisitor {
 				} else if (mod.isVolatile()) {
 					result.add(VF.constructor(CONS_VOLATILE));
 				}
-			}
-
+			} 
 		}
 
 		return result;
 	}
-
-	// <---- Joppe added end
 
 	public void put(Object key, IList value) {
 		idStore.put(key, value);

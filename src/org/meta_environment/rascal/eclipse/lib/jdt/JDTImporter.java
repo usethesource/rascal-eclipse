@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -51,6 +52,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
@@ -87,7 +89,7 @@ public class JDTImporter extends ASTVisitor {
 
 	// type facts
 	private static final Type entityTupleType = TF.tupleType(ADT_ENTITY, ADT_ENTITY);
-	private static final Type modifierTupleType = TF.tupleType(ADT_ENTITY, ADT_MODIFIER); // <---- Joppe added
+	private static final Type modifierTupleType = TF.tupleType(ADT_ENTITY, ADT_MODIFIER);
 
 	private IRelationWriter extnds;
 	private IRelationWriter implmnts;
@@ -96,7 +98,7 @@ public class JDTImporter extends ASTVisitor {
 	private IRelationWriter declaredSubTypes;
 	private ISetWriter declaredTopTypes;
 	
-	private IRelationWriter modifiers; // <---- Joppe added
+	private IRelationWriter modifiers;
 	
 	public JDTImporter() {
 		super();
@@ -117,7 +119,7 @@ public class JDTImporter extends ASTVisitor {
 		declaredSubTypes = VF.relationWriter(entityTupleType);
 		declaredMethods = VF.relationWriter(entityTupleType);
 		declaredFields = VF.relationWriter(entityTupleType);
-		modifiers = VF.relationWriter(modifierTupleType); // <---- Joppe added
+		modifiers = VF.relationWriter(modifierTupleType);
 
 		this.file = file;
 		visitCompilationUnit();
@@ -396,7 +398,6 @@ public class JDTImporter extends ASTVisitor {
 			}
 		}
 		
-		// <---- Joppe added begin
 		if (n instanceof BodyDeclaration) {
 			
 			
@@ -418,14 +419,25 @@ public class JDTImporter extends ASTVisitor {
 				owners.add(bindingCache.getEntity(((EnumConstantDeclaration)n).resolveVariable()));
 			}
 			
+			BodyDeclaration bd = (BodyDeclaration) n;
+			List<IValue> modsForN = bindingCache.getModifiers(bd.modifiers());
+			
+			Javadoc doc = bd.getJavadoc();
+			if (doc != null) {
+				for (Object te : doc.tags()) {
+					if (TagElement.TAG_DEPRECATED.equals(((TagElement)te).getTagName())) {
+						modsForN.add(bindingCache.getDeprecatedModifier());
+						break;
+					}
+				}
+			}
 			
 			for (IValue owner: owners) {
-				for (IValue modifier: bindingCache.getModifiers(((BodyDeclaration) n).modifiers())) {
+				for (IValue modifier: modsForN) {
 					modifiers.insert(VF.tuple(owner, modifier));
 				}
 			}
 		}
-		// <---- Joppe added end
 		
 		//method -> parameters?
 		

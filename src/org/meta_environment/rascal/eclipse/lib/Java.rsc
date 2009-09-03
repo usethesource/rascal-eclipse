@@ -50,6 +50,7 @@ data Bound = extends(Entity type)
            | super(Entity type)
 ;
 
+// deprecated might not be in place here
 data Modifier = \public()
 			  | protected()
 			  | \private()
@@ -61,6 +62,7 @@ data Modifier = \public()
 			  | transient()
 			  | volatile()
 			  | strictfp()
+			  | deprecated() 
 ;
 
 public str toString(Entity entity) {
@@ -118,17 +120,58 @@ public str toString(Id id) {
 	}
 }
 
-
+// =================================== PATCH FOR TO STRING ==========================//
 public str patchToString(Entity entity) {
 	str result = "";
 	list[Id] ids = entity.id;
 	
 	if (size(ids) > 0) {
-		result = toString(head(ids));	
+		result = patchToString(head(ids));	
 		for (id <- tail(ids)) {
-			result += "." + toString(id);	
+			result += "." + patchToString(id);	
 		}
 	}
 	
 	return result;
+}
+
+public str patchToString(list[Entity] entities) {
+	str result = "";
+	
+	if (size(entities) > 0) {
+		result = patchToString(head(entities));
+		for (entity <- tail(entities)) {
+			result += ", " + patchToString(entity);	
+		}
+	}
+	
+	return result;
+}
+
+public str patchToString(Id id) {
+	switch (id) {
+		case class(name, params):
+			return name + "\<" + patchToString(params) + ">"; 		
+		case interface(name, params):
+			return name + "\<" + patchToString(params) + ">"; 		
+        case method(name, params, returnType):
+			return name + "(" + patchToString(params) + ")"; 		
+	}
+
+	try {
+		return id.name;
+	} catch : ;
+	
+	switch (id) {
+		case anonymousClass(nr): return "anonymousClass$" + toString(nr);		
+		case constructor(params): return "constructor(" + patchToString(params) + ")";		
+		case initializer: return "initializer";
+		case initializer(nr): return "initializer$" + toString(nr);		
+		case primitive(p): return getName(p);
+		case array(elementType): return patchToString(elementType) + "[]";		
+		case wildcard: return "?";
+		case wildcard(extends(bound)): return "? extends " + toString(bound);
+		case wildcard(super(bound)): return "? super " + toString(bound);
+		default : throw IllegalArgument(id);
+	}
 }
