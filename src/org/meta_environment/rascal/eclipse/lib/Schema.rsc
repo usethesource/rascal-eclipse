@@ -205,7 +205,7 @@ private rel[Entity, FactMap] getAllTypes(set[str] astFiles, set[str] excludeFile
 		if(!isEmpty(getComplement({file}, excludeFiles))) {
 			fm = extractFrom(file);
 			for(Entity declaredType <- getDeclaredTopTypes(fm) + range(getDeclaredSubTypes(fm))) {
-				if(!isHidden(declaredType, fm)) {
+				if(!isHidden(declaredType, fm) && !isDeprecated(declaredType, fm)) {
 					allTypes += {<declaredType, fm>};
 				}
 			}
@@ -215,15 +215,27 @@ private rel[Entity, FactMap] getAllTypes(set[str] astFiles, set[str] excludeFile
 	return allTypes;
 }
 
+/*
+ * Only public members can be used for fact extraction, so there is 
+ * no use indexing (package) private or protected members however 
+ * important they may be.   
+ */
 private bool isHidden(Entity ent, FactMap fm) {
-	set[Modifier] mods = getModifiers(fm)[ent];
-	return \private() in mods || protected() in mods;
+	return \public() notin getModifiers(fm)[ent];
+}
+
+private bool isDeprecated(Entity ent, FactMap fm) {
+	return deprecated() in getModifiers(fm)[ent];
+}
+
+private bool isAbstract(Entity ent, FactMap fm) {
+	return abstract() in getModifiers(fm)[ent];
 }
 
 private rel[str, Entity] getMethodsForType(Entity type, FactMap fm, set[Entity] returnTypes, Filters fs) {
 	rel[str, Entity] result = {};  
 	for(Entity meth <- getDeclaredMethods(fm)[type]) {		
-		if(/method(str NAME,_,Entity RT) := meth && isCompliant(fs, NAME) && RT in returnTypes && !isHidden(meth, fm)) {		
+		if(/method(str NAME,_,Entity RT) := meth && isCompliant(fs, NAME) && RT in returnTypes && !isHidden(meth, fm) && !isDeprecated(meth,fm)) {		
 			result += {<NAME,RT>};
 		} 
 	}
@@ -288,7 +300,7 @@ private bool isCompliant(Filters fs, str method) {
 private set[str] getIntersection(set[str] universe, set[str] subsetPatterns) {
 	set[str] result = {};
 	for (str s <- subsetPatterns) {
-		// no need to check a string if it is already included
+		// no need to check against a string that is already included, it will always fail.
 		result += getCompliantSet(universe - result, s); 
 	}
 
@@ -310,46 +322,28 @@ private set[str] getComplement(set[str] universe, set[str] subsetPatterns) {
 *                                                                       *
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-//FIXME change patchToString to toString when toSTring on entity is fixed
+//FIXME change patchToString to toString when toString on entity is fixed
 public void toFile(str newModulePath, str astPackagePath, Nodes nodes, Additions ads) {
-	list[str] datadefs = [];
-	EntityMap extraRTs = convertToEntityMap(ads.extraRTs);	
+	list[str] datadefs = [];	
 
-	for(Entity type <- domain(nodes)) {
-		str result = "";
-		
-		// begin
-		str typeStr = compact(astPackagePath, toString(type));
-		result += "data " + typeStr + " = " + toLowerCase(typeStr) + "(";
-		
-		// methods
-		bool separate = false;
-		
-		rel[FactMap facts, rel[str, Entity] methods, set[Entity] children] nodeInfo = nodes[type];
-		
-		for(rel[str s, Entity e] methods <- nodeInfo.methods) {
-			for (tuple [str s, Entity e] method <- methods) {
-				if(separate){result += ", "; } else { separate = true;}
-				result += (method.e in domain(extraRTs))? extraRTs[method.e] : compact(astPackagePath, patchToString(method.e)) + " " + method.s;
+	for(Entity type <- domain(nodes)) {	
+		Nodes ofType = domainR(nodes, {type});	
+		rel[str, Entity] methods = getOneFrom(ofType.methods);
+		set[Entity] children = getOneFrom(ofType.children);
+		FactMap facts = getOneFrom(ofType.facts);
+
+		str result = "data " + compact(astPackagePath, patchToString(type)) + " = ";
+		if (!(isEmpty(methods) && isAbstract(type, facts))) {
+			result += getNode(type, astPackagePath, methods, ads);
+			if (!isEmpty(children)) {
+				result += " | ";
 			}
 		}
-
-		for (str method <- ads.extraMeths) {
-			if(separate){result += ", "; } else { separate = true;}
-			result += method;
-		}
-
-		result += ")";
+		result += getChildren(astPackagePath, children) + ";";
 		
-		// children
-		for(set[Entity] children <- nodeInfo.children) {
-			for (Entity child <- children) {
-				str childStr = compact(astPackagePath, patchToString(child));
-				result += " | " + toLowerCase(childStr) + "_labda(" + childStr + ")";
-			}
-		}
-		result += ";";
-		datadefs += [result];
+		// This at least reduces any "schlemiel" problems.
+		// Joel Spolsky # Back to Basics
+		datadefs += [result];  
 	}
 
 	
@@ -359,6 +353,41 @@ public void toFile(str newModulePath, str astPackagePath, Nodes nodes, Additions
 	// TODO throw malformed path error
 	
 }
+
+private str getNode(Entity type, str astPackagePath, rel[str, Entity] methods, Additions ads) {
+		EntityMap extraRTs = convertToEntityMap(ads.extraRTs);
+		
+		str result = toLowerCase(compact(astPackagePath, patchToString(type))) + "(";
+		
+		bool separate = false;
+		for (tuple [str s, Entity e] method <- methods) {
+			if(separate){result += ", "; } else { separate = true;}
+			result += (method.e in domain(extraRTs))? extraRTs[method.e] : compact(astPackagePath, patchToString(method.e)) + " " + method.s;
+		}
+
+		for (str method <- ads.extraMeths) {
+			if(separate){result += ", "; } else { separate = true;}
+			result += method;
+		}
+
+		result += ")";
+		
+		return result;
+}
+
+private str getChildren(str astPackagePath, set[Entity] children) {
+		str result = "";
+		bool separate = false;
+		for (Entity child <- children) {
+			if(separate){result += " | "; } else { separate = true;}
+			
+			str childStr = compact(astPackagePath, patchToString(child));
+			result += toLowerCase(childStr) + "_labda(" + childStr + ")";
+		}
+		
+		return result;
+}
+
 
 private str compact(str packagePath, str fqn) {
 	if(/^<primaryFQNSection: [^\.]*>\.<fqnRemain:.*>$/ := fqn) {
