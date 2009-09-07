@@ -111,7 +111,7 @@ public class ParseController implements IParseController {
 				parseTree = null;
 			}
 			else {
-				parseTree = new ParsetreeAdapter(parseTree).addPositionInformation(path.toFile().getAbsolutePath());
+				parseTree = ParsetreeAdapter.addPositionInformation(parseTree, path.toFile().getAbsolutePath());
 				this.parseTree = parseTree;
 			}
 			monitor.worked(1);

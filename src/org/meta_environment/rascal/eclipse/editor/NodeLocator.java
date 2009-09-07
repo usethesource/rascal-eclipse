@@ -42,7 +42,7 @@ public class NodeLocator implements ISourcePositionLocator {
 			return ((Token) node).getLocation();
 		}
 		else if (node instanceof IConstructor) {
-			return new TreeAdapter((IConstructor) node).getLocation();
+			return TreeAdapter.getLocation((IConstructor) node);
 		}
 		else if (node instanceof AbstractAST) {
 			return getLocation(((AbstractAST) node).getTree());

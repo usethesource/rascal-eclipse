@@ -7,6 +7,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 import org.meta_environment.uptr.visitors.TreeVisitor;
 
@@ -43,19 +44,18 @@ public class TokenIterator implements Iterator<Token> {
 		@Override
 		public IConstructor visitTreeAmb(IConstructor arg)
 				throws VisitorException {
-			tokenList.add(new Token(TokenColorer.META_AMBIGUITY, new TreeAdapter(arg).getLocation()));
+			tokenList.add(new Token(TokenColorer.META_AMBIGUITY, TreeAdapter.getLocation(arg)));
 			return arg;
 		}
 
 		@Override
 		public IConstructor visitTreeAppl(IConstructor arg)
 				throws VisitorException {
-			TreeAdapter tree = new TreeAdapter(arg);
-			String category = tree.isAppl() ? tree.getProduction().getCategory() : null ;
+			String category = TreeAdapter.isAppl(arg) ? ProductionAdapter.getCategory(TreeAdapter.getProduction(arg)) : null ;
 			
 			if (category == null) {
-				if (tree.isLiteral()) {
-					String yield = new TreeAdapter(arg).yield();
+				if (TreeAdapter.isLiteral(arg)) {
+					String yield = TreeAdapter.yield(arg);
 					for (byte c : yield.getBytes()) {
 						if (!Character.isJavaIdentifierPart(c)) {
 							return arg;
@@ -66,12 +66,12 @@ public class TokenIterator implements Iterator<Token> {
 			}
 			
 			if (category == null) {
-				for (IValue child : tree.getArgs()) {
+				for (IValue child : TreeAdapter.getArgs(arg)) {
 					child.accept(this);
 				}
 			}
 			else {
-				tokenList.add(new Token(category, new TreeAdapter(arg).getLocation()));
+				tokenList.add(new Token(category, TreeAdapter.getLocation(arg)));
 			}
 
 			return arg;

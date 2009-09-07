@@ -108,7 +108,7 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 	}
 
 	private String getLabelFor(IConstructor node) {
-		return new TreeAdapter(node).yield();
+		return TreeAdapter.yield(node);
 	}
 
 	public void addListener(ILabelProviderListener listener) {
