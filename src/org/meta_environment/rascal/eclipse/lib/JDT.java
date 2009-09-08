@@ -46,7 +46,7 @@ public class JDT {
 	
 	public static IMap extractFacts(IString project, ISourceLocation file) {
 		IProject p = getProject(project);
-		IFile f = ROOT.getFileForLocation(new Path(file.getURL().getPath()));
+		IFile f = ROOT.getFileForLocation(new Path(file.getURI().getPath()));
 		
 		if (f.exists() && f.getProject() == p) {
 			return importFacts(f);

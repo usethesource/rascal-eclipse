@@ -51,7 +51,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 						if (b.isEnabled()) {
 							//only compare the relative paths from src folders
 							String bp_path = b.getResource().getProjectRelativePath().toString().replaceFirst(IRascalResources.RASCAL_SRC+"/", "");
-							String loc_path = loc.getURL().getHost()+loc.getURL().getPath();
+							String loc_path = loc.getURI().getHost()+loc.getURI().getPath();
 							if (bp_path.equals(loc_path)) {
 								// special case for expression breakpoints
 								if (b instanceof RascalExpressionBreakpoint) {

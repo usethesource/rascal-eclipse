@@ -8,7 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.net.URL;
+import java.net.URI;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -172,7 +172,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 				return;
 			}
 
-			URL url = loc.getURL();
+			URI url = loc.getURI();
 
 			if (url.getAuthority().equals("console")) {
 				return;

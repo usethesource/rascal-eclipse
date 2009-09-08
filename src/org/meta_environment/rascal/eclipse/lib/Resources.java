@@ -1,8 +1,5 @@
 package org.meta_environment.rascal.eclipse.lib;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -69,14 +66,7 @@ public class Resources {
 	public static ISourceLocation location(IString name) {
 		IProject project = getIProject(name.getValue());
 		
-		try {
-			URL url = new URL("file://" + project.getLocation().toString());
-			return VF.sourceLocation(url, 0, 0, 1, 1, 0, 0);
-		} 
-		catch (MalformedURLException e) {
-			// this does not happen
-			return null;
-		}
+		return VF.sourceLocation(project.getLocation().toString(), 0, 0, 1, 1, 0, 0);
 	}
 	
 	public static ISet files(IString name) {
@@ -90,15 +80,7 @@ public class Resources {
 						throws CoreException {
 					if (resource.exists() && !resource.isDerived()) {
 						if (resource instanceof IFile) {
-							try {
-								URL url = new URL("file://" + resource.getLocation().toString());
-								w.insert(VF.sourceLocation(url, 0, 0, 1, 1, 0, 0));	
-								
-								return false;
-							} catch (MalformedURLException e) {
-								// does not happen
-							}
-						
+							w.insert(VF.sourceLocation(resource.getLocation().toString(), 0, 0, 1, 1, 0, 0));	
 						}
 					}
 					return true;
@@ -173,16 +155,9 @@ public class Resources {
 	private static IValue getFile(IFile resource) {
 		IPath fullPath = resource.getFullPath();
 		String fileExtension = resource.getFileExtension();
-		try {
-			URL url = new URL("file://" + resource.getLocation().toString());
-			return file.make(VF, VF.string(fullPath.segment(fullPath.segmentCount() - 1)),
-					VF.string(fileExtension == null ? "": fileExtension),
-					VF.sourceLocation(url, 0, 0, 1, 1, 0, 0));
-		}
-		catch (MalformedURLException e) {
-			// this does not happen
-			return null;
-		}
+		return file.make(VF, VF.string(fullPath.segment(fullPath.segmentCount() - 1)),
+				VF.string(fileExtension == null ? "": fileExtension),
+				VF.sourceLocation(resource.getLocation().toString(), 0, 0, 1, 1, 0, 0));
 	}
 
 	private static ISet getFolderContents(final IFolder folder) {
