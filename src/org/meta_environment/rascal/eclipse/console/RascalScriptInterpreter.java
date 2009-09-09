@@ -174,11 +174,11 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 			URI url = loc.getURI();
 
-			if (url.getAuthority().equals("-")) {
+			if (url.getScheme().equals("console")) {
 				return;
 			}
 
-			lastMarked = getFile(url.getAuthority() + url.getPath());
+			lastMarked = getFile(url.getPath());
 
 			if (lastMarked != null) {
 				IMarker m = lastMarked.createMarker(IMarker.PROBLEM);
