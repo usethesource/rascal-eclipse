@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.eclipse.debug.core.model;
 
-
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -15,10 +14,11 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
 import org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
-import org.meta_environment.rascal.interpreter.debug.IDebugger;
+import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.debug.DebugStepMode;
 import org.meta_environment.rascal.interpreter.debug.DebugSuspendMode;
+import org.meta_environment.rascal.interpreter.debug.IDebugger;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
 public class RascalThread extends RascalDebugElement implements IThread, IDebugger {
@@ -92,11 +92,12 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	 */
 	public IStackFrame[] getStackFrames() throws DebugException {
 		if (isSuspended()) {
-			Stack<Environment> callStack = getRascalDebugTarget().getConsole().getRascalInterpreter().getEval().getCallStack();
+			Evaluator eval = getRascalDebugTarget().getConsole().getRascalInterpreter().getEval();
+			Stack<Environment> callStack = eval.getCallStack();
 			int size = callStack.size();
 			IStackFrame[] theFrames = new IStackFrame[size];
 			// for the top, use the current AST location
-			ISourceLocation currentLoc = getRascalDebugTarget().getConsole().getRascalInterpreter().getEval().getCurrentAST().getLocation();
+			ISourceLocation currentLoc = eval.getCurrentAST().getLocation();
 			theFrames[0] = new RascalStackFrame(getRascalDebugTarget(), callStack.get(size-1), currentLoc);
 			for (int i = 1; i < size; i++) {
 				theFrames[i] = new RascalStackFrame(getRascalDebugTarget(),callStack.get(size-i-1), callStack.get(size-i).getCallerLocation());
