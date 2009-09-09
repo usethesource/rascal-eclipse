@@ -4,6 +4,6 @@ Name: rascal-eclipse
 Description: 
 Version: 0.1
 EclipseRequires=org.eclipse.core.runtime,org.eclipse.debug.ui,org.eclipse.gef,org.eclipse.imp.pdb.ui,org.eclipse.imp.pdb.values,org.eclipse.imp.runtime,org.eclipse.jdt.core,org.eclipse.jdt.ui,org.eclipse.jface.text,org.eclipse.ui,org.eclipse.ui.console,org.eclipse.ui.editors,org.eclipse.ui.ide
-Requires: graph-browser,rascal,rascal-plugin,sglr-invoker
+Requires: graph-browser,rascal,rascal-plugin,sglr-invoker,pdb-shared
 JarFile=rascal-eclipse.jar
 Packages=

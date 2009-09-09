@@ -360,6 +360,35 @@
         </run>
      </runtime>
   </extension>
+  <extension
+        point="org.eclipse.imp.runtime.languageDescription">
+     <language
+           description="SDF"
+           extensions="sdf"
+           language="SDF">
+     </language>
+  </extension>
+  <extension
+        point="org.eclipse.imp.runtime.tokenColorer">
+     <tokenColorer
+           class="org.meta_environment.rascal.eclipse.editor.TokenColorer"
+           language="SDF">
+     </tokenColorer>
+  </extension>
+  <extension
+        point="org.eclipse.imp.runtime.labelProvider">
+     <labelProvider
+           class="org.meta_environment.rascal.eclipse.outline.LabelProvider"
+           language="SDF">
+     </labelProvider>
+  </extension>
+  <extension
+        point="org.eclipse.imp.runtime.parser">
+     <parser
+           class="org.meta_environment.rascal.eclipse.editor.SDFParseController"
+           language="SDF">
+     </parser>
+  </extension>
   
    
 </plugin>

@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.meta_environment.rascal.eclipse.editor.SDFParseController;
 import org.osgi.framework.Bundle;
 
 import sglr.LegacySGLRInvoker;
@@ -75,6 +76,9 @@ public class Activator extends PluginBase {
 			System.setProperty("rascal.sdf.library.dir", getFile(rascalPluginBundle, "installed/share/sdf-library/library"));
 
 			System.setProperty("rascal.parsetable.cache.dir", System.getProperty("java.io.tmpdir"));
+			
+			// SDF parse table
+			SDFParseController.setParseTable(getFile(rascalPluginBundle, "installed/share/pgen/Sdf2.saf"));
 		}
 	}
 
