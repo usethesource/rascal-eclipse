@@ -205,6 +205,10 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 		IValue value = stat.accept(new NullASTVisitor<IValue>() {
 
+			public IValue visitCommandExpression(org.meta_environment.rascal.ast.Command.Expression x) {
+				return eval.eval(x.getExpression()).getValue();
+			};
+			
 			@Override
 			public IValue visitCommandStatement(Statement x) {
 				return eval.eval(x.getStatement()).getValue();
