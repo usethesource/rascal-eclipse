@@ -174,7 +174,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 			URI url = loc.getURI();
 
-			if (url.getAuthority().equals("console")) {
+			if (url.getAuthority().equals("-")) {
 				return;
 			}
 
