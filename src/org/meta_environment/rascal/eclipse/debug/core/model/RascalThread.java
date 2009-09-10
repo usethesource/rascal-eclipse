@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.eclipse.debug.core.model;
 
-import java.util.HashMap;
 import java.util.Stack;
 
 import org.eclipse.core.runtime.CoreException;
@@ -27,13 +26,11 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	private volatile boolean fTerminated = false;
 	private boolean fSuspended = false;
 	private boolean fSuspendedByBreakpoint = false;
-	
-	private HashMap<RascalLineBreakpoint, ISourceLocation> lineBPLocations = new HashMap<RascalLineBreakpoint, ISourceLocation>();
 
 	public RascalThread(IDebugTarget target) {
 		super(target);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IThread#getBreakpoints()
 	 */
@@ -50,8 +47,8 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 					try {
 						if (b.isEnabled()) {
 							//only compare the relative paths from src folders
-							String bp_path = b.getResource().getProjectRelativePath().toString().replaceFirst(IRascalResources.RASCAL_SRC+"/", "");
-							String loc_path = loc.getURI().getHost()+loc.getURI().getPath();
+							String bp_path = b.getResource().getProjectRelativePath().toString().replaceFirst(IRascalResources.RASCAL_SRC, "");
+							String loc_path = loc.getURI().getPath();
 							if (bp_path.equals(loc_path)) {
 								// special case for expression breakpoints
 								if (b instanceof RascalExpressionBreakpoint) {
@@ -59,14 +56,8 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 										return true;
 									}
 								} else if (b.getLineNumber()==loc.getBeginLine()) {
-									// test if it is really the complete line and not a sub-expression
-									//TODO: find a better solution...
-									if (lineBPLocations.containsKey(b)) {
-										return loc.equals(lineBPLocations.get(b));
-									} else {
-										lineBPLocations.put(b, loc);
-										return true;
-									}
+									// TODO: stop only if it is really the complete line and not a sub-expression
+									return true;
 								}
 							}
 						}

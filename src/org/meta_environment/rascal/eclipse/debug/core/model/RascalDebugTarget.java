@@ -240,17 +240,6 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 			}
 		}
 	}
-
-	/**
-	 * Install breakpoints that are already registered with the breakpoint
-	 * manager.
-	 */
-	private void installDeferredBreakpoints() {
-		IBreakpoint[] breakpoints = getBreakpointManager().getBreakpoints(getModelIdentifier());
-		for (int i = 0; i < breakpoints.length; i++) {
-			breakpointAdded(breakpoints[i]);
-		}
-	}
 	
 	public void setConsole(IRascalConsole console){
 		this.console = console;
