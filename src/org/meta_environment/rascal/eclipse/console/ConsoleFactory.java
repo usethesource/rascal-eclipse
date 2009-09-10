@@ -23,7 +23,7 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.parser.ConsoleParser;
 
-public class ConsoleFactory implements IConsoleFactory {
+public class ConsoleFactory{
 	public final static String INTERACTIVE_CONSOLE_ID = InteractiveInterpreterConsole.class.getName();
 	private static final String SHELL_MODULE = "***shell***";
 
@@ -42,13 +42,6 @@ public class ConsoleFactory implements IConsoleFactory {
 		return InstanceKeeper.instance;
 	}
 	
-	// TODO I'd like to get rid of this
-	public void openConsole(){
-		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE));
-		fConsoleManager.addConsoles(new IConsole[]{console});
-		fConsoleManager.showConsoleView(console);
-	}
-
 	public IRascalConsole openRunConsole(){
 		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE));
 		fConsoleManager.addConsoles(new IConsole[]{console});

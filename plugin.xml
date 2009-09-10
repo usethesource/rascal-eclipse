@@ -5,20 +5,6 @@
    <extension-point id="rascal_eclipse.baseBinaryPath" name="rascal_eclipse.baseBinaryPath" schema="schema/rascal_eclipse.baseBinaryPath.exsd"/>
 
    <extension
-         point="org.eclipse.ui.console.consoleFactories">
-      <consoleFactory
-            label="Rascal"
-            class="org.meta_environment.rascal.eclipse.console.ConsoleFactory">
-      </consoleFactory>
-   </extension>
-   <extension
-         point="org.eclipse.ui.console.consoleFactories">
-      <consoleFactory
-            label="Rascal debug"
-            class="org.meta_environment.rascal.eclipse.console.DebuggableConsoleFactory">
-      </consoleFactory>
-   </extension>
-   <extension
          point="org.eclipse.imp.runtime.languageDescription">
       <language
             description="Source analysis and manipulation language"
