@@ -51,6 +51,9 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 			}
 			return sourceContainers.toArray(new ISourceContainer[]{});
 			}
+		
+		//TODO: we need to find a way to also add standard library's modules
+		
 		/* default case */
 		return new ISourceContainer[]{};
 	}
