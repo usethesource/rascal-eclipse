@@ -13,6 +13,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.meta_environment.locations.URIResolverRegistry;
+import org.meta_environment.rascal.eclipse.console.ProjectURIResolver;
 import org.meta_environment.rascal.eclipse.editor.SDFParseController;
 import org.osgi.framework.Bundle;
 
@@ -79,6 +81,12 @@ public class Activator extends PluginBase {
 			
 			// SDF parse table
 			SDFParseController.setParseTable(getFile(rascalPluginBundle, "installed/share/pgen/Sdf2.saf"));
+			
+			// project scheme
+			ProjectURIResolver resolver = new ProjectURIResolver();
+			URIResolverRegistry registry = URIResolverRegistry.getInstance();
+			registry.registerInput(resolver.scheme(), resolver);
+			registry.registerOutput(resolver.scheme(), resolver);
 		}
 	}
 
