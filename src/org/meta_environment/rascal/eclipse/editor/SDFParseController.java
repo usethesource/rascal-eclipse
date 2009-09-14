@@ -26,6 +26,7 @@ import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
+import org.meta_environment.uri.FileURIResolver;
 
 import sglr.SGLRInvoker;
 
@@ -118,7 +119,7 @@ public class SDFParseController implements IParseController{
 	
 	private URI constructURI(String filename){
 		try{
-			if(filename == "-") return new URI("file://-");
+			if(filename == "-") return FileURIResolver.STDIN_URI;
 			return new URI(filename.startsWith("/") ? filename : "./"+filename);
 		}catch(URISyntaxException usex){
 			throw new RuntimeException(usex);
