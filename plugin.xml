@@ -75,11 +75,18 @@
                   targetID="rascal.editor.contextMenu">
                <action
                      class="org.meta_environment.rascal.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
-                     definitionId="rascal-eclipse.AddExprBreakpoint"
                      icon="icons/rascal3D_2-16px.gif"
                      id="rascal.editor.context.ExprBreakpointAction"
                      label="Add an Expression Breakpoint"
                      menubarPath="additions"/>
+               <action
+                     class="org.meta_environment.rascal.eclipse.debug.ui.actions.EvaluateExprAction"
+                     icon="icons/rascal3D_2-16px.gif"
+                     id="rascal.editor.context.EvalExprtAction"
+                     label="Evaluate"
+                     menubarPath="additions"
+                     tooltip="Evaluate the selected in the current evaluation environment">
+               </action>
             </viewerContribution>
             <objectContribution
                   adaptable="false"

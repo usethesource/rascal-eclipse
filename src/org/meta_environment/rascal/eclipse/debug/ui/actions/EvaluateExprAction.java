@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
+import org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugElement;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget;
 import org.meta_environment.rascal.interpreter.result.Result;
 
@@ -41,8 +42,8 @@ public class EvaluateExprAction implements IEditorActionDelegate {
 		Point point = PlatformUI.getWorkbench().getDisplay().getCursorLocation();
 		IAdaptable object = DebugUITools.getDebugContext();
 		RascalDebugTarget target = null;
-		if (object instanceof IDebugElement) {
-			target = (RascalDebugTarget) object;
+		if (object instanceof RascalDebugElement) {
+			target = ((RascalDebugElement) object).getRascalDebugTarget();
 		} else if (object instanceof ILaunch) {
 			target = (RascalDebugTarget) ((ILaunch) object).getDebugTarget();
 		}
