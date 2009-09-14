@@ -13,9 +13,9 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
-import org.meta_environment.locations.URIResolverRegistry;
 import org.meta_environment.rascal.eclipse.console.ProjectURIResolver;
 import org.meta_environment.rascal.eclipse.editor.SDFParseController;
+import org.meta_environment.uri.URIResolverRegistry;
 import org.osgi.framework.Bundle;
 
 import sglr.LegacySGLRInvoker;

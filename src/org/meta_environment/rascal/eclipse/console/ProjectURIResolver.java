@@ -11,8 +11,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.meta_environment.locations.IURIInputStreamResolver;
-import org.meta_environment.locations.IURIOutputStreamResolver;
+import org.meta_environment.uri.IURIInputStreamResolver;
+import org.meta_environment.uri.IURIOutputStreamResolver;
 
 public class ProjectURIResolver implements IURIInputStreamResolver,
 		IURIOutputStreamResolver {
