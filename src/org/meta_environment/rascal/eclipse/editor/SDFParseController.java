@@ -2,6 +2,8 @@ package org.meta_environment.rascal.eclipse.editor;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IPath;
@@ -88,14 +90,12 @@ public class SDFParseController implements IParseController{
 			
 			byte[] result = SGLRInvoker.getInstance().parseFromString(moduleString, parseTable);
 			IConstructor tree = bytesToParseTree(fileName, result);
+			parseTree = tree;
 			
 			if(tree.getConstructorType() == Factory.ParseTree_Summary){
 				ISourceLocation range = new SummaryAdapter(tree).getInitialSubject().getLocation();
 				handler.handleSimpleMessage("parse error: " + range, range.getOffset(), range.getOffset() + range.getLength(), range.getBeginColumn(), range.getEndColumn(), range.getBeginLine(), range.getEndLine());
 				parseTree = null;
-			}else{
-				tree = ParsetreeAdapter.addPositionInformation(tree, path.toFile().getAbsolutePath());
-				parseTree = tree;
 			}
 			
 			monitor.worked(1);
@@ -115,11 +115,20 @@ public class SDFParseController implements IParseController{
 		
 		return null;
 	}
+	
+	private URI constructURI(String filename){
+		try{
+			if(filename == "-") return new URI("file://-");
+			return new URI(filename.startsWith("/") ? filename : "./"+filename);
+		}catch(URISyntaxException usex){
+			throw new RuntimeException(usex);
+		}
+	}
 
 	private IConstructor bytesToParseTree(String fileName, byte[] result) throws IOException{
 		PBFReader reader = new PBFReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
 		IConstructor tree = (IConstructor) reader.read(ValueFactoryFactory.getValueFactory(), Factory.getStore(),Factory.ParseTree, bais);
-		return ParsetreeAdapter.addPositionInformation(tree, fileName);
+		return ParsetreeAdapter.addPositionInformation(tree, constructURI(fileName));
 	}
 }

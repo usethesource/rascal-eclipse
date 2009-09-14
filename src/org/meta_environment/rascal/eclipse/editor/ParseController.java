@@ -30,10 +30,9 @@ import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
-import org.meta_environment.uptr.ParsetreeAdapter;
 
 public class ParseController implements IParseController {
-	private ModuleLoader loader = new ModuleLoader();
+	private final ModuleLoader loader = new ModuleLoader();
 	
 	private IMessageHandler handler;
 	private ISourceProject project;
@@ -72,8 +71,7 @@ public class ParseController implements IParseController {
 		return new TokenIterator(parseTree);
 	}
 
-	public void initialize(IPath filePath, ISourceProject project,
-			IMessageHandler handler) {
+	public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {
 		this.path = filePath;
 		this.handler = handler;
 		this.project = project;
@@ -104,16 +102,14 @@ public class ParseController implements IParseController {
 			monitor.beginTask("parsing Rascal", 1);
 			
 			IConstructor parseTree = loader.parseModule(path.toOSString(), input, new ModuleEnvironment("***editor***"));
+			this.parseTree = parseTree;
 			
 			if (parseTree.getConstructorType() == Factory.ParseTree_Summary) {
 				ISourceLocation range = new SummaryAdapter(parseTree).getInitialSubject().getLocation();
 				handler.handleSimpleMessage("parse error: " + range, range.getOffset(), range.getOffset() + range.getLength(), range.getBeginColumn(), range.getEndColumn(), range.getBeginLine(), range.getEndLine());
 				parseTree = null;
 			}
-			else {
-				parseTree = ParsetreeAdapter.addPositionInformation(parseTree, path.toFile().getAbsolutePath());
-				this.parseTree = parseTree;
-			}
+			
 			monitor.worked(1);
 			return parseTree;
 		} catch (FactTypeUseException e) {
