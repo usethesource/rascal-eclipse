@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.model.IDebugElement;
 import org.eclipse.debug.ui.DebugPopup;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.action.IAction;
