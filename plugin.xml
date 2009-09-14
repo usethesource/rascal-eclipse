@@ -395,7 +395,7 @@
            commandId="rascal-eclipse.EvalExpression"
            contextId="rascal.debugging"
            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-           sequence="M1+M2+D">
+           sequence="Ctrl+E">
      </key>
   </extension>
   

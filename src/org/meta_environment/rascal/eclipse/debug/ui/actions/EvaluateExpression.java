@@ -10,6 +10,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.ui.DebugPopup;
 import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.core.expressions.EvaluationContext;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
@@ -40,7 +41,9 @@ public class EvaluateExpression extends AbstractHandler implements IEditorAction
 			return;
 		}
 		String expr = fSelection.getText();
-		evaluate(expr);
+		if(expr != null && expr.trim().length() > 0){
+			evaluate(expr);
+		}
 	}
 
 	/*
@@ -88,11 +91,15 @@ public class EvaluateExpression extends AbstractHandler implements IEditorAction
 	}
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		Object trigger =event.getTrigger();
-		if(trigger instanceof ITextSelection){
-			String expr = ((ITextSelection)trigger).getText();
-			if(expr != null && expr.trim().length() > 0){
-				evaluate(expr);
+		Object context = event.getApplicationContext();
+		if (context instanceof EvaluationContext) {
+			EvaluationContext evalContext = (EvaluationContext) context;
+			Object selection = evalContext.getVariable("selection");
+			if(selection instanceof ITextSelection){
+				String expr = ((ITextSelection)selection).getText();
+				if(expr != null && expr.trim().length() > 0){
+					evaluate(expr);
+				}
 			}
 		}
 		return null;
