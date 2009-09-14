@@ -80,12 +80,12 @@
                      label="Add an Expression Breakpoint"
                      menubarPath="additions"/>
                <action
-                     class="org.meta_environment.rascal.eclipse.debug.ui.actions.EvaluateExprAction"
+                     class="org.meta_environment.rascal.eclipse.debug.ui.actions.EvaluateExpression"
                      icon="icons/rascal3D_2-16px.gif"
                      id="rascal.editor.context.EvalExprtAction"
                      label="Evaluate"
                      menubarPath="additions"
-                     tooltip="Evaluate the selected in the current evaluation environment">
+                     tooltip="Evaluate the selected text in the current evaluation environment">
                </action>
             </viewerContribution>
             <objectContribution
@@ -304,6 +304,11 @@
               id="rascal-eclipse.AddExprBreakpoint"
               name="Add Expression Breakpoint">
         </command>
+        <command
+              defaultHandler="org.meta_environment.rascal.eclipse.debug.ui.actions.EvaluateExpression"
+              id="rascal-eclipse.EvalExpression"
+              name="Evaluate Expression">
+        </command>
      </extension>
   <extension
         point="org.eclipse.debug.ui.debugModelContextBindings">
@@ -381,6 +386,17 @@
            class="org.meta_environment.rascal.eclipse.editor.SDFParseController"
            language="SDF">
      </parser>
+  </extension>
+  <extension
+        id="rascal.bindings"
+        name="Rascal key bindings"
+        point="org.eclipse.ui.bindings">
+     <key
+           commandId="rascal-eclipse.EvalExpression"
+           contextId="rascal.debugging"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           sequence="M1+M2+D">
+     </key>
   </extension>
   
    

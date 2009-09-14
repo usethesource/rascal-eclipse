@@ -2,6 +2,9 @@ package org.meta_environment.rascal.eclipse.debug.ui.actions;
 
 import java.io.IOException;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -25,7 +28,7 @@ import org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 
-public class EvaluateExprAction implements IEditorActionDelegate {
+public class EvaluateExpression extends AbstractHandler implements IEditorActionDelegate {
 
 	private ITextSelection fSelection;
 
@@ -36,39 +39,8 @@ public class EvaluateExprAction implements IEditorActionDelegate {
 		if (fSelection == null) {
 			return;
 		}
-		String text = fSelection.getText();
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		Point point = PlatformUI.getWorkbench().getDisplay().getCursorLocation();
-		IAdaptable object = DebugUITools.getDebugContext();
-		RascalDebugTarget target = null;
-		if (object instanceof RascalDebugElement) {
-			target = ((RascalDebugElement) object).getRascalDebugTarget();
-		} else if (object instanceof ILaunch) {
-			target = (RascalDebugTarget) ((ILaunch) object).getDebugTarget();
-		}
-		try {
-			//parse the expression
-			org.meta_environment.rascal.ast.Expression ast = target.getInterpreter().getExpression(text);
-
-			//evaluate
-			Result<org.eclipse.imp.pdb.facts.IValue> value = target.getEvaluator().eval(ast);
-
-			try {
-				String result = null;
-				if (value != null) {
-					result = text+"\n"+value.toString();
-					DisplayPopup popup = new DisplayPopup(shell, point, result);
-					popup.open();
-				}
-			} catch (Throwable t) {
-				DebugPlugin.log(t);
-			}
-
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		String expr = fSelection.getText();
+		evaluate(expr);
 	}
 
 	/*
@@ -91,7 +63,7 @@ public class EvaluateExprAction implements IEditorActionDelegate {
 	 */
 	private class DisplayPopup extends DebugPopup {
 		public DisplayPopup(Shell shell, Point point, String text) {
-			super(shell, point, "rascal.evaluateaction");
+			super(shell, point, "rascal.EvaluateExpression");
 			this.text = text;
 		}
 
@@ -115,5 +87,52 @@ public class EvaluateExprAction implements IEditorActionDelegate {
 		}
 	}
 
+	public Object execute(ExecutionEvent event) throws ExecutionException {
+		Object trigger =event.getTrigger();
+		if(trigger instanceof ITextSelection){
+			String expr = ((ITextSelection)trigger).getText();
+			if(expr != null && expr.trim().length() > 0){
+				evaluate(expr);
+			}
+		}
+		return null;
+	}
+
+	private void evaluate(String expr) {
+
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		//TODO: create a point exactly at the beginning of the selected text
+		Point point = PlatformUI.getWorkbench().getDisplay().getCursorLocation();
+		IAdaptable object = DebugUITools.getDebugContext();
+		RascalDebugTarget target = null;
+		if (object instanceof RascalDebugElement) {
+			target = ((RascalDebugElement) object).getRascalDebugTarget();
+		} else if (object instanceof ILaunch) {
+			target = (RascalDebugTarget) ((ILaunch) object).getDebugTarget();
+		}
+		try {
+			//parse the expression
+			org.meta_environment.rascal.ast.Expression ast = target.getInterpreter().getExpression(expr	);
+
+			//evaluate
+			Result<org.eclipse.imp.pdb.facts.IValue> value = target.getEvaluator().eval(ast);
+
+			try {
+				String result = null;
+				if (value != null) {
+					result = expr+"\n"+value.toString();
+					DisplayPopup popup = new DisplayPopup(shell, point, result);
+					popup.open();
+				}
+			} catch (Throwable t) {
+				DebugPlugin.log(t);
+			}
+
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }

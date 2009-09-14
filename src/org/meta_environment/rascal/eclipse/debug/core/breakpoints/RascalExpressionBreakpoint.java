@@ -15,7 +15,6 @@ public class RascalExpressionBreakpoint extends RascalLineBreakpoint {
 	
 	private ITextSelection selection;
 
-
 	/**
 	 * Default constructor is required for the breakpoint manager
 	 * to re-create persisted breakpoints. After instantiating a breakpoint,
