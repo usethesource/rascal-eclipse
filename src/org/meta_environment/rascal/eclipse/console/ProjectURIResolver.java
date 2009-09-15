@@ -14,6 +14,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.model.ISourceProject;
+import org.meta_environment.uri.BadURIException;
 import org.meta_environment.uri.IURIInputStreamResolver;
 import org.meta_environment.uri.IURIOutputStreamResolver;
 
@@ -23,7 +24,7 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		try{
 			return new URI("project://"+project.getName()+"/"+path);
 		}catch(URISyntaxException usex){
-			throw new RuntimeException(usex);
+			throw new BadURIException(usex);
 		}
 	}
 
