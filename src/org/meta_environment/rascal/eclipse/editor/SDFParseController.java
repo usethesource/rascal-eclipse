@@ -3,7 +3,6 @@ package org.meta_environment.rascal.eclipse.editor;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IPath;
@@ -23,10 +22,10 @@ import org.eclipse.jface.text.IRegion;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.eclipse.Activator;
+import org.meta_environment.rascal.eclipse.console.ProjectURIResolver;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
-import org.meta_environment.uri.FileURIResolver;
 
 import sglr.SGLRInvoker;
 
@@ -87,10 +86,10 @@ public class SDFParseController implements IParseController{
 			handler.clearMessages();
 			monitor.beginTask("parsing SDF", 1);
 			
-			String fileName = path.toOSString();
+			URI location = ProjectURIResolver.constructProjectURI(project, path);
 			
 			byte[] result = SGLRInvoker.getInstance().parseFromString(moduleString, parseTable);
-			IConstructor tree = bytesToParseTree(fileName, result);
+			IConstructor tree = bytesToParseTree(location, result);
 			parseTree = tree;
 			
 			if(tree.getConstructorType() == Factory.ParseTree_Summary){
@@ -116,20 +115,11 @@ public class SDFParseController implements IParseController{
 		
 		return null;
 	}
-	
-	private URI constructURI(String filename){
-		try{
-			if(filename == "-") return FileURIResolver.STDIN_URI;
-			return new URI(filename.startsWith("/") ? filename : "./"+filename);
-		}catch(URISyntaxException usex){
-			throw new RuntimeException(usex);
-		}
-	}
 
-	private IConstructor bytesToParseTree(String fileName, byte[] result) throws IOException{
+	private IConstructor bytesToParseTree(URI location, byte[] result) throws IOException{
 		PBFReader reader = new PBFReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
 		IConstructor tree = (IConstructor) reader.read(ValueFactoryFactory.getValueFactory(), Factory.getStore(),Factory.ParseTree, bais);
-		return ParsetreeAdapter.addPositionInformation(tree, constructURI(fileName));
+		return ParsetreeAdapter.addPositionInformation(tree, location);
 	}
 }
