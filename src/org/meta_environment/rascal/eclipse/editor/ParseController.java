@@ -21,6 +21,7 @@ import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.ProjectModuleLoader;
 import org.meta_environment.rascal.eclipse.console.ProjectSDFModuleContributor;
+import org.meta_environment.rascal.eclipse.console.ProjectURIResolver;
 import org.meta_environment.rascal.eclipse.console.RascalScriptInterpreter;
 import org.meta_environment.rascal.interpreter.Configuration;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
@@ -101,7 +102,7 @@ public class ParseController implements IParseController {
 			handler.clearMessages();
 			monitor.beginTask("parsing Rascal", 1);
 			
-			IConstructor parseTree = loader.parseModule(path.toOSString(), input, new ModuleEnvironment("***editor***"));
+			IConstructor parseTree = loader.parseModule(ProjectURIResolver.constructProjectURI(project, path), new ModuleEnvironment("***editor***"));
 			this.parseTree = parseTree;
 			
 			if (parseTree.getConstructorType() == Factory.ParseTree_Summary) {

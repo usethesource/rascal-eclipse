@@ -6,16 +6,26 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.imp.model.ISourceProject;
 import org.meta_environment.uri.IURIInputStreamResolver;
 import org.meta_environment.uri.IURIOutputStreamResolver;
 
-public class ProjectURIResolver implements IURIInputStreamResolver,
-		IURIOutputStreamResolver {
+public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputStreamResolver {
+	
+	public static URI constructProjectURI(ISourceProject project, IPath path){
+		try{
+			return new URI("project://"+project.getName()+"/"+path);
+		}catch(URISyntaxException usex){
+			throw new RuntimeException(usex);
+		}
+	}
 
 	public InputStream getInputStream(URI uri) throws IOException {
 		try {
