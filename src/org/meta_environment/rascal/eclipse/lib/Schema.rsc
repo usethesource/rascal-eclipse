@@ -10,11 +10,12 @@ import Resources;
 import List;
 
 import IO; // TODO remove, debug
+import SchemaTelemetry; // TODO remove, just for acquiring metadata
 
 public alias EntityMap = map[Entity fqn, str mapping];
 public alias Nodes = rel[Entity type, FactMap facts, rel[str, Entity] methods, set[Entity] children]; 
 
-public alias Additions = tuple[map[str fqn, str mapping] extraRTs, list[str] extraMeths];
+public alias Additions = tuple[map[tuple[str fqn, list[int]] tup, str mapping] extraRTs, list[str] extraMeths];
 public alias Filters = tuple[set[str] exclFilePatterns, set[str] inclMethPatterns, set[str] exclMethPatterns];
 
 
@@ -59,6 +60,13 @@ public str REL = "rel[value,value]";
 public str MAP = "map[value,value]";
 public str NODE = "node()";
 
+
+public int PACKAGE = 0;
+public int CLASS = 1;
+public int INTERFACE = 2;
+public int ENUM = 3;
+
+
 // for some less common mapping values
 public str getTuple(int arity) {
 	return "tuple[" + getFilling(arity) + "]";
@@ -98,8 +106,9 @@ public void buildDataScheme(str astPackagePath, str newModulePath) {
 	buildDataScheme(astPackagePath, newModulePath, <{},{".*"},{}>, <(),[]>); //include all, exclude nothing, add nothing 
 }
 
-public void buildDataScheme(str astPackagePath, str newModulePath, Filters fs, Additions ads) {	
-	toFile(newModulePath, astPackagePath, buildDataSchemeHalfway(astPackagePath, fs, ads), ads);	
+// TODO remove! temporarily returns string for metadata
+public str buildDataScheme(str astPackagePath, str newModulePath, Filters fs, Additions ads) {	
+	return toFile(newModulePath, astPackagePath, buildDataSchemeHalfway(astPackagePath, fs, ads), ads); 	
 }
 
 public Nodes buildDataSchemeHalfway(str astPackagePath, Filters fs, Additions ads) {
@@ -232,11 +241,21 @@ private bool isAbstract(Entity ent, FactMap fm) {
 	return abstract() in getModifiers(fm)[ent];
 }
 
+/* 
+ * We return only methods that:
+ * 1) Do not take arguments. (If these methods were indeed significant, we can not know what values to provide for the arguments)
+ * 2) Have a name which complies to the filters the user has provided.
+ * 3) Have a return type that is either in the package or is provided by the user.
+ * 4) Are public. (Hidden methods are not part of the API and therefore can not be used by us)
+ * 5) Are not deprecated (Only Javadoc deprecated tag supported at this time). (If a method is deprecated it is not supposed to be used) 
+ */
 private rel[str, Entity] getMethodsForType(Entity type, FactMap fm, set[Entity] returnTypes, Filters fs) {
 	rel[str, Entity] result = {};  
 	for(Entity meth <- getDeclaredMethods(fm)[type]) {		
-		if(/method(str NAME,_,Entity RT) := meth && isCompliant(fs, NAME) && RT in returnTypes && !isHidden(meth, fm) && !isDeprecated(meth,fm)) {		
-			result += {<NAME,RT>};
+		if(/method(str NAME, list[value] ARGS, Entity RT) := meth) {
+		 	if(isEmpty(ARGS) && isCompliant(fs, NAME) && RT in returnTypes && !isHidden(meth, fm) && !isDeprecated(meth,fm)) {		
+				result += {<NAME, RT>};
+		 	}
 		} 
 	}
 	
@@ -256,7 +275,7 @@ private FactMap extractFrom(str file) {
 *                              CONVERT EXTRA CLASSES                    *
 *                                                                       *
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
 private EntityMap convertToEntityMap(map[str, str] strMap) {
 	EntityMap result = ();
 	for(str fqname <- strMap) {
@@ -286,6 +305,54 @@ private Entity convertToEntity(str fqn) {
 	
 	return entity(ids);
 }
+*/
+//============================================================================
+
+public EntityMap convertToEntityMap(map[tuple[str, list[int]], str] strMap) {
+	EntityMap result = ();
+	for (tuple[str, list[int]] tup <- strMap) {
+		result += (convertToEntity(tup): strMap[tup]);
+	}
+	
+	return result;
+}
+
+private set[Entity] convertToEntities(set[tuple[str, list[int]]] fqns) {
+	set[Entity] result = {};
+	for(tuple[str, list[int]] fqn <- fqns) {
+		result += {convertToEntity(fqn)};
+	}
+
+	return result;
+}
+
+public Entity convertToEntity(tuple[str fqn, list[int] l] tup) {
+	str temp = tup.fqn;
+	list[Id] ids = [];
+	int i = size(tup.l)-1;
+	while(/^<prefix: .*>\.<id:[^\.]*>$/ := temp) {
+		int idType = i >= 0? tup.l[i]: 0;
+		ids = [getId(idType, id)] + ids;
+		temp = prefix;
+		i -= 1;
+	}
+	int idType = i >= 0? tup.l[i]: 0;
+	ids = [getId(idType, temp)] + ids;
+	
+	return entity(ids);
+}
+
+public Id getId(int type, str name) {
+	switch (type) {
+		case PACKAGE:	return package(name);
+		case CLASS:		return class(name);
+		case INTERFACE:	return interface(name);
+		case ENUM:		return enum(name);
+	}
+	
+	return package(name);
+}
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *\
 *                                                                       *
@@ -323,17 +390,22 @@ private set[str] getComplement(set[str] universe, set[str] subsetPatterns) {
 \* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 //FIXME change patchToString to toString when toString on entity is fixed
-public void toFile(str newModulePath, str astPackagePath, Nodes nodes, Additions ads) {
+public str toFile(str newModulePath, str astPackagePath, Nodes nodes, Additions ads) {
 	list[str] datadefs = [];	
+	
+	Telemetry t = initTelemetry(); // TODO remove! just for acquiring metadata
+	
 
 	for(Entity type <- domain(nodes)) {	
 		Nodes ofType = domainR(nodes, {type});	
 		rel[str, Entity] methods = getOneFrom(ofType.methods);
 		set[Entity] children = getOneFrom(ofType.children);
 		FactMap facts = getOneFrom(ofType.facts);
+		
+		t = update(t, size(children), size(methods)); // TODO remove! just for acquiring metadata 
 
 		str result = "data " + compact(astPackagePath, patchToString(type)) + " = ";
-		if (!(isEmpty(methods) && isAbstract(type, facts))) {
+		if (!isAbstract(type, facts)) { // abstract classes can not be instantiated and as such are not useful to us.
 			result += getNode(type, astPackagePath, methods, ads);
 			if (!isEmpty(children)) {
 				result += " | ";
@@ -345,13 +417,14 @@ public void toFile(str newModulePath, str astPackagePath, Nodes nodes, Additions
 		// Joel Spolsky # Back to Basics
 		datadefs += [result];  
 	}
-
+	 
 	
 	if (/^\/?<proj:[^\/]*><middle:.*?><mod:[^\/]*><ext: \.rsc>$/ := newModulePath) {
 		printData(location(proj).url + middle + mod + ext, mod, datadefs);
 	}
 	// TODO throw malformed path error
 	
+	return printTelemetry(t); // TODO remove! just for acquiring metadata
 }
 
 private str getNode(Entity type, str astPackagePath, rel[str, Entity] methods, Additions ads) {
@@ -362,7 +435,8 @@ private str getNode(Entity type, str astPackagePath, rel[str, Entity] methods, A
 		bool separate = false;
 		for (tuple [str s, Entity e] method <- methods) {
 			if(separate){result += ", "; } else { separate = true;}
-			result += (method.e in domain(extraRTs))? extraRTs[method.e] : compact(astPackagePath, patchToString(method.e)) + " " + method.s;
+			result += (method.e in domain(extraRTs))? extraRTs[method.e] : compact(astPackagePath, patchToString(method.e));
+			result += " " + method.s;
 		}
 
 		for (str method <- ads.extraMeths) {
