@@ -347,6 +347,17 @@
            name="Rascal Project"
            project="true">
      </wizard>
+     <category
+           id="rascal_eclipse"
+           name="rascal">
+     </category>
+     <wizard
+           category="rascal_eclipse"
+           class="org.meta_environment.rascal.eclipse.wizards.NewRascalFile"
+           icon="icons/rascal3D_2-32px.png"
+           id="rascal_eclipse.wizards.NewRascalFile"
+           name="Rascal File">
+     </wizard>
   </extension>
   <extension
         id="rascal.nature"
