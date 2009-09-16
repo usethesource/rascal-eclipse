@@ -109,7 +109,7 @@ public class NewRascalFilePage extends WizardPage {
 				containerText.setText(container.getFullPath().toString());
 			}
 		}
-		fileText.setText("new_file.rsc");
+		fileText.setText("");
 	}
 
 	/**
