@@ -3,11 +3,11 @@ module Java
 import List;
 import Integer;
 import Node;
-import Exception;
 
-
+@doc{an entity is identified by a list of identifiers, it represents a qualified name of something in Java code}
 data Entity = entity(list[Id] id);
 
+@doc{Id's are parts of java source code that have a name. They are used to construct unique entity names}
 data Id = package(str name)
         | class(str name)
         | class(str name, list[Entity] params)
@@ -17,7 +17,7 @@ data Id = package(str name)
         | enum(str name)
         
         | method(str name, list[Entity] params, Entity returnType)
-        | constructor(list[Entity] params)
+        | constr(list[Entity] params)
         | initializer()
         | initializer(int nr)
 
@@ -26,7 +26,7 @@ data Id = package(str name)
         | variable(str name, int id)
         | enumConstant(str name)
         
-        | primitive(PrimitiveType type)
+        | primitive(PrimitiveType primType)
         | array(Entity elementType)
         
         | typeParameter(str name)
@@ -34,6 +34,7 @@ data Id = package(str name)
         | wildcard(Bound bound)
 ;
 
+@doc{these are the primitive types of Java}
 data PrimitiveType = byte()
                    | short()
                    | \int()
@@ -46,11 +47,10 @@ data PrimitiveType = byte()
                    | null()
 ;
 
-data Bound = extends(Entity type)
-           | super(Entity type)
+data Bound = extends(Entity extended)
+           | super(Entity super)
 ;
 
-// deprecated might not be in place here
 data Modifier = \public()
 			  | protected()
 			  | \private()
@@ -70,62 +70,6 @@ public str toString(Entity entity) {
 	list[Id] ids = entity.id;
 	
 	if (size(ids) > 0) {
-		result = toString(head(ids));	
-		for (id <- tail(ids)) {
-			result += "." + toString(id);	
-		}
-	}
-	
-	return result;
-}
-
-public str toString(list[Entity] entities) {
-	str result = "";
-	
-	if (size(entities) > 0) {
-		result = toString(head(entities));
-		for (entity <- tail(entities)) {
-			result += ", " + toString(entity);	
-		}
-	}
-	
-	return result;
-}
-
-public str toString(Id id) {
-	switch (id) {
-		case class(name, params):
-			return name + "\<" + toString(params) + ">"; 		
-		case interface(name, params):
-			return name + "\<" + toString(params) + ">"; 		
-        case method(name, params, returnType):
-			return name + "(" + toString(params) + ")"; 		
-	}
-
-	try {
-		return id.name;
-	} catch : ;
-	
-	switch (id) {
-		case anonymousClass(nr): return "anonymousClass$" + toString(nr);		
-		case constructor(params): return "constructor(" + toString(params) + ")";		
-		case initializer: return "initializer";
-		case initializer(nr): return "initializer$" + toString(nr);		
-		case primitive(p): return getName(p);
-		case array(elementType): return toString(elementType) + "[]";		
-		case wildcard: return "?";
-		case wildcard(extends(bound)): return "? extends " + toString(bound);
-		case wildcard(super(bound)): return "? super " + toString(bound);
-		default : throw IllegalArgument(id);
-	}
-}
-
-// =================================== PATCH FOR TO STRING ==========================//
-public str patchToString(Entity entity) {
-	str result = "";
-	list[Id] ids = entity.id;
-	
-	if (size(ids) > 0) {
 		result = patchToString(head(ids));	
 		for (id <- tail(ids)) {
 			result += "." + patchToString(id);	
@@ -135,7 +79,7 @@ public str patchToString(Entity entity) {
 	return result;
 }
 
-public str patchToString(list[Entity] entities) {
+public str toString(list[Entity] entities) {
 	str result = "";
 	
 	if (size(entities) > 0) {
@@ -148,7 +92,7 @@ public str patchToString(list[Entity] entities) {
 	return result;
 }
 
-public str patchToString(Id id) {
+public str toString(Id id) {
 	switch (id) {
 		case class(name, params):
 			return name + "\<" + patchToString(params) + ">"; 		

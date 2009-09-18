@@ -14,6 +14,16 @@ public set[loc] java projects();
 @javaClass{org.meta_environment.rascal.eclipse.lib.Resources}
 public set[loc] java references(loc project);
 
+public set[loc] dependencies(loc project) {
+  set[loc] closure = references(project) + {project};
+  
+  solve (closure) {
+    closure += { dep | loc project <- closure, loc dep <- references(project) };
+  }
+  
+  return closure;
+}
+
 @javaClass{org.meta_environment.rascal.eclipse.lib.Resources}
 public loc java location(loc project);
 

@@ -29,13 +29,13 @@ public class Java {
 	public static final Type CONS_GENERIC_INTERFACE = TF.constructor(store, ADT_ID, "interface", TF.stringType(), "name", TF.listType(ADT_ENTITY), "params");
 	public static final Type CONS_ANONYMOUS_CLASS = TF.constructor(store, ADT_ID, "anonymousClass", TF.integerType(), "nr");
 	public static final Type CONS_METHOD = TF.constructor(store, ADT_ID, "method", TF.stringType(), "name", TF.listType(ADT_ENTITY), "params", ADT_ENTITY, "returnType");
-	public static final Type CONS_CONSTRUCTOR = TF.constructor(store, ADT_ID, "constructor", TF.listType(ADT_ENTITY), "params");
+	public static final Type CONS_CONSTRUCTOR = TF.constructor(store, ADT_ID, "constr", TF.listType(ADT_ENTITY), "params");
 	public static final Type CONS_INITIALIZER = TF.constructor(store, ADT_ID, "initializer");
 	public static final Type CONS_INITIALIZER_NUMBERED = TF.constructor(store, ADT_ID, "initializer", TF.integerType(), "nr");
 	public static final Type CONS_FIELD = TF.constructor(store, ADT_ID, "field", TF.stringType(), "name");
 	public static final Type CONS_PARAMETER = TF.constructor(store, ADT_ID, "parameter", TF.stringType(), "name");
 	public static final Type CONS_VARIABLE = TF.constructor(store, ADT_ID, "variable", TF.stringType(), "name", TF.integerType(), "id");
-	public static final Type CONS_PRIMITIVE = TF.constructor(store, ADT_ID, "primitive", ADT_PRIMITIVETYPE, "type");
+	public static final Type CONS_PRIMITIVE = TF.constructor(store, ADT_ID, "primitive", ADT_PRIMITIVETYPE, "primType");
 	public static final Type CONS_ARRAY = TF.constructor(store, ADT_ID, "array", ADT_ENTITY, "elementType");
 	public static final Type CONS_ENUM = TF.constructor(store, ADT_ID, "enum", TF.stringType(), "name");
 	public static final Type CONS_ENUM_CONSTANT = TF.constructor(store, ADT_ID, "enumConstant", TF.stringType(), "name");
@@ -54,8 +54,8 @@ public class Java {
 	public static final Type CONS_VOID = TF.constructor(store, ADT_PRIMITIVETYPE, "void");
 	public static final Type CONS_NULL = TF.constructor(store, ADT_PRIMITIVETYPE, "null");
 
-	public static final Type CONS_EXTENDS = TF.constructor(store, ADT_BOUND, "extends", ADT_ENTITY, "type");
-	public static final Type CONS_SUPER = TF.constructor(store, ADT_BOUND, "super", ADT_ENTITY, "type");
+	public static final Type CONS_EXTENDS = TF.constructor(store, ADT_BOUND, "extends", ADT_ENTITY, "extended");
+	public static final Type CONS_SUPER = TF.constructor(store, ADT_BOUND, "super", ADT_ENTITY, "super");
 	
 	
 	public static final Type CONS_PUBLIC = TF.constructor(store, ADT_MODIFIER, "public"); 

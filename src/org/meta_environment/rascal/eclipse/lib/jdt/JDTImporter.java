@@ -58,6 +58,7 @@ import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.internal.corext.util.Resources;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
@@ -77,7 +78,7 @@ public class JDTImporter extends ASTVisitor {
 	private IFile file;
 	
 	// bindings
-	private static final Type locType = TF.tupleType(TF.stringType(), TF.integerType(), TF.integerType());
+	private static final Type locType = TF.sourceLocationType();
 	private static final Type bindingTupleType = TF.tupleType(locType, ADT_ENTITY);
 
 	private IRelationWriter typeBindings;
@@ -88,8 +89,8 @@ public class JDTImporter extends ASTVisitor {
 	private IRelationWriter packageBindings;
 
 	// type facts
-	private static final Type entityTupleType = TF.tupleType(ADT_ENTITY, ADT_ENTITY);
-	private static final Type modifierTupleType = TF.tupleType(ADT_ENTITY, ADT_MODIFIER);
+	private static final Type entityTupleType = TF.tupleType(ADT_ENTITY, "from", ADT_ENTITY, "to");
+	private static final Type modifierTupleType = TF.tupleType(ADT_ENTITY, "entity", ADT_MODIFIER, "modifier");
 
 	private IRelationWriter extnds;
 	private IRelationWriter implmnts;
@@ -505,7 +506,8 @@ public class JDTImporter extends ASTVisitor {
 	}
 	
 	private void addBinding(IRelationWriter rw, ASTNode n, IValue entity) {		
-		ITuple loc = VF.tuple(VF.string(file.getLocation().toString()), VF.integer(n.getStartPosition()), VF.integer(n.getLength()));
+		ISourceLocation fileLoc = org.meta_environment.rascal.eclipse.lib.Resources.makeFile(file);
+		ISourceLocation loc = VF.sourceLocation(fileLoc.getURI(), n.getStartPosition(), n.getLength(), -1, -1, -1, -1);
 		rw.insert(VF.tuple(loc, entity));
 	}
 }

@@ -64,7 +64,7 @@ public class Resources {
 		return w.done();
 	}
 
-	private static ISourceLocation makeProject(IProject r) {
+	public static ISourceLocation makeProject(IProject r) {
 		try {
 			return VF.sourceLocation(new URI("project", r.getName(), "", null));
 		} catch (URISyntaxException e) {
@@ -112,7 +112,7 @@ public class Resources {
 		return w.done();
 	}
 	
-	private static ISourceLocation makeFile(IResource resource) {
+	public static ISourceLocation makeFile(IResource resource) {
 		String path = resource.getProjectRelativePath().toString();
 		path = path.startsWith("/") ? path : "/" + path;
 		try {
@@ -122,7 +122,7 @@ public class Resources {
 		}
 	}
 	
-	private static ISourceLocation makeFolder(IFolder folder) {
+	public static ISourceLocation makeFolder(IFolder folder) {
 		String path = folder.getProjectRelativePath().toString();
 		path = path.startsWith("/") ? path : "/" + path;
 		try {

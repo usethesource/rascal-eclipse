@@ -4,13 +4,20 @@ import Map;
 import Resources;
 import Java;
 
-public alias JDTlocation = tuple[str fileName, int offset, int length];
-public alias BindingRel = rel[JDTlocation, Entity];
-public alias EntityRel = rel[Entity, Entity];
-public alias EntitySet = set[Entity];
-public alias ModifierRel = rel[Entity, Modifier];
+@doc{maps any ast at a certain location to a qualified name}
+public alias BindingRel = rel[loc, Entity];
 
-public alias FactMap = map[str, value];
+@doc{relationship between entities}
+public alias EntityRel = rel[Entity from, Entity to];
+
+@doc{collection of entities}
+public alias EntitySet = set[Entity];
+
+@doc{maps an entity to its modifiers}
+public alias ModifierRel = rel[Entity entity, Modifier modifier];
+
+@doc{database of facts, indexed by names of facts}
+public alias FactMap = map[str label, value fact];
 
 /*
 FactMaps contain the following relations:
@@ -28,76 +35,59 @@ FactMaps contain the following relations:
   EntityRel  declaredFields      (type x field)
 */
 
-
-// import JDT facts from file (path relative to project root)
-public FactMap java extractFacts(str project, str file)
+@doc{import JDT facts from a file or an entire project}
 @javaClass{org.meta_environment.rascal.eclipse.lib.JDT}
-;
+public FactMap java extractClass(loc file);
 
-// import JDT facts from file (absolute file system path)
-public FactMap java extractFacts(str project, loc file)
-@javaClass{org.meta_environment.rascal.eclipse.lib.JDT}
-;
-
-// extract facts from a single project
-public FactMap extractFacts(str projectName) {
-	FactMap result = ();
-	FactMap temp = ();
-	Resource project = getProject(projectName);
-	
-	for (file(filename, "java", location) <- project) {
-	    try {
-			temp = extractFacts(projectName, location);
-			result = unionFacts(result, temp);
-		} catch: ;
-	}
-	
-	return result;
+public FactMap extractProject(loc project) {
+  return unionFacts({ facts | loc file <- files(project), FactMap facts <- extractClass(file)});
 }
 
-// extract facts from projects
-public FactMap extractFacts(set[str] projects) {
-	FactMap result = ();
-	
-	for (p <- projects) {
-		result = unionFacts(result, extractFacts(p));
-	}
-	
-	return result;
+@doc{extract facts from projects}
+public FactMap extractFacts(set[loc] projects) {
+  return unionFacts({ facts | loc project <- projects, FactMap facts <- extractProject(project)});
 }
 
-// extracts facts from projects and all projects they depends on (transitively)
-public FactMap extractFactsTransitive(set[str] projects) {
-	FactMap result = ();
-	
-	for (p <- projects) {
-		result = unionFacts(result, extractFacts(p));
-		result = unionFacts(result, extractFactsTransitive(references(p)));
-	}
-	
-	return result;
+@doc{extracts facts from projects and all projects they depends on (transitively)}
+public FactMap extractFactsTransitive(loc project) {
+  return extractFacts(dependencies(project));
 }
 
-
-// retrieve typed facts from a fact map
-public BindingRel getTypeBindings(FactMap fm) { return (BindingRel r := fm["typeBindings"]) ? r : {}; } 
-public BindingRel getMethodBindings(FactMap fm) { return (BindingRel r := fm["methodBindings"]) ? r : {}; } 
+@doc{retrieve typed facts from a fact map}
+public BindingRel getTypeBindings(FactMap fm) { return (BindingRel r := fm["typeBindings"]) ? r : {}; }
+ 
+public BindingRel getMethodBindings(FactMap fm) { return (BindingRel r := fm["methodBindings"]) ? r : {}; }
+ 
 public BindingRel getConstructorBindings(FactMap fm) { return (BindingRel r := fm["constructorBindings"]) ? r : {}; }
+
 public BindingRel getFieldBindings(FactMap fm) { return (BindingRel r := fm["fieldBindings"]) ? r : {}; }
+
 public BindingRel getVariableBindings (FactMap fm) { return (BindingRel r := fm["variableBindings"]) ? r : {}; }
+
 public BindingRel getPackageBindings (FactMap fm) { return (BindingRel r := fm["packageBindings"]) ? r : {}; }
+
 public EntitySet getDeclaredTopTypes (FactMap fm) { return (EntitySet r := fm["declaredTopTypes"]) ? r : {}; }
+
 public EntityRel getImplements(FactMap fm) { return (EntityRel r := fm["implements"]) ? r : {}; }
+
 public EntityRel getExtends(FactMap fm) { return (EntityRel r := fm["extends"]) ? r : {}; }
+
 public EntityRel getDeclaredSubTypes(FactMap fm) { return (EntityRel r := fm["declaredSubTypes"]) ? r : {}; }
+
 public EntityRel getDeclaredMethods(FactMap fm) { return (EntityRel r := fm["declaredMethods"]) ? r : {}; }
+
 public EntityRel getDeclaredFields(FactMap fm) { return (EntityRel r := fm["declaredFields"]) ? r : {}; }
+
 public ModifierRel getModifiers(FactMap fm) {return (ModifierRel r := fm["modifiers"]) ? r : {};}
 
+@doc{
+  Compose two relations by matching JDT locations with Rascal locations.
+     
+  Returns a tuple with the composition result and the locations that could not be matched
+}
 
-// compose two relations by matching JDT locations with Rascal locations
-// returns a tuple with the composition result and the locations that could not be matched
-public tuple[rel[&T1, &T2] found, rel[JDTlocation, &T2] notfound] matchLocations(rel[&T1, loc] RSClocs, rel[JDTlocation, &T2] JDTlocs) {
+/* BROKEN because Jurgen changed the representation of locations
+public tuple[rel[&T1, &T2] found, rel[loc, &T2] notfound] matchLocations(rel[&T1, loc] RSClocs, rel[l, &T2] JDTlocs) {
 
   rel[&T1, &T2] found = {};
   BindingRel notfound = {};
@@ -136,9 +126,13 @@ public tuple[rel[&T1, &T2] found, rel[JDTlocation, &T2] notfound] matchLocations
 
   return <found, notfound>;
 }
+*/
 
-// union fact maps, union values for facts that appear in both maps (if possible)
-// TBD: implement in Java to generalize over value types
+@doc{union fact maps, union values for facts that appear in both maps (if possible)
+     TODO: implement in Java to generalize over value types
+}
+
+
 public FactMap unionFacts(FactMap m1, FactMap m2) {
 
 	for (s <- domain(m1) & domain(m2)) {
@@ -158,7 +152,6 @@ public FactMap unionFacts(FactMap m1, FactMap m2) {
 	return m1;
 }
 
-//Joppe: simple but useful addition I thought
 public FactMap unionFacts(set[FactMap] facts) { 
 	FactMap union = ();
 	for (FactMap fact <- facts) {
