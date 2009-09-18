@@ -86,7 +86,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 							}
 						}
 					}
-					View.dot(name, value.getValue());
+					View.show(value.getValue());
 				}
 			});
 		}

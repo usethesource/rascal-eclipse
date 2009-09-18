@@ -28,7 +28,7 @@ public class OpenGraphEditor implements IObjectActionDelegate, IActionDelegate2 
 
 	public void run(IAction action) {
 		try {
-			View.dot(var.getName(), ((RascalVariableValue)var.getValue()).getValue());
+			View.show(((RascalVariableValue)var.getValue()).getValue());
 		} catch (DebugException e) {
 			throw new RuntimeException(e);
 		}
