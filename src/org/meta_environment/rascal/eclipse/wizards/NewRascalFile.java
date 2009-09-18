@@ -36,14 +36,24 @@ public class NewRascalFile extends Wizard implements INewWizard {
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					String fileToCreate = filename.startsWith("src/") ? filename : "src/" + filename;
+					int till = containerName.substring(1).indexOf("/");
+					String containerToPutFileIn = containerName;
+					String fileToCreate = filename;
+					if(till != -1){
+						containerToPutFileIn = containerName.substring(0, till + 1);
+						fileToCreate = containerName.substring(till + 1) + "/" + filename;
+					}
+					
+					fileToCreate = fileToCreate.startsWith("/src/") ? fileToCreate : "/src/" + fileToCreate;
 					fileToCreate = fileToCreate.endsWith(".rsc") ? fileToCreate : fileToCreate + ".rsc";
 					
-					moduleName = filename;
-					moduleName = moduleName.startsWith("src/") ? moduleName.substring(4, moduleName.length()) : moduleName;
-					moduleName = moduleName.endsWith(".rsc") ? moduleName.substring(0, moduleName.length() - 4) : moduleName;
+					moduleName = fileToCreate;
+					moduleName = moduleName.substring(moduleName.lastIndexOf('/') + 1, moduleName.length());
+					moduleName = moduleName.substring(0, moduleName.length() - 4);
 					
-					doFinish(containerName, fileToCreate, monitor);
+					System.err.println(containerToPutFileIn+" "+fileToCreate+" "+filename);
+					
+					doFinish(containerToPutFileIn, fileToCreate, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} finally {
