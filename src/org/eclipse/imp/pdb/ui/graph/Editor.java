@@ -27,6 +27,17 @@ public class Editor extends EditorPart {
 	public Editor() {
 	}
 
+	@Override
+	public String getTitle() {
+		IEditorInput editorInput = getEditorInput();
+		
+		if (editorInput != null) {
+			return editorInput.getName();
+		}
+		
+		return "Value";
+	}
+
 	public static void open(final IValue value) {
 		if (value == null) {
 			return;
