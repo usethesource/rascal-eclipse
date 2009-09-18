@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -58,6 +59,8 @@ import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.debug.DebuggableEvaluator;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
+import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.std.IO;
@@ -203,39 +206,39 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 		clearErrorMarker();
 
-		IValue value = stat.accept(new NullASTVisitor<IValue>() {
+		Result<IValue> result = stat.accept(new NullASTVisitor<Result<IValue>>() {
 
-			public IValue visitCommandExpression(org.meta_environment.rascal.ast.Command.Expression x) {
-				return eval.eval(x.getExpression()).getValue();
+			public Result<IValue> visitCommandExpression(org.meta_environment.rascal.ast.Command.Expression x) {
+				return eval.eval(x.getExpression());
 			};
 			
 			@Override
-			public IValue visitCommandStatement(Statement x) {
-				return eval.eval(x.getStatement()).getValue();
+			public Result<IValue> visitCommandStatement(Statement x) {
+				return eval.eval(x.getStatement());
 			}
 
 			@Override
-			public IValue visitCommandDeclaration(Declaration x) {
-				return eval.eval(x.getDeclaration()).getValue();
+			public Result<IValue> visitCommandDeclaration(Declaration x) {
+				return eval.eval(x.getDeclaration());
 			}
 
 			@Override
-			public IValue visitCommandImport(Import x) {
+			public Result<IValue> visitCommandImport(Import x) {
 				return eval.eval(x.getImported());
 			}
 
 			@Override
-			public IValue visitCommandAmbiguity(Ambiguity x) {
+			public Result<IValue> visitCommandAmbiguity(Ambiguity x) {
 				return null;
 			}
 
 			@Override
-			public IValue visitCommandShell(Shell x) {
+			public Result<IValue> visitCommandShell(Shell x) {
 				return x.getCommand().accept(this);
 			}
 
 			@Override
-			public IValue visitShellCommandEdit(Edit x) {
+			public Result<IValue> visitShellCommandEdit(Edit x) {
 				try {
 					editCommand(x);
 				} catch (IOException e) {
@@ -248,36 +251,37 @@ public class RascalScriptInterpreter implements IInterpreter{
 			}
 
 			@Override
-			public IValue visitShellCommandHelp(Help x) {
+			public Result<IValue> visitShellCommandHelp(Help x) {
 				return null;
 			}
 
 			@Override
-			public IValue visitShellCommandHistory(History x) {
+			public Result<IValue> visitShellCommandHistory(History x) {
 				return historyCommand();
 			}
 
 			@Override
-			public IValue visitShellCommandQuit(Quit x) {
+			public Result<IValue> visitShellCommandQuit(Quit x) {
 				saveCommandHistory();
 				throw new QuitException();
 			}
 
 			@Override
-			public IValue visitShellCommandTest(Test x) {
+			public Result<IValue> visitShellCommandTest(Test x) {
 				List<FailedTestError> report = eval.runTests();
-				return ValueFactoryFactory.getValueFactory().string(eval.report(report));
+				return ResultFactory.makeResult(TypeFactory.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(eval.report(report)), eval);
 			}
 		});
-
+		
+		IValue value = result.getValue();
 		if (value != null) {
-			Type type = value.getType();
+			Type type = result.getType();
 			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
 				content = "`" + TreeAdapter.yield((IConstructor) value) + "`\n" + 
-				type + ": " + value.toString().substring(0, 50) + "...\n";
+				type + ": " + result.toString().substring(0, 50) + "...\n";
 			}
 			else {
-				content = value.getType() + ": " + value.toString() + "\n";
+				content = result.getType() + ": " + result.toString() + "\n";
 			}
 		} else {
 			content = "ok\n";
@@ -428,7 +432,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		return historyFile;
 	}
 
-	private IValue historyCommand(){
+	private Result<IValue> historyCommand(){
 		return null;
 	}
 
