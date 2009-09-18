@@ -339,6 +339,7 @@
   <extension
         point="org.eclipse.ui.newWizards">
      <wizard
+           category="rascal_eclipse"
            class="org.meta_environment.rascal.eclipse.perspective.RascalProjectWizard"
            descriptionImage="icons/rascal3D_2-16px.gif"
            finalPerspective="rascal.perspective"
