@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URI;
-import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -21,7 +20,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -31,7 +29,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.part.FileEditorInput;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
@@ -54,7 +51,6 @@ import org.meta_environment.rascal.eclipse.console.internal.IInterpreter;
 import org.meta_environment.rascal.eclipse.console.internal.IInterpreterConsole;
 import org.meta_environment.rascal.eclipse.console.internal.TerminationException;
 import org.meta_environment.rascal.interpreter.Evaluator;
-import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.debug.DebuggableEvaluator;
@@ -268,8 +264,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 			@Override
 			public Result<IValue> visitShellCommandTest(Test x) {
-				List<FailedTestError> report = eval.runTests();
-				return ResultFactory.makeResult(TypeFactory.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(eval.report(report)), eval);
+				eval.runTests();
+				return ResultFactory.nothing();
 			}
 		});
 		

@@ -58,7 +58,6 @@ import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.internal.corext.util.Resources;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
