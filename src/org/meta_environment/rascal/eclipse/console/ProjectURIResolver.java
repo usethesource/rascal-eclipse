@@ -36,10 +36,9 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 			
 			if (cause instanceof IOException) {
 				throw (IOException) cause;
-			} 
-			else {
-				throw new IOException(e.getMessage());
 			}
+			
+			throw new IOException(e.getMessage());
 		}
 	}
 

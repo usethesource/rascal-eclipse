@@ -185,21 +185,21 @@ public class BindingConverter extends ASTVisitor {
 	}
 
 	public void pushAnonymousClassCounterStack() {
-		anonymousClassCounterStack.push(anonymousClassCounter);
+		anonymousClassCounterStack.push(Integer.valueOf(anonymousClassCounter));
 		anonymousClassCounter = 0;
 	}
 
 	public void popAnonymousClassCounterStack() {
-		anonymousClassCounter = anonymousClassCounterStack.pop();
+		anonymousClassCounter = anonymousClassCounterStack.pop().intValue();
 	}
 
 	public void pushInitializerCounterStack() {
-		initializerCounterStack.push(initializerCounter);
+		initializerCounterStack.push(Integer.valueOf(initializerCounter));
 		initializerCounter = 0;
 	}
 
 	public void popInitializerCounterStack() {
-		initializerCounter = initializerCounterStack.pop();
+		initializerCounter = initializerCounterStack.pop().intValue();
 	}
 
 	private IList getIds(IPackageBinding pb) {

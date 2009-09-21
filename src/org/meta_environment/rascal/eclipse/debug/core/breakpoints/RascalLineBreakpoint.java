@@ -101,7 +101,7 @@ public class RascalLineBreakpoint extends LineBreakpoint {
      * @throws CoreException if removal fails
      */
     public void remove(RascalDebugTarget target) throws CoreException {
-    	target = null;
+    	this.target = null;
     }
     
     /**

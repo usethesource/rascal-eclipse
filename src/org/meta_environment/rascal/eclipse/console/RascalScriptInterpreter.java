@@ -206,7 +206,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 			public Result<IValue> visitCommandExpression(org.meta_environment.rascal.ast.Command.Expression x) {
 				return eval.eval(x.getExpression());
-			};
+			}
 			
 			@Override
 			public Result<IValue> visitCommandStatement(Statement x) {

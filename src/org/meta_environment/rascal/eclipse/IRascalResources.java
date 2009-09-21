@@ -56,7 +56,7 @@ public interface IRascalResources {
 	 * in the workspace. 
 	 */
 	public static final String ATTR_RASCAL_PROJECT = ID_RASCAL_DEBUG_MODEL + ".ATTR_RASCAL_PROJECT";
-;	
+	
 	/**
 	 * Identifier for the RASCAL launch configuration type
 	 * (value <code>rascal.launchType</code>)

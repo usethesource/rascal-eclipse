@@ -81,9 +81,8 @@ public class Resources {
 			IFile file = project.getFile(path);
 			return VF.sourceLocation(file.getLocation().toString().replaceAll(" ", "%20"));
 		}
-		else {
-			return VF.sourceLocation(project.getLocationURI());
-		}
+		
+		return VF.sourceLocation(project.getLocationURI());
 	}
 	
 	public static ISet files(ISourceLocation name) {
