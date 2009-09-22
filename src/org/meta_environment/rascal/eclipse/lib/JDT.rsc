@@ -21,18 +21,20 @@ public alias FactMap = map[str label, value fact];
 
 /*
 FactMaps contain the following relations:
-  BindingRel typeBindings        (loc x type)
-  BindingRel methodBindings      (loc x method)
-  BindingRel constructorBindings (loc x constructor)
-  BindingRel fieldBindings       (loc x field)
-  BindingRel variableBindings    (loc x variable) (local variables and method parameters)
-  BindingRel packageBindings     (loc x package)
-  EntityRel  implements          (class x interface)
-  EntityRel  extends             (class x class)
-  EntitySet  declaredTopTypes    (type) (top classes)
-  EntityRel  declaredSubTypes    (type x type) (innerclasses)
-  EntityRel  declaredMethods     (type x method)
-  EntityRel  declaredFields      (type x field)
+  BindingRel  typeBindings        (loc x type)
+  BindingRel  methodBindings      (loc x method)
+  BindingRel  constructorBindings (loc x constructor)
+  BindingRel  fieldBindings       (loc x field)
+  BindingRel  variableBindings    (loc x variable) (local variables and method parameters)
+  BindingRel  packageBindings     (loc x package)
+  EntityRel   implements          (class x interface)
+  EntityRel   extends             (class x class)
+  EntitySet   declaredTopTypes    (type) (top classes)
+  EntityRel   declaredSubTypes    (type x type) (innerclasses)
+  EntityRel   declaredMethods     (type x method)
+  EntityRel   declaredFields      (type x field)
+  EntityRel   calls				  (method x method)
+  ModifierRel modifiers           (entity x modifier)
 */
 
 @doc{import JDT facts from a file or an entire project}
@@ -40,7 +42,7 @@ FactMaps contain the following relations:
 public FactMap java extractClass(loc file);
 
 public FactMap extractProject(loc project) {
-  return unionFacts({ facts | loc file <- files(project), FactMap facts <- extractClass(file)});
+  return unionFacts({ extractClass(file) | loc file <- files(project), file.extension == "java" });
 }
 
 @doc{extract facts from projects}
@@ -78,6 +80,8 @@ public EntityRel getDeclaredMethods(FactMap fm) { return (EntityRel r := fm["dec
 
 public EntityRel getDeclaredFields(FactMap fm) { return (EntityRel r := fm["declaredFields"]) ? r : {}; }
 
+public EntityRel getCalls(FactMap fm) { return (EntityRel r := fm["calls"]) ? r : {}; }
+
 public ModifierRel getModifiers(FactMap fm) {return (ModifierRel r := fm["modifiers"]) ? r : {};}
 
 @doc{
@@ -85,16 +89,14 @@ public ModifierRel getModifiers(FactMap fm) {return (ModifierRel r := fm["modifi
      
   Returns a tuple with the composition result and the locations that could not be matched
 }
-
-/* BROKEN because Jurgen changed the representation of locations
-public tuple[rel[&T1, &T2] found, rel[loc, &T2] notfound] matchLocations(rel[&T1, loc] RSClocs, rel[l, &T2] JDTlocs) {
+public tuple[rel[&T1, &T2] found, rel[loc, &T2] notfound] matchLocations(rel[&T1, loc] RSClocs, rel[loc, &T2] JDTlocs) {
 
   rel[&T1, &T2] found = {};
   BindingRel notfound = {};
 
-  for ( jl <- JDTlocs, <<str url, int offset, int length>, &T2 v2> := jl ) {
-    rel[&T1, &T2] search = { <v1, v2> | <&T1 v1, loc l> <- RSClocs,
-      l.url == url, l.offset == offset, l.length == length };
+  for ( jdtTup <- JDTlocs, <loc jl, &T2 v2> := jdtTup ) {
+    rel[&T1, &T2] search = { <v1, v2> | <&T1 v1, loc rl> <- RSClocs,
+      rl.url == jl.url, rl.offset == jl.offset, rl.length == jl.length };
 
     if (search != {}) {
       found += search;
@@ -104,35 +106,34 @@ public tuple[rel[&T1, &T2] found, rel[loc, &T2] notfound] matchLocations(rel[&T1
       // match with 'ours'. Here we try to find the longest location that ends at the same
       // position as the JDT node, but starts after the JDT node's offset position.
         
-      int closest = offset + length;
+      int closest = jl.offset + jl.length;
       &T1 candidate;
 
-      for ( <&T1 v1, loc l> <- RSClocs ) {
-        if (l.url == url && l.offset + l.length == offset + length && l.offset > offset) {
-          if (l.offset < closest) {
-            closest = l.offset;
+      for ( <&T1 v1, loc rl> <- RSClocs ) {
+        if (rl.url == jl.url && rl.offset + rl.length == jl.offset + length && rl.offset > jl.offset) {
+          if (rl.offset < closest) {
+            closest = rl.offset;
             candidate = v1;
           }
         }
       }
       
-      if (closest != offset + length) {
+      if (closest != jl.offset + jl.length) {
         found += {<candidate, v2>};        
       } else {
-        notfound += jl;
+        notfound += jdtTup;
       }
     }
   }
 
   return <found, notfound>;
 }
-*/
 
-@doc{union fact maps, union values for facts that appear in both maps (if possible)
-     TODO: implement in Java to generalize over value types
+
+@doc{
+	Union fact maps. Union values for facts that appear in both maps (if possible)
+    TODO: implement in Java to generalize over value types
 }
-
-
 public FactMap unionFacts(FactMap m1, FactMap m2) {
 
 	for (s <- domain(m1) & domain(m2)) {
@@ -156,7 +157,7 @@ public FactMap unionFacts(set[FactMap] facts) {
 	FactMap union = ();
 	for (FactMap fact <- facts) {
 		union = unionFacts(union, fact);
-	}	
+	}
 	
 	return union;
 }

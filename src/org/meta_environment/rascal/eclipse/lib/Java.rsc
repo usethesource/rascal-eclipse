@@ -95,9 +95,9 @@ public str toString(list[Entity] entities) {
 public str toString(Id id) {
 	switch (id) {
 		case class(name, params):
-			return name + "\<" + patchToString(params) + ">"; 		
+			return name + "\<" + patchToString(params) + "\>"; 		
 		case interface(name, params):
-			return name + "\<" + patchToString(params) + ">"; 		
+			return name + "\<" + patchToString(params) + "\>"; 		
         case method(name, params, returnType):
 			return name + "(" + patchToString(params) + ")"; 		
 	}

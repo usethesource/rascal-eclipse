@@ -73,7 +73,7 @@ public class JDTImporter extends ASTVisitor {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	private BindingConverter bindingCache = new BindingConverter();
 	private Stack<ITypeBinding> classStack = new Stack<ITypeBinding>();
-	private Stack<Initializer> initializerStack = new Stack<Initializer>();
+	private Stack<BodyDeclaration> methodStack = new Stack<BodyDeclaration>(); // the current method or initializer we're in
 	private IFile file;
 	
 	// bindings
@@ -97,7 +97,7 @@ public class JDTImporter extends ASTVisitor {
 	private IRelationWriter declaredFields;
 	private IRelationWriter declaredSubTypes;
 	private ISetWriter declaredTopTypes;
-	
+	private IRelationWriter calls;
 	private IRelationWriter modifiers;
 	
 	public JDTImporter() {
@@ -119,6 +119,8 @@ public class JDTImporter extends ASTVisitor {
 		declaredSubTypes = VF.relationWriter(entityTupleType);
 		declaredMethods = VF.relationWriter(entityTupleType);
 		declaredFields = VF.relationWriter(entityTupleType);
+		calls = VF.relationWriter(entityTupleType);
+
 		modifiers = VF.relationWriter(modifierTupleType);
 
 		this.file = file;
@@ -138,6 +140,8 @@ public class JDTImporter extends ASTVisitor {
 		mw.put(VF.string("declaredSubTypes"), declaredSubTypes.done());
 		mw.put(VF.string("declaredMethods"), declaredMethods.done());
 		mw.put(VF.string("declaredFields"), declaredFields.done());
+		mw.put(VF.string("calls"), calls.done());
+		
 		mw.put(VF.string("modifiers"), modifiers.done());
 		
 		return mw.done();
@@ -165,9 +169,10 @@ public class JDTImporter extends ASTVisitor {
 	}
 	
 	public void preVisit(ASTNode n) {
-		manageStacks(n, true);
 		importBindingInfo(n);
 		importTypeInfo(n);
+		importCalls(n);
+		manageStacks(n, true);
 	}
 	
 	public void postVisit(ASTNode n) {
@@ -202,26 +207,16 @@ public class JDTImporter extends ASTVisitor {
 			return;
 		}
 		
-		if (n instanceof Initializer) {
-			Initializer init = (Initializer) n;
-			
+		if (n instanceof MethodDeclaration || n instanceof Initializer) {
 			if (push) {
-				initializerStack.push(init);
+				methodStack.push((BodyDeclaration)n);
 				bindingCache.pushAnonymousClassCounterStack();
 			} else {
-				initializerStack.pop();
+				methodStack.pop();
 				bindingCache.popAnonymousClassCounterStack();
 			}
 			
 			return;
-		}
-		
-		if (n instanceof MethodDeclaration) {
-			if (push) {
-				bindingCache.pushAnonymousClassCounterStack();
-			} else {
-				bindingCache.popAnonymousClassCounterStack();
-			}
 		}
 	}
 	
@@ -247,7 +242,10 @@ public class JDTImporter extends ASTVisitor {
 		if (tb != null) {
 			Initializer possibleParent = null;
 			try {
-				possibleParent = initializerStack.peek();
+				BodyDeclaration top = methodStack.peek();
+				if (top instanceof Initializer) {
+					possibleParent = (Initializer) top;
+				}
 			} catch (EmptyStackException e) {
 				// ignore
 			}
@@ -268,7 +266,17 @@ public class JDTImporter extends ASTVisitor {
 		} else if (n instanceof MethodDeclaration) {
 			mb = ((MethodDeclaration) n).resolveBinding();
 		} else if (n instanceof MethodInvocation) {
-			mb = ((MethodInvocation) n).resolveMethodBinding();			
+			mb = ((MethodInvocation) n).resolveMethodBinding();
+			
+			// if this is a method invocation on an AnonymousClassDeclaration,
+			// call importBindingInfo first to get declaration Entity.
+			Expression exp = ((MethodInvocation) n).getExpression();
+			if (exp instanceof ClassInstanceCreation) {
+				AnonymousClassDeclaration acdc = ((ClassInstanceCreation) exp).getAnonymousClassDeclaration();
+				if (acdc != null) {
+					importBindingInfo(acdc);
+				}
+			}
 		} else if (n instanceof SuperConstructorInvocation) {
 			cb = ((SuperConstructorInvocation) n).resolveConstructorBinding();
 		} else if (n instanceof SuperMethodInvocation) {
@@ -291,13 +299,23 @@ public class JDTImporter extends ASTVisitor {
 		} else if (n instanceof FieldAccess) {
 			FieldAccess fa = (FieldAccess) n;
 			fb = fa.resolveFieldBinding();
+			
+			// check for 'length' access of array object
 			Expression exp = fa.getExpression();
 			if (exp.resolveTypeBinding().isArray() && fb.getName().equals("length")) {
-				// 'length' access of array object
 				// put arrayLengthField in idStore, so it doesn't have to call importVariableBinding()
 				// (which cannot distinguish between 'length' access and a local var inside an initializer).
 				// don't include type of exp, b/c we can't do the same further down
 				bindingCache.put(fb.getKey(), BindingConverter.arrayLengthField);
+			}
+
+			// if the field is accessed on an AnonymousClassDeclaration,
+			// call importBindingInfo first to get declaration Entity.
+			if (exp instanceof ClassInstanceCreation) {
+				AnonymousClassDeclaration acdc = ((ClassInstanceCreation) exp).getAnonymousClassDeclaration();
+				if (acdc != null) {
+					importBindingInfo(acdc);
+				}
 			}
 		} else if (n instanceof SuperFieldAccess) {
 			fb = ((SuperFieldAccess) n).resolveFieldBinding();
@@ -332,20 +350,24 @@ public class JDTImporter extends ASTVisitor {
 			}
 		}
 		
-		Initializer possibleParent = null;
-		try {
-			possibleParent = initializerStack.peek();
-		} catch (EmptyStackException e) {
-			// ignore
+		if (fb != null || vb != null) {
+			Initializer possibleParent = null;
+			try {
+				BodyDeclaration top = methodStack.peek();
+				if (top instanceof Initializer) {
+					possibleParent = (Initializer) top;
+				}
+			} catch (EmptyStackException e) {
+				// ignore
+			}
+			
+			if (fb != null) {
+				addBinding(fieldBindings, n, bindingCache.getEntity(fb, possibleParent));
+			}
+			if (vb != null ) {
+				addBinding(variableBindings, n, bindingCache.getEntity(vb, possibleParent));
+			}
 		}
-		
-		if (fb != null) {
-			addBinding(fieldBindings, n, bindingCache.getEntity(fb, possibleParent));
-		}
-		if (vb != null ) {
-			addBinding(variableBindings, n, bindingCache.getEntity(vb, possibleParent));
-		}
-	
 		
 		// package bindings	
 		IPackageBinding pb = null; 
@@ -356,9 +378,6 @@ public class JDTImporter extends ASTVisitor {
 		if (pb != null) {
 			addBinding(packageBindings, n, bindingCache.getEntity(pb));
 		}
-		
-		// these only exists for package declarations, which must use the fully qualified name
-		// therefore we skip these
 	}
 	
 	private void importTypeInfo(ASTNode n) {
@@ -398,9 +417,7 @@ public class JDTImporter extends ASTVisitor {
 			}
 		}
 		
-		if (n instanceof BodyDeclaration) {
-			
-			
+		if (n instanceof BodyDeclaration) {			
 			List<IValue> owners = new ArrayList<IValue>();
 			if (n instanceof AbstractTypeDeclaration) {
 				 owners.add(bindingCache.getEntity(((AbstractTypeDeclaration) n).resolveBinding()));
@@ -426,7 +443,7 @@ public class JDTImporter extends ASTVisitor {
 			if (doc != null) {
 				for (Object te : doc.tags()) {
 					if (TagElement.TAG_DEPRECATED.equals(((TagElement)te).getTagName())) {
-						modsForN.add(bindingCache.getDeprecatedModifier());
+						modsForN.add(BindingConverter.deprecatedModifier);
 						break;
 					}
 				}
@@ -448,8 +465,6 @@ public class JDTImporter extends ASTVisitor {
 		//modifiers?
 		
 		//scopes? not in JDT :(
-
-		//calls? not in JDT :(
 	}
 	
 	private void importTypeInfo(ITypeBinding tb) {
@@ -463,7 +478,6 @@ public class JDTImporter extends ASTVisitor {
 			} else {
 				extnds.insert(VF.tuple(thisType, BindingConverter.javaLangObject));
 			}
-
 		}
 		
 		ITypeBinding[] interfaces = tb.getInterfaces();
@@ -484,11 +498,13 @@ public class JDTImporter extends ASTVisitor {
 			declaredTopTypes.insert(thisType);
 		} 
 		
+		// doesn't include anonymous classes
 		ITypeBinding[] innertypes = tb.getDeclaredTypes();
 		for (ITypeBinding innertype : innertypes) {
 			ITuple tup = VF.tuple(thisType, bindingCache.getEntity(innertype));
 			declaredSubTypes.insert(tup);
 		}	
+		
 		// doesn't include initializers
 		// these are added in importTypeInfo(ASTNode n)
 		IMethodBinding[] methods = tb.getDeclaredMethods();
@@ -504,6 +520,35 @@ public class JDTImporter extends ASTVisitor {
 		}
 	}
 	
+	private void importCalls(ASTNode n) {		
+		IMethodBinding mb = null;
+		if (n instanceof MethodInvocation) {
+			mb = ((MethodInvocation) n).resolveMethodBinding();
+		} else if (n instanceof ConstructorInvocation) {
+			mb = ((ConstructorInvocation) n).resolveConstructorBinding();
+		} else if (n instanceof SuperConstructorInvocation) {
+			mb = ((SuperConstructorInvocation) n).resolveConstructorBinding();
+		} else if (n instanceof SuperMethodInvocation) {
+			mb = ((SuperMethodInvocation) n).resolveMethodBinding();
+		}
+		
+		if (mb != null) {
+			IValue callee = bindingCache.getEntity(mb);
+			
+			IValue caller = null;
+			BodyDeclaration bd = methodStack.peek();
+			if (bd instanceof MethodDeclaration) {
+				caller = bindingCache.getEntity(((MethodDeclaration) bd).resolveBinding()); 
+			} else if (bd instanceof Initializer) {
+				caller = bindingCache.getEntity((Initializer)bd);
+			} else {
+				// should not happen
+			}
+		
+			calls.insert(VF.tuple(caller, callee));
+		}
+	}
+
 	private void addBinding(IRelationWriter rw, ASTNode n, IValue entity) {		
 		ISourceLocation fileLoc = org.meta_environment.rascal.eclipse.lib.Resources.makeFile(file);
 		ISourceLocation loc = VF.sourceLocation(fileLoc.getURI(), n.getStartPosition(), n.getLength(), -1, -1, -1, -1);

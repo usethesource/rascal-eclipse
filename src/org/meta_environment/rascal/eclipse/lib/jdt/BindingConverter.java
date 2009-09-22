@@ -66,6 +66,7 @@ public class BindingConverter extends ASTVisitor {
 	// test correctness of build ADTs
 	public static final Map<String, IValue> primitiveTypes;
 	public static final IValue javaLangObject;
+	public static final IValue deprecatedModifier;
 	public static final IList arrayLengthField;
 	private Stack<Integer> anonymousClassCounterStack = new Stack<Integer>();
 	private Stack<Integer> initializerCounterStack = new Stack<Integer>();
@@ -95,6 +96,8 @@ public class BindingConverter extends ASTVisitor {
 
 		arrayLengthField = VF.list(VF.constructor(CONS_FIELD, (VF
 				.string("length"))));
+		
+		deprecatedModifier = VF.constructor(CONS_DEPRECATED);
 	}
 
 	public BindingConverter() {
@@ -137,10 +140,6 @@ public class BindingConverter extends ASTVisitor {
 		return createEntity(getIds(binding, possibleParent));
 	}
 	
-	public IValue getDeprecatedModifier() {
-		return VF.constructor(CONS_DEPRECATED);
-	}
-
 	@SuppressWarnings("unchecked")
 	public List<IValue> getModifiers(List list) {
 		List<IValue> result = new ArrayList<IValue>();
@@ -267,8 +266,8 @@ public class BindingConverter extends ASTVisitor {
 		IPackageBinding pb = tb.getPackage();
 
 		if (!tb.isTypeVariable()) {
-			// anonymous classes have a declaring method and class -> prefer
-			// method prefix
+			// anonymous classes have a declaring method and a declaring class
+			// therefore, prefer method prefix
 			IMethodBinding declaringMethod = tb.getDeclaringMethod();
 			if (declaringMethod != null) {
 				prefix = getIds(declaringMethod);
@@ -276,8 +275,7 @@ public class BindingConverter extends ASTVisitor {
 				ITypeBinding declaringClass = tb.getDeclaringClass();
 				if (declaringClass != null && possibleParent == null) {
 					// for innerclasses within initializers, getDeclaringClass()
-					// returns
-					// the parent class of the initializer :-(
+					// returns the parent class of the initializer :-(
 					prefix = getIds(declaringClass);
 				} else {
 					if (possibleParent != null) {
@@ -304,8 +302,6 @@ public class BindingConverter extends ASTVisitor {
 					lw.append(VF.constructor(CONS_GENERIC_CLASS, VF.string(tb
 							.getName()), params));
 				} else if (tb.isAnonymous()) {
-					// TBD: find out another way to get the anonymous class
-					// number...
 					lw.append(VF.constructor(CONS_ANONYMOUS_CLASS, VF
 							.integer(anonymousClassCounter++)));
 				} else { // regular class
@@ -443,10 +439,8 @@ public class BindingConverter extends ASTVisitor {
 
 				// local variable in initializer
 				if (possibleParent != null) {
-					prefix = getIds(possibleParent, null); // initializer should
-					// be in cache
-					// already
-
+					// initializer should be in cache already
+					prefix = getIds(possibleParent, null);
 				} else {
 					// let prefix remain empty
 					System.err.println("dangling var " + vb.getName());
@@ -458,8 +452,8 @@ public class BindingConverter extends ASTVisitor {
 			lw.append(VF.constructor(CONS_ENUM_CONSTANT, VF
 					.string(vb.getName())));
 		} else if (vb.isField()) {
-			// fields also include enum constants, so they should be handled
-			// first
+			// fields also include enum constants,
+			// so they should be handled first
 			lw.append(VF.constructor(CONS_FIELD, VF.string(vb.getName())));
 		} else if (vb.isParameter()) {
 			lw.append(VF.constructor(CONS_PARAMETER, VF.string(vb.getName())));
@@ -472,11 +466,10 @@ public class BindingConverter extends ASTVisitor {
 		return prefix.concat(lw.done());
 	}
 
-	private IList importInitializer(Initializer init,
-			ITypeBinding possibleParent) {
+	private IList importInitializer(Initializer init, ITypeBinding possibleParent) {
 		IListWriter lw = VF.listWriter(ADT_ID);
 		lw.append(VF.constructor(CONS_INITIALIZER_NUMBERED, VF
-				.integer(initializerCounter++))); // TBD: get number!
+				.integer(initializerCounter++)));
 		IList l = lw.done();
 
 		if (possibleParent != null) {
