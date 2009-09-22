@@ -102,7 +102,7 @@ public class Editor extends EditorPart {
 		canvas = new Canvas(parent, SWT.NONE);
 		canvas.setLayout(new FillLayout());
 		graph = new Graph(canvas, SWT.NONE);
-		graph.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), false);
+		graph.setLayoutAlgorithm(new MyDirectedGraphLayout(LayoutStyles.NO_LAYOUT_NODE_RESIZING), false);
 		graph.applyLayout();
 		canvas.setVisible(true);
 		canvas.pack();
