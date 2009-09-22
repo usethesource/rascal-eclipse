@@ -41,6 +41,6 @@ public class JDT {
 			throw new Throw(VF.string("URI is not a file"), (ISourceLocation) null, null);
 		}
 		
-		return new JDTImporter().importFacts(p.getFile(uri.getPath()));
+		return new JDTImporter().importFacts(loc, p.getFile(uri.getPath()));
 	}
 }

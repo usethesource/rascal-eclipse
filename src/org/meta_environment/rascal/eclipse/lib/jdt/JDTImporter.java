@@ -75,6 +75,7 @@ public class JDTImporter extends ASTVisitor {
 	private Stack<ITypeBinding> classStack = new Stack<ITypeBinding>();
 	private Stack<BodyDeclaration> methodStack = new Stack<BodyDeclaration>(); // the current method or initializer we're in
 	private IFile file;
+	private ISourceLocation loc;
 	
 	// bindings
 	private static final Type locType = TF.sourceLocationType();
@@ -104,7 +105,7 @@ public class JDTImporter extends ASTVisitor {
 		super();
 	}
 	
-	public IMap importFacts(IFile file) {
+	public IMap importFacts(ISourceLocation loc, IFile file) {
 		typeBindings = VF.relationWriter(bindingTupleType);
 		methodBindings = VF.relationWriter(bindingTupleType);
 		constructorBindings = VF.relationWriter(bindingTupleType);
@@ -123,6 +124,7 @@ public class JDTImporter extends ASTVisitor {
 
 		modifiers = VF.relationWriter(modifierTupleType);
 
+		this.loc = loc;
 		this.file = file;
 		visitCompilationUnit();
 		
@@ -161,7 +163,11 @@ public class JDTImporter extends ASTVisitor {
 		IProblem[] problems = cu.getProblems();
 		for (i = 0; i < problems.length; i++) {
 			if (problems[i].isError()) {
-				throw new Throw(VF.string("Error(s) in compilation unit"), (ISourceLocation) null, null);
+				int offset = problems[i].getSourceStart();
+				int length = problems[i].getSourceEnd() - offset;
+				int sl = problems[i].getSourceLineNumber();
+				ISourceLocation pos = VF.sourceLocation(loc.getURI(), offset, length, sl, sl, -1, -1);
+				throw new Throw(VF.string("Error(s) in compilation unit: " + problems[i].getMessage()), pos, null);
 			}
 		}
 		
@@ -536,16 +542,19 @@ public class JDTImporter extends ASTVisitor {
 			IValue callee = bindingCache.getEntity(mb);
 			
 			IValue caller = null;
-			BodyDeclaration bd = methodStack.peek();
-			if (bd instanceof MethodDeclaration) {
-				caller = bindingCache.getEntity(((MethodDeclaration) bd).resolveBinding()); 
-			} else if (bd instanceof Initializer) {
-				caller = bindingCache.getEntity((Initializer)bd);
-			} else {
-				// should not happen
+			
+			if (!methodStack.isEmpty()) {
+				BodyDeclaration bd = methodStack.peek();
+				if (bd instanceof MethodDeclaration) {
+					caller = bindingCache.getEntity(((MethodDeclaration) bd).resolveBinding()); 
+				} else if (bd instanceof Initializer) {
+					caller = bindingCache.getEntity((Initializer)bd);
+				} else {
+					// should not happen
+				}
+
+				calls.insert(VF.tuple(caller, callee));
 			}
-		
-			calls.insert(VF.tuple(caller, callee));
 		}
 	}
 
