@@ -94,36 +94,35 @@ public class ParseController implements IParseController {
 				return result;
 			}
 		});
-
 	}
 
 	public Object parse(String input, IProgressMonitor monitor) {
-		try {
+		try{
+			parseTree = null;
+			
 			handler.clearMessages();
 			monitor.beginTask("parsing Rascal", 1);
 			
-			IConstructor parseTree = loader.parseModule(ProjectURIResolver.constructProjectURI(project, path), new ModuleEnvironment("***editor***"));
-			this.parseTree = parseTree;
+			IConstructor result = loader.parseModule(ProjectURIResolver.constructProjectURI(project, path), new ModuleEnvironment("***editor***"));
 			
-			if (parseTree.getConstructorType() == Factory.ParseTree_Summary) {
-				ISourceLocation range = new SummaryAdapter(parseTree).getInitialSubject().getLocation();
-				handler.handleSimpleMessage("parse error: " + range, range.getOffset(), range.getOffset() + range.getLength(), range.getBeginColumn(), range.getEndColumn(), range.getBeginLine(), range.getEndLine());
-				parseTree = null;
+			if(result.getConstructorType() == Factory.ParseTree_Summary){
+				ISourceLocation location = new SummaryAdapter(result).getInitialSubject().getLocation();
+				handler.handleSimpleMessage("parse error: " + location, location.getOffset(), location.getOffset() + location.getLength(), location.getBeginColumn(), location.getEndColumn(), location.getBeginLine(), location.getEndLine());
+			}else{
+				parseTree = result;
 			}
 			
 			monitor.worked(1);
-			return parseTree;
-		} catch (FactTypeUseException e) {
+			return result;
+		}catch(FactTypeUseException e){
 			Activator.getInstance().logException("parsing rascal failed", e);
 			monitor.done();
-		} catch (IOException e) {
+		}catch(IOException e){
 			Activator.getInstance().logException("parsing rascal failed", e);
-		} catch (SyntaxError e) {
+		}catch(SyntaxError e){
 			ISourceLocation loc = e.getLocation();
 			handler.handleSimpleMessage("parse error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
-			parseTree = null;
-		}
-		finally {
+		}finally{
 			monitor.done();
 		}
 		

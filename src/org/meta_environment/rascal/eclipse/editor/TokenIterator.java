@@ -42,8 +42,7 @@ public class TokenIterator implements Iterator<Token> {
 
 	private class LexicalCollector extends TreeVisitor {
 		@Override
-		public IConstructor visitTreeAmb(IConstructor arg)
-				throws VisitorException {
+		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
 			tokenList.add(new Token(TokenColorer.META_AMBIGUITY, TreeAdapter.getLocation(arg)));
 			return arg;
 		}
@@ -69,8 +68,7 @@ public class TokenIterator implements Iterator<Token> {
 				for (IValue child : TreeAdapter.getArgs(arg)) {
 					child.accept(this);
 				}
-			}
-			else {
+			} else {
 				tokenList.add(new Token(category, TreeAdapter.getLocation(arg)));
 			}
 
@@ -78,14 +76,12 @@ public class TokenIterator implements Iterator<Token> {
 		}
 
 		@Override
-		public IConstructor visitTreeChar(IConstructor arg)
-				throws VisitorException {
+		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException {
 			return arg;
 		}
 
 		@Override
-		public IConstructor visitTreeCycle(IConstructor arg)
-				throws VisitorException {
+		public IConstructor visitTreeCycle(IConstructor arg) throws VisitorException {
 			return arg;
 		}
 	}

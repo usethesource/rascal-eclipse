@@ -83,6 +83,8 @@ public class SDFParseController implements IParseController{
 		parseTree = null;
 	
 		try{
+			parseTree = null;
+			
 			handler.clearMessages();
 			monitor.beginTask("parsing SDF", 1);
 			
@@ -90,12 +92,12 @@ public class SDFParseController implements IParseController{
 			
 			byte[] result = SGLRInvoker.getInstance().parseFromString(moduleString, parseTable);
 			IConstructor tree = bytesToParseTree(location, result);
-			parseTree = tree;
 			
 			if(tree.getConstructorType() == Factory.ParseTree_Summary){
 				ISourceLocation range = new SummaryAdapter(tree).getInitialSubject().getLocation();
 				handler.handleSimpleMessage("parse error: " + range, range.getOffset(), range.getOffset() + range.getLength(), range.getBeginColumn(), range.getEndColumn(), range.getBeginLine(), range.getEndLine());
-				parseTree = null;
+			}else{
+				parseTree = tree;
 			}
 			
 			monitor.worked(1);

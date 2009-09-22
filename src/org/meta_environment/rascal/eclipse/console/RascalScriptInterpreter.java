@@ -135,19 +135,21 @@ public class RascalScriptInterpreter implements IInterpreter{
 			command += cmd;
 			IConstructor tree = eval.parseCommand(command);
 			Type constructor = tree.getConstructorType();
-			if (constructor == Factory.ParseTree_Summary) {
+			if(constructor == Factory.ParseTree_Summary) {
 				execParseError(tree);
 				return false;
 			}
 
 			IO.setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
 			execCommand(tree);
-		}catch (StaticError e) {
+		}catch(QuitException q){
+			throw new TerminationException();
+		}catch(StaticError e){
 			content = e.getMessage() + "\n";
 			command = "";
 			setMarker(e.getMessage(), e.getLocation());
 			e.printStackTrace();
-		}catch (Throw e) {
+		}catch(Throw e){
 			content = e.getMessage() + "\n";
 			String trace = e.getTrace();
 			if (trace != null) {
@@ -155,8 +157,6 @@ public class RascalScriptInterpreter implements IInterpreter{
 			}
 			command = "";
 			setMarker(e.getMessage(), e.getLocation());
-		}catch(QuitException q){
-			throw new TerminationException();
 		}catch(Throwable e){
 			content = "internal exception: " + e.toString() + "\n";
 			e.printStackTrace();
@@ -325,20 +325,19 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 
 	private void execParseError(IConstructor tree) {
-		ISourceLocation range = new SummaryAdapter(tree).getInitialSubject().getLocation();
+		ISourceLocation location = new SummaryAdapter(tree).getInitialSubject().getLocation();
 		String[] commandLines = command.split("\n");
 		int lastLine = commandLines.length;
 		int lastColumn = commandLines[lastLine - 1].length();
 
-		if (range.getEndLine() == lastLine && lastColumn <= range.getEndColumn()) { 
+		if (location.getEndLine() == lastLine && lastColumn <= location.getEndColumn()) { 
 			content = "";
-		}
-		else {
+		} else {
 			content = "";
-			for (int i = 0; i < range.getEndColumn(); i++) {
+			for (int i = 0; i < location.getEndColumn(); i++) {
 				content += " ";
 			}
-			content += "^\nparse error at line " + lastLine + ", column " + range.getEndColumn() + "\n";
+			content += "^\nparse error at line " + lastLine + ", column " + location.getEndColumn() + "\n";
 			command = "";
 		}
 	}
