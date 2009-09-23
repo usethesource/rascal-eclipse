@@ -97,9 +97,9 @@ public class ParseController implements IParseController {
 	}
 
 	public Object parse(String input, IProgressMonitor monitor) {
+		parseTree = null;
+		
 		try{
-			parseTree = null;
-			
 			handler.clearMessages();
 			monitor.beginTask("parsing Rascal", 1);
 			
@@ -116,7 +116,6 @@ public class ParseController implements IParseController {
 			return result;
 		}catch(FactTypeUseException e){
 			Activator.getInstance().logException("parsing rascal failed", e);
-			monitor.done();
 		}catch(IOException e){
 			Activator.getInstance().logException("parsing rascal failed", e);
 		}catch(SyntaxError e){
