@@ -83,8 +83,6 @@ public class SDFParseController implements IParseController{
 		parseTree = null;
 	
 		try{
-			parseTree = null;
-			
 			handler.clearMessages();
 			monitor.beginTask("parsing SDF", 1);
 			
