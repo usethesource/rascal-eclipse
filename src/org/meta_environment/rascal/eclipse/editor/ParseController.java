@@ -103,7 +103,7 @@ public class ParseController implements IParseController {
 			handler.clearMessages();
 			monitor.beginTask("parsing Rascal", 1);
 			
-			IConstructor result = loader.parseModule(ProjectURIResolver.constructProjectURI(project, path), new ModuleEnvironment("***editor***"));
+			IConstructor result = loader.parseModule(ProjectURIResolver.constructProjectURI(project, path), input, new ModuleEnvironment("***editor***"));
 			
 			if(result.getConstructorType() == Factory.ParseTree_Summary){
 				ISourceLocation location = new SummaryAdapter(result).getInitialSubject().getLocation();
