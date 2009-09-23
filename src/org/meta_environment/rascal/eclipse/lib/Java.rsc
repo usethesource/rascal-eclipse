@@ -70,11 +70,13 @@ public str toString(Entity entity) {
 	list[Id] ids = entity.id;
 	
 	if (size(ids) > 0) {
-		result = patchToString(head(ids));	
+		result = toString(head(ids));	
 		for (id <- tail(ids)) {
-			result += "." + patchToString(id);	
+			result += "." + toString(id);	
 		}
 	}
+	
+	
 	
 	return result;
 }
@@ -83,9 +85,9 @@ public str toString(list[Entity] entities) {
 	str result = "";
 	
 	if (size(entities) > 0) {
-		result = patchToString(head(entities));
+		result = toString(head(entities));
 		for (entity <- tail(entities)) {
-			result += ", " + patchToString(entity);	
+			result += ", " + toString(entity);	
 		}
 	}
 	
@@ -95,11 +97,11 @@ public str toString(list[Entity] entities) {
 public str toString(Id id) {
 	switch (id) {
 		case class(name, params):
-			return name + "\<" + patchToString(params) + "\>"; 		
+			return name + "\<" + toString(params) + "\>"; 		
 		case interface(name, params):
-			return name + "\<" + patchToString(params) + "\>"; 		
+			return name + "\<" + toString(params) + "\>"; 		
         case method(name, params, returnType):
-			return name + "(" + patchToString(params) + ")"; 		
+			return name + "(" + toString(params) + ")"; 		
 	}
 
 	try {
@@ -108,11 +110,11 @@ public str toString(Id id) {
 	
 	switch (id) {
 		case anonymousClass(nr): return "anonymousClass$" + toString(nr);		
-		case constructor(params): return "constructor(" + patchToString(params) + ")";		
+		case constructor(params): return "constructor(" + toString(params) + ")";		
 		case initializer: return "initializer";
 		case initializer(nr): return "initializer$" + toString(nr);		
 		case primitive(p): return getName(p);
-		case array(elementType): return patchToString(elementType) + "[]";		
+		case array(elementType): return toString(elementType) + "[]";		
 		case wildcard: return "?";
 		case wildcard(extends(bound)): return "? extends " + toString(bound);
 		case wildcard(super(bound)): return "? super " + toString(bound);

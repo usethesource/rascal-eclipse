@@ -410,6 +410,23 @@
            sequence="Ctrl+E">
      </key>
   </extension>
+  <extension
+        point="org.eclipse.core.filesystem.filesystems">
+     <filesystem
+           scheme="rascal-library">
+        <run
+              class="org.meta_environment.rascal.eclipse.nature.RascalLibraryFileSystem">
+        </run>
+     </filesystem>
+  </extension>
+  <extension
+        point="org.eclipse.ui.ide.projectNatureImages">
+     <image
+           icon="icons/rascal3D_2-16px.gif"
+           id="rascal.nature.image"
+           natureId="rascal.nature">
+     </image>
+  </extension>
   
    
 </plugin>
