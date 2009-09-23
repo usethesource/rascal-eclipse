@@ -5,6 +5,7 @@ import java.net.URI;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -35,12 +36,20 @@ public class JDT {
 			throw RuntimeExceptionFactory.schemeNotSupported(loc, null, null);
 		}
 		
-		IProject p = getProject(uri.getHost());
-		
-		if (uri.getPath().length() == 0) {
+		String path = uri.getPath();		
+		if (path.length() == 0) {
 			throw new Throw(VF.string("URI is not a file"), (ISourceLocation) null, null);
 		}
+
+		if (!path.endsWith(".java")) {
+			throw new Throw(VF.string("File is not a Java file: " + path), (ISourceLocation) null, null);
+		}
+
+		IProject p = getProject(uri.getHost());
+		if (!p.exists(new Path(path))) {
+			throw new Throw(VF.string("File does not exist: " + path), (ISourceLocation) null, null);
+		}
 		
-		return new JDTImporter().importFacts(loc, p.getFile(uri.getPath()));
+		return new JDTImporter().importFacts(loc, p.getFile(path));
 	}
 }

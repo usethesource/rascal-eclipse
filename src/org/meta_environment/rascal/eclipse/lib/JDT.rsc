@@ -33,7 +33,7 @@ FactMaps contain the following relations:
   EntityRel   declaredSubTypes    (type x type) (innerclasses)
   EntityRel   declaredMethods     (type x method)
   EntityRel   declaredFields      (type x field)
-  EntityRel   calls				  (method x method)
+  EntityRel   calls				  (method x method) union (type x method) (for field initializations)
   ModifierRel modifiers           (entity x modifier)
 */
 

@@ -72,8 +72,8 @@ public class JDTImporter extends ASTVisitor {
 	protected static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	private BindingConverter bindingCache = new BindingConverter();
-	private Stack<ITypeBinding> classStack = new Stack<ITypeBinding>();
-	private Stack<BodyDeclaration> methodStack = new Stack<BodyDeclaration>(); // the current method or initializer we're in
+	private Stack<ITypeBinding> typeStack = new Stack<ITypeBinding>();
+	private Stack<ASTNode> scopeStack = new Stack<ASTNode>(); // only types, methods and initializers
 	private IFile file;
 	private ISourceLocation loc;
 	
@@ -154,6 +154,11 @@ public class JDTImporter extends ASTVisitor {
 		
 		ICompilationUnit icu = JavaCore.createCompilationUnitFrom(file);
 		
+		if (!icu.getJavaProject().isOnClasspath(file)) {
+			System.out.println("Not on classpath: " + file);
+			return;
+		}
+		
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setSource(icu);
@@ -188,42 +193,59 @@ public class JDTImporter extends ASTVisitor {
 	private void manageStacks(ASTNode n, boolean push) {
 		// push == false -> pop
 		ITypeBinding tb = null;
+		boolean isScope = false;
 		
-		if (n instanceof TypeDeclaration) {
-			tb = ((TypeDeclaration) n).resolveBinding();
-		} else if (n instanceof TypeDeclarationStatement) {
-			tb = ((TypeDeclarationStatement) n).getDeclaration().resolveBinding();
-		} else if (n instanceof AnonymousClassDeclaration) {
-			tb = ((AnonymousClassDeclaration) n).resolveBinding();
-		}
+		tb = getBindingOfTypeScope(n);
 		
 		if (tb != null) {
-			if (tb.isClass()) {
-				if (push) {
-					classStack.push(tb);
-					bindingCache.pushInitializerCounterStack();
-					bindingCache.pushAnonymousClassCounterStack();
-				} else {
-					classStack.pop();
-					bindingCache.popInitializerCounterStack();
-					bindingCache.popAnonymousClassCounterStack();
-				}
-			}
-			
-			return;
-		}
-		
-		if (n instanceof MethodDeclaration || n instanceof Initializer) {
 			if (push) {
-				methodStack.push((BodyDeclaration)n);
+				typeStack.push(tb);
+				bindingCache.pushInitializerCounterStack();
 				bindingCache.pushAnonymousClassCounterStack();
 			} else {
-				methodStack.pop();
+				typeStack.pop();
+				bindingCache.popInitializerCounterStack();
+				bindingCache.popAnonymousClassCounterStack();
+			}
+			
+			isScope = true;
+		} else {
+			if (getEntityOfMethodScope(n) != null) {
+				isScope = true;
+			}
+		}
+		
+		if (isScope) {
+			if (push) {
+				scopeStack.push(n);
+				bindingCache.pushAnonymousClassCounterStack();
+			} else {
+				scopeStack.pop();
 				bindingCache.popAnonymousClassCounterStack();
 			}
 			
 			return;
 		}
+	}
+
+	private ITypeBinding getBindingOfTypeScope(ASTNode n) {
+		if (n instanceof TypeDeclaration) {
+			return ((TypeDeclaration) n).resolveBinding();
+		} else if (n instanceof TypeDeclarationStatement) {
+			return ((TypeDeclarationStatement) n).getDeclaration().resolveBinding();
+		} else if (n instanceof AnonymousClassDeclaration) {
+			return ((AnonymousClassDeclaration) n).resolveBinding();
+		}
+		return null;
+	}
+
+	private IValue getEntityOfMethodScope(ASTNode n) {
+		if (n instanceof MethodDeclaration) {
+			return bindingCache.getEntity(((MethodDeclaration) n).resolveBinding());
+		} else if (n instanceof Initializer) {
+			return bindingCache.getEntity((Initializer) n);
+		}
+		return null;
 	}
 	
 	private void importBindingInfo(ASTNode n) {
@@ -248,9 +270,9 @@ public class JDTImporter extends ASTVisitor {
 		if (tb != null) {
 			Initializer possibleParent = null;
 			try {
-				BodyDeclaration top = methodStack.peek();
-				if (top instanceof Initializer) {
-					possibleParent = (Initializer) top;
+				ASTNode scope = scopeStack.peek();
+				if (scope instanceof Initializer) {
+					possibleParent = (Initializer) scope;
 				}
 			} catch (EmptyStackException e) {
 				// ignore
@@ -359,9 +381,9 @@ public class JDTImporter extends ASTVisitor {
 		if (fb != null || vb != null) {
 			Initializer possibleParent = null;
 			try {
-				BodyDeclaration top = methodStack.peek();
-				if (top instanceof Initializer) {
-					possibleParent = (Initializer) top;
+				ASTNode scope = scopeStack.peek();
+				if (scope instanceof Initializer) {
+					possibleParent = (Initializer) scope;
 				}
 			} catch (EmptyStackException e) {
 				// ignore
@@ -414,9 +436,9 @@ public class JDTImporter extends ASTVisitor {
 		if (n instanceof Initializer) {
 			Initializer init = (Initializer) n;
 			
-			ITypeBinding parentClass = classStack.peek();
-			if (parentClass != null) {				
-				ITuple tup = VF.tuple(bindingCache.getEntity(parentClass), bindingCache.getEntity(init, parentClass));
+			ITypeBinding parentType = typeStack.peek();
+			if (parentType != null) {
+				ITuple tup = VF.tuple(bindingCache.getEntity(parentType), bindingCache.getEntity(init, parentType));
 				declaredMethods.insert(tup);				
 			} else {
 				System.err.println("dangling initializer " + init.toString());
@@ -542,17 +564,20 @@ public class JDTImporter extends ASTVisitor {
 			IValue callee = bindingCache.getEntity(mb);
 			
 			IValue caller = null;
-			
-			if (!methodStack.isEmpty()) {
-				BodyDeclaration bd = methodStack.peek();
-				if (bd instanceof MethodDeclaration) {
-					caller = bindingCache.getEntity(((MethodDeclaration) bd).resolveBinding()); 
-				} else if (bd instanceof Initializer) {
-					caller = bindingCache.getEntity((Initializer)bd);
+			if (scopeStack.size() > 0) {
+				ASTNode scope = scopeStack.peek();
+				
+				ITypeBinding tb = getBindingOfTypeScope(scope);
+				if (tb != null) {
+					caller = bindingCache.getEntity(tb);
 				} else {
-					// should not happen
+					caller = getEntityOfMethodScope(scope);
 				}
+			} else {
+				// should not happen
+			}
 
+			if (caller != null) {
 				calls.insert(VF.tuple(caller, callee));
 			}
 		}
