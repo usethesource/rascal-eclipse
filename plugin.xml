@@ -428,5 +428,8 @@
      </image>
   </extension>
   
-   
+  <extension point="org.eclipse.help.toc">
+    <toc primary="true" file="help/toc.xml" />
+  </extension>
+	 
 </plugin>

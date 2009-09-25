@@ -1,0 +1,373 @@
+<html><head><META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Problem Solving Strategies</title><meta content="DocBook XSL Stylesheets V1.75.2" name="generator"><link rel="home" href="index.html" title="Chapter&nbsp;1.&nbsp;EASY Meta-Programming with Rascal"><link rel="up" href="index.html" title="Chapter&nbsp;1.&nbsp;EASY Meta-Programming with Rascal"><link rel="prev" href="ch01s03.html" title="Some Classical Examples"><link rel="next" href="ch01s05.html" title="Larger Examples"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table summary="Navigation header" width="100%"><tr><th align="center" colspan="3">Problem Solving Strategies</th></tr><tr><td align="left" width="20%"><a accesskey="p" href="ch01s03.html">Prev</a>&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="ch01s05.html">Next</a></td></tr></table><hr></div><div class="section" title="Problem Solving Strategies"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="section.problem-solving-strategies"></a>Problem Solving Strategies</h2></div></div></div>
+    
+
+    <p>Before we study more complicated examples, it is useful to discuss
+    some general problem solving strategies that are relevant in Rascal's
+    application domain.</p>
+
+    <p>To appreciate these general strategies, it is good to keep some
+    specific problem areas in mind:</p>
+
+    <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+        <p><span class="bold"><strong>Documentation generation</strong></span>:
+        extract facts from source code and use them to generate textual
+        documentation. A typical example is generating web-based documentation
+        for legacy languages like Cobol and PL/I.</p>
+      </li><li class="listitem">
+        <p><span class="bold"><strong>Metrics calculation</strong></span>: extract
+        facts from source code (and possibly other sources like test runs) and
+        use them to calculate code metrics. Examples are cohesion and coupling
+        of modules and test coverage.</p>
+      </li><li class="listitem">
+        <p><span class="bold"><strong>Model extraction</strong></span>: extract facts
+        from source code and use them to build an abstract model of the source
+        code. An example is extracting lock and unlock calls from source code
+        and to build an automaton that guarantees that lock/unlock occurs in
+        pairs along every control flow path.</p>
+      </li><li class="listitem">
+        <p><span class="bold"><strong>Model-based code generation</strong></span>:
+        given a high-level model of a software system, described in UML or
+        some other modelling language, transform this model into executable
+        code. UML-to-Java code generation falls in this category.</p>
+      </li><li class="listitem">
+        <p><span class="bold"><strong>Source-to-source
+        transformation</strong></span>: large-scale, fully automated, source code
+        transformation with certain objectives like removing deprecated
+        language features, upgrading to newer APIs and the like.</p>
+      </li><li class="listitem">
+        <p><span class="bold"><strong>Interactive refactoring</strong></span>: given
+        known "code smells" a user can interactively indicate how these smells
+        should be removed. The refactoring features in Eclipse and Visual
+        Studio are examples.</p>
+      </li></ul></div>
+
+    <p>With these examples in mind, we can study the overall problem
+    solving workflow as shown in <a class="xref" href="ch01s04.html#figure.problem-solving" title="Figure&nbsp;1.4.&nbsp;General 3-Phased Problem Solving Workflow">Figure&nbsp;1.4, &ldquo;General 3-Phased Problem Solving Workflow&rdquo;</a>. It
+    consists of three optional phases:</p>
+
+    <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+        <p>Is <span class="bold"><strong>extraction needed</strong></span> to solve
+        the problem, then define the extraction phase, see <a class="xref" href="ch01s04.html#section.defining-extraction" title="Defining Extraction">the section called &ldquo;Defining Extraction&rdquo;</a>.</p>
+      </li><li class="listitem">
+        <p>Is <span class="bold"><strong>analysis needed</strong></span>, then define
+        the analysis phase, see <a class="xref" href="ch01s04.html#section.defining-analysis" title="Defining Analysis">the section called &ldquo;Defining Analysis&rdquo;</a>.</p>
+      </li><li class="listitem">
+        <p>Is <span class="bold"><strong>synthesis needed</strong></span>, then
+        define the synthesis phase, see <a class="xref" href="ch01s04.html#section.defining-synthesis" title="Defining Synthesis">the section called &ldquo;Defining Synthesis&rdquo;</a>.</p>
+      </li></ul></div>
+
+    <div class="figure"><a name="figure.problem-solving"></a><p class="title"><b>Figure&nbsp;1.4.&nbsp;General 3-Phased Problem Solving Workflow</b></p><div class="figure-contents">
+        
+
+        <div class="mediaobject"><img src="problem-solving.png" width="270" alt="General 3-Phased Problem Solving Workflow"></div>
+      </div></div><p><br class="figure-break"></p>
+
+    <p>Each phase is subject to a validation and improvement workflow as
+    shown in <a class="xref" href="ch01s04.html#figure.validation" title="Figure&nbsp;1.5.&nbsp;Validation and Improvement Workflow">Figure&nbsp;1.5, &ldquo;Validation and Improvement Workflow&rdquo;</a>. Each individual phase as
+    well as the combination of phases may introduce errors and has thus to be
+    carefully validated. In combination with the detailed strategies for each
+    phase, this forms a complete approach for problem solving and validation
+    using Rascal.</p><div class="figure"><a name="figure.validation"></a><p class="title"><b>Figure&nbsp;1.5.&nbsp;Validation and Improvement Workflow</b></p><div class="figure-contents">
+        
+
+        <div class="mediaobject"><img src="validation.png" width="270" alt="Validation and Improvement Workflow"></div>
+      </div></div><p><br class="figure-break">A major question in every problem solving situation is how to
+    determine the requirements for each phase of the solution. For instance,
+    how do we know what to extract from the source code if we do not know what
+    the desired end results of the project are? The standard solution is to
+    use a workflow for requirements gathering that is the inverse of the
+    phases needed to solve the complete problem. This is shown in <a class="xref" href="ch01s04.html#figure.requirements" title="Figure&nbsp;1.6.&nbsp;Requirements Workflow">Figure&nbsp;1.6, &ldquo;Requirements Workflow&rdquo;</a> and amounts to the phases:</p>
+
+    <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+        <p><span class="bold"><strong>Requirements of the synthesis
+        phase</strong></span>. This amounts to making an inventory of the desired
+        results of the whole project and may include generated source code,
+        abstract models, or visualizations.</p>
+      </li><li class="listitem">
+        <p><span class="bold"><strong>Requirements of the analysis
+        phase</strong></span>. Once these results of the synthesis phase are known,
+        it is possible to list the analysis results that are needed to
+        synthesize desired results. Possible results of the analysis phase
+        include type information, structural information of the original
+        source.</p>
+      </li><li class="listitem">
+        <p><span class="bold"><strong>Requirements of the extraction
+        phase</strong></span>. As a last step, one can make an inventory of the
+        facts that have to be extracted to form the starting point for the
+        analysis phase. Typical facts include method calls, inheritance
+        relations, control flow graphs, usage patterns of specific library
+        functions or language constructs.</p>
+      </li></ul></div>
+
+    <div class="figure"><a name="figure.requirements"></a><p class="title"><b>Figure&nbsp;1.6.&nbsp;Requirements Workflow</b></p><div class="figure-contents">
+        
+
+        <div class="mediaobject"><img src="requirements.png" width="270" alt="Requirements Workflow"></div>
+      </div></div><p><br class="figure-break"></p>
+
+    <p>You will have no problem in identifying requirements for each phase
+    when you apply them to a specific example from the list given
+    earlier.</p>
+
+    <p>When these requirements have been established, it becomes much
+    easier to actually carry out the project using the three phases of <a class="xref" href="ch01s04.html#figure.problem-solving" title="Figure&nbsp;1.4.&nbsp;General 3-Phased Problem Solving Workflow">Figure&nbsp;1.4, &ldquo;General 3-Phased Problem Solving Workflow&rdquo;</a>.</p>
+
+    <div class="section" title="Defining Extraction"><div class="titlepage"><div><div><h3 class="title"><a name="section.defining-extraction"></a>Defining Extraction</h3></div></div></div>
+      
+
+      <p>How can we extract facts from the <span class="emphasis"><em>System under
+      Investigation</em></span> (SUI) that we are interested in? The extraction
+      workflow is shown in <a class="xref" href="ch01s04.html#figure.define-extraction" title="Figure&nbsp;1.7.&nbsp;Extraction Workflow">Figure&nbsp;1.7, &ldquo;Extraction Workflow&rdquo;</a>and
+      consists of the following steps:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>First and foremost we have to determine which facts we need.
+          This sounds trivial, but it is not. The problem is that we have to
+          anticipate which facts will be needed in the next---not yet
+          defined---analysis phase. A common approach is to use look-ahead and
+          to sketch the queries that are likely to be used in the analysis
+          phase and to determine which facts are needed for them. Start with
+          extracting these facts and refine the extraction phase when the
+          analysis phase is completely defined.</p>
+        </li><li class="listitem">
+          <p>If relevant facts are already available (and they are
+          reliable!) then we are done. This may happen when you are working on
+          a system that has already been analyzed by others.</p>
+        </li><li class="listitem">
+          <p>Otherwise you need the source code of the SUI. This
+          requires:</p>
+
+          <div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem">
+              <p>Checking that all sources are available (and can be
+              compiled by the host system on which they are usually compiled
+              and executed). Due to missing or unreliable configuration
+              management on the original system this may be a labour-intensive
+              step that requires many iterations.</p>
+            </li><li class="listitem">
+              <p>Determining in which languages the sources are written. In
+              larger systems it is common that three or more different
+              languages are being used.</p>
+            </li></ul></div>
+        </li><li class="listitem">
+          <p>If there are reliable third-party extraction tools available
+          for this language mix, then we only have to apply them and we are
+          done. Here again, validation is needed that the extracted facts are
+          as expected.</p>
+        </li><li class="listitem">
+          <p>The extraction may require syntax analysis. This is the case
+          when more structural properties of the source code are needed such
+          as the flow-of-control, nesting of declarations, and the like. There
+          two approaches here:</p>
+
+          <div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem">
+              <p>Use a third-party parser, convert the source code to parse
+              trees and do the further processing of these parse trees in
+              Rascal. The advantage is that the parser can be re-used, the
+              disadvantage is that data conversion is needed to adapt the
+              generated parse tree to Rascal. Validate that the parser indeed
+              accepts the language the SUI is written in, since you will not
+              be the first who has been bitten by the language dialect monster
+              when it turns out that the SUI uses a local variant that
+              slightly deviates from a mainstream language.</p>
+            </li><li class="listitem">
+              <p>Use an existing SDF definition of the source language or
+              write your own definition. In both cases you can profit from
+              Rascal's seamless integration with SDF. Be aware, however, that
+              writing a grammar for a non-trivial language is a major
+              undertaking and may require weeks to month of work. Whatever
+              approach you choose, validate that the result.</p>
+            </li></ul></div>
+        </li><li class="listitem">
+          <p>The extraction phase may only require lexical analysis. This
+          happens when more superficial, textual, facts have to be extracted
+          like procedure calls, counts of certain statements and the like. Use
+          Rascal's full regular expression facilities to do the lexical
+          analysis.</p>
+        </li></ul></div>
+
+      <p>It may happen that the facts extracted from the source code are
+      <span class="emphasis"><em>wrong</em></span>. Typical error classes are:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>Extracted facts are <span class="emphasis"><em>wrong</em></span>: the extracted
+          facts incorrectly state that procedure <code class="literal">P</code> calls
+          procedure <code class="literal">Q</code> but this is contradicted by a source
+          code inspection. This may happen when the fact extractor uses a
+          conservative approximation when precise information is not
+          statically available. In the language C, when procedure P performs
+          an indirect call via a pointer variable, the approximation may be
+          that P calls all procedures in the procedures.</p>
+        </li><li class="listitem">
+          <p>Extracted facts are <span class="emphasis"><em>incomplete</em></span>: the
+          inheritance between certain classes in Java code is missing.</p>
+        </li></ul></div>
+
+      <p>The strategy to validate extracted facts differ per case but here
+      are three strategies:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>Post process the extracted facts (using Rascal, of course) to
+          obtain trivial facts about the source code such as total lines of
+          source code and number of procedures, classes, interfaces and the
+          like. Next validate these trivial facts with tools like
+          <code class="literal">wc</code> (word and line count), <code class="literal">grep</code>
+          (regular expression matching) and others.</p>
+        </li><li class="listitem">
+          <p>Do a manual fact extraction on a small subset of the code and
+          compare this with the automatically extracted facts.</p>
+        </li><li class="listitem">
+          <p>Use another tool on the same source and compare results
+          whenever possible. A typical example is a comparison of a call
+          relation extracted with different tools.</p>
+        </li></ul></div>
+
+      <div class="figure"><a name="figure.define-extraction"></a><p class="title"><b>Figure&nbsp;1.7.&nbsp;Extraction Workflow</b></p><div class="figure-contents">
+          
+
+          <div class="mediaobject"><img src="define-extraction.png" width="270" alt="Extraction Workflow"></div>
+        </div></div><p><br class="figure-break"></p>
+
+      <p>The Rascal features that are most frequently used for extraction
+      are:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>Regular expression patterns to extract textual facts from
+          source code.</p>
+        </li><li class="listitem">
+          <p>Syntax definitions and concrete patterns to match syntactic
+          structures in source code.</p>
+        </li><li class="listitem">
+          <p>Pattern matching (used in many Rascal statements).</p>
+        </li><li class="listitem">
+          <p>Visits to traverse syntax trees and to locally extract
+          information.</p>
+        </li><li class="listitem">
+          <p>The repertoire of built-in datatypes (like lists, maps, sets
+          and relations) to represent the extracted facts.</p>
+        </li></ul></div>
+    </div>
+
+    <div class="section" title="Defining Analysis"><div class="titlepage"><div><div><h3 class="title"><a name="section.defining-analysis"></a>Defining Analysis</h3></div></div></div>
+      
+
+      <p>The analysis workflow is shown in <a class="xref" href="ch01s04.html#figure.define-analysis" title="Figure&nbsp;1.8.&nbsp;Analysis Workflow">Figure&nbsp;1.8, &ldquo;Analysis Workflow&rdquo;</a> and consists of two steps:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>Determine the results that are needed for the synthesis
+          phase.</p>
+        </li><li class="listitem">
+          <p>Write the Rascal code to perform the analysis. This may amount
+          to:</p>
+
+          <div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem">
+              <p>Reordering extracted facts to make them more suitable for
+              the synthesis phase.</p>
+            </li><li class="listitem">
+              <p>Enriching extracted facts. Examples are computing
+              transitive closures of extracted facts (e.g., A may call B in
+              one or more calls), or performing data reduction by abstracting
+              aways details (i.e., reducing a program to a finite
+              automaton).</p>
+            </li><li class="listitem">
+              <p>Combining enriched, extracted, facts to create new
+              facts.</p>
+            </li></ul></div>
+        </li></ul></div>
+
+      <p>As before, validate, validate and validate the results of
+      analysis. Essentially the same approach can be used as for validating
+      the facts. Manual checking of answers on random samples of the SUI may
+      be mandatory. It also happens frequently that answers inspire new
+      queries that lead to new answers, and so on.</p>
+
+      <div class="figure"><a name="figure.define-analysis"></a><p class="title"><b>Figure&nbsp;1.8.&nbsp;Analysis Workflow</b></p><div class="figure-contents">
+          
+
+          <div class="mediaobject"><img src="define-analysis.png" width="270" alt="Analysis Workflow"></div>
+        </div></div><p><br class="figure-break"></p>
+
+      <p>The Rascal features that are frequently used for analysis
+      are:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>List, set and map comprehensions.</p>
+        </li><li class="listitem">
+          <p>The built-in operators and library functions, in particular
+          for lists, maps, sets and relations.</p>
+        </li><li class="listitem">
+          <p>Pattern matching (used in many Rascal statements).</p>
+        </li><li class="listitem">
+          <p>Visits and switches to further process extracted facts.</p>
+        </li><li class="listitem">
+          <p>The solve statement for constraint solving.</p>
+        </li><li class="listitem">
+          <p>Rewrite rules to simplify results and to enforce
+          constraints.</p>
+        </li></ul></div>
+    </div>
+
+    <div class="section" title="Defining Synthesis"><div class="titlepage"><div><div><h3 class="title"><a name="section.defining-synthesis"></a>Defining Synthesis</h3></div></div></div>
+      
+
+      <p>Results are synthesized as shown in <a class="xref" href="ch01s04.html#figure.define-synthesis" title="Figure&nbsp;1.9.&nbsp;Synthesis Workflow">Figure&nbsp;1.9, &ldquo;Synthesis Workflow&rdquo;</a>. This consists of the following
+      steps:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>Determine the results of the synthesis phase. Wide range of
+          results is possible including:</p>
+
+          <div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem">
+              <p>Generated source code.</p>
+            </li><li class="listitem">
+              <p>Generated abstract representations, like finite automata
+              or other formals models that capture properties of the
+              SUI.</p>
+            </li><li class="listitem">
+              <p>Generated data for visualizations that will be used by
+              visualization tools.</p>
+            </li></ul></div>
+        </li><li class="listitem">
+          <p>If source code is to be generated, there are various
+          options.</p>
+
+          <div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem">
+              <p>Print strings with embedded variables.</p>
+            </li><li class="listitem">
+              <p>Convert abstract syntax trees to strings (perhaps using
+              forms of pretty printing).</p>
+            </li><li class="listitem">
+              <p>Use a grammar of the target source language, also for code
+              generation. Note that this approach guarantees the generation of
+              syntactically correct source code as opposed to code generation
+              using print statements</p>
+            </li></ul></div>
+        </li><li class="listitem">
+          <p>If other output is needed (e.g., an automaton or other formal
+          structure) write data declarations to represent that output.</p>
+        </li><li class="listitem">
+          <p>Finally, write functions and rewrite rules that generate the
+          desired results.</p>
+        </li></ul></div>
+
+      <div class="figure"><a name="figure.define-synthesis"></a><p class="title"><b>Figure&nbsp;1.9.&nbsp;Synthesis Workflow</b></p><div class="figure-contents">
+          
+
+          <div class="mediaobject"><img src="define-synthesis.png" width="270" alt="Synthesis Workflow"></div>
+        </div></div><p><br class="figure-break"></p>
+
+      <p>The Rascal features that are frequently used for synthesis
+      are:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>Syntax definitions or data declarations to define output
+          formats.</p>
+        </li><li class="listitem">
+          <p>Pattern matching (used in many Rascal statements).</p>
+        </li><li class="listitem">
+          <p>Visits of datastructures and on-the-fly code
+          generation.</p>
+        </li><li class="listitem">
+          <p>Rewrite rules.</p>
+        </li></ul></div>
+    </div>
+  </div><div class="navfooter"><hr><table summary="Navigation footer" width="100%"><tr><td align="left" width="40%"><a accesskey="p" href="ch01s03.html">Prev</a>&nbsp;</td><td align="center" width="20%">&nbsp;</td><td align="right" width="40%">&nbsp;<a accesskey="n" href="ch01s05.html">Next</a></td></tr><tr><td valign="top" align="left" width="40%">Some Classical Examples&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">Home</a></td><td valign="top" align="right" width="40%">&nbsp;Larger Examples</td></tr></table></div></body></html>

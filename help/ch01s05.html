@@ -1,0 +1,1183 @@
+<html><head><META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Larger Examples</title><meta content="DocBook XSL Stylesheets V1.75.2" name="generator"><link rel="home" href="index.html" title="Chapter&nbsp;1.&nbsp;EASY Meta-Programming with Rascal"><link rel="up" href="index.html" title="Chapter&nbsp;1.&nbsp;EASY Meta-Programming with Rascal"><link rel="prev" href="ch01s04.html" title="Problem Solving Strategies"><link rel="next" href="ch01s06.html" title="The Rascal Language"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table summary="Navigation header" width="100%"><tr><th align="center" colspan="3">Larger Examples</th></tr><tr><td align="left" width="20%"><a accesskey="p" href="ch01s04.html">Prev</a>&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="ch01s06.html">Next</a></td></tr></table><hr></div><div class="section" title="Larger Examples"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="section.more-examples"></a>Larger Examples</h2></div></div></div>
+    
+
+    <p>Now we will have a closer look at some larger applications of
+    Rascal. We start with a call graph analysis in <a class="xref" href="ch01s05.html#section.motivating-example" title="Call Graph Analysis">the section called &ldquo;Call Graph Analysis&rdquo;</a> and then continue with the
+    analysis of the component structure of an application in <a class="xref" href="ch01s05.html#section.analyzing-components" title="Analyzing the Component Structure of an Application">the section called &ldquo;Analyzing the Component Structure of an Application&rdquo;</a> and of Java systems in <a class="xref" href="ch01s05.html#section.analyzing-java" title="Analyzing the Structure of Java Systems">the section called &ldquo;Analyzing the Structure of Java Systems&rdquo;</a>. Next we move on to the detection of
+    uninitialized variables in <a class="xref" href="ch01s05.html#section.unitialized-variables" title="Finding Uninitialized and Unused Variables in a Program">the section called &ldquo;Finding Uninitialized and Unused Variables in a Program&rdquo;</a>. As an example of computing
+    code metrics, we describe the calculation of McCabe's cyclomatic
+    complexity in <a href="ch01s05.html#section.McCabe" class="biblioref" title="McCabe Cyclomatic Complexity">the section called &ldquo;McCabe Cyclomatic Complexity&rdquo;</a>. Several examples of
+    dataflow analysis follow in <a class="xref" href="ch01s05.html#section.dataflow" title="Dataflow Analysis">the section called &ldquo;Dataflow Analysis&rdquo;</a>. A
+    description of program slicing concludes the chapter, see <a class="xref" href="ch01s05.html#section.program-slicing" title="Program Slicing">the section called &ldquo;Program Slicing&rdquo;</a>.</p><div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Warning</h3>
+        <p>The examples in this section are biased towards pure analysis.
+        We intend to add more extraction and synthesis examples.</p>
+      </div>
+
+    <div class="section" title="Call Graph Analysis"><div class="titlepage"><div><div><h3 class="title"><a name="section.motivating-example"></a>Call Graph Analysis</h3></div></div></div>
+      
+
+      <p>Suppose a mystery box ends up on your desk. When you open it, it
+      contains a huge software system with several questions attached to
+      it:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>How many procedure calls occur in this system?</p>
+        </li><li class="listitem">
+          <p>How many procedures does it contains?</p>
+        </li><li class="listitem">
+          <p>What are the entry points for this system, i.e., procedures
+          that call others but are not called themselves?</p>
+        </li><li class="listitem">
+          <p>What are the leaves of this application, i.e., procedures that
+          are called but do not make any calls themselves?</p>
+        </li><li class="listitem">
+          <p>Which procedures call each other indirectly?</p>
+        </li><li class="listitem">
+          <p>Which procedures are called directly or indirectly from each
+          entry point?</p>
+        </li><li class="listitem">
+          <p>Which procedures are called from all entry points?</p>
+        </li></ul></div>
+
+      <p>There are now two possibilities. Either you have this superb
+      programming environment or tool suite that can immediately answer all
+      these questions for you or you can use Rascal.</p>
+
+      <div class="section" title="Preparations"><div class="titlepage"><div><div><h4 class="title"><a name="N209BF"></a>Preparations</h4></div></div></div>
+        
+
+        <p>To illustrate this process consider the workflow in <a class="xref" href="ch01s05.html#figure.calls-workflow" title="Figure&nbsp;1.10.&nbsp;Workflow for analyzing mystery box">Figure&nbsp;1.10, &ldquo;Workflow for analyzing mystery box&rdquo;</a>. First we have to extract the calls
+        from the source code. Rascal is very good at this, but to simplify
+        this example we assume that this call graph has already been
+        extracted. Also keep in mind that a real call graph of a real
+        application will contain thousands and thousands of calls. Drawing it
+        in the way we do later on in <a class="xref" href="ch01s05.html#figure.calls" title="Figure&nbsp;1.11.&nbsp;Graphical representation of the calls relation">Figure&nbsp;1.11, &ldquo;Graphical representation of the <code class="literal">calls</code>
+            relation&rdquo;</a> makes no
+        sense since we get a uniformly black picture due to all the call
+        dependencies. After the extraction phase, we try to understand the
+        extracted facts by writing queries to explore their properties. For
+        instance, we may want to know <span class="emphasis"><em>how many calls</em></span>
+        there are, or <span class="emphasis"><em>how many procedures</em></span>. We may also
+        want to enrich these facts, for instance, by computing who calls who
+        in more than one step. Finally, we produce a simple textual report
+        giving answers to the questions we are interested in.</p><div class="figure"><a name="figure.calls-workflow"></a><p class="title"><b>Figure&nbsp;1.10.&nbsp;Workflow for analyzing mystery box</b></p><div class="figure-contents">
+            
+
+            <div class="mediaobject"><img src="calls-workflow.png" width="270" alt="Workflow for analyzing mystery box"></div>
+
+            <p>Now consider the call graph shown in <a class="xref" href="ch01s05.html#figure.calls" title="Figure&nbsp;1.11.&nbsp;Graphical representation of the calls relation">Figure&nbsp;1.11, &ldquo;Graphical representation of the <code class="literal">calls</code>
+            relation&rdquo;</a>. This section is intended to give you a
+            first impression what can be done with Rascal. Please return to
+            this example when you have digested the detailed description of
+            Rascal in <a class="xref" href="ch01s06.html" title="The Rascal Language">the section called &ldquo;The Rascal Language&rdquo;</a> and <a class="xref" href="ch01s07.html" title="Built-in Operators and Library Functions">the section called &ldquo;Built-in Operators and Library Functions&rdquo;</a>.</p>
+          </div></div><p><br class="figure-break"></p><div class="figure"><a name="figure.calls"></a><p class="title"><b>Figure&nbsp;1.11.&nbsp;Graphical representation of the <code class="literal">calls</code>
+            relation</b></p><div class="figure-contents">
+            
+
+            <div class="mediaobject"><img src="calls.png" width="270" alt="Graphical representation of the calls relation"></div>
+          </div></div><p><br class="figure-break"></p>
+
+        <p>Rascal supports basic data types like integers and strings which
+        are sufficient to formulate and answer the questions at hand. However,
+        we can gain readability by introducing separately named types for the
+        items we are describing. First, we introduce therefore a new type
+        <code class="literal">proc</code> (an alias for strings) to denote
+        procedures:</p>
+
+        <pre class="screen">rascal&gt; <strong class="userinput"><code>alias proc = str;</code></strong>
+<code class="computeroutput">ok</code></pre>
+
+        <p>Suppose that the following facts have been extracted from the
+        source code and are represented by the relation
+        <code class="literal">Calls</code>:</p><div class="caution" title="Caution" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Caution</h3>
+            <p>Here we should illustrate how to do this.</p>
+          </div>
+
+        <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>rel[proc, proc] Calls = 
+   { &lt;"a", "b"&gt;, &lt;"b", "c"&gt;, &lt;"b", "d"&gt;, &lt;"d", "c"&gt;, 
+     &lt;"d","e"&gt;, &lt;"f", "e"&gt;, &lt;"f", "g"&gt;, &lt;"g", "e"&gt;
+   };</code></strong>
+<code class="computeroutput">rel[proc,proc]: { &lt;"a", "b"&gt;, &lt;"b", "c"&gt;, &lt;"b", "d"&gt;, 
+                  &lt;"d", "c"&gt;, &lt;"d","e"&gt;, &lt;"f", "e"&gt;, 
+                  &lt;"f", "g"&gt;, &lt;"g", "e"&gt;}</code></pre>
+
+        <p>This concludes the preparatory steps and now we move on to
+        answer the questions.</p>
+      </div>
+
+      <div class="section" title="Questions"><div class="titlepage"><div><div><h4 class="title"><a name="N20A29"></a>Questions</h4></div></div></div>
+        
+
+        <div class="section" title="How many procedure calls occur in this system?"><div class="titlepage"><div><div><h5 class="title"><a name="N20A2E"></a>How many procedure calls occur in this system?</h5></div></div></div>
+          
+
+          <p>To determine the numbers of calls, we simply determine the
+          number of tuples in the <code class="literal">Calls</code> relation, as
+          follows. First, we need the Relation library (described in <a class="xref" href="ch01s07.html#section.lib-Relation" title="Relation">the section called &ldquo;Relation&rdquo;</a>) so we import it:</p><pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>import Relation;</code></strong>
+<code class="computeroutput">ok</code></pre><p>next we describe a new variable
+          and calculate the number of tuples:</p>
+
+          <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>nCalls = size(Calls);</code></strong>
+<code class="computeroutput">int: 8</code></pre><p>The library function
+          <code class="literal">size</code> determines the number of elements in a set
+          or relation and is explained in <a class="xref" href="ch01s07.html#section.lib-Relation" title="Relation">the section called &ldquo;Relation&rdquo;</a>. In this example,
+          <code class="literal">nCalls</code> will get the value
+          <code class="literal">8</code>.</p>
+        </div>
+
+        <div class="section" title="How many procedures are contained in it?"><div class="titlepage"><div><div><h5 class="title"><a name="N20A5F"></a>How many procedures are contained in it?</h5></div></div></div>
+          
+
+          <p>We get the number of procedures by determining which names
+          occur in the tuples in the relation <code class="literal">Calls</code> and
+          then determining the number of names:</p>
+
+          <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>procs = carrier(Calls);</code></strong>
+<code class="computeroutput"><code class="literal">set[proc]: {"a", "b", "c", "d", "e", "f", "g"}</code></code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>nprocs = size(procs);</code></strong>
+<code class="computeroutput">int: 7</code></pre>
+
+          <p>The built-in function <code class="literal">carrier</code> determines
+          all the values that occur in the tuples of a relation. In this case,
+          <code class="literal">procs</code> will get the value <code class="literal">{"a", "b", "c",
+          "d", "e", "f", "g"}</code> and <code class="literal">nprocs</code> will
+          thus get value <code class="literal">7</code>. A more concise way of
+          expressing this would be to combine both steps:</p>
+
+          <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>nprocs = size(carrier(Calls));</code></strong>
+<code class="computeroutput">int: 7</code></pre>
+        </div>
+
+        <div class="section" title="What are the entry points for this system?"><div class="titlepage"><div><div><h5 class="title"><a name="N20A9B"></a>What are the entry points for this system?</h5></div></div></div>
+          
+
+          <p>The next step in the analysis is to determine which
+          <span class="emphasis"><em>entry points</em></span> this application has, i.e.,
+          procedures which call others but are not called themselves. Entry
+          points are useful since they define the external interface of a
+          system and may also be used as guidance to split a system in parts.
+          The <code class="literal">top</code> of a relation contains those left-hand
+          sides of tuples in a relation that do not occur in any right-hand
+          side. When a relation is viewed as a graph, its top corresponds to
+          the root nodes of that graph. Similarly, the
+          <code class="literal">bottom</code> of a relation corresponds to the leaf
+          nodes of the graph. See <a class="xref" href="ch01s07.html#section.lib-Graph" title="Graph">the section called &ldquo;Graph&rdquo;</a> for
+          more details. Using this knowledge, the entry points can be computed
+          by determining the top of the <code class="literal">Calls</code>
+          relation:</p>
+
+          <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>import Graph;</code></strong>
+<code class="computeroutput">ok</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>entryPoints = top(Calls);</code></strong>
+<code class="computeroutput">set[proc]: {"a", "f"}</code></pre>
+
+          <p>In this case, <code class="literal">entryPoints</code> is equal to
+          <code class="literal">{"a", "f"}</code>. In other words, procedures
+          <code class="literal">"a"</code> and <code class="literal">"f"</code> are the entry
+          points of this application.</p>
+        </div>
+
+        <div class="section" title="What are the leaves of this application?"><div class="titlepage"><div><div><h5 class="title"><a name="N20AD5"></a>What are the leaves of this application?</h5></div></div></div>
+          
+
+          <p>In a similar spirit, we can determine the
+          <span class="emphasis"><em>leaves</em></span> of this application, i.e., procedures
+          that are being called but do not make any calls themselves:</p>
+
+          <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>bottomCalls = bottom(Calls);</code></strong>
+<code class="computeroutput">set[proc]: {"c", "e"}</code></pre>
+
+          <p>In this case, <code class="literal">bottomCalls</code> is equal to
+          <code class="literal">{"c", "e"}</code>.</p>
+        </div>
+
+        <div class="section" title="Which procedures call each other indirectly?"><div class="titlepage"><div><div><h5 class="title"><a name="N20AF4"></a>Which procedures call each other indirectly?</h5></div></div></div>
+          
+
+          <p>We can also determine the <span class="emphasis"><em>indirect calls</em></span>
+          between procedures, by taking the transitive closure of the
+          <code class="literal">Calls</code> relation. Observe that the transitive
+          closure will contain both the direct and the indirect calls.</p>
+
+          <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>closureCalls = Calls+;</code></strong>
+<code class="computeroutput">rel[proc, proc]: {&lt;"a", "b"&gt;, &lt;"b", "c"&gt;, &lt;"b", "d"&gt;, 
+                  &lt;"d", "c"&gt;, &lt;"d","e"&gt;, &lt;"f", "e"&gt;, 
+                  &lt;"f", "g"&gt;, &lt;"g", "e"&gt;, &lt;"a", "c"&gt;, 
+                  &lt;"a", "d"&gt;, &lt;"b", "e"&gt;, &lt;"a", "e"&gt;}</code></pre>
+        </div>
+
+        <div class="section" title="Which procedures are called directly or indirectly from each entry point?"><div class="titlepage"><div><div><h5 class="title"><a name="N20B0D"></a>Which procedures are called directly or indirectly from each
+          entry point?</h5></div></div></div>
+          
+
+          <p>We now know the entry points for this application
+          (<code class="literal">"a" </code>and <code class="literal">"f"</code>) and the indirect
+          call relations. Combining this information, we can determine which
+          procedures are called from each entry point. This is done by
+          indexing <code class="literal">closureCalls</code> with appropriate procedure
+          name. The index operator yields all right-hand sides of tuples that
+          have a given value as left-hand side. This gives the
+          following:</p>
+
+          <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>calledFromA = closureCalls["a"];</code></strong>
+<code class="computeroutput">set[proc]: {"b", "c", "d", "e"}</code></pre>
+
+          <p>and</p>
+
+          <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>calledFromF = closureCalls["f"];</code></strong>
+<code class="computeroutput">set[proc]: {"e", "g"}</code></pre>
+        </div>
+
+        <div class="section" title="Which procedures are called from all entry points?"><div class="titlepage"><div><div><h5 class="title"><a name="N20B36"></a>Which procedures are called from all entry points?</h5></div></div></div>
+          
+
+          <p>Finally, we can determine which procedures are called from
+          both entry points by taking the intersection of the two sets
+          <code class="literal">calledFromA</code> and
+          <code class="literal">calledFromF:</code></p>
+
+          <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>commonProcs = calledFromA &amp; calledFromF;</code></strong>
+<code class="computeroutput">set[proc]: {"e"}</code></pre>
+
+          <p>In other words, the procedures called from both entry points
+          are mostly disjoint except for the common procedure
+          <code class="literal">"e"</code>.</p>
+        </div>
+
+        <div class="section" title="Wrap-up"><div class="titlepage"><div><div><h5 class="title"><a name="N20B55"></a>Wrap-up</h5></div></div></div>
+          
+
+          <p>These findings can be verified by inspecting a graph view of
+          the calls relation as shown in <a class="xref" href="ch01s05.html#figure.calls" title="Figure&nbsp;1.11.&nbsp;Graphical representation of the calls relation">Figure&nbsp;1.11, &ldquo;Graphical representation of the <code class="literal">calls</code>
+            relation&rdquo;</a>. Such
+          a visual inspection does <span class="emphasis"><em>not</em></span> scale very well to
+          large graphs and this makes the above form of analysis particularly
+          suited for studying large systems.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" title="Analyzing the Component Structure of an Application"><div class="titlepage"><div><div><h3 class="title"><a name="section.analyzing-components"></a>Analyzing the Component Structure of an Application</h3></div></div></div>
+      
+
+      <p>A frequently occurring problem is that we know the call relation
+      of a system but that we want to understand it at the component level
+      rather than at the procedure level. If it is known to which component
+      each procedure belongs, it is possible to <span class="emphasis"><em>lift</em></span> the
+      call relation to the component level as proposed in [<a href="ch01s10.html#Krikhaar99" class="biblioref">Krikhaar99</a>]. Actual lifting, amounts to translating each
+      call between procedures by a call between components. This described in
+      the following module:</p><pre class="programlisting">module demo::Lift
+
+alias proc = str;
+alias comp = str;
+
+public rel[comp,comp] lift(rel[proc,proc] aCalls, 
+                           rel[proc,comp] aPartOf){
+   return { &lt;C1, C2&gt; | &lt;proc P1, proc P2&gt; &lt;- aCalls, 
+                       &lt;comp C1, comp C2&gt; &lt;- aPartOf[P1] * 
+                                             aPartOf[P2]
+          };
+}</pre><p>Let's now apply this. First import the above module, and
+      define a call relation and a partof relation:</p>
+
+      <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>import demo::Lift;</code></strong>
+<code class="computeroutput">ok</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>Calls = {&lt;"main", "a"&gt;, &lt;"main", "b"&gt;, &lt;"a", "b"&gt;, 
+                 &lt;"a", "c"&gt;, &lt;"a", "d"&gt;, &lt;"b", "d"&gt;
+                };</code></strong>
+<code class="computeroutput">rel[str,str] : {&lt;"main", "a"&gt;, &lt;"main", "b"&gt;, &lt;"a", "b"&gt;, 
+                &lt;"a", "c"&gt;, &lt;"a", "d"&gt;, &lt;"b", "d"&gt;
+               }</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>Components = {"Appl", "DB", "Lib"};</code></strong>
+<code class="computeroutput">set[str] : {"Appl", "DB", "Lib"}</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>PartOf = {&lt;"main", "Appl"&gt;, &lt;"a", "Appl"&gt;, 
+                  &lt;"b", "DB"&gt;, &lt;"c", "Lib"&gt;, 
+                  &lt;"d", "Lib"&gt;};</code></strong>
+<code class="computeroutput">rel[str,str] : {&lt;"main", "Appl"&gt;, &lt;"a", "Appl"&gt;, 
+                &lt;"b", "DB"&gt;, &lt;"c", "Lib"&gt;, 
+                &lt;"d", "Lib"&gt;}</code></pre><p>The lifted call
+      relation between components is now obtained by:</p><pre class="screen"><code class="prompt">rascal&gt; </code><strong class="userinput"><code>ComponentCalls = lift(Calls, PartOf);</code></strong>
+<code class="computeroutput">rel[str,str] : {&lt;"DB", "Lib"&gt;, &lt;"Appl", "Lib"&gt;, 
+                &lt;"Appl", "DB"&gt;, &lt;"Appl", "Appl"&gt;}</code></pre><p>The
+      relevant relations for this example are shown in <a class="xref" href="ch01s05.html#figure.parts" title="Figure&nbsp;1.12.&nbsp;(a) Calls; (b) PartOf; (c) ComponentCalls.">Figure&nbsp;1.12, &ldquo;(a) <code class="literal">Calls</code>; (b) <code class="literal">PartOf</code>;
+        (c) <code class="literal">ComponentCalls</code>.&rdquo;</a>.</p>
+
+      <div class="figure"><a name="figure.parts"></a><p class="title"><b>Figure&nbsp;1.12.&nbsp;(a) <code class="literal">Calls</code>; (b) <code class="literal">PartOf</code>;
+        (c) <code class="literal">ComponentCalls</code>.</b></p><div class="figure-contents">
+        
+
+        <div class="mediaobject"><img src="parts.png" width="270" alt="(a) Calls; (b) PartOf; (c) ComponentCalls."></div>
+      </div></div><br class="figure-break">
+    </div>
+
+    <div class="section" title="Analyzing the Structure of Java Systems"><div class="titlepage"><div><div><h3 class="title"><a name="section.analyzing-java"></a>Analyzing the Structure of Java Systems</h3></div></div></div>
+      
+
+      <p>Now we consider the analysis of Java systems (inspired by
+      [<a href="ch01s10.html#BNL03" class="biblioref">BNL03</a>]). Suppose that the type
+      <code class="literal">class</code> is defined as follows</p><pre class="programlisting">alias class = str;</pre><p>and
+      that the following relations are available about a Java
+      application:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p><code class="literal">rel[class,class] CALL</code>: If
+          <code class="literal">&lt;<em class="replaceable"><code>C</code></em><sub>1</sub>,
+          <em class="replaceable"><code>C</code></em><sub>2</sub>&gt;</code>
+          is an element of <code class="literal">CALL</code>, then some method of
+          <em class="replaceable"><code>C</code></em><sub>2</sub> is called from
+          <em class="replaceable"><code>C</code></em><sub>1</sub>.</p>
+        </li><li class="listitem">
+          <p><code class="literal">rel[class,class] INHERITANCE</code>: If
+          <code class="literal">&lt;<em class="replaceable"><code>C</code></em><sub>1</sub>,
+          <em class="replaceable"><code>C</code></em><sub>2</sub>&gt;</code>
+          is an element of <code class="literal">INHERITANCE</code>, then class
+          <em class="replaceable"><code>C</code></em><sub>1</sub> either extends
+          class <em class="replaceable"><code>C</code></em><sub>2</sub> or
+          <em class="replaceable"><code>C</code></em><sub>1</sub> implements
+          interface
+          <em class="replaceable"><code>C</code></em><sub>2</sub>.</p>
+        </li><li class="listitem">
+          <p><code class="literal">rel[class,class] CONTAINMENT</code>: If
+          &lt;<em class="replaceable"><code>C</code></em><sub>1</sub>,
+          <em class="replaceable"><code>C</code></em><sub>2</sub>&gt; is an
+          element of <code class="literal">CONTAINMENT</code>, then one of the fields of
+          class <em class="replaceable"><code>C</code></em><sub>1</sub> is of
+          type <em class="replaceable"><code>C</code></em><sub>2</sub>.</p>
+        </li></ul></div>
+
+      <p>To make this more explicit, consider the class
+      <code class="literal">LocatorHandle</code> from the JHotDraw application (version
+      5.2) as shown here:</p>
+
+      <pre class="programlisting">package CH.ifa.draw.standard;
+
+import java.awt.Point;
+import CH.ifa.draw.framework.*;
+/**
+ * A LocatorHandle implements a Handle by delegating the 
+ * location requests to a Locator object.
+ */
+public class LocatorHandle extends AbstractHandle {
+    private Locator       fLocator;
+    /**
+     * Initializes the LocatorHandle with the 
+     * given Locator.
+     */
+    public LocatorHandle(Figure owner, Locator l) {
+        super(owner);
+        fLocator = l;
+    }
+    /**
+     * Locates the handle on the figure by forwarding 
+     * the request to its figure.
+     */
+    public Point locate() {
+        return fLocator.locate(owner());
+    }
+}</pre>
+
+      <p>It leads to the addition to the above relations of the following
+      tuples:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>To <code class="literal">CALL</code> the pairs
+          <code class="literal">&lt;"LocatorHandle", "AbstractHandle"&gt;</code> and
+          <code class="literal">&lt;"LocatorHandle", "Locator"&gt;</code> will be
+          added.</p>
+        </li><li class="listitem">
+          <p>To <code class="literal">INHERITANCE</code> the pair
+          <code class="literal">&lt;"LocatorHandle", "AbstractHandle"&gt;</code> will be
+          added.</p>
+        </li><li class="listitem">
+          <p>To <code class="literal">CONTAINMENT</code> the pair
+          <code class="literal">&lt;"LocatorHandle", "Locator"&gt;</code> will be
+          added.</p>
+        </li></ul></div>
+
+      <p>Cyclic structures in object-oriented systems makes understanding
+      hard. Therefore it is interesting to spot classes that occur as part of
+      a cyclic dependency. Here we determine cyclic uses of classes that
+      include calls, inheritance and containment. This is achieved as
+      follows:</p><pre class="programlisting">rel[class,class] USE = CALL + CONTAINMENT + INHERITANCE;
+set[str] ClassesInCycle =
+   {C1 | &lt;class C1, class C2&gt; &lt;- USE+, C1 == C2};</pre><p>First,
+      we define the <code class="literal">USE</code> relation as the union of the three
+      available relations <code class="literal">CALL</code>,
+      <code class="literal">CONTAINMENT</code> and <code class="literal">INHERITANCE</code>. Next,
+      we consider all pairs
+      &lt;<em class="replaceable"><code>C</code></em><sub>1</sub>,
+      <em class="replaceable"><code>C</code></em><sub>2</sub>&gt; in the
+      transitive closure of the <code class="literal">USE</code> relation such that
+      <em class="replaceable"><code>C</code></em><sub>1</sub> and
+      <em class="replaceable"><code>C</code></em><sub>2</sub> are equal. Those
+      are precisely the cases of a class with a cyclic dependency on itself.
+      Probably, we do not only want to know which classes occur in a cyclic
+      dependency, but we also want to know which classes are involved in such
+      a cycle. In other words, we want to associate with each class a set of
+      classes that are responsible for the cyclic dependency. This can be done
+      as follows.</p><pre class="programlisting">rel[class,class] USE = CALL + CONTAINMENT + INHERITANCE;
+set[class] CLASSES = carrier(USE);
+rel[class,class] USETRANS = USE+;
+rel[class,set[class]] ClassCycles = 
+   {&lt;C, USETRANS[C]&gt; | class C &lt;- CLASSES, 
+                       &lt;C, C&gt; in USETRANS };</pre><p>First, we
+      introduce two new shorthands: <code class="literal">CLASSES</code> and
+      <code class="literal">USETRANS</code>. Next, we consider all classes
+      <code class="literal">C</code> with a cyclic dependency and add the pair
+      <code class="literal">&lt;C, USETRANS[C]&gt;</code> to the relation
+      <code class="literal">ClassCycles</code>. Note that <code class="literal">USETRANS[C]</code>
+      is the right image of the relation <code class="literal">USETRANS</code> for
+      element <code class="literal">C</code>, i.e., all classes that can be called
+      transitively from class <code class="literal">C</code>.</p>
+    </div>
+
+    <div class="section" title="Finding Uninitialized and Unused Variables in a Program"><div class="titlepage"><div><div><h3 class="title"><a name="section.unitialized-variables"></a>Finding Uninitialized and Unused Variables in a Program</h3></div></div></div>
+      
+
+      <p>Consider the following program in the toy language Pico: (This is
+      an extended version of the example presented earlier in [<a href="ch01s10.html#KlintIWPC03" class="biblioref">KlintIWPC03</a>].)</p><pre class="programlisting">[ 1] begin declare x : natural, y : natural,
+[ 2]              z : natural, p : natural;
+[ 3]  x := 3;
+[ 4]  p := 4;
+[ 5]  if q then
+[ 6]        z := y + x
+[ 7]  else
+[ 8]        x := 4
+[ 9]  fi;
+[10]  y := z
+[11] end</pre><p>Inspection of this program learns that some of the
+      variables are being used before they have been initialized. The
+      variables in question are <code class="literal">q</code> (line 5),
+      <code class="literal">y</code> (line 6), and <code class="literal">z</code> (line 10). It is
+      also clear that variable <code class="literal">p</code> is initialized (line 4),
+      but is never used. How can we automate these kinds of analysis? Recall
+      from <a class="xref" href="index.html#section.EASY-programming" title="EASY Programming">the section called &ldquo;EASY Programming&rdquo;</a> that we follow the
+      Extract-Analyze-SYnthesize paradigm to approach such a problem. The
+      first step is to determine which elementary facts we need about the
+      program. For this and many other kinds of program analysis, we need at
+      least the following:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>The <span class="emphasis"><em>control flow graph</em></span> of the program. We
+          represent it by a graph <code class="literal">PRED</code> (for predecessor)
+          which relates each statement with its predecessors.</p>
+        </li><li class="listitem">
+          <p>The <span class="emphasis"><em>definitions</em></span> of each variable, i.e.,
+          the program statements where a value is assigned to the variable. It
+          is represented by the relation <code class="literal">DEFS</code>.</p>
+        </li><li class="listitem">
+          <p>The <span class="emphasis"><em>uses</em></span> of each variable, i.e., the
+          program statements where the value of the variable is used. It is
+          represented by the relation <code class="literal">USES</code>.</p>
+        </li></ul></div>
+
+      <p>In this example, we will use line numbers to identify the
+      statements in the program. Assuming that there is a tool to extract the
+      above information from a program text, we get the following for the
+      above example:</p><pre class="programlisting">module demo::Uninit
+import Relation;
+import Graph;
+
+alias expr = int;
+alias varname = str;
+
+public expr ROOT = 1;
+
+public graph[expr] PRED = { &lt;1,3&gt;, &lt;3,4&gt;, &lt;4,5&gt;, &lt;5,6&gt;, 
+                            &lt;5,8&gt;, &lt;6,10&gt;, &lt;8,10&gt; };
+
+public rel[varname,expr] DEFS = { &lt;"x", 3&gt;, &lt;"p", 4&gt;, 
+                                  &lt;"z", 6&gt;, &lt;"x", 8&gt;, 
+                                  &lt;"y", 10&gt; };
+
+public rel[varname, expr] USES = { &lt;"q", 5&gt;, &lt;"y", 6&gt;, 
+                                   &lt;"x", 6&gt;, &lt;"z", 10&gt; };
+</pre><p>This concludes the extraction phase. Next, we have to enrich
+      these basic facts to obtain the initialized variables in the program.
+      So, when is a variable <em class="replaceable"><code>V</code></em> in some statement
+      <em class="replaceable"><code>S</code></em> initialized? If we execute the program
+      (starting in <code class="literal">ROOT</code>), there may be several possible
+      execution paths that can reach statement <em class="replaceable"><code>S</code></em>.
+      All is well if <span class="emphasis"><em>all</em></span> these execution path contain a
+      definition of <em class="replaceable"><code>V</code></em>. However, if one or more of
+      these path do <span class="emphasis"><em>not</em></span> contain a definition of
+      <em class="replaceable"><code>V</code></em>, then <em class="replaceable"><code>V</code></em> may be
+      uninitialized in statement <em class="replaceable"><code>S</code></em>. This can be
+      formalized as follows:</p><pre class="programlisting">// module demo::Unit continued
+public rel[varname,expr] UNINIT = 
+   { &lt;V,E&gt; | &lt;varname V, expr E&gt; &lt;- USES, 
+              E in reachX(PRED, {ROOT}, DEFS[V])
+   };</pre>
+
+      <p>We analyze this definition in detail:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p><code class="literal">&lt;varname V, expr E&gt; : USES</code> enumerates
+          all tuples in the <code class="literal">USES</code> relation. In other words,
+          we consider the use of each variable in turn.</p>
+        </li><li class="listitem">
+          <p><code class="literal">E in reachX(PRED, {ROOT}, DEFS[V]) </code>is a
+          test that determines whether expression <em class="replaceable"><code>E</code></em>
+          is reachable from the <code class="literal">ROOT</code> without encountering a
+          definition of variable <em class="replaceable"><code>V</code></em>.</p>
+
+          <div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem">
+              <p><code class="literal">{ROOT}</code> represents the initial set of
+              nodes from which all path should start.</p>
+            </li><li class="listitem">
+              <p><code class="literal">DEFS[V]</code> yields the set of all
+              statements in which a definition of variable
+              <code class="literal">V</code> occurs. These nodes form the exclusion set
+              for <code class="literal">reachX</code>: no path will be extended beyond
+              an element in this set.</p>
+            </li><li class="listitem">
+              <p><code class="literal">PRED</code> is the relation for which the
+              reachability has to be determined.</p>
+            </li><li class="listitem">
+              <p>The result of <code class="literal">reachX(PRED, {ROOT}, DEFS[V])
+              </code>is a set that contains all nodes that are reachable
+              from the <code class="literal">ROOT</code> (as well as all intermediate
+              nodes on each path).</p>
+            </li><li class="listitem">
+              <p>Finally, <code class="literal">E in reachX(PRED, {ROOT}, DEFS[V])
+              </code>tests whether expression <code class="literal">E</code> can be
+              reached from the <code class="literal">ROOT</code>.</p>
+            </li></ul></div>
+        </li><li class="listitem">
+          <p>The net effect is that <code class="literal">UNINIT</code> will only
+          contain pairs that satisfy the test just described.</p>
+        </li></ul></div>
+
+      <p>When we execute the resulting Rascal code (i.e., the declarations
+      of <code class="literal">ROOT</code>, <code class="literal">PRED</code>,
+      <code class="literal">DEFS</code>, <code class="literal">USES</code> and
+      <code class="literal">UNINIT</code>), we get as value for
+      <code class="literal">UNINIT</code>:</p><pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>import demo::Uninit;</code></strong>
+ok
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>UNINIT;</code></strong>
+<code class="computeroutput">rel[varname,expr]: {&lt;"q", 5&gt;, &lt;"y", 6&gt;, &lt;"z", 10&gt;}</code></pre><p>and
+      this is in concordance with the informal analysis given at the beginning
+      of this example.</p>
+
+      <p>As a bonus, we can also determine the <span class="emphasis"><em>unused</em></span>
+      variables in a program, i.e., variables that are defined but are used
+      nowhere. This is done as follows:</p><pre class="programlisting">// module demo::Unit continued
+
+public set[varname] UNUSED = domain(DEFS) - domain(USES);</pre><p>Taking
+      the domain of the relations <code class="literal">DEFS</code> and
+      <code class="literal">USES</code> yields the variables that are defined,
+      respectively, used in the program. The difference of these two sets
+      yields the unused variables, in this case
+      <code class="literal">{"p"}</code>.</p>
+    </div>
+
+    <div class="section" title="McCabe Cyclomatic Complexity"><div class="titlepage"><div><div><h3 class="title"><a name="section.McCabe"></a>McCabe Cyclomatic Complexity</h3></div></div></div>
+      
+
+      <p>The <span class="emphasis"><em>cyclomatic complexity</em></span> of a program is
+      defined as <em class="replaceable"><code>e</code></em> - <em class="replaceable"><code>n</code></em> +
+      2, where <em class="replaceable"><code>e</code></em> and <em class="replaceable"><code>n</code></em>
+      are the number of edges and nodes in the control flow graph,
+      respectively. It was proposed by McCabe [<a href="ch01s10.html#McCabe76" class="biblioref">McCabe76</a>]
+      as a measure of program complexity. Experiments have shown that programs
+      with a higher cyclomatic complexity are more difficult to understand and
+      test and have more errors. It is generally accepted that a program,
+      module or procedure with a cyclomatic complexity larger than 15 is
+      <span class="emphasis"><em>too complex</em></span>. Essentially, cyclomatic complexity
+      measures the number of decision points in a program and can be computed
+      by counting all if statement, case branches in switch statements and the
+      number of conditional loops. Given a control flow in the form of a
+      predecessor graph <code class="literal">graph[&amp;T] PRED</code> between elements
+      of arbitrary type <code class="literal">&amp;T</code>, the cyclomatic complexity
+      can be computed in Rascal as follows: </p><pre class="programlisting">module demo::McCabe
+import Graph;
+
+public int cyclomaticComplexity(graph[&amp;T] PRED){
+    return size(PRED) - size(carrier(PRED)) + 2;
+}</pre><p>The number of edges <em class="replaceable"><code>e</code></em> is equal to
+      the number of tuples in <code class="literal">PRED</code>. The number of nodes
+      <em class="replaceable"><code>n</code></em> is equal to the number of elements in the
+      carrier of PRED, i.e., all elements that occur in a tuple in
+      <code class="literal">PRED</code>.</p>
+    </div>
+
+    <div class="section" title="Dataflow Analysis"><div class="titlepage"><div><div><h3 class="title"><a name="section.dataflow"></a>Dataflow Analysis</h3></div></div></div>
+      
+
+      <p><span class="emphasis"><em>Dataflow analysis</em></span> is a program analysis
+      technique that forms the basis for many compiler optimizations. It is
+      described in any text book on compiler construction, e.g. [<a href="ch01s10.html#AhoSethiUllman86" class="biblioref">AhoSethiUllman86</a>]. The goal of dataflow analysis is to
+      determine the effect of statements on their surroundings. Typical
+      examples are:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>Dominators (<a class="xref" href="ch01s05.html#section.dominators" title="Dominators">the section called &ldquo;Dominators&rdquo;</a>): which
+          nodes in the flow dominate the execution of other nodes?</p>
+        </li><li class="listitem">
+          <p>Reaching definitions (<a class="xref" href="ch01s05.html#section.reaching-definitions" title="Reaching Definitions">the section called &ldquo;Reaching Definitions&rdquo;</a>): which definitions of
+          variables are still valid at each statement?</p>
+        </li><li class="listitem">
+          <p>Live variables (<a class="xref" href="ch01s05.html#section.live-variables" title="Live Variables">the section called &ldquo;Live Variables&rdquo;</a>): of
+          which variables will the values be used by successors of a
+          statement?</p>
+        </li><li class="listitem">
+          <p>Available expressions: an expression is available if it is
+          computed along each path from the start of the program to the
+          current statement.</p>
+        </li></ul></div>
+
+      <div class="section" title="Dominators"><div class="titlepage"><div><div><h4 class="title"><a name="section.dominators"></a>Dominators</h4></div></div></div>
+        
+
+        <p>A node <em class="replaceable"><code>d</code></em> of a flow graph
+        <span class="emphasis"><em>dominates</em></span> a node <em class="replaceable"><code>n</code></em>, if
+        every path from the initial node of the flow graph to
+        <em class="replaceable"><code>n</code></em> goes through <em class="replaceable"><code>d</code></em>
+        [<a href="ch01s10.html#AhoSethiUllman86" class="biblioref">AhoSethiUllman86</a>] (Section 10.4). Dominators
+        play a role in the analysis of conditional statements and loops. The
+        function <code class="literal">dominators</code> that computes the dominators
+        for a given flow graph <code class="literal">PRED</code> and an entry node
+        <code class="literal">ROOT</code> is defined as follows:</p>
+
+        <pre class="programlisting">module demo::Dominators
+import Set;
+import Relation;
+import Graph;
+
+public rel[&amp;T, set[&amp;T]] dominators(rel[&amp;T,&amp;T] PRED, 
+                                   &amp;T ROOT)
+{
+  set[&amp;T] VERTICES = carrier(PRED);
+  return  { &lt;V,  (VERTICES - {V, ROOT}) - 
+                 reachX(PRED,{ROOT},{V})&gt; 
+            |  &amp;T V &lt;- VERTICES
+          };
+}</pre>
+
+        <p>First, the auxiliary set <code class="literal">VERTICES</code> (all the
+        statements) is computed. The relation <code class="literal">DOMINATES</code>
+        consists of all pairs <code class="literal">&lt;<em class="replaceable"><code>S</code></em>,
+        {<em class="replaceable"><code>S</code></em><sub>1</sub>,...,<em class="replaceable"><code>S</code></em><sub><em class="replaceable"><code>n</code></em></sub>}&gt;</code>
+        such that</p>
+
+        <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+            <p><em class="replaceable"><code>S</code></em><sub><em class="replaceable"><code>i</code></em></sub>
+            is not an initial node or equal to
+            <em class="replaceable"><code>S</code></em>.</p>
+          </li><li class="listitem">
+            <p><em class="replaceable"><code>S</code></em><sub><em class="replaceable"><code>i</code></em></sub>
+            cannot be reached from the initial node without going through
+            <em class="replaceable"><code>S</code></em>.</p>
+          </li></ul></div>
+
+        <p>First import the above module and consider the sample flow graph
+        PRED:</p><pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>import demo::Dominators;</code></strong>
+<code class="computeroutput">ok</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>rel[int,int] PRED = {
+&lt;1,2&gt;, &lt;1,3&gt;,
+&lt;2,3&gt;,
+&lt;3,4&gt;,
+&lt;4,3&gt;,&lt;4,5&gt;, &lt;4,6&gt;,
+&lt;5,7&gt;,
+&lt;6,7&gt;,
+&lt;7,4&gt;,&lt;7,8&gt;,
+&lt;8,9&gt;,&lt;8,10&gt;,&lt;8,3&gt;,
+&lt;9,1&gt;,
+&lt;10,7&gt;
+};</code></strong>
+
+<code class="computeroutput">rel[int,int]: { &lt;1,2&gt;, &lt;1,3&gt;, ...</code></pre><p>It
+        is illustrated in<a class="xref" href="ch01s05.html#figure.flow-graph" title="Figure&nbsp;1.13.&nbsp;Flow graph">Figure&nbsp;1.13, &ldquo;Flow graph&rdquo;</a></p><div class="figure"><a name="figure.flow-graph"></a><p class="title"><b>Figure&nbsp;1.13.&nbsp;Flow graph</b></p><div class="figure-contents">
+            
+
+            <div class="mediaobject"><img src="dominators.png" width="270" alt="Flow graph"></div>
+          </div></div><p><br class="figure-break">The result of applying <code class="literal">dominators</code> to it
+        is as follows:</p><pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>dominators(PRED);</code></strong>
+<code class="computeroutput">rel[int,int]: {&lt;1, {2, 3, 4, 5, 6, 7, 8, 9, 10}&gt;, 
+&lt;2, {}&gt;, 
+&lt;3, {4, 5, 6, 7, 8, 9, 10}&gt;, 
+&lt;4, {5, 6, 7, 8, 9, 10}&gt;, 
+&lt;5, {}&gt;, 
+&lt;6, {}&gt;, 
+&lt;7, {8, 9, 10}&gt;, 
+&lt;8, {9, 10}&gt;, 
+&lt;9, {}&gt;, 
+&lt;10, {}&gt;}</code></pre><p>The resulting <span class="emphasis"><em>dominator
+        tree</em></span> is shown in <a class="xref" href="ch01s05.html#figure.dominator-tree" title="Figure&nbsp;1.14.&nbsp;Dominator tree">Figure&nbsp;1.14, &ldquo;Dominator tree&rdquo;</a>.
+        The dominator tree has the initial node as root and each node
+        <em class="replaceable"><code>d</code></em> in the tree only dominates its
+        descendants in the tree.</p>
+
+        <div class="figure"><a name="figure.dominator-tree"></a><p class="title"><b>Figure&nbsp;1.14.&nbsp;Dominator tree</b></p><div class="figure-contents">
+            
+
+            <div class="mediaobject"><img src="dominator-tree.png" width="270" alt="Dominator tree"></div>
+          </div></div><p><br class="figure-break"></p>
+      </div>
+
+      <div class="section" title="Reaching Definitions"><div class="titlepage"><div><div><h4 class="title"><a name="section.reaching-definitions"></a>Reaching Definitions</h4></div></div></div>
+        
+
+        <p>We illustrate the calculation of reaching definitions using the
+        example in <a class="xref" href="ch01s05.html#figure.dataflow-graph" title="Figure&nbsp;1.15.&nbsp;Flow graph for various dataflow problems">Figure&nbsp;1.15, &ldquo;Flow graph for various dataflow problems&rdquo;</a> which was inspired
+        by [<a href="ch01s10.html#AhoSethiUllman86" class="biblioref">AhoSethiUllman86</a>] (Example 10.15).</p>
+
+        <div class="figure"><a name="figure.dataflow-graph"></a><p class="title"><b>Figure&nbsp;1.15.&nbsp;Flow graph for various dataflow problems</b></p><div class="figure-contents">
+            
+
+            <div class="mediaobject"><img src="df-graph.png" width="270" alt="Flow graph for various dataflow problems"></div>
+          </div></div><p><br class="figure-break"></p>
+
+        <p>We assume the following basic definitions to represent
+        information about the program:</p><pre class="programlisting">module demo::ReachingDefs
+
+import Relation;
+import Graph;
+import IO;
+
+public alias stat = int;
+public alias var = str;
+public alias def  = tuple[stat, var];
+public alias use = tuple[stat,var];
+
+public rel[stat,def] definition(rel[stat,var] DEFS){
+  return {&lt;S,&lt;S,V&gt;&gt; | &lt;stat S, var V&gt; &lt;- DEFS};
+}
+
+public rel[stat,def] use(rel[stat, var] USES){
+  return {&lt;S, &lt;S, V&gt;&gt; | &lt;stat S, var V&gt; &lt;- USES};
+}
+</pre>
+
+        <p>Let's use the following values to represent our example:</p>
+
+        <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>rel[stat,stat] PRED = { &lt;1,2&gt;, &lt;2,3&gt;, &lt;3,4&gt;, 
+                                &lt;4,5&gt;, &lt;5,6&gt;, &lt;5,7&gt;, 
+                                &lt;6,7&gt;, &lt;7,4&gt; };</code></strong>
+<code class="computeroutput">rel[stat,stat]: { &lt;1,2&gt;, &lt;2,3&gt;, ...</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>rel[stat, var] DEFS = { &lt;1, "i"&gt;, &lt;2, "j"&gt;, 
+                                &lt;3, "a"&gt;, &lt;4, "i"&gt;, 
+                                &lt;5, "j"&gt;, &lt;6, "a"&gt;, 
+                                &lt;7, "i"&gt; };</code></strong>
+<code class="computeroutput">rel[stat,var]: { &lt;1, "i"&gt;, &lt;2, "j"&gt;, ...</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>rel[stat,var] USES = { &lt;1, "m"&gt;, &lt;2, "n"&gt;, 
+                               &lt;3, "u1"&gt;, &lt;4, "i"&gt;, 
+                               &lt;5, "j"&gt;, &lt;6, "u2"&gt;, 
+                               &lt;7, "u3"&gt; };</code></strong>
+<code class="computeroutput">rel[stat,var]: { &lt;1, "m"&gt;, &lt;2, "n"&gt;,...</code></pre>
+
+        
+
+        <p>For convenience, we have introduced above a notion
+        <code class="literal">def</code> that describes that a certain statement defines
+        some variable and we revamp the basic relations into a more convenient
+        format using this new type and the auxiliary functions
+        <code class="literal">definition</code> and <code class="literal">use</code>:</p><pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>definition(DEFS);</code></strong>
+<code class="computeroutput">rel[stat,def]: { &lt;1, &lt;1, "i"&gt;&gt;, &lt;2, &lt;2, "j"&gt;&gt;, 
+                 &lt;3, &lt;3, "a"&gt;&gt;, &lt;4, &lt;4, "i"&gt;&gt;, 
+                 &lt;5, &lt;5, "j"&gt;&gt;, &lt;6, &lt;6, "a"&gt;&gt;, 
+                 &lt;7, &lt;7, "i"&gt;&gt; }</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>use(USES);</code></strong>
+<code class="computeroutput">rel[stat,def]: { &lt;1, &lt;1, "m"&gt;&gt;, &lt;2, &lt;2, "n"&gt;&gt;, 
+                 &lt;3, &lt;3, "u1"&gt;&gt;, &lt;4, &lt;4, "i"&gt;&gt;, 
+                 &lt;5, &lt;5, "j"&gt;&gt;, &lt;6, &lt;6, "u2"&gt;&gt;, 
+                 &lt;7, &lt;7, "u3"&gt;&gt; }</code></pre>
+
+        
+
+        <p>Now we are ready to define an important new relation
+        <code class="literal">KILL</code>. <code class="literal">KILL</code> defines which
+        variable definitions are undone (killed) at each statement and is
+        defined by the following function
+        <code class="literal">kill</code>:</p><pre class="programlisting">// continuing module demo::ReachingDefs
+
+public rel[stat,def] kill(rel[stat,var] DEFS) { 
+  return {&lt;S1, &lt;S2, V&gt;&gt; | &lt;stat S1, var V&gt; &lt;- DEFS, 
+                          &lt;stat S2, V&gt; &lt;- DEFS, 
+                          S1 != S2};
+}</pre><p>In this definition, all variable definitions are compared
+        with each other, and for each variable definition all
+        <span class="emphasis"><em>other</em></span> definitions of the same variable are placed
+        in its kill set. In the example, <code class="literal">KILL</code> gets the
+        value </p><pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>kill(DEFS);</code></strong>
+<code class="computeroutput">rel[stat,def]: 
+{ &lt;1, &lt;4, "i"&gt;&gt;, &lt;1, &lt;7, "i"&gt;&gt;, &lt;2, &lt;5, "j"&gt;&gt;, 
+  &lt;3, &lt;6, "a"&gt;&gt;, &lt;4, &lt;1, "i"&gt;&gt;, &lt;4, &lt;7, "i"&gt;&gt;, 
+  &lt;5, &lt;2, "j"&gt;&gt;, &lt;6, &lt;3, "a"&gt;&gt;, &lt;7, &lt;1, "i"&gt;&gt;, 
+  &lt;7, &lt;4, "i"&gt;&gt;
+}</code></pre><p>and, for instance, the definition of variable
+        <code class="literal">i</code> in statement <code class="literal">1</code> kills the
+        definitions of <code class="literal">i</code> in statements <code class="literal">4</code>
+        and <code class="literal">7</code>.</p>
+
+        <p>After these preparations, we are ready to formulate the reaching
+        definitions problem in terms of two relations <code class="literal">IN</code>
+        and <code class="literal">OUT</code>. <code class="literal">IN</code> captures all the
+        variable definitions that are valid at the entry of each statement and
+        <code class="literal">OUT</code> captures the definitions that are still valid
+        after execution of each statement. Intuitively, for each statement
+        <code class="literal">S</code>, <code class="literal">IN[S]</code> is equal to the union
+        of the <code class="literal">OUT</code> of all the predecessors of
+        <code class="literal">S</code>. <code class="literal">OUT[S]</code>, on the other hand, is
+        equal to the definitions generated by <code class="literal">S</code> to which we
+        add <code class="literal">IN[S]</code> minus the definitions that are killed in
+        <code class="literal">S</code>. Mathematically, the following set of equations
+        captures this idea for each statement:</p>
+
+        <p>IN[S] = UNION<sub>P in predecessors of S</sub>
+        OUT[P]</p>
+
+        <p>OUT[S] = DEF[S] + (IN[S] - KILL[S])</p>
+
+        <p>This idea can be expressed in Rascal quite
+        literally:</p><pre class="programlisting">public rel[stat, def] reachingDefinitions(
+                            rel[stat,var] DEFS, 
+                            rel[stat,stat] PRED){
+  set[stat] STATEMENT = carrier(PRED);
+  rel[stat,def] DEF  = definition(DEFS);
+  rel[stat,def] KILL = kill(DEFS);
+
+  // The set of mutually recursive dataflow equations 
+  // that has to be solved:
+
+  with
+    rel[stat,def] IN = {};
+    rel[stat,def] OUT = DEF;
+  solve {
+    IN  = {&lt;S, D&gt; | int S &lt;- STATEMENT, 
+                    stat P &lt;- predecessors(PRED,S), 
+                    def D &lt;- OUT[P]};
+    OUT = {&lt;S, D&gt; | int S &lt;- STATEMENT, 
+                    def D &lt;- DEF[S] + (IN[S] - KILL[S])};
+  };
+  return IN;
+}</pre><p>First, the relations <code class="literal">IN</code> and
+        <code class="literal">OUT</code> are declared and initialized. Next, two
+        equations are given that resemble the mathematical equations given
+        above. Note the use of the library function
+        <code class="literal">predecessors</code> to obtain the predecessors of a
+        statement for a given control flow graph.</p>
+
+        <div class="figure"><a name="figure.reaching-definitions"></a><p class="title"><b>Figure&nbsp;1.16.&nbsp;Reaching definitions for flow graph in <a class="xref" href="ch01s05.html#figure.dataflow-graph" title="Figure&nbsp;1.15.&nbsp;Flow graph for various dataflow problems">Figure&nbsp;1.15, &ldquo;Flow graph for various dataflow problems&rdquo;</a></b></p><div class="figure-contents">
+            
+
+            <div class="mediaobject"><img src="reach.png" width="270" alt="Reaching definitions for flow graph in"></div>
+          </div></div><p><br class="figure-break"> For our running example (<a class="xref" href="ch01s05.html#figure.reaching-definitions" title="Figure&nbsp;1.16.&nbsp;Reaching definitions for flow graph in Figure&nbsp;1.15, &ldquo;Flow graph for various dataflow problems&rdquo;">Figure&nbsp;1.16, &ldquo;Reaching definitions for flow graph in Figure&nbsp;1.15, &ldquo;Flow graph for various dataflow problems&rdquo;&rdquo;</a>) the results are as follows
+        (see <a class="xref" href="ch01s05.html#figure.reaching-definitions" title="Figure&nbsp;1.16.&nbsp;Reaching definitions for flow graph in Figure&nbsp;1.15, &ldquo;Flow graph for various dataflow problems&rdquo;">Figure&nbsp;1.16, &ldquo;Reaching definitions for flow graph in Figure&nbsp;1.15, &ldquo;Flow graph for various dataflow problems&rdquo;&rdquo;</a>). Relation
+        <code class="literal">IN</code> has as value:</p><pre class="programlisting">{ &lt;2, &lt;1, "i"&gt;&gt;, &lt;3, &lt;2, "j"&gt;&gt;, &lt;3, &lt;1, "i"&gt;&gt;, 
+  &lt;4, &lt;3, "a"&gt;&gt;, &lt;4, &lt;2, "j"&gt;&gt;, &lt;4, &lt;1, "i"&gt;&gt;, 
+  &lt;4, &lt;7, "i"&gt;&gt;, &lt;4, &lt;5, "j"&gt;&gt;, &lt;4, &lt;6, "a"&gt;&gt;, 
+  &lt;5, &lt;4, "i"&gt;&gt;, &lt;5, &lt;3, "a"&gt;&gt;, &lt;5, &lt;2, "j"&gt;&gt;, 
+  &lt;5, &lt;5, "j"&gt;&gt;, &lt;5, &lt;6, "a"&gt;&gt;, &lt;6, &lt;5, "j"&gt;&gt;, 
+  &lt;6, &lt;4, "i"&gt;&gt;, &lt;6, &lt;3, "a"&gt;&gt;, &lt;6, &lt;6, "a"&gt;&gt;, 
+  &lt;7, &lt;5, "j"&gt;&gt;, &lt;7, &lt;4, "i"&gt;&gt;, &lt;7, &lt;3, "a"&gt;&gt;, 
+  &lt;7, &lt;6, "a"&gt;&gt;
+}</pre>
+
+        <p>If we consider statement <code class="literal">3</code>, then the
+        definitions of variables <code class="literal">i</code> and <code class="literal">j</code>
+        from the preceding two statements are still valid. A more interesting
+        case are the definitions that can reach statement
+        <code class="literal">4</code>:</p>
+
+        <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+            <p>The definitions of variables <code class="literal">a</code>,
+            <code class="literal">j</code> and <code class="literal">i</code> from, respectively,
+            statements <code class="literal">3</code>, <code class="literal">2</code> and
+            <code class="literal">1</code>.</p>
+          </li><li class="listitem">
+            <p>The definition of variable <code class="literal">i</code> from
+            statement <code class="literal">7</code> (via the backward control flow path
+            from <code class="literal">7</code> to <code class="literal">4</code>).</p>
+          </li><li class="listitem">
+            <p>The definition of variable <code class="literal">j</code> from
+            statement <code class="literal">5</code> (via the path <code class="literal">5</code>,
+            <code class="literal">7</code>, <code class="literal">4</code>).</p>
+          </li><li class="listitem">
+            <p>The definition of variable <code class="literal">a</code> from
+            statement <code class="literal">6</code> (via the path <code class="literal">6</code>,
+            <code class="literal">7</code>, <code class="literal">4</code>).</p>
+          </li></ul></div>
+
+        <p>Relation <code class="literal">OUT</code> has as value:</p><pre class="programlisting">{ &lt;1, &lt;1, "i"&gt;&gt;, &lt;2, &lt;2, "j"&gt;&gt;, &lt;2, &lt;1, "i"&gt;&gt;, 
+  &lt;3, &lt;3, "a"&gt;&gt;, &lt;3, &lt;2, "j"&gt;&gt;, &lt;3, &lt;1, "i"&gt;&gt;, 
+  &lt;4, &lt;4, "i"&gt;&gt;, &lt;4, &lt;3, "a"&gt;&gt;, &lt;4, &lt;2, "j"&gt;&gt;, 
+  &lt;4, &lt;5, "j"&gt;&gt;, &lt;4, &lt;6, "a"&gt;&gt;, &lt;5, &lt;5, "j"&gt;&gt;, 
+  &lt;5, &lt;4, "i"&gt;&gt;, &lt;5, &lt;3, "a"&gt;&gt;, &lt;5, &lt;6, "a"&gt;&gt;, 
+  &lt;6, &lt;6, "a"&gt;&gt;, &lt;6, &lt;5, "j"&gt;&gt;, &lt;6, &lt;4, "i"&gt;&gt;, 
+  &lt;7, &lt;7, "i"&gt;&gt;, &lt;7, &lt;5, "j"&gt;&gt;, &lt;7, &lt;3, "a"&gt;&gt;, 
+  &lt;7, &lt;6, "a"&gt;&gt;
+}</pre><p>Observe, again for statement <code class="literal">4</code>, that all
+        definitions of variable <code class="literal">i</code> are missing in
+        <code class="literal">OUT[4]</code> since they are killed by the definition of
+        <code class="literal">i</code> in statement <code class="literal">4</code> itself.
+        Definitions for <code class="literal">a</code> and <code class="literal">j</code> are,
+        however, contained in <code class="literal">OUT[4]</code>. The result of
+        reaching definitions computation is illustrated in <a class="xref" href="ch01s05.html#figure.reaching-definitions" title="Figure&nbsp;1.16.&nbsp;Reaching definitions for flow graph in Figure&nbsp;1.15, &ldquo;Flow graph for various dataflow problems&rdquo;">Figure&nbsp;1.16, &ldquo;Reaching definitions for flow graph in Figure&nbsp;1.15, &ldquo;Flow graph for various dataflow problems&rdquo;&rdquo;</a>. We will use the function
+        <code class="literal">reachingDefinitions</code> later on in <a class="xref" href="ch01s05.html#section.program-slicing" title="Program Slicing">the section called &ldquo;Program Slicing&rdquo;</a> when defining program
+        slicing.</p>
+      </div>
+
+      <div class="section" title="Live Variables"><div class="titlepage"><div><div><h4 class="title"><a name="section.live-variables"></a>Live Variables</h4></div></div></div>
+        
+
+        <p>The live variables of a statement are those variables whose
+        value will be used by the current statement or some successor of it.
+        The mathematical formulation of this problem is as follows:</p>
+
+        <p>IN[S] =USE[S] + (OUT[S] - DEF[S])</p>
+
+        <p>OUT[S] = UNION<sub>S' in successors of S</sub>
+        IN[S']</p>
+
+        <p>The first equation says that a variable is live coming into a
+        statement if either it is used before redefinition in that statement
+        or it is live coming out of the statement and is not redefined in it.
+        The second equation says that a variable is live coming out of a
+        statement if and only if it is live coming into one of its
+        successors.</p>
+
+        <p>This can be expressed in Rascal as follows:</p><pre class="programlisting">public rel[stat,def] liveVariables(rel[stat,var] DEFS, 
+                                   rel[stat, var] USES, 
+                                   rel[stat,stat] PRED){
+  set[stat] STATEMENT = carrier(PRED);
+  rel[stat,def] DEF  = definition(DEFS);
+  rel[stat,def] USE = use(USES);
+  with
+    rel[stat,def] LIN = {};
+    rel[stat,def] LOUT = DEF;
+  solve {
+    LIN  = { &lt;S, D&gt; | stat S &lt;- STATEMENT,  
+                      def D &lt;- USE[S] + 
+                               (LOUT[S] - (DEF[S]))};
+    LOUT = { &lt;S, D&gt; | stat S &lt;- STATEMENT,  
+                      stat Succ &lt;- successors(PRED,S), 
+                      def D &lt;- LIN[Succ] };
+  }
+  return LIN;
+}</pre><p>The results of live variable analysis for our running
+        example are illustrated in <a class="xref" href="ch01s05.html#figure.live-variables" title="Figure&nbsp;1.17.&nbsp;Live variables for flow graph in Figure&nbsp;1.15, &ldquo;Flow graph for various dataflow problems&rdquo;">Figure&nbsp;1.17, &ldquo;Live variables for flow graph in Figure&nbsp;1.15, &ldquo;Flow graph for various dataflow problems&rdquo;&rdquo;</a>.</p>
+
+        <div class="figure"><a name="figure.live-variables"></a><p class="title"><b>Figure&nbsp;1.17.&nbsp;Live variables for flow graph in <a class="xref" href="ch01s05.html#figure.dataflow-graph" title="Figure&nbsp;1.15.&nbsp;Flow graph for various dataflow problems">Figure&nbsp;1.15, &ldquo;Flow graph for various dataflow problems&rdquo;</a></b></p><div class="figure-contents">
+            
+
+            <div class="mediaobject"><img src="live.png" width="270" alt="Live variables for flow graph in"></div>
+          </div></div><p><br class="figure-break"></p>
+      </div>
+    </div>
+
+    <div class="section" title="Program Slicing"><div class="titlepage"><div><div><h3 class="title"><a name="section.program-slicing"></a>Program Slicing</h3></div></div></div>
+      
+
+      <p>Program slicing is a technique proposed by Weiser [<a href="ch01s10.html#Weiser84" class="biblioref">Weiser84</a>] for automatically decomposing programs in parts by
+      analyzing their data flow and control flow. Typically, a given statement
+      in a program is selected as the <span class="emphasis"><em>slicing criterion</em></span>
+      and the original program is reduced to an independent subprogram, called
+      a <span class="emphasis"><em>slice</em></span>, that is guaranteed to represent faithfully
+      the behavior of the original program at the slicing criterion. An
+      example will illustrate this (we use line numbers for later
+      reference):</p>
+
+      <p><a name="programlisting.slice-example"></a></p><pre class="programlisting">[ 1] read(n)        [1] read(n)      [ 1] read(n)
+[ 2] i := 1         [2] i := 1       [ 2] i := 1
+[ 3] sum := 0       [3] sum := 0      
+[ 4] product := 1                    [ 4] product := 1
+[ 5] while i&lt;= n    [5] while i&lt;= n  [ 5] while i&lt;= n
+     do                 do                do
+     begin              begin             begin
+[ 6]  sum :=        [6]  sum :=
+          sum + i            sum + i
+[ 7]  product :=                     [ 7]  product := 
+        product * i                          product * i
+[ 8]  i := i + 1    [8]  i := i + 1  [ 8]  i := i + 1
+     end                 end              end
+[ 9] write(sum)     [9] write(sum)
+[10] write(product)                  [10] write(product)
+
+<span class="bold"><strong>(a)</strong></span> Sample program  <span class="bold"><strong>(b)</strong></span> Slice for    <span class="bold"><strong>(c)</strong></span> Slice for
+                        statement [9]    statement [10]</pre>
+
+      <p>The initial program is given as (a). The slice with statement [9]
+      as slicing criterion is shown in (b): statements <code class="literal">[4]</code>
+      and <code class="literal">[7]</code> are irrelevant for computing statement
+      <code class="literal">[9]</code> and do not occur in the slice. Similarly, (c)
+      shows the slice with statement <code class="literal">[10]</code> as slicing
+      criterion. This particular form of slicing is called <span class="emphasis"><em>backward
+      slicing</em></span>. Slicing can be used for debugging and program
+      understanding, optimization and more. An overview of slicing techniques
+      and applications can be found in [<a href="ch01s10.html#Tip95" class="biblioref">Tip95</a>]. Here we
+      will explore a relational formulation of slicing adapted from a proposal
+      in [<a href="ch01s10.html#JacksonRollins94" class="biblioref">JacksonRollins94</a>]. The basic ingredients of
+      the approach are as follows:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>We assume the relations <code class="literal">PRED</code>,
+          <code class="literal">DEFS</code> and <code class="literal">USES</code> as
+          before.</p>
+        </li><li class="listitem">
+          <p>We assume an additional set
+          <code class="literal">CONTROL-STATEMENT</code> that defines which statements
+          are control statements.</p>
+        </li><li class="listitem">
+          <p>To tie together dataflow and control flow, three auxiliary
+          variables are introduced:</p>
+
+          <div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem">
+              <p>The variable <code class="literal">TEST</code> represents the
+              outcome of a specific test of some conditional statement. The
+              conditional statement defines <code class="literal">TEST</code> and all
+              statements that are control dependent on this conditional
+              statement will use <code class="literal">TEST</code>.</p>
+            </li><li class="listitem">
+              <p>The variable <code class="literal">EXEC</code> represents the
+              potential execution dependence of a statement on some
+              conditional statement. The dependent statement defines
+              <code class="literal">EXEC</code> and an explicit (control) dependence is
+              made between <code class="literal">EXEC</code> and the corresponding
+              <code class="literal">TEST</code>.</p>
+            </li><li class="listitem">
+              <p>The variable <code class="literal">CONST</code> represents an
+              arbitrary constant.</p>
+
+              
+            </li></ul></div>
+        </li></ul></div>
+
+      <p>The calculation of a (backward) slice now proceeds in six
+      steps:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>Compute the relation <code class="literal">rel[use,def] use-def</code>
+          that relates all uses to their corresponding definitions. The
+          function <code class="literal">reaching-definitions</code> as shown earlier in
+          <a class="xref" href="ch01s05.html#section.reaching-definitions" title="Reaching Definitions">the section called &ldquo;Reaching Definitions&rdquo;</a>does most of the
+          work.</p>
+        </li><li class="listitem">
+          <p>Compute the relation <code class="literal">rel[def,use]
+          def-use-per-stat</code> that relates the
+          <span class="emphasis"><em>internal</em></span> definitions and uses of a
+          statement.</p>
+        </li><li class="listitem">
+          <p>Compute the relation <code class="literal">rel[def,use]
+          control-dependence</code> that links all <code class="literal">EXEC</code>s
+          to the corresponding <code class="literal">TEST</code>s.</p>
+        </li><li class="listitem">
+          <p>Compute the relation <code class="literal">rel[use,def]
+          use-control-def</code> combines use/def dependencies with control
+          dependencies.</p>
+        </li><li class="listitem">
+          <p>After these preparations, compute the relation
+          <code class="literal">rel[use,use] USE-USE</code> that contains dependencies
+          of uses on uses.</p>
+        </li><li class="listitem">
+          <p>The backward slice for a given slicing criterion (a use) is
+          now simply the projection of <code class="literal">USE-USE</code> for the
+          slicing criterion.</p>
+        </li></ul></div>
+
+      <p>This informal description of backward slicing can now be expressed
+      in Rascal:</p>
+
+      <pre class="programlisting">module demo::Slicing
+
+import Set;
+import Relation;
+import demo::ReachingDefs;
+import demo::Dominators;
+import UnitTest;
+
+set[use] BackwardSlice(set[stat] CONTROLSTATEMENT, 
+                       rel[stat,stat] PRED,
+                       rel[stat,var] USES,
+                       rel[stat,var] DEFS,	
+                       use Criterion) {
+
+  rel[stat, def] REACH = reachingDefinitions(DEFS, PRED);
+
+  // Compute the relation between each use and 
+  // corresponding definitions: use_def
+
+  rel[use,def] use_def =
+  {&lt;&lt;S1,V&gt;, &lt;S2,V&gt;&gt; | &lt;stat S1, var V&gt; &lt;- USES, 
+                      &lt;stat S2, V&gt; &lt;- REACH[S1]};
+
+  // Internal dependencies per statement
+
+  rel[def,use] def_use_per_stat  = 
+       {&lt;&lt;S,V1&gt;, &lt;S,V2&gt;&gt; | &lt;stat S, var V1&gt; &lt;- DEFS, 
+                           &lt;S, var V2&gt; &lt;- USES}
+       +
+       {&lt;&lt;S,V&gt;, &lt;S,"EXEC"&gt;&gt; | &lt;stat S, var V&gt; &lt;- DEFS}
+       +
+       {&lt;&lt;S,"TEST"&gt;,&lt;S,V&gt;&gt; | stat S &lt;- CONTROLSTATEMENT, 
+                             &lt;S, var V&gt; &lt;- 
+                                      domainR(USES, {S})};
+
+  // Control dependence: control-dependence
+
+  rel[stat, set[stat]] CONTROLDOMINATOR = 
+  domainR(dominators(PRED, 1), CONTROLSTATEMENT);
+
+  rel[def,use] control_dependence  =
+  { &lt;&lt;S2, "EXEC"&gt;,&lt;S1,"TEST"&gt;&gt; 
+    | &lt;stat S1, stat S2&gt; &lt;- CONTROLDOMINATOR};
+
+  // Control and data dependence: use-control-def
+
+  rel[use,def] use_control_def = 
+               use_def + control_dependence;
+  rel[use,use] USE_USE = 
+               (use_control_def o def_use_per_stat)*;
+
+  return USE_USE[Criterion];
+}</pre>
+
+      <p>Let's apply this to the example from the start of this section and
+      assume the following:</p><pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>import demo::Slicing;</code></strong>
+<code class="computeroutput">ok</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>rel[stat,stat] PRED = { &lt;1,2&gt;, &lt;2,3&gt;, &lt;3,4&gt;, 
+                                &lt;4,5&gt;, &lt;5,6&gt;, &lt;5,9&gt;, 
+                                &lt;6,7&gt;, &lt;7,8&gt;, &lt;8,5&gt;, 
+                                &lt;8,9&gt;, &lt;9,10&gt; };</code></strong>
+<code class="computeroutput">rel[stat,stat]: {&lt;1,2&gt;, ...</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>rel[stat,var] DEFS  = { &lt;1, "n"&gt;, &lt;2, "i"&gt;, 
+                                &lt;3, "sum"&gt;, 
+                                &lt;4,"product"&gt;, 
+                                &lt;6, "sum"&gt;, 
+                                &lt;7, "product"&gt;, 
+                                &lt;8, "i"&gt; };</code></strong>
+<code class="computeroutput">rel[stat,var]: {&lt;1, "n"&gt;, ...</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>rel[stat,var] USES  = { &lt;5, "i"&gt;, &lt;5, "n"&gt;, 
+                                &lt;6, "sum"&gt;, &lt;6,"i"&gt;, 
+                                &lt;7, "product"&gt;, &lt;7, "i"&gt;, 
+                                &lt;8, "i"&gt;, &lt;9, "sum"&gt;, 
+                                &lt;10, "product"&gt;
+                              };</code></strong>
+<code class="computeroutput">rel[stat,var]; { &lt;5, "i"&gt; ...</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>set[int] CONTROL-STATEMENT = { 5 };</code></strong>
+<code class="computeroutput">set[int]: {5}</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>BackwardSlice(CONTROL-STATEMENT, 
+                      PRED, USES, DEFS, &lt;9, "sum"&gt;);</code></strong>
+<code class="computeroutput">set[use]: { &lt;1, "EXEC"&gt;, &lt;2, "EXEC"&gt;,  &lt;3, "EXEC"&gt;, 
+            &lt;5, "i"&gt;, &lt;5, "n"&gt;, &lt;6, "sum"&gt;, &lt;6, "i"&gt;, 
+            &lt;6, "EXEC"&gt;, &lt;8, "i"&gt;, &lt;8, "EXEC"&gt;, 
+            &lt;9, "sum"&gt; }</code></pre><p>Take the domain of
+      this result and we get exactly the statements in (b) of the
+      example.</p>
+    </div>
+  </div><div class="navfooter"><hr><table summary="Navigation footer" width="100%"><tr><td align="left" width="40%"><a accesskey="p" href="ch01s04.html">Prev</a>&nbsp;</td><td align="center" width="20%">&nbsp;</td><td align="right" width="40%">&nbsp;<a accesskey="n" href="ch01s06.html">Next</a></td></tr><tr><td valign="top" align="left" width="40%">Problem Solving Strategies&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">Home</a></td><td valign="top" align="right" width="40%">&nbsp;The Rascal Language</td></tr></table></div></body></html>
