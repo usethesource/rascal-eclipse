@@ -22,6 +22,7 @@ import org.eclipse.core.filesystem.provider.FileSystem;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.interpreter.Evaluator;
@@ -147,7 +148,7 @@ public class RascalLibraryFileSystem extends FileSystem {
 			try {
 				return new FileInputStream(file);
 			} catch (FileNotFoundException e) {
-				throw new CoreException(new Status(Status.ERROR, "", e.getMessage()));
+				throw new CoreException(new Status(IStatus.ERROR, "", e.getMessage()));
 			}
 		}
 
