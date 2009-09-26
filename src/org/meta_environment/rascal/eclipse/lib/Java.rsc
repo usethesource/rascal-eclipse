@@ -65,14 +65,14 @@ data Modifier = \public()
 			  | deprecated() 
 ;
 
-public str toString(Entity entity) {
+public str readable(Entity entity) {
 	str result = "";
 	list[Id] ids = entity.id;
 	
 	if (size(ids) > 0) {
-		result = toString(head(ids));	
+		result = readable(head(ids));	
 		for (id <- tail(ids)) {
-			result += "." + toString(id);	
+			result += "." + readable(id);	
 		}
 	}
 	
@@ -81,27 +81,27 @@ public str toString(Entity entity) {
 	return result;
 }
 
-public str toString(list[Entity] entities) {
+public str readable(list[Entity] entities) {
 	str result = "";
 	
 	if (size(entities) > 0) {
-		result = toString(head(entities));
-		for (entity <- tail(entities)) {
-			result += ", " + toString(entity);	
+		result = readable(head(entities));
+		for (Entity entity <- tail(entities)) {
+			result += ", " + readable(entity);	
 		}
 	}
 	
 	return result;
 }
 
-public str toString(Id id) {
+public str readable(Id id) {
 	switch (id) {
 		case class(name, params):
-			return name + "\<" + toString(params) + "\>"; 		
+			return name + "\<<readable(params)>\>"; 		
 		case interface(name, params):
-			return name + "\<" + toString(params) + "\>"; 		
+			return name + "\<<readable(params)>\>"; 		
         case method(name, params, returnType):
-			return name + "(" + toString(params) + ")"; 		
+			return name + "(<readable(params)>)"; 		
 	}
 
 	try {
@@ -109,15 +109,15 @@ public str toString(Id id) {
 	} catch : ;
 	
 	switch (id) {
-		case anonymousClass(nr): return "anonymousClass$" + toString(nr);		
-		case constructor(params): return "constructor(" + toString(params) + ")";		
+		case anonymousClass(nr): return "anonymousClass$" + readable(nr);		
+		case constructor(params): return "constructor(" + readable(params) + ")";		
 		case initializer: return "initializer";
-		case initializer(nr): return "initializer$" + toString(nr);		
+		case initializer(nr): return "initializer$" + readable(nr);		
 		case primitive(p): return getName(p);
-		case array(elementType): return toString(elementType) + "[]";		
+		case array(elementType): return readable(elementType) + "[]";		
 		case wildcard: return "?";
-		case wildcard(extends(bound)): return "? extends " + toString(bound);
-		case wildcard(super(bound)): return "? super " + toString(bound);
+		case wildcard(extends(bound)): return "? extends " + readable(bound);
+		case wildcard(super(bound)): return "? super " + readable(bound);
 		default : throw IllegalArgument(id);
 	}
 }
