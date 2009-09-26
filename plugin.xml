@@ -410,7 +410,7 @@
            sequence="Ctrl+E">
      </key>
   </extension>
-  <extension
+ <!--- <extension
         point="org.eclipse.core.filesystem.filesystems">
      <filesystem
            scheme="rascal-library">
@@ -418,7 +418,9 @@
               class="org.meta_environment.rascal.eclipse.nature.RascalLibraryFileSystem">
         </run>
      </filesystem>
-  </extension>
+  </extension> 
+  --> 
+  
   <extension
         point="org.eclipse.ui.ide.projectNatureImages">
      <image

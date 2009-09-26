@@ -15,7 +15,7 @@ public set[loc] java projects();
 public set[loc] java references(loc project);
 
 public set[loc] dependencies(loc project) {
-  set[loc] closure = references(project) + {project};
+  set[loc] closure = references(project);
   
   solve (closure) {
     closure += { dep | loc project <- closure, loc dep <- references(project) };

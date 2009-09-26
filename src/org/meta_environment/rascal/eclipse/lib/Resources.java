@@ -31,11 +31,11 @@ public class Resources {
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	private static final IWorkspaceRoot ROOT = ResourcesPlugin.getWorkspace().getRoot();
 	private static final TypeStore store = new TypeStore();
-	private static final Type res = TF.abstractDataType(store, "Resource");
-	private static final Type root = TF.constructor(store, res, "root", TF.setType(res), "projects");
-	private static final Type project = TF.constructor(store, res, "project", TF.sourceLocationType(), "id", TF.setType(res), "contents");
-	private static final Type folder = TF.constructor(store, res, "folder", TF.sourceLocationType(), "id", TF.setType(res), "contents");
-	private static final Type file =  TF.constructor(store, res, "file", TF.sourceLocationType(), "id");
+	public static final Type res = TF.abstractDataType(store, "Resource");
+	public static final Type root = TF.constructor(store, res, "root", TF.setType(res), "projects");
+	public static final Type project = TF.constructor(store, res, "project", TF.sourceLocationType(), "id", TF.setType(res), "contents");
+	public static final Type folder = TF.constructor(store, res, "folder", TF.sourceLocationType(), "id", TF.setType(res), "contents");
+	public static final Type file =  TF.constructor(store, res, "file", TF.sourceLocationType(), "id");
 	
 	public static ISet projects() {
 		IProject[] projects = ROOT.getProjects();

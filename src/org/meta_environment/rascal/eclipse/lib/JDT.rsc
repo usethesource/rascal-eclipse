@@ -1,6 +1,7 @@
 module JDT
 
 import Map;
+import Node;
 import Resources;
 import Java;
 
@@ -16,73 +17,74 @@ public alias EntitySet = set[Entity];
 @doc{maps an entity to its modifiers}
 public alias ModifierRel = rel[Entity entity, Modifier modifier];
 
-@doc{database of facts, indexed by names of facts}
-public alias FactMap = map[str label, value fact];
+anno BindingRel Resource@types; // (loc x type)
+anno BindingRel Resource@methods; //  (loc x method)
+anno BindingRel Resource@constructors; // (loc x constructor)
+anno BindingRel Resource@fields; // (loc x field)
+anno BindingRel Resource@variables; // (loc x variable) (local variables and method parameters)
+anno BindingRel Resource@packages; // (loc x package)
 
-/*
-FactMaps contain the following relations:
-  BindingRel  typeBindings        (loc x type)
-  BindingRel  methodBindings      (loc x method)
-  BindingRel  constructorBindings (loc x constructor)
-  BindingRel  fieldBindings       (loc x field)
-  BindingRel  variableBindings    (loc x variable) (local variables and method parameters)
-  BindingRel  packageBindings     (loc x package)
-  EntityRel   implements          (class x interface)
-  EntityRel   extends             (class x class)
-  EntitySet   declaredTopTypes    (type) (top classes)
-  EntityRel   declaredSubTypes    (type x type) (innerclasses)
-  EntityRel   declaredMethods     (type x method)
-  EntityRel   declaredFields      (type x field)
-  EntityRel   calls				  (method x method) union (type x method) (for field initializations)
-  ModifierRel modifiers           (entity x modifier)
-*/
+anno ModifierRel Resource@modifiers;
+
+anno EntityRel  Resource@implements; // (class x interface)
+anno EntityRel  Resource@extends; //  (class x class)
+anno EntitySet  Resource@declaredTopTypes; // (type) (top classes)
+anno EntityRel  Resource@declaredSubtypes; // (type x type) (innerclasses)
+anno EntityRel  Resource@declaredMethods; // (type x method)
+anno EntityRel  Resource@declaredFields; // (type x field)
+anno EntityRel  Resource@calls; // (method x method) union (type x method) (for field initializations)
 
 @doc{import JDT facts from a file or an entire project}
 @javaClass{org.meta_environment.rascal.eclipse.lib.JDT}
-public FactMap java extractClass(loc file);
+public Resource java extractClass(loc file);
 
-public FactMap extractProject(loc project) {
-  return unionFacts({ extractClass(file) | loc file <- files(project), file.extension == "java" });
+public Resource extractProject(loc project) {
+  return unionFacts(getProject(project), { extractClass(file) | loc file <- files(project), file.extension == "java" });
 }
 
 @doc{extract facts from projects}
-public FactMap extractFacts(set[loc] projects) {
-  return unionFacts({ facts | loc project <- projects, FactMap facts <- extractProject(project)});
+public Resource extractFacts(Resource top, set[loc] projects) {
+  return unionFacts(top, { facts | loc project <- projects, FactMap facts <- extractProject(project)});
 }
 
 @doc{extracts facts from projects and all projects they depends on (transitively)}
-public FactMap extractFactsTransitive(loc project) {
-  return extractFacts(dependencies(project));
+public Resource extractFactsTransitive(loc project) {
+  return extractFacts(extractFacts(project), dependencies(project));
 }
 
-@doc{retrieve typed facts from a fact map}
-public BindingRel getTypeBindings(FactMap fm) { return (BindingRel r := fm["typeBindings"]) ? r : {}; }
- 
-public BindingRel getMethodBindings(FactMap fm) { return (BindingRel r := fm["methodBindings"]) ? r : {}; }
- 
-public BindingRel getConstructorBindings(FactMap fm) { return (BindingRel r := fm["constructorBindings"]) ? r : {}; }
+@doc{
+	Union fact maps. Union values for facts that appear in both maps (if possible)
+    TODO: implement in Java to generalize over value types
+    Will collect all facts on r1 and r2 and annotate r1 with the union
+}
+private Resource unionFacts(Resource r1, Resource r2) {
+    m1 = getAnnotations(r1);
+    m2 = getAnnotations(r2);
+    
+	for (s <- domain(m1) & domain(m2)) {
+		if (BindingRel br1 := m1[s] && BindingRel br2 := m2[s]) {
+			m1[s] = br1 + br2;
+		}
+		else if (EntityRel ti1 := m1[s] && EntityRel ti2 := m2[s]) {
+			m1[s] = ti1 + ti2;
+		}
+		else if (EntitySet si1 := m1[s] && EntitySet si2 := m2[s]) {
+			m1[s] = si1 + si2;
+		}
+	}
+	
+	m1 += ( s:m2[s] | s <- domain(m2) - domain(m1) );
 
-public BindingRel getFieldBindings(FactMap fm) { return (BindingRel r := fm["fieldBindings"]) ? r : {}; }
+	return setAnnotations(r1, m1);
+}
 
-public BindingRel getVariableBindings (FactMap fm) { return (BindingRel r := fm["variableBindings"]) ? r : {}; }
-
-public BindingRel getPackageBindings (FactMap fm) { return (BindingRel r := fm["packageBindings"]) ? r : {}; }
-
-public EntitySet getDeclaredTopTypes (FactMap fm) { return (EntitySet r := fm["declaredTopTypes"]) ? r : {}; }
-
-public EntityRel getImplements(FactMap fm) { return (EntityRel r := fm["implements"]) ? r : {}; }
-
-public EntityRel getExtends(FactMap fm) { return (EntityRel r := fm["extends"]) ? r : {}; }
-
-public EntityRel getDeclaredSubTypes(FactMap fm) { return (EntityRel r := fm["declaredSubTypes"]) ? r : {}; }
-
-public EntityRel getDeclaredMethods(FactMap fm) { return (EntityRel r := fm["declaredMethods"]) ? r : {}; }
-
-public EntityRel getDeclaredFields(FactMap fm) { return (EntityRel r := fm["declaredFields"]) ? r : {}; }
-
-public EntityRel getCalls(FactMap fm) { return (EntityRel r := fm["calls"]) ? r : {}; }
-
-public ModifierRel getModifiers(FactMap fm) {return (ModifierRel r := fm["modifiers"]) ? r : {};}
+private Resource unionFacts(Resource receiver, set[Resource] facts) {
+	for (Resource fact <- facts) {
+		receiver = unionFacts(receiver, fact);
+	}
+	
+	return receiver;
+}
 
 @doc{
   Compose two relations by matching JDT locations with Rascal locations.
@@ -127,37 +129,4 @@ public tuple[rel[&T1, &T2] found, rel[loc, &T2] notfound] matchLocations(rel[&T1
   }
 
   return <found, notfound>;
-}
-
-
-@doc{
-	Union fact maps. Union values for facts that appear in both maps (if possible)
-    TODO: implement in Java to generalize over value types
-}
-public FactMap unionFacts(FactMap m1, FactMap m2) {
-
-	for (s <- domain(m1) & domain(m2)) {
-		if (BindingRel br1 := m1[s] && BindingRel br2 := m2[s]) {
-			m1[s] = br1 + br2;
-		}
-		else if (EntityRel ti1 := m1[s] && EntityRel ti2 := m2[s]) {
-			m1[s] = ti1 + ti2;
-		}
-		else if (EntitySet si1 := m1[s] && EntitySet si2 := m2[s]) {
-			m1[s] = si1 + si2;
-		}
-	}
-	
-	m1 += ( s:m2[s] | s <- domain(m2) - domain(m1) );
-
-	return m1;
-}
-
-public FactMap unionFacts(set[FactMap] facts) { 
-	FactMap union = ();
-	for (FactMap fact <- facts) {
-		union = unionFacts(union, fact);
-	}
-	
-	return union;
 }

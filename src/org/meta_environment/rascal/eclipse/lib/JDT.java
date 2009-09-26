@@ -1,13 +1,15 @@
 package org.meta_environment.rascal.eclipse.lib;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.eclipse.lib.jdt.JDTImporter;
@@ -29,8 +31,9 @@ public class JDT {
 		return p;
     }
     
-	public static IMap extractClass(ISourceLocation loc) {
+	public static IConstructor extractClass(ISourceLocation loc) {
 		URI uri = loc.getURI();
+		IConstructor resource = (IConstructor) Resources.file.make(VF, loc);
 		
 		if (!uri.getScheme().equals("project")) {
 			throw RuntimeExceptionFactory.schemeNotSupported(loc, null, null);
@@ -50,6 +53,7 @@ public class JDT {
 			throw new Throw(VF.string("File does not exist: " + path), (ISourceLocation) null, null);
 		}
 		
-		return new JDTImporter().importFacts(loc, p.getFile(path));
+		Map<String,IValue> facts = new JDTImporter().importFacts(loc, p.getFile(path));
+		return resource.setAnnotations(facts);
 	}
 }

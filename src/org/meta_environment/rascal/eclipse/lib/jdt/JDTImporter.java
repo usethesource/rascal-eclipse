@@ -5,12 +5,12 @@ import static org.meta_environment.rascal.eclipse.lib.Java.ADT_MODIFIER;
 
 import java.util.ArrayList;
 import java.util.EmptyStackException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -105,7 +105,7 @@ public class JDTImporter extends ASTVisitor {
 		super();
 	}
 	
-	public IMap importFacts(ISourceLocation loc, IFile file) {
+	public Map<String,IValue> importFacts(ISourceLocation loc, IFile file) {
 		typeBindings = VF.relationWriter(bindingTupleType);
 		methodBindings = VF.relationWriter(bindingTupleType);
 		constructorBindings = VF.relationWriter(bindingTupleType);
@@ -128,25 +128,24 @@ public class JDTImporter extends ASTVisitor {
 		this.file = file;
 		visitCompilationUnit();
 		
-		IMapWriter mw = VF.mapWriter(TF.stringType(), TF.valueType());
-		mw.put(VF.string("typeBindings"), typeBindings.done());
-		mw.put(VF.string("methodBindings"), methodBindings.done());
-		mw.put(VF.string("constructorBindings"), constructorBindings.done());
-		mw.put(VF.string("fieldBindings"), fieldBindings.done());
-		mw.put(VF.string("variableBindings"), variableBindings.done());
-		mw.put(VF.string("packageBindings"), packageBindings.done());
-		mw.put(VF.string("declaredTopTypes"), declaredTopTypes.done());
-
-		mw.put(VF.string("implements"), implmnts.done());
-		mw.put(VF.string("extends"), extnds.done());
-		mw.put(VF.string("declaredSubTypes"), declaredSubTypes.done());
-		mw.put(VF.string("declaredMethods"), declaredMethods.done());
-		mw.put(VF.string("declaredFields"), declaredFields.done());
-		mw.put(VF.string("calls"), calls.done());
+		Map<String,IValue> facts = new HashMap<String,IValue>();
+		facts.put("types", typeBindings.done());
+		facts.put("methods", methodBindings.done());
+		facts.put("constructors", constructorBindings.done());
+		facts.put("fields", fieldBindings.done());
+		facts.put("variables", variableBindings.done());
+		facts.put("packages", packageBindings.done());
+		facts.put("declaredTopTypes", declaredTopTypes.done());
+		facts.put("implements", implmnts.done());
+		facts.put("extends", extnds.done());
+		facts.put("declaredSubTypes", declaredSubTypes.done());
+		facts.put("declaredMethods", declaredMethods.done());
+		facts.put("declaredFields", declaredFields.done());
+		facts.put("calls", calls.done());
 		
-		mw.put(VF.string("modifiers"), modifiers.done());
+		facts.put("modifiers", modifiers.done());
 		
-		return mw.done();
+		return facts;
 	}
 	
 	private void visitCompilationUnit() {
