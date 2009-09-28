@@ -60,10 +60,7 @@ import org.meta_environment.rascal.eclipse.lib.Java;
 
 public class BindingConverter extends ASTVisitor {
 
-	private static final IValueFactory VF = ValueFactoryFactory
-			.getValueFactory();
-	// private static final IValueFactory VF = ValueFactory.getInstance(); //to
-	// test correctness of build ADTs
+	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	public static final Map<String, IValue> primitiveTypes;
 	public static final IValue javaLangObject;
 	public static final IValue deprecatedModifier;

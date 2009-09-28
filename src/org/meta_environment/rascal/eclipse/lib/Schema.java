@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
 
 public class Schema {
+	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	public static void printData(IString url, IString module, IList datadefs) throws IOException {
 		String path = url.getValue().replaceFirst("file:", "");
@@ -61,15 +62,14 @@ public class Schema {
 		return getASTFiles(root.getContainerForLocation(root.findMember(new Path(path.getValue())).getLocation()));
 	}
 	
-	private static ISet getASTFiles(IContainer cont) {	
-		IValueFactory vf = ValueFactoryFactory.getValueFactory();	
-		ISetWriter classes = vf.setWriter(TypeFactory.getInstance().stringType());
+	private static ISet getASTFiles(IContainer cont) {		
+		ISetWriter classes = VF.setWriter(TypeFactory.getInstance().stringType());
 		
 		if (cont != null) {
 			try {
 				for (IResource res: cont.members()) {
 					if (res.getType() == IResource.FILE && res.getFileExtension().contentEquals("java")) {
-						classes.insert(vf.string(res.getFullPath().toString()));
+						classes.insert(VF.string(res.getFullPath().toString()));
 					} else if (res.getType() == IResource.FOLDER) {
 						classes.insertAll(getASTFiles((IFolder)res));
 					}
@@ -84,7 +84,7 @@ public class Schema {
 	}
 	
 	public static ISet getCompliantSet(ISet universe, IString searchString) {
-		ISetWriter result = ValueFactoryFactory.getValueFactory().setWriter(universe.getElementType());  
+		ISetWriter result = VF.setWriter(universe.getElementType());  
 		
 		Pattern pattern = Pattern.compile(searchString.getValue());
 		
