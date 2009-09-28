@@ -5,7 +5,9 @@ Bundle-SymbolicName: rascal_eclipse;singleton:=true
 Bundle-Version: 0.1
 Bundle-Activator: org.meta_environment.rascal.eclipse.Activator
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: rascal-eclipse.jar
+Bundle-ClassPath: rascal-eclipse.jar,
+ .,
+ src
 Require-Bundle: graph_browser,
  rascal,
  rascal_plugin,
