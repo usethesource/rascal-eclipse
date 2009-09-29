@@ -273,11 +273,11 @@ public class RascalScriptInterpreter implements IInterpreter{
 		if (value != null) {
 			Type type = result.getType();
 			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
-				content = "`" + TreeAdapter.yield((IConstructor) value) + "`\n" + 
-				type + ": " + result.toString().substring(0, 50) + "...\n";
+				content = "`" + limitString(TreeAdapter.yield((IConstructor) value)) + "`\n" + 
+				type + ": " + limitString(result.toString()) + "\n";
 			}
 			else {
-				content = result.getType() + ": " + result.toString() + "\n";
+				content = result.getType() + ": " + limitString(result.toString()) + "\n";
 			}
 		} else {
 			content = "ok\n";
@@ -289,6 +289,14 @@ public class RascalScriptInterpreter implements IInterpreter{
 			debugEval.getDebugger().stopStepping();
 		}
 		command = "";
+	}
+
+
+	private String limitString(String valString) {
+		if (valString.length() > 200) {
+			valString = valString.substring(0, 200 - 3) + "...";
+		}
+		return valString;
 	}
 
 	private void editCommand(Edit x) throws IOException, CoreException {
