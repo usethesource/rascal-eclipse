@@ -149,8 +149,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 		}catch(StaticError e){
 			content = e.getMessage() + "\n";
 			command = "";
-			setMarker(e.getMessage(), e.getLocation());
-			throw new CommandExecutionException(content);
+			ISourceLocation location = e.getLocation();
+			setMarker(e.getMessage(), location);
+			throw new CommandExecutionException(content, location.getOffset());
 		}catch(Throw e){
 			content = e.getMessage() + "\n";
 			String trace = e.getTrace();
@@ -158,8 +159,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 				content += "stacktrace:\n" + trace;
 			}
 			command = "";
-			setMarker(e.getMessage(), e.getLocation());
-			throw new CommandExecutionException(content);
+			ISourceLocation location = e.getLocation();
+			setMarker(e.getMessage(), location);
+			throw new CommandExecutionException(content, location.getOffset());
 		}catch(Throwable e){
 			content = "internal exception: " + e.toString() + "\n";
 			e.printStackTrace();
@@ -345,7 +347,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 				content += " ";
 			}
 			command = "";
-			throw new CommandExecutionException(content);
+			throw new CommandExecutionException(content, location.getOffset());
 		}
 	}
 
