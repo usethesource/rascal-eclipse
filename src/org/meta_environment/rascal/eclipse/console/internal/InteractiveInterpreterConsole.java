@@ -162,12 +162,13 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		return (page = new InterpreterConsolePage(this, view));
 	}
 	
-	private void writeToConsole(final String line){
+	private void writeToConsole(final String line, final boolean terminateLine){
 		Display.getDefault().syncExec(new Runnable(){
 			public void run(){
 				try{
 					IDocument doc = getDocument();
 					doc.replace(doc.getLength(), 0, line);
+					if(terminateLine) doc.replace(doc.getLength(), 0, "\n");
 					
 					int endOfDocument = doc.getLength();
 					moveCaretTo(endOfDocument);
@@ -179,11 +180,11 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	}
 	
 	protected void emitPrompt(){
-		writeToConsole(prompt);
+		writeToConsole(prompt, false);
 	}
 	
 	protected void emitContinuationPrompt(){
-		writeToConsole(continuationPrompt);
+		writeToConsole(continuationPrompt, false);
 	}
 	
 	protected void enableEditing(){
@@ -210,11 +211,16 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	
 	protected void printOutput(String output){
 		consoleOutputStream.print();
-		writeToConsole(output);
+		writeToConsole(output, true);
 	}
 	
 	protected void printOutput(){
 		consoleOutputStream.print();
+	}
+	
+	protected void setError(String errorMessage, int offset){
+		// TODO Implement.
+		// System.err.println(errorMessage+" @ "+offset); // Temp
 	}
 	
 	public OutputStream getConsoleOutputStream(){
@@ -334,7 +340,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			reset();
 		}
 		
-		public void write(int arg) throws IOException{
+		public synchronized void write(int arg) throws IOException{
 			if(!enabled) throw new RuntimeException("Unable to write data while no commands are being executed");
 			
 			if(arg == '\n'){ // If we encounter a new-line, print the content of the buffer.
@@ -352,13 +358,13 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			buffer[index++] = (byte) arg;
 		}
 		
-		public void print(){
+		public synchronized void print(){
 			if(index != 0){
 				byte[] collectedData = new byte[index + 1];
 				System.arraycopy(buffer, 0, collectedData, 0, index);
 				collectedData[index] = '\n';
 				
-				console.writeToConsole(new String(collectedData));
+				console.writeToConsole(new String(collectedData), false);
 				
 				reset();
 			}
@@ -440,7 +446,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 					
 					console.revertAndAppend(command);
 				}else{ // If there is no current 'thing', just execute the '\n' command.
-					queue("\n");
+					queue("\n", console.getInputOffset());
 					execute();
 				}
 				return;
@@ -452,6 +458,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			int start = offset - console.getInputOffset();
 			if(start >= 0){
 				buffer.replace(start, start + length, text);
+				
+				int commandStartOffset = console.getInputOffset();
 				
 				String rest = buffer.toString();
 				boolean commandsQueued = false;
@@ -465,7 +473,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 					
 					String command = rest.substring(0, index);
 					
-					queue(command);
+					queue(command, commandStartOffset);
+					commandStartOffset += index;
 					commandsQueued = true;
 					
 					rest = rest.substring(index + 1);
@@ -480,9 +489,9 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			}
 		}
 		
-		public void queue(String command){
+		public void queue(String command, int commandStartOffset){
 			if(!command.equals("\n")) console.commandHistory.addToHistory(command);
-			console.commandExecutor.queue(command);
+			console.commandExecutor.queue(command, commandStartOffset);
 		}
 		
 		public void execute(){
@@ -517,7 +526,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	private static class CommandExecutor implements Runnable{
 		private final InteractiveInterpreterConsole console;
 		
-		private final Vector<String> commandQueue;
+		private final Vector<Command> commandQueue;
 		
 		private volatile boolean running;
 		
@@ -528,13 +537,25 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 
 			this.console = console;
 			
-			commandQueue = new Vector<String>();
+			commandQueue = new Vector<Command>();
 			
 			running = false;
 		}
 		
-		public void queue(String command){
-			commandQueue.add(command);
+		private static class Command{
+			public final String command;
+			public final int commandStartOffset;
+			
+			public Command(String command, int commandStartOffset){
+				super();
+				
+				this.command = command;
+				this.commandStartOffset = commandStartOffset;
+			}
+		}
+		
+		public void queue(String command, int commandStartOffset){
+			commandQueue.add(new Command(command, commandStartOffset));
 		}
 		
 		public void execute(){
@@ -555,9 +576,9 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 					boolean completeCommand = true;
 					
 					do{
-						String command = commandQueue.remove(0);
+						Command command = commandQueue.remove(0);
 						try{
-							completeCommand = console.interpreter.execute(command);
+							completeCommand = console.interpreter.execute(command.command);
 							if(completeCommand){
 								console.printOutput(console.interpreter.getOutput());
 							}else{
@@ -565,6 +586,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 							}
 						}catch(CommandExecutionException ceex){
 							console.printOutput(ceex.getMessage());
+							console.setError(ceex.getMessage(), command.commandStartOffset + ceex.getOffset());
 						}catch(TerminationException tex){
 							// Roll over and die.
 							console.terminate();

@@ -128,7 +128,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 	public boolean execute(String cmd) throws CommandExecutionException, TerminationException{
 		if(cmd.trim().length() == 0){
-			content = "cancelled\n";
+			content = "cancelled";
 			command = "";
 			return true;
 		}
@@ -147,7 +147,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		}catch(QuitException q){
 			throw new TerminationException();
 		}catch(StaticError e){
-			content = e.getMessage() + "\n";
+			content = e.getMessage();
 			command = "";
 			ISourceLocation location = e.getLocation();
 			setMarker(e.getMessage(), location);
@@ -163,7 +163,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 			setMarker(e.getMessage(), location);
 			throw new CommandExecutionException(content, location.getOffset());
 		}catch(Throwable e){
-			content = "internal exception: " + e.toString() + "\n";
+			content = "internal exception: " + e.toString();
 			e.printStackTrace();
 			command = "";
 		}
@@ -279,13 +279,12 @@ public class RascalScriptInterpreter implements IInterpreter{
 			Type type = result.getType();
 			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
 				content = "`" + limitString(TreeAdapter.yield((IConstructor) value)) + "`\n" + 
-				result.toString(LINE_LIMIT) + "\n";
-			}
-			else {
-				content = result.toString(LINE_LIMIT) + "\n";
+				result.toString(LINE_LIMIT);
+			} else {
+				content = result.toString(LINE_LIMIT);
 			}
 		} else {
-			content = "ok\n";
+			content = "ok";
 		}
 
 		if (eval instanceof DebuggableEvaluator) {
@@ -305,7 +304,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		final IFile file = getFile(module);
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-
+		
 		if (win != null) {
 			final IWorkbenchPage page = win.getActivePage();
 

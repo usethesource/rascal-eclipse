@@ -103,12 +103,13 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		});
 	}
 	
-	private void writeToConsole(final String line){
+	private void writeToConsole(final String line, final boolean terminateLine){
 		Display.getDefault().syncExec(new Runnable(){
 			public void run(){
 				IDocument doc = getDocument();
 				try{
 					doc.replace(doc.getLength(), 0, line);
+					if(terminateLine) doc.replace(doc.getLength(), 0, "\n");
 					
 					int endOfDocument = doc.getLength();
 					moveCaretTo(endOfDocument);
@@ -146,7 +147,7 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 	
 	protected void printOutput(String output){
 		consoleOutputStream.print();
-		writeToConsole(output);
+		writeToConsole(output, true);
 	}
 	
 	private static class ConsoleOutputStream extends OutputStream{
@@ -191,7 +192,7 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 				System.arraycopy(buffer, 0, collectedData, 0, index);
 				collectedData[index] = '\n';
 				
-				console.writeToConsole(new String(collectedData));
+				console.writeToConsole(new String(collectedData), false);
 				
 				reset();
 			}
