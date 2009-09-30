@@ -150,7 +150,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 			content = e.getMessage() + "\n";
 			command = "";
 			setMarker(e.getMessage(), e.getLocation());
-			e.printStackTrace();
+			throw new CommandExecutionException(content);
 		}catch(Throw e){
 			content = e.getMessage() + "\n";
 			String trace = e.getTrace();
@@ -159,6 +159,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 			}
 			command = "";
 			setMarker(e.getMessage(), e.getLocation());
+			throw new CommandExecutionException(content);
 		}catch(Throwable e){
 			content = "internal exception: " + e.toString() + "\n";
 			e.printStackTrace();
@@ -330,7 +331,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		}
 	}
 
-	private void execParseError(IConstructor tree) {
+	private void execParseError(IConstructor tree) throws CommandExecutionException{
 		ISourceLocation location = new SummaryAdapter(tree).getInitialSubject().getLocation();
 		String[] commandLines = command.split("\n");
 		int lastLine = commandLines.length;
@@ -343,8 +344,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 			for (int i = 0; i < location.getEndColumn(); i++) {
 				content += " ";
 			}
-			content += "^\nparse error at line " + lastLine + ", column " + location.getEndColumn() + "\n";
 			command = "";
+			throw new CommandExecutionException(content);
 		}
 	}
 
