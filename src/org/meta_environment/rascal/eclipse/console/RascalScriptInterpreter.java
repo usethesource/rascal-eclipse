@@ -64,6 +64,8 @@ import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.TreeAdapter;
 
 public class RascalScriptInterpreter implements IInterpreter{
+	private final static int LINE_LIMIT = 200;
+	
 	private final Evaluator eval;
 	private volatile IInterpreterConsole console;
 	private String command;
@@ -274,10 +276,10 @@ public class RascalScriptInterpreter implements IInterpreter{
 			Type type = result.getType();
 			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
 				content = "`" + limitString(TreeAdapter.yield((IConstructor) value)) + "`\n" + 
-				limitString(result.toString()) + "\n";
+				result.toString(LINE_LIMIT) + "\n";
 			}
 			else {
-				content = limitString(result.toString()) + "\n";
+				content = result.toString(LINE_LIMIT) + "\n";
 			}
 		} else {
 			content = "ok\n";
@@ -292,9 +294,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 	
 	private static String limitString(String valString){
-		if(valString.length() >= 200) return valString;
-		
-		return valString.substring(0, 200 - 3) + "...";
+		return (valString.length() >= 200) ? valString : valString.substring(0, 200 - 3) + "...";
 	}
 	
 	private void editCommand(Edit x) throws IOException, CoreException {
