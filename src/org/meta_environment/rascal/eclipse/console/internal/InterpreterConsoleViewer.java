@@ -8,16 +8,20 @@ import org.eclipse.ui.console.TextConsoleViewer;
 public class InterpreterConsoleViewer extends TextConsoleViewer{
 	private final InteractiveInterpreterConsole console;
 	private final CommandHistory history;
+	
+	private StyledText styledText;
 
 	public InterpreterConsoleViewer(InteractiveInterpreterConsole console, Composite parent){
 		super(parent, console);
 		
 		this.console = console;
 		this.history = console.getHistory();
+		
+		styledText.removeLineStyleListener(this);
 	}
 	
 	public StyledText createTextWidget(Composite parent, int styles){
-		return new InterpreterConsoleStyledText(parent, styles);
+		return (styledText != null) ? styledText : (styledText = new InterpreterConsoleStyledText(parent, styles));
 	}
 
 	private class InterpreterConsoleStyledText extends StyledText{

@@ -16,6 +16,7 @@ import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
@@ -218,9 +219,17 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		consoleOutputStream.print();
 	}
 	
-	protected void setError(String errorMessage, int offset){
-		// TODO Implement.
-		// System.err.println(errorMessage+" @ "+offset); // Temp
+	protected void setError(final String errorMessage, final int offset, final int length){
+		Display.getDefault().syncExec(new Runnable(){
+			public void run(){
+				TextConsoleViewer consoleViewer = page.getViewer();
+				StyledText styledText = consoleViewer.getTextWidget();
+				Display currentDisplay = Display.getCurrent();
+				styledText.setStyleRange(new StyleRange(offset, (length != 0) ? length : 1, new Color(currentDisplay, 255, 0, 0), new Color(currentDisplay, 255, 255, 255), SWT.NORMAL));
+				
+				// TODO Add Tooltip.
+			}
+		});
 	}
 	
 	public OutputStream getConsoleOutputStream(){
@@ -589,7 +598,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 							}
 						}catch(CommandExecutionException ceex){
 							console.printOutput(ceex.getMessage());
-							console.setError(ceex.getMessage(), completeCommandStartOffset + ceex.getOffset());
+							console.setError(ceex.getMessage(), completeCommandStartOffset + ceex.getOffset(), ceex.getLength());
 							completeCommand = true;
 						}catch(TerminationException tex){
 							// Roll over and die.
