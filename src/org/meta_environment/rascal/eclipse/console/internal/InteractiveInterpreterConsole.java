@@ -220,7 +220,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	
 	protected void setError(String errorMessage, int offset){
 		// TODO Implement.
-		// System.err.println(errorMessage+" @ "+offset); // Temp
+		System.err.println(errorMessage+" @ "+offset); // Temp
 	}
 	
 	public OutputStream getConsoleOutputStream(){
@@ -574,19 +574,23 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 					console.consoleOutputStream.enable();
 					
 					boolean completeCommand = true;
+					int completeCommandStartOffset = -1;
 					
 					do{
 						Command command = commandQueue.remove(0);
+						if(completeCommandStartOffset == -1) completeCommandStartOffset = command.commandStartOffset;
 						try{
 							completeCommand = console.interpreter.execute(command.command);
 							if(completeCommand){
 								console.printOutput(console.interpreter.getOutput());
+								completeCommandStartOffset = -1; // Reset offset.
 							}else{
 								console.printOutput();
 							}
 						}catch(CommandExecutionException ceex){
 							console.printOutput(ceex.getMessage());
-							console.setError(ceex.getMessage(), command.commandStartOffset + ceex.getOffset());
+							console.setError(ceex.getMessage(), completeCommandStartOffset + ceex.getOffset());
+							completeCommand = true;
 						}catch(TerminationException tex){
 							// Roll over and die.
 							console.terminate();
