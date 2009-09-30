@@ -473,7 +473,10 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				
 				if(commandsQueued) execute();
 			}else{
-				console.revertAndAppend(text);
+				buffer.insert(0, text);
+				String toAppend = buffer.toString();
+				reset();
+				console.revertAndAppend(toAppend);
 			}
 		}
 		
