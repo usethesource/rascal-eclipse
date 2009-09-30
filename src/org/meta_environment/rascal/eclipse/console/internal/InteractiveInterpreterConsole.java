@@ -220,7 +220,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	
 	protected void setError(String errorMessage, int offset){
 		// TODO Implement.
-		System.err.println(errorMessage+" @ "+offset); // Temp
+		// System.err.println(errorMessage+" @ "+offset); // Temp
 	}
 	
 	public OutputStream getConsoleOutputStream(){
