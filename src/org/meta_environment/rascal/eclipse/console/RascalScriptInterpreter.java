@@ -274,10 +274,10 @@ public class RascalScriptInterpreter implements IInterpreter{
 			Type type = result.getType();
 			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
 				content = "`" + limitString(TreeAdapter.yield((IConstructor) value)) + "`\n" + 
-				type + ": " + limitString(result.toString()) + "\n";
+				limitString(result.toString()) + "\n";
 			}
 			else {
-				content = result.getType() + ": " + limitString(result.toString()) + "\n";
+				content = limitString(result.toString()) + "\n";
 			}
 		} else {
 			content = "ok\n";
@@ -290,15 +290,13 @@ public class RascalScriptInterpreter implements IInterpreter{
 		}
 		command = "";
 	}
-
-
-	private String limitString(String valString) {
-		if (valString.length() > 200) {
-			valString = valString.substring(0, 200 - 3) + "...";
-		}
-		return valString;
+	
+	private static String limitString(String valString){
+		if(valString.length() >= 200) return valString;
+		
+		return valString.substring(0, 200 - 3) + "...";
 	}
-
+	
 	private void editCommand(Edit x) throws IOException, CoreException {
 		String module = x.getName().toString();
 		final IFile file = getFile(module);
