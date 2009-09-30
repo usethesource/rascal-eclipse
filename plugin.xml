@@ -343,14 +343,14 @@
            class="org.meta_environment.rascal.eclipse.perspective.RascalProjectWizard"
            descriptionImage="icons/rascal3D_2-16px.gif"
            finalPerspective="rascal.perspective"
-           icon="icons/rascal3D_2-16px.gif"
+           icon="icons/rascal3D_2-32px.png"
            id="rascal-eclipse.projectwizard"
            name="Rascal Project"
            project="true">
      </wizard>
      <category
            id="rascal_eclipse"
-           name="rascal">
+           name="Rascal">
      </category>
      <wizard
            category="rascal_eclipse"
@@ -424,7 +424,7 @@
   <extension
         point="org.eclipse.ui.ide.projectNatureImages">
      <image
-           icon="icons/rascal3D_2-16px.gif"
+           icon="icons/rascal3D_2-32px.png"
            id="rascal.nature.image"
            natureId="rascal.nature">
      </image>
