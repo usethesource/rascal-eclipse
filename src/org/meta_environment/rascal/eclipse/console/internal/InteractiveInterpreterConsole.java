@@ -71,6 +71,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	public void initializeConsole(){
 		final Thread commandExecutorThread = new Thread(commandExecutor);
 		commandExecutorThread.setDaemon(true);
+		commandExecutorThread.setName("Console Command Executor");
 
 		// This stinks, but works.
 		new Thread(){

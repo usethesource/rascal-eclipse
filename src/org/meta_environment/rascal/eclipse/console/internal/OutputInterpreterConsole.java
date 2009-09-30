@@ -61,6 +61,7 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 	public void initializeConsole(){
 		final Thread commandExecutorThread = new Thread(commandExecutor);
 		commandExecutorThread.setDaemon(true);
+		commandExecutorThread.setName("Console Command Executor");
 		
 		// This stinks, but works.
 		new Thread(){
