@@ -150,7 +150,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 			content = e.getMessage();
 			command = "";
 			ISourceLocation location = e.getLocation();
-			if(location != null){
+			if(location != null && location.getURI().getAuthority().equals("-")){
 				setMarker(e.getMessage(), location);
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
@@ -162,7 +162,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 			}
 			command = "";
 			ISourceLocation location = e.getLocation();
-			if(location != null){
+			if(location != null && location.getURI().getAuthority().equals("-")){
 				setMarker(e.getMessage(), location);
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
