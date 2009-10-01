@@ -44,7 +44,7 @@ public Resource extractProject(loc project) {
 
 @doc{extract facts from projects}
 public Resource extractFacts(Resource top, set[loc] projects) {
-  return unionFacts(top, { facts | loc project <- projects, FactMap facts <- extractProject(project)});
+  return unionFacts(top, { facts | loc project <- projects, Resource facts <- extractProject(project)});
 }
 
 @doc{extracts facts from projects and all projects they depends on (transitively)}
