@@ -49,7 +49,7 @@ public Resource extractFacts(Resource top, set[loc] projects) {
 
 @doc{extracts facts from projects and all projects they depends on (transitively)}
 public Resource extractFactsTransitive(loc project) {
-  return extractFacts(extractFacts(project), dependencies(project));
+  return extractFacts(extractProject(project), dependencies(project));
 }
 
 @doc{
