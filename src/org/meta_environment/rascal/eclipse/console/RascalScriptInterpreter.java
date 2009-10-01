@@ -150,8 +150,10 @@ public class RascalScriptInterpreter implements IInterpreter{
 			content = e.getMessage();
 			command = "";
 			ISourceLocation location = e.getLocation();
-			setMarker(e.getMessage(), location);
-			throw new CommandExecutionException(content, location.getOffset(), location.getLength());
+			if(location != null){
+				setMarker(e.getMessage(), location);
+				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
+			}
 		}catch(Throw e){
 			content = e.getMessage() + "\n";
 			String trace = e.getTrace();
@@ -160,8 +162,10 @@ public class RascalScriptInterpreter implements IInterpreter{
 			}
 			command = "";
 			ISourceLocation location = e.getLocation();
-			setMarker(e.getMessage(), location);
-			throw new CommandExecutionException(content, location.getOffset(), location.getLength());
+			if(location != null){
+				setMarker(e.getMessage(), location);
+				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
+			}
 		}catch(Throwable e){
 			content = "internal exception: " + e.toString();
 			e.printStackTrace();
