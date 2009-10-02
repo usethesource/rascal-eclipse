@@ -29,7 +29,7 @@ anno ModifierRel Resource@modifiers;
 anno EntityRel  Resource@implements; // (class x interface)
 anno EntityRel  Resource@extends; //  (class x class)
 anno EntitySet  Resource@declaredTopTypes; // (type) (top classes)
-anno EntityRel  Resource@declaredSubtypes; // (type x type) (innerclasses)
+anno EntityRel  Resource@declaredSubTypes; // (type x type) (innerclasses)
 anno EntityRel  Resource@declaredMethods; // (type x method)
 anno EntityRel  Resource@declaredFields; // (type x field)
 anno EntityRel  Resource@calls; // (method x method) union (type x method) (for field initializations)
