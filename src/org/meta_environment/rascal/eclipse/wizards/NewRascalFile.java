@@ -51,8 +51,6 @@ public class NewRascalFile extends Wizard implements INewWizard {
 					moduleName = moduleName.substring(moduleName.lastIndexOf('/') + 1, moduleName.length());
 					moduleName = moduleName.substring(0, moduleName.length() - 4);
 					
-					System.err.println(containerToPutFileIn+" "+fileToCreate+" "+filename);
-					
 					doFinish(containerToPutFileIn, fileToCreate, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
