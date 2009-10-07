@@ -1,11 +1,7 @@
 package org.meta_environment.rascal.eclipse.debug.core.model;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Stack;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
@@ -42,42 +38,29 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		return 	getBreakpointManager().getBreakpoints(IRascalResources.ID_RASCAL_DEBUG_MODEL);
 	}
 
-	public boolean hasEnabledBreakpoint(ISourceLocation loc)  {
+	public boolean hasEnabledBreakpoint(ISourceLocation loc){
 		IBreakpoint[] breakpoints = getBreakpointManager().getBreakpoints(IRascalResources.ID_RASCAL_DEBUG_MODEL);
-		synchronized (breakpoints) { 
-			for (IBreakpoint bp: breakpoints) {
-				if (bp instanceof RascalLineBreakpoint) {
+		synchronized(breakpoints){ 
+			for(IBreakpoint bp: breakpoints){
+				if(bp instanceof RascalLineBreakpoint){
 					RascalLineBreakpoint b = (RascalLineBreakpoint) bp;
-					try {
-						if (b.isEnabled()) {
+					try{
+						if(b.isEnabled()){
 							//only compare the relative paths from src folders
 							String bp_path = b.getResource().getProjectRelativePath().toString().replaceFirst(IRascalResources.RASCAL_SRC, "");
 							String loc_path = loc.getURI().getPath();
 							if (bp_path.equals(loc_path)) {
 								// special case for expression breakpoints
-								if (b instanceof RascalExpressionBreakpoint) {
-									if (b.getCharStart() <= loc.getOffset() && loc.getOffset()+loc.getLength() <= b.getCharEnd()) {
+								if(b instanceof RascalExpressionBreakpoint){
+									if(b.getCharStart() <= loc.getOffset() && loc.getOffset()+loc.getLength() <= b.getCharEnd()){
 										return true;
 									}
-								} else if (b.getLineNumber()==loc.getBeginLine()) {
-									// check if it is really the complete line and not a sub-expression
-									IFile file = getRascalDebugTarget().getInterpreter().getFile(bp_path);
-									BufferedReader reader = new BufferedReader(new FileReader(file.getLocationURI().getPath()));
-									int i = 0;
-									String line = null;
-									while (i<b.getLineNumber())	{
-										line = reader.readLine();
-										i++;
-									}
-									if (line.substring(loc.getBeginColumn(), loc.getEndColumn()).equals(line.trim())) {
-										return true;
-									}
+								}else if(b.getCharStart() == loc.getOffset()){
+									return true;
 								}
 							}
 						}
-					} catch (CoreException e) {
-						throw new RuntimeException(e);
-					} catch (IOException e) {
+					}catch(CoreException e){
 						throw new RuntimeException(e);
 					}
 				}
