@@ -66,93 +66,113 @@
       </editor>
    </extension>
    <extension
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            id="rascal.editorpopupmenu"
+            targetID="rascal.editor.contextMenu">
+         <action
+               class="org.meta_environment.rascal.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.editor.context.ExprBreakpointAction"
+               label="Add an Expression Breakpoint"
+               menubarPath="additions">
+         </action>
+         <action
+               class="org.meta_environment.rascal.eclipse.perspective.actions.EvaluateExpression"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.editor.context.EvalExprtAction"
+               label="Evaluate"
+               menubarPath="additions"
+               tooltip="Evaluate the selected text in the current evaluation environment. This only works if the Rascal debugger is executing in the scope of the selected expressions.">
+         </action>
+         <action
+               class="org.meta_environment.rascal.eclipse.perspective.actions.OpenGraphEditor"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal-eclipse.editor.context.showRelationGraph"
+               label="Show Graph"
+               menubarPath="additions"
+               tooltip="Evaluate the selected expression and display the result as a graph. This only works if the Rascal debugger is currently executing in the scope of the selected expression.">
+         </action>
+         <action
+               class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchConsoleAction"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.launchconsole"
+               label="Launch Console"
+               menubarPath="additions"
+               tooltip="Launch a console with a command prompt">
+         </action>
+         <action
+               class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.launchdebugconsole"
+               label="Launch Debuggable Console"
+               menubarPath="additions"
+               tooltip="Launch a console that allows interaction via the debugging interfaces">
+         </action>
+         <action
+               class="org.meta_environment.rascal.eclipse.perspective.actions.CopyToConsole"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal-eclipse.editor.context.copyToConsole"
+               label="Copy to console"
+               menubarPath="additions"
+               tooltip="Copy the current selection to the currently active console (if any) and execute the command">
+         </action>
+      </viewerContribution>
+      <objectContribution
+            adaptable="false"
+            id="rascal-eclispe.variablemenu"
+            objectClass="org.meta_environment.rascal.eclipse.debug.core.model.RascalVariable">
+         <action
+               class="org.meta_environment.rascal.eclipse.perspective.actions.OpenGraphEditor"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal-eclipse.showRelationGraph"
+               label="Show Graph">
+         </action>
+      </objectContribution>
+      <objectContribution
+            id="rascal.project"
+            objectClass="org.eclipse.core.resources.IResource">
+         <visibility>
+            <objectState
+                  name="projectNature"
+                  value="rascal.nature">
+            </objectState>
+         </visibility>
+         <action
+               class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchConsoleAction"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.launchconsole"
+               label="Launch Console">
+         </action>
+         <action
+               class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.launchdebugconsole"
+               label="Launch Debuggable Console">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
          point="org.eclipse.core.runtime.preferences">
    </extension>
    <extension
-         point="org.eclipse.ui.popupMenus">
-            <viewerContribution
-                  id="rascal.editorpopupmenu"
-                  targetID="rascal.editor.contextMenu">
-               <action
-                     class="org.meta_environment.rascal.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
-                     icon="icons/rascal3D_2-16px.gif"
-                     id="rascal.editor.context.ExprBreakpointAction"
-                     label="Add an Expression Breakpoint"
-                     menubarPath="additions"/>
-               <action
-                     class="org.meta_environment.rascal.eclipse.perspective.actions.EvaluateExpression"
-                     icon="icons/rascal3D_2-16px.gif"
-                     id="rascal.editor.context.EvalExprtAction"
-                     label="Evaluate"
-                     menubarPath="additions"
-                     tooltip="Evaluate the selected text in the current evaluation environment. This only works if the Rascal debugger is executing in the scope of the selected expressions.">
-               </action>
-               <action
-                     class="org.meta_environment.rascal.eclipse.perspective.actions.OpenGraphEditor"
-                     icon="icons/rascal3D_2-16px.gif"
-                     id="rascal-eclipse.editor.context.showRelationGraph"
-                     label="Show Graph"
-                     menubarPath="additions"
-                     tooltip="Evaluate the selected expression and display the result as a graph. This only works if the Rascal debugger is currently executing in the scope of the selected expression.">
-               </action>
-               <action
-                     class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchConsoleAction"
-                     icon="icons/rascal3D_2-16px.gif"
-                     id="rascal.launchconsole"
-                     label="Launch Console"
-                     menubarPath="additions"
-                     tooltip="Launch a console with a command prompt">
-               </action>
-               <action
-                     class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
-                     icon="icons/rascal3D_2-16px.gif"
-                     id="rascal.launchdebugconsole"
-                     label="Launch Debuggable Console"
-                     menubarPath="additions"
-                     tooltip="Launch a console that allows interaction via the debugging interfaces">
-               </action>
-               <action
-                     class="org.meta_environment.rascal.eclipse.perspective.actions.CopyToConsole"
-                     icon="icons/rascal3D_2-16px.gif"
-                     id="rascal-eclipse.editor.context.copyToConsole"
-                     label="Copy to console"
-                     menubarPath="additions"
-                     tooltip="Copy the current selection to the currently active console (if any) and execute the command">
-               </action>
-            </viewerContribution>
-            <objectContribution
-                  adaptable="false"
-                  id="rascal-eclispe.variablemenu"
-                  objectClass="org.meta_environment.rascal.eclipse.debug.core.model.RascalVariable">
-               <action
-                     class="org.meta_environment.rascal.eclipse.perspective.actions.OpenGraphEditor"
-                     icon="icons/rascal3D_2-16px.gif"
-                     id="rascal-eclipse.showRelationGraph"
-                     label="Show Graph">
-               </action>
-            </objectContribution>
-            <objectContribution
-                  id="rascal.project"
-                  objectClass="org.eclipse.core.resources.IResource">
-               <visibility>
-                  <objectState
-                        name="projectNature"
-                        value="rascal.nature">
-                  </objectState>
-               </visibility>
-               <action
-                     class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchConsoleAction"
-                     icon="icons/rascal3D_2-16px.gif"
-                     id="rascal.launchconsole"
-                     label="Launch Console">
-               </action>
-               <action
-                     class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
-                     icon="icons/rascal3D_2-16px.gif"
-                     id="rascal.launchdebugconsole"
-                     label="Launch Debuggable Console">
-               </action>
-            </objectContribution>
+         point="org.eclipse.ui.views">
+      <view
+            class="org.meta_environment.rascal.eclipse.debug.ui.views.FunctionView"
+            icon="icons/rascal3D_2-16px.gif"
+            id="rascal-eclipse.functionview"
+            name="Rascal functions"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            description="Debugging Rascal Programs"
+            id="rascal.debugging"
+            name="Debugging Rascal Programs"
+            parentId="org.eclipse.debug.ui.debugging">
+      </context>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.editorActionContributions">
@@ -243,30 +263,11 @@
             id="rascal.debugModel"/>
    </extension>
      <extension
-           point="org.eclipse.ui.views">
-        <view
-              class="org.meta_environment.rascal.eclipse.debug.ui.views.FunctionView"
-              icon="icons/rascal3D_2-16px.gif"
-              id="rascal-eclipse.functionview"
-              name="Rascal functions"
-              restorable="true">
-        </view>
-     </extension>
-     <extension
            point="org.eclipse.debug.ui.contextViewBindings">
         <contextViewBinding
               contextId="rascal.debugging"
               viewId="rascal-eclipse.functionview">
         </contextViewBinding>
-     </extension>
-     <extension
-           point="org.eclipse.ui.contexts">
-        <context
-              description="Debugging Rascal Programs"
-              id="rascal.debugging"
-              name="Debugging Rascal Programs"
-              parentId="org.eclipse.debug.ui.debugging">
-        </context>
      </extension>
      <extension
            id="rascal.markerType.lineBreakpoint"
@@ -329,6 +330,22 @@
                style="push"/>          
       </editorContribution>
    </extension>
+   <extension
+         id="rascal.bindings"
+         name="Rascal key bindings"
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="rascal-eclipse.EvalExpression"
+            contextId="rascal.debugging"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+E">
+      </key>
+      <key
+            commandId="rascal-eclipse.copyToConsole"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+Q">
+      </key>
+   </extension>
   <extension
            point="org.eclipse.ui.commands">
         <command
@@ -341,33 +358,13 @@
               id="rascal-eclipse.EvalExpression"
               name="Evaluate Expression">
         </command>
+        <command
+              defaultHandler="org.meta_environment.rascal.eclipse.perspective.actions.CopyToConsole"
+              description="Copy current selection to active console"
+              id="rascal-eclipse.copyToConsole"
+              name="Copy to console">
+        </command>
      </extension>
-  <extension
-        point="org.eclipse.debug.ui.debugModelContextBindings">
-     <modelContextBinding
-           contextId="rascal.debugging"
-           debugModelId="rascal.debugModel">
-     </modelContextBinding>
-  </extension>
-  <extension
-        point="org.eclipse.ui.perspectiveExtensions">
-     <perspectiveExtension
-           targetID="org.eclipse.debug.ui.DebugPerspective">
-        <view
-              id="rascal-eclipse.functionview"
-              relationship="right"
-              relative="org.eclipse.debug.ui.VariableView"
-              visible="false">
-        </view>
-     </perspectiveExtension>
-  </extension>
-  <extension
-        point="rascal_eclipse.baseBinaryPath">
-     <rascal_eclipse.baseBinaryPath
-           bundle="rascal_plugin"
-           path="installed/bin/">
-     </rascal_eclipse.baseBinaryPath>
-  </extension>
   <extension
         point="org.eclipse.ui.newWizards">
      <wizard
@@ -391,6 +388,40 @@
            id="rascal_eclipse.wizards.NewRascalFile"
            name="Rascal File">
      </wizard>
+  </extension>
+  <extension
+        point="org.eclipse.ui.perspectiveExtensions">
+     <perspectiveExtension
+           targetID="org.eclipse.debug.ui.DebugPerspective">
+        <view
+              id="rascal-eclipse.functionview"
+              relationship="right"
+              relative="org.eclipse.debug.ui.VariableView"
+              visible="false">
+        </view>
+     </perspectiveExtension>
+  </extension>
+  <extension
+        point="org.eclipse.ui.ide.projectNatureImages">
+     <image
+           icon="icons/rascal3D_2-32px.png"
+           id="rascal.nature.image"
+           natureId="rascal.nature">
+     </image>
+  </extension>
+  <extension
+        point="org.eclipse.debug.ui.debugModelContextBindings">
+     <modelContextBinding
+           contextId="rascal.debugging"
+           debugModelId="rascal.debugModel">
+     </modelContextBinding>
+  </extension>
+  <extension
+        point="rascal_eclipse.baseBinaryPath">
+     <rascal_eclipse.baseBinaryPath
+           bundle="rascal_plugin"
+           path="installed/bin/">
+     </rascal_eclipse.baseBinaryPath>
   </extension>
   <extension
         id="rascal.nature"
@@ -431,17 +462,6 @@
            language="SDF">
      </parser>
   </extension>
-  <extension
-        id="rascal.bindings"
-        name="Rascal key bindings"
-        point="org.eclipse.ui.bindings">
-     <key
-           commandId="rascal-eclipse.EvalExpression"
-           contextId="rascal.debugging"
-           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-           sequence="Ctrl+E">
-     </key>
-  </extension>
  <extension
         point="org.eclipse.core.filesystem.filesystems">
      <filesystem
@@ -451,14 +471,6 @@
         </run>
      </filesystem>
   </extension> 
-  <extension
-        point="org.eclipse.ui.ide.projectNatureImages">
-     <image
-           icon="icons/rascal3D_2-32px.png"
-           id="rascal.nature.image"
-           natureId="rascal.nature">
-     </image>
-  </extension>
   
   <extension point="org.eclipse.help.toc">
     <toc primary="true" file="help/toc.xml" />
