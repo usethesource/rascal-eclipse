@@ -7,10 +7,18 @@ import org.eclipse.ui.IPersistableElement;
 
 public class ValueEditorInput implements IEditorInput {
 	private final IValue value;
+	private final String label;
 
 	public ValueEditorInput(IValue value) {
 		this.value = value;
+		this.label = value.getType().toString();
 	}
+	
+	public ValueEditorInput(String label, IValue value) {
+		this.value = value;
+		this.label = label;
+	}
+	
 	
 	@Override
 	public boolean equals(Object obj) {
@@ -33,7 +41,7 @@ public class ValueEditorInput implements IEditorInput {
 	}
 
 	public String getName() {
-		return value.getType().toString();
+		return label;
 	}
 
 	public IPersistableElement getPersistable() {
