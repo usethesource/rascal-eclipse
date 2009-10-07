@@ -21,8 +21,8 @@ public class View {
 		Editor.open(v);
 	}
 	
-	public static void pieChart(IString label, IMap map) {
-		ChartViewer.open(PieChart.makePiechart(label, map));
+	public static void pieChart(IString label, IMap map, IValue settings) {
+		ChartViewer.open(PieChart.makePiechart(label, map, settings));
 	}
 	
 	public static void edit(final IValue v) {
