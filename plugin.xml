@@ -85,7 +85,28 @@
                      id="rascal.editor.context.EvalExprtAction"
                      label="Evaluate"
                      menubarPath="additions"
-                     tooltip="Evaluate the selected text in the current evaluation environment">
+                     tooltip="Evaluate the selected text in the current evaluation environment. This only works if the Rascal debugger is executing in the scope of the selected expressions.">
+               </action>
+               <action
+                     class="org.meta_environment.rascal.eclipse.debug.ui.actions.OpenGraphEditor"
+                     icon="icons/rascal3D_2-16px.gif"
+                     id="rascal-eclipse.editor.context.showRelationGraph"
+                     label="Show Graph"
+                     tooltip="Evaluate the selected expression and display the result as a graph. This only works if the Rascal debugger is currently executing in the scope of the selected expression.">
+               </action>
+               <action
+                     class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchConsoleAction"
+                     icon="icons/rascal3D_2-16px.gif"
+                     id="rascal.editor.context.LaunchConsoleAction"
+                     label="Launch Console"
+                     tooltip="Launch a console with a command prompt">
+               </action>
+               <action
+                     class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
+                     icon="icons/rascal3D_2-16px.gif"
+                     id="rascal.editor.context.launchdebugconsole"
+                     label="Launch Debuggable Console"
+                     tooltip="Launch a console that allows interaction via the debugging interfaces">
                </action>
             </viewerContribution>
             <objectContribution
@@ -101,7 +122,7 @@
             </objectContribution>
             <objectContribution
                   id="rascal.project"
-                  objectClass="org.eclipse.core.resources.IProject">
+                  objectClass="org.eclipse.core.resources.IResource">
                <visibility>
                   <objectState
                         name="projectNature"

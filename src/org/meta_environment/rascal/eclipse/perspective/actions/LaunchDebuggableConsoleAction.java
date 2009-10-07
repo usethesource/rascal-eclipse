@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.eclipse.perspective.actions;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
@@ -56,6 +58,12 @@ public class LaunchDebuggableConsoleAction implements IObjectActionDelegate, IAc
 			Object element = ss.getFirstElement();
 			if (element instanceof IProject) {
 				project = (IProject) element;
+			}
+			else if (element instanceof IFolder) {
+				project = ((IFolder) element).getProject();
+			}
+			else if (element instanceof IFile) {
+				project = ((IFile) element).getProject();
 			}
 		}
 	}

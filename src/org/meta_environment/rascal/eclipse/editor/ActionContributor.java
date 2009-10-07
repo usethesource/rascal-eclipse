@@ -7,6 +7,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -17,11 +18,24 @@ import org.meta_environment.rascal.eclipse.console.ConsoleFactory.IRascalConsole
 
 public class ActionContributor implements ILanguageActionsContributor {
 
-	public void contributeToEditorMenu(UniversalEditor editor,
-			IMenuManager menuManager) {
+	public void contributeToEditorMenu(UniversalEditor editor, IMenuManager menuManager) {
 	}
 
-	public void contributeToMenuBar(UniversalEditor editor, IMenuManager menu) {
+	public void contributeToMenuBar(final UniversalEditor editor, IMenuManager menu) {
+		IMenuManager Rascal = new MenuManager("Rascal");
+		IAction action = new Action("Copy to Console") {
+			@Override
+			public void run() {
+				copyToConsole(editor);
+			}
+			
+			@Override
+			public int getAccelerator() {
+				return SWT.CONTROL + SWT.SHIFT + SWT.TAB;
+			}
+		};
+		Rascal.add(action);
+		menu.add(Rascal);
 	}
 
 	public void contributeToStatusLine(UniversalEditor editor,
@@ -41,7 +55,11 @@ public class ActionContributor implements ILanguageActionsContributor {
 				return SWT.CONTROL + SWT.SHIFT + SWT.TAB;
 			}
 			
+		
+			
 		};
+		// TODO remove (this is for debugging)
+		action.setToolTipText(editor.toString());
 		toolbarManager.add(action);
 	}
 
