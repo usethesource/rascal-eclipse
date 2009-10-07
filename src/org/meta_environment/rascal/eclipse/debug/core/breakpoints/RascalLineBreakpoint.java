@@ -7,8 +7,21 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.LineBreakpoint;
+import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.visitors.NullVisitor;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.eclipse.IRascalResources;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalDebugTarget;
+import org.meta_environment.uptr.Factory;
+import org.meta_environment.uptr.TreeAdapter;
 
 /**
  * Rascal line breakpoint
@@ -46,18 +59,25 @@ public class RascalLineBreakpoint extends LineBreakpoint {
 	 * file is line number 1). The Rascal VM uses 0-based line numbers,
 	 * so this line number translation is done at breakpoint install time.
 	 * 
+	 * @param editor that is associated with the resource.
 	 * @param resource file on which to set the breakpoint
 	 * @param lineNumber 1-based line number of the breakpoint
 	 * @throws CoreException if unable to create the breakpoint
 	 */
-	public RascalLineBreakpoint(final IResource resource, final int lineNumber) throws CoreException {
+	public RascalLineBreakpoint(final UniversalEditor editor, final IResource resource, final int lineNumber) throws CoreException {
 		this.resource = resource;
+		
+		final ISourceLocation location = calculateClosestLocation(editor, lineNumber);
+		
 		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				IMarker marker = resource.createMarker("rascal.markerType.lineBreakpoint");
 				setMarker(marker);
 				marker.setAttribute(IBreakpoint.ENABLED, Boolean.TRUE);
 				marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+				int offset = location.getOffset();
+				marker.setAttribute(IMarker.CHAR_START, offset);
+				marker.setAttribute(IMarker.CHAR_END, offset + location.getLength());
 				marker.setAttribute(IBreakpoint.ID, getModelIdentifier());
 				marker.setAttribute(IMarker.MESSAGE, "Line Breakpoint: " + resource.getName() + " [line: " + lineNumber + "]");
 			}
@@ -112,5 +132,76 @@ public class RascalLineBreakpoint extends LineBreakpoint {
     protected RascalDebugTarget getDebugTarget() {
     	return target;
     }
-        
+    
+	private static ISourceLocation calculateClosestLocation(UniversalEditor editor, final int lineNumber){
+		IConstructor parseTree = (IConstructor) editor.getParseController().getCurrentAst();
+		class OffsetFinder extends NullVisitor<IValue>{
+			public ISourceLocation location = null;
+			
+			public IValue visitConstructor(IConstructor o) throws VisitorException{
+				IValue locationAnnotation = o.getAnnotation(Factory.Location);
+				if(locationAnnotation != null){
+					ISourceLocation sourceLocation = ((ISourceLocation) locationAnnotation);
+					if(sourceLocation.getBeginLine() == lineNumber){
+						String sortName = TreeAdapter.getSortName(o);
+						if(sortName.equals("Statement") || sortName.equals("Expression")){
+							location = sourceLocation;
+							throw new VisitorException("Stop");
+						}
+					}
+				}
+				
+				for(IValue child : o){
+					child.accept(this);
+				}
+				
+				return null;
+			}
+			
+			public IValue visitNode(INode o) throws VisitorException{
+				for(IValue child : o){
+					child.accept(this);
+				}
+				
+				return null;
+			}
+			
+			public IValue visitList(IList o) throws VisitorException{
+				for(IValue v : o){
+					v.accept(this);
+				}
+				return null;
+			}
+			
+			public IValue visitSet(ISet o) throws VisitorException{
+				for(IValue v : o){
+					v.accept(this);
+				}
+				return null;
+			}
+			
+			public IValue visitRelation(IRelation o) throws VisitorException{
+				for(IValue v : o){
+					v.accept(this);
+				}
+				return null;
+			}
+			
+			public IValue visitMap(IMap o) throws VisitorException{
+				for(IValue v : o){
+					v.accept(this);
+				}
+				return null;
+			}
+		}
+		
+		OffsetFinder of = new OffsetFinder();
+		try{
+			parseTree.accept(of);
+		}catch(VisitorException vex){
+			// Ignore.
+		}
+		
+		return of.location;
+	}
 }

@@ -6,6 +6,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTargetExtension;
+import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchPart;
@@ -43,8 +44,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 		return false;
 	}
 
-	public void toggleLineBreakpoints(IWorkbenchPart part, ISelection selection)
-	throws CoreException {
+	public void toggleLineBreakpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
 		ITextEditor textEditor = getEditor(part);
 		if (textEditor != null) {
 			IResource resource = (IResource) textEditor.getEditorInput().getAdapter(IResource.class);
@@ -54,7 +54,8 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 			for (int i = 0; i < breakpoints.length; i++) {
 				IBreakpoint breakpoint = breakpoints[i];
 				if (breakpoint instanceof ILineBreakpoint && resource.equals(breakpoint.getMarker().getResource())) {
-					if (((ILineBreakpoint)breakpoint).getLineNumber() == (lineNumber + 1)) {
+					int breakPointLine = ((ILineBreakpoint) breakpoint).getLineNumber();
+					if (breakPointLine == (lineNumber + 1)) {
 						// remove
 						breakpoint.delete();
 						return;
@@ -62,7 +63,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 				}
 			}
 			// create line breakpoint (doc line numbers start at 0)
-			RascalLineBreakpoint lineBreakpoint = new RascalLineBreakpoint(resource, lineNumber + 1);
+			RascalLineBreakpoint lineBreakpoint = new RascalLineBreakpoint((UniversalEditor) textEditor, resource, lineNumber + 1);
 			DebugPlugin.getDefault().getBreakpointManager().addBreakpoint(lineBreakpoint);
 		}
 	}
