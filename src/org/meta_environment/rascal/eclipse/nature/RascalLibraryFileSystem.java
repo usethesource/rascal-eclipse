@@ -64,18 +64,15 @@ public class RascalLibraryFileSystem extends FileSystem {
 	}
 
 	public class RascalLibraryFileStore extends FileStore {
-			private URI root;
 			private RascalLibraryFileStore parent;
 			private File file;
 	
-			public RascalLibraryFileStore(URI root, String path, RascalLibraryFileStore parent) {
-				this(root);
+			public RascalLibraryFileStore(File file, RascalLibraryFileStore parent) {
 				this.parent = parent;
-				this.file = new File(root.getPath(), path);
+				this.file = file;
 			}
 			
 			public RascalLibraryFileStore(URI root) {
-				this.root = root;
 				this.parent = null;
 				this.file = new File(root.getPath());
 			}
@@ -84,14 +81,14 @@ public class RascalLibraryFileSystem extends FileSystem {
 			public boolean equals(Object obj) {
 				if (obj.getClass() == getClass()) {
 					RascalLibraryFileStore other = (RascalLibraryFileStore) obj;
-					return root.equals(other.root);
+					return file.equals(other.file);
 				}
 				return false;
 			}
 			
 			@Override
 			public int hashCode() {
-				return root.hashCode();
+				return file.hashCode();
 			}
 			
 			
@@ -132,11 +129,7 @@ public class RascalLibraryFileSystem extends FileSystem {
 			@Override
 			public IFileStore getChild(String name) {
 				if (file.isDirectory()) {
-					String path = root.getPath();
-					if (!path.endsWith("/") && !name.startsWith("/")) {
-						path = path + "/";
-					}
-					return new RascalLibraryFileStore(root, name, this);
+					return new RascalLibraryFileStore(new File(file, name), this);
 				}
 				
 				return null;
@@ -164,7 +157,7 @@ public class RascalLibraryFileSystem extends FileSystem {
 	
 			@Override
 			public URI toURI() {
-				return root;
+				return URI.create("file://" + file.getAbsolutePath());
 			}
 	
 		}
