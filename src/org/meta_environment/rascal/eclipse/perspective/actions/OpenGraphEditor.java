@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.eclipse.debug.ui.actions;
+package org.meta_environment.rascal.eclipse.perspective.actions;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.jface.action.IAction;
@@ -6,6 +6,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.IActionDelegate2;
+import org.eclipse.ui.IEditorActionDelegate;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalVariable;
@@ -51,5 +53,4 @@ public class OpenGraphEditor implements IObjectActionDelegate, IActionDelegate2 
 	}
 
 	public void setActivePart(IAction action, IWorkbenchPart targetPart) {}
-
 }

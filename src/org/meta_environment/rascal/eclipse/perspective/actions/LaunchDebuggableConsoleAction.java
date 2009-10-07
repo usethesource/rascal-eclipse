@@ -15,11 +15,14 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.IActionDelegate2;
+import org.eclipse.ui.IEditorActionDelegate;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.part.FileEditorInput;
 import org.meta_environment.rascal.eclipse.IRascalResources;
 
-public class LaunchDebuggableConsoleAction implements IObjectActionDelegate, IActionDelegate2 {
+public class LaunchDebuggableConsoleAction implements IObjectActionDelegate, IActionDelegate2, IEditorActionDelegate {
 
 	IProject project;
 
@@ -69,5 +72,11 @@ public class LaunchDebuggableConsoleAction implements IObjectActionDelegate, IAc
 	}
 
 	public void setActivePart(IAction action, IWorkbenchPart targetPart) {}
+
+	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
+		if (targetEditor.getEditorInput() instanceof FileEditorInput) {
+			project = ((FileEditorInput) targetEditor.getEditorInput()).getFile().getProject();
+		}
+	}
 
 }

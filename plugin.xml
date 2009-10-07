@@ -80,7 +80,7 @@
                      label="Add an Expression Breakpoint"
                      menubarPath="additions"/>
                <action
-                     class="org.meta_environment.rascal.eclipse.debug.ui.actions.EvaluateExpression"
+                     class="org.meta_environment.rascal.eclipse.perspective.actions.EvaluateExpression"
                      icon="icons/rascal3D_2-16px.gif"
                      id="rascal.editor.context.EvalExprtAction"
                      label="Evaluate"
@@ -88,25 +88,36 @@
                      tooltip="Evaluate the selected text in the current evaluation environment. This only works if the Rascal debugger is executing in the scope of the selected expressions.">
                </action>
                <action
-                     class="org.meta_environment.rascal.eclipse.debug.ui.actions.OpenGraphEditor"
+                     class="org.meta_environment.rascal.eclipse.perspective.actions.OpenGraphEditor"
                      icon="icons/rascal3D_2-16px.gif"
                      id="rascal-eclipse.editor.context.showRelationGraph"
                      label="Show Graph"
+                     menubarPath="additions"
                      tooltip="Evaluate the selected expression and display the result as a graph. This only works if the Rascal debugger is currently executing in the scope of the selected expression.">
                </action>
                <action
                      class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchConsoleAction"
                      icon="icons/rascal3D_2-16px.gif"
-                     id="rascal.editor.context.LaunchConsoleAction"
+                     id="rascal.launchconsole"
                      label="Launch Console"
+                     menubarPath="additions"
                      tooltip="Launch a console with a command prompt">
                </action>
                <action
                      class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
                      icon="icons/rascal3D_2-16px.gif"
-                     id="rascal.editor.context.launchdebugconsole"
+                     id="rascal.launchdebugconsole"
                      label="Launch Debuggable Console"
+                     menubarPath="additions"
                      tooltip="Launch a console that allows interaction via the debugging interfaces">
+               </action>
+               <action
+                     class="org.meta_environment.rascal.eclipse.perspective.actions.CopyToConsole"
+                     icon="icons/rascal3D_2-16px.gif"
+                     id="rascal-eclipse.editor.context.copyToConsole"
+                     label="Copy to console"
+                     menubarPath="additions"
+                     tooltip="Copy the current selection to the currently active console (if any) and execute the command">
                </action>
             </viewerContribution>
             <objectContribution
@@ -114,7 +125,7 @@
                   id="rascal-eclispe.variablemenu"
                   objectClass="org.meta_environment.rascal.eclipse.debug.core.model.RascalVariable">
                <action
-                     class="org.meta_environment.rascal.eclipse.debug.ui.actions.OpenGraphEditor"
+                     class="org.meta_environment.rascal.eclipse.perspective.actions.OpenGraphEditor"
                      icon="icons/rascal3D_2-16px.gif"
                      id="rascal-eclipse.showRelationGraph"
                      label="Show Graph">
@@ -326,7 +337,7 @@
               name="Add Expression Breakpoint">
         </command>
         <command
-              defaultHandler="org.meta_environment.rascal.eclipse.debug.ui.actions.EvaluateExpression"
+              defaultHandler="org.meta_environment.rascal.eclipse.perspective.actions.EvaluateExpression"
               id="rascal-eclipse.EvalExpression"
               name="Evaluate Expression">
         </command>

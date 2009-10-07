@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.eclipse.debug.ui.actions;
+package org.meta_environment.rascal.eclipse.perspective.actions;
 
 import java.io.IOException;
 
