@@ -2,7 +2,6 @@ package org.meta_environment.rascal.eclipse.lib.charts;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.ui.graph.ValueEditorInput;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -17,8 +16,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.jfree.chart.JFreeChart;
 import org.jfree.experimental.chart.swt.ChartComposite;
-import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.std.Chart.PieChart;
 
 public class ChartViewer extends EditorPart {
 	protected static final String editorId = "rascal-eclipse.charts.viewer";
@@ -39,16 +36,12 @@ public class ChartViewer extends EditorPart {
 			throws PartInitException {
 		
 		
-		if (input instanceof ValueEditorInput) {
+		if (input instanceof ChartEditorInput) {
 			setSite(site);
 			setInput(input);
-			
-			if (!((ValueEditorInput) input).getValue().getType().isMapType()) {
-				throw new PartInitException("Input is not a map");
-			}
 		}
 		else {
-			throw new PartInitException("Input of chart visualization is not a value");
+			throw new PartInitException("Input of chart visualization is not a chart");
 		}
 	}
 
@@ -64,18 +57,15 @@ public class ChartViewer extends EditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		ValueEditorInput input = (ValueEditorInput) getEditorInput();
-		IString name = ValueFactoryFactory.getValueFactory().string(input.getName());
-		JFreeChart chart = PieChart.makePiechart(name, (IMap) input.getValue());
-		new ChartComposite(parent, SWT.NONE, chart, true);
+		new ChartComposite(parent, SWT.NONE, ((ChartEditorInput) getEditorInput()).getChart(), true);
 	}
 
 	@Override
 	public void setFocus() {
 	}
 	
-	public static void open(final String label, final IMap value) {
-		if (value == null) {
+	public static void open(final JFreeChart chart) {
+		if (chart == null) {
 			return;
 		}
 	 	IWorkbench wb = PlatformUI.getWorkbench();
@@ -92,7 +82,7 @@ public class ChartViewer extends EditorPart {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						try {
-							page.openEditor(new ValueEditorInput(label, value), editorId);
+							page.openEditor(new ChartEditorInput(chart), editorId);
 						} catch (PartInitException e) {
 							// TODO Auto-generated catch block
 						}

@@ -13,6 +13,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.meta_environment.rascal.eclipse.lib.charts.ChartViewer;
+import org.meta_environment.rascal.std.Chart.PieChart;
 
 public class View {
 	
@@ -20,8 +21,8 @@ public class View {
 		Editor.open(v);
 	}
 	
-	public static void chart(IString label, IMap map) {
-		ChartViewer.open(label.getValue(), map);
+	public static void pieChart(IString label, IMap map) {
+		ChartViewer.open(PieChart.makePiechart(label, map));
 	}
 	
 	public static void edit(final IValue v) {
