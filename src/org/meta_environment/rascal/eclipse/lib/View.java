@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.eclipse.lib;
 
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.ui.graph.Editor;
 import org.eclipse.imp.pdb.ui.graph.ValueEditorInput;
@@ -10,11 +12,16 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.meta_environment.rascal.eclipse.lib.charts.ChartViewer;
 
 public class View {
 	
 	public static void show(IValue v) {
 		Editor.open(v);
+	}
+	
+	public static void chart(IString label, IMap map) {
+		ChartViewer.open(label.getValue(), map);
 	}
 	
 	public static void edit(final IValue v) {

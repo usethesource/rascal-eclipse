@@ -2,20 +2,10 @@ package org.meta_environment.rascal.eclipse.debug.core.model;
 
 import java.io.IOException;
 
-import org.dancingbear.graphbrowser.editor.gef.ui.parts.GraphEditor;
-import org.dancingbear.graphbrowser.model.IModelGraph;
-import org.dancingbear.graphbrowser.model.ModelGraphRegister;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.meta_environment.rascal.eclipse.lib.View;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
@@ -65,31 +55,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	}
 
 	public void updateRelationModel() {
-		/* update the graph model if the view is already open */
-		if (ModelGraphRegister.getInstance().isGraphOpen(name)) {
-			Display.getDefault().asyncExec(new Runnable() {
-				public void run() {
-					/* close all the editors associated with this graph */
-					IWorkbench wb = PlatformUI.getWorkbench();
-					IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-					if (win != null) {
-						final IWorkbenchPage page = win.getActivePage();
-						IEditorReference[] editors = page.getEditorReferences();
-						for (int i = 0; i < editors.length; i++) {
-							IEditorPart editor = editors[i].getEditor(false);
-							if (editor instanceof GraphEditor) {
-								GraphEditor graphEditor =  (GraphEditor) editor;
-								IModelGraph g = graphEditor.getGraph();	
-								if (g.getName().equals(name)) {
-									graphEditor.close(false);
-								}
-							}
-						}
-					}
-					View.show(value.getValue());
-				}
-			});
-		}
+		View.show(value.getValue());
 	}
 
 

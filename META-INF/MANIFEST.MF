@@ -8,8 +8,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: rascal-eclipse.jar,
  .,
  src
-Require-Bundle: graph_browser,
- rascal,
+Require-Bundle: rascal,
  rascal_plugin,
  sglr_invoker,
  org.eclipse.core.runtime;bundle-version="3.4.0",
