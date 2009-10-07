@@ -3,6 +3,70 @@
 <plugin>
    <extension-point id="rascal_eclipse.baseLibraryPath" name="rascal_eclipse.baseLibraryPath" schema="schema/rascal_eclipse.baseLibraryPath.exsd"/>
    <extension-point id="rascal_eclipse.baseBinaryPath" name="rascal_eclipse.baseBinaryPath" schema="schema/rascal_eclipse.baseBinaryPath.exsd"/>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+   </extension>
+   <extension
+         point="org.eclipse.core.variables.valueVariables">
+   </extension>
+   <extension
+         id="rascal.markerType.lineBreakpoint"
+         name="Rascal Line Breakpoint"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.debug.core.lineBreakpointMarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+   <extension
+         id="rascal.markerType.expressionBreakpoint"
+         name="Expression Breakpoint"
+         point="org.eclipse.core.resources.markers">
+      <persistent
+            value="true">
+      </persistent>
+      <super
+            type="org.eclipse.debug.core.lineBreakpointMarker">
+      </super>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.meta_environment.rascal.eclipse.editor.RascalEditor"
+            class="org.meta_environment.rascal.eclipse.debug.ui.breakpoints.RascalEditorAdapterFactory">
+         <adapter
+               type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget">
+         </adapter>
+      </factory>
+   </extension>
+   <extension
+         id="rascal.nature"
+         name="Rascal Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.meta_environment.rascal.eclipse.nature.Nature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.core.filesystem.filesystems">
+      <filesystem
+            scheme="rascal-library">
+         <run
+               class="org.meta_environment.rascal.eclipse.nature.RascalLibraryFileSystem">
+         </run>
+      </filesystem>
+   </extension>
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="help/toc.xml"
+            primary="true">
+      </toc>
+   </extension>
 
    <extension
          point="org.eclipse.imp.runtime.languageDescription">
@@ -42,6 +106,42 @@
             class="org.meta_environment.rascal.eclipse.outline.TreeModelBuilder"
             language="Rascal">
       </treeBuilder>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.editorActionContributions">
+      <editorActionContributor
+            class="org.meta_environment.rascal.eclipse.editor.ActionContributor"
+            language="Rascal">
+      </editorActionContributor>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.languageDescription">
+      <language
+            description="SDF"
+            extensions="sdf"
+            language="SDF">
+      </language>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.tokenColorer">
+      <tokenColorer
+            class="org.meta_environment.rascal.eclipse.editor.TokenColorer"
+            language="SDF">
+      </tokenColorer>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.labelProvider">
+      <labelProvider
+            class="org.meta_environment.rascal.eclipse.outline.LabelProvider"
+            language="SDF">
+      </labelProvider>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.parser">
+      <parser
+            class="org.meta_environment.rascal.eclipse.editor.SDFParseController"
+            language="SDF">
+      </parser>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
@@ -153,9 +253,6 @@
       </objectContribution>
    </extension>
    <extension
-         point="org.eclipse.core.runtime.preferences">
-   </extension>
-   <extension
          point="org.eclipse.ui.views">
       <view
             class="org.meta_environment.rascal.eclipse.debug.ui.views.FunctionView"
@@ -175,21 +272,99 @@
       </context>
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.editorActionContributions">
-      <editorActionContributor
-            class="org.meta_environment.rascal.eclipse.editor.ActionContributor"
-            language="Rascal">
-      </editorActionContributor>
+         id="rascal.editorContribution"
+         name="rascalEditorContribution"
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            id="rascal.editorContribution"
+            targetID="rascal.editor">
+         <action
+               actionID="RulerDoubleClick"
+               class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+               id="rascal.doubleClickBreakpointAction"
+               label="Double click breakpoint action"
+               style="push">
+         </action>
+      </editorContribution>
    </extension>
    <extension
-         point="rascal_eclipse.baseLibraryPath">
-      <rascal_eclipse.baseLibraryPath
-            bundle="rascal_plugin"
-            path="installed/lib/">
-      </rascal_eclipse.baseLibraryPath>
+         id="rascal.bindings"
+         name="Rascal key bindings"
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="rascal-eclipse.EvalExpression"
+            contextId="rascal.debugging"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+E">
+      </key>
+      <key
+            commandId="rascal-eclipse.copyToConsole"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+Q">
+      </key>
    </extension>
    <extension
-         point="org.eclipse.core.variables.valueVariables">
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.meta_environment.rascal.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
+            id="rascal-eclipse.AddExprBreakpoint"
+            name="Add Expression Breakpoint">
+      </command>
+      <command
+            defaultHandler="org.meta_environment.rascal.eclipse.perspective.actions.EvaluateExpression"
+            id="rascal-eclipse.EvalExpression"
+            name="Evaluate Expression">
+      </command>
+      <command
+            defaultHandler="org.meta_environment.rascal.eclipse.perspective.actions.CopyToConsole"
+            description="Copy current selection to active console"
+            id="rascal-eclipse.copyToConsole"
+            name="Copy to console">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            category="rascal_eclipse"
+            class="org.meta_environment.rascal.eclipse.perspective.RascalProjectWizard"
+            descriptionImage="icons/rascal3D_2-16px.gif"
+            finalPerspective="rascal.perspective"
+            icon="icons/rascal3D_2-32px.png"
+            id="rascal-eclipse.projectwizard"
+            name="Rascal Project"
+            project="true">
+      </wizard>
+      <category
+            id="rascal_eclipse"
+            name="Rascal">
+      </category>
+      <wizard
+            category="rascal_eclipse"
+            class="org.meta_environment.rascal.eclipse.wizards.NewRascalFile"
+            icon="icons/rascal3D_2-32px.png"
+            id="rascal_eclipse.wizards.NewRascalFile"
+            name="Rascal File">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.debug.ui.DebugPerspective">
+         <view
+               id="rascal-eclipse.functionview"
+               relationship="right"
+               relative="org.eclipse.debug.ui.VariableView"
+               visible="false">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/rascal3D_2-32px.png"
+            id="rascal.nature.image"
+            natureId="rascal.nature">
+      </image>
    </extension>
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
@@ -201,6 +376,36 @@
             sourceLocatorId="rascal-eclipse.sourceLocator"
             sourcePathComputerId="rascal-eclipse.sourcePathComputer">
       </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.breakpoints">
+      <breakpoint
+            class="org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint"
+            id="rascal.linebreakpoint"
+            markerType="rascal.markerType.lineBreakpoint"
+            name="Rascal LineBreakpoint">
+      </breakpoint>
+      <breakpoint
+            class="org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint"
+            id="rascal-eclipse.exprbreakpoint"
+            markerType="rascal.markerType.expressionBreakpoint"
+            name="Expression Breakpoint">
+      </breakpoint>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.sourceLocators">
+      <sourceLocator
+            class="org.meta_environment.rascal.eclipse.debug.core.sourcelookup.RascalSourceLookupDirector"
+            id="rascal-eclipse.sourceLocator"
+            name="Rascal source Locator">
+      </sourceLocator>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.sourcePathComputers">
+      <sourcePathComputer
+            class="org.meta_environment.rascal.eclipse.debug.core.sourcelookup.RascalSourcePathComputerDelegate"
+            id="rascal-eclipse.sourcePathComputer">
+      </sourcePathComputer>
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
@@ -241,21 +446,6 @@
          </contextualLaunch>
       </shortcut>
    </extension>
-  <extension
-         point="org.eclipse.debug.core.sourceLocators">
-      <sourceLocator
-            class="org.meta_environment.rascal.eclipse.debug.core.sourcelookup.RascalSourceLookupDirector"
-            id="rascal-eclipse.sourceLocator"
-            name="Rascal source Locator">
-      </sourceLocator>
-   </extension>
-   <extension
-         point="org.eclipse.debug.core.sourcePathComputers">
-      <sourcePathComputer
-            class="org.meta_environment.rascal.eclipse.debug.core.sourcelookup.RascalSourcePathComputerDelegate"
-            id="rascal-eclipse.sourcePathComputer">
-      </sourcePathComputer>
-   </extension>
      <extension
          point="org.eclipse.debug.ui.debugModelPresentations">
       <debugModelPresentation
@@ -270,152 +460,21 @@
         </contextViewBinding>
      </extension>
      <extension
-           id="rascal.markerType.lineBreakpoint"
-           name="Rascal Line Breakpoint"
-           point="org.eclipse.core.resources.markers">
-        <super
-              type="org.eclipse.debug.core.lineBreakpointMarker">
-        </super>
-        <persistent
-              value="true">
-        </persistent>
+           point="rascal_eclipse.baseLibraryPath">
+        <rascal_eclipse.baseLibraryPath
+              bundle="rascal_plugin"
+              path="installed/lib/">
+        </rascal_eclipse.baseLibraryPath>
      </extension>
      <extension
-           id="rascal.markerType.expressionBreakpoint"
-           name="Expression Breakpoint"
-           point="org.eclipse.core.resources.markers">
-        <persistent
-              value="true">
-        </persistent>
-        <super
-              type="org.eclipse.debug.core.lineBreakpointMarker">
-        </super>
-     </extension>
-     <extension
-           point="org.eclipse.debug.core.breakpoints">
-        <breakpoint
-              class="org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint"
-              id="rascal.linebreakpoint"
-              markerType="rascal.markerType.lineBreakpoint"
-              name="Rascal LineBreakpoint">
-        </breakpoint>
-          <breakpoint
-              class="org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint"
-              id="rascal-eclipse.exprbreakpoint"
-              markerType="rascal.markerType.expressionBreakpoint"
-              name="Expression Breakpoint">
-        </breakpoint>
+           point="org.eclipse.debug.ui.debugModelContextBindings">
+        <modelContextBinding
+              contextId="rascal.debugging"
+              debugModelId="rascal.debugModel">
+        </modelContextBinding>
      </extension>
      
-       <extension
-         point="org.eclipse.core.runtime.adapters">
-      <factory
-            class="org.meta_environment.rascal.eclipse.debug.ui.breakpoints.RascalEditorAdapterFactory"
-            adaptableType="org.meta_environment.rascal.eclipse.editor.RascalEditor">
-			<adapter type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget"/>
-      </factory>
-   </extension>
    
-   <extension point="org.eclipse.ui.editorActions" 
-   		      name="rascalEditorContribution"
-   		      id="rascal.editorContribution">
-      <editorContribution
-            targetID="rascal.editor"
-            id="rascal.editorContribution">
-          <action
-               actionID="RulerDoubleClick"
-               class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
-               id="rascal.doubleClickBreakpointAction"
-               label="Double click breakpoint action"
-               style="push"/>          
-      </editorContribution>
-   </extension>
-   <extension
-         id="rascal.bindings"
-         name="Rascal key bindings"
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="rascal-eclipse.EvalExpression"
-            contextId="rascal.debugging"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+E">
-      </key>
-      <key
-            commandId="rascal-eclipse.copyToConsole"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="CTRL+Q">
-      </key>
-   </extension>
-  <extension
-           point="org.eclipse.ui.commands">
-        <command
-              defaultHandler="org.meta_environment.rascal.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
-              id="rascal-eclipse.AddExprBreakpoint"
-              name="Add Expression Breakpoint">
-        </command>
-        <command
-              defaultHandler="org.meta_environment.rascal.eclipse.perspective.actions.EvaluateExpression"
-              id="rascal-eclipse.EvalExpression"
-              name="Evaluate Expression">
-        </command>
-        <command
-              defaultHandler="org.meta_environment.rascal.eclipse.perspective.actions.CopyToConsole"
-              description="Copy current selection to active console"
-              id="rascal-eclipse.copyToConsole"
-              name="Copy to console">
-        </command>
-     </extension>
-  <extension
-        point="org.eclipse.ui.newWizards">
-     <wizard
-           category="rascal_eclipse"
-           class="org.meta_environment.rascal.eclipse.perspective.RascalProjectWizard"
-           descriptionImage="icons/rascal3D_2-16px.gif"
-           finalPerspective="rascal.perspective"
-           icon="icons/rascal3D_2-32px.png"
-           id="rascal-eclipse.projectwizard"
-           name="Rascal Project"
-           project="true">
-     </wizard>
-     <category
-           id="rascal_eclipse"
-           name="Rascal">
-     </category>
-     <wizard
-           category="rascal_eclipse"
-           class="org.meta_environment.rascal.eclipse.wizards.NewRascalFile"
-           icon="icons/rascal3D_2-32px.png"
-           id="rascal_eclipse.wizards.NewRascalFile"
-           name="Rascal File">
-     </wizard>
-  </extension>
-  <extension
-        point="org.eclipse.ui.perspectiveExtensions">
-     <perspectiveExtension
-           targetID="org.eclipse.debug.ui.DebugPerspective">
-        <view
-              id="rascal-eclipse.functionview"
-              relationship="right"
-              relative="org.eclipse.debug.ui.VariableView"
-              visible="false">
-        </view>
-     </perspectiveExtension>
-  </extension>
-  <extension
-        point="org.eclipse.ui.ide.projectNatureImages">
-     <image
-           icon="icons/rascal3D_2-32px.png"
-           id="rascal.nature.image"
-           natureId="rascal.nature">
-     </image>
-  </extension>
-  <extension
-        point="org.eclipse.debug.ui.debugModelContextBindings">
-     <modelContextBinding
-           contextId="rascal.debugging"
-           debugModelId="rascal.debugModel">
-     </modelContextBinding>
-  </extension>
   <extension
         point="rascal_eclipse.baseBinaryPath">
      <rascal_eclipse.baseBinaryPath
@@ -423,57 +482,6 @@
            path="installed/bin/">
      </rascal_eclipse.baseBinaryPath>
   </extension>
-  <extension
-        id="rascal.nature"
-        name="Rascal Nature"
-        point="org.eclipse.core.resources.natures">
-     <runtime>
-        <run
-              class="org.meta_environment.rascal.eclipse.nature.Nature">
-        </run>
-     </runtime>
-  </extension>
-  <extension
-        point="org.eclipse.imp.runtime.languageDescription">
-     <language
-           description="SDF"
-           extensions="sdf"
-           language="SDF">
-     </language>
-  </extension>
-  <extension
-        point="org.eclipse.imp.runtime.tokenColorer">
-     <tokenColorer
-           class="org.meta_environment.rascal.eclipse.editor.TokenColorer"
-           language="SDF">
-     </tokenColorer>
-  </extension>
-  <extension
-        point="org.eclipse.imp.runtime.labelProvider">
-     <labelProvider
-           class="org.meta_environment.rascal.eclipse.outline.LabelProvider"
-           language="SDF">
-     </labelProvider>
-  </extension>
-  <extension
-        point="org.eclipse.imp.runtime.parser">
-     <parser
-           class="org.meta_environment.rascal.eclipse.editor.SDFParseController"
-           language="SDF">
-     </parser>
-  </extension>
- <extension
-        point="org.eclipse.core.filesystem.filesystems">
-     <filesystem
-           scheme="rascal-library">
-        <run
-              class="org.meta_environment.rascal.eclipse.nature.RascalLibraryFileSystem">
-        </run>
-     </filesystem>
-  </extension> 
   
-  <extension point="org.eclipse.help.toc">
-    <toc primary="true" file="help/toc.xml" />
-  </extension>
 	 
 </plugin>
