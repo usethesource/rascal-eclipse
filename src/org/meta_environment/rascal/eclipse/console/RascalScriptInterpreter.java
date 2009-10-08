@@ -29,6 +29,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.part.FileEditorInput;
+import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
@@ -144,9 +145,11 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 			IO.setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
 			execCommand(tree);
-		}catch(QuitException q){
+		}
+		catch(QuitException q){
 			throw new TerminationException();
-		}catch(StaticError e){
+		}
+		catch(StaticError e){
 			content = e.getMessage();
 			command = "";
 			ISourceLocation location = e.getLocation();
@@ -154,7 +157,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 				setMarker(e.getMessage(), location);
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
-		}catch(Throw e){
+		}
+		catch(Throw e){
 			content = e.getMessage() + "\n";
 			String trace = e.getTrace();
 			if (trace != null) {
@@ -166,7 +170,11 @@ public class RascalScriptInterpreter implements IInterpreter{
 				setMarker(e.getMessage(), location);
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
-		}catch(Throwable e){
+		}
+		catch (CommandExecutionException e) {
+			throw e;
+		}
+		catch(Throwable e){
 			content = "internal exception: " + e.toString();
 			e.printStackTrace();
 			command = "";
@@ -337,7 +345,13 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 
 	private void execParseError(IConstructor tree) throws CommandExecutionException{
-		ISourceLocation location = new SummaryAdapter(tree).getInitialSubject().getLocation();
+		SubjectAdapter initialSubject = new SummaryAdapter(tree).getInitialSubject();
+		
+		if (initialSubject == null) {
+			throw new CommandExecutionException("parse error at unknown location");
+		}
+		
+		ISourceLocation location = initialSubject.getLocation();
 		String[] commandLines = command.split("\n");
 		int lastLine = commandLines.length;
 		int lastColumn = commandLines[lastLine - 1].length();
