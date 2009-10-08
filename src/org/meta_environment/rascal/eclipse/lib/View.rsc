@@ -2,27 +2,40 @@ module View
 
 // TODO This should be synchronized with the data declaration in Chart.rsc
 
-public data chartSetting =
-     xlabel(str txt)
-   | ylabel(str txt)
-   | horizontal()
-   | vertical()
-   | noSectionLabels()
-   | noLegend()
-   | noToolTips()
-   | stacked()
-   | dim3()
-   | circular()
-//   | background(int r, int g, int b, real alpha);
+data chartSetting =            // supported by
+                               // barChart pieChart xyChart
+     area()                    //                   x
+   | dim3()                    // x        x                              
+   | domainLabel(str txt)      // x                 x
+   | rangeLabel(str txt)       // x                 x
+   | horizontal()              // x        x        x
+   | noLegend()                // x        x        x
+   | noSectionLabels()         //          x
+   | noToolTips()              // x        x        x
+   | ring()                    //          x
+   | seriesLabels(list[str] s) // x
+   | stacked()                 // x  
+   | subtitle(str txt)         // x        x        x  
+   | vertical()                // x        x        x
+
    ;
+    
 
 @doc{Show any value as a hierarchical graph}
 @javaClass{org.meta_environment.rascal.eclipse.lib.View}
 public void java show(value v);
 
-@doc{Show a chart}
+@doc{Show a bar chart}
+@javaClass{org.meta_environment.rascal.eclipse.lib.View}
+public void java barChart(str label, map[str, int] v, value settings ...);
+
+@doc{Show a pie chart}
 @javaClass{org.meta_environment.rascal.eclipse.lib.View}
 public void java pieChart(str label, map[str, int] v, value settings ...);
+
+@doc{Show a XY chart}
+@javaClass{org.meta_environment.rascal.eclipse.lib.View}
+public void java xyChart(str label, map[str, int] v, value settings ...);
 
 @doc{Show the string representation of a value in a text editor}
 @javaClass{org.meta_environment.rascal.eclipse.lib.View}
