@@ -1,8 +1,6 @@
 package org.meta_environment.rascal.eclipse.lib.charts;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.ui.graph.ValueEditorInput;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
