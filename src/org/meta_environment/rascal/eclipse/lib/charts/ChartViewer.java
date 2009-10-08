@@ -14,6 +14,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.jfree.chart.JFreeChart;
 import org.jfree.experimental.chart.swt.ChartComposite;
+import org.meta_environment.rascal.eclipse.Activator;
 
 public class ChartViewer extends EditorPart {
 	protected static final String editorId = "rascal-eclipse.charts.viewer";
@@ -82,7 +83,7 @@ public class ChartViewer extends EditorPart {
 						try {
 							page.openEditor(new ChartEditorInput(chart), editorId);
 						} catch (PartInitException e) {
-							// TODO Auto-generated catch block
+							Activator.getInstance().logException("failed to open chart viewer", e);
 						}
 					}
 				});
