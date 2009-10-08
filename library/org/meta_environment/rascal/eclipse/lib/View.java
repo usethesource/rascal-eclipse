@@ -15,16 +15,16 @@ public class View {
 		Editor.open(v);
 	}
 	
-	public static void barChart(IString label, IMap map, IValue settings) {
-		ChartViewer.open(BarChart.makeBarchart(label, map, settings));
+	public static void barChart(IString label, IValue facts, IValue settings) {
+		ChartViewer.open(BarChart.makeBarchart(label, facts, settings));
 	}
 	
-	public static void pieChart(IString label, IMap map, IValue settings) {
-		ChartViewer.open(PieChart.makePiechart(label, map, settings));
+	public static void pieChart(IString label, IValue facts, IValue settings) {
+		ChartViewer.open(PieChart.makePiechart(label, facts, settings));
 	}
 	
-	public static void xyChart(IString label, IMap map, IValue settings) {
-		ChartViewer.open(XYChart.makeXYChart(label, map, settings));
+	public static void xyChart(IString label, IValue facts, IValue settings) {
+		ChartViewer.open(XYChart.makeXYChart(label, facts, settings));
 	}
 	
 	public static void edit(IValue v) {

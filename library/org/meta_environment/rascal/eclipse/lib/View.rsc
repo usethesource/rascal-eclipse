@@ -27,15 +27,15 @@ public void java show(value v);
 
 @doc{Show a bar chart}
 @javaClass{org.meta_environment.rascal.eclipse.lib.View}
-public void java barChart(str label, map[str, int] v, value settings ...);
+public void java barChart(str label, value facts, value settings ...);
 
 @doc{Show a pie chart}
 @javaClass{org.meta_environment.rascal.eclipse.lib.View}
-public void java pieChart(str label, map[str, int] v, value settings ...);
+public void java pieChart(str label, value facts, value settings ...);
 
 @doc{Show a XY chart}
 @javaClass{org.meta_environment.rascal.eclipse.lib.View}
-public void java xyChart(str label, map[str, int] v, value settings ...);
+public void java xyChart(str label, value facts, value settings ...);
 
 @doc{Show the string representation of a value in a text editor}
 @javaClass{org.meta_environment.rascal.eclipse.lib.View}
