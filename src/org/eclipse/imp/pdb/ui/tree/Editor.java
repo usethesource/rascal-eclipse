@@ -55,6 +55,10 @@ public class Editor extends EditorPart {
 		
 		return "Value";
 	}
+	
+	public TreeViewer getViewer() {
+		return treeViewer;
+	}
 
 	public static void open(final IValue value) {
 		if (value == null) {
