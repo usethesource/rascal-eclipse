@@ -2,6 +2,7 @@ package org.eclipse.imp.pdb.ui.graph;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.ui.ValueEditorInput;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Canvas;

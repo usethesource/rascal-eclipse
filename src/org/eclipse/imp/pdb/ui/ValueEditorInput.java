@@ -1,11 +1,17 @@
-package org.eclipse.imp.pdb.ui.graph;
+package org.eclipse.imp.pdb.ui;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import org.eclipse.core.resources.IStorage;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
+import org.eclipse.ui.IStorageEditorInput;
 
-public class ValueEditorInput implements IEditorInput {
+public class ValueEditorInput implements IStorageEditorInput {
 	private final IValue value;
 	private final String label;
 
@@ -54,6 +60,37 @@ public class ValueEditorInput implements IEditorInput {
 
 	@SuppressWarnings("unchecked")
 	public Object getAdapter(Class adapter) {
+		if (IValue.class.equals(adapter)) {
+			return value;
+		}
+		else if (IValue.class.isAssignableFrom(adapter)) {
+			return value;
+		}
 		return null;
+	}
+
+	public IStorage getStorage() throws CoreException {
+		return new IStorage() {
+
+			public InputStream getContents() throws CoreException {
+				return new ByteArrayInputStream(value.toString().getBytes());
+			}
+
+			public IPath getFullPath() {
+				return null;
+			}
+
+			public String getName() {
+				return value.getType().toString();
+			}
+
+			public boolean isReadOnly() {
+				return false;
+			}
+
+			public Object getAdapter(Class adapter) {
+				return null;
+			}
+		};
 	}
 }
