@@ -4,7 +4,6 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.ui.graph.Editor;
-import org.meta_environment.rascal.eclipse.editor.EditorOpener;
 import org.meta_environment.rascal.eclipse.lib.charts.ChartViewer;
 import org.meta_environment.rascal.std.Chart.BarChart;
 import org.meta_environment.rascal.std.Chart.PieChart;
@@ -29,6 +28,6 @@ public class View {
 	}
 	
 	public static void edit(IValue v) {
-		EditorOpener.edit(v);
+		org.eclipse.imp.pdb.ui.text.Editor.edit(v);
 	}
 }
