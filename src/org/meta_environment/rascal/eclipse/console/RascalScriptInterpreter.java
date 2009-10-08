@@ -308,7 +308,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 	
 	private static String limitString(String valString){
-		return (valString.length() >= 200) ? valString : valString.substring(0, 200 - 3) + "...";
+		return (valString.length() <= 200) ? valString : valString.substring(0, 200 - 3) + "...";
 	}
 	
 	private void editCommand(Edit x) throws IOException, CoreException {
