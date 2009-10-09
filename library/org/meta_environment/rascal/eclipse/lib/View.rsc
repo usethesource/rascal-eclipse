@@ -41,4 +41,7 @@ public void java xyChart(str label, value facts, value settings ...);
 @javaClass{org.meta_environment.rascal.eclipse.lib.View}
 public void java edit(value v);
 
+@doc{Show a collapsable tree of a value}
+@javaClass{org.meta_environment.rascal.eclipse.lib.View}
+public void java browse(value v);
 

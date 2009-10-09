@@ -29,4 +29,8 @@ public class View {
 	public static void edit(IValue v) {
 		org.eclipse.imp.pdb.ui.text.Editor.edit(v);
 	}
+	
+	public static void browse(IValue v) {
+		org.eclipse.imp.pdb.ui.tree.Editor.open(v);
+	}
 }
