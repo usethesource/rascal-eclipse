@@ -10,7 +10,7 @@ import org.meta_environment.rascal.std.Chart.XYChart;
 
 public class View {
 	
-	public static void show(IValue v) {
+	public static void graphView(IValue v) {
 		Editor.open(v);
 	}
 	
@@ -26,11 +26,11 @@ public class View {
 		ChartViewer.open(XYChart.makeXYChart(label, facts, settings));
 	}
 	
-	public static void edit(IValue v) {
+	public static void textView(IValue v) {
 		org.eclipse.imp.pdb.ui.text.Editor.edit(v);
 	}
 	
-	public static void browse(IValue v) {
+	public static void treeView(IValue v) {
 		org.eclipse.imp.pdb.ui.tree.Editor.open(v);
 	}
 }
