@@ -58,8 +58,8 @@ import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
+import org.meta_environment.values.ValueFactoryFactory;
 
 // TBD: why the difference?:
 // entity([package("jdtimporter"),class("Activator   ",[entity([typeParameter("A")])]),anonymousClass(0),    method("set",[entity([package("java"),package("lang"),class("Integer")]),entity([primitive(int())])],entity([package("java"),package("lang"),class("Integer")])),parameter("element")])

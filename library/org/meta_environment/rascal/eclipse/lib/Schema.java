@@ -21,7 +21,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class Schema {
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();

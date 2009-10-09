@@ -21,10 +21,10 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class Resources {
 	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();

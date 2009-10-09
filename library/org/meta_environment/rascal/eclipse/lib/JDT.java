@@ -11,10 +11,10 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.eclipse.lib.jdt.JDTImporter;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class JDT {
 	

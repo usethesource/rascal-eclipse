@@ -19,13 +19,13 @@ import org.eclipse.imp.pdb.facts.io.PBFReader;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.ProjectURIResolver;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
+import org.meta_environment.values.ValueFactoryFactory;
 
 import sglr.SGLRInvoker;
 

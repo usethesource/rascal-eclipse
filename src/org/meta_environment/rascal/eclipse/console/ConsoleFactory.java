@@ -8,7 +8,6 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IHyperlink;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.eclipse.console.internal.IInterpreterConsole;
 import org.meta_environment.rascal.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.meta_environment.rascal.eclipse.console.internal.OutputInterpreterConsole;
@@ -19,6 +18,7 @@ import org.meta_environment.rascal.interpreter.debug.IDebugger;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.parser.ConsoleParser;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class ConsoleFactory{
 	public final static String INTERACTIVE_CONSOLE_ID = InteractiveInterpreterConsole.class.getName();

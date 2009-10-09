@@ -55,8 +55,8 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.eclipse.lib.Java;
+import org.meta_environment.values.ValueFactoryFactory;
 
 public class BindingConverter extends ASTVisitor {
 
