@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.eclipse.lib;
 
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.ui.graph.Editor;

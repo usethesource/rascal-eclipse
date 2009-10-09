@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.eclipse.perspective.actions;
 
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.imp.pdb.ui.graph.Editor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -10,7 +11,6 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalVariable;
 import org.meta_environment.rascal.eclipse.debug.core.model.RascalVariableValue;
-import org.meta_environment.rascal.eclipse.lib.View;
 
 public class OpenGraphEditor implements IObjectActionDelegate, IActionDelegate2 {
 
@@ -28,7 +28,7 @@ public class OpenGraphEditor implements IObjectActionDelegate, IActionDelegate2 
 
 	public void run(IAction action) {
 		try {
-			View.show(((RascalVariableValue)var.getValue()).getValue());
+			Editor.open(((RascalVariableValue)var.getValue()).getValue());
 		} catch (DebugException e) {
 			throw new RuntimeException(e);
 		}

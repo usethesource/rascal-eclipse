@@ -6,7 +6,7 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
-import org.meta_environment.rascal.eclipse.lib.View;
+import org.eclipse.imp.pdb.ui.graph.Editor;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -55,7 +55,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	}
 
 	public void updateRelationModel() {
-		View.show(value.getValue());
+		Editor.open(value.getValue());
 	}
 
 
