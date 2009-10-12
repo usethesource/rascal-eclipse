@@ -17,33 +17,59 @@ public alias EntitySet = set[Entity];
 @doc{maps an entity to its modifiers}
 public alias ModifierRel = rel[Entity entity, Modifier modifier];
 
-anno BindingRel Resource@types; // (loc x type)
-anno BindingRel Resource@methods; //  (loc x method)
-anno BindingRel Resource@constructors; // (loc x constructor)
-anno BindingRel Resource@fields; // (loc x field)
-anno BindingRel Resource@variables; // (loc x variable) (local variables and method parameters)
-anno BindingRel Resource@packages; // (loc x package)
+@doc{contains all type declarations}
+anno BindingRel Resource@types;        
 
-anno ModifierRel Resource@modifiers;
+@doc{contains all method declarations}
+anno BindingRel Resource@methods;      
 
-anno EntityRel  Resource@implements; // (class x interface)
-anno EntityRel  Resource@extends; //  (class x class)
-anno EntitySet  Resource@declaredTopTypes; // (type) (top classes)
-anno EntityRel  Resource@declaredSubTypes; // (type x type) (innerclasses)
-anno EntityRel  Resource@declaredMethods; // (type x method)
-anno EntityRel  Resource@declaredFields; // (type x field)
-anno EntityRel  Resource@calls; // (method x method) union (type x method) (for field initializations)
+@doc{contains all constructor declarations}
+anno BindingRel Resource@constructors; 
 
-@doc{import JDT facts from a file or an entire project}
+@doc{contains all field declarations}
+anno BindingRel Resource@fields;       
+
+@doc{contains all local variable and method parameter declarations}
+anno BindingRel Resource@variables;    
+
+@doc{contains all package declarations} 
+anno BindingRel Resource@packages;     
+
+@doc{maps Entities to the modifiers that have been declared for it}
+anno ModifierRel Resource@modifiers; 
+
+@doc{defines which types implement which interfaces}
+anno EntityRel  Resource@implements;   
+
+@doc{defines which classes extends which other classes}
+anno EntityRel  Resource@extends;      
+
+@doc{defines which top-level classes are declared}
+anno EntitySet  Resource@declaredTopTypes; 
+
+@doc{defines which inner classes are declared}
+anno EntityRel  Resource@declaredSubTypes; 
+
+@doc{defines which class defines which methods}
+anno EntityRel  Resource@declaredMethods;  
+
+@doc{defines which class defines which fields}
+anno EntityRel  Resource@declaredFields;   
+
+@doc{defines which methods call which other methods, and which class initialization code calls which methods}
+anno EntityRel  Resource@calls;
+
+@doc{import JDT facts from a Java file}
 @javaClass{org.meta_environment.rascal.eclipse.lib.JDT}
 public Resource java extractClass(loc file);
 
+@doc{import JDT facts from a file or an entire project}
 public Resource extractProject(loc project) {
   return unionFacts(getProject(project), { extractClass(file) | loc file <- files(project), file.extension == "java" });
 }
 
-@doc{extract facts from projects}
-public Resource extractFacts(Resource top, set[loc] projects) {
+@doc{Extract facts from projects}
+private Resource extractFacts(Resource top, set[loc] projects) {
   return unionFacts(top, { facts | loc project <- projects, Resource facts <- extractProject(project)});
 }
 
