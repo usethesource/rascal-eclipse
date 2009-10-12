@@ -34,6 +34,9 @@ data Id = package(str name)
         | wildcard(Bound bound)
 ;
 
+@doc{the root of Java's type hierarchy}
+public Entity Object = entity([package("java"), package("lang"), class("Object")]);
+
 @doc{these are the primitive types of Java}
 data PrimitiveType = byte()
                    | short()
@@ -109,10 +112,10 @@ public str readable(Id id) {
 	} catch : ;
 	
 	switch (id) {
-		case anonymousClass(nr): return "anonymousClass$" + readable(nr);		
+		case anonymousClass(nr): return "anonymousClass$" + "<nr>";		
 		case constructor(params): return "constructor(" + readable(params) + ")";		
 		case initializer: return "initializer";
-		case initializer(nr): return "initializer$" + readable(nr);		
+		case initializer(nr): return "initializer$" + "<nr>";		
 		case primitive(p): return getName(p);
 		case array(elementType): return readable(elementType) + "[]";		
 		case wildcard: return "?";
