@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
@@ -35,16 +36,10 @@ import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.NullASTVisitor;
-import org.meta_environment.rascal.ast.Command.Ambiguity;
-import org.meta_environment.rascal.ast.Command.Declaration;
-import org.meta_environment.rascal.ast.Command.Import;
 import org.meta_environment.rascal.ast.Command.Shell;
-import org.meta_environment.rascal.ast.Command.Statement;
 import org.meta_environment.rascal.ast.ShellCommand.Edit;
-import org.meta_environment.rascal.ast.ShellCommand.Help;
 import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
-import org.meta_environment.rascal.ast.ShellCommand.Test;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.eclipse.console.internal.CommandExecutionException;
 import org.meta_environment.rascal.eclipse.console.internal.CommandHistory;
@@ -217,37 +212,16 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 		clearErrorMarker();
 
+		// We first try to evaluate commands that have specific implementations in the
+		// Eclipse environment (such as editing a file). After that we simply call
+		// the evaluator to reuse as much of the evaluators standard implementation of commands
+		
 		Result<IValue> result = stat.accept(new NullASTVisitor<Result<IValue>>() {
-
-			public Result<IValue> visitCommandExpression(org.meta_environment.rascal.ast.Command.Expression x) {
-				return eval.eval(x.getExpression());
-			}
-			
-			@Override
-			public Result<IValue> visitCommandStatement(Statement x) {
-				return eval.eval(x.getStatement());
-			}
-
-			@Override
-			public Result<IValue> visitCommandDeclaration(Declaration x) {
-				return eval.eval(x.getDeclaration());
-			}
-
-			@Override
-			public Result<IValue> visitCommandImport(Import x) {
-				return eval.eval(x.getImported());
-			}
-
-			@Override
-			public Result<IValue> visitCommandAmbiguity(Ambiguity x) {
-				return null;
-			}
-
 			@Override
 			public Result<IValue> visitCommandShell(Shell x) {
 				return x.getCommand().accept(this);
 			}
-
+			
 			@Override
 			public Result<IValue> visitShellCommandEdit(Edit x) {
 				try {
@@ -258,15 +232,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 					Activator.getInstance().logException("edit", e);
 				}
 
-				return null;
+				return ResultFactory.nothing();
 			}
 
-			@Override
-			public Result<IValue> visitShellCommandHelp(Help x) {
-				return null;
-			}
-
-			@Override
 			public Result<IValue> visitShellCommandHistory(History x) {
 				return historyCommand();
 			}
@@ -276,13 +244,11 @@ public class RascalScriptInterpreter implements IInterpreter{
 				saveCommandHistory();
 				throw new QuitException();
 			}
-
-			@Override
-			public Result<IValue> visitShellCommandTest(Test x) {
-				eval.runTests();
-				return ResultFactory.nothing();
-			}
 		});
+		
+		if (result == null) {
+			result = stat.accept(eval);
+		}
 		
 		IValue value = result.getValue();
 		if (value != null) {
@@ -464,5 +430,15 @@ public class RascalScriptInterpreter implements IInterpreter{
 		IConstructor tree = eval.parseCommand(expression+";");
 		Command c = new ASTBuilder(new ASTFactory()).buildCommand(tree);	
 		return c.getStatement().getExpression();
+	}
+
+  
+	public void setStdErr(PrintWriter w) {
+		eval.setStdErr(w);
+	}
+
+
+	public void setStdOut(PrintWriter w) {
+		eval.setStdOut(w);  
 	}
 }
