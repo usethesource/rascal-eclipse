@@ -90,11 +90,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		this.command = "";
 		this.eval = eval;
 
-		/* do not load any more all the modules accessible in open Eclipse projects */
-		//eval.addModuleLoader(new ProjectModuleLoader(project));
-		//eval.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project));
-
-		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
+		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/library"));
 		eval.addClassLoader(getClass().getClassLoader());
 	}
 
