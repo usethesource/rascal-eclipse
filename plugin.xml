@@ -165,7 +165,7 @@
             name="Rascal Editor">
       </editor>
       <editor
-            class="org.meta_environment.rascal.eclipse.lib.charts.ChartViewer"
+            class="org.meta_environment.rascal.eclipse.library.viz.ChartViewer"
             default="false"
             icon="icons/rascal3D_2-16px.gif"
             id="rascal-eclipse.charts.viewer"
