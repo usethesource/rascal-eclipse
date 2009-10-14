@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.eclipse.lib;
+package org.meta_environment.rascal.eclipse.library;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;

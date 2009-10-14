@@ -34,8 +34,8 @@ public class RascalLibraryFileSystem extends FileSystem {
 	protected Map<String, RascalLibraryFileStore> roots = new HashMap<String, RascalLibraryFileStore>();
 
 	public RascalLibraryFileSystem() {
-		addRoot(RASCAL, Evaluator.class, "/StandardLibrary");
-		addRoot(ECLIPSE, Activator.class, "/org/meta_environment/rascal/eclipse/lib");
+		addRoot(RASCAL, Evaluator.class, "/org/meta_environment/rascal/library");
+		addRoot(ECLIPSE, Activator.class, "/org/meta_environment/rascal/eclipse/library");
 	}
 
 	@Override

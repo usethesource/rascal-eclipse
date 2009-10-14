@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.eclipse.lib;
+package org.meta_environment.rascal.eclipse.library;
 
 import java.net.URI;
 import java.util.Map;
@@ -11,7 +11,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.meta_environment.rascal.eclipse.lib.jdt.JDTImporter;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
@@ -53,7 +52,7 @@ public class JDT {
 			throw new Throw(VF.string("File does not exist: " + path), (ISourceLocation) null, null);
 		}
 		
-		Map<String,IValue> facts = new JDTImporter().importFacts(loc, p.getFile(path));
+		Map<String,IValue> facts = new org.meta_environment.rascal.eclipse.library.jdt.JDTImporter().importFacts(loc, p.getFile(path));
 		return resource.setAnnotations(facts);
 	}
 }

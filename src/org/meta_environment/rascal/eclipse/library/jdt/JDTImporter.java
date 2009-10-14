@@ -1,7 +1,7 @@
-package org.meta_environment.rascal.eclipse.lib.jdt;
+package org.meta_environment.rascal.eclipse.library.jdt;
 
-import static org.meta_environment.rascal.eclipse.lib.Java.ADT_ENTITY;
-import static org.meta_environment.rascal.eclipse.lib.Java.ADT_MODIFIER;
+import static org.meta_environment.rascal.eclipse.library.Java.ADT_ENTITY;
+import static org.meta_environment.rascal.eclipse.library.Java.ADT_MODIFIER;
 
 import java.util.ArrayList;
 import java.util.EmptyStackException;
@@ -583,7 +583,7 @@ public class JDTImporter extends ASTVisitor {
 	}
 
 	private void addBinding(IRelationWriter rw, ASTNode n, IValue entity) {		
-		ISourceLocation fileLoc = org.meta_environment.rascal.eclipse.lib.Resources.makeFile(file);
+		ISourceLocation fileLoc = org.meta_environment.rascal.eclipse.library.Resources.makeFile(file);
 		ISourceLocation loc = VF.sourceLocation(fileLoc.getURI(), n.getStartPosition(), n.getLength(), -1, -1, -1, -1);
 		rw.insert(VF.tuple(loc, entity));
 	}

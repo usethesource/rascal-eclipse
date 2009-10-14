@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.eclipse.lib.charts;
+package org.meta_environment.rascal.eclipse.library.viz;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;

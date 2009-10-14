@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.eclipse.lib;
+package org.meta_environment.rascal.eclipse.library;
 
 import java.net.URI;
 import java.net.URISyntaxException;
