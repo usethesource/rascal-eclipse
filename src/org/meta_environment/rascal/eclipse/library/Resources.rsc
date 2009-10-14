@@ -5,13 +5,13 @@ data Resource = root(set[Resource] projects)
               | folder(loc id, set[Resource] contents)
               | file(loc id);
 
-@javaClass{org.meta_environment.rascal.eclipse.lib.Resources}
+@javaClass{org.meta_environment.rascal.eclipse.library.Resources}
 public Resource java root();
 
-@javaClass{org.meta_environment.rascal.eclipse.lib.Resources}
+@javaClass{org.meta_environment.rascal.eclipse.library.Resources}
 public set[loc] java projects();
 
-@javaClass{org.meta_environment.rascal.eclipse.lib.Resources}
+@javaClass{org.meta_environment.rascal.eclipse.library.Resources}
 public set[loc] java references(loc project);
 
 public set[loc] dependencies(loc project) {
@@ -24,11 +24,11 @@ public set[loc] dependencies(loc project) {
   return closure;
 }
 
-@javaClass{org.meta_environment.rascal.eclipse.lib.Resources}
+@javaClass{org.meta_environment.rascal.eclipse.library.Resources}
 public loc java location(loc project);
 
-@javaClass{org.meta_environment.rascal.eclipse.lib.Resources}
+@javaClass{org.meta_environment.rascal.eclipse.library.Resources}
 public set[loc] java files(loc project);
 
-@javaClass{org.meta_environment.rascal.eclipse.lib.Resources}
+@javaClass{org.meta_environment.rascal.eclipse.library.Resources}
 public Resource java getProject(loc project);

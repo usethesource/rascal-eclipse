@@ -60,7 +60,7 @@ anno EntityRel  Resource@declaredFields;
 anno EntityRel  Resource@calls;
 
 @doc{import JDT facts from a Java file}
-@javaClass{org.meta_environment.rascal.eclipse.lib.JDT}
+@javaClass{org.meta_environment.rascal.eclipse.library.JDT}
 public Resource java extractClass(loc file);
 
 @doc{import JDT facts from a file or an entire project}
