@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.jdt.core.IJavaProject;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
@@ -150,6 +151,7 @@ public class Resources {
 	
 	private static IProject getIProject(String projectName) {
 		IProject p = ROOT.getProject(projectName);
+		
 		if (p != null) {
 			return p;
 		}

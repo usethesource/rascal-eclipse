@@ -320,9 +320,12 @@ public class RascalScriptInterpreter implements IInterpreter{
 			content = "";
 		} else {
 			content = "";
-			for (int i = 0; i < location.getEndColumn(); i++) {
+			for (int i = 0; i < location.getEndColumn() + "rascal>".length(); i++) {
+				
 				content += " ";
 			}
+			content += "^ ";
+			content += "parse error here";
 			command = "";
 			throw new CommandExecutionException(content, location.getOffset(), location.getLength());
 		}

@@ -120,7 +120,7 @@ public class ParseController implements IParseController {
 			Activator.getInstance().logException("parsing rascal failed", e);
 		}catch(SyntaxError e){
 			ISourceLocation loc = e.getLocation();
-			handler.handleSimpleMessage("parse error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
+			handler.handleSimpleMessage(e.getMessage(), loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 		}finally{
 			monitor.done();
 		}
