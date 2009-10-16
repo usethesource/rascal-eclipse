@@ -153,11 +153,6 @@ public class JDTImporter extends ASTVisitor {
 		
 		ICompilationUnit icu = JavaCore.createCompilationUnitFrom(file);
 		
-		if (!icu.getJavaProject().isOnClasspath(file)) {
-			System.out.println("Not on classpath: " + file);
-			return;
-		}
-		
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setSource(icu);

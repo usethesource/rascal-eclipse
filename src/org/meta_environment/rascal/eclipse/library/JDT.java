@@ -1,9 +1,13 @@
 package org.meta_environment.rascal.eclipse.library;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
@@ -11,6 +15,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.values.ValueFactoryFactory;
@@ -28,31 +34,69 @@ public class JDT {
 		}
 		
 		return p;
-    }
-    
-	public static IConstructor extractClass(ISourceLocation loc) {
-		URI uri = loc.getURI();
-		IConstructor resource = (IConstructor) Resources.file.make(VF, loc);
+	}
+
+    private static IResource getResource(ISourceLocation loc) {
+    	URI uri = loc.getURI();
 		
 		if (!uri.getScheme().equals("project")) {
 			throw RuntimeExceptionFactory.schemeNotSupported(loc, null, null);
 		}
 		
-		String path = uri.getPath();		
+		// ugly workaround b/c URI.getPath() doesn't always return the decoded path
+		String path = "";
+		try {
+			path = URLDecoder.decode(uri.getPath(), java.nio.charset.Charset.defaultCharset().name());
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		if (path.length() == 0) {
-			throw new Throw(VF.string("URI is not a file"), (ISourceLocation) null, null);
-		}
-
-		if (!path.endsWith(".java")) {
-			throw new Throw(VF.string("File is not a Java file: " + path), (ISourceLocation) null, null);
-		}
+			throw new Throw(VF.string("URI is not a valid path"), (ISourceLocation) null, null);
+		}		
 
 		IProject p = getProject(uri.getHost());
 		if (!p.exists(new Path(path))) {
-			throw new Throw(VF.string("File does not exist: " + path), (ISourceLocation) null, null);
+			throw new Throw(VF.string("Path does not exist: " + path), (ISourceLocation) null, null);
+		}
+
+		IResource r = p.getFile(path);
+		if (!r.exists()) {
+			r = p.getFolder(path);
+			if (!r.exists()) {
+				throw new Throw(VF.string("Path is not a file nor a folder: " + path), (ISourceLocation) null, null);
+			}
 		}
 		
-		Map<String,IValue> facts = new org.meta_environment.rascal.eclipse.library.jdt.JDTImporter().importFacts(loc, p.getFile(path));
+		return r;
+    }
+        
+	public static IConstructor extractClass(ISourceLocation loc) {
+		IResource r = getResource(loc);
+		
+		if (!(r instanceof IFile)) {
+			throw new Throw(VF.string("Location is not a file: " + loc), (ISourceLocation) null, null);
+		}
+		
+		IFile file = (IFile) r;
+		
+		if (!file.getFileExtension().equals("java")) {
+			throw new Throw(VF.string("Location is not a Java file: " + loc), (ISourceLocation) null, null);
+		}
+
+		Map<String,IValue> facts = new org.meta_environment.rascal.eclipse.library.jdt.JDTImporter().importFacts(loc, file);
+		IConstructor resource = (IConstructor) Resources.file.make(VF, loc);
 		return resource.setAnnotations(facts);
 	}
+	
+	public static IValue isOnBuildPath(ISourceLocation loc) {
+		IResource r = getResource(loc);
+		IJavaProject jp = JavaCore.create(r.getProject());
+		
+		if (!jp.exists()) {
+			throw new Throw(VF.string("Location is not in a Java project: " + loc), (ISourceLocation) null, null);
+		}
+		
+		return VF.bool(jp.isOnClasspath(r));
+	}
+	
 }

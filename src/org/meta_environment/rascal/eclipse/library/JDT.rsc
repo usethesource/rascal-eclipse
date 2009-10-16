@@ -65,18 +65,39 @@ public Resource java extractClass(loc file);
 
 @doc{import JDT facts from a file or an entire project}
 public Resource extractProject(loc project) {
-  return unionFacts(getProject(project), { extractClass(file) | loc file <- files(project), file.extension == "java" });
+  return extractResource(getProject(project));
 }
 
-@doc{Extract facts from projects}
-private Resource extractFacts(Resource top, set[loc] projects) {
-  return unionFacts(top, { facts | loc project <- projects, Resource facts <- extractProject(project)});
+@doc{import JDT facts from a project, file or folder}
+public Resource extractResource(Resource res) {
+  if (res.id?) {
+    if (project(l, c) := res || isOnBuildPath(res.id)) {
+      if (res.contents?) {
+        return extractResources(res, res.contents);
+      } else {
+        loc file = res.id;
+      	if (file.extension == "java") {
+      	  return extractClass(file);
+      	}
+      }
+    }
+  }
+  return res;
+}
+
+@doc{import JDT from a set of resources}
+private Resource extractResources(Resource receiver, set[Resource] res) {
+  return unionFacts(receiver, { extractResource(r) | r <- res });
 }
 
 @doc{extracts facts from projects and all projects they depends on (transitively)}
 public Resource extractFactsTransitive(loc project) {
-  return extractFacts(extractProject(project), dependencies(project));
+  return extractResources(extractProject(project), { getProject(p) | p <- dependencies(project) });
 }
+
+@doc{checks if a Resource is in its project's build path}
+@javaClass{org.meta_environment.rascal.eclipse.library.JDT}
+public bool java isOnBuildPath(loc file);
 
 @doc{
 	Union fact maps. Union values for facts that appear in both maps (if possible)
