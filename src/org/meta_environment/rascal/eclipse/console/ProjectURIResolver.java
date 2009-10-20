@@ -52,8 +52,8 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		return project.getFile(uri.getPath());
 	}
 	
-	public OutputStream getOutputStream(URI uri) throws IOException {
-		return new FileOutputStream(resolve(uri).getRawLocation().toOSString());
+	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
+		return new FileOutputStream(resolve(uri).getRawLocation().toOSString(), append);
 	}
 
 	public String scheme() {

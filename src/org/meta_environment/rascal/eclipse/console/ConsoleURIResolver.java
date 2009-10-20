@@ -32,7 +32,7 @@ public class ConsoleURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		throw new UnsupportedOperationException("Not supported by console.");
 	}
 
-	public OutputStream getOutputStream(URI uri) throws IOException{
+	public OutputStream getOutputStream(URI uri, boolean append) throws IOException{
 		throw new UnsupportedOperationException("Not supported by console.");
 	}
 
