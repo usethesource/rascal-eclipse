@@ -1,8 +1,6 @@
 package org.eclipse.imp.pdb.ui.graph;
 
-import org.eclipse.core.internal.content.Activator;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.ui.PDBUIPlugin;
 import org.eclipse.imp.pdb.ui.ValueEditorInput;
@@ -21,7 +19,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.zest.core.widgets.Graph;
 import org.eclipse.zest.layouts.LayoutStyles;
-import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
 
 public class Editor extends EditorPart {
 	public static final String EditorId = "org.eclipse.imp.pdb.ui.graph.editor";

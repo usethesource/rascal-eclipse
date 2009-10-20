@@ -82,7 +82,7 @@ public class GraphBuilder {
 	}
 
 	private GraphNode convertTree(INode fact) {
-		GraphNode node = getOrCreateNode(fact, fact.getName());
+		GraphNode node = new GraphNode(graph, SWT.NONE, fact.getName());
 		
 		for (IValue child : fact) {
 			new GraphConnection(graph, SWT.NONE, node, convert(child));
@@ -96,8 +96,10 @@ public class GraphBuilder {
 		IRelation rel = (IRelation) fact;
 		
 		if (type.getArity() == 2) {
+			ITuple tuple = null;
+			
 			for (IValue value : rel) {
-		    	ITuple tuple = (ITuple) value;
+		    	tuple = (ITuple) value;
 		        GraphNode from = convert(tuple.get(0));
 		        GraphNode to = convert(tuple.get(1));
 
@@ -106,12 +108,17 @@ public class GraphBuilder {
 		        }
 		    }
 			
-			GraphNode root = getOrCreateNode(fact, "{...}");
-			ISet top = rel.domain().subtract(rel.range());
+			GraphNode root = getOrCreateNode(fact, fact.getType().toString());
+			ISet top = rel.range().subtract(rel.domain());
 			
-			for (IValue elem : top) {
-				GraphNode to = convert(elem);
-				new GraphConnection(graph, SWT.NONE, root, to);
+			if (top.isEmpty() && tuple != null) {
+				new GraphConnection(graph, SWT.NONE, root, convert(tuple.get(0)));
+			}
+			else {
+				for (IValue elem : top) {
+					GraphNode to = convert(elem);
+					new GraphConnection(graph, SWT.NONE, root, to);
+				}
 			}
 			
 			return root;
@@ -126,7 +133,7 @@ public class GraphBuilder {
 	}
 
 	private GraphNode convertSet(IValue fact) {
-		return convertIterator(((ISet) fact).iterator(), fact, "{...}");
+		return convertIterator(((ISet) fact).iterator(), fact, fact.getType().toString());
 	}
 
 	private GraphNode convertIterator(Iterator<IValue> iterator, IValue value, String label) {
