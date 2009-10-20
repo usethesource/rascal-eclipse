@@ -1,7 +1,10 @@
 package org.eclipse.imp.pdb.ui.graph;
 
+import org.eclipse.core.internal.content.Activator;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.ui.PDBUIPlugin;
 import org.eclipse.imp.pdb.ui.ValueEditorInput;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -59,7 +62,7 @@ public class Editor extends EditorPart {
 						try {
 							page.openEditor(new ValueEditorInput(value), Editor.EditorId);
 						} catch (PartInitException e) {
-							// TODO Auto-generated catch block
+							PDBUIPlugin.getDefault().logException("failed to open graph editor", e);
 						}
 					}
 				});

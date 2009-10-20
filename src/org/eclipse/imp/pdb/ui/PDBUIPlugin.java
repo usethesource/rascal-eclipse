@@ -12,6 +12,7 @@
 
 package org.eclipse.imp.pdb.ui;
 
+import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -57,6 +58,19 @@ public class PDBUIPlugin extends AbstractUIPlugin {
 	 */
 	public static PDBUIPlugin getDefault() {
 		return plugin;
+	}
+	
+	public void logException(String msg, Throwable t) {
+		if (msg == null) {
+			if (t == null || t.getMessage() == null)
+				msg = "No message given";
+			else
+				msg = t.getMessage();
+		}
+
+		Status status= new Status(Status.ERROR, PLUGIN_ID, 0, msg, t);
+
+		getLog().log(status);
 	}
 
 }

@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import org.eclipse.imp.pdb.ui.PDBUIPlugin;
 import org.eclipse.imp.pdb.ui.ValueEditorInput;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -80,7 +81,7 @@ public class Editor extends EditorPart {
 						try {
 							page.openEditor(new ValueEditorInput(value), Editor.EditorId);
 						} catch (PartInitException e) {
-							// TODO Auto-generated catch block
+							PDBUIPlugin.getDefault().logException("failed to open tree editor", e);
 						}
 					}
 				});
