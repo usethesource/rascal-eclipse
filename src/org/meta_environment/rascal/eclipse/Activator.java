@@ -176,7 +176,6 @@ public class Activator extends PluginBase {
 					}
 				}catch(RuntimeException rex){
 					getInstance().logException("Can't find: "+bundle+" / "+path, rex);
-					rex.printStackTrace();
 					throw rex;
 				}
 			}
