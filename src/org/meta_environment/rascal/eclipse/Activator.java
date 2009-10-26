@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.eclipse;
 
+import java.io.FileNotFoundException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -10,6 +11,7 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
@@ -137,6 +139,19 @@ public class Activator extends PluginBase {
 		}
 		return null;
 	}
+	
+	public void logException(String msg, Throwable t) {
+		if (msg == null) {
+			if (t == null || t.getMessage() == null)
+				msg = "No message given";
+			else
+				msg = t.getMessage();
+		}
+
+		Status status= new Status(Status.ERROR, PLUGIN_ID, 0, msg, t);
+
+		getLog().log(status);
+	}
 
 	// Definitions for image management end
 	
@@ -146,12 +161,21 @@ public class Activator extends PluginBase {
 			fileURL = FileLocator.toFileURL(bundle.getEntry(path)).getPath();
 		}catch(Exception ex){
 			try{
-				fileURL = FileLocator.toFileURL(bundle.getResource(path)).getPath();
+				return FileLocator.toFileURL(bundle.getResource(path)).getPath();
 			}catch(Exception ex2){
 				try{
-					fileURL = FileLocator.find(bundle, new Path(path), null).getPath();
+					URL file = FileLocator.find(bundle, new Path(path), null);
+					
+					if (file != null) {
+						fileURL = file.getPath();
+					}
+					else {
+						RuntimeException fnf = new RuntimeException("Can't find:" + bundle+" / "+path);
+						getInstance().logException(fnf.getMessage(), fnf);
+						throw fnf;
+					}
 				}catch(RuntimeException rex){
-					System.err.println("Can't find: "+bundle+" / "+path);
+					getInstance().logException("Can't find: "+bundle+" / "+path, rex);
 					rex.printStackTrace();
 					throw rex;
 				}
