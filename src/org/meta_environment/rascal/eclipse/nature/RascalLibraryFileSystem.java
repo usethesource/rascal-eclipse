@@ -157,7 +157,7 @@ public class RascalLibraryFileSystem extends FileSystem {
 	
 			@Override
 			public URI toURI() {
-				return URI.create("file://" + file.getAbsolutePath().replaceAll("" + File.separatorChar, "/"));
+				return file.toURI();
 			}
 	
 		}
