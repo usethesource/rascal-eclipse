@@ -118,6 +118,9 @@ private Resource unionFacts(Resource r1, Resource r2) {
 		else if (EntitySet si1 := m1[s] && EntitySet si2 := m2[s]) {
 			m1[s] = si1 + si2;
 		}
+		else if (ModifierRel mr1 := m1[s] && ModifierRel mr2 := m2[s]) {
+			m1[s] = mr1 + mr2;
+		}
 	}
 	
 	m1 += ( s:m2[s] | s <- domain(m2) - domain(m1) );
