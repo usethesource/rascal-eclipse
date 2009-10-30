@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.eclipse;
 
-import java.io.FileNotFoundException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -9,6 +8,7 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
@@ -148,7 +148,7 @@ public class Activator extends PluginBase {
 				msg = t.getMessage();
 		}
 
-		Status status= new Status(Status.ERROR, PLUGIN_ID, 0, msg, t);
+		Status status= new Status(IStatus.ERROR, PLUGIN_ID, 0, msg, t);
 
 		getLog().log(status);
 	}
