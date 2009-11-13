@@ -571,54 +571,50 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		
 		public void run(){
 			running = true;
-			while (running) {
+			while(running){
 				lock.block();
-
-				if (!running)
-					return;
-
-				if (commandQueue.size() > 0) {
+				
+				if(!running) return;
+				
+				if(commandQueue.size() > 0){
 					console.disableEditing();
 					console.consoleOutputStream.enable();
-
+					
 					boolean completeCommand = true;
 					int completeCommandStartOffset = -1;
-
-					do {
+					
+					do{
 						Command command = commandQueue.remove(0);
-						if (completeCommandStartOffset == -1)
-							completeCommandStartOffset = command.commandStartOffset;
-						try {
-							completeCommand = console.interpreter
-									.execute(command.command);
-							if (completeCommand) {
-								console.printOutput(console.interpreter
-										.getOutput());
-								completeCommandStartOffset = -1; // Reset
-																	// offset.
-							} else {
+						if(completeCommandStartOffset == -1) completeCommandStartOffset = command.commandStartOffset;
+						try{
+							completeCommand = console.interpreter.execute(command.command);
+							if(completeCommand){
+								console.printOutput(console.interpreter.getOutput());
+								completeCommandStartOffset = -1; // Reset offset.
+							}else{
 								console.printOutput();
 							}
-						} catch (CommandExecutionException ceex) {
+						}catch(CommandExecutionException ceex){
 							console.printOutput(ceex.getMessage());
-							console.setError(completeCommandStartOffset
-									+ ceex.getOffset(), ceex.getLength());
+							int errorOffset = ceex.getOffset();
+							int errorLength = ceex.getLength();
+							if(errorOffset != -1 && errorLength != -1) console.setError(completeCommandStartOffset + errorOffset, errorLength);
 							completeCommand = true;
-						} catch (TerminationException tex) {
+						}catch(TerminationException tex){
 							// Roll over and die.
 							console.terminate();
 							return;
-						} 
-					} while (commandQueue.size() > 0);
-
+						}
+					}while(commandQueue.size() > 0);
+					
 					console.consoleOutputStream.disable();
-
-					if (completeCommand) {
+					
+					if(completeCommand){
 						console.emitPrompt();
-					} else {
+					}else{
 						console.emitContinuationPrompt();
 					}
-
+					
 					console.enableEditing();
 				}
 			}

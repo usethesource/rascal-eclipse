@@ -308,6 +308,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 		SubjectAdapter initialSubject = new SummaryAdapter(tree).getInitialSubject();
 		
 		if (initialSubject == null) {
+			command = "";
+			content = "";
 			throw new CommandExecutionException("parse error at unknown location");
 		}
 		
