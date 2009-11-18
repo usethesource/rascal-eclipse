@@ -76,9 +76,16 @@ public class ParseController implements IParseController {
 		this.path = filePath;
 		this.handler = handler;
 		this.project = project;
-		loader.addFileLoader(new ProjectModuleLoader(project.getRawProject()));
+		
+		if (project != null) {
+			loader.addFileLoader(new ProjectModuleLoader(project.getRawProject()));
+		}
 		loader.addFileLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
-		loader.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project.getRawProject()));
+		
+		if (project != null) {
+			loader.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project.getRawProject()));
+		}
+		
 		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
 		
 		// everything rooted at the src directory 
@@ -114,14 +121,18 @@ public class ParseController implements IParseController {
 			
 			monitor.worked(1);
 			return result;
-		}catch(FactTypeUseException e){
+		}
+		catch(FactTypeUseException e){
 			Activator.getInstance().logException("parsing rascal failed", e);
-		}catch(IOException e){
+		}
+		catch(IOException e){
 			Activator.getInstance().logException("parsing rascal failed", e);
-		}catch(SyntaxError e){
+		}
+		catch(SyntaxError e){
 			ISourceLocation loc = e.getLocation();
 			handler.handleSimpleMessage(e.getMessage(), loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
-		}finally{
+		}
+		finally{
 			monitor.done();
 		}
 		
