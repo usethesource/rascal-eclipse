@@ -144,11 +144,11 @@ private Resource unionFacts(Resource receiver, set[Resource] facts) {
 public tuple[rel[&T1, &T2] found, rel[loc, &T2] notfound] matchLocations(rel[&T1, loc] RSClocs, rel[loc, &T2] JDTlocs) {
 
   rel[&T1, &T2] found = {};
-  BindingRel notfound = {};
+  rel[loc, &T2] notfound = {};
 
   for ( jdtTup <- JDTlocs, <loc jl, &T2 v2> := jdtTup ) {
     rel[&T1, &T2] search = { <v1, v2> | <&T1 v1, loc rl> <- RSClocs,
-      rl.url == jl.url, rl.offset == jl.offset, rl.length == jl.length };
+      rl.uri == jl.uri, rl.offset == jl.offset, rl.length == jl.length };
 
     if (search != {}) {
       found += search;
@@ -162,7 +162,7 @@ public tuple[rel[&T1, &T2] found, rel[loc, &T2] notfound] matchLocations(rel[&T1
       &T1 candidate;
 
       for ( <&T1 v1, loc rl> <- RSClocs ) {
-        if (rl.url == jl.url && rl.offset + rl.length == jl.offset + length && rl.offset > jl.offset) {
+        if (rl.uri == jl.uri && rl.offset + rl.length == jl.offset + length && rl.offset > jl.offset) {
           if (rl.offset < closest) {
             closest = rl.offset;
             candidate = v1;
