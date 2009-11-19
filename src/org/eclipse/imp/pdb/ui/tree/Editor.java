@@ -3,6 +3,7 @@ package org.eclipse.imp.pdb.ui.tree;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -231,6 +232,11 @@ public class Editor extends EditorPart {
 						}
 						return children;
 					}
+
+					public Object[] visitDateTime(IDateTime o)
+							throws VisitorException {
+						return empty;
+					}
 				});
 			} catch (VisitorException e) {
 				return null;
@@ -328,6 +334,11 @@ public class Editor extends EditorPart {
 
 					public String visitTuple(ITuple o) throws VisitorException {
 						return o.getType().toString();
+					}
+
+					public String visitDateTime(IDateTime o)
+							throws VisitorException {
+						return o.toString();
 					}
 				});
 			} catch (VisitorException e) {
