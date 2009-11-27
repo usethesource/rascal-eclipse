@@ -75,7 +75,8 @@ public class VLViewer extends EditorPart {
 		pa.init();
 		
 		Panel panel = new Panel(new BorderLayout()) {
-		     public void update(java.awt.Graphics g) {
+		     @Override
+			public void update(java.awt.Graphics g) {
 		       /* Do not erase the background */
 		       paint(g);
 		     }
