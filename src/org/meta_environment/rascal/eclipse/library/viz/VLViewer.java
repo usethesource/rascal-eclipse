@@ -7,6 +7,8 @@ import java.awt.Panel;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
@@ -60,18 +62,19 @@ public class VLViewer extends EditorPart {
 
 	@SuppressWarnings("serial")
 	@Override
-	public void createPartControl(Composite parent) {
-		//new Composite(parent, SWT.NONE, ((VLEditorInput) getEditorInput()).getApplet(), true);
-//		Label L = new Label(parent, SWT.NONE);
-//		L.setText("TEST");
-//		Composite composite = new Composite(parent, SWT.DOUBLE_BUFFERED | SWT.EMBEDDED);
-		
-		Composite composite = new Composite(parent, SWT.EMBEDDED);
-		VLPApplet pa = ((VLEditorInput) getEditorInput()).getVLPApplet();
+	public void createPartControl(Composite parent) {		
+		Composite composite = new Composite(parent, SWT.DOUBLE_BUFFERED | SWT.EMBEDDED);
+		final VLPApplet pa = ((VLEditorInput) getEditorInput()).getVLPApplet();
 		Frame frame = SWT_AWT.new_Frame(composite); 
 		frame.setLocation(100,100);
 		frame.add(pa);
 		pa.init();
+		
+		composite.addDisposeListener(new DisposeListener() {
+			 public void widgetDisposed(DisposeEvent event) {
+				 pa.destroy();
+			 }
+    });
 		
 		Panel panel = new Panel(new BorderLayout()) {
 		     @Override
@@ -81,7 +84,6 @@ public class VLViewer extends EditorPart {
 		     }
 		   };
 		frame.add(panel);
-		
 		frame.setVisible(true);
 		frame.pack();
 	}
@@ -103,7 +105,7 @@ public class VLViewer extends EditorPart {
 		
 		if (win != null) {
 			final IWorkbenchPage page = win.getActivePage();
-
+			
 			if (page != null) {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
@@ -112,6 +114,7 @@ public class VLViewer extends EditorPart {
 						} catch (PartInitException e) {
 							Activator.getInstance().logException("failed to open VL viewer", e);
 						}
+					
 					}
 				});
 			}
