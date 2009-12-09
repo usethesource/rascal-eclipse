@@ -54,6 +54,7 @@ import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
+import org.meta_environment.rascal.interpreter.utils.JavaBridge;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.library.IO;
 import org.meta_environment.uptr.Factory;
@@ -78,7 +79,6 @@ public class RascalScriptInterpreter implements IInterpreter{
 		eval.addModuleLoader(moduleLoader);
 		eval.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project));
 	}
-	
 	
 	public IFile getFile(String fileName) throws IOException, CoreException {
 		return moduleLoader.getFile(fileName);
@@ -130,8 +130,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 				execParseError(tree);
 				return false;
 			}
-
-			IO.setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
+			
+			Object ioInstance = eval.getJavaBridge().getJavaClassInstance(IO.class);
+			((IO) ioInstance).setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
 			execCommand(tree);
 		}
 		catch(QuitException q){
