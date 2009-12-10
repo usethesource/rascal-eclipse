@@ -8,7 +8,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory;
-import org.meta_environment.rascal.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.meta_environment.rascal.eclipse.console.internal.OutputInterpreterConsole;
 
 public class CommandScripter{
