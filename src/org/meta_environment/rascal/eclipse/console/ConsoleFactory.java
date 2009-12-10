@@ -163,7 +163,7 @@ public class ConsoleFactory{
 		}
 
 		private OutputRascalConsole(Evaluator eval, IProject project){
-			super(new RascalScriptInterpreter(eval, project), "Rascal");
+			super(new RascalScriptInterpreter(eval, project), "Rascal ["+project.getName()+"]");
 			initializeConsole();
 			getInterpreter().initialize();
 			addPatternMatchListener(new JumpToSource());
