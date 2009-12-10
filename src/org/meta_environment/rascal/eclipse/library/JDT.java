@@ -19,14 +19,17 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-import org.meta_environment.values.ValueFactoryFactory;
 
 public class JDT {
 	
 	private static final IWorkspaceRoot ROOT = ResourcesPlugin.getWorkspace().getRoot();
-    private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+    private final IValueFactory VF;
 	
-    private static IProject getProject(String project) {
+    public JDT(IValueFactory vf) {
+    	this.VF = vf;
+	}
+    
+    private  IProject getProject(String project) {
     	IProject p = ROOT.getProject(project);
 		
 		if (p == null) {
@@ -36,7 +39,7 @@ public class JDT {
 		return p;
 	}
 
-    private static IResource getResource(ISourceLocation loc) {
+    private  IResource getResource(ISourceLocation loc) {
     	URI uri = loc.getURI();
 		
 		if (!uri.getScheme().equals("project")) {
@@ -70,7 +73,7 @@ public class JDT {
 		return r;
     }
         
-	public static IConstructor extractClass(ISourceLocation loc) {
+	public  IConstructor extractClass(ISourceLocation loc) {
 		IResource r = getResource(loc);
 		
 		if (!(r instanceof IFile)) {
@@ -88,7 +91,7 @@ public class JDT {
 		return resource.setAnnotations(facts);
 	}
 	
-	public static IValue isOnBuildPath(ISourceLocation loc) {
+	public  IValue isOnBuildPath(ISourceLocation loc) {
 		IResource r = getResource(loc);
 		IJavaProject jp = JavaCore.create(r.getProject());
 		

@@ -578,7 +578,7 @@ public class JDTImporter extends ASTVisitor {
 	}
 
 	private void addBinding(IRelationWriter rw, ASTNode n, IValue entity) {		
-		ISourceLocation fileLoc = org.meta_environment.rascal.eclipse.library.Resources.makeFile(file);
+		ISourceLocation fileLoc = new org.meta_environment.rascal.eclipse.library.Resources(VF).makeFile(file);
 		ISourceLocation loc = VF.sourceLocation(fileLoc.getURI(), n.getStartPosition(), n.getLength(), -1, -1, -1, -1);
 		rw.insert(VF.tuple(loc, entity));
 	}

@@ -24,9 +24,12 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.values.ValueFactoryFactory;
 
 public class Schema {
-	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private final  IValueFactory VF;
 	
-	public static void printData(IString url, IString module, IList datadefs) throws IOException {
+	public Schema(IValueFactory vf) {
+		this.VF = vf;
+	}
+	public  void printData(IString url, IString module, IList datadefs) throws IOException {
 		String path = url.getValue().replaceFirst("file:", "");
 		File file = new File(path);	
 		
@@ -57,12 +60,12 @@ public class Schema {
 		}
 	}
 
-	public static ISet getASTFiles(IString path) {
+	public  ISet getASTFiles(IString path) {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		return getASTFiles(root.getContainerForLocation(root.findMember(new Path(path.getValue())).getLocation()));
 	}
 	
-	private static ISet getASTFiles(IContainer cont) {		
+	private  ISet getASTFiles(IContainer cont) {		
 		ISetWriter classes = VF.setWriter(TypeFactory.getInstance().stringType());
 		
 		if (cont != null) {
@@ -83,7 +86,7 @@ public class Schema {
 		return classes.done();
 	}
 	
-	public static ISet getCompliantSet(ISet universe, IString searchString) {
+	public  ISet getCompliantSet(ISet universe, IString searchString) {
 		ISetWriter result = VF.setWriter(universe.getElementType());  
 		
 		Pattern pattern = Pattern.compile(searchString.getValue());

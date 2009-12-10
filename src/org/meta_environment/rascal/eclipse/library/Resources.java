@@ -24,10 +24,9 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.eclipse.Activator;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-import org.meta_environment.values.ValueFactoryFactory;
 
 public class Resources {
-	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private final IValueFactory VF;
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	private static final IWorkspaceRoot ROOT = ResourcesPlugin.getWorkspace().getRoot();
 	private static final TypeStore store = new TypeStore();
@@ -37,7 +36,11 @@ public class Resources {
 	public static final Type folder = TF.constructor(store, res, "folder", TF.sourceLocationType(), "id", TF.setType(res), "contents");
 	public static final Type file =  TF.constructor(store, res, "file", TF.sourceLocationType(), "id");
 	
-	public static ISet projects() {
+	public Resources(IValueFactory vf) {
+		this.VF = vf;
+	}
+	
+	public  ISet projects() {
 		IProject[] projects = ROOT.getProjects();
 		ISetWriter w = VF.setWriter(TF.sourceLocationType());
 		
@@ -48,7 +51,7 @@ public class Resources {
 		return w.done();
 	}
 	
-	public static ISet references(ISourceLocation loc) {
+	public  ISet references(ISourceLocation loc) {
 		IProject project = getIProject(loc.getURI().getHost());
 		ISetWriter w = VF.setWriter(TF.sourceLocationType());
 		
@@ -64,7 +67,7 @@ public class Resources {
 		return w.done();
 	}
 
-	public static ISourceLocation makeProject(IProject r) {
+	public  ISourceLocation makeProject(IProject r) {
 		try {
 			return VF.sourceLocation(new URI("project", r.getName(), "", null));
 		} catch (URISyntaxException e) {
@@ -73,7 +76,7 @@ public class Resources {
 		}
 	}
 	
-	public static ISourceLocation location(ISourceLocation name) {
+	public  ISourceLocation location(ISourceLocation name) {
 		IProject project = getIProject(name.getURI().getHost());
 		String path = name.getURI().getPath();
 		
@@ -85,7 +88,7 @@ public class Resources {
 		return VF.sourceLocation(project.getLocationURI());
 	}
 	
-	public static ISet files(ISourceLocation name) {
+	public  ISet files(ISourceLocation name) {
 		final String projectName = name.getURI().getHost();
 		IProject project = getIProject(projectName);
 		final ISetWriter w = VF.setWriter(TF.sourceLocationType());
@@ -111,7 +114,7 @@ public class Resources {
 		return w.done();
 	}
 	
-	public static ISourceLocation makeFile(IResource resource) {
+	public  ISourceLocation makeFile(IResource resource) {
 		String path = resource.getProjectRelativePath().toString();
 		path = path.startsWith("/") ? path : "/" + path;
 		try {
@@ -121,7 +124,7 @@ public class Resources {
 		}
 	}
 	
-	public static ISourceLocation makeFolder(IFolder folder) {
+	public  ISourceLocation makeFolder(IFolder folder) {
 		String path = folder.getProjectRelativePath().toString();
 		path = path.startsWith("/") ? path : "/" + path;
 		try {
@@ -131,7 +134,7 @@ public class Resources {
 		}
 	}
 	
-	public static IConstructor root() {
+	public  IConstructor root() {
 		ISetWriter projects = VF.setWriter(res);
 		
 		for (IProject p : ROOT.getProjects()) {
@@ -142,13 +145,13 @@ public class Resources {
 		return (IConstructor) root.make(VF, projects.done());
 	}
 	
-	public static IConstructor getProject(ISourceLocation projectName) {
+	public  IConstructor getProject(ISourceLocation projectName) {
 		IProject p = getIProject(projectName.getURI().getHost());
 		ISet contents = getProjectContents(p);
 		return (IConstructor) project.make(VF, projectName, contents);
 	}
 	
-	private static IProject getIProject(String projectName) {
+	private  IProject getIProject(String projectName) {
 		IProject p = ROOT.getProject(projectName);
 		
 		if (p != null) {
@@ -157,7 +160,7 @@ public class Resources {
 		throw new Throw(VF.string("Project does not exist: " + projectName), (ISourceLocation) null, null);
 	}
 	
-	private static ISet getProjectContents(IProject project) {
+	private  ISet getProjectContents(IProject project) {
 		final ISetWriter w = VF.setWriter(res);
 
 		try {
@@ -185,15 +188,15 @@ public class Resources {
 		return w.done();
 	}
 	
-	private static IValue getFolder(IFolder resource) {
+	private  IValue getFolder(IFolder resource) {
 		return folder.make(VF, makeFolder(resource), getFolderContents(resource));
 	}
 
-	private static IValue getFile(IFile resource) {
+	private  IValue getFile(IFile resource) {
 		return file.make(VF, makeFile(resource));
 	}
 
-	private static ISet getFolderContents(final IFolder folder) {
+	private  ISet getFolderContents(final IFolder folder) {
 	final ISetWriter w = VF.setWriter(res);
 		
 		try {
