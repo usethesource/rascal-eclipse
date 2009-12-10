@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory.IRascalConsole;
+import org.meta_environment.rascal.eclipse.console.internal.OutputInterpreterConsole;
 
 public class CommandScripter{
 	private static final IWorkspaceRoot WORKSPACE = ResourcesPlugin.getWorkspace().getRoot();
@@ -32,15 +33,15 @@ public class CommandScripter{
 		
 		for(int i = 0 ; i < projects.length; i++){
 			IProject project = projects[i];
-			IRascalConsole console = cf.openRunOutputConsole(project);
+			OutputInterpreterConsole console = (OutputInterpreterConsole) cf.openRunOutputConsole(project);
 			try{
 				for(int j = 0; j < commands.length; j++){
-					console.executeCommand(commands[j]+"\n");
+					console.executeCommandAndWait(commands[j]+"\n");
 				}
 			}catch(RuntimeException rex){
 				System.err.println("Failed to execute commands in project: "+project+", cause: "+rex.getMessage());
 			}
-			//console.terminate();
+			console.terminate();
 		}
 	}
 }

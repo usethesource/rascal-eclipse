@@ -140,6 +140,11 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		commandExecutor.execute(command);
 	}
 	
+	// NOTE: This method here as a 'hack' and can only be used in a single threaded fashion.
+	public void executeCommandAndWait(String command){
+		commandExecutor.executeAndWait(command);
+	}
+	
 	public void terminate(){
 		commandExecutor.terminate();
 		interpreter.terminate();
@@ -292,6 +297,8 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		
 		private final NotifiableLock lock = new NotifiableLock();
 		
+		private final NotifiableLock waitLock = new NotifiableLock();
+		
 		public CommandExecutor(OutputInterpreterConsole console){
 			super();
 
@@ -305,6 +312,12 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		public void execute(String command){
 			commandQueue.add(command);
 			lock.wakeUp();
+		}
+		
+		public void executeAndWait(String command){
+			commandQueue.add(command);
+			lock.wakeUp();
+			waitLock.block();
 		}
 		
 		public void run(){
@@ -329,6 +342,8 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 						// Roll over and die.
 						console.terminate();
 						return;
+					}finally{
+						waitLock.wakeUp();
 					}
 				}
 				
