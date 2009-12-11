@@ -3,6 +3,7 @@ package org.meta_environment.rascal.eclipse.library.scripting;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -17,7 +18,7 @@ public class CommandScripter{
 		super();
 	}
 	
-	public void execute(IList commandsList, IList projectsList){
+	public void execute(IList commandsList, IList projectsList, IBool closeConsolesValue){
 		String[] commands = new String[commandsList.length()];
 		for(int i = commandsList.length() - 1; i >= 0; i--){
 			commands[i] = ((IString) commandsList.get(i)).getValue();
@@ -27,6 +28,8 @@ public class CommandScripter{
 		for(int i = projectsList.length() - 1; i >= 0; i--){
 			projects[i] = WORKSPACE.getProject(((ISourceLocation) projectsList.get(i)).getURI().getHost());
 		}
+		
+		boolean closeConsoles = closeConsolesValue.getValue();
 		
 		ConsoleFactory cf = ConsoleFactory.getInstance();
 		
@@ -40,7 +43,7 @@ public class CommandScripter{
 			}catch(RuntimeException rex){
 				System.err.println("Failed to execute commands in project: "+project+", cause: "+rex.getMessage());
 			}
-			console.terminate();
+			if(closeConsoles) console.terminate();
 		}
 	}
 }
