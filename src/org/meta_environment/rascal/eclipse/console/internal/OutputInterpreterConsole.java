@@ -140,9 +140,14 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		commandExecutor.execute(command);
 	}
 	
-	// NOTE: This method here as a 'hack' and can only be used in a single threaded fashion.
+	// NOTE: This method here as a 'hack' and can only be used in a single threaded fashion (by me and noone else!).
 	public void executeCommandAndWait(String command){
 		commandExecutor.executeAndWait(command);
+	}
+
+	// NOTE: This method here as a 'hack' and can only be used in a single threaded fashion (by me and noone else!).
+	public void unblock(){
+		commandExecutor.unblock();
 	}
 	
 	public void terminate(){
@@ -320,6 +325,10 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 			waitLock.block();
 		}
 		
+		public void unblock(){
+			waitLock.wakeUp();
+		}
+		
 		public void run(){
 			running = true;
 			while(running){
@@ -343,7 +352,7 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 						console.terminate();
 						return;
 					}finally{
-						waitLock.wakeUp();
+						unblock();
 					}
 				}
 				

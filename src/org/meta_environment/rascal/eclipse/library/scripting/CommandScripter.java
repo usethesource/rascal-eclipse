@@ -4,11 +4,13 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.eclipse.console.ConsoleFactory;
+import org.meta_environment.rascal.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.meta_environment.rascal.eclipse.console.internal.OutputInterpreterConsole;
 
 public class CommandScripter{
@@ -18,7 +20,7 @@ public class CommandScripter{
 		super();
 	}
 	
-	public void execute(IList commandsList, IList projectsList, IBool closeConsolesValue){
+	public void execute(IList commandsList, IList projectsList, IBool closeConsolesValue, IInteger timeoutValue){
 		String[] commands = new String[commandsList.length()];
 		for(int i = commandsList.length() - 1; i >= 0; i--){
 			commands[i] = ((IString) commandsList.get(i)).getValue();
@@ -30,12 +32,15 @@ public class CommandScripter{
 		}
 		
 		boolean closeConsoles = closeConsolesValue.getValue();
+		int timeout = timeoutValue.intValue();
 		
 		ConsoleFactory cf = ConsoleFactory.getInstance();
 		
 		for(int i = 0 ; i < projects.length; i++){
 			IProject project = projects[i];
-			OutputInterpreterConsole console = (OutputInterpreterConsole) cf.openRunOutputConsole(project);
+			DummyDebugger dd = new DummyDebugger();
+			OutputInterpreterConsole console = (OutputInterpreterConsole) cf.openDebuggableOutputConsole(project, dd);
+			TheTerminator t = TheTerminator.killedInTMinus(timeout, console, dd);
 			try{
 				for(int j = 0; j < commands.length; j++){
 					console.executeCommandAndWait(commands[j]+"\n");
@@ -43,7 +48,73 @@ public class CommandScripter{
 			}catch(RuntimeException rex){
 				System.err.println("Failed to execute commands in project: "+project+", cause: "+rex.getMessage());
 			}
+			
+			t.illBeBack();
+			console.unblock();
 			if(closeConsoles) console.terminate();
+		}
+	}
+	
+	private static class TheTerminator implements Runnable{
+		private final OutputInterpreterConsole console;
+		private final DummyDebugger dd;
+		private final int timeout;
+		
+		private final NotifiableLock lock;
+		private volatile boolean stopped;
+		
+		public TheTerminator(OutputInterpreterConsole console, DummyDebugger dd, int timeout){
+			super();
+			
+			this.console = console;
+			this.dd = dd;
+			this.timeout = timeout;
+			
+			lock = new NotifiableLock();
+			stopped = false;
+		}
+		
+		public void run(){
+			lock.block(timeout);
+			
+			if(!stopped){
+				System.err.println("Killing!");
+				dd.destroy();
+				console.terminate();
+			}
+		}
+		
+		public void illBeBack(){
+			stopped = true;
+			lock.wakeUp();
+		}
+		
+		private static class NotifiableLock{
+			private volatile boolean notified = false;
+			
+			public synchronized void wakeUp(){
+				notified = true;
+				notify();
+			}
+			
+			public synchronized void block(int timeout){
+				long endTime = System.currentTimeMillis() + timeout;
+				while(!notified && endTime > System.currentTimeMillis()){
+					long waitFor = endTime - System.currentTimeMillis();
+					try{
+						wait(waitFor);
+					}catch(InterruptedException irex){
+						// Don't care.
+					}
+				}
+				notified = false;
+			}
+		}
+		
+		public static TheTerminator killedInTMinus(int xSeconds, OutputInterpreterConsole console, DummyDebugger dd){
+			TheTerminator t = new TheTerminator(console, dd, xSeconds * 1000);
+			new Thread(t).start();
+			return t;
 		}
 	}
 }
