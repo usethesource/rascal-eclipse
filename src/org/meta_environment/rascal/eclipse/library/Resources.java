@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
@@ -65,6 +66,24 @@ public class Resources {
 		}
 		
 		return w.done();
+	}
+	
+	public void openProject(ISourceLocation name) {
+		IProject project = getIProject(name.getURI().getHost());
+		try {
+			project.open(new NullProgressMonitor());
+		} catch (CoreException e) {
+			throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
+		}
+	}
+	
+	public void closeProject(ISourceLocation name) {
+		IProject project = getIProject(name.getURI().getHost());
+		try {
+			project.close(new NullProgressMonitor());
+		} catch (CoreException e) {
+			throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
+		}
 	}
 
 	public  ISourceLocation makeProject(IProject r) {

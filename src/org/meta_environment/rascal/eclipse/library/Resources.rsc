@@ -25,6 +25,12 @@ public set[loc] dependencies(loc project) {
 }
 
 @javaClass{org.meta_environment.rascal.eclipse.library.Resources}
+public void java closeProject(loc project);
+
+@javaClass{org.meta_environment.rascal.eclipse.library.Resources}
+public void java openProject(loc project);
+
+@javaClass{org.meta_environment.rascal.eclipse.library.Resources}
 public loc java location(loc project);
 
 @javaClass{org.meta_environment.rascal.eclipse.library.Resources}
