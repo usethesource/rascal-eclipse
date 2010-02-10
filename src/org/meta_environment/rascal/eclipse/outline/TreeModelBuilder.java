@@ -17,6 +17,7 @@ import org.meta_environment.rascal.ast.Variant;
 import org.meta_environment.rascal.ast.Declaration.Alias;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Data;
+import org.meta_environment.rascal.ast.Declaration.DataAbstract;
 import org.meta_environment.rascal.ast.Declaration.Function;
 import org.meta_environment.rascal.ast.Declaration.Rule;
 import org.meta_environment.rascal.ast.Declaration.Tag;
@@ -151,6 +152,12 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			return x;
 		}
 		
+		@Override
+		public AbstractAST visitDeclarationDataAbstract(DataAbstract x) {
+			findGroup(adts, x.getUser().toString());
+			return x;
+		}
+
 		@Override
 		public AbstractAST visitDeclarationAnnotation(Annotation x) {
 			return annos.add(x);

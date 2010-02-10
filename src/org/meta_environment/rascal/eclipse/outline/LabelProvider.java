@@ -91,6 +91,9 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 		else if (node2 instanceof Declaration.Data) {
 			result = ((Declaration.Data) node2).toString();
 		}
+		else if (node2 instanceof Declaration.DataAbstract) {
+			result = ((Declaration.DataAbstract) node2).toString();
+		}
 		else if (node2 instanceof Declaration.Rule) {
 			result = "rule " + ((Declaration.Rule) node2).getName().toString();
 		}
