@@ -34,8 +34,8 @@
    <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
-            adaptableType="org.meta_environment.rascal.eclipse.editor.RascalEditor"
-            class="org.meta_environment.rascal.eclipse.debug.ui.breakpoints.RascalEditorAdapterFactory">
+            adaptableType="org.rascalmpl.eclipse.editor.RascalEditor"
+            class="org.rascalmpl.eclipse.debug.ui.breakpoints.RascalEditorAdapterFactory">
          <adapter
                type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget">
          </adapter>
@@ -47,7 +47,7 @@
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="org.meta_environment.rascal.eclipse.nature.Nature">
+               class="org.rascalmpl.eclipse.nature.Nature">
          </run>
       </runtime>
    </extension>
@@ -56,7 +56,7 @@
       <filesystem
             scheme="rascal-library">
          <run
-               class="org.meta_environment.rascal.eclipse.nature.RascalLibraryFileSystem">
+               class="org.rascalmpl.eclipse.nature.RascalLibraryFileSystem">
          </run>
       </filesystem>
    </extension>
@@ -82,35 +82,35 @@
          name="Rascal Parser Wrapper"
          point="org.eclipse.imp.runtime.parser">
       <parser
-            class="org.meta_environment.rascal.eclipse.editor.ParseController"
+            class="org.rascalmpl.eclipse.editor.ParseController"
             language="Rascal">
       </parser>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.tokenColorer">
       <tokenColorer
-            class="org.meta_environment.rascal.eclipse.editor.TokenColorer"
+            class="org.rascalmpl.eclipse.editor.TokenColorer"
             language="Rascal">
       </tokenColorer>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.labelProvider">
       <labelProvider
-            class="org.meta_environment.rascal.eclipse.outline.LabelProvider"
+            class="org.rascalmpl.eclipse.outline.LabelProvider"
             language="Rascal">
       </labelProvider>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.modelTreeBuilder">
       <treeBuilder
-            class="org.meta_environment.rascal.eclipse.outline.TreeModelBuilder"
+            class="org.rascalmpl.eclipse.outline.TreeModelBuilder"
             language="Rascal">
       </treeBuilder>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.editorActionContributions">
       <editorActionContributor
-            class="org.meta_environment.rascal.eclipse.editor.ActionContributor"
+            class="org.rascalmpl.eclipse.editor.ActionContributor"
             language="Rascal">
       </editorActionContributor>
    </extension>
@@ -125,28 +125,28 @@
    <extension
          point="org.eclipse.imp.runtime.tokenColorer">
       <tokenColorer
-            class="org.meta_environment.rascal.eclipse.editor.TokenColorer"
+            class="org.rascalmpl.eclipse.editor.TokenColorer"
             language="SDF">
       </tokenColorer>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.labelProvider">
       <labelProvider
-            class="org.meta_environment.rascal.eclipse.outline.LabelProvider"
+            class="org.rascalmpl.eclipse.outline.LabelProvider"
             language="SDF">
       </labelProvider>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.parser">
       <parser
-            class="org.meta_environment.rascal.eclipse.editor.SDFParseController"
+            class="org.rascalmpl.eclipse.editor.SDFParseController"
             language="SDF">
       </parser>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="org.meta_environment.rascal.eclipse.perspective.Factory"
+            class="org.rascalmpl.eclipse.perspective.Factory"
             fixed="false"
             icon="icons/rascal3D_2-16px.gif"
             id="rascal.perspective"
@@ -156,7 +156,7 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="org.meta_environment.rascal.eclipse.editor.RascalEditor"
+            class="org.rascalmpl.eclipse.editor.RascalEditor"
             default="true"
             extensions="rsc"
             filenames="*.rsc"
@@ -165,14 +165,14 @@
             name="Rascal Editor">
       </editor>
       <editor
-            class="org.meta_environment.rascal.eclipse.library.viz.ChartViewer"
+            class="org.rascalmpl.eclipse.library.viz.ChartViewer"
             default="false"
             icon="icons/rascal3D_2-16px.gif"
             id="rascal-eclipse.charts.viewer"
             name="Charts">
       </editor>
        <editor
-            class="org.meta_environment.rascal.eclipse.library.viz.VLViewer"
+            class="org.rascalmpl.eclipse.library.viz.VLViewer"
             default="false"
             icon="icons/rascal3D_2-16px.gif"
             id="rascal-eclipse.VL.viewer"
@@ -185,14 +185,14 @@
             id="rascal.editorpopupmenu"
             targetID="rascal.editor.contextMenu">
          <action
-               class="org.meta_environment.rascal.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
+               class="org.rascalmpl.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.editor.context.ExprBreakpointAction"
                label="Add an Expression Breakpoint"
                menubarPath="additions">
          </action>
          <action
-               class="org.meta_environment.rascal.eclipse.perspective.actions.EvaluateExpression"
+               class="org.rascalmpl.eclipse.perspective.actions.EvaluateExpression"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.editor.context.EvalExprtAction"
                label="Evaluate"
@@ -200,7 +200,7 @@
                tooltip="Evaluate the selected text in the current evaluation environment. This only works if the Rascal debugger is executing in the scope of the selected expressions.">
          </action>
          <action
-               class="org.meta_environment.rascal.eclipse.perspective.actions.OpenGraphEditor"
+               class="org.rascalmpl.eclipse.perspective.actions.OpenGraphEditor"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal-eclipse.editor.context.showRelationGraph"
                label="Show Graph"
@@ -208,7 +208,7 @@
                tooltip="Evaluate the selected expression and display the result as a graph. This only works if the Rascal debugger is currently executing in the scope of the selected expression.">
          </action>
          <action
-               class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchConsoleAction"
+               class="org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.launchconsole"
                label="Launch Console"
@@ -216,7 +216,7 @@
                tooltip="Launch a console with a command prompt">
          </action>
          <action
-               class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
+               class="org.rascalmpl.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.launchdebugconsole"
                label="Launch Debuggable Console"
@@ -224,7 +224,7 @@
                tooltip="Launch a console that allows interaction via the debugging interfaces">
          </action>
          <action
-               class="org.meta_environment.rascal.eclipse.perspective.actions.CopyToConsole"
+               class="org.rascalmpl.eclipse.perspective.actions.CopyToConsole"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal-eclipse.editor.context.copyToConsole"
                label="Copy to console"
@@ -235,9 +235,9 @@
       <objectContribution
             adaptable="false"
             id="rascal-eclispe.variablemenu"
-            objectClass="org.meta_environment.rascal.eclipse.debug.core.model.RascalVariable">
+            objectClass="org.rascalmpl.eclipse.debug.core.model.RascalVariable">
          <action
-               class="org.meta_environment.rascal.eclipse.perspective.actions.OpenGraphEditor"
+               class="org.rascalmpl.eclipse.perspective.actions.OpenGraphEditor"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal-eclipse.showRelationGraph"
                label="Show Graph">
@@ -253,13 +253,13 @@
             </objectState>
          </visibility>
          <action
-               class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchConsoleAction"
+               class="org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.launchconsole"
                label="Launch Console">
          </action>
          <action
-               class="org.meta_environment.rascal.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
+               class="org.rascalmpl.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.launchdebugconsole"
                label="Launch Debuggable Console">
@@ -269,7 +269,7 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            class="org.meta_environment.rascal.eclipse.debug.ui.views.FunctionView"
+            class="org.rascalmpl.eclipse.debug.ui.views.FunctionView"
             icon="icons/rascal3D_2-16px.gif"
             id="rascal-eclipse.functionview"
             name="Rascal functions"
@@ -320,17 +320,17 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="org.meta_environment.rascal.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
+            defaultHandler="org.rascalmpl.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
             id="rascal-eclipse.AddExprBreakpoint"
             name="Add Expression Breakpoint">
       </command>
       <command
-            defaultHandler="org.meta_environment.rascal.eclipse.perspective.actions.EvaluateExpression"
+            defaultHandler="org.rascalmpl.eclipse.perspective.actions.EvaluateExpression"
             id="rascal-eclipse.EvalExpression"
             name="Evaluate Expression">
       </command>
       <command
-            defaultHandler="org.meta_environment.rascal.eclipse.perspective.actions.CopyToConsole"
+            defaultHandler="org.rascalmpl.eclipse.perspective.actions.CopyToConsole"
             description="Copy current selection to active console"
             id="rascal-eclipse.copyToConsole"
             name="Copy to console">
@@ -340,7 +340,7 @@
          point="org.eclipse.ui.newWizards">
       <wizard
             category="rascal_eclipse"
-            class="org.meta_environment.rascal.eclipse.perspective.RascalProjectWizard"
+            class="org.rascalmpl.eclipse.perspective.RascalProjectWizard"
             descriptionImage="icons/rascal3D_2-16px.gif"
             finalPerspective="rascal.perspective"
             icon="icons/rascal3D_2-32px.png"
@@ -354,7 +354,7 @@
       </category>
       <wizard
             category="rascal_eclipse"
-            class="org.meta_environment.rascal.eclipse.wizards.NewRascalFile"
+            class="org.rascalmpl.eclipse.wizards.NewRascalFile"
             icon="icons/rascal3D_2-32px.png"
             id="rascal_eclipse.wizards.NewRascalFile"
             name="Rascal File">
@@ -383,7 +383,7 @@
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-            delegate="org.meta_environment.rascal.eclipse.launch.LaunchDelegate"
+            delegate="org.rascalmpl.eclipse.launch.LaunchDelegate"
             id="rascal.launchType"
             modes="run, debug"
             name="Rascal Application"
@@ -394,13 +394,13 @@
    <extension
          point="org.eclipse.debug.core.breakpoints">
       <breakpoint
-            class="org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalLineBreakpoint"
+            class="org.rascalmpl.eclipse.debug.core.breakpoints.RascalLineBreakpoint"
             id="rascal.linebreakpoint"
             markerType="rascal.markerType.lineBreakpoint"
             name="Rascal LineBreakpoint">
       </breakpoint>
       <breakpoint
-            class="org.meta_environment.rascal.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint"
+            class="org.rascalmpl.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint"
             id="rascal-eclipse.exprbreakpoint"
             markerType="rascal.markerType.expressionBreakpoint"
             name="Expression Breakpoint">
@@ -409,7 +409,7 @@
    <extension
          point="org.eclipse.debug.core.sourceLocators">
       <sourceLocator
-            class="org.meta_environment.rascal.eclipse.debug.core.sourcelookup.RascalSourceLookupDirector"
+            class="org.rascalmpl.eclipse.debug.core.sourcelookup.RascalSourceLookupDirector"
             id="rascal-eclipse.sourceLocator"
             name="Rascal source Locator">
       </sourceLocator>
@@ -417,14 +417,14 @@
    <extension
          point="org.eclipse.debug.core.sourcePathComputers">
       <sourcePathComputer
-            class="org.meta_environment.rascal.eclipse.debug.core.sourcelookup.RascalSourcePathComputerDelegate"
+            class="org.rascalmpl.eclipse.debug.core.sourcelookup.RascalSourcePathComputerDelegate"
             id="rascal-eclipse.sourcePathComputer">
       </sourcePathComputer>
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
-            class="org.meta_environment.rascal.eclipse.launch.TabGroup"
+            class="org.rascalmpl.eclipse.launch.TabGroup"
             description="Specify and launch a Rascal program"
             id="rascal.tabGroup"
             type="rascal.launchType">
@@ -442,7 +442,7 @@
       <shortcut
             label="Rascal Application"
             icon="icons/rascal3D_2-16px.gif"
-            class="org.meta_environment.rascal.eclipse.launch.LaunchShortcut"
+            class="org.rascalmpl.eclipse.launch.LaunchShortcut"
             modes="run, debug"
             id="rascal.launchShortcut">
          <contextualLaunch>
@@ -463,7 +463,7 @@
      <extension
          point="org.eclipse.debug.ui.debugModelPresentations">
       <debugModelPresentation
-            class="org.meta_environment.rascal.eclipse.debug.ui.presentation.RascalModelPresentation"
+            class="org.rascalmpl.eclipse.debug.ui.presentation.RascalModelPresentation"
             id="rascal.debugModel"/>
    </extension>
      <extension
