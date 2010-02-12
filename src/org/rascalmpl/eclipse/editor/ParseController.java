@@ -80,7 +80,7 @@ public class ParseController implements IParseController {
 		if (project != null) {
 			loader.addFileLoader(new ProjectModuleLoader(project.getRawProject()));
 		}
-		loader.addFileLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/meta_environment/rascal/eclipse/lib"));
+		loader.addFileLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/rascalmpl/eclipse/lib"));
 		
 		if (project != null) {
 			loader.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project.getRawProject()));
