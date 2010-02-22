@@ -1,4 +1,4 @@
-module viz::Chart
+module viz::JFChart
 
 // Various charting functions
 
@@ -41,57 +41,57 @@ public alias realCategorySeriesMultipleData = tuple[str name,list[tuple[str cate
 // barchart
 
 @doc{draw a bar chart}
-@javaClass{org.rascalmpl.eclipse.library.viz.Chart}
+@javaClass{org.rascalmpl.eclipse.library.viz.JFChart}
 public void java barChart(str title, map[str,int] facts, ChartSetting settings...);
 
 @doc{draw a bar chart}
-@javaClass{org.rascalmpl.eclipse.library.viz.Chart}
+@javaClass{org.rascalmpl.eclipse.library.viz.JFChart}
 public void java barChart(str title, map[str,real] facts, ChartSetting settings...);
 
 @doc{draw a bar chart}
-@javaClass{org.rascalmpl.eclipse.library.viz.Chart}
+@javaClass{org.rascalmpl.eclipse.library.viz.JFChart}
 public void java barChart(str title, list[str] categories, list[intSeries] facts, ChartSetting settings...);
 
 @doc{draw a bar chart}
-@javaClass{org.rascalmpl.eclipse.library.viz.Chart}
+@javaClass{org.rascalmpl.eclipse.library.viz.JFChart}
 public void java barChart(str title, list[str] categories, list[realSeries] facts, ChartSetting settings...);
 
 // boxplot aka BoxAndWiskerPlot
 
 @doc{draw a boxplot}
-@javaClass{org.rascalmpl.eclipse.library.viz.Chart}
+@javaClass{org.rascalmpl.eclipse.library.viz.JFChart}
 public void java boxplot(str title, list[intCategorySeriesMultipleData] facts, ChartSetting settings...);
 
 @doc{draw a boxplot}
-@javaClass{org.rascalmpl.eclipse.library.viz.Chart}
+@javaClass{org.rascalmpl.eclipse.library.viz.JFChart}
 public void java boxplot(str title, list[realCategorySeriesMultipleData] facts, ChartSetting settings...);
 
 // histogram
 
 @doc{draw a histogram}
-@javaClass{org.rascalmpl.eclipse.library.viz.Chart}
+@javaClass{org.rascalmpl.eclipse.library.viz.JFChart}
 public void java histogram(str title, list[intSeries] facts, int nbins, ChartSetting settings...);
 
 @doc{draw a histogram}
-@javaClass{org.rascalmpl.eclipse.library.viz.Chart}
+@javaClass{org.rascalmpl.eclipse.library.viz.JFChart}
 public void java histogram(str title, list[realSeries] facts, int nbins, ChartSetting settings...);
 
 //piechart
 
 @doc{draw a pie chart}
-@javaClass{org.rascalmpl.eclipse.library.viz.Chart}
+@javaClass{org.rascalmpl.eclipse.library.viz.JFChart}
 public void java pieChart(str title, map[str,int] facts, ChartSetting settings...);   
 
 @doc{draw a pie chart}
-@javaClass{org.rascalmpl.eclipse.library.viz.Chart}
+@javaClass{org.rascalmpl.eclipse.library.viz.JFChart}
 public void java pieChart(str title, map[str,real] facts, ChartSetting settings...);   
 
 // xyChart
 
 @doc{draw an xy chart}
-@javaClass{org.rascalmpl.eclipse.library.viz.Chart}
+@javaClass{org.rascalmpl.eclipse.library.viz.JFChart}
 public void java xyChart(str title, list[intSeries] facts, ChartSetting settings...);
 
 @doc{draw an xy chart}
-@javaClass{org.rascalmpl.eclipse.library.viz.Chart}
+@javaClass{org.rascalmpl.eclipse.library.viz.JFChart}
 public void java xyChart(str title, list[realSeries] facts, ChartSetting settings...);

@@ -5,10 +5,10 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
 import org.jfree.chart.JFreeChart;
 
-public class ChartEditorInput implements IEditorInput {
+public class JFChartEditorInput implements IEditorInput {
 	private final JFreeChart chart;
 
-	public ChartEditorInput(JFreeChart chart) {
+	public JFChartEditorInput(JFreeChart chart) {
 		this.chart = chart;
 	}
 	

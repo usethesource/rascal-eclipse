@@ -20,7 +20,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.library.experiments.VL.VLPApplet;
+import org.rascalmpl.library.experiments.VL.FigurePApplet;
 
 public class VLViewer extends EditorPart {
 	protected static final String editorId = "rascal-eclipse.VL.viewer";
@@ -64,7 +64,7 @@ public class VLViewer extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {		
 		Composite composite = new Composite(parent, SWT.DOUBLE_BUFFERED | SWT.EMBEDDED);
-		final VLPApplet pa = ((VLEditorInput) getEditorInput()).getVLPApplet();
+		final FigurePApplet pa = ((VLEditorInput) getEditorInput()).getVLPApplet();
 		Frame frame = SWT_AWT.new_Frame(composite); 
 		frame.setLocation(100,100);
 		frame.add(pa);
@@ -92,7 +92,7 @@ public class VLViewer extends EditorPart {
 	public void setFocus() {
 	}
 	
-	public static void open(final VLPApplet applet) {
+	public static void open(final FigurePApplet applet) {
 		if (applet == null) {
 			return;
 		}

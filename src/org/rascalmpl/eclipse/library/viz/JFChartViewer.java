@@ -16,10 +16,10 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.experimental.chart.swt.ChartComposite;
 import org.rascalmpl.eclipse.Activator;
 
-public class ChartViewer extends EditorPart {
+public class JFChartViewer extends EditorPart {
 	protected static final String editorId = "rascal-eclipse.charts.viewer";
 
-	public ChartViewer() {
+	public JFChartViewer() {
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class ChartViewer extends EditorPart {
 			throws PartInitException {
 		
 		
-		if (input instanceof ChartEditorInput) {
+		if (input instanceof JFChartEditorInput) {
 			setSite(site);
 			setInput(input);
 		}
@@ -56,7 +56,7 @@ public class ChartViewer extends EditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		new ChartComposite(parent, SWT.NONE, ((ChartEditorInput) getEditorInput()).getChart(), true);
+		new ChartComposite(parent, SWT.NONE, ((JFChartEditorInput) getEditorInput()).getChart(), true);
 	}
 
 	@Override
@@ -81,7 +81,7 @@ public class ChartViewer extends EditorPart {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						try {
-							page.openEditor(new ChartEditorInput(chart), editorId);
+							page.openEditor(new JFChartEditorInput(chart), editorId);
 						} catch (PartInitException e) {
 							Activator.getInstance().logException("failed to open chart viewer", e);
 						}
