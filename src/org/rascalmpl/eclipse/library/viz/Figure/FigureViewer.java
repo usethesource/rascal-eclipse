@@ -23,7 +23,7 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.library.viz.Figure.FigurePApplet;
 
 public class FigureViewer extends EditorPart {
-	protected static final String editorId = "rascal-eclipse.VL.viewer";
+	protected static final String editorId = "rascal-eclipse.Figure.viewer";
 
 	public FigureViewer() {
 	}
@@ -46,7 +46,7 @@ public class FigureViewer extends EditorPart {
 			setInput(input);
 		}
 		else {
-			throw new PartInitException("Input of VL visualization is not a VL object");
+			throw new PartInitException("Input of Figure visualization is not a Figure object");
 		}
 	}
 
@@ -112,7 +112,7 @@ public class FigureViewer extends EditorPart {
 						try {
 							page.openEditor(new FigureEditorInput(applet), editorId);
 						} catch (PartInitException e) {
-							Activator.getInstance().logException("failed to open VL viewer", e);
+							Activator.getInstance().logException("failed to open Figure viewer", e);
 						}
 					
 					}
