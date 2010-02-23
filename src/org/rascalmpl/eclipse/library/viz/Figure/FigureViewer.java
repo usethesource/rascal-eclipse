@@ -64,7 +64,7 @@ public class FigureViewer extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {		
 		Composite composite = new Composite(parent, SWT.DOUBLE_BUFFERED | SWT.EMBEDDED);
-		final FigurePApplet pa = ((FigureEditorInput) getEditorInput()).getVLPApplet();
+		final FigurePApplet pa = ((FigureEditorInput) getEditorInput()).getFigurePApplet();
 		Frame frame = SWT_AWT.new_Frame(composite); 
 		frame.setLocation(100,100);
 		frame.add(pa);

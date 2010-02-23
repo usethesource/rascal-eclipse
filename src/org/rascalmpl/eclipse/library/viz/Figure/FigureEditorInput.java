@@ -6,18 +6,18 @@ import org.eclipse.ui.IPersistableElement;
 import org.rascalmpl.library.viz.Figure.FigurePApplet;
 
 public class FigureEditorInput implements IEditorInput {
-	private final FigurePApplet vlpapplet;
+	private final FigurePApplet figurePApplet;
 
-	public FigureEditorInput(FigurePApplet vlpapplet) {
-		this.vlpapplet = vlpapplet;
+	public FigureEditorInput(FigurePApplet figurePApplet) {
+		this.figurePApplet = figurePApplet;
 	}
 	
 	public boolean exists() {
-		return vlpapplet != null;
+		return figurePApplet != null;
 	}
 
-	public FigurePApplet getVLPApplet() {
-		return vlpapplet;
+	public FigurePApplet getFigurePApplet() {
+		return figurePApplet;
 	}
 	
 	public ImageDescriptor getImageDescriptor() {
