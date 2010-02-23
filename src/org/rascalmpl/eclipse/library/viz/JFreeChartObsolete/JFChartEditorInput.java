@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library.viz;
+package org.rascalmpl.eclipse.library.viz.JFreeChartObsolete;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;

@@ -165,7 +165,7 @@
             name="Rascal Editor">
       </editor>
       <editor
-            class="org.rascalmpl.eclipse.library.viz.JFChartViewer"
+            class="org.rascalmpl.eclipse.library.viz.JFreeChartObsolete.JFChartViewer"
             default="false"
             icon="icons/rascal3D_2-16px.gif"
             id="rascal-eclipse.charts.viewer"

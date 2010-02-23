@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library.viz;
+package org.rascalmpl.eclipse.library.viz.JFreeChartObsolete;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
