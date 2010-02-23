@@ -1,6 +1,6 @@
-module viz::VLRender
+module viz::Figure::Render
 
-import experiments::VL::FigureCore;
+import viz::Figure::Core;
 
 @doc{Render a figure}
 @reflect{Needs calling context when calling argument function}

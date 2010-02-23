@@ -1,18 +1,18 @@
-package org.rascalmpl.eclipse.library.viz;
+package org.rascalmpl.eclipse.library.viz.Figure;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.experiments.VL.FigurePApplet;
+import org.rascalmpl.library.viz.Figure.FigurePApplet;
 
-public class VL {
+public class FigureLibrary {
 	
-	public VL(IValueFactory values){
+	public FigureLibrary(IValueFactory values){
 		super();
 	}
 	
 	public void render(IConstructor velem, IEvaluatorContext ctx){
 		FigurePApplet vlp = new FigurePApplet(velem, ctx);
-		VLViewer.open(vlp);
+		FigureViewer.open(vlp);
 	}
 }

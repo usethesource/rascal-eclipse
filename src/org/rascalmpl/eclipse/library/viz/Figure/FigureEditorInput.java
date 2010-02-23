@@ -1,14 +1,14 @@
-package org.rascalmpl.eclipse.library.viz;
+package org.rascalmpl.eclipse.library.viz.Figure;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
-import org.rascalmpl.library.experiments.VL.FigurePApplet;
+import org.rascalmpl.library.viz.Figure.FigurePApplet;
 
-public class VLEditorInput implements IEditorInput {
+public class FigureEditorInput implements IEditorInput {
 	private final FigurePApplet vlpapplet;
 
-	public VLEditorInput(FigurePApplet vlpapplet) {
+	public FigureEditorInput(FigurePApplet vlpapplet) {
 		this.vlpapplet = vlpapplet;
 	}
 	

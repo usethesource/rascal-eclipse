@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library.viz;
+package org.rascalmpl.eclipse.library.viz.Figure;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
@@ -20,12 +20,12 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.library.experiments.VL.FigurePApplet;
+import org.rascalmpl.library.viz.Figure.FigurePApplet;
 
-public class VLViewer extends EditorPart {
+public class FigureViewer extends EditorPart {
 	protected static final String editorId = "rascal-eclipse.VL.viewer";
 
-	public VLViewer() {
+	public FigureViewer() {
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class VLViewer extends EditorPart {
 			throws PartInitException {
 		
 		
-		if (input instanceof VLEditorInput) {
+		if (input instanceof FigureEditorInput) {
 			setSite(site);
 			setInput(input);
 		}
@@ -64,7 +64,7 @@ public class VLViewer extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {		
 		Composite composite = new Composite(parent, SWT.DOUBLE_BUFFERED | SWT.EMBEDDED);
-		final FigurePApplet pa = ((VLEditorInput) getEditorInput()).getVLPApplet();
+		final FigurePApplet pa = ((FigureEditorInput) getEditorInput()).getVLPApplet();
 		Frame frame = SWT_AWT.new_Frame(composite); 
 		frame.setLocation(100,100);
 		frame.add(pa);
@@ -110,7 +110,7 @@ public class VLViewer extends EditorPart {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						try {
-							page.openEditor(new VLEditorInput(applet), editorId);
+							page.openEditor(new FigureEditorInput(applet), editorId);
 						} catch (PartInitException e) {
 							Activator.getInstance().logException("failed to open VL viewer", e);
 						}

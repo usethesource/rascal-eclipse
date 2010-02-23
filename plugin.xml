@@ -172,7 +172,7 @@
             name="Charts">
       </editor>
        <editor
-            class="org.rascalmpl.eclipse.library.viz.VLViewer"
+            class="org.rascalmpl.eclipse.library.viz.Figure.FigureViewer"
             default="false"
             icon="icons/rascal3D_2-16px.gif"
             id="rascal-eclipse.VL.viewer"
