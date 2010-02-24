@@ -5,11 +5,11 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.rascalmpl.library.viz.JFBarChart;
-import org.rascalmpl.library.viz.JFBoxPlot;
-import org.rascalmpl.library.viz.JFHistogram;
-import org.rascalmpl.library.viz.JFPieChart;
-import org.rascalmpl.library.viz.JFXYChart;
+import org.rascalmpl.library.viz.JFreeChartObsolete.JFBarChart;
+import org.rascalmpl.library.viz.JFreeChartObsolete.JFBoxPlot;
+import org.rascalmpl.library.viz.JFreeChartObsolete.JFHistogram;
+import org.rascalmpl.library.viz.JFreeChartObsolete.JFPieChart;
+import org.rascalmpl.library.viz.JFreeChartObsolete.JFXYChart;
 
 public class JFChart {
 	
