@@ -175,8 +175,8 @@
             class="org.rascalmpl.eclipse.library.viz.Figure.FigureViewer"
             default="false"
             icon="icons/rascal3D_2-16px.gif"
-            id="rascal-eclipse.VL.viewer"
-            name="VL">
+            id="rascal-eclipse.Figure.viewer"
+            name="Figure">
       </editor>
    </extension>
    <extension
