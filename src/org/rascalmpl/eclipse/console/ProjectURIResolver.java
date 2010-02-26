@@ -22,7 +22,8 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	
 	public static URI constructProjectURI(ISourceProject project, IPath path){
 		try{
-			return new URI("project://"+project.getName()+"/"+path);
+			// making sure that spaces in 'path' are properly escaped
+			return new URI("project://"+project.getName()+"/"+path.toFile().toURI().getRawPath());
 		}catch(URISyntaxException usex){
 			throw new BadURIException(usex);
 		}

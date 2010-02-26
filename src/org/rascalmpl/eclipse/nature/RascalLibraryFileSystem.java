@@ -55,7 +55,11 @@ public class RascalLibraryFileSystem extends FileSystem {
 				Activator.getInstance().logException("can not find " + loc + " using " + root.getName(), new NullPointerException());
 				return;
 			}
-			roots.put(name, new RascalLibraryFileStore(FileLocator.toFileURL(resource).toURI()));
+			
+			URL fileURL = FileLocator.toFileURL(resource);
+		    // this constructor will not parse or escape spaces (workaround for Eclipse bug)
+			URI fileURI = new URI(fileURL.getProtocol(), fileURL.getHost(), fileURL.getPath(), fileURL.getQuery());
+			roots.put(name, new RascalLibraryFileStore(fileURI));
 		} catch (URISyntaxException e) {
 			Activator.getInstance().logException("linking library failed", e);
 		} catch (IOException e) {
