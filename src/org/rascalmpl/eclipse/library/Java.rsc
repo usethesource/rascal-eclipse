@@ -74,7 +74,7 @@ public Entity makeClass(str className) {
 }
 
 public Entity makeInterface(str interfaceName) {
-  return entity([package(p) | /<p:[a-z_A-Z0-9]+>\./ := interfaceName] + [interface(c) | /\.<c:[a-z_A-Z0-9]+>$/ := interfaceName])
+  return entity([package(p) | /<p:[a-z_A-Z0-9]+>\./ := interfaceName] + [interface(c) | /\.<c:[a-z_A-Z0-9]+>$/ := interfaceName]);
 }
 
 public str readable(Entity entity) {
