@@ -3,6 +3,7 @@ module Java
 import List;
 import Integer;
 import Node;
+import Exception;
 
 @doc{an entity is identified by a list of identifiers, it represents a qualified name of something in Java code}
 data Entity = entity(list[Id] id);
