@@ -69,6 +69,14 @@ data Modifier = \public()
 			  | deprecated() 
 ;
 
+public Entity makeClass(str className) {
+  return entity([package(p) | /<p:[a-z_A-Z0-9]+>\./ := className] + [class(c) | /\.<c:[a-z_A-Z0-9]+>$/ := className]);
+}
+
+public Entity makeInterface(str interfaceName) {
+  return entity([package(p) | /<p:[a-z_A-Z0-9]+>\./ := interfaceName] + [interface(c) | /\.<c:[a-z_A-Z0-9]+>$/ := interfaceName])
+}
+
 public str readable(Entity entity) {
 	str result = "";
 	list[Id] ids = entity.id;
@@ -105,7 +113,8 @@ public str readable(Id id) {
 		case interface(name, params):
 			return name + "\<<readable(params)>\>"; 		
         case method(name, params, returnType):
-			return name + "(<readable(params)>)"; 		
+			return name + "(<readable(params)>)"; 	
+        	
 	}
 
 	try {
@@ -114,7 +123,7 @@ public str readable(Id id) {
 	
 	switch (id) {
 		case anonymousClass(nr): return "anonymousClass$" + "<nr>";		
-		case constructor(params): return "constructor(" + readable(params) + ")";		
+		case constr(params): return "constructor(" + readable(params) + ")";		
 		case initializer: return "initializer";
 		case initializer(nr): return "initializer$" + "<nr>";		
 		case primitive(p): return getName(p);
