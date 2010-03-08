@@ -4,9 +4,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -14,6 +16,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.model.ISourceProject;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
@@ -23,9 +26,12 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	public static URI constructProjectURI(ISourceProject project, IPath path){
 		try{
 			// making sure that spaces in 'path' are properly escaped
-			return new URI("project://"+project.getName()+"/"+path.toFile().toURI().getRawPath());
+			return new URI("project://"+project.getName()+"/"+URLEncoder.encode(path.toOSString(),"UTF8"));
 		}catch(URISyntaxException usex){
 			throw new BadURIException(usex);
+		} catch (UnsupportedEncodingException e) {
+			Activator.getInstance().logException(e.getMessage(), e);
+			return null;
 		}
 	}
 

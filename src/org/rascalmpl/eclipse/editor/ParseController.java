@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -31,6 +32,7 @@ import org.rascalmpl.interpreter.load.ModuleLoader;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.values.errors.SummaryAdapter;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.ParsetreeAdapter;
 
 public class ParseController implements IParseController {
 	private final ModuleLoader loader = new ModuleLoader();
@@ -110,13 +112,14 @@ public class ParseController implements IParseController {
 			handler.clearMessages();
 			monitor.beginTask("parsing Rascal", 1);
 			
-			IConstructor result = loader.parseModule(ProjectURIResolver.constructProjectURI(project, path), input, new ModuleEnvironment("***editor***"));
+			URI uri = ProjectURIResolver.constructProjectURI(project, path);
+			IConstructor result = loader.parseModule(uri, input, new ModuleEnvironment("***editor***"));
 			
 			if(result.getConstructorType() == Factory.ParseTree_Summary){
 				ISourceLocation location = new SummaryAdapter(result).getInitialSubject().getLocation();
 				handler.handleSimpleMessage("parse error: " + location, location.getOffset(), location.getOffset() + location.getLength(), location.getBeginColumn(), location.getEndColumn(), location.getBeginLine(), location.getEndLine());
 			}else{
-				parseTree = result;
+				parseTree = ParsetreeAdapter.addPositionInformation(result, uri);
 			}
 			
 			monitor.worked(1);
