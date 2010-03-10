@@ -2,6 +2,9 @@ package org.rascalmpl.eclipse.console;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -87,5 +90,14 @@ public class ProjectModuleLoader implements IModuleFileLoader {
 
 	private IWorkspaceRoot getWorkspaceRoot() {
 		return ResourcesPlugin.getWorkspace().getRoot();
+	}
+
+	public URI getURI(String filename) {
+		try {
+			return URI.create("project://" + project.getName() + URLEncoder.encode(filename, "UTF8"));
+		} catch (UnsupportedEncodingException e) {
+			// TODO don't know what to do yet here
+			return null;
+		}
 	}
 }
