@@ -34,7 +34,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		IConstructor lexical = TreeAdapter.locateLexical(tree, region.getOffset());
 		
 		if (lexical != null) {
-			IValue link = lexical.getAnnotation("loc");
+			IValue link = lexical.getAnnotation("link");
 			
 			if (link != null && link.getType().isSourceLocationType()) { 
 				return new SourceLocationHyperlink((ISourceLocation) link);

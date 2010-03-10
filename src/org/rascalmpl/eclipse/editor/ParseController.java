@@ -37,6 +37,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.errors.SummaryAdapter;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ParsetreeAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ParseController implements IParseController {
 	private final ModuleLoader loader = new ModuleLoader();
@@ -125,7 +126,7 @@ public class ParseController implements IParseController {
 			}else{
 				parseTree = ParsetreeAdapter.addPositionInformation(result, uri);
 				try {
-					IConstructor newTree = checker.checkModule(ParsetreeAdapter.getTop(parseTree));
+					IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(parseTree)).get(1));
 					if (newTree != null) {
 						IValueFactory vf = ValueFactoryFactory.getValueFactory();
 						parseTree = (IConstructor) Factory.ParseTree_Top.make(vf, newTree, vf.integer(0)); 
