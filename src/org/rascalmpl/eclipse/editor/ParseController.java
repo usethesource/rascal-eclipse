@@ -125,19 +125,19 @@ public class ParseController implements IParseController {
 				handler.handleSimpleMessage("parse error: " + location, location.getOffset(), location.getOffset() + location.getLength(), location.getBeginColumn(), location.getEndColumn(), location.getBeginLine(), location.getEndLine());
 			}else{
 				parseTree = ParsetreeAdapter.addPositionInformation(result, uri);
-				try {
-					IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(parseTree)).get(1));
-					if (newTree != null) {
-						IValueFactory vf = ValueFactoryFactory.getValueFactory();
-						parseTree = (IConstructor) Factory.ParseTree_Top.make(vf, newTree, vf.integer(0)); 
-					}
-					else {
-						Activator.getInstance().logException("static checker returned null", new RuntimeException());
-					}
-				}
-				catch (Throwable e) {
-					Activator.getInstance().logException("static checker failed", e);
-				}
+//				try {
+//					IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(parseTree)).get(1));
+//					if (newTree != null) {
+//						IValueFactory vf = ValueFactoryFactory.getValueFactory();
+//						parseTree = (IConstructor) Factory.ParseTree_Top.make(vf, newTree, vf.integer(0)); 
+//					}
+//					else {
+//						Activator.getInstance().logException("static checker returned null", new RuntimeException());
+//					}
+//				}
+//				catch (Throwable e) {
+//					Activator.getInstance().logException("static checker failed", e);
+//				}
 			}
 			
 			monitor.worked(1);
