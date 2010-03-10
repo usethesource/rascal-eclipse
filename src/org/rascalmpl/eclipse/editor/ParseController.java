@@ -1,5 +1,6 @@
 package org.rascalmpl.eclipse.editor;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
@@ -14,10 +15,12 @@ import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
+import org.rascalmpl.checker.StaticChecker;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.ProjectModuleLoader;
 import org.rascalmpl.eclipse.console.ProjectSDFModuleContributor;
@@ -30,12 +33,14 @@ import org.rascalmpl.interpreter.load.FromResourceLoader;
 import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
 import org.rascalmpl.interpreter.load.ModuleLoader;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.errors.SummaryAdapter;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ParsetreeAdapter;
 
 public class ParseController implements IParseController {
 	private final ModuleLoader loader = new ModuleLoader();
+	private final StaticChecker checker = StaticChecker.getInstance();
 	
 	private IMessageHandler handler;
 	private ISourceProject project;
@@ -97,7 +102,6 @@ public class ParseController implements IParseController {
 		loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new LinkedList<String>();
-				//System.err.println("getproperty user.dir: " + System.getProperty("user.dir"));
 				result.add(System.getProperty("user.dir"));
 				result.add(Configuration.getSdfLibraryPathProperty());
 				return result;
@@ -120,6 +124,19 @@ public class ParseController implements IParseController {
 				handler.handleSimpleMessage("parse error: " + location, location.getOffset(), location.getOffset() + location.getLength(), location.getBeginColumn(), location.getEndColumn(), location.getBeginLine(), location.getEndLine());
 			}else{
 				parseTree = ParsetreeAdapter.addPositionInformation(result, uri);
+				try {
+					IConstructor newTree = checker.checkModule(ParsetreeAdapter.getTop(parseTree));
+					if (newTree != null) {
+						IValueFactory vf = ValueFactoryFactory.getValueFactory();
+						parseTree = (IConstructor) Factory.ParseTree_Top.make(vf, newTree, vf.integer(0)); 
+					}
+					else {
+						Activator.getInstance().logException("static checker returned null", new RuntimeException());
+					}
+				}
+				catch (Throwable e) {
+					Activator.getInstance().logException("static checker failed", e);
+				}
 			}
 			
 			monitor.worked(1);
