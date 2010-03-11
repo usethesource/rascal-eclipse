@@ -14,6 +14,7 @@ import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -125,19 +126,22 @@ public class ParseController implements IParseController {
 				handler.handleSimpleMessage("parse error: " + location, location.getOffset(), location.getOffset() + location.getLength(), location.getBeginColumn(), location.getEndColumn(), location.getBeginLine(), location.getEndLine());
 			}else{
 				parseTree = ParsetreeAdapter.addPositionInformation(result, uri);
-//				try {
-//					IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(parseTree)).get(1));
-//					if (newTree != null) {
-//						IValueFactory vf = ValueFactoryFactory.getValueFactory();
-//						parseTree = (IConstructor) Factory.ParseTree_Top.make(vf, newTree, vf.integer(0)); 
-//					}
-//					else {
-//						Activator.getInstance().logException("static checker returned null", new RuntimeException());
-//					}
-//				}
-//				catch (Throwable e) {
-//					Activator.getInstance().logException("static checker failed", e);
-//				}
+				try {
+					IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(parseTree)).get(1));
+					if (newTree != null) {
+						IValueFactory vf = ValueFactoryFactory.getValueFactory();
+						IConstructor treeTop = ParsetreeAdapter.getTop(parseTree);
+						IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
+						IConstructor newTreeTop = treeTop.set("args", treeArgs).setAnnotation("loc", treeTop.getAnnotation("loc"));
+						parseTree = parseTree.set("top", newTreeTop);
+					}
+					else {
+						Activator.getInstance().logException("static checker returned null", new RuntimeException());
+					}
+				}
+				catch (Throwable e) {
+					Activator.getInstance().logException("static checker failed", e);
+				}
 			}
 			
 			monitor.worked(1);
