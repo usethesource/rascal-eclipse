@@ -1,13 +1,20 @@
 package org.rascalmpl.eclipse.editor;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.eclipse.core.internal.resources.Marker;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.builder.MarkerCreator;
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IMessageHandler;
@@ -16,11 +23,13 @@ import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.ui.internal.UIPlugin;
 import org.rascalmpl.checker.StaticChecker;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.ProjectModuleLoader;
@@ -34,7 +43,6 @@ import org.rascalmpl.interpreter.load.FromResourceLoader;
 import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
 import org.rascalmpl.interpreter.load.ModuleLoader;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.errors.SummaryAdapter;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ParsetreeAdapter;
@@ -129,11 +137,11 @@ public class ParseController implements IParseController {
 				try {
 					IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(parseTree)).get(1));
 					if (newTree != null) {
-						IValueFactory vf = ValueFactoryFactory.getValueFactory();
 						IConstructor treeTop = ParsetreeAdapter.getTop(parseTree);
 						IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
 						IConstructor newTreeTop = treeTop.set("args", treeArgs).setAnnotation("loc", treeTop.getAnnotation("loc"));
 						parseTree = parseTree.set("top", newTreeTop);
+						processMarkers(newTree);
 					}
 					else {
 						Activator.getInstance().logException("static checker returned null", new RuntimeException());
@@ -155,12 +163,63 @@ public class ParseController implements IParseController {
 		}
 		catch(SyntaxError e){
 			ISourceLocation loc = e.getLocation();
-			handler.handleSimpleMessage(e.getMessage(), loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
+			if (loc.getOffset() >= 0) {
+				handler.handleSimpleMessage(e.getMessage(), loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
+			}
+			else {
+				handler.handleSimpleMessage(e.getMessage(), 0, 0, 0, 0, 1, 1);
+			}
 		}
 		finally{
 			monitor.done();
 		}
 		
 		return null;
+	}
+
+	// TODO factor this out into a separate service
+	private void processMarkers(IConstructor tree) {
+		IFile[] file = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(path);
+		if (file.length < 1) {
+			return;
+		}
+		
+		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isLexToCf(tree)) {
+			for (IValue child : TreeAdapter.getASTArgs(tree)) {
+				processMarkers((IConstructor) child);
+			}
+		}
+		else if (TreeAdapter.isAmb(tree)) {
+			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
+				processMarkers((IConstructor) alt);
+			}
+		}
+
+		try {
+			IValue anno = tree.getAnnotation("marker");
+			if (anno != null && anno.getType().isAbstractDataType() && anno.getType().getName().equals("Marker")) {
+				IConstructor marker = (IConstructor) anno;
+				ISourceLocation loc = TreeAdapter.getLocation(tree);
+				int severity = IMarker.SEVERITY_INFO;
+				
+				if (marker.getName().equals("error")) {
+					severity = IMarker.SEVERITY_ERROR;
+				}
+				else if (marker.getName().equals("warning")) {
+					severity = IMarker.SEVERITY_WARNING;
+				}
+
+				file[0].deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+				IMarker m = file[0].createMarker(IMarker.PROBLEM);
+				m.setAttribute(IMarker.TRANSIENT, true);
+				m.setAttribute(IMarker.CHAR_START, loc.getOffset());
+				m.setAttribute(IMarker.CHAR_END, loc.getOffset() + loc.getLength());
+				m.setAttribute(IMarker.MESSAGE, ((IString) marker.get(0)).getValue());
+				m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+				m.setAttribute(IMarker.SEVERITY, severity);
+			}
+		} catch (CoreException e) {
+			Activator.getInstance().logException("could not set markers", e);
+		}
 	}
 }
