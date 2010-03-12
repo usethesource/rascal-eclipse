@@ -5,32 +5,19 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.eclipse.core.internal.resources.Marker;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.imp.builder.MarkerCreator;
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.ui.internal.UIPlugin;
-import org.rascalmpl.checker.StaticChecker;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.ProjectModuleLoader;
 import org.rascalmpl.eclipse.console.ProjectSDFModuleContributor;
@@ -46,11 +33,10 @@ import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.values.errors.SummaryAdapter;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ParsetreeAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ParseController implements IParseController {
 	private final ModuleLoader loader = new ModuleLoader();
-	private final StaticChecker checker = StaticChecker.getInstance();
+
 	
 	private IMessageHandler handler;
 	private ISourceProject project;
@@ -63,6 +49,10 @@ public class ParseController implements IParseController {
 
 	public Object getCurrentAst() {
 		return parseTree;
+	}
+	
+    public void setCurrentAst(IConstructor parseTree) {
+		this.parseTree = parseTree;
 	}
 
 	public Language getLanguage() {
@@ -129,27 +119,11 @@ public class ParseController implements IParseController {
 			URI uri = ProjectURIResolver.constructProjectURI(project, path);
 			IConstructor result = loader.parseModule(uri, input, new ModuleEnvironment("***editor***"));
 			
-			if(result.getConstructorType() == Factory.ParseTree_Summary){
+			if (result.getConstructorType() == Factory.ParseTree_Summary) {
 				ISourceLocation location = new SummaryAdapter(result).getInitialSubject().getLocation();
 				handler.handleSimpleMessage("parse error: " + location, location.getOffset(), location.getOffset() + location.getLength(), location.getBeginColumn(), location.getEndColumn(), location.getBeginLine(), location.getEndLine());
-			}else{
+			} else {
 				parseTree = ParsetreeAdapter.addPositionInformation(result, uri);
-				try {
-					IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(parseTree)).get(1));
-					if (newTree != null) {
-						IConstructor treeTop = ParsetreeAdapter.getTop(parseTree);
-						IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
-						IConstructor newTreeTop = treeTop.set("args", treeArgs).setAnnotation("loc", treeTop.getAnnotation("loc"));
-						parseTree = parseTree.set("top", newTreeTop);
-						processMarkers(newTree);
-					}
-					else {
-						Activator.getInstance().logException("static checker returned null", new RuntimeException());
-					}
-				}
-				catch (Throwable e) {
-					Activator.getInstance().logException("static checker failed", e);
-				}
 			}
 			
 			monitor.worked(1);
@@ -177,49 +151,5 @@ public class ParseController implements IParseController {
 		return null;
 	}
 
-	// TODO factor this out into a separate service
-	private void processMarkers(IConstructor tree) {
-		IFile[] file = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocation(path);
-		if (file.length < 1) {
-			return;
-		}
-		
-		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isLexToCf(tree)) {
-			for (IValue child : TreeAdapter.getASTArgs(tree)) {
-				processMarkers((IConstructor) child);
-			}
-		}
-		else if (TreeAdapter.isAmb(tree)) {
-			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
-				processMarkers((IConstructor) alt);
-			}
-		}
-
-		try {
-			IValue anno = tree.getAnnotation("marker");
-			if (anno != null && anno.getType().isAbstractDataType() && anno.getType().getName().equals("Marker")) {
-				IConstructor marker = (IConstructor) anno;
-				ISourceLocation loc = TreeAdapter.getLocation(tree);
-				int severity = IMarker.SEVERITY_INFO;
-				
-				if (marker.getName().equals("error")) {
-					severity = IMarker.SEVERITY_ERROR;
-				}
-				else if (marker.getName().equals("warning")) {
-					severity = IMarker.SEVERITY_WARNING;
-				}
-
-				file[0].deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
-				IMarker m = file[0].createMarker(IMarker.PROBLEM);
-				m.setAttribute(IMarker.TRANSIENT, true);
-				m.setAttribute(IMarker.CHAR_START, loc.getOffset());
-				m.setAttribute(IMarker.CHAR_END, loc.getOffset() + loc.getLength());
-				m.setAttribute(IMarker.MESSAGE, ((IString) marker.get(0)).getValue());
-				m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-				m.setAttribute(IMarker.SEVERITY, severity);
-			}
-		} catch (CoreException e) {
-			Activator.getInstance().logException("could not set markers", e);
-		}
-	}
+	
 }

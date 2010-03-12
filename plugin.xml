@@ -158,6 +158,13 @@
       </hyperlinkDetector>
    </extension>
    <extension
+         point="org.eclipse.imp.runtime.editorService">
+      <editorService
+            class="org.rascalmpl.eclipse.editor.StaticCheckModelListener"
+            language="Rascal">
+      </editorService>
+   </extension>
+   <extension
          point="org.eclipse.ui.perspectives">
       <perspective
             class="org.rascalmpl.eclipse.perspective.Factory"
