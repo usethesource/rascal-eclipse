@@ -66,7 +66,7 @@ public class SDFParseController implements IParseController{
 	}
 
 	public ILanguageSyntaxProperties getSyntaxProperties(){
-		return new RascalSyntaxProperties();
+		return null;
 	}
 	
 	public Iterator<Token> getTokenIterator(IRegion region){

@@ -13,7 +13,6 @@ import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class HyperlinkDetector implements ISourceHyperlinkDetector {
-	private static final IHyperlink[] empty = new IHyperlink[0];
 
 	public IHyperlink[] detectHyperlinks(IRegion region, ITextEditor editor,
 			ITextViewer textViewer, IParseController parseController) {
@@ -27,7 +26,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 			}
 		}
 		
-		return empty;
+		return null;
 	}
 
 	private IHyperlink getTreeLinks(IConstructor tree, IRegion region) {

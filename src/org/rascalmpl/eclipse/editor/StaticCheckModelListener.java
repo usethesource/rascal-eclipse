@@ -38,7 +38,7 @@ public class StaticCheckModelListener implements IModelListener {
 						IConstructor newTreeTop = treeTop.set("args", treeArgs).setAnnotation("loc", treeTop.getAnnotation("loc"));
 						parseTree = parseTree.set("top", newTreeTop);
 						((ParseController) parseController).setCurrentAst(parseTree);
-						marker.update(parseController, monitor);
+						marker.update(parseTree, parseController, monitor);
 					}
 					else {
 						Activator.getInstance().logException("static checker returned null", new RuntimeException());
@@ -50,6 +50,10 @@ public class StaticCheckModelListener implements IModelListener {
 				monitor.worked(1);
 			}
 		};
-		x.run();
+		x.start();
+	}
+
+	public int compareTo(IModelListener o) {
+		return 0;
 	}
 }
