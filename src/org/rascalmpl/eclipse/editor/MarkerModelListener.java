@@ -62,7 +62,7 @@ public class MarkerModelListener {
 					
 					for (IValue message : ((ISet) anno)) {
 						IConstructor marker = (IConstructor) message;
-						ISourceLocation loc = (ISourceLocation) marker.getAnnotation("loc");
+						ISourceLocation loc = (ISourceLocation) marker.get(1);
 						if (loc == null) {
 							loc = (ISourceLocation) tree.getAnnotation("loc");
 						}
