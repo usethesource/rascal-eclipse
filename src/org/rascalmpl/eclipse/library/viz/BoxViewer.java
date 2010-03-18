@@ -71,7 +71,7 @@ public class BoxViewer {
 		 StringTokenizer t = new StringTokenizer(b.toString(), "\n\t", true);
 		 while (t.hasMoreTokens()) {
 	         String c = t.nextToken();
-	         if (c.equals("\n")) out.println();
+	         if (c.equals("\n")) {out.println();}
 	         else if (c.equals("\t")) {
 	        	 c = t.nextToken();
 	        	 if (c.charAt(0)=='{') {
@@ -96,10 +96,12 @@ public class BoxViewer {
 	        		 }
 	        	 } else if (c.charAt(0)=='}') {
                          out = stack.pop();
-                         out.print(c.substring(1));
+                         if (c.length()>3) out.print(c.substring(3));
 	        	 }
 	         }
-	         else out.print(c);
+	         else {
+	        	 out.print(c);
+	         }
 	     }
 
 	 }
