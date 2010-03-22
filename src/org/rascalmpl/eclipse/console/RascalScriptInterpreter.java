@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -39,6 +40,7 @@ import org.rascalmpl.ast.ShellCommand.Edit;
 import org.rascalmpl.ast.ShellCommand.History;
 import org.rascalmpl.ast.ShellCommand.Quit;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.internal.CommandExecutionException;
 import org.rascalmpl.eclipse.console.internal.CommandHistory;
 import org.rascalmpl.eclipse.console.internal.IInterpreter;
@@ -77,6 +79,14 @@ public class RascalScriptInterpreter implements IInterpreter{
 		moduleLoader = new ProjectModuleLoader(project);
 		eval.addModuleLoader(moduleLoader);
 		eval.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project));
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(new RascalModuleUpdateListener(this));
+	}
+	
+	public void moduleUpdated(URI uri) {
+		String path = uri.getPath();
+		path = path.substring(0, path.indexOf(IRascalResources.RASCAL_EXT) - 1);
+		path = path.startsWith("/") ? path.substring(1) : path;
+		eval.reloadModule(path.replaceAll("/","::"));
 	}
 	
 	public IFile getFile(String fileName) throws IOException, CoreException {
@@ -141,6 +151,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 			content = e.getMessage();
 			command = "";
 			ISourceLocation location = e.getLocation();
+			e.printStackTrace();
 			if(location != null && location.getURI().getAuthority().equals("-")){
 				setMarker(e.getMessage(), location);
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());

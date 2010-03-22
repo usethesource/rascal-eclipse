@@ -1,5 +1,5 @@
 package org.rascalmpl.eclipse.terms;
-
+ 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.parser.IModelListener;

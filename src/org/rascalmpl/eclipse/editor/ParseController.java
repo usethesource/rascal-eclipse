@@ -137,6 +137,7 @@ public class ParseController implements IParseController {
 		}
 		catch(SyntaxError e){
 			ISourceLocation loc = e.getLocation();
+			e.printStackTrace();
 			if (loc.getOffset() >= 0) {
 				handler.handleSimpleMessage(e.getMessage(), loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 			}

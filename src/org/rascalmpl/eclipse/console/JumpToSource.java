@@ -52,17 +52,17 @@ public class JumpToSource implements IPatternMatchListener {
 			String[] filePosSplit = match.split(":");
 			String filename = filePosSplit[0];
 			String[] lineColSplit = filePosSplit[1].split(",");
-			int line = Integer.parseInt(lineColSplit[0]);
-			int col = Integer.parseInt(lineColSplit[1]);
 
 			try {
+				int line = Integer.parseInt(lineColSplit[0]);
+				int col = Integer.parseInt(lineColSplit[1]);
 				IFile file = console.getRascalInterpreter().getFile(filename);
 				console.addHyperlink(new RascalErrorHyperLink(file, line, col), linkOffset, linkLength);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (CoreException e) {
-				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NumberFormatException e) {
 				e.printStackTrace();
 			}
 

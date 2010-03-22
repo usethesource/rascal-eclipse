@@ -35,6 +35,8 @@ public interface IRascalResources {
 	 * <code>rascal.nature</code>).
 	 */
 	public static final String RASCAL_SRC = "src";
+	
+	public static final String RASCAL_EXT = "rsc";
 
 	
 	/**
