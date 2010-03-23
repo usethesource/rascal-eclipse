@@ -29,14 +29,16 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
 
 public class SourceLocationHyperlink implements IHyperlink {
-	private final ISourceLocation loc;
+	private final ISourceLocation from;
+	private ISourceLocation to;
 
-	public SourceLocationHyperlink(ISourceLocation loc) {
-		this.loc = loc;
+	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to) {
+		this.from = from;
+		this.to = to;
 	}
 	
 	public IRegion getHyperlinkRegion() {
-		return new Region(loc.getOffset(), loc.getLength());
+		return new Region(from.getOffset(), from.getLength());
 	}
 
 	public String getHyperlinkText() {
@@ -48,7 +50,7 @@ public class SourceLocationHyperlink implements IHyperlink {
 	}
 
 	public void open() {
-		if (loc == null) {
+		if (to == null) {
 			return;
 		}
 		
@@ -66,31 +68,31 @@ public class SourceLocationHyperlink implements IHyperlink {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						try {
-							IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(loc.getURI().getPath());
+							IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(to.getURI().getPath());
 							IEditorPart part;
 							
 							if (desc != null) {
-								part = page.openEditor(getEditorInput(loc.getURI()), desc.getId());
+								part = page.openEditor(getEditorInput(to.getURI()), desc.getId());
 								ISelectionProvider sp = part.getEditorSite().getSelectionProvider();
 								if (sp != null) {
-									sp.setSelection(new TextSelection(loc.getOffset(), loc.getLength()));
+									sp.setSelection(new TextSelection(to.getOffset(), to.getLength()));
 								}
 								else {
 									Activator.getInstance().logException("no selection provider", new RuntimeException());
 								}
 							}
 							else {
-								IFileStore fileStore = EFS.getLocalFileSystem().getStore(loc.getURI());
+								IFileStore fileStore = EFS.getLocalFileSystem().getStore(to.getURI());
 							    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 							    part = IDE.openEditorOnFileStore(page, fileStore);
 							}
 
 							if (part != null) {
 								IRegionSelectionService ss = (IRegionSelectionService) part.getAdapter(IRegionSelectionService.class);
-								ss.selectAndReveal(loc.getOffset(), loc.getLength());
+								ss.selectAndReveal(to.getOffset(), to.getLength());
 							}
 						} catch (PartInitException e) {
-							Activator.getInstance().logException("failed to open editor for source loc:" + loc, e);
+							Activator.getInstance().logException("failed to open editor for source loc:" + to, e);
 						}
 					}
 
@@ -115,6 +117,12 @@ public class SourceLocationHyperlink implements IHyperlink {
 							}
 							
 							Activator.getInstance().logException("file " + uri + " not found", new RuntimeException());
+						}
+						else if (scheme.equals("rascal-library")) {
+							IFile [] files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
+							if (files.length > 0) {
+								return new FileEditorInput(files[0]);
+							}
 						}
 						
 						Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
