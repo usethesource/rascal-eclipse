@@ -1,12 +1,21 @@
 package org.rascalmpl.eclipse.box;
 
+import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -22,8 +31,13 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.io.PBFReader;
 import org.eclipse.imp.pdb.facts.io.PBFWriter;
+import org.eclipse.imp.pdb.facts.io.binary.BinaryWriter;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -42,27 +56,58 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Module;
+import org.rascalmpl.ast.Name.Lexical;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
+import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.interpreter.BoxEvaluator;
+import org.rascalmpl.interpreter.CommandEvaluator;
 import org.rascalmpl.interpreter.RascalShell;
+import org.rascalmpl.interpreter.TypeEvaluator;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.FromResourceLoader;
 import org.rascalmpl.interpreter.load.ModuleLoader;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.Factory;
 
 public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 		IEditorActionDelegate {
 
+	private static final String SHELL_MODULE = "***shell***";
+
+	private final String varName = "boxData";
+	
+	class Data extends ByteArrayOutputStream {
+		
+		ByteArrayInputStream get() {
+			return new ByteArrayInputStream(this.buf);
+		}
+	}
+
 	IProject project;
 
 	IFile file;
+	
 
+	@SuppressWarnings("unchecked")
 	BoxEvaluator eval = new BoxEvaluator();
 
-	private final ModuleLoader loader = new ModuleLoader();
+	private CommandEvaluator commandEvaluator;
+
+	private ModuleLoader loader;
+	private GlobalEnvironment heap;
+	private ModuleEnvironment root;
+	
+	private Data data;
+
+	private TypeStore ts;
+
+	private Type adt;
 
 	public void dispose() {
 		project = null;
@@ -75,21 +120,131 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 		run(action);
 	}
 
-	private void launch() {
-		InputStream input = getInput();
-		if (input != null) {
-			try {
-				new RascalShell(input, new PrintWriter(System.err),
-						new PrintWriter(System.out)).run();
-				System.err.println("Que le Rascal soit avec vous!");
-				System.exit(0);
-			} catch (IOException e) {
-				System.err.println("unexpected error: " + e.getMessage());
-				System.exit(1);
+	private void execute(String s) {
+		try {
+			IConstructor tree = commandEvaluator.parseCommand(s);
+			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
+				System.err.println(tree);
+				return;
 			}
+			Command cmd = new ASTBuilder(new ASTFactory()).buildCommand(tree);
+			commandEvaluator.eval(cmd);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 
+	void store(IValue v, String varName) {
+		Result<IValue> r = makeResult(v.getType(), v, commandEvaluator);
+		root.storeVariable(varName, r);
+		r.setPublic(true);
+	}
+
+	private void start() {
+		PrintWriter stderr = new PrintWriter(System.err);
+		PrintWriter stdout = new PrintWriter(System.out);
+		commandEvaluator = new CommandEvaluator(ValueFactoryFactory
+				.getValueFactory(), stderr, stdout, root, heap);
+		commandEvaluator.addModuleLoader(new FromResourceLoader(
+				this.getClass(), "org/rascalmpl/eclipse/library/"));
+		commandEvaluator.addModuleLoader(new FromResourceLoader(loader
+				.getClass(),
+				"org/rascalmpl/library/experiments/PrettyPrinting/src/"));
+		commandEvaluator.addClassLoader(getClass().getClassLoader());
+	}
+
+	private void launch() {
+		// in = new ByteArrayInputStream(byteArray);
+		start();
+		execute("import Box2Text;");
+		try {
+			IValue v = new PBFReader().read(ValueFactoryFactory
+					.getValueFactory(), ts, adt, data.get());
+			store(v, varName);
+			execute("main(" + varName + ");");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void run(IAction action) {
+		loader = new ModuleLoader();
+		heap = new GlobalEnvironment();
+		root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
+		URI uri = file.getLocationURI();
+		URIResolverRegistry registry = URIResolverRegistry.getInstance();
+		FileURIResolver files = new FileURIResolver();
+		registry.registerInput(files.scheme(), files);
+		System.err.println("URI:" + uri);
+		try {
+			IConstructor tree = loader.parseModule(uri, root);
+			Module module = new ASTBuilder(new ASTFactory()).buildModule(tree);
+			ts = ((BoxEvaluator) eval).getTypeStore();
+			adt = ((BoxEvaluator) eval).getType();
+			System.err.println("Checked");
+			IValue v = eval.evalRascalModule(module);
+			data = new Data();
+			new PBFWriter().write(v, data, ts);
+			launch();
+			data.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void selectionChanged(IAction action, ISelection selection) {
+		if (selection instanceof IStructuredSelection) {
+			IStructuredSelection ss = (IStructuredSelection) selection;
+			Object element = ss.getFirstElement();
+			// System.err
+			// .println("Selected:" + element + " " + element.getClass());
+			if (element instanceof IProject) {
+				project = (IProject) element;
+			} else if (element instanceof IFolder) {
+				project = ((IFolder) element).getProject();
+			} else if (element instanceof IFile) {
+				file = ((IFile) element);
+			}
+
+		}
+	}
+
+	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+	}
+
+	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
+		if (targetEditor.getEditorInput() instanceof FileEditorInput) {
+			project = ((FileEditorInput) targetEditor.getEditorInput())
+					.getFile().getProject();
+		}
+	}
+
+	// Display display = Display.getCurrent();
+	// Shell shell = new Shell (display);
+	// shell.open ();
+	// FileDialog dialog = new FileDialog (shell, SWT.SAVE);
+	// String [] filterExtensions = new String [] {"*.box"};
+	// dialog.setFilterExtensions (filterExtensions);
+	// dialog.setFileName (name+".box");
+	// String file = dialog.open ();
+	// dialog.getParent().close();
+	// if (file==null) {
+	// System.err.println("Canceled");
+	// return;
+	// }
+	// System.out.println ("Save to: " + file);
+	// while (!shell.isDisposed ()) {
+	// if (!display.readAndDispatch ()) display.sleep ();
+	// }
+	// display.dispose ();
+	// PBFWriter.writeValueToFile(v, new File(name + ".box"), ts);
+	// // System.err.println("MODULE:" + v);
+	// System.err.println("Launch /box/src/Box2Text.rsc");
+
+	// launch("/PrettyPrinting/src/Box2Text.rsc");
 	private void launch(String path) {
 		String mode = "run";
 		// System.err.println("launch:"+path);
@@ -123,94 +278,6 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 			ILaunchConfiguration configuration = workingCopy.doSave();
 			DebugUITools.launch(configuration, mode);
 		} catch (CoreException e1) {
-		}
-	}
-
-	public void run(IAction action) {
-		URI uri = file.getLocationURI();
-		// String name = file.getName();
-		// name = name.substring(0,name.lastIndexOf('.'));
-		final String name = "/ufs/bertl/tst";
-		// register some schemes
-		// URIResolverRegistry registry = URIResolverRegistry.getInstance();
-		// FileURIResolver files = new FileURIResolver();
-		// registry.registerInput(files.scheme(), files);
-		// uri = FileURIResolver.constructFileURI(uri.getPath());
-		ModuleEnvironment root = new ModuleEnvironment("***test***");
-		try {
-			IConstructor tree = loader.parseModule(uri, root);
-			Module module = new ASTBuilder(new ASTFactory()).buildModule(tree);
-			TypeStore ts = ((BoxEvaluator) eval).getTypeStore();
-			System.err.println("Checked");
-			IValue v = eval.evalRascalModule(module);
-			// Display display = Display.getCurrent();
-			// Shell shell = new Shell (display);
-			// shell.open ();
-			// FileDialog dialog = new FileDialog (shell, SWT.SAVE);
-			// String [] filterExtensions = new String [] {"*.box"};
-			// dialog.setFilterExtensions (filterExtensions);
-			// dialog.setFileName (name+".box");
-			// String file = dialog.open ();
-			// dialog.getParent().close();
-			// if (file==null) {
-			// System.err.println("Canceled");
-			// return;
-			// }
-			// System.out.println ("Save to: " + file);
-			// while (!shell.isDisposed ()) {
-			// if (!display.readAndDispatch ()) display.sleep ();
-			// }
-			// display.dispose ();
-			PBFWriter.writeValueToFile(v, new File(name + ".box"), ts);
-			// // System.err.println("MODULE:" + v);
-			// System.err.println("Launch /box/src/Box2Text.rsc");
-
-			// launch("/PrettyPrinting/src/Box2Text.rsc");
-			launch();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	public void selectionChanged(IAction action, ISelection selection) {
-		if (selection instanceof IStructuredSelection) {
-			IStructuredSelection ss = (IStructuredSelection) selection;
-			Object element = ss.getFirstElement();
-			System.err
-					.println("Selected:" + element + " " + element.getClass());
-			if (element instanceof IProject) {
-				project = (IProject) element;
-			} else if (element instanceof IFolder) {
-				project = ((IFolder) element).getProject();
-			} else if (element instanceof IFile) {
-				file = ((IFile) element);
-			}
-
-		}
-	}
-
-	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
-	}
-
-	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-		if (targetEditor.getEditorInput() instanceof FileEditorInput) {
-			project = ((FileEditorInput) targetEditor.getEditorInput())
-					.getFile().getProject();
-		}
-	}
-
-	InputStream getInput() {
-		FromResourceLoader fromResourceLoader = new FromResourceLoader(loader
-				.getClass(),
-				"org/rascalmpl/library/experiments/PrettyPrinting/src");
-		final String name = "Box2Text.rsc";
-		if (fromResourceLoader.fileExists(name))
-			return fromResourceLoader.getInputStream(name);
-		else {
-			System.err.println("File:" + fromResourceLoader.toString()
-					+ " doesn't exists");
-			return null;
 		}
 	}
 
