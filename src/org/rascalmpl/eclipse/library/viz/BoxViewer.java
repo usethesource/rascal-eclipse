@@ -108,6 +108,7 @@ public class BoxViewer {
 	
      static void display(IValue v) {
     	   MessageConsole myConsole = findConsole(CONSOLE_NAME);
+    	   myConsole.clearConsole();
    	       print(myConsole, v);
 //		   MessageConsoleStream out = myConsole.newMessageStream();
 ////		   final org.eclipse.swt.graphics.Color keyColor = PlatformUI.getWorkbench().getDisplay().getSystemColor(
