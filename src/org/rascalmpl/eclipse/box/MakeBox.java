@@ -36,7 +36,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.PBFReader;
 import org.eclipse.imp.pdb.facts.io.PBFWriter;
-import org.eclipse.imp.pdb.facts.io.binary.BinaryWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jface.action.IAction;
