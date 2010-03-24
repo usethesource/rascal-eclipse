@@ -43,7 +43,8 @@ public class TokenIterator implements Iterator<Token> {
 	private class LexicalCollector extends TreeVisitor {
 		@Override
 		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
-			tokenList.add(new Token(TokenColorer.META_AMBIGUITY, TreeAdapter.getLocation(arg)));
+			// we just go into the first, it's arbitrary but at least we'll get some nice highlighting
+			TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
 			return arg;
 		}
 
