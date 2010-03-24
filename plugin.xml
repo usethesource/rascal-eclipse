@@ -310,6 +310,13 @@
             </objectState>
          </visibility>
          <action
+               class="org.rascalmpl.eclipse.box.MakeBox"
+               id="org.rascalmpl.eclipse.box.makeBox"
+               label="Make Box"
+               icon="icons/rascal3D_2-16px.gif"
+               menubarPath="additions">
+         </action>
+         <action
                class="org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.launchconsole"
