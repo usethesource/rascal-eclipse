@@ -57,7 +57,7 @@ public class TokenIterator implements Iterator<Token> {
 				if (TreeAdapter.isLiteral(arg)) {
 					String yield = TreeAdapter.yield(arg);
 					for (byte c : yield.getBytes()) {
-						if (!Character.isJavaIdentifierPart(c)) {
+						if (c != '-' && !Character.isJavaIdentifierPart(c)) {
 							return arg;
 						}
 					}
