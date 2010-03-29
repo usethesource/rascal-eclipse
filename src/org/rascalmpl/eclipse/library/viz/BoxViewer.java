@@ -68,11 +68,11 @@ public class BoxViewer {
 			 b.append(((IString) rules.get(i)).getValue());
 			 b.append("\n");
 		 }
-		 StringTokenizer t = new StringTokenizer(b.toString(), "\n\t", true);
+		 StringTokenizer t = new StringTokenizer(b.toString(), "\n\b", true);
 		 while (t.hasMoreTokens()) {
 	         String c = t.nextToken();
 	         if (c.equals("\n")) {out.println();}
-	         else if (c.equals("\t")) {
+	         else if (c.equals("\b")) {
 	        	 c = t.nextToken();
 	        	 if (c.charAt(0)=='{') {
 	        		 String key = c.substring(1, 3);
