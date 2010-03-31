@@ -139,6 +139,11 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 		root.storeVariable(varName, r);
 		r.setPublic(true);
 	}
+	
+	IValue fetch(String varName) {
+		Result r =  root.getVariable(varName);
+		return r.getValue();
+	}
 
 	private void start() {
 		PrintWriter stderr = new PrintWriter(System.err);
@@ -153,7 +158,7 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 		commandEvaluator.addClassLoader(getClass().getClassLoader());
 	}
 
-	private void launch() {
+	private IValue launch(String resultName) {
 		// in = new ByteArrayInputStream(byteArray);
 		start();
 		execute("import Box2Text;");
@@ -161,37 +166,58 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 			IValue v = new PBFReader().read(ValueFactoryFactory
 					.getValueFactory(), ts, adt, data.get());
 			store(v, varName);
-			execute("main(" + varName + ");");
+			if (resultName==null) {
+				   execute("main(" + varName + ");");
+				   return null;
+			} else {
+				execute(resultName+"=toList(" + varName + ");");
+				IValue r =  fetch(resultName);
+				return r;
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		}
+	}
+	
+	public IValue run(URI uri, IAction action) {
+	loader = new ModuleLoader();
+	heap = new GlobalEnvironment();
+	root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
+	URIResolverRegistry registry = URIResolverRegistry.getInstance();
+	FileURIResolver files = new FileURIResolver();
+	registry.registerInput(files.scheme(), files);
+	System.err.println("URI:" + uri);
+	try {
+		IConstructor tree = loader.parseModule(uri, root);
+		System.err.println("parsed");
+		Module module = new ASTBuilder(new ASTFactory()).buildModule(tree);
+		System.err.println("build");
+		ts = ((BoxEvaluator) eval).getTypeStore();
+		adt = ((BoxEvaluator) eval).getType();
+		System.err.println("Checked");
+		IValue v = eval.evalRascalModule(module);
+		data = new Data();
+		new PBFWriter().write(v, data, ts);
+		IValue r = null;
+		if (action==null) {
+			r = launch("c");
+		} else  {
+		    launch(null);
+		    }
+		data.close();
+		return r;
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		return null;
+	} 
 	}
 
 	public void run(IAction action) {
-		loader = new ModuleLoader();
-		heap = new GlobalEnvironment();
-		root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
 		URI uri = file.getLocationURI();
-		URIResolverRegistry registry = URIResolverRegistry.getInstance();
-		FileURIResolver files = new FileURIResolver();
-		registry.registerInput(files.scheme(), files);
-		System.err.println("URI:" + uri);
-		try {
-			IConstructor tree = loader.parseModule(uri, root);
-			Module module = new ASTBuilder(new ASTFactory()).buildModule(tree);
-			ts = ((BoxEvaluator) eval).getTypeStore();
-			adt = ((BoxEvaluator) eval).getType();
-			System.err.println("Checked");
-			IValue v = eval.evalRascalModule(module);
-			data = new Data();
-			new PBFWriter().write(v, data, ts);
-			launch();
-			data.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		run(uri, action);
 	}
 
 	public void selectionChanged(IAction action, ISelection selection) {
@@ -244,6 +270,7 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 	// System.err.println("Launch /box/src/Box2Text.rsc");
 
 	// launch("/PrettyPrinting/src/Box2Text.rsc");
+	/*
 	private void launch(String path) {
 		String mode = "run";
 		// System.err.println("launch:"+path);
@@ -279,5 +306,6 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 		} catch (CoreException e1) {
 		}
 	}
+	*/
 
 }
