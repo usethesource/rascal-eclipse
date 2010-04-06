@@ -51,6 +51,10 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleManager;
+import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.Command;
@@ -68,6 +72,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.FromResourceLoader;
 import org.rascalmpl.interpreter.load.ModuleLoader;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.library.IO;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -144,6 +149,20 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 		Result r =  root.getVariable(varName);
 		return r.getValue();
 	}
+	
+	static private MessageConsole findConsole(String name) {
+	      ConsolePlugin plugin = ConsolePlugin.getDefault();
+	      IConsoleManager conMan = plugin.getConsoleManager();
+	      IConsole[] existing = conMan.getConsoles();
+	      for (int i = 0; i < existing.length; i++)
+	         if (name.equals(existing[i].getName()))
+	            return (MessageConsole) existing[i];
+	      //no console found, so create a new one
+	      // Display.getCurrent().asyncExec(runnable);
+	      MessageConsole myConsole = new MessageConsole(name, null);
+	      conMan.addConsoles(new IConsole[]{myConsole});
+	      return myConsole;
+	   }
 
 	private void start() {
 		PrintWriter stderr = new PrintWriter(System.err);
@@ -152,10 +171,12 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 				.getValueFactory(), stderr, stdout, root, heap);
 		commandEvaluator.addModuleLoader(new FromResourceLoader(
 				this.getClass(), "org/rascalmpl/eclipse/library/"));
-		commandEvaluator.addModuleLoader(new FromResourceLoader(loader
-				.getClass(),
-				"org/rascalmpl/library/experiments/PrettyPrinting/src/"));
+		commandEvaluator.addModuleLoader(new FromResourceLoader(
+				getClass(),
+				"org/rascalmpl/eclipse/box/"));
 		commandEvaluator.addClassLoader(getClass().getClassLoader());
+		Object ioInstance = commandEvaluator.getJavaBridge().getJavaClassInstance(IO.class);
+		((IO) ioInstance).setOutputStream(new PrintStream(System.out)); // Set output collector.
 	}
 
 	private IValue launch(String resultName) {

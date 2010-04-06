@@ -359,6 +359,8 @@ public class BoxPrinter {
 		IList rules = (IList) v;
 		StringBuffer b = new StringBuffer();
 		for (int i = 0; i < rules.length(); i++) {
+//			if (((IString) rules.get(i)).getValue().isEmpty())
+//				System.err.println("OK");
 			b.append(((IString) rules.get(i)).getValue());
 			b.append("\n");
 		}
