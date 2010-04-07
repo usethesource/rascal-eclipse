@@ -37,7 +37,7 @@ public class BoxPrinter {
 	Color foregroundColor, backgroundColor;
 
 	Printer printer;
-	GC gc;
+	
 	FontData[] printerFontData;
 	RGB printerForeground, printerBackground;
 
@@ -174,6 +174,7 @@ public class BoxPrinter {
 	}
 
 	void open() {
+		GC gc;
 		if (fileName == null)
 			return;
 		// readRawText(fileName);
@@ -232,10 +233,13 @@ public class BoxPrinter {
 		image = new Image(screen, r.width, r.height + topMargin);
 		adjustHandles();
 		gc = new GC(image);
-		// setStyle(gc, SWT.ITALIC);
-		setTag(gc, TAG.it);
+		gc.setFont(new Font(display, new FontData("monospace", 10, SWT.NORMAL)));
+		System.err.println(gc.getFont().getFontData()[0].name+" "+
+				gc.getAdvanceWidth('.')+" "+gc.getAdvanceWidth('M'));
+		setTag(gc, TAG.nm);
 		printText(gc);
 		canvas.redraw();
+		gc.dispose();
 	}
 
 	private void setStyle(GC gc, int style) {
@@ -251,7 +255,7 @@ public class BoxPrinter {
 		switch (tag) {
 		case bf:
 			setStyle(gc, SWT.BOLD);
-			gc.setForeground(textColor);
+			gc.setForeground(keyColor);
 			return;
 		case it:
 			setStyle(gc, SWT.ITALIC);
@@ -296,11 +300,6 @@ public class BoxPrinter {
 		PrinterData data = dialog.open();
 		if (data == null)
 			return;
-		if (data.printToFile) {
-			data.fileName = "print.out"; // you probably want to ask the user
-			// for a filename
-		}
-
 		printer = new Printer(data);
 		Thread printingThread = new Thread("Printing") {
 			public void run() {
@@ -332,25 +331,15 @@ public class BoxPrinter {
 			 * Create printer GC, and create and set the printer font &
 			 * foreground color.
 			 */
-			gc = new GC(printer);
-			Font printerFont = new Font(printer, printerFontData);
-			Color printerForegroundColor = new Color(printer, printerForeground);
-			Color printerBackgroundColor = new Color(printer, printerBackground);
-
-			gc.setFont(printerFont);
-			gc.setForeground(printerForegroundColor);
-			gc.setBackground(printerBackgroundColor);
+			GC gc = new GC(printer);
+			gc.setFont(new Font(display, new FontData("monospace", 8, SWT.NORMAL)));
 			tabWidth = gc.stringExtent(tabs).x;
 			lineHeight = gc.getFontMetrics().getHeight();
+			System.err.println("LH:"+lineHeight);
 
 			/* Print text to current gc using word wrap */
 			printText(gc);
 			printer.endJob();
-
-			/* Cleanup graphics resources used in printing */
-			printerFont.dispose();
-			printerForegroundColor.dispose();
-			printerBackgroundColor.dispose();
 			gc.dispose();
 		}
 	}
@@ -370,6 +359,7 @@ public class BoxPrinter {
 	private Rectangle printText(GC gcc) {
 		final Stack<TAG> stack = new Stack<TAG>();
 		boolean newGC = false;
+		GC gc;
 		if (gcc == null) {
 			gc = new GC(screen);
 			newGC = true;
@@ -473,7 +463,10 @@ public class BoxPrinter {
 		}
 	}
 
-	static Color keyColor = getColor(SWT.COLOR_RED);
+	// static Color keyColor = getColor(SWT.COLOR_RED);
+	static Color keyColor =  new Color(Display.getCurrent(), new RGB(127, 0, 85));
 	static Color textColor = getColor(SWT.COLOR_BLACK);
-	static Color numColor = getColor(SWT.COLOR_BLUE);
+	static Color varColor = getColor(SWT.COLOR_GRAY);
+	static Color boldColor = getColor(SWT.COLOR_MAGENTA);
+	static Color numColor = new Color(Display.getCurrent(), new RGB(0, 0, 192));
 }

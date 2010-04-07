@@ -53,7 +53,9 @@ text vv(text a, text b) {
 // if (!isEmpty(b) && isEmpty(b[0])) return a;
 return a+b;}
 
-str blank(str a) {return right("", width(a));}
+str blank(str a) {
+       return right("", width(a));
+       }
 
 /* Computes a white line with the length of the last line of a */
 text wd(text a) {
@@ -64,7 +66,9 @@ text wd(text a) {
 
 /* Computes the length of unescaped string s */
 int width(str s) {
+     int a = size(s);
      s = replaceAll(s,"\b...",""); 
+     int b = size(s);
     return size(s);
      }
 
@@ -94,7 +98,7 @@ text hskip(int n) {
 text vskip(int n) {
     text r = [];
     // println("OK<n>");
-   for (int i<-[0, 1..n-1])  r=vv(r,[" "]);
+   for (int i<-[0, 1..n-1])  r=vv(r,[""]);
    // println(size(r));
    return r;
 }
@@ -142,7 +146,7 @@ text LL(str s ) {
 text HH(list[Box] b, Box c, options o, int m) {
     if (isEmpty(b)) return [];
     int h = o["h"];
-    text t = O(b[0], c, o, m);
+    text t = O(b[0], H([]), o, m);
     int s = hwidth(t);
     return hh(t, hh_(hskip(h), HH(tail(b), H([]), o, m-s-h)));
    }
@@ -150,7 +154,7 @@ text HH(list[Box] b, Box c, options o, int m) {
 text VV(list[Box] b, Box c, options o, int m) {
     if (isEmpty(b)) return [];
     int v = o["v"];
-    return vv(O(b[0], c, o, m), vv_(vskip(v), VV(tail(b), c, o, m)));
+    return vv(O(b[0], c , o, m), vv_(vskip(v), VV(tail(b), V([]), o, m)));
    }
 
 text II(list[Box] b, Box c, options o, int m) {
