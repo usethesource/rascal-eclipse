@@ -1,24 +1,44 @@
 package org.rascalmpl.eclipse.box;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.swt.*;
-import org.eclipse.swt.graphics.*;
-import org.eclipse.swt.widgets.*;
-import org.eclipse.swt.events.*;
-import org.eclipse.swt.layout.*;
-import org.eclipse.swt.printing.*;
-import org.eclipse.ui.console.MessageConsole;
-import org.eclipse.ui.console.MessageConsoleStream;
-import java.net.URI;
-import java.net.URISyntaxException;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.printing.PrintDialog;
+import org.eclipse.swt.printing.Printer;
+import org.eclipse.swt.printing.PrinterData;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
 
 public class BoxPrinter {
 	/*
@@ -28,42 +48,71 @@ public class BoxPrinter {
 	 * For a list of all SWT example snippets see
 	 * http://www.eclipse.org/swt/snippets/
 	 */
+	static Printer printer;
+
 	enum TAG {
-		it, nm, bf, start;
+		it(SWT.ITALIC), nm(SWT.NORMAL), bf(SWT.BOLD), start(SWT.NORMAL);
+		Font displayFont, printerFont;
+
+		TAG(int style) {
+			displayFont = new Font(Display.getCurrent(), new FontData(
+					"monospace", 10, style));
+			printerFont = new Font(Display.getCurrent(), new FontData(
+					"monospace", 8, style));
+		}
 	}
 
-	Display display;
+	// Display display;
 
 	Color foregroundColor, backgroundColor;
 
-	Printer printer;
-	
 	FontData[] printerFontData;
 	RGB printerForeground, printerBackground;
 
-	int lineHeight = 0;
-	int tabWidth = 0;
-	int leftMargin, rightMargin, topMargin, bottomMargin;
+	int printerLineHeight = 0, displayLineHeight = 0;
+	int printerTabWidth = 0, displayTabWidth = 0;
+	int printerLeftMargin, printerRightMargin, printerTopMargin,
+			printerBottomMargin;
+	int displayLeftMargin, displayRightMargin, displayTopMargin,
+			displayBottomMargin;
 	int x, y;
 	int index, end;
 	String textToPrint;
 	String tabs;
 	StringBuffer wordBuffer;
-	final Display screen;
-	final Shell shell;
-	final Canvas canvas;
-	Image image;
-	final Point origin = new Point(0, 0);
-	private final String fileName;
-	final ScrollBar vBar, hBar;
+	static Display screen;
+	static Shell shell;
+	Canvas canvas;
+	ScrollBar hBar, vBar;
 
-	public static void main(String[] args) {
-		final BoxPrinter boxPrinter = new BoxPrinter()/* .open() */;
-		boxPrinter.open();
-		boxPrinter.close();
+	final Point origin = new Point(0, 0);
+	private String fileName;
+
+	private int leftMargin() {
+		return printer == null ? displayLeftMargin : printerLeftMargin;
 	}
 
-	private void close() {
+	private int rightMargin() {
+		return printer == null ? displayRightMargin : printerRightMargin;
+	}
+
+	private int topMargin() {
+		return printer == null ? displayTopMargin : printerTopMargin;
+	}
+
+	private int bottomMargin() {
+		return printer == null ? displayBottomMargin : printerBottomMargin;
+	}
+
+	public static void main(String[] args) {
+		screen = Display.getCurrent() == null ? new Display() : Display
+				.getCurrent();
+		final BoxPrinter boxPrinter = new BoxPrinter()/* .open() */;
+		boxPrinter.open();
+		close();
+	}
+
+	static void close() {
 		while (!shell.isDisposed()) {
 			if (!screen.readAndDispatch())
 				screen.sleep();
@@ -75,34 +124,16 @@ public class BoxPrinter {
 		Rectangle clientArea = canvas.getShell().getClientArea();
 		Rectangle trim = canvas.computeTrim(0, 0, 0, 0);
 		Point dpi = canvas.getDisplay().getDPI();
-		leftMargin = dpi.x + trim.x; // one inch from left side of paper
-		rightMargin = clientArea.width - dpi.x + trim.x + trim.width; // one
+		displayLeftMargin = dpi.x + trim.x; // one inch from left side of paper
+		displayRightMargin = clientArea.width - dpi.x + trim.x + trim.width; // one
 		// paper
-		topMargin = dpi.y + trim.y; // one inch from top edge of paper
-		bottomMargin = clientArea.height - dpi.y + trim.y + trim.height;
-		int tabSize = 4; // is tab width a user setting in your UI?
-		StringBuffer tabBuffer = new StringBuffer(tabSize);
-		for (int i = 0; i < tabSize; i++)
-			tabBuffer.append(' ');
-		tabs = tabBuffer.toString();
-		GC gc = new GC(canvas);
-		tabWidth = gc.stringExtent(tabs).x;
-		lineHeight = gc.getFontMetrics().getHeight();
-		gc.dispose();
+		displayTopMargin = dpi.y + trim.y; // one inch from top edge of paper
+		displayBottomMargin = clientArea.height - dpi.y + trim.y + trim.height;
 	}
 
-	BoxPrinter() {
-		screen = Display.getCurrent() == null ? new Display() : Display
-				.getCurrent();
+	private void readData() {
 		shell = new Shell(screen);
 		shell.setLayout(new FillLayout());
-		canvas = new Canvas(shell, SWT.NO_BACKGROUND | SWT.NO_REDRAW_RESIZE
-				| SWT.H_SCROLL | SWT.V_SCROLL);
-
-		hBar = canvas.getHorizontalBar();
-		vBar = canvas.getVerticalBar();
-		canvas.setBackground(screen.getSystemColor(SWT.COLOR_WHITE));
-		init(canvas);
 		shell.setText("Print Text");
 		Menu menuBar = new Menu(shell, SWT.BAR);
 		shell.setMenuBar(menuBar);
@@ -111,6 +142,16 @@ public class BoxPrinter {
 		item.setText("&File");
 		Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
 		item.setMenu(fileMenu);
+
+		item = new MenuItem(fileMenu, SWT.PUSH);
+		item.setText("N&ew");
+		item.setAccelerator(SWT.CTRL + 'N');
+		item.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				menuNew();
+			}
+		});
+
 		item = new MenuItem(fileMenu, SWT.PUSH);
 		item.setText("P&rint");
 		item.setAccelerator(SWT.CTRL + 'P');
@@ -119,16 +160,16 @@ public class BoxPrinter {
 				menuPrint();
 			}
 		});
+
 		item = new MenuItem(fileMenu, SWT.PUSH);
 		item.setText("E&xit");
 		item.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
+				shell.close();
+				shell.dispose();
 				System.exit(0);
 			}
 		});
-
-		shell.open();
-
 		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 		String[] filterExtensions = new String[] { "*.rsc" };
 		dialog.setFilterExtensions(filterExtensions);
@@ -147,7 +188,17 @@ public class BoxPrinter {
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(0);
 		}
+	}
+
+	BoxPrinter() {
+		int tabSize = 4; // is tab width a user setting in your UI?
+		StringBuffer tabBuffer = new StringBuffer(tabSize);
+		for (int i = 0; i < tabSize; i++)
+			tabBuffer.append(' ');
+		tabs = tabBuffer.toString();
+		readData();
 	}
 
 	void readRawText(String fileName) {
@@ -173,12 +224,25 @@ public class BoxPrinter {
 		}
 	}
 
-	void open() {
-		GC gc;
+	private void open() {
 		if (fileName == null)
 			return;
+		canvas = new Canvas(shell, SWT.NO_BACKGROUND | SWT.NO_REDRAW_RESIZE
+				| SWT.H_SCROLL | SWT.V_SCROLL);
+		hBar = canvas.getHorizontalBar();
+		vBar = canvas.getVerticalBar();
+		canvas.setBackground(screen.getSystemColor(SWT.COLOR_WHITE));
+		init(canvas);
+
+		Rectangle r = printText(null);
+		System.err.println("Make image:" + r.width + " " + r.height + " "
+				+ topMargin());
+		final Image image = new Image(screen, r.width, r.height + topMargin());
+		final GC gc = new GC(image);
+		setTag(gc, TAG.start);
+		displayTabWidth = gc.stringExtent(tabs).x;
+		displayLineHeight = gc.getFontMetrics().getHeight();
 		// readRawText(fileName);
-		
 		hBar.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
 				if (image == null)
@@ -205,7 +269,15 @@ public class BoxPrinter {
 			public void handleEvent(Event e) {
 				if (image == null)
 					return;
-				adjustHandles();
+				adjustHandles(image);
+				canvas.redraw();
+			}
+		});
+		canvas.addListener(SWT.Show, new Listener() {
+			public void handleEvent(Event e) {
+				if (image == null)
+					return;
+				adjustHandles(image);
 				canvas.redraw();
 			}
 		});
@@ -213,66 +285,45 @@ public class BoxPrinter {
 			public void handleEvent(Event e) {
 				if (image == null)
 					return;
-				GC gc = e.gc;
-				gc.drawImage(image, origin.x, origin.y);
+				e.gc.drawImage(image, origin.x, origin.y);
 				Rectangle rect = image.getBounds();
 				Rectangle client = canvas.getClientArea();
 				int marginWidth = client.width - rect.width;
 				if (marginWidth > 0) {
-					gc.fillRectangle(rect.width, 0, marginWidth, client.height);
+					e.gc.fillRectangle(rect.width, 0, marginWidth,
+							client.height);
 				}
 				int marginHeight = client.height - rect.height;
 				if (marginHeight > 0) {
-					gc
-							.fillRectangle(0, rect.height, client.width,
-									marginHeight);
+					e.gc.fillRectangle(0, rect.height, client.width,
+							marginHeight);
 				}
 			}
 		});
-		Rectangle r = printText(null);
-		image = new Image(screen, r.width, r.height + topMargin);
-		adjustHandles();
-		gc = new GC(image);
-		gc.setFont(new Font(display, new FontData("monospace", 10, SWT.NORMAL)));
-		System.err.println(gc.getFont().getFontData()[0].name+" "+
-				gc.getAdvanceWidth('.')+" "+gc.getAdvanceWidth('M'));
-		setTag(gc, TAG.nm);
 		printText(gc);
-		canvas.redraw();
-		gc.dispose();
-	}
-
-	private void setStyle(GC gc, int style) {
-		FontData[] data = gc.getFont().getFontData();
-		for (int i = 0; i < data.length; i++) {
-			data[i].setStyle(style);
-		}
-		Font newFont = new Font(screen, data);
-		gc.setFont(newFont);
+		adjustHandles(image);
+		shell.open();
 	}
 
 	private void setTag(GC gc, TAG tag) {
+		gc.setFont(printer != null ? tag.printerFont : tag.displayFont);
 		switch (tag) {
 		case bf:
-			setStyle(gc, SWT.BOLD);
 			gc.setForeground(keyColor);
 			return;
 		case it:
-			setStyle(gc, SWT.ITALIC);
 			gc.setForeground(textColor);
 			return;
 		case nm:
-			setStyle(gc, SWT.NORMAL);
 			gc.setForeground(numColor);
 			return;
 		case start:
-			setStyle(gc, SWT.NORMAL);
 			gc.setForeground(textColor);
 			return;
 		}
 	}
 
-	private void adjustHandles() {
+	private void adjustHandles(Image image) {
 		Rectangle rect = image.getBounds();
 		Rectangle client = canvas.getClientArea();
 		hBar.setMaximum(rect.width);
@@ -283,6 +334,7 @@ public class BoxPrinter {
 		int vPage = rect.height - client.height;
 		int hSelection = hBar.getSelection();
 		int vSelection = vBar.getSelection();
+		// System.err.println("adjust:"+hSelection+" "+hPage+" "+vSelection+" "+vPage);
 		if (hSelection >= hPage) {
 			if (hPage <= 0)
 				hSelection = 0;
@@ -303,39 +355,49 @@ public class BoxPrinter {
 		printer = new Printer(data);
 		Thread printingThread = new Thread("Printing") {
 			public void run() {
-				print(printer);
+				print();
 				printer.dispose();
+				printer = null;
 			}
 		};
 		printingThread.start();
 	}
 
-	void print(Printer printer) {
+	void menuNew() {
+		if (canvas != null) {
+			canvas.dispose();
+			shell.close();
+			shell.dispose();
+			shell = null;
+		}
+		readData();
+		open();
+	}
+
+	void print() {
 		if (printer.startJob("Text")) { // the string is the job name - shows up
 			// in the printer's job list
 			Rectangle clientArea = printer.getClientArea();
 			Rectangle trim = printer.computeTrim(0, 0, 0, 0);
 			Point dpi = printer.getDPI();
-			leftMargin = dpi.x + trim.x; // one inch from left side of paper
-			rightMargin = clientArea.width - dpi.x + trim.x + trim.width; // one
+			printerLeftMargin = dpi.x + trim.x; // one inch from left side of
+												// paper
+			printerRightMargin = clientArea.width - dpi.x + trim.x + trim.width; // one
 			// paper
-			topMargin = dpi.y + trim.y; // one inch from top edge of paper
-			bottomMargin = clientArea.height - dpi.y + trim.y + trim.height; // one
-			int tabSize = 4; // is tab width a user setting in your UI?
-			StringBuffer tabBuffer = new StringBuffer(tabSize);
-			for (int i = 0; i < tabSize; i++)
-				tabBuffer.append(' ');
-			tabs = tabBuffer.toString();
+			printerTopMargin = dpi.y + trim.y; // one inch from top edge of
+												// paper
+			printerBottomMargin = clientArea.height - dpi.y + trim.y
+					+ trim.height; // one
 
 			/*
 			 * Create printer GC, and create and set the printer font &
 			 * foreground color.
 			 */
-			GC gc = new GC(printer);
-			gc.setFont(new Font(display, new FontData("monospace", 8, SWT.NORMAL)));
-			tabWidth = gc.stringExtent(tabs).x;
-			lineHeight = gc.getFontMetrics().getHeight();
-			System.err.println("LH:"+lineHeight);
+			final GC gc = new GC(printer);
+			setTag(gc, TAG.start);
+			printerTabWidth = gc.stringExtent(tabs).x;
+			printerLineHeight = gc.getFontMetrics().getHeight();
+			// System.err.println("LH:"+lineHeight);
 
 			/* Print text to current gc using word wrap */
 			printText(gc);
@@ -348,8 +410,8 @@ public class BoxPrinter {
 		IList rules = (IList) v;
 		StringBuffer b = new StringBuffer();
 		for (int i = 0; i < rules.length(); i++) {
-//			if (((IString) rules.get(i)).getValue().isEmpty())
-//				System.err.println("OK");
+			// if (((IString) rules.get(i)).getValue().isEmpty())
+			// System.err.println("OK");
 			b.append(((IString) rules.get(i)).getValue());
 			b.append("\n");
 		}
@@ -362,6 +424,9 @@ public class BoxPrinter {
 		GC gc;
 		if (gcc == null) {
 			gc = new GC(screen);
+			setTag(gc, TAG.start);
+			displayTabWidth = gc.stringExtent(tabs).x;
+			displayLineHeight = gc.getFontMetrics().getHeight();
 			newGC = true;
 		} else
 			gc = gcc;
@@ -372,8 +437,8 @@ public class BoxPrinter {
 		if (printer != null)
 			printer.startPage();
 		wordBuffer = new StringBuffer();
-		x = leftMargin;
-		y = topMargin;
+		x = leftMargin();
+		y = topMargin();
 		index = 0;
 		end = textToPrint.length();
 		StringTokenizer t = new StringTokenizer(textToPrint, "\n\b", true);
@@ -409,18 +474,18 @@ public class BoxPrinter {
 				printWord(gc, c);
 			}
 		}
-		if (printer != null && y + lineHeight <= bottomMargin) {
+		if (printer != null && y + printerLineHeight <= bottomMargin()) {
 			printer.endPage();
 		}
 		if (newGC)
 			gc.dispose();
-		return new Rectangle(0, 0, rightMargin, y);
+		return new Rectangle(0, 0, rightMargin(), y);
 	}
 
 	void printWord(GC gc, String c) {
 		if (c.length() > 0) {
 			int wordWidth = gc.stringExtent(c).x;
-			if (x + wordWidth > rightMargin) {
+			if (x + wordWidth > rightMargin()) {
 				/* word doesn't fit on current line, so wrap */
 				newline();
 			}
@@ -431,13 +496,13 @@ public class BoxPrinter {
 	}
 
 	void newline() {
-		x = leftMargin;
-		y += lineHeight;
+		x = leftMargin();
+		y += printer != null ? printerLineHeight : displayLineHeight;
 		if (printer != null) {
-			if (y + lineHeight > bottomMargin) {
+			if (y + printerLineHeight > bottomMargin()) {
 				printer.endPage();
 				if (index + 1 < end) {
-					y = topMargin;
+					y = topMargin();
 					printer.startPage();
 				}
 			}
@@ -464,7 +529,7 @@ public class BoxPrinter {
 	}
 
 	// static Color keyColor = getColor(SWT.COLOR_RED);
-	static Color keyColor =  new Color(Display.getCurrent(), new RGB(127, 0, 85));
+	static Color keyColor = new Color(Display.getCurrent(), new RGB(127, 0, 85));
 	static Color textColor = getColor(SWT.COLOR_BLACK);
 	static Color varColor = getColor(SWT.COLOR_GRAY);
 	static Color boldColor = getColor(SWT.COLOR_MAGENTA);
