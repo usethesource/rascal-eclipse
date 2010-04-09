@@ -80,10 +80,13 @@ public class BoxPrinter {
 	String textToPrint;
 	String tabs;
 	StringBuffer wordBuffer;
-	static Display screen;
-	static Shell shell;
-	Canvas canvas;
-	ScrollBar hBar, vBar;
+	final static Display screen = Display.getCurrent() == null ? new Display()
+			: Display.getCurrent();
+	final static Shell shell = new Shell(screen);
+	final static Canvas canvas = new Canvas(shell, SWT.NO_BACKGROUND
+			| SWT.NO_REDRAW_RESIZE | SWT.H_SCROLL | SWT.V_SCROLL);
+	final static ScrollBar hBar = canvas.getHorizontalBar(), vBar = canvas
+			.getVerticalBar();
 
 	final Point origin = new Point(0, 0);
 	private String fileName;
@@ -105,8 +108,6 @@ public class BoxPrinter {
 	}
 
 	public static void main(String[] args) {
-		screen = Display.getCurrent() == null ? new Display() : Display
-				.getCurrent();
 		final BoxPrinter boxPrinter = new BoxPrinter()/* .open() */;
 		boxPrinter.open();
 		close();
@@ -132,7 +133,34 @@ public class BoxPrinter {
 	}
 
 	private void readData() {
-		shell = new Shell(screen);
+		FileDialog dialog = new FileDialog(shell);
+		String[] filterExtensions = new String[] { "*.rsc" };
+		dialog.setFilterExtensions(filterExtensions);
+		String defaultDir = System.getProperty("DEFAULTDIR");
+		if (defaultDir != null)
+			dialog.setFilterPath(defaultDir);
+		fileName = dialog.open();
+		if (fileName == null) {
+			System.err.println("Canceled");
+			System.exit(0);
+		}
+		try {
+			URI uri = new URI("file", fileName, null);
+			IValue v = new MakeBox().run(uri, null);
+			textToPrint = toString(v);
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(0);
+		}
+	}
+
+	BoxPrinter() {
+		int tabSize = 4; // is tab width a user setting in your UI?
+		StringBuffer tabBuffer = new StringBuffer(tabSize);
+		for (int i = 0; i < tabSize; i++)
+			tabBuffer.append(' ');
+		tabs = tabBuffer.toString();
 		shell.setLayout(new FillLayout());
 		shell.setText("Print Text");
 		Menu menuBar = new Menu(shell, SWT.BAR);
@@ -170,34 +198,9 @@ public class BoxPrinter {
 				System.exit(0);
 			}
 		});
-		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-		String[] filterExtensions = new String[] { "*.rsc" };
-		dialog.setFilterExtensions(filterExtensions);
-		String defaultDir = System.getProperty("DEFAULTDIR");
-		if (defaultDir != null)
-			dialog.setFilterPath(defaultDir);
-		fileName = dialog.open();
-		if (fileName == null) {
-			System.err.println("Canceled");
-			System.exit(0);
-		}
-		try {
-			URI uri = new URI("file", fileName, null);
-			IValue v = new MakeBox().run(uri, null);
-			textToPrint = toString(v);
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.exit(0);
-		}
-	}
 
-	BoxPrinter() {
-		int tabSize = 4; // is tab width a user setting in your UI?
-		StringBuffer tabBuffer = new StringBuffer(tabSize);
-		for (int i = 0; i < tabSize; i++)
-			tabBuffer.append(' ');
-		tabs = tabBuffer.toString();
+		canvas.setBackground(screen.getSystemColor(SWT.COLOR_WHITE));
+		init(canvas);
 		readData();
 	}
 
@@ -227,13 +230,6 @@ public class BoxPrinter {
 	private void open() {
 		if (fileName == null)
 			return;
-		canvas = new Canvas(shell, SWT.NO_BACKGROUND | SWT.NO_REDRAW_RESIZE
-				| SWT.H_SCROLL | SWT.V_SCROLL);
-		hBar = canvas.getHorizontalBar();
-		vBar = canvas.getVerticalBar();
-		canvas.setBackground(screen.getSystemColor(SWT.COLOR_WHITE));
-		init(canvas);
-
 		Rectangle r = printText(null);
 		System.err.println("Make image:" + r.width + " " + r.height + " "
 				+ topMargin());
@@ -302,6 +298,7 @@ public class BoxPrinter {
 		});
 		printText(gc);
 		adjustHandles(image);
+		canvas.redraw();
 		shell.open();
 	}
 
@@ -364,12 +361,7 @@ public class BoxPrinter {
 	}
 
 	void menuNew() {
-		if (canvas != null) {
-			canvas.dispose();
-			shell.close();
-			shell.dispose();
-			shell = null;
-		}
+		shell.setVisible(false);
 		readData();
 		open();
 	}
@@ -381,11 +373,11 @@ public class BoxPrinter {
 			Rectangle trim = printer.computeTrim(0, 0, 0, 0);
 			Point dpi = printer.getDPI();
 			printerLeftMargin = dpi.x + trim.x; // one inch from left side of
-												// paper
+			// paper
 			printerRightMargin = clientArea.width - dpi.x + trim.x + trim.width; // one
 			// paper
 			printerTopMargin = dpi.y + trim.y; // one inch from top edge of
-												// paper
+			// paper
 			printerBottomMargin = clientArea.height - dpi.y + trim.y
 					+ trim.height; // one
 
