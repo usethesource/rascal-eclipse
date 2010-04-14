@@ -59,6 +59,10 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		
 		Module mod = builder.buildModule((IConstructor) root);
 
+		if (mod == null) {
+			return;
+		}
+		
 		loc = mod.getLocation();
 		
 		functions = new Group<AbstractAST>("Functions", loc);
