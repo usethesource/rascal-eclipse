@@ -13,10 +13,10 @@ import List;
 import String;
 import IO;
 import ValueIO;
+import Node;
 import viz::Basic;
-int maxWidth = 60+1;
-int hv2h_crit = 40;
-int  lmargin = 5;
+int maxWidth = 75;
+int hv2h_crit = 60;
 bool decorated = false;
 alias text = list[str];
 
@@ -38,7 +38,8 @@ data Box
 
 alias options = map [str, int];
 alias   foptions = map[str, list[str]];
-options  oDefault = ("h":1,"v":0);
+options  oDefault = ("h":1,"v":0, "i":5);
+map[int, str] toBlank =  ();
 
 anno int Box@hs;
 anno int Box@vs;
@@ -54,6 +55,11 @@ text vv(text a, text b) {
 return a+b;}
 
 str blank(str a) {
+       /* int n = width(a);
+        if (n notin toBlank)  {
+          toBlank[n] = right("", n);
+         }
+       return toBlank[n]; */
        return right("", width(a));
        }
 
@@ -66,10 +72,9 @@ text wd(text a) {
 
 /* Computes the length of unescaped string s */
 int width(str s) {
-     int a = size(s);
      s = replaceAll(s,"\b...",""); 
-     int b = size(s);
-    return size(s);
+     int b = size(s); 
+     return b;
      }
 
 /* Computes the maximum width of text t */
@@ -140,15 +145,32 @@ text vv_(text a, text b) {
 }
 
 text LL(str s ) { 
+   // println(s);
    return [s];
    }
 
+/*
 text HH(list[Box] b, Box c, options o, int m) {
     if (isEmpty(b)) return [];
     int h = o["h"];
     text t = O(b[0], H([]), o, m);
     int s = hwidth(t);
     return hh(t, hh_(hskip(h), HH(tail(b), H([]), o, m-s-h)));
+   }
+*/
+   
+text HH(list[Box] b, Box c, options o, int m) {
+    if (isEmpty(b)) return [];
+    int h = o["h"];
+    text r = [];
+    b = reverse(b);
+    for (a<-b) {
+         text t = O(a, H([]), o, m);
+         int s = hwidth(t); 
+         r = hh(t, hh_(hskip(h), r));
+         m  = m - s - h;
+   }
+   return r;
    }
 
 text VV(list[Box] b, Box c, options o, int m) {
@@ -159,7 +181,6 @@ text VV(list[Box] b, Box c, options o, int m) {
 
 text II(list[Box] b, Box c, options o, int m) {
  if (isEmpty(b)) return [];
-    if (!(o["i"])?) o["i"]= lmargin;
     int i = o["i"];
     switch(c) {
         case  H(list[Box] bl):{
@@ -205,10 +226,10 @@ text ifHOV(text t, Box b,  Box c, options o, int m) {
 text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
       int h= o["h"];
       int v = o["v"];
-      int i= o["i"]?0;
+      int i= o["i"];
       int n = h + hwidth(a);
       if (size(a)>1) { // Multiple lines 
-           text T1 = O(A, V([]), o, m-i);
+           text T1 = QQ(A, V([]), o, m-i);
            return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, o, m, H([]))));
           }
       if (n <= s) {  // Box A fits in current line
@@ -217,11 +238,11 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
       else {
         n -= h; // n == width(a)
          if  ((i+n)<m) { // Fits in the next line, not in current line
-                 text T1 =O(A, V([]), o, m-i);
+                 text T1 =QQ(A, V([]), o, m-i);
                  return vv(T, vv_(vskip(v), HVHV(T1, m-n-i, B, o, m, H([]))));
                  }
          else { // Doesn't fit in both lines
-                 text T1 =O(A, V([]), o, m-i);
+                 text T1 =QQ(A, V([]), o, m-i);
                  return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, o, m, H([]))));
                  }
           }
@@ -230,13 +251,15 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
 
 text HVHV(text T, int s, list[Box] b, options o,  int m, Box c) {
       if (isEmpty(b))  return T;
-      text T1 = O(b[0], c  , o, s);  // Was H([])
+      text T1 = QQ(b[0], c  , o, s);  // Was H([])
       return HVHV(T, s, T1 , b[0],  tail(b), o, m);
       }
 
  text HVHV(list[Box] b, Box c, options o, int m) {
+       int h = o["h"];
+       // println("HVHV:<h>");
        if (isEmpty(b))  return [];
-       text T =  O(b[0], V([]), o, m);  // Was H([])
+       text T =  QQ(b[0], V([]), o, m);  // Was H([])
        if (size(b)==1) return T;
       return HVHV(T, m-hwidth(T), tail(b), o, m, H([]));
       }
@@ -269,7 +292,7 @@ text QQ(Box b, Box c, options o, int m) {
          case  HOV(list[Box] bl):{t = HOVHOV(bl, c, o, m);}
          case  HV(list[Box] bl):{t= HVHV(bl, c, o, m);}
          case  SPACE(int n):{t= hskip(n);}
-         case   A(list[Box] bl):{t = AA(bl, c, o, f, m);}
+         case  A(list[Box] bl):{t = AA(bl, c, o, f, m);}
          case KW(Box a):{t =  decorated?font(O(a, c, o, m),"bf"):O(a,c,o,m);}
          case VAR(Box a):{t = decorated?font(O( a, c, o, m),"it"):O( a, c, o, m);}
          case NM(Box a):{t = decorated?font(O( a, c, o, m),"nm"):O( a, c, o, m);}
@@ -279,6 +302,9 @@ return t;
 
 text O(Box b, Box c, options o, int m) {
     int h = o["h"];
+    int v = o["v"];
+    int i = o["i"];
+     // println("Start:<getName(b)> <h>");
      if ((b@hs)?) {o["h"] = b@hs;}
      if ((b@vs)?) {o["v"] = b@vs;}
      if ((b@is)?) {o["i"] = b@is;}
@@ -286,8 +312,12 @@ text O(Box b, Box c, options o, int m) {
      if ((b@format)?) {f["f"] = b@format;}
      text t = QQ(b, c, o, m);
      o["h"]=h;
+     o["v"]=v;
+     o["i"]=i;
+     // println("End:<getName(b)>");
      return t;
 }
+
 /* ------------------------------- Alignment ------------------------------------------------------------*/
 
 Box boxSize(Box b, Box c, options o, int m) {
@@ -366,7 +396,7 @@ bool changeHV2H(list[Box] hv) {
 
 
 Box removeHV(Box b) {
-return visit(b) {
+return innermost visit(b) {
      case t:HV(list[Box] hv) => {
                      int h = t@hs?-1;
                      int i =   t@is?-1;
@@ -375,15 +405,31 @@ return visit(b) {
                      if (h>=0) r@hs = h;
                      if (i>=0)  r@is = i;
                      if (v>=0) r@vs = v;
-                     r;
+                     r;                
                      }
                   when changeHV2H(hv)
       };
 }
 
+Box removeHOV(Box b) {
+return innermost visit(b) {
+     case t:HOV(list[Box] hov) => {
+                     int h = t@hs?-1;
+                     int i =   t@is?-1;
+                     int v =   t@vs?-1;
+                     Box r = changeHV2H(hov)?H(hov):V(hov);
+                     if (h>=0) r@hs = h;
+                     if (i>=0)  r@is = i;
+                     if (v>=0) r@vs = v;
+                     // println("changed2");
+                     r;
+                     }
+                  // when changeHV2H(hov)
+      };
+}
+
 public void main(Box b) {
   // str s = box2text(b, 0);
-  // println(s);
   value t = toList(b);
   boxView(t); 
 /*
@@ -397,7 +443,10 @@ public void main(Box b) {
 }
 
 public value toList(Box b) {
+  // println("Hallo");
   b = removeHV(b);
+  b = removeHOV(b);
+  println("Reduce finished");
   decorated =  true;
   text t = O(b, V([]), oDefault, maxWidth);
   /* for (str r<-t) {

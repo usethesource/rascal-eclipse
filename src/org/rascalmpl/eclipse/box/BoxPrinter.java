@@ -58,7 +58,7 @@ public class BoxPrinter {
 			displayFont = new Font(Display.getCurrent(), new FontData(
 					"monospace", 10, style));
 			printerFont = new Font(Display.getCurrent(), new FontData(
-					"monospace", 8, style));
+					"monospace", 6, style));
 		}
 	}
 
@@ -147,6 +147,7 @@ public class BoxPrinter {
 		try {
 			URI uri = new URI("file", fileName, null);
 			IValue v = new MakeBox().run(uri, null);
+			System.err.println("MakeBox finished");
 			textToPrint = toString(v);
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block

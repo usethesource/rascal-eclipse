@@ -173,7 +173,9 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 	}
 	
 	public IValue run(URI uri, IAction action) {
+    //System.setProperty("rascal.options.saveBinaries", "true");
 	loader = new ModuleLoader();
+	//System.setProperty("rascal.options.saveBinaries", "false");
 	heap = new GlobalEnvironment();
 	root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
 	URIResolverRegistry registry = URIResolverRegistry.getInstance();
@@ -237,7 +239,6 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 					.getFile().getProject();
 		}
 	}
-
 	// Display display = Display.getCurrent();
 	// Shell shell = new Shell (display);
 	// shell.open ();
