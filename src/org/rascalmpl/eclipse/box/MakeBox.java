@@ -4,36 +4,16 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdapterManager;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationType;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.PBFReader;
 import org.eclipse.imp.pdb.facts.io.PBFWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -41,11 +21,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionDelegate2;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
@@ -59,14 +35,8 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Module;
-import org.rascalmpl.ast.Name.Lexical;
-import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.console.ConsoleFactory;
-import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.interpreter.BoxEvaluator;
 import org.rascalmpl.interpreter.CommandEvaluator;
-import org.rascalmpl.interpreter.RascalShell;
-import org.rascalmpl.interpreter.TypeEvaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.FromResourceLoader;
@@ -146,7 +116,7 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 	}
 	
 	IValue fetch(String varName) {
-		Result r =  root.getVariable(varName);
+		Result<IValue> r =  root.getVariable(varName);
 		return r.getValue();
 	}
 	
@@ -190,11 +160,11 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 			if (resultName==null) {
 				   execute("main(" + varName + ");");
 				   return null;
-			} else {
-				execute(resultName+"=toList(" + varName + ");");
-				IValue r =  fetch(resultName);
-				return r;
 			}
+			
+			execute(resultName+"=toList(" + varName + ");");
+			IValue r =  fetch(resultName);
+			return r;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -215,8 +185,8 @@ public class MakeBox implements IObjectActionDelegate, IActionDelegate2,
 		System.err.println("parsed");
 		Module module = new ASTBuilder(new ASTFactory()).buildModule(tree);
 		System.err.println("build");
-		ts = ((BoxEvaluator) eval).getTypeStore();
-		adt = ((BoxEvaluator) eval).getType();
+		ts = eval.getTypeStore();
+		adt = BoxEvaluator.getType();
 		System.err.println("Checked");
 		IValue v = eval.evalRascalModule(module);
 		data = new Data();

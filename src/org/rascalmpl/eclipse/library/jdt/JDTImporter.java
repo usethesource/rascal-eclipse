@@ -1,5 +1,8 @@
 package org.rascalmpl.eclipse.library.jdt;
 
+import static org.rascalmpl.eclipse.library.Java.ADT_ENTITY;
+import static org.rascalmpl.eclipse.library.Java.ADT_MODIFIER;
+
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.HashMap;
@@ -57,44 +60,6 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.values.ValueFactoryFactory;
-
-import static org.rascalmpl.eclipse.library.Java.ADT_ENTITY;
-import static org.rascalmpl.eclipse.library.Java.ADT_ID;
-import static org.rascalmpl.eclipse.library.Java.ADT_MODIFIER;
-import static org.rascalmpl.eclipse.library.Java.CONS_ABSTRACT;
-import static org.rascalmpl.eclipse.library.Java.CONS_ANONYMOUS_CLASS;
-import static org.rascalmpl.eclipse.library.Java.CONS_ARRAY;
-import static org.rascalmpl.eclipse.library.Java.CONS_CLASS;
-import static org.rascalmpl.eclipse.library.Java.CONS_CONSTRUCTOR;
-import static org.rascalmpl.eclipse.library.Java.CONS_DEPRECATED;
-import static org.rascalmpl.eclipse.library.Java.CONS_ENTITY;
-import static org.rascalmpl.eclipse.library.Java.CONS_ENUM;
-import static org.rascalmpl.eclipse.library.Java.CONS_ENUM_CONSTANT;
-import static org.rascalmpl.eclipse.library.Java.CONS_EXTENDS;
-import static org.rascalmpl.eclipse.library.Java.CONS_FIELD;
-import static org.rascalmpl.eclipse.library.Java.CONS_FINAL;
-import static org.rascalmpl.eclipse.library.Java.CONS_GENERIC_CLASS;
-import static org.rascalmpl.eclipse.library.Java.CONS_GENERIC_INTERFACE;
-import static org.rascalmpl.eclipse.library.Java.CONS_INITIALIZER_NUMBERED;
-import static org.rascalmpl.eclipse.library.Java.CONS_INTERFACE;
-import static org.rascalmpl.eclipse.library.Java.CONS_METHOD;
-import static org.rascalmpl.eclipse.library.Java.CONS_NATIVE;
-import static org.rascalmpl.eclipse.library.Java.CONS_PACKAGE;
-import static org.rascalmpl.eclipse.library.Java.CONS_PARAMETER;
-import static org.rascalmpl.eclipse.library.Java.CONS_PRIMITIVE;
-import static org.rascalmpl.eclipse.library.Java.CONS_PRIVATE;
-import static org.rascalmpl.eclipse.library.Java.CONS_PROTECTED;
-import static org.rascalmpl.eclipse.library.Java.CONS_PUBLIC;
-import static org.rascalmpl.eclipse.library.Java.CONS_STATIC;
-import static org.rascalmpl.eclipse.library.Java.CONS_STRICTFP;
-import static org.rascalmpl.eclipse.library.Java.CONS_SUPER;
-import static org.rascalmpl.eclipse.library.Java.CONS_SYNCHRONIZED;
-import static org.rascalmpl.eclipse.library.Java.CONS_TRANSIENT;
-import static org.rascalmpl.eclipse.library.Java.CONS_TYPE_PARAMETER;
-import static org.rascalmpl.eclipse.library.Java.CONS_VARIABLE;
-import static org.rascalmpl.eclipse.library.Java.CONS_VOLATILE;
-import static org.rascalmpl.eclipse.library.Java.CONS_WILDCARD;
-import static org.rascalmpl.eclipse.library.Java.CONS_WILDCARD_BOUND;
 
 // TBD: why the difference?:
 // entity([package("jdtimporter"),class("Activator   ",[entity([typeParameter("A")])]),anonymousClass(0),    method("set",[entity([package("java"),package("lang"),class("Integer")]),entity([primitive(int())])],entity([package("java"),package("lang"),class("Integer")])),parameter("element")])

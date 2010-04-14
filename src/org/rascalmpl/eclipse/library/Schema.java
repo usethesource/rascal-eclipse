@@ -21,7 +21,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Schema {
 	private final  IValueFactory VF;

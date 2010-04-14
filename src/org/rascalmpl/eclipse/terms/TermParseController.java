@@ -17,7 +17,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
@@ -31,12 +30,8 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.ModuleLoader;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.ParseTree;
 import org.rascalmpl.parser.ConcreteObjectParser;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -49,7 +44,7 @@ public class TermParseController implements IParseController {
 	private Language language;
 	private IEvaluatorContext evaluator;
 	private IConstructor start;
-	private ConcreteObjectParser parser = new ConcreteObjectParser();;
+	private ConcreteObjectParser parser = new ConcreteObjectParser();
 	
 	public Object getCurrentAst(){
 		return parseTree;

@@ -241,8 +241,6 @@ public class BoxPrinter {
 		// readRawText(fileName);
 		hBar.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
-				if (image == null)
-					return;
 				int hSelection = hBar.getSelection();
 				int destX = -hSelection - origin.x;
 				Rectangle rect = image.getBounds();
@@ -252,8 +250,6 @@ public class BoxPrinter {
 		});
 		vBar.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
-				if (image == null)
-					return;
 				int vSelection = vBar.getSelection();
 				int destY = -vSelection - origin.y;
 				Rectangle rect = image.getBounds();
@@ -263,24 +259,18 @@ public class BoxPrinter {
 		});
 		canvas.addListener(SWT.Resize, new Listener() {
 			public void handleEvent(Event e) {
-				if (image == null)
-					return;
 				adjustHandles(image);
 				canvas.redraw();
 			}
 		});
 		canvas.addListener(SWT.Show, new Listener() {
 			public void handleEvent(Event e) {
-				if (image == null)
-					return;
 				adjustHandles(image);
 				canvas.redraw();
 			}
 		});
 		canvas.addListener(SWT.Paint, new Listener() {
 			public void handleEvent(Event e) {
-				if (image == null)
-					return;
 				e.gc.drawImage(image, origin.x, origin.y);
 				Rectangle rect = image.getBounds();
 				Rectangle client = canvas.getClientArea();
