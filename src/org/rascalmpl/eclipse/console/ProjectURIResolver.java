@@ -66,4 +66,14 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	public String scheme() {
 		return "project";
 	}
+
+	public boolean exists(URI uri) {
+		try {
+			return resolve(uri).exists();
+		} catch (MalformedURLException e) {
+			return false;
+		} catch (IOException e) {
+			return false;
+		}
+	}
 }

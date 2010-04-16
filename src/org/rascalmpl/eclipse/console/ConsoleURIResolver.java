@@ -35,5 +35,9 @@ public class ConsoleURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	public OutputStream getOutputStream(URI uri, boolean append) throws IOException{
 		throw new UnsupportedOperationException("Not supported by console.");
 	}
+	
+	public boolean exists(URI uri) {
+		return true;
+	}
 
 }
