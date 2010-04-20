@@ -50,6 +50,9 @@ public class BoxPrinter {
 	 */
 	static Printer printer;
 
+	// public static final String EditorId =
+	// "org.rascalmpl.eclipse.box.boxprinter";
+
 	enum TAG {
 		it(SWT.ITALIC), nm(SWT.NORMAL), bf(SWT.BOLD), start(SWT.NORMAL);
 		Font displayFont, printerFont;
@@ -77,19 +80,18 @@ public class BoxPrinter {
 			displayBottomMargin;
 	int x, y;
 	int index, end;
-	String textToPrint;
-	String tabs;
-	StringBuffer wordBuffer;
-	final static Display screen = Display.getCurrent() == null ? new Display()
+	private String textToPrint;
+	final private String tabs;
+	static private Display screen = Display.getCurrent() == null ? new Display()
 			: Display.getCurrent();
-	final static Shell shell = new Shell(screen);
-	final static Canvas canvas = new Canvas(shell, SWT.NO_BACKGROUND
-			| SWT.NO_REDRAW_RESIZE | SWT.H_SCROLL | SWT.V_SCROLL);
-	final static ScrollBar hBar = canvas.getHorizontalBar(), vBar = canvas
-			.getVerticalBar();
+	static private Shell shell;
+	private Canvas canvas;
+	private Image image;
+	private ScrollBar hBar, vBar;
 
 	final Point origin = new Point(0, 0);
-	private String fileName;
+
+	// private String fileName;
 
 	private int leftMargin() {
 		return printer == null ? displayLeftMargin : printerLeftMargin;
@@ -109,16 +111,17 @@ public class BoxPrinter {
 
 	public static void main(String[] args) {
 		final BoxPrinter boxPrinter = new BoxPrinter()/* .open() */;
-		boxPrinter.open();
+		boxPrinter.open(null, null);
 		close();
 	}
 
 	static void close() {
-		while (!shell.isDisposed()) {
+		while (shell != null && !shell.isDisposed()) {
 			if (!screen.readAndDispatch())
 				screen.sleep();
 		}
-		screen.dispose();
+		if (screen != null)
+			screen.dispose();
 	}
 
 	private void init(Canvas canvas) {
@@ -132,38 +135,73 @@ public class BoxPrinter {
 		displayBottomMargin = clientArea.height - dpi.y + trim.y + trim.height;
 	}
 
-	private void readData() {
+	private URI getFileName() {
+		if (shell == null)
+			shell = new Shell(screen);
 		FileDialog dialog = new FileDialog(shell);
 		String[] filterExtensions = new String[] { "*.rsc" };
 		dialog.setFilterExtensions(filterExtensions);
 		String defaultDir = System.getProperty("DEFAULTDIR");
 		if (defaultDir != null)
 			dialog.setFilterPath(defaultDir);
-		fileName = dialog.open();
+		String fileName = dialog.open();
 		if (fileName == null) {
 			System.err.println("Canceled");
 			System.exit(0);
 		}
 		try {
-			URI uri = new URI("file", fileName, null);
-			IValue v = new MakeBox().run(uri, null);
-			System.err.println("MakeBox finished");
-			textToPrint = toString(v);
+			return new URI("file", fileName, null);
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.exit(0);
+			return null;
 		}
+
 	}
 
-	BoxPrinter() {
+	public BoxPrinter() {
 		int tabSize = 4; // is tab width a user setting in your UI?
 		StringBuffer tabBuffer = new StringBuffer(tabSize);
 		for (int i = 0; i < tabSize; i++)
 			tabBuffer.append(' ');
 		tabs = tabBuffer.toString();
-		shell.setLayout(new FillLayout());
-		shell.setText("Print Text");
+		// System.err.println("new BoxPrinter");
+	}
+
+	void readRawText(String fileName) {
+		File file = new File(fileName);
+		FileInputStream stream;
+		try {
+			stream = new FileInputStream(file.getPath());
+			Reader in = new BufferedReader(new InputStreamReader(stream));
+			char[] readBuffer = new char[2048];
+			StringBuffer buffer = new StringBuffer((int) file.length());
+			int n;
+			while ((n = in.read(readBuffer)) > 0) {
+				buffer.append(readBuffer, 0, n);
+			}
+			textToPrint = buffer.toString();
+			stream.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private boolean readData(URI uri) {
+		// System.err.println("readData:" + uri);
+		IValue v = new MakeBox().run(uri, null);
+		// System.err.println("MakeBox finished1");
+		if (v == null)
+			return false;
+		textToPrint = toString(v);
+		return true;
+		// System.err.println("MakeBox finished2");
+	}
+
+	private void setMenuBar() {
 		Menu menuBar = new Menu(shell, SWT.BAR);
 		shell.setMenuBar(menuBar);
 
@@ -199,47 +237,17 @@ public class BoxPrinter {
 				System.exit(0);
 			}
 		});
-
-		canvas.setBackground(screen.getSystemColor(SWT.COLOR_WHITE));
-		init(canvas);
-		readData();
 	}
 
-	void readRawText(String fileName) {
-		File file = new File(fileName);
-		FileInputStream stream;
-		try {
-			stream = new FileInputStream(file.getPath());
-			Reader in = new BufferedReader(new InputStreamReader(stream));
-			char[] readBuffer = new char[2048];
-			StringBuffer buffer = new StringBuffer((int) file.length());
-			int n;
-			while ((n = in.read(readBuffer)) > 0) {
-				buffer.append(readBuffer, 0, n);
-			}
-			textToPrint = buffer.toString();
-			stream.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	private void initShell() {
+		hBar = canvas.getHorizontalBar();
+		vBar = canvas.getVerticalBar();
+
+		shell.setText("Print Text");
+
+		for (Listener q : hBar.getListeners(SWT.Selection)) {
+			hBar.removeListener(SWT.Selection, q);
 		}
-	}
-
-	private void open() {
-		if (fileName == null)
-			return;
-		Rectangle r = printText(null);
-		System.err.println("Make image:" + r.width + " " + r.height + " "
-				+ topMargin());
-		final Image image = new Image(screen, r.width, r.height + topMargin());
-		final GC gc = new GC(image);
-		setTag(gc, TAG.start);
-		displayTabWidth = gc.stringExtent(tabs).x;
-		displayLineHeight = gc.getFontMetrics().getHeight();
-		// readRawText(fileName);
 		hBar.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
 				int hSelection = hBar.getSelection();
@@ -249,6 +257,9 @@ public class BoxPrinter {
 				origin.x = -hSelection;
 			}
 		});
+		for (Listener q : vBar.getListeners(SWT.Selection)) {
+			hBar.removeListener(SWT.Selection, q);
+		}
 		vBar.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
 				int vSelection = vBar.getSelection();
@@ -258,18 +269,27 @@ public class BoxPrinter {
 				origin.y = -vSelection;
 			}
 		});
+		for (Listener q : canvas.getListeners(SWT.Resize)) {
+			canvas.removeListener(SWT.Resize, q);
+		}
 		canvas.addListener(SWT.Resize, new Listener() {
 			public void handleEvent(Event e) {
 				adjustHandles(image);
 				canvas.redraw();
 			}
 		});
+		for (Listener q : canvas.getListeners(SWT.Show)) {
+			canvas.removeListener(SWT.Show, q);
+		}
 		canvas.addListener(SWT.Show, new Listener() {
 			public void handleEvent(Event e) {
 				adjustHandles(image);
 				canvas.redraw();
 			}
 		});
+		for (Listener q : canvas.getListeners(SWT.Paint)) {
+			canvas.removeListener(SWT.Paint, q);
+		}
 		canvas.addListener(SWT.Paint, new Listener() {
 			public void handleEvent(Event e) {
 				e.gc.drawImage(image, origin.x, origin.y);
@@ -287,10 +307,47 @@ public class BoxPrinter {
 				}
 			}
 		});
+	}
+
+	public void open(URI uri, Canvas canva) {
+		boolean inWorkbench = (uri != null);
+		if (inWorkbench)
+			readData(uri);
+		else
+			while (!readData(getFileName()))
+				;
+		if (canva != null) {
+			shell = canva.getShell();
+			screen = shell.getDisplay();
+			this.canvas = canva;
+		} else {
+			if (this.canvas == null) {
+				if (shell == null)
+					shell = new Shell(screen);
+				shell.setLayout(new FillLayout());
+				this.canvas = new Canvas(shell, SWT.NO_BACKGROUND
+						| SWT.NO_REDRAW_RESIZE | SWT.H_SCROLL | SWT.V_SCROLL);
+				setMenuBar();
+			}
+		}
+		this.canvas.setBackground(screen.getSystemColor(SWT.COLOR_WHITE));
+		init(this.canvas);
+		Rectangle r = printText(null);
+		System.err.println("Make image:" + r.width + " " + r.height + " "
+				+ topMargin());
+		image = new Image(screen, r.width, r.height + topMargin());
+		if (hBar == null)
+			initShell();
+		final GC gc = new GC(image);
+		setTag(gc, TAG.start);
+		displayTabWidth = gc.stringExtent(tabs).x;
+		displayLineHeight = gc.getFontMetrics().getHeight();
 		printText(gc);
 		adjustHandles(image);
+		if (!inWorkbench) {
+			shell.open();
+		}
 		canvas.redraw();
-		shell.open();
 	}
 
 	private void setTag(GC gc, TAG tag) {
@@ -353,8 +410,7 @@ public class BoxPrinter {
 
 	void menuNew() {
 		shell.setVisible(false);
-		readData();
-		open();
+		open(null, null);
 	}
 
 	void print() {
@@ -419,7 +475,6 @@ public class BoxPrinter {
 			return null;
 		if (printer != null)
 			printer.startPage();
-		wordBuffer = new StringBuffer();
 		x = leftMargin();
 		y = topMargin();
 		index = 0;
@@ -490,7 +545,6 @@ public class BoxPrinter {
 				}
 			}
 		}
-
 	}
 
 	private static Color getColor(final int which) {
@@ -517,4 +571,5 @@ public class BoxPrinter {
 	static Color varColor = getColor(SWT.COLOR_GRAY);
 	static Color boldColor = getColor(SWT.COLOR_MAGENTA);
 	static Color numColor = new Color(Display.getCurrent(), new RGB(0, 0, 192));
+
 }
