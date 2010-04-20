@@ -222,6 +222,15 @@
             name="Rascal Editor">
       </editor>
       <editor
+            class="org.rascalmpl.eclipse.box.BoxViewer"
+            default="false"
+            extensions="rsc"
+            filenames="*.rsc"
+            icon="icons/rascal3D_2-16px.gif"
+            id="org.rascalmpl.eclipse.box.boxviewer"
+            name="Box Viewer">
+      </editor>
+      <editor
             class="org.rascalmpl.eclipse.library.viz.Figure.FigureViewer"
             default="false"
             icon="icons/rascal3D_2-16px.gif"
@@ -303,9 +312,9 @@
             </objectState>
          </visibility>
          <action
-               class="org.rascalmpl.eclipse.box.MakeBox"
-               id="org.rascalmpl.eclipse.box.makeBox"
-               label="Make Box"
+               class="org.rascalmpl.eclipse.box.PrintAction"
+               id = "org.rascalmpl.eclipse.box.printAction"
+               label="Pretty Print"
                icon="icons/rascal3D_2-16px.gif"
                menubarPath="additions">
          </action>
