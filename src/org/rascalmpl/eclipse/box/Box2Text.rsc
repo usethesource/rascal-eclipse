@@ -229,7 +229,7 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
       int i= o["i"];
       int n = h + hwidth(a);
       if (size(a)>1) { // Multiple lines 
-           text T1 = QQ(A, V([]), o, m-i);
+           text T1 = O(A, V([]), o, m-i);
            return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, o, m, H([]))));
           }
       if (n <= s) {  // Box A fits in current line
@@ -238,11 +238,11 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
       else {
         n -= h; // n == width(a)
          if  ((i+n)<m) { // Fits in the next line, not in current line
-                 text T1 =QQ(A, V([]), o, m-i);
+                 text T1 =O(A, V([]), o, m-i);
                  return vv(T, vv_(vskip(v), HVHV(T1, m-n-i, B, o, m, H([]))));
                  }
          else { // Doesn't fit in both lines
-                 text T1 =QQ(A, V([]), o, m-i);
+                 text T1 =O(A, V([]), o, m-i);
                  return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, o, m, H([]))));
                  }
           }
@@ -251,7 +251,7 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options o, int m) {
 
 text HVHV(text T, int s, list[Box] b, options o,  int m, Box c) {
       if (isEmpty(b))  return T;
-      text T1 = QQ(b[0], c  , o, s);  // Was H([])
+      text T1 = O(b[0], c  , o, s);  // Was H([])
       return HVHV(T, s, T1 , b[0],  tail(b), o, m);
       }
 
@@ -259,7 +259,7 @@ text HVHV(text T, int s, list[Box] b, options o,  int m, Box c) {
        int h = o["h"];
        // println("HVHV:<h>");
        if (isEmpty(b))  return [];
-       text T =  QQ(b[0], V([]), o, m);  // Was H([])
+       text T =  O(b[0], V([]), o, m);  // Was H([])
        if (size(b)==1) return T;
       return HVHV(T, m-hwidth(T), tail(b), o, m, H([]));
       }
