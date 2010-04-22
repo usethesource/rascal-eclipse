@@ -202,9 +202,7 @@ public class BoxPrinter {
 	}
 
 	private void setMenuBar() {
-		Menu menuBar = new Menu(shell, SWT.BAR);
-		shell.setMenuBar(menuBar);
-
+		final Menu menuBar = new Menu(shell, SWT.BAR);
 		MenuItem item = new MenuItem(menuBar, SWT.CASCADE);
 		item.setText("&File");
 		Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
@@ -307,6 +305,30 @@ public class BoxPrinter {
 				}
 			}
 		});
+		canvas.addListener(SWT.MenuDetect, new Listener() {
+			public void handleEvent(Event event) {
+				// Label label = new Label(canvas, SWT.NONE);
+				// label.setForeground(bgColor);
+				Menu menu = new Menu(canvas);
+				// Menu menu = new Menu(shell, SWT.POP_UP);
+				
+				MenuItem item = new MenuItem(menu, SWT.PUSH);
+				item.setText("P&rint");
+				item.setAccelerator(SWT.CTRL + 'P');
+				item.addSelectionListener(new SelectionAdapter() {
+					public void widgetSelected(SelectionEvent event) {
+						menuPrint();
+					}
+				});
+				menu.setLocation(event.x, event.y);
+				menu.setVisible(true);
+				while (!menu.isDisposed() && menu.isVisible()) {
+					if (!screen.readAndDispatch())
+						screen.sleep();
+				}
+				menu.dispose();
+			}
+		});
 	}
 
 	public void open(URI uri, Canvas canva) {
@@ -314,7 +336,7 @@ public class BoxPrinter {
 		if (inWorkbench)
 			readData(uri);
 		else
-			while (!readData(getFileName()))
+			while (!readData(uri = getFileName()))
 				;
 		if (canva != null) {
 			shell = canva.getShell();
@@ -344,6 +366,7 @@ public class BoxPrinter {
 		displayLineHeight = gc.getFontMetrics().getHeight();
 		printText(gc);
 		adjustHandles(image);
+		shell.setText(new File(uri.getPath()).getName());
 		if (!inWorkbench) {
 			shell.open();
 		}
@@ -393,7 +416,7 @@ public class BoxPrinter {
 	}
 
 	void menuPrint() {
-		PrintDialog dialog = new PrintDialog(shell, SWT.NONE);
+		PrintDialog dialog = new PrintDialog(shell, SWT.PRIMARY_MODAL);
 		PrinterData data = dialog.open();
 		if (data == null)
 			return;
@@ -569,6 +592,7 @@ public class BoxPrinter {
 	static Color keyColor = new Color(Display.getCurrent(), new RGB(127, 0, 85));
 	static Color textColor = getColor(SWT.COLOR_BLACK);
 	static Color varColor = getColor(SWT.COLOR_GRAY);
+	static Color bgColor = getColor(SWT.COLOR_YELLOW);
 	static Color boldColor = getColor(SWT.COLOR_MAGENTA);
 	static Color numColor = new Color(Display.getCurrent(), new RGB(0, 0, 192));
 
