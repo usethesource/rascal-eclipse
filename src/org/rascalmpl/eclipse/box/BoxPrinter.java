@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -49,6 +50,8 @@ public class BoxPrinter {
 	 * http://www.eclipse.org/swt/snippets/
 	 */
 	static Printer printer;
+
+	private File outputFile;
 
 	// public static final String EditorId =
 	// "org.rascalmpl.eclipse.box.boxprinter";
@@ -202,7 +205,9 @@ public class BoxPrinter {
 	}
 
 	private void setMenuBar() {
+		System.err.println("Set MenuBer");
 		final Menu menuBar = new Menu(shell, SWT.BAR);
+		shell.setMenuBar(menuBar);
 		MenuItem item = new MenuItem(menuBar, SWT.CASCADE);
 		item.setText("&File");
 		Menu fileMenu = new Menu(shell, SWT.DROP_DOWN);
@@ -223,6 +228,15 @@ public class BoxPrinter {
 		item.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				menuPrint();
+			}
+		});
+		
+		item = new MenuItem(fileMenu, SWT.PUSH);
+		item.setText("S&ave");
+		item.setAccelerator(SWT.CTRL + 'S');
+		item.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				menuSave();
 			}
 		});
 
@@ -311,15 +325,26 @@ public class BoxPrinter {
 				// label.setForeground(bgColor);
 				Menu menu = new Menu(canvas);
 				// Menu menu = new Menu(shell, SWT.POP_UP);
-				
-				MenuItem item = new MenuItem(menu, SWT.PUSH);
-				item.setText("P&rint");
-				item.setAccelerator(SWT.CTRL + 'P');
-				item.addSelectionListener(new SelectionAdapter() {
-					public void widgetSelected(SelectionEvent event) {
-						menuPrint();
-					}
-				});
+				{
+					MenuItem item = new MenuItem(menu, SWT.PUSH);
+					item.setText("P&rint");
+					item.setAccelerator(SWT.CTRL + 'P');
+					item.addSelectionListener(new SelectionAdapter() {
+						public void widgetSelected(SelectionEvent event) {
+							menuPrint();
+						}
+					});
+				}
+				{
+					MenuItem item = new MenuItem(menu, SWT.PUSH);
+					item.setText("S&ave");
+					item.setAccelerator(SWT.CTRL + 'S');
+					item.addSelectionListener(new SelectionAdapter() {
+						public void widgetSelected(SelectionEvent event) {
+							menuSave();
+						}
+					});
+				}
 				menu.setLocation(event.x, event.y);
 				menu.setVisible(true);
 				while (!menu.isDisposed() && menu.isVisible()) {
@@ -348,15 +373,14 @@ public class BoxPrinter {
 					shell = new Shell(screen);
 				shell.setLayout(new FillLayout());
 				this.canvas = new Canvas(shell, SWT.NO_BACKGROUND
-						| SWT.NO_REDRAW_RESIZE | SWT.H_SCROLL | SWT.V_SCROLL);
-				setMenuBar();
+						| SWT.NO_REDRAW_RESIZE | SWT.H_SCROLL | SWT.V_SCROLL);	
 			}
 		}
 		this.canvas.setBackground(screen.getSystemColor(SWT.COLOR_WHITE));
 		init(this.canvas);
 		Rectangle r = printText(null);
-		System.err.println("Make image:" + r.width + " " + r.height + " "
-				+ topMargin());
+//		System.err.println("Make image:" + r.width + " " + r.height + " "
+//				+ topMargin());
 		image = new Image(screen, r.width, r.height + topMargin());
 		if (hBar == null)
 			initShell();
@@ -368,8 +392,12 @@ public class BoxPrinter {
 		adjustHandles(image);
 		shell.setText(new File(uri.getPath()).getName());
 		if (!inWorkbench) {
+			setMenuBar();
 			shell.open();
 		}
+		outputFile = new File(System.getProperty("user.home") + File.separator
+				+ "box", new File(uri.getPath()).getName());
+		// System.err.println("Hallo:" + outputFile);
 		canvas.redraw();
 	}
 
@@ -431,6 +459,10 @@ public class BoxPrinter {
 		printingThread.start();
 	}
 
+	void menuSave() {
+		save(outputFile);
+	}
+
 	void menuNew() {
 		shell.setVisible(false);
 		open(null, null);
@@ -478,6 +510,20 @@ public class BoxPrinter {
 			b.append("\n");
 		}
 		return b.toString();
+	}
+
+	void save(File f) {
+		String[] data = textToPrint.split("\b.{3}");
+		try {
+			PrintStream s = new PrintStream(f);
+			for (String a : data) {
+				s.print(a);
+			}
+			s.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private Rectangle printText(GC gcc) {
