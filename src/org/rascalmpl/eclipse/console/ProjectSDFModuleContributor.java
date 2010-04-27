@@ -46,8 +46,8 @@ public class ProjectSDFModuleContributor implements ISdfSearchPathContributor{
 		}
 
 		// TODO: Temporary hack to access Rascal syntax, remove later!
-		Bundle rascalBundle = Platform.getBundle("rascal");
-		sdfSearchPath.add(Activator.getFile(rascalBundle, "/src/org/rascalmpl/library"));
+//		Bundle rascalBundle = Platform.getBundle("rascal");
+//		sdfSearchPath.add(Activator.getFile(rascalBundle, "/src/org/rascalmpl/library"));
 
 		return sdfSearchPath;
 	}
