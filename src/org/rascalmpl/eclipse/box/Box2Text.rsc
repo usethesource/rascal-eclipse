@@ -176,8 +176,22 @@ text HH(list[Box] b, Box c, options o, int m) {
 text VV(list[Box] b, Box c, options o, int m) {
     if (isEmpty(b)) return [];
     int v = o["v"];
+    text r = [];
+    b = reverse(b);
+    for (a<-b) {
+          text t = O(a, V([]), o, m);
+          r = vv(t, vv_(vskip(v), r));
+    }
+    return r;
+   }
+
+/*
+text VV(list[Box] b, Box c, options o, int m) {
+    if (isEmpty(b)) return [];
+    int v = o["v"];
     return vv(O(b[0], c , o, m), vv_(vskip(v), VV(tail(b), V([]), o, m)));
    }
+*/
 
 text II(list[Box] b, Box c, options o, int m) {
  if (isEmpty(b)) return [];
@@ -282,22 +296,21 @@ text font(text t, str tg) {
   }
 
 text QQ(Box b, Box c, options o, int m) {
- text t=[];
       switch(b) {
-         case L(str s): {t= LL(s);}
-         case  H(list[Box] bl): {t =  HH(bl, c, o, m); }
-         case  V(list[Box] bl): {t = VV(bl, c, o, m);}
-         case  I(list[Box] bl):{t = II(bl, c, o, m);}
-         case  WD(list[Box] bl):{t = WDWD(bl, c, o, m);}
-         case  HOV(list[Box] bl):{t = HOVHOV(bl, c, o, m);}
-         case  HV(list[Box] bl):{t= HVHV(bl, c, o, m);}
-         case  SPACE(int n):{t= hskip(n);}
-         case  A(list[Box] bl):{t = AA(bl, c, o, f, m);}
-         case KW(Box a):{t =  decorated?font(O(a, c, o, m),"bf"):O(a,c,o,m);}
-         case VAR(Box a):{t = decorated?font(O( a, c, o, m),"it"):O( a, c, o, m);}
-         case NM(Box a):{t = decorated?font(O( a, c, o, m),"nm"):O( a, c, o, m);}
+         case L(str s): {return LL(s);}
+         case  H(list[Box] bl): {return HH(bl, c, o, m); }
+         case  V(list[Box] bl): {return VV(bl, c, o, m);}
+         case  I(list[Box] bl):{return II(bl, c, o, m);}
+         case  WD(list[Box] bl):{return WDWD(bl, c, o, m);}
+         case  HOV(list[Box] bl):{return HOVHOV(bl, c, o, m);}
+         case  HV(list[Box] bl):{return  HVHV(bl, c, o, m);}
+         case  SPACE(int n):{return  hskip(n);}
+         case  A(list[Box] bl):{return AA(bl, c, o, f, m);}
+         case KW(Box a):{return decorated?font(O(a, c, o, m),"bf"):O(a,c,o,m);}
+         case VAR(Box a):{return  decorated?font(O( a, c, o, m),"it"):O( a, c, o, m);}
+         case NM(Box a):{return decorated?font(O( a, c, o, m),"nm"):O( a, c, o, m);}
      }
-return t;
+return [];
 }
 
 text O(Box b, Box c, options o, int m) {
