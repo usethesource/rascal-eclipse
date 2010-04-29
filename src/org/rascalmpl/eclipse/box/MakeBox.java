@@ -2,9 +2,13 @@ package org.rascalmpl.eclipse.box;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -41,12 +45,14 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.interpreter.BoxEvaluator;
 import org.rascalmpl.interpreter.CommandEvaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.load.FromCurrentWorkingDirectoryLoader;
 import org.rascalmpl.interpreter.load.FromResourceLoader;
 import org.rascalmpl.interpreter.load.ModuleLoader;
 import org.rascalmpl.interpreter.result.Result;
@@ -56,6 +62,8 @@ import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.errors.SubjectAdapter;
+import org.rascalmpl.values.errors.SummaryAdapter;
 import org.rascalmpl.values.uptr.Factory;
 
 public class MakeBox {
@@ -90,7 +98,6 @@ public class MakeBox {
 
 	private Type adt;
 
-
 	private void execute(String s) {
 		try {
 			IConstructor tree = commandEvaluator.parseCommand(s);
@@ -124,19 +131,21 @@ public class MakeBox {
 				.getValueFactory(), stderr, stdout, root, heap);
 		commandEvaluator.addModuleLoader(new FromResourceLoader(
 				this.getClass(), "org/rascalmpl/eclipse/library/"));
+		commandEvaluator
+				.addModuleLoader(new FromCurrentWorkingDirectoryLoader());
 		commandEvaluator.addModuleLoader(new FromResourceLoader(getClass(),
 				"org/rascalmpl/eclipse/box/"));
 		commandEvaluator.addClassLoader(getClass().getClassLoader());
 		Object ioInstance = commandEvaluator.getJavaBridge()
 				.getJavaClassInstance(IO.class);
 		((IO) ioInstance).setOutputStream(new PrintStream(System.out)); // Set
-																		// output
-																		// collector.
+		// output
+		// collector.
 	}
 
 	private IValue launch(String resultName) {
 		// in = new ByteArrayInputStream(byteArray);
-		start();
+
 		execute("import Box2Text;");
 		try {
 			IValue v = new PBFReader().read(ValueFactoryFactory
@@ -156,25 +165,60 @@ public class MakeBox {
 			return null;
 		}
 	}
+	
+	private IConstructor handleImport(String moduleName) throws IOException {
+		IConstructor tree = commandEvaluator.parseCommand("import "
+				+ moduleName + ";");
+		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
+			SubjectAdapter s = new SummaryAdapter(tree).getInitialSubject();
+			for (int i = 0; i < s.getEndColumn(); i++) {
+				System.err.println(" ");
+			}
+			System.err.println("^\n");
+			System.err.println("parse error at"
+					+ (s.getEndLine() != 1 ? (" line" + s.getEndLine())
+							: "") + " column " + s.getEndColumn());
+		} else {
+			Command stat = new ASTBuilder(new ASTFactory())
+					.buildCommand(tree);
+			if (stat == null) {
+				System.err.println("STAT is NULL");
+				return null;
+			}
+			Result<IValue> value = commandEvaluator.eval(stat);
+
+			if (value.getValue() != null) {
+				System.err.println(value.getValue());
+				return null;
+			}
+		}
+		return tree;
+	}
 
 	public IValue run(URI uri, IAction action) {
-		// System.setProperty("rascal.options.saveBinaries", "true");
 		loader = new ModuleLoader();
 		// System.setProperty("rascal.options.saveBinaries", "false");
 		heap = new GlobalEnvironment();
-		root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
-		URIResolverRegistry registry = URIResolverRegistry.getInstance();
-		FileURIResolver files = new FileURIResolver();
-		registry.registerInput(files.scheme(), files);
-		System.err.println("URI:" + uri);
+		InputStream inputStream = null;
 		try {
-			IConstructor tree = loader.parseModule(uri, root);
-			System.err.println("parsed");
-			Module module = new ASTBuilder(new ASTFactory()).buildModule(tree);
-			System.err.println("build");
+			URIResolverRegistry registry = URIResolverRegistry.getInstance();
+			FileURIResolver files = new FileURIResolver();
+			registry.registerInput(files.scheme(), files);
+			inputStream = URIResolverRegistry.getInstance().getInputStream(uri);
+			BufferedReader d = new BufferedReader(new InputStreamReader(
+					inputStream));
+			String q = d.readLine();
+			String[] g = q.split("\\s+");
+			String moduleName = g[1];
+			root = heap.addModule(new ModuleEnvironment(moduleName));
+			start();
+			handleImport(moduleName);
+			ModuleEnvironment env = heap.getModule(moduleName);
+			Module module = commandEvaluator.getModuleLoader().loadModule(
+					moduleName, null, env);
 			ts = eval.getTypeStore();
 			adt = BoxEvaluator.getType();
-			System.err.println("Checked");
+			// System.err.println("Checked");
 			IValue v = eval.evalRascalModule(module);
 			data = new Data();
 			new PBFWriter().write(v, data, ts);
@@ -193,16 +237,6 @@ public class MakeBox {
 		} catch (SyntaxError e) {
 			return null;
 		}
+
 	}
-
-	// public void setActivePart(IAction action, IWorkbenchPart targetPart) {
-	// }
-	//
-	// public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-	// if (targetEditor.getEditorInput() instanceof FileEditorInput) {
-	// project = ((FileEditorInput) targetEditor.getEditorInput())
-	// .getFile().getProject();
-	// }
-	// }
-
 }

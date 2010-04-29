@@ -51,13 +51,13 @@ public class BoxPrinter {
 	 */
 	static Printer printer;
 
-	private File outputFile;
+	private String outputFile, outputDir;
 
 	// public static final String EditorId =
 	// "org.rascalmpl.eclipse.box.boxprinter";
 
 	enum TAG {
-		it(SWT.ITALIC), nm(SWT.NORMAL), bf(SWT.BOLD), start(SWT.NORMAL);
+		it(SWT.ITALIC), nm(SWT.NORMAL), bf(SWT.BOLD), df(SWT.NORMAL);
 		Font displayFont, printerFont;
 
 		TAG(int style) {
@@ -114,7 +114,7 @@ public class BoxPrinter {
 
 	public static void main(String[] args) {
 		final BoxPrinter boxPrinter = new BoxPrinter()/* .open() */;
-		boxPrinter.open(null, null);
+		boxPrinter.open();
 		close();
 	}
 
@@ -139,21 +139,21 @@ public class BoxPrinter {
 	}
 
 	private URI getFileName() {
-		if (shell == null)
-			shell = new Shell(screen);
 		FileDialog dialog = new FileDialog(shell);
 		String[] filterExtensions = new String[] { "*.rsc" };
 		dialog.setFilterExtensions(filterExtensions);
 		String defaultDir = System.getProperty("DEFAULTDIR");
 		if (defaultDir != null)
 			dialog.setFilterPath(defaultDir);
+
 		String fileName = dialog.open();
 		if (fileName == null) {
 			System.err.println("Canceled");
 			System.exit(0);
 		}
 		try {
-			return new URI("file", fileName, null);
+			URI r = new URI("file", fileName, null);
+			return r;
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			return null;
@@ -205,7 +205,6 @@ public class BoxPrinter {
 	}
 
 	private void setMenuBar() {
-		System.err.println("Set MenuBer");
 		final Menu menuBar = new Menu(shell, SWT.BAR);
 		shell.setMenuBar(menuBar);
 		MenuItem item = new MenuItem(menuBar, SWT.CASCADE);
@@ -230,7 +229,7 @@ public class BoxPrinter {
 				menuPrint();
 			}
 		});
-		
+
 		item = new MenuItem(fileMenu, SWT.PUSH);
 		item.setText("S&ave");
 		item.setAccelerator(SWT.CTRL + 'S');
@@ -356,47 +355,61 @@ public class BoxPrinter {
 		});
 	}
 
-	public void open(URI uri, Canvas canva) {
-		boolean inWorkbench = (uri != null);
-		if (inWorkbench)
-			readData(uri);
-		else
-			while (!readData(uri = getFileName()))
-				;
-		if (canva != null) {
-			shell = canva.getShell();
-			screen = shell.getDisplay();
-			this.canvas = canva;
-		} else {
-			if (this.canvas == null) {
-				if (shell == null)
-					shell = new Shell(screen);
-				shell.setLayout(new FillLayout());
-				this.canvas = new Canvas(shell, SWT.NO_BACKGROUND
-						| SWT.NO_REDRAW_RESIZE | SWT.H_SCROLL | SWT.V_SCROLL);	
-			}
+	public void open() {
+		if (shell == null) {
+			shell = new Shell(screen);
+			shell.setLayout(new FillLayout());
+			this.canvas = new Canvas(shell, SWT.NO_BACKGROUND
+					| SWT.NO_REDRAW_RESIZE | SWT.H_SCROLL | SWT.V_SCROLL);
 		}
+		URI uri;
+		while (!readData(uri = getFileName()))
+			;
+		shell.setText(new File(uri.getPath()).getName());
+		_open(uri);
+		setMenuBar();
+		shell.open();
+		canvas.redraw();
+	}
+
+	public void open(URI uri, Canvas canvas) {
+		// IWorkspaceRoot workspace = ResourcesPlugin.getWorkspace().getRoot();
+		// System.err.println("OK this is this:"+workspace.getProject("box").getFolder("src"));
+		// IFolder folder = workspace.getProject("box").getFolder("src");
+		// System.err.println("HOI:"+folder.exists()+" "+folder.getLocationURI());
+
+		// FileDialog dialog = new FileDialog(shell);
+		// dialog.setFilterPath(string);
+		readData(uri);
+		shell = canvas.getShell();
+		screen = shell.getDisplay();
+		this.canvas = canvas;
+		_open(uri);
+		this.canvas.redraw();
+	}
+
+	private void _open(URI uri) {
+        File f = new File(uri.getPath());
+		outputDir = f.getParent();
+		outputFile = f.getName().substring(0, f.getName().lastIndexOf('.'))+".pp.rsc";
 		this.canvas.setBackground(screen.getSystemColor(SWT.COLOR_WHITE));
 		init(this.canvas);
 		Rectangle r = printText(null);
-//		System.err.println("Make image:" + r.width + " " + r.height + " "
-//				+ topMargin());
+		// System.err.println("Make image:" + r.width + " " + r.height + " "
+		// + topMargin());
 		image = new Image(screen, r.width, r.height + topMargin());
 		if (hBar == null)
 			initShell();
 		final GC gc = new GC(image);
-		setTag(gc, TAG.start);
+		setTag(gc, TAG.df);
 		displayTabWidth = gc.stringExtent(tabs).x;
 		displayLineHeight = gc.getFontMetrics().getHeight();
 		printText(gc);
 		adjustHandles(image);
-		shell.setText(new File(uri.getPath()).getName());
-		if (!inWorkbench) {
-			setMenuBar();
-			shell.open();
-		}
-		outputFile = new File(System.getProperty("user.home") + File.separator
-				+ "box", new File(uri.getPath()).getName());
+
+		// outputFile = new File(System.getProperty("user.home") +
+		// File.separator
+		// + "box", new File(uri.getPath()).getName());
 		// System.err.println("Hallo:" + outputFile);
 		canvas.redraw();
 	}
@@ -413,7 +426,7 @@ public class BoxPrinter {
 		case nm:
 			gc.setForeground(numColor);
 			return;
-		case start:
+		case df:
 			gc.setForeground(textColor);
 			return;
 		}
@@ -460,12 +473,16 @@ public class BoxPrinter {
 	}
 
 	void menuSave() {
-		save(outputFile);
+		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+		dialog.setFilterPath(outputDir);
+        dialog.setFileName(outputFile);
+		String fileName = dialog.open();
+		save(new File(fileName));
 	}
 
 	void menuNew() {
 		shell.setVisible(false);
-		open(null, null);
+		open();
 	}
 
 	void print() {
@@ -488,7 +505,7 @@ public class BoxPrinter {
 			 * foreground color.
 			 */
 			final GC gc = new GC(printer);
-			setTag(gc, TAG.start);
+			setTag(gc, TAG.df);
 			printerTabWidth = gc.stringExtent(tabs).x;
 			printerLineHeight = gc.getFontMetrics().getHeight();
 			// System.err.println("LH:"+lineHeight);
@@ -532,13 +549,13 @@ public class BoxPrinter {
 		GC gc;
 		if (gcc == null) {
 			gc = new GC(screen);
-			setTag(gc, TAG.start);
+			setTag(gc, TAG.df);
 			displayTabWidth = gc.stringExtent(tabs).x;
 			displayLineHeight = gc.getFontMetrics().getHeight();
 			newGC = true;
 		} else
 			gc = gcc;
-		TAG current = TAG.start;
+		TAG current = TAG.df;
 		setTag(gc, current);
 		if (textToPrint == null)
 			return null;

@@ -8,8 +8,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
@@ -21,14 +19,11 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
-import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.texteditor.AbstractTextEditor;
-import org.eclipse.ui.texteditor.ITextEditorActionConstants;
-import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
 public class BoxViewer extends EditorPart {
+	
 
 //	@Override
 //	public boolean isEditable() {
@@ -37,7 +32,7 @@ public class BoxViewer extends EditorPart {
 
 	public BoxViewer() {
 		super();
-		System.err.println("BoxViewer");
+		// System.err.println("BoxViewer");
 		
 	}
 	
@@ -78,26 +73,7 @@ public class BoxViewer extends EditorPart {
 	}
 	
 
-	// static private BoxViewer findConsole(String name) {
-	// ConsolePlugin plugin = ConsolePlugin.getDefault();
-	// IConsoleManager conMan = plugin.getConsoleManager();
-	// IConsole[] existing = conMan.getConsoles();
-	// for (int i = 0; i < existing.length; i++)
-	// if (name.equals(existing[i].getName()))
-	// return (BoxViewer) existing[i];
-	// //no console found, so create a new one
-	// // Display.getCurrent().asyncExec(runnable);
-	// BoxViewer myConsole = new BoxViewer(name,
-	// ImageDescriptor.getMissingImageDescriptor());
-	// conMan.addConsoles(new IConsole[]{myConsole});
-	// return myConsole;
-	// }
-	//	
-	// static void run(URI uri) {
-	// BoxViewer p = findConsole(CONSOLE_NAME);
-	// p.setImageDescriptor(new BoxPrinter().open(uri));
-	// p.activate();
-	// }
+	
 
 	static void print(MessageConsole myConsole, IValue v) {
 		final Stack<MessageConsoleStream> stack = new Stack<MessageConsoleStream>();
@@ -166,42 +142,8 @@ public class BoxViewer extends EditorPart {
 			throws PartInitException {
 		setSite(site);
 		setInput(input);
-//		final IActionBars allActionBars = getEditorSite().getActionBars();
-//		IContributionItem[] items = allActionBars.getMenuManager().getItems();
-//		for (IContributionItem item : items) {
-//			System.err.println(item.getId() + " " + item.getClass());
-//			if (item instanceof MenuManager) {
-//				MenuManager m = (MenuManager) item;
-//				Menu q = m.getMenu();
-//				System.err.println("Hallo1:" + q);
-//				if (q != null) {
-//					System.err.println("Hallo2:" + m.getSize());
-//					System.err.println("Hallo3:" + q.getItemCount());
-//					IContributionItem[] a = m.getItems();
-//					for (IContributionItem b : a) {
-//						if (b instanceof CommandContributionItem) {
-//							CommandContributionItem c = (CommandContributionItem) b;
-//							System.err.println(b.getId() + " " + b.getClass());
-//							System.err.println(c.getCommand());
-//							if (c.getCommand() != null) {
-//								System.err.println(c.getCommand().getCommand());
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
 	}
 
-	//	
-	// String id = ActionFactory.PRINT.getId();
-	// IContributionItem[] items = allActionBars.getMenuManager().getItems();
-	// IAction printAction = new Action() {};
-	// site.getActionBars().setGlobalActionHandler(.getId(), printAction);
-	// IActionBars actionBars = site.getActionBars();
-	// actionBars.getMenuManager().add();
-	// actionBars.updateActionBars();
-	// PlatformUI.getWorkbench().
 
 	@Override
 	public boolean isDirty() {
@@ -230,13 +172,15 @@ public class BoxViewer extends EditorPart {
 	public void createPartControl(Composite parent) {
 		canvas = new Canvas(parent, SWT.NO_BACKGROUND /* | SWT.NO_REDRAW_RESIZE */
 				| SWT.H_SCROLL | SWT.V_SCROLL);
+//		canvas = (Canvas) this.getSourceViewer();
 		canvas.setLayout(new FillLayout());
 		canvas.setVisible(true);
 		IEditorInput input = getEditorInput();
 		FileEditorInput f = (FileEditorInput) input;
-		URI uri = f.getFile().getLocationURI();
+// System.err.println("Folder:"+ f.getFile().getParent().getLocationURI());
 		setPartName(f.getFile().getName());
 		boxPrinter = new BoxPrinter();
+		URI uri = f.getFile().getLocationURI();
 		boxPrinter.open(uri, canvas);
 	}
 
