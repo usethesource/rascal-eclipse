@@ -1,16 +1,16 @@
 package org.rascalmpl.eclipse.perspective.actions;
 
-import java.io.IOException;
+import java.net.URI;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.expressions.EvaluationContext;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.ui.DebugPopup;
 import org.eclipse.debug.ui.DebugUITools;
-import org.eclipse.core.expressions.EvaluationContext;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
@@ -117,28 +117,19 @@ public class EvaluateExpression extends AbstractHandler implements IEditorAction
 		} else if (object instanceof ILaunch) {
 			target = (RascalDebugTarget) ((ILaunch) object).getDebugTarget();
 		}
+
+		//evaluate
+		Result<org.eclipse.imp.pdb.facts.IValue> value = target.getEvaluator().eval(expr, URI.create("debug:///"));
+
 		try {
-			//parse the expression
-			org.rascalmpl.ast.Expression ast = target.getInterpreter().getExpression(expr	);
-
-			//evaluate
-			Result<org.eclipse.imp.pdb.facts.IValue> value = target.getEvaluator().eval(ast);
-
-			try {
-				String result = null;
-				if (value != null) {
-					result = expr+"\n"+value.toString();
-					DisplayPopup popup = new DisplayPopup(shell, point, result);
-					popup.open();
-				}
-			} catch (Throwable t) {
-				DebugPlugin.log(t);
+			String result = null;
+			if (value != null) {
+				result = expr+"\n"+value.toString();
+				DisplayPopup popup = new DisplayPopup(shell, point, result);
+				popup.open();
 			}
-
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Throwable t) {
+			DebugPlugin.log(t);
 		}
 	}
 

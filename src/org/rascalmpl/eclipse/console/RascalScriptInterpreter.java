@@ -33,7 +33,6 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.ast.ASTFactory;
 import org.rascalmpl.ast.Command;
-import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Command.Shell;
 import org.rascalmpl.ast.ShellCommand.Edit;
@@ -50,14 +49,14 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
-import org.rascalmpl.interpreter.load.FromResourceLoader;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.library.IO;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.values.errors.SubjectAdapter;
-import org.rascalmpl.values.errors.SummaryAdapter;
+import org.rascalmpl.uri.ClassResourceInputStreamResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -69,15 +68,13 @@ public class RascalScriptInterpreter implements IInterpreter{
 	private String command;
 	private String content;
 	private IFile lastMarked;
-	/* module loader associated to a given Eclipse project */
-	/* used for hyperlinks */
-	private ProjectModuleLoader moduleLoader;
+
+	private IProject project;
 	
 	public RascalScriptInterpreter(Evaluator eval, IProject project){
 		this(eval);
-		// initialize to the moduleLoader associated to a project
-		moduleLoader = new ProjectModuleLoader(project);
-		eval.addModuleLoader(moduleLoader);
+		this.project = project;
+		eval.addRascalSearchPath(URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
 		eval.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project));
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(new RascalModuleUpdateListener(this));
 	}
@@ -89,17 +86,15 @@ public class RascalScriptInterpreter implements IInterpreter{
 		eval.reloadModule(path.replaceAll("/","::"));
 	}
 	
-	public IFile getFile(String fileName) throws IOException, CoreException {
-		return moduleLoader.getFile(fileName);
-	}
-
 	public RascalScriptInterpreter(Evaluator eval){
 		super();
 
 		this.command = "";
 		this.eval = eval;
-
-		eval.addModuleLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/rascalmpl/eclipse/library"));
+		this.project = null;
+		
+		URIResolverRegistry.getInstance().registerInput("eclipse-lib", new ClassResourceInputStreamResolver("eclipse-lib", RascalScriptInterpreter.class));
+		eval.addRascalSearchPath(URI.create("eclipse-lib:///org/rascalmpl/eclipse/library"));
 		eval.addClassLoader(getClass().getClassLoader());
 	}
 
@@ -133,16 +128,16 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 		try{
 			command += cmd;
-			IConstructor tree = eval.parseCommand(command);
-			Type constructor = tree.getConstructorType();
-			if(constructor == Factory.ParseTree_Summary) {
-				execParseError(tree);
-				return false;
-			}
+			IConstructor tree = eval.parseCommand(command, URI.create("stdin:///"));
 			
+			// TODO?? what is this doing here in the main loop?
 			Object ioInstance = eval.getJavaBridge().getJavaClassInstance(IO.class);
 			((IO) ioInstance).setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
 			execCommand(tree);
+		}
+		catch(SyntaxError e) {
+			execParseError(e);
+			return false;
 		}
 		catch(QuitException q){
 			throw new TerminationException();
@@ -152,10 +147,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 			command = "";
 			ISourceLocation location = e.getLocation();
 			e.printStackTrace();
-			if(location != null && location.getURI().getAuthority().equals("-")){
 				setMarker(e.getMessage(), location);
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
-			}
 		}
 		catch(Throw e){
 			content = e.getMessage() + "\n";
@@ -169,9 +162,6 @@ public class RascalScriptInterpreter implements IInterpreter{
 				setMarker(e.getMessage(), location);
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
-		}
-		catch (CommandExecutionException e) {
-			throw e;
 		}
 		catch(Throwable e){
 			content = "internal exception: " + e.toString();
@@ -189,29 +179,23 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 			URI url = loc.getURI();
 
-			if (url.getScheme().equals("console")) {
-				return;
-			}
+			if (project != null && url.getScheme().equals("project")) {
+				lastMarked = project.getFile(url.getPath());
 
-			lastMarked = getFile(url.getPath());
+				if (lastMarked != null) {
+					IMarker m = lastMarked.createMarker(IMarker.PROBLEM);
 
-			if (lastMarked != null) {
-				IMarker m = lastMarked.createMarker(IMarker.PROBLEM);
-
-				m.setAttribute(IMarker.TRANSIENT, true);
-				m.setAttribute(IMarker.CHAR_START, loc.getOffset());
-				m.setAttribute(IMarker.CHAR_END, loc.getOffset() + loc.getLength());
-				m.setAttribute(IMarker.MESSAGE, message);
-				m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-				m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+					m.setAttribute(IMarker.TRANSIENT, true);
+					m.setAttribute(IMarker.CHAR_START, loc.getOffset());
+					m.setAttribute(IMarker.CHAR_END, loc.getOffset() + loc.getLength());
+					m.setAttribute(IMarker.MESSAGE, message);
+					m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+					m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+				}
 			}
 		} catch (CoreException ex) {
 			Activator.getInstance().logException("marker", ex);
-		} catch (IOException ex) {
-			//Activator.getInstance().logException("marker", ex);
-			// Ignore, can happen.
-		}
-		
+		} 
 	}
 
 	private void execCommand(IConstructor tree) {
@@ -284,7 +268,12 @@ public class RascalScriptInterpreter implements IInterpreter{
 	
 	private void editCommand(Edit x) throws IOException, CoreException {
 		String module = x.getName().toString();
-		final IFile file = getFile(module);
+		
+		if (project == null) {
+			return;
+			
+		}
+		final IFile file = project.getFile(module);
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
 		
@@ -315,16 +304,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 		}
 	}
 
-	private void execParseError(IConstructor tree) throws CommandExecutionException{
-		SubjectAdapter initialSubject = new SummaryAdapter(tree).getInitialSubject();
-		
-		if (initialSubject == null) {
-			command = "";
-			content = "";
-			throw new CommandExecutionException("parse error at unknown location");
-		}
-		
-		ISourceLocation location = initialSubject.getLocation();
+	private void execParseError(SyntaxError e) throws CommandExecutionException{
+		ISourceLocation location = e.getLocation();
 		String[] commandLines = command.split("\n");
 		int lastLine = commandLines.length;
 		int lastColumn = commandLines[lastLine - 1].length();
@@ -437,14 +418,6 @@ public class RascalScriptInterpreter implements IInterpreter{
 		return eval;
 	}
 
-	/* construct an Expression AST from a String */ 
-	public Expression getExpression(String expression) throws IOException{
-		IConstructor tree = eval.parseCommand(expression+";");
-		Command c = new ASTBuilder(new ASTFactory()).buildCommand(tree);	
-		return c.getStatement().getExpression();
-	}
-
-  
 	public void setStdErr(PrintWriter w) {
 		eval.setStdErr(w);
 	}

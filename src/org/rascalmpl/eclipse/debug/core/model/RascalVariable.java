@@ -1,6 +1,6 @@
 package org.rascalmpl.eclipse.debug.core.model;
 
-import java.io.IOException;
+import java.net.URI;
 
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
@@ -92,21 +92,13 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IValueModification#setValue(java.lang.String)
 	 */
 	public void setValue(String expression) throws DebugException {
-		try {
-			//parse the expression
-			org.rascalmpl.ast.Expression ast = getRascalDebugTarget().getInterpreter().getExpression(expression);
+		//evaluate
+		value = getRascalDebugTarget().getEvaluator().eval(expression, URI.create("debug:///"));
 
-			//evaluate
-			value = getRascalDebugTarget().getEvaluator().eval(ast);
+		//store the result in its environment
+		envt.storeVariable(name, value);
 
-			//store the result in its environment
-			envt.storeVariable(name, value);
-
-			fireChangeEvent(DebugEvent.CONTENT);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		fireChangeEvent(DebugEvent.CONTENT);
 	}
 
 	/* (non-Javadoc)

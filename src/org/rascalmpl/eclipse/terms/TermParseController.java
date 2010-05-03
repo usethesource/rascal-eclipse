@@ -1,8 +1,5 @@
 package org.rascalmpl.eclipse.terms;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.Iterator;
 
@@ -24,17 +21,10 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.ProjectURIResolver;
 import org.rascalmpl.eclipse.editor.NodeLocator;
 import org.rascalmpl.eclipse.editor.TokenIterator;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.ModuleLoader;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.parser.ConcreteObjectParser;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ParsetreeAdapter;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class TermParseController implements IParseController {
 	private IMessageHandler handler;
@@ -43,8 +33,7 @@ public class TermParseController implements IParseController {
 	private IPath path;
 	private Language language;
 	private IEvaluatorContext evaluator;
-	private IConstructor start;
-	private ConcreteObjectParser parser = new ConcreteObjectParser();
+	private IConstructor start; 
 	
 	public Object getCurrentAst(){
 		return parseTree;
@@ -102,23 +91,7 @@ public class TermParseController implements IParseController {
 		try{
 			handler.clearMessages();
 			monitor.beginTask("parsing " + language.getName(), 1);
-			
-			
-			Evaluator eval = evaluator.getEvaluator();
-			ModuleLoader loader = eval.getModuleLoader();
-
-			InputStream stream = new ByteArrayInputStream(input.getBytes());
-			parseTree = parser.parseStream(loader.getSdfSearchPath(), ((ModuleEnvironment) evaluator.getCurrentEnvt().getRoot()).getSDFImports(), stream);
-			parseTree = ParsetreeAdapter.addPositionInformation(parseTree, location);
-			
-			IConstructor tree = (IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(parseTree)).get(1);
-			IConstructor prod = TreeAdapter.getProduction(tree);
-			IConstructor rhs = ProductionAdapter.getRhs(prod);
-
-			if (!rhs.isEqual(start.get(0))) {
-				parseTree = null;
-			}
-
+			parseTree = evaluator.getEvaluator().parseObject(start, location);
 			monitor.worked(1);
 			return parseTree;
 		}
@@ -143,9 +116,6 @@ public class TermParseController implements IParseController {
 		catch (NullPointerException npex){
 			Activator.getInstance().logException("parsing " + language.getName() + " failed", npex);
 		} 
-		catch (IOException e) {
-			Activator.getInstance().logException("parsing " + language.getName() + " failed", e);
-		}
 		finally{
 			monitor.done();
 		}

@@ -19,25 +19,22 @@ import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.console.ProjectModuleLoader;
 import org.rascalmpl.eclipse.console.ProjectSDFModuleContributor;
 import org.rascalmpl.eclipse.console.ProjectURIResolver;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.FromCurrentWorkingDirectoryLoader;
-import org.rascalmpl.interpreter.load.FromResourceLoader;
 import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
-import org.rascalmpl.interpreter.load.ModuleLoader;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.values.errors.SummaryAdapter;
-import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.values.uptr.ParsetreeAdapter;
+import org.rascalmpl.uri.ClassResourceInputStreamResolver;
+import org.rascalmpl.uri.IURIInputStreamResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ParseController implements IParseController {
-	private final ModuleLoader loader = new ModuleLoader();
-
-	
+	private Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), null, null, new ModuleEnvironment("***parser***"), new GlobalEnvironment());
 	private IMessageHandler handler;
 	private ISourceProject project;
 	private IConstructor parseTree;
@@ -85,21 +82,20 @@ public class ParseController implements IParseController {
 		this.project = project;
 		
 		if (project != null) {
-			loader.addFileLoader(new ProjectModuleLoader(project.getRawProject()));
+			parser.addRascalSearchPath(URI.create("project://" + project.getName()));
 		}
-		loader.addFileLoader(new FromResourceLoader(RascalScriptInterpreter.class, "org/rascalmpl/eclipse/lib"));
+		
+		IURIInputStreamResolver library = new ClassResourceInputStreamResolver("rascal-eclipse-library", RascalScriptInterpreter.class);
+		URIResolverRegistry.getInstance().registerInput(library.scheme(), library);
+		
+		parser.addRascalSearchPath(URI.create("rascal-eclipse-library:///org/rascalmpl/eclipse/lib"));
 		
 		if (project != null) {
-			loader.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project.getRawProject()));
+			parser.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project.getRawProject()));
 		}
 		
-		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
-		
-		// everything rooted at the src directory 
-		loader.addFileLoader(new FromResourceLoader(this.getClass()));
-
 		// add current wd and sdf-library to search path for SDF modules
-		loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
+		parser.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new LinkedList<String>();
 				result.add(System.getProperty("user.dir"));
@@ -117,17 +113,9 @@ public class ParseController implements IParseController {
 			monitor.beginTask("parsing Rascal", 1);
 			
 			URI uri = ProjectURIResolver.constructProjectURI(project, path);
-			IConstructor result = loader.parseModule(uri, input, new ModuleEnvironment("***editor***"));
-			
-			if (result.getConstructorType() == Factory.ParseTree_Summary) {
-				ISourceLocation location = new SummaryAdapter(result).getInitialSubject().getLocation();
-				handler.handleSimpleMessage("parse error: " + location, location.getOffset(), location.getOffset() + location.getLength(), location.getBeginColumn(), location.getEndColumn(), location.getBeginLine(), location.getEndLine());
-			} else {
-				parseTree = ParsetreeAdapter.addPositionInformation(result, uri);
-			}
-			
+			parseTree = parser.parseModule(uri, new ModuleEnvironment("***editor***"));
 			monitor.worked(1);
-			return result;
+			return parseTree;
 		}
 		catch(FactTypeUseException e){
 			Activator.getInstance().logException("parsing rascal failed", e);

@@ -220,7 +220,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	}
 	
 	protected void setError(final int offset, final int length){
-		Display.getDefault().syncExec(new Runnable(){
+		Display.getDefault().asyncExec(new Runnable(){
 			public void run(){
 				TextConsoleViewer consoleViewer = page.getViewer();
 				StyledText styledText = consoleViewer.getTextWidget();
