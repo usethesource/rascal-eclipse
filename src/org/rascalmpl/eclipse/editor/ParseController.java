@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -34,7 +35,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ParseController implements IParseController {
-	private Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), null, null, new ModuleEnvironment("***parser***"), new GlobalEnvironment());
+	private Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.err), new PrintWriter(System.out), new ModuleEnvironment("***parser***"), new GlobalEnvironment());
 	private IMessageHandler handler;
 	private ISourceProject project;
 	private IConstructor parseTree;
