@@ -114,7 +114,7 @@ public class ParseController implements IParseController {
 			monitor.beginTask("parsing Rascal", 1);
 			
 			URI uri = ProjectURIResolver.constructProjectURI(project, path);
-			parseTree = parser.parseModule(uri, new ModuleEnvironment("***editor***"));
+			parseTree = parser.parseModule(input.getBytes(), uri, new ModuleEnvironment("***editor***"));
 			monitor.worked(1);
 			return parseTree;
 		}
