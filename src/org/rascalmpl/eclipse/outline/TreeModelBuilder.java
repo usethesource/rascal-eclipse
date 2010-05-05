@@ -23,6 +23,7 @@ import org.rascalmpl.ast.Declaration.Rule;
 import org.rascalmpl.ast.Declaration.Tag;
 import org.rascalmpl.ast.Declaration.Variable;
 import org.rascalmpl.ast.Declaration.View;
+import org.rascalmpl.ast.Import.Syntax;
 import org.rascalmpl.ast.Module.Default;
 import org.rascalmpl.ast.Toplevel.GivenVisibility;
 import org.rascalmpl.parser.ASTBuilder;
@@ -130,8 +131,15 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			}
 			
 			for (Import i : x.getHeader().getImports()) {
-				imports.add(i.getModule());
+				if (i.hasModule()) {
+					imports.add(i.getModule());
+				}
 			}
+			return x;
+		}
+		
+		@Override
+		public AbstractAST visitImportSyntax(Syntax x) {
 			return x;
 		}
 		
