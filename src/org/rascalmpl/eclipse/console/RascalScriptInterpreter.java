@@ -305,23 +305,33 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 
 	private void execParseError(SyntaxError e) throws CommandExecutionException{
-		ISourceLocation location = e.getLocation();
-		String[] commandLines = command.split("\n");
-		int lastLine = commandLines.length;
-		int lastColumn = commandLines[lastLine - 1].length();
+		if (e.getLocation().getURI().getScheme().equals("stdin")) {
+			ISourceLocation location = e.getLocation();
+			String[] commandLines = command.split("\n");
+			int lastLine = commandLines.length;
+			int lastColumn = commandLines[lastLine - 1].length();
 
-		if (location.getEndLine() == lastLine && lastColumn <= location.getEndColumn()) { 
-			content = "";
-		} else {
-			content = "";
-			for (int i = 0; i < location.getEndColumn() + "rascal>".length(); i++) {
-				
-				content += " ";
+			if (location.getEndLine() == lastLine && lastColumn <= location.getEndColumn()) { 
+				content = "";
+			} else {
+				content = "";
+				for (int i = 0; i < location.getEndColumn() + "rascal>".length(); i++) {
+
+					content += " ";
+				}
+				content += "^ ";
+				content += "parse error here";
+				command = "";
+				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
-			content += "^ ";
-			content += "parse error here";
+		}
+		else {
+			content = e.getMessage();
 			command = "";
-			throw new CommandExecutionException(content, location.getOffset(), location.getLength());
+			ISourceLocation location = e.getLocation();
+			e.printStackTrace();
+				setMarker(e.getMessage(), location);
+				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
 		}
 	}
 
