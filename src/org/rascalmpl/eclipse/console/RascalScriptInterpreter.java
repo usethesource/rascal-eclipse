@@ -158,7 +158,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 			}
 			command = "";
 			ISourceLocation location = e.getLocation();
-			if(location != null && location.getURI().getAuthority().equals("-")){
+			if(location != null && !location.getURI().getScheme().equals("stdin")){
 				setMarker(e.getMessage(), location);
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
