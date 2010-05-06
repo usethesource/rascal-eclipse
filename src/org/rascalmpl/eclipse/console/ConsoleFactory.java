@@ -1,8 +1,11 @@
 package org.rascalmpl.eclipse.console;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -10,6 +13,7 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IHyperlink;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.OutputInterpreterConsole;
@@ -18,7 +22,11 @@ import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.interpreter.debug.IDebugger;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ParsetreeAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
 
 public class ConsoleFactory{
 	public final static String INTERACTIVE_CONSOLE_ID = InteractiveInterpreterConsole.class.getName();
@@ -54,6 +62,25 @@ public class ConsoleFactory{
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
+	}
+	
+	public void openRunConsole(IProject project, IFile file) {
+		IRascalConsole console = openRunConsole(project);
+		Evaluator eval = console.getRascalInterpreter().getEval();
+		try {
+			IConstructor tree = eval.parseModule(file.getLocationURI(), new ModuleEnvironment("***tmp***"));
+			IConstructor top = (IConstructor) tree.get(0);
+			IConstructor mod = (IConstructor) TreeAdapter.getArgs(top).get(1);
+			IConstructor header = (IConstructor) TreeAdapter.getArgs(mod).get(0);
+			IConstructor name = (IConstructor) TreeAdapter.getArgs(header).get(4);
+			String module = org.rascalmpl.values.uptr.TreeAdapter.yield(name);
+			eval.doImport(module);
+		} catch (IOException e) {
+			Activator.getInstance().logException("failed to import module in " + file.getName(), e);
+		} catch (SyntaxError e) {
+			// can happen
+		}
+		
 	}
 
 	public IRascalConsole openRunOutputConsole(){
@@ -182,6 +209,8 @@ public class ConsoleFactory{
 			return (RascalScriptInterpreter) getInterpreter();
 		}
 	}
+
+	
 
 
 }

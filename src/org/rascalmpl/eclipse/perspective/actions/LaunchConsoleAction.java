@@ -16,11 +16,12 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 
 public class LaunchConsoleAction implements IObjectActionDelegate, IActionDelegate2, IEditorActionDelegate {
-	
 	IProject project;
+	IFile file;
 
 	public void dispose() {
 		project = null;
+		file = null;
 	}
 
 	public void init(IAction action) {}
@@ -30,7 +31,12 @@ public class LaunchConsoleAction implements IObjectActionDelegate, IActionDelega
 	}
 
 	public void run(IAction action) {
-		ConsoleFactory.getInstance().openRunConsole(project);
+		if (file != null) {
+			ConsoleFactory.getInstance().openRunConsole(project, file);
+		}
+		else {
+			ConsoleFactory.getInstance().openRunConsole(project);
+		}
 	}
 
 	public void selectionChanged(IAction action, ISelection selection) {
@@ -39,12 +45,15 @@ public class LaunchConsoleAction implements IObjectActionDelegate, IActionDelega
 			Object element = ss.getFirstElement();
 			if (element instanceof IProject) {
 				project = (IProject) element;
+				file = null;
 			}
 			else if (element instanceof IFolder) {
 				project = ((IFolder) element).getProject();
+				file = null;
 			}
 			else if (element instanceof IFile) {
 				project = ((IFile) element).getProject();
+				file = (IFile) element;
 			}
 		}
 	}

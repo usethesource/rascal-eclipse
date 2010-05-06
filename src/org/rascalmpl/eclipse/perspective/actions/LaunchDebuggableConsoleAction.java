@@ -25,9 +25,11 @@ import org.rascalmpl.eclipse.IRascalResources;
 public class LaunchDebuggableConsoleAction implements IObjectActionDelegate, IActionDelegate2, IEditorActionDelegate {
 
 	IProject project;
+	IFile file;
 
 	public void dispose() {
 		project = null;
+		file = null;
 	}
 
 	public void init(IAction action) {}
@@ -61,12 +63,15 @@ public class LaunchDebuggableConsoleAction implements IObjectActionDelegate, IAc
 			Object element = ss.getFirstElement();
 			if (element instanceof IProject) {
 				project = (IProject) element;
+				file = null;
 			}
 			else if (element instanceof IFolder) {
 				project = ((IFolder) element).getProject();
+				file = null;
 			}
 			else if (element instanceof IFile) {
 				project = ((IFile) element).getProject();
+				file = (IFile) element;
 			}
 		}
 	}
