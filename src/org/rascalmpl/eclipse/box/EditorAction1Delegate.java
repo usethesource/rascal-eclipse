@@ -14,7 +14,6 @@ public class EditorAction1Delegate extends org.eclipse.ui.actions.ActionDelegate
 	
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
 		// TODO Auto-generated method stub
-             b = (BoxViewer) b;
 	}
 
 	public void run(IAction action) {
