@@ -19,10 +19,15 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.eclipse.ui.editors.text.FileDocumentProvider;
+import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
+import org.rascalmpl.library.box.BoxPrinter;
 
-public class BoxViewer extends EditorPart {
+public class BoxViewer extends TextEditor {
 	
 
 //	@Override
@@ -32,6 +37,8 @@ public class BoxViewer extends EditorPart {
 
 	public BoxViewer() {
 		super();
+		setDocumentProvider(new FileDocumentProvider());
+		
 		// System.err.println("BoxViewer");
 		
 	}
@@ -168,9 +175,9 @@ public class BoxViewer extends EditorPart {
 		return boxPrinter;
 	}
 
-	@Override
+/*	@Override
 	public void createPartControl(Composite parent) {
-		canvas = new Canvas(parent, SWT.NO_BACKGROUND /* | SWT.NO_REDRAW_RESIZE */
+	canvas = new Canvas(parent, SWT.NO_BACKGROUND // | SWT.NO_REDRAW_RESIZE 
 				| SWT.H_SCROLL | SWT.V_SCROLL);
 //		canvas = (Canvas) this.getSourceViewer();
 		canvas.setLayout(new FillLayout());
@@ -179,15 +186,17 @@ public class BoxViewer extends EditorPart {
 		FileEditorInput f = (FileEditorInput) input;
 // System.err.println("Folder:"+ f.getFile().getParent().getLocationURI());
 		setPartName(f.getFile().getName());
-		boxPrinter = new BoxPrinter();
-		URI uri = f.getFile().getLocationURI();
-		boxPrinter.open(uri, canvas);
+		
+//		boxPrinter = new BoxPrinter();
+//		URI uri = f.getFile().getLocationURI();
+//		boxPrinter.open(uri, canvas);
 	}
+*/
 
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub
-		canvas.setFocus();
+		super.setFocus();
 	}
 
 	// public IPageBookViewPage createPage(IConsoleView view) {
@@ -195,7 +204,8 @@ public class BoxViewer extends EditorPart {
 	// return null;
 	// }
 	
-	
+	@Override
+	public boolean isEditable() {return false;}
 	
 	@Override
 	public  boolean isSaveOnCloseNeeded() {return false;}
