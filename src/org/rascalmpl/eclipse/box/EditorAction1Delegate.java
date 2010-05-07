@@ -16,10 +16,10 @@ public class EditorAction1Delegate extends org.eclipse.ui.actions.ActionDelegate
 		// TODO Auto-generated method stub
 	}
 
-	public void run(IAction action) {
-		// TODO Auto-generated method stub
-		b.getBoxPrinter().menuPrint();
-	}
+//	public void run(IAction action) {
+//		// TODO Auto-generated method stub
+//		b.getBoxPrinter().menuPrint();
+//	}
 
 	public void selectionChanged(IAction action, ISelection selection) {
 		// TODO Auto-generated method stub
