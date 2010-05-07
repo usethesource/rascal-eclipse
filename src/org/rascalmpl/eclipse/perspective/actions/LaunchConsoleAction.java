@@ -12,6 +12,7 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.internal.EditorPluginAction;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 
