@@ -59,7 +59,7 @@ public class NodeLocator implements ISourcePositionLocator {
 	}
 
 	public int getLength(Object node) {
-		return getLocation(node).getLength();
+		return getLocation(node) == null ? 0 : getLocation(node).getLength();
 	}
 
 	public IPath getPath(Object node) {
@@ -67,7 +67,7 @@ public class NodeLocator implements ISourcePositionLocator {
 	}
 
 	public int getStartOffset(Object node) {
-		return getLocation(node).getOffset();
+		return getLocation(node) == null ? 0 : getLocation(node).getOffset();
 	}
 	
 	private ISourceLocation getLocation(Object node) {

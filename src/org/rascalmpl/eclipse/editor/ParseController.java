@@ -90,7 +90,7 @@ public class ParseController implements IParseController {
 		URIResolverRegistry.getInstance().registerInput(library.scheme(), library);
 		
 		parser.addRascalSearchPath(URI.create("rascal-eclipse-library:///org/rascalmpl/eclipse/lib"));
-		
+		parser.addRascalSearchPath(URI.create("file:///Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library"));
 		if (project != null) {
 			parser.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project.getRawProject()));
 		}
