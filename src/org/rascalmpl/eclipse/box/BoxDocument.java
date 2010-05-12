@@ -4,9 +4,8 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.TypedPosition;
 
 public class BoxDocument extends Document {
 
@@ -24,11 +23,11 @@ public class BoxDocument extends Document {
 		}
 	}
 
-	public BoxDocument() {
-		for (TAG t : TAG.values()) {
-			this.addPositionCategory(t.name());
-		}
-	}
+//	public BoxDocument() {
+//		for (TAG t : TAG.values()) {
+//			this.addPositionCategory(t.name());
+//		}
+//	}
 
 	private void addString(String s) {
 		try {
@@ -56,14 +55,11 @@ public class BoxDocument extends Document {
 					current = tag;
 				} else if (c.charAt(0) == '}') {
 					Frame frame = stack.pop();
-					Position p = new Position(frame.start, this.getLength()
-							- frame.start);
+					TypedPosition p = new TypedPosition(frame.start, this.getLength()
+							- frame.start, current.name());
 					try {
-						this.addPosition(current.name(), p);
+						this.addPosition(p);
 					} catch (BadLocationException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (BadPositionCategoryException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}

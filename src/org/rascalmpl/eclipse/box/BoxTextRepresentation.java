@@ -4,6 +4,7 @@ import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TextPresentation;
+import org.eclipse.jface.text.TypedPosition;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
@@ -18,22 +19,21 @@ public class BoxTextRepresentation extends TextPresentation {
 	BoxTextRepresentation(IDocument d) {
 		this.d = d;
 		// System.err.println("Doclen:"+d.getLength());
-		String[] cs = d.getPositionCategories();
 		setDefaultStyleRange(df(new Position(0, d.getLength())));
-		for (String c:cs) {
 			try {
-				for (Position p: d.getPositions(c)) {
+				for (Position p: d.getPositions(IDocument.DEFAULT_CATEGORY)) {
 					// System.err.println("S:"+c+" "+p);
-					if (c=="bf") this.replaceStyleRange(bf(p));
-					if (c=="it") this.replaceStyleRange(it(p));
-					if (c=="nm") this.replaceStyleRange(nm(p));
-					if (c=="df") this.replaceStyleRange(df(p));
+					TypedPosition q = (TypedPosition) p;
+					if (q.getType()=="bf") this.replaceStyleRange(bf(p));
+					if (q.getType()=="it") this.replaceStyleRange(it(p));
+					if (q.getType()=="nm") this.replaceStyleRange(nm(p));
+					if (q.getType()=="df") this.replaceStyleRange(df(p));
 				}
 			} catch (BadPositionCategoryException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+
 	}
 	
 	final IDocument getDocument() {
@@ -41,19 +41,19 @@ public class BoxTextRepresentation extends TextPresentation {
 	}
 	
 	public StyleRange bf(Position p) {
-		return new StyleRange(p.offset, p.length, keyColor, bgColor, SWT.BOLD);
+		return new StyleRange(p.getOffset(), p.getLength(), keyColor, bgColor, SWT.BOLD);
 	}
 
 	public StyleRange it(Position p) {
-		return new StyleRange(p.offset, p.length, textColor, bgColor, SWT.ITALIC);
+		return new StyleRange(p.getOffset(), p.getLength(), textColor, bgColor, SWT.ITALIC);
 	}
 
 	public StyleRange nm(Position p) {
-		return new StyleRange(p.offset, p.length, numColor, bgColor, SWT.NORMAL);
+		return new StyleRange(p.getOffset(), p.getLength(), numColor, bgColor, SWT.NORMAL);
 	}
 	
 	public StyleRange df(Position p) {
-		return new StyleRange(p.offset, p.length, textColor, bgColor, SWT.NORMAL);
+		return new StyleRange(p.getOffset(), p.getLength(), textColor, bgColor, SWT.NORMAL);
 	}
 
 	private static Color getColor(final int which) {

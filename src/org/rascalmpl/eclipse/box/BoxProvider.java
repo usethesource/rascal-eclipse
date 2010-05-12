@@ -4,17 +4,12 @@ import java.net.URI;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.editors.text.StorageDocumentProvider;
+import org.eclipse.ui.editors.text.FileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.library.box.BoxPrinter;
 
-public class BoxProvider extends StorageDocumentProvider {
+public class BoxProvider extends FileDocumentProvider {
 
 	IDocument d = new BoxDocument();
 
