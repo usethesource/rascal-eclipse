@@ -1,7 +1,6 @@
 package org.rascalmpl.eclipse.box;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.imp.pdb.ui.PDBUIPlugin;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -15,6 +14,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
+import org.rascalmpl.eclipse.Activator;
 
 public class PrintAction implements IEditorActionDelegate {
 
@@ -40,7 +40,7 @@ public class PrintAction implements IEditorActionDelegate {
 						try {
 							page.openEditor(v, BoxViewer.EDITOR_ID);
 						} catch (PartInitException e) {
-							PDBUIPlugin.getDefault().logException(
+							Activator.getInstance().logException(
 									"failed to open graph editor", e);
 						}
 						System.err.println("OK");
