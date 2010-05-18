@@ -27,6 +27,8 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 public class BoxViewer extends AbstractTextEditor {
+	
+	public static final String EDITOR_ID = "org.rascalmpl.eclipse.box.boxviewer";
 
 	static final private Font displayFont = new Font(Display.getCurrent(),
 			new FontData("Monaco", 12, SWT.NORMAL));
@@ -142,8 +144,7 @@ public class BoxViewer extends AbstractTextEditor {
 	// static Color keyColor = getColor(SWT.COLOR_RED);
 	// static Color textColor = getColor(SWT.COLOR_BLACK);
 	// static Color numColor = getColor(SWT.COLOR_BLUE);
-	// public static final String EDITOR_ID =
-	// "org.rascalmpl.eclipse.box.boxviewer";
+	
 	// public static final String EDITOR_CONTEXT = EDITOR_ID + ".context";
 	// public static final String EDITOR_RULER = EDITOR_CONTEXT + ".ruler";
 	//
