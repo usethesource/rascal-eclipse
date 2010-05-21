@@ -84,7 +84,7 @@ public class BoxViewer extends AbstractTextEditor {
 				f.setContents(inp, true, false, progressMonitor);
 			else
 				f.create(inp, true, progressMonitor);
-			System.err.println("HELP SAVE AS" + f);
+			// System.err.println("HELP SAVE AS" + f);
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

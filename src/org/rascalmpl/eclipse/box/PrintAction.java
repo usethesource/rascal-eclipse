@@ -38,10 +38,16 @@ public class PrintAction implements IEditorActionDelegate {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						try {
-							page.openEditor(v, BoxViewer.EDITOR_ID);
+							page
+									.openEditor(
+											v,
+											BoxViewer.EDITOR_ID,
+											true,
+											org.eclipse.ui.IWorkbenchPage.MATCH_ID
+													| org.eclipse.ui.IWorkbenchPage.MATCH_INPUT);
 						} catch (PartInitException e) {
 							Activator.getInstance().logException(
-									"failed to open graph editor", e);
+									"failed to open boxviewer", e);
 						}
 						System.err.println("OK");
 					}
@@ -50,26 +56,28 @@ public class PrintAction implements IEditorActionDelegate {
 		}
 	}
 
-	public static final String actionId = "org.rascalmpl.eclipse.box.printaction";
+	public static final String actionId = "org.rascalmpl.eclipse.box.printAction";
 	IFile file;
 
 	public void selectionChanged(IAction action, ISelection selection) {
+		if (selection==null) return;
 		if (selection instanceof IStructuredSelection) {
 			IStructuredSelection ss = (IStructuredSelection) selection;
+			if (ss==null) return;
 			Object element = ss.getFirstElement();
-			System.err
-					.println("Selected:" + element + " " + element.getClass());
-			if (element instanceof IFile) {
+			if (element!=null && element instanceof IFile) {
 				file = ((IFile) element);
 			}
-		} else
+		} else {
+			if (fi==null) return;
 			file = fi.getFile();
+		    }
 	}
 
 	public void run(IAction action) {
 		// TODO Auto-generated method stub
 		// URI uri = file.getLocationURI();
-		System.err.println("RUN:"+file);
+		System.err.println("RUN:" + file);
 		open(new FileEditorInput(file));
 		// BoxPrinter p = new BoxPrinter();
 		// p.open(uri, null);
@@ -84,7 +92,7 @@ public class PrintAction implements IEditorActionDelegate {
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
 		// TODO Auto-generated method stub
 		fi = (FileEditorInput) targetEditor.getEditorInput();
-		System.err.println("activate:"+fi);
+		System.err.println("activate:" + fi);
 
 	}
 }
