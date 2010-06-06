@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -59,6 +60,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
+import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -81,10 +83,15 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 	private IProject project;
 	
-	public RascalScriptInterpreter(Evaluator eval, IProject project){
+	public RascalScriptInterpreter(Evaluator eval, final IProject project){
 		this(eval);
 		this.project = project;
-		eval.addRascalSearchPath(URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+//		eval.addRascalSearchPath(URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+		eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
+			public void contributePaths(List<URI> path) {
+				path.add(0,URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+			}
+		});
 		eval.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project));
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(new RascalModuleUpdateListener(this));
 	}
