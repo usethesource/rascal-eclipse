@@ -4,9 +4,12 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.parser.IModelListener;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -20,8 +23,24 @@ import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class MarkerModelListener {
+	public void update(final IConstructor parseTree, final IParseController parseController, final IProgressMonitor monitor) {
+		// we need to wrap the work off adding marker annotations in this runnable to prevent
+		// the Eclipse build system to trigger after every annotation we set.
+		IWorkspaceRunnable action = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				doUpdate(parseTree, parseController, monitor);
+			}
+		};
+		
+		try {
+			IProject project = parseController.getProject().getRawProject();
+			project.getWorkspace().run(action, project, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+		} catch (CoreException e) {
+			Activator.getInstance().logException(e.getMessage(), e);
+		}
+	}
 
-	public void update(IConstructor parseTree, IParseController parseController, final IProgressMonitor monitor) {
+	private void doUpdate(IConstructor parseTree, IParseController parseController, final IProgressMonitor monitor) {
 		try {
 			IPath path = parseController.getPath();
 			IProject project = parseController.getProject().getRawProject();

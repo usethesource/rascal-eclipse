@@ -50,7 +50,7 @@ public class StaticCheckModelListener implements IModelListener {
 				monitor.worked(1);
 			}
 		};
-		x.start();
+//		x.start();
 	}
 
 	public int compareTo(IModelListener o) {

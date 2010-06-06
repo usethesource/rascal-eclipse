@@ -12,6 +12,7 @@ import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
@@ -24,6 +25,7 @@ import org.rascalmpl.eclipse.editor.TokenIterator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TermParseController implements IParseController {
@@ -102,13 +104,14 @@ public class TermParseController implements IParseController {
 			handler.handleSimpleMessage("parse error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 		} 
 		catch (Throw e) {
-			ISourceLocation loc = e.getLocation();
+			IValue exc = e.getException();
 			
-			if (loc == null) {
-				loc = (ISourceLocation) ((IConstructor) e.getException()).get(0);
+			if (exc.getType() == RuntimeExceptionFactory.Exception) {
+				if (((IConstructor) exc).getConstructorType() == RuntimeExceptionFactory.ParseError) {
+					ISourceLocation loc = (ISourceLocation) ((IConstructor) e.getException()).get(0);
+					handler.handleSimpleMessage("parse error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
+				}
 			}
-			
-			handler.handleSimpleMessage("parse error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 		}
 		catch (FactTypeUseException ftuex) {
 			Activator.getInstance().logException("parsing " + language.getName() + " failed", ftuex);

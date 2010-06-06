@@ -225,7 +225,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				TextConsoleViewer consoleViewer = page.getViewer();
 				StyledText styledText = consoleViewer.getTextWidget();
 				Display currentDisplay = Display.getCurrent();
-				styledText.setStyleRange(new StyleRange(offset, (length != 0) ? length : 1, new Color(currentDisplay, 255, 0, 0), new Color(currentDisplay, 255, 255, 255), SWT.NORMAL));
+				// TODO: dit levert indexoutofbounds op
+//				styledText.setStyleRange(new StyleRange(offset, (length != 0) ? length : 1, new Color(currentDisplay, 255, 0, 0), new Color(currentDisplay, 255, 255, 255), SWT.NORMAL));
 			}
 		});
 	}

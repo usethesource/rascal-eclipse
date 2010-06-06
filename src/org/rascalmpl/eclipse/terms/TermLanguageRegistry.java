@@ -8,6 +8,7 @@ import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class TermLanguageRegistry {
 	private final Map<String, Language> languages = new HashMap<String,Language>();
@@ -29,7 +30,11 @@ public class TermLanguageRegistry {
 		Language l = new Language(name, "", "demo editor for " + name, "Terms", "icons/rascal3D_2-32px.gif", "http://www.rascal-mpl.org","rascal-eclipse",extension,"",null);
 		languages.put(extension, l);
 		evals.put(name, ctx);
-		starts.put(name, start);
+		
+		if (!start.getName().equals("non-terminal")) {
+			throw RuntimeExceptionFactory.illegalArgument(start, ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+		starts.put(name, (IConstructor) start.get(0));
 		LanguageRegistry.registerLanguage(l);
 	}
 	

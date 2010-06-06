@@ -15,8 +15,16 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -38,6 +46,7 @@ import org.rascalmpl.ast.Command.Shell;
 import org.rascalmpl.ast.ShellCommand.Edit;
 import org.rascalmpl.ast.ShellCommand.History;
 import org.rascalmpl.ast.ShellCommand.Quit;
+import org.rascalmpl.ast.ShellCommand.Test;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.internal.CommandExecutionException;
@@ -45,6 +54,7 @@ import org.rascalmpl.eclipse.console.internal.CommandHistory;
 import org.rascalmpl.eclipse.console.internal.IInterpreter;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.TerminationException;
+import org.rascalmpl.eclipse.console.internal.TestReporter;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -128,12 +138,22 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 		try{
 			command += cmd;
-			IConstructor tree = eval.parseCommand(command, URI.create("stdin:///"));
+			final IConstructor tree = eval.parseCommand(command, URI.create("stdin:///"));
 			
 			// TODO?? what is this doing here in the main loop?
 			Object ioInstance = eval.getJavaBridge().getJavaClassInstance(IO.class);
 			((IO) ioInstance).setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
-			execCommand(tree);
+
+			// This code makes sure that if files are read or written during Rascal execution, the build
+			// infra-structure of Eclipse is not triggered
+			IWorkspaceRunnable action = new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					monitor.beginTask("Rascal Command", IProgressMonitor.UNKNOWN);
+					execCommand(tree);
+					monitor.done();
+				}
+			};
+			project.getWorkspace().run(action, project, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
 		}
 		catch(SyntaxError e) {
 			execParseError(e);
@@ -223,6 +243,13 @@ public class RascalScriptInterpreter implements IInterpreter{
 					Activator.getInstance().logException("edit", e);
 				}
 
+				return ResultFactory.nothing();
+			}
+			
+			@Override
+			public Result<IValue> visitShellCommandTest(final Test x) {
+				eval.setTestResultListener(new TestReporter());
+				x.accept(eval);								
 				return ResultFactory.nothing();
 			}
 
