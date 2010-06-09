@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Vector;
 
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
@@ -588,7 +591,9 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 						Command command = commandQueue.remove(0);
 						if(completeCommandStartOffset == -1) completeCommandStartOffset = command.commandStartOffset;
 						try{
+							Platform.getJobManager().beginRule(ResourcesPlugin.getWorkspace().getRoot(), new NullProgressMonitor());
 							completeCommand = console.interpreter.execute(command.command);
+							
 							if(completeCommand){
 								console.printOutput(console.interpreter.getOutput());
 								completeCommandStartOffset = -1; // Reset offset.
@@ -605,6 +610,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 							// Roll over and die.
 							console.terminate();
 							return;
+						} finally {
+							Platform.getJobManager().endRule(ResourcesPlugin.getWorkspace().getRoot());
 						}
 					}while(commandQueue.size() > 0);
 					
