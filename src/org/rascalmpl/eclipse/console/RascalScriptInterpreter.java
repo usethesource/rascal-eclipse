@@ -198,31 +198,38 @@ public class RascalScriptInterpreter implements IInterpreter{
 		return true;
 	}
 
-	private void setMarker(String message, ISourceLocation loc) {
-		try {
-			if (loc == null) {
-				return;
-			}
+	private void setMarker(final String message, final ISourceLocation loc) {
+		// this needs to be done asyncronously, because it will trigger a build, but we
+		// want to have a prompt back quickly.
+		
+		new Thread() {
+			public void run() {
+				try {
+					if (loc == null) {
+						return;
+					}
 
-			URI url = loc.getURI();
+					URI url = loc.getURI();
 
-			if (project != null && url.getScheme().equals("project")) {
-				lastMarked = project.getFile(url.getPath());
+					if (project != null && url.getScheme().equals("project")) {
+						lastMarked = project.getFile(url.getPath());
 
-				if (lastMarked != null) {
-					IMarker m = lastMarked.createMarker(IMarker.PROBLEM);
+						if (lastMarked != null) {
+							IMarker m = lastMarked.createMarker(IMarker.PROBLEM);
 
-					m.setAttribute(IMarker.TRANSIENT, true);
-					m.setAttribute(IMarker.CHAR_START, loc.getOffset());
-					m.setAttribute(IMarker.CHAR_END, loc.getOffset() + loc.getLength());
-					m.setAttribute(IMarker.MESSAGE, message);
-					m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-					m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-				}
-			}
-		} catch (CoreException ex) {
-			Activator.getInstance().logException("marker", ex);
-		} 
+							m.setAttribute(IMarker.TRANSIENT, true);
+							m.setAttribute(IMarker.CHAR_START, loc.getOffset());
+							m.setAttribute(IMarker.CHAR_END, loc.getOffset() + loc.getLength());
+							m.setAttribute(IMarker.MESSAGE, message);
+							m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+							m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+						}
+					}
+				} catch (CoreException ex) {
+					Activator.getInstance().logException("marker", ex);
+				} 
+			};
+		}.start();
 	}
 
 	private void execCommand(IConstructor tree) {
