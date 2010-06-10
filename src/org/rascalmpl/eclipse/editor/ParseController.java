@@ -86,8 +86,12 @@ public class ParseController implements IParseController {
 			parser.addRascalSearchPath(URI.create("project://" + project.getName()));
 		}
 		
+		ProjectURIResolver resolver = new ProjectURIResolver();
+		parser.getResolverRegistry().registerInput(resolver.scheme(), resolver);
+		parser.getResolverRegistry().registerOutput(resolver.scheme(), resolver);
+		
 		IURIInputStreamResolver library = new ClassResourceInputStreamResolver("rascal-eclipse-library", RascalScriptInterpreter.class);
-		URIResolverRegistry.getInstance().registerInput(library.scheme(), library);
+		parser.getResolverRegistry().registerInput(library.scheme(), library);
 		
 		parser.addRascalSearchPath(URI.create("rascal-eclipse-library:///org/rascalmpl/eclipse/lib"));
 		parser.addRascalSearchPath(URI.create("file:///Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library"));

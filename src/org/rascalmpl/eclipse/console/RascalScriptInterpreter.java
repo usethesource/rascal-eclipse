@@ -106,7 +106,10 @@ public class RascalScriptInterpreter implements IInterpreter{
 		this.eval = eval;
 		this.project = null;
 		
-		URIResolverRegistry.getInstance().registerInput("eclipse-lib", new ClassResourceInputStreamResolver("eclipse-lib", RascalScriptInterpreter.class));
+		ProjectURIResolver resolver = new ProjectURIResolver();
+		eval.getResolverRegistry().registerInput(resolver.scheme(), resolver);
+		eval.getResolverRegistry().registerOutput(resolver.scheme(), resolver);
+		eval.getResolverRegistry().registerInput("eclipse-lib", new ClassResourceInputStreamResolver("eclipse-lib", RascalScriptInterpreter.class));
 		eval.addRascalSearchPath(URI.create("eclipse-lib:///org/rascalmpl/eclipse/library"));
 		eval.addClassLoader(getClass().getClassLoader());
 	}

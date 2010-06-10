@@ -83,12 +83,6 @@ public class Activator extends PluginBase {
 			
 			// SDF parse table
 			SDFParseController.setParseTable(getFile(rascalPluginBundle, "installed/share/pgen/Sdf2.saf"));
-			
-			// project scheme
-			ProjectURIResolver resolver = new ProjectURIResolver();
-			URIResolverRegistry registry = URIResolverRegistry.getInstance();
-			registry.registerInput(resolver.scheme(), resolver);
-			registry.registerOutput(resolver.scheme(), resolver);
 		}
 	}
 
