@@ -17,6 +17,7 @@ import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Declaration.Variable;
 import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class LabelProvider implements ILabelProvider, ILanguageService  {
@@ -74,19 +75,19 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 		}
 		else if (node2 instanceof Declaration.Function) {
 			Signature signature = ((Declaration.Function) node2).getFunctionDeclaration().getSignature();
-			result = signature.getName().toString() + signature.getParameters().toString();
+			result = Names.name(signature.getName()) + signature.getParameters().toString();
 		}
 		else if (node2 instanceof FunctionDeclaration) {
 			Signature signature = ((Declaration.Function) node2).getFunctionDeclaration().getSignature();
-			result = signature.getName().toString() + signature.getParameters().toString();
+			result = Names.name(signature.getName()) + signature.getParameters().toString();
 		}
 		else if (node2 instanceof org.rascalmpl.ast.Variable) {
 			org.rascalmpl.ast.Variable v = (org.rascalmpl.ast.Variable) node2;
-			result = v.getName().toString();
+			result = Names.name(v.getName());
 		}
 		else if (node2 instanceof Declaration.Variable) {
 			Declaration.Variable var = (Variable) node2;
-			result = var.getName() + ": " + var.getType();
+			result = Names.name(var.getName()) + ": " + var.getType();
 		}
 		else if (node2 instanceof Declaration.Data) {
 			result = ((Declaration.Data) node2).toString();
@@ -95,14 +96,14 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 			result = ((Declaration.DataAbstract) node2).toString();
 		}
 		else if (node2 instanceof Declaration.Rule) {
-			result = "rule " + ((Declaration.Rule) node2).getName().toString();
+			result = "rule " + Names.name(((Declaration.Rule) node2).getName());
 		}
 		else if (node2 instanceof Declaration.Alias) {
 			result = ((Declaration.Alias) node2).getUser().toString();
 		}
 		else if (node2 instanceof Variant.NAryConstructor) {
 			Variant v = (Variant) node2;
-			result = v.getName() + "(" + v.getArguments() + ")"; 
+			result = Names.name(v.getName()) + "(" + v.getArguments() + ")"; 
 		}
 		else {
 		    result = node2.toString();
