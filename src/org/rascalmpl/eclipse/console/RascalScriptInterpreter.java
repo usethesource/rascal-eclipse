@@ -22,6 +22,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -52,6 +53,7 @@ import org.rascalmpl.eclipse.console.internal.IInterpreter;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.TerminationException;
 import org.rascalmpl.eclipse.console.internal.TestReporter;
+import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -64,7 +66,6 @@ import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.library.IO;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.uri.ClassResourceInputStreamResolver;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -112,6 +113,14 @@ public class RascalScriptInterpreter implements IInterpreter{
 		eval.getResolverRegistry().registerInput("eclipse-lib", new ClassResourceInputStreamResolver("eclipse-lib", RascalScriptInterpreter.class));
 		eval.addRascalSearchPath(URI.create("eclipse-lib:///org/rascalmpl/eclipse/library"));
 		eval.addClassLoader(getClass().getClassLoader());
+		
+		try {
+			String rascalPlugin = Platform.resolve(Platform.getBundle("rascal").getEntry("/")).getPath();
+			String PDBValuesPlugin = Platform.resolve(Platform.getBundle("org.eclipse.imp.pdb.values").getEntry("/")).getPath();
+			Configuration.setRascalJavaClassPathProperty(rascalPlugin + File.pathSeparator + PDBValuesPlugin + File.pathSeparator + rascalPlugin + File.separator + "bin" + File.pathSeparator + PDBValuesPlugin + File.separator + "bin");
+		} catch (IOException e) {
+			Activator.getInstance().logException("could not create classpath for parser compilation", e);
+		}
 	}
 
 	public void initialize(){
