@@ -351,6 +351,22 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			reset();
 		}
 		
+		@Override
+		public synchronized void write(byte[] b, int off, int len) throws IOException {
+			if(!enabled) throw new RuntimeException("Unable to write data while no commands are being executed");
+			
+			int currentSize = buffer.length;
+			if (index + len >= currentSize){
+				byte[] newData = new byte[(currentSize + len) << 1];
+				System.arraycopy(buffer, 0, newData, 0, currentSize);
+				buffer = newData;
+			}
+			
+			System.arraycopy(b, 0, buffer, index, len);
+			index += len;
+			print();
+		}
+		
 		public synchronized void write(int arg) throws IOException{
 			if(!enabled) throw new RuntimeException("Unable to write data while no commands are being executed");
 			
