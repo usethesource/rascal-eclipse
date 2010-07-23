@@ -110,7 +110,7 @@
    <extension
          point="org.eclipse.imp.runtime.editorActionContributions">
       <editorActionContributor
-            class="org.rascalmpl.eclipse.editor.ActionContributor"
+            class="org.rascalmpl.eclipse.editor.StaticCheckModelListener"
             language="Rascal">
       </editorActionContributor>
    </extension>
@@ -184,6 +184,13 @@
       <editorService
             class="org.rascalmpl.eclipse.editor.StaticCheckModelListener"
             language="Rascal">
+      </editorService>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.editorService">
+      <editorService
+            class="org.rascalmpl.eclipse.terms.AnnotatorModelListener"
+            language="term">
       </editorService>
    </extension>
    <extension
@@ -561,13 +568,6 @@
            bundle="rascal_plugin"
            path="installed/bin/">
      </rascal_eclipse.baseBinaryPath>
-  </extension>
-  <extension
-        point="org.eclipse.imp.runtime.editorService">
-     <editorService
-           class="org.rascalmpl.eclipse.terms.AnnotatorModelListener"
-           language="Terms">
-     </editorService>
   </extension>
   
 	 

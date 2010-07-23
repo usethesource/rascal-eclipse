@@ -20,6 +20,7 @@ import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ProjectSDFModuleContributor;
 import org.rascalmpl.eclipse.console.ProjectURIResolver;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
@@ -83,7 +84,7 @@ public class ParseController implements IParseController {
 		this.project = project;
 		
 		if (project != null) {
-			parser.addRascalSearchPath(URI.create("project://" + project.getName()));
+			parser.addRascalSearchPath(URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
 		}
 		
 		ProjectURIResolver resolver = new ProjectURIResolver();

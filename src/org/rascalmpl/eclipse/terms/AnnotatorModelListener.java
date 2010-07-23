@@ -15,6 +15,16 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
+/**
+ * This class connects the Eclipse IDE with Rascal functions that annotate parse trees.
+ * 
+ * It makes sure these annotator functions are called after each successful parse.
+ * After proper annotations have been added, features such as documentation tooltips
+ * and hyperlinking uses to definitions start working.
+ * 
+ * Note that this class only works for languages that have been registered using the
+ * API in SourceEditor.rsc
+ */
 public class AnnotatorModelListener implements IModelListener {
 	private final MarkerModelListener marker = new MarkerModelListener();
 	
@@ -26,7 +36,7 @@ public class AnnotatorModelListener implements IModelListener {
 		final Language lang = parseController.getLanguage();
 		final String name = lang.getName();
 		
-		monitor.beginTask("Checking Rascal module " + parseController.getPath().toString(), 1);
+		monitor.beginTask("Annotating " + lang.getName() + " file:" + parseController.getPath().toString(), 1);
 		IConstructor parseTree = (IConstructor) parseController.getCurrentAst();
 
 		OverloadedFunctionResult func = TermLanguageRegistry.getInstance().getAnnotator(name);
@@ -63,11 +73,11 @@ public class AnnotatorModelListener implements IModelListener {
 				marker.update(parseTree, parseController, monitor);
 			}
 			else {
-				Activator.getInstance().logException("static checker returned null", new RuntimeException());
+				Activator.getInstance().logException("annotator returned null", new RuntimeException());
 			}
 		}
 		catch (Throwable e) {
-			Activator.getInstance().logException("static checker failed", e);
+			Activator.getInstance().logException("annotater failed", e);
 		}
 		monitor.worked(1);
 	}
