@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -115,8 +116,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 		eval.addClassLoader(getClass().getClassLoader());
 		
 		try {
-			String rascalPlugin = Platform.resolve(Platform.getBundle("rascal").getEntry("/")).getPath();
-			String PDBValuesPlugin = Platform.resolve(Platform.getBundle("org.eclipse.imp.pdb.values").getEntry("/")).getPath();
+			String rascalPlugin = FileLocator.resolve(Platform.getBundle("rascal").getEntry("/")).getPath();
+			String PDBValuesPlugin = FileLocator.resolve(Platform.getBundle("org.eclipse.imp.pdb.values").getEntry("/")).getPath();
 			Configuration.setRascalJavaClassPathProperty(rascalPlugin + File.pathSeparator + PDBValuesPlugin + File.pathSeparator + rascalPlugin + File.separator + "bin" + File.pathSeparator + PDBValuesPlugin + File.separator + "bin");
 		} catch (IOException e) {
 			Activator.getInstance().logException("could not create classpath for parser compilation", e);
@@ -236,7 +237,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 				} catch (CoreException ex) {
 					Activator.getInstance().logException("marker", ex);
 				} 
-			};
+			}
 		}.start();
 	}
 
@@ -257,14 +258,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 			
 			@Override
 			public Result<IValue> visitShellCommandEdit(Edit x) {
-				try {
-					editCommand(x);
-				} catch (IOException e) {
-					Activator.getInstance().logException("edit", e);
-				} catch (CoreException e) {
-					Activator.getInstance().logException("edit", e);
-				}
-
+				editCommand(x);
+				
 				return ResultFactory.nothing();
 			}
 			
@@ -315,7 +310,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		return (valString.length() <= 200) ? valString : valString.substring(0, 200 - 3) + "...";
 	}
 	
-	private void editCommand(Edit x) throws IOException, CoreException {
+	private void editCommand(Edit x){
 		String module = x.getName().toString();
 		
 		if (project == null) {

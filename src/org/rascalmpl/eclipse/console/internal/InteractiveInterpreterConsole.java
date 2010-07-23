@@ -6,7 +6,7 @@ import java.util.Vector;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
@@ -228,8 +228,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				TextConsoleViewer consoleViewer = page.getViewer();
 				StyledText styledText = consoleViewer.getTextWidget();
 				Display currentDisplay = Display.getCurrent();
-				// TODO: dit levert indexoutofbounds op
-//				styledText.setStyleRange(new StyleRange(offset, (length != 0) ? length : 1, new Color(currentDisplay, 255, 0, 0), new Color(currentDisplay, 255, 255, 255), SWT.NORMAL));
+				if((offset > 0) && (offset < getDocument().getLength())) styledText.setStyleRange(new StyleRange(offset, (length != 0) ? length : 1, new Color(currentDisplay, 255, 0, 0), new Color(currentDisplay, 255, 255, 255), SWT.NORMAL));
 			}
 		});
 	}
@@ -351,19 +350,23 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			reset();
 		}
 		
-		@Override
-		public synchronized void write(byte[] b, int off, int len) throws IOException {
+		public synchronized void write(byte[] bytes, int offset, int length) throws IOException {
 			if(!enabled) throw new RuntimeException("Unable to write data while no commands are being executed");
 			
 			int currentSize = buffer.length;
-			if (index + len >= currentSize){
-				byte[] newData = new byte[(currentSize + len) << 1];
-				System.arraycopy(buffer, 0, newData, 0, currentSize);
-				buffer = newData;
+			if(index + length >= currentSize){
+				int newSize = currentSize;
+				do{
+					newSize <<= 1;
+				}while(newSize < (index + length));
+				
+				byte[] newBuffer = new byte[newSize << 1];
+				System.arraycopy(buffer, 0, newBuffer, 0, currentSize);
+				buffer = newBuffer;
 			}
 			
-			System.arraycopy(b, 0, buffer, index, len);
-			index += len;
+			System.arraycopy(bytes, offset, buffer, index, length);
+			index += length;
 			print();
 		}
 		
@@ -607,7 +610,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 						Command command = commandQueue.remove(0);
 						if(completeCommandStartOffset == -1) completeCommandStartOffset = command.commandStartOffset;
 						try{
-							Platform.getJobManager().beginRule(ResourcesPlugin.getWorkspace().getRoot(), new NullProgressMonitor());
+							Job.getJobManager().beginRule(ResourcesPlugin.getWorkspace().getRoot(), new NullProgressMonitor());
 							completeCommand = console.interpreter.execute(command.command);
 							
 							if(completeCommand){
@@ -627,7 +630,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 							console.terminate();
 							return;
 						} finally {
-							Platform.getJobManager().endRule(ResourcesPlugin.getWorkspace().getRoot());
+							Job.getJobManager().endRule(ResourcesPlugin.getWorkspace().getRoot());
 						}
 					}while(commandQueue.size() > 0);
 					
