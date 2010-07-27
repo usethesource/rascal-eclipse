@@ -40,7 +40,10 @@ public class ParseController implements IParseController {
 	private IMessageHandler handler;
 	private ISourceProject project;
 	private IConstructor parseTree;
+	private IConstructor lastParseTree = null;
+	private byte[] lastParsedInput = null;
 	private IPath path;
+	private StaticCheckModelListener staticChecker = new StaticCheckModelListener();
 	
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
 		return null;
@@ -119,7 +122,30 @@ public class ParseController implements IParseController {
 			monitor.beginTask("parsing Rascal", 1);
 			
 			URI uri = ProjectURIResolver.constructProjectURI(project, path);
-			parseTree = parser.parseModule(input.getBytes(), uri, new ModuleEnvironment("***editor***"));
+
+			byte[] inputBytes = input.getBytes();
+			boolean arraysMatch = true;
+			if (lastParsedInput != null) { 
+				if(inputBytes.length != lastParsedInput.length) {
+					arraysMatch = false;
+				} else {
+					for (int n = 0; n < inputBytes.length; ++n)
+						if (inputBytes[n] != lastParsedInput[n]) {
+							arraysMatch = false;
+							break;
+						}
+				}
+			}
+			
+			if (lastParsedInput != null && arraysMatch) {
+				parseTree = lastParseTree;
+			} else {
+				lastParsedInput = input.getBytes();
+				parseTree = parser.parseModule(lastParsedInput, uri, new ModuleEnvironment("***editor***"));
+				if (staticChecker.isCheckerEnabled(this))
+					parseTree = staticChecker.check(parseTree, this, monitor);
+				lastParseTree = parseTree;
+			}
 			monitor.worked(1);
 			return parseTree;
 		}

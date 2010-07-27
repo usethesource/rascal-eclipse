@@ -182,13 +182,6 @@
    <extension
          point="org.eclipse.imp.runtime.editorService">
       <editorService
-            class="org.rascalmpl.eclipse.editor.StaticCheckModelListener"
-            language="Rascal">
-      </editorService>
-   </extension>
-   <extension
-         point="org.eclipse.imp.runtime.editorService">
-      <editorService
             class="org.rascalmpl.eclipse.terms.AnnotatorModelListener"
             language="term">
       </editorService>

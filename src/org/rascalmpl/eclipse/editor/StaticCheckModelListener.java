@@ -15,6 +15,7 @@ import org.eclipse.imp.parser.IModelListener;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.services.ILanguageActionsContributor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -34,68 +35,52 @@ import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class StaticCheckModelListener implements IModelListener, ILanguageActionsContributor {
+public class StaticCheckModelListener implements ILanguageActionsContributor {
 	private final MarkerModelListener marker = new MarkerModelListener();
 	
 	private static HashMap<IParseController, StaticChecker> checkerMap = new HashMap<IParseController, StaticChecker>();
 	
-	public AnalysisRequired getAnalysisRequired() {
-		return IModelListener.AnalysisRequired.SYNTACTIC_ANALYSIS;
-	}
+	public IConstructor check(IConstructor parseTree, final IParseController parseController, final IProgressMonitor monitor) {
+		if (parseTree == null) return null;
+						
+		monitor.beginTask("Checking Rascal module " + parseController.getPath().toString(), 1);
 
-	public void update(final IParseController parseController, final IProgressMonitor monitor) {
-		Thread x = new Thread("Rascal Static Checker") {
-			@Override
-			public void run() {
-				IWorkspaceRunnable action = new IWorkspaceRunnable() {
-					public void run(IProgressMonitor monitor) throws CoreException {
-						monitor.beginTask("Checking Rascal module " + parseController.getPath().toString(), 1);
-						IConstructor parseTree = (IConstructor) parseController.getCurrentAst();
-						
-						if (parseTree == null) return;
-						
-						try {
-							StaticChecker checker = createCheckerIfNeeded(parseController);
-							
-							if (checker != null) {
-								if (!checker.isInitialized())
-									initChecker(checker, parseController);
-								
-								if (checker.isCheckerEnabled()) {
-									IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(parseTree)).get(1));
-									if (newTree != null) {
-										IConstructor treeTop = ParsetreeAdapter.getTop(parseTree);
-										IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
-										IConstructor newTreeTop = treeTop.set("args", treeArgs).setAnnotation("loc", treeTop.getAnnotation("loc"));
-										parseTree = parseTree.set("top", newTreeTop);
-										((ParseController) parseController).setCurrentAst(parseTree);
-										marker.update(parseTree, parseController, monitor);
-									} else {
-										Activator.getInstance().logException("static checker returned null", new RuntimeException());
-									}
-								}
-							} else {
-								Activator.getInstance().logException("static checker could not be created", new RuntimeException());
-							}
-						} catch (Throwable e) {
-							Activator.getInstance().logException("static checker failed", e);
-						}
-						monitor.worked(1);
+		try {
+			StaticChecker checker = createCheckerIfNeeded(parseController);
+			
+			if (checker != null) {
+				if (!checker.isInitialized())
+					initChecker(checker, parseController);
+				
+				if (checker.isCheckerEnabled()) {
+					IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(parseTree)).get(1));
+					if (newTree != null) {
+						IConstructor treeTop = ParsetreeAdapter.getTop(parseTree);
+						IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
+						IConstructor newTreeTop = treeTop.set("args", treeArgs).setAnnotation("loc", treeTop.getAnnotation("loc"));
+						parseTree = parseTree.set("top", newTreeTop);
+						marker.update(parseTree, parseController, monitor);
+					} else {
+						Activator.getInstance().logException("static checker returned null", new RuntimeException());
 					}
-				};
-				
-				try {
-					IProject project = parseController.getProject().getRawProject();
-					project.getWorkspace().run(action, project, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
-				} catch (CoreException e) {
-					Activator.getInstance().logException(e.getMessage(), e);
 				}
-				
+			} else {
+				Activator.getInstance().logException("static checker could not be created", new RuntimeException());
 			}
-		};
-		x.start();
+		} catch (Throwable e) {
+			Activator.getInstance().logException("static checker failed", e);
+		} finally {
+			monitor.worked(1);
+		}
+		
+		return parseTree;
 	}
 
+	public boolean isCheckerEnabled(IParseController parseController) {
+		StaticChecker checker = createCheckerIfNeeded(parseController);
+		return checker.isCheckerEnabled();
+	}
+	
 	private class EnableTypeCheckerMenuItem extends Action {
 
 		private final IParseController parseController;
@@ -144,8 +129,8 @@ public class StaticCheckModelListener implements IModelListener, ILanguageAction
 	}	
 	
 	public void contributeToEditorMenu(UniversalEditor editor, IMenuManager menuManager) {
-		menuManager.add(new LoadTypeCheckerMenuItem("Load Checker", editor.getParseController()));
 		menuManager.add(new EnableTypeCheckerMenuItem("Enable Checker", editor.getParseController()));
+		menuManager.add(new LoadTypeCheckerMenuItem("Reload Checker", editor.getParseController()));
 	}
 
 	public void contributeToMenuBar(final UniversalEditor editor, IMenuManager menu) {
