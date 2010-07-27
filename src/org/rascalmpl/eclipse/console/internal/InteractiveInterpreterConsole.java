@@ -390,9 +390,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		
 		public synchronized void print(){
 			if(index != 0){
-				byte[] collectedData = new byte[index + 1];
+				byte[] collectedData = new byte[index];
 				System.arraycopy(buffer, 0, collectedData, 0, index);
-				collectedData[index] = '\n';
 				
 				console.writeToConsole(new String(collectedData), false);
 				

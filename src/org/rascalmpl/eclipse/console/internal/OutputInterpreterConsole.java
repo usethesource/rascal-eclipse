@@ -175,10 +175,32 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 			
 			this.console = console;
 			
+			enabled = false;
+			
 			reset();
 		}
 		
-		public void write(int arg) throws IOException{
+		public synchronized void write(byte[] bytes, int offset, int length) throws IOException {
+			if(!enabled) throw new RuntimeException("Unable to write data while no commands are being executed");
+			
+			int currentSize = buffer.length;
+			if(index + length >= currentSize){
+				int newSize = currentSize;
+				do{
+					newSize <<= 1;
+				}while(newSize < (index + length));
+				
+				byte[] newBuffer = new byte[newSize << 1];
+				System.arraycopy(buffer, 0, newBuffer, 0, currentSize);
+				buffer = newBuffer;
+			}
+			
+			System.arraycopy(bytes, offset, buffer, index, length);
+			index += length;
+			print();
+		}
+		
+		public synchronized void write(int arg) throws IOException{
 			if(!enabled) throw new RuntimeException("Unable to write data while no commands are being executed");
 			
 			if(arg == '\n'){ // If we encounter a new-line, print the content of the buffer.
@@ -196,11 +218,10 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 			buffer[index++] = (byte) arg;
 		}
 		
-		public void print(){
+		public synchronized void print(){
 			if(index != 0){
-				byte[] collectedData = new byte[index + 1];
+				byte[] collectedData = new byte[index];
 				System.arraycopy(buffer, 0, collectedData, 0, index);
-				collectedData[index] = '\n';
 				
 				console.writeToConsole(new String(collectedData), false);
 				
