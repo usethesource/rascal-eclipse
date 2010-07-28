@@ -140,8 +140,8 @@ public class ParseController implements IParseController {
 			if (lastParsedInput != null && arraysMatch) {
 				parseTree = lastParseTree;
 			} else {
-				lastParsedInput = input.getBytes();
-				parseTree = parser.parseModule(lastParsedInput, uri, new ModuleEnvironment("***editor***"));
+				//lastParsedInput = input.getBytes();
+				parseTree = parser.parseModule(input.getBytes(), uri, new ModuleEnvironment("***editor***"));
 				if (staticChecker.isCheckerEnabled(this))
 					parseTree = staticChecker.check(parseTree, this, monitor);
 				lastParseTree = parseTree;
