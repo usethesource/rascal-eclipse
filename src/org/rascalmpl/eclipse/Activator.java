@@ -77,7 +77,8 @@ public class Activator extends PluginBase {
 			System.setProperty("rascal.rascal2table.command", getFile(rascalPluginBundle, "installed/bin/rascal2table"));
 			System.setProperty("rascal.rascal2table.dir", getFile(rascalPluginBundle, "installed/bin"));
 
-			System.setProperty("rascal.sdf.library.dir", getFile(rascalPluginBundle, "installed/share/sdf-library/library"));
+			System.setProperty("rascal.sdf.library.dir", getFile(rascalPluginBundle, "installed/share/sdf-library/library")/* +":"+
+					getFile(rascalPluginBundle, "installed/share/rascal-grammar/library")*/);
 
 			System.setProperty("rascal.parsetable.cache.dir", System.getProperty("java.io.tmpdir"));
 			
@@ -151,6 +152,7 @@ public class Activator extends PluginBase {
 	
 	public static String getFile(Bundle bundle, String path){
 		String fileURL;
+		// System.err.println("getFile:"+path);
 		try{
 			fileURL = FileLocator.toFileURL(bundle.getEntry(path)).getPath();
 		}catch(Exception ex){
@@ -159,7 +161,7 @@ public class Activator extends PluginBase {
 			}catch(Exception ex2){
 				try{
 					URL file = FileLocator.find(bundle, new Path(path), null);
-					
+					// System.err.println("getFile!!!:"+file);
 					if (file != null) {
 						fileURL = file.getPath();
 					}
