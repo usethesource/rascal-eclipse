@@ -56,14 +56,14 @@ public class PrintAction implements IEditorActionDelegate {
 		}
 	}
 
-	public static final String actionId = "org.rascalmpl.eclipse.box.printAction";
+	// public static final String actionId = "org.rascalmpl.eclipse.box.printAction";
 	IFile file;
 
 	public void selectionChanged(IAction action, ISelection selection) {
 		if (selection==null) return;
 		if (selection instanceof IStructuredSelection) {
 			IStructuredSelection ss = (IStructuredSelection) selection;
-			if (ss==null) return;
+			if (ss==null || ss.isEmpty()) return;
 			Object element = ss.getFirstElement();
 			if (element!=null && element instanceof IFile) {
 				file = ((IFile) element);
@@ -95,4 +95,5 @@ public class PrintAction implements IEditorActionDelegate {
 		System.err.println("activate:" + fi);
 
 	}
+
 }

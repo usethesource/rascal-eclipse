@@ -37,6 +37,13 @@ public class BoxDocument extends Document {
 			e.printStackTrace();
 		}
 	}
+	
+	private String rename(String s) {
+		if (s.equals("KW")) return "bf";
+		if (s.equals("NM")) return "nm";
+		if (s.equals("VR")) return "it";
+		return "df";
+	}
 
 	void computeDocument(String textToPrint) {
 		final Stack<Frame> stack = new Stack<Frame>();
@@ -50,7 +57,7 @@ public class BoxDocument extends Document {
 				c = t.nextToken();
 				if (c.charAt(0) == '{') {
 					String key = c.substring(1, 3);
-					TAG tag = TAG.valueOf(key);
+					TAG tag = TAG.valueOf(rename(key));
 					stack.push(new Frame(current, this.getLength()));
 					current = tag;
 				} else if (c.charAt(0) == '}') {
@@ -70,6 +77,7 @@ public class BoxDocument extends Document {
 				addString(c);
 			}
 		}
+//		addString(textToPrint);
 	}
 
 }
