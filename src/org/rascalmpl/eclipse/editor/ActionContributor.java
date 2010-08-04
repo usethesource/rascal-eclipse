@@ -2,12 +2,9 @@ package org.rascalmpl.eclipse.editor;
 
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.services.ILanguageActionsContributor;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
-import org.rascalmpl.checker.StaticChecker;
 
 public class ActionContributor implements ILanguageActionsContributor {
 

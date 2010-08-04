@@ -2,11 +2,7 @@ package org.rascalmpl.eclipse.box;
 
 import java.io.PrintStream;
 
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.action.IAction;
-import org.rascalmpl.eclipse.console.ConsoleFactory;
-import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
-import org.rascalmpl.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
@@ -14,7 +10,6 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.rascalmpl.library.box.BoxPrinter;
 
 /**

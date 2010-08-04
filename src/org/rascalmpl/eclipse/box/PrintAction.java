@@ -63,7 +63,7 @@ public class PrintAction implements IEditorActionDelegate {
 		if (selection==null) return;
 		if (selection instanceof IStructuredSelection) {
 			IStructuredSelection ss = (IStructuredSelection) selection;
-			if (ss==null || ss.isEmpty()) return;
+			if (ss.isEmpty()) return;
 			Object element = ss.getFirstElement();
 			if (element!=null && element instanceof IFile) {
 				file = ((IFile) element);

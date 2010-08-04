@@ -16,9 +16,7 @@ import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.osgi.framework.Bundle;
-import org.rascalmpl.eclipse.console.ProjectURIResolver;
 import org.rascalmpl.eclipse.editor.SDFParseController;
-import org.rascalmpl.uri.URIResolverRegistry;
 
 import sglr.LegacySGLRInvoker;
 import sglr.SGLRInvoker;
