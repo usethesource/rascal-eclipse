@@ -7,13 +7,14 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.IActionDelegate2;
+import org.eclipse.ui.IEditorActionDelegate;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.rascalmpl.eclipse.debug.core.model.RascalVariable;
 import org.rascalmpl.eclipse.debug.core.model.RascalVariableValue;
 
-public class OpenGraphEditor implements IObjectActionDelegate, IActionDelegate2 {
-
+public class OpenGraphEditor implements IObjectActionDelegate, IActionDelegate2, IEditorActionDelegate {
 	private RascalVariable var;
 
 	public void dispose() {
@@ -51,4 +52,8 @@ public class OpenGraphEditor implements IObjectActionDelegate, IActionDelegate2 
 	}
 
 	public void setActivePart(IAction action, IWorkbenchPart targetPart) {}
+
+	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
+		
+	}
 }

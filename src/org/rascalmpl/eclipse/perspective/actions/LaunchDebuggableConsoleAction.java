@@ -79,7 +79,7 @@ public class LaunchDebuggableConsoleAction implements IObjectActionDelegate, IAc
 	public void setActivePart(IAction action, IWorkbenchPart targetPart) {}
 
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-		if (targetEditor.getEditorInput() instanceof FileEditorInput) {
+		if (targetEditor != null && targetEditor.getEditorInput() instanceof FileEditorInput) {
 			project = ((FileEditorInput) targetEditor.getEditorInput()).getFile().getProject();
 		}
 	}

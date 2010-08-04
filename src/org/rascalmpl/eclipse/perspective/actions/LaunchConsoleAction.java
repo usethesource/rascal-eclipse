@@ -63,7 +63,7 @@ public class LaunchConsoleAction implements IObjectActionDelegate, IActionDelega
 	}
 
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-		if (targetEditor.getEditorInput() instanceof FileEditorInput) {
+		if (targetEditor != null && targetEditor.getEditorInput() instanceof FileEditorInput) {
 			project = ((FileEditorInput) targetEditor.getEditorInput()).getFile().getProject();
 		}
 	}

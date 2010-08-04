@@ -377,11 +377,6 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+E">
       </key>
-      <key
-            commandId="rascal-eclipse.copyToConsole"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="CTRL+Q">
-      </key>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
