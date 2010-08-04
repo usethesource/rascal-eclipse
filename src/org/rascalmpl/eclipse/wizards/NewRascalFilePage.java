@@ -42,7 +42,7 @@ public class NewRascalFilePage extends WizardPage {
 	 */
 	public NewRascalFilePage(ISelection selection) {
 		super("wizardPage");
-		setTitle("Multi-page Editor File");
+		setTitle("Rascal module file");
 		setDescription("This wizard creates a new file with *.rsc extension that can be opened by a multi-page editor.");
 		this.selection = selection;
 	}

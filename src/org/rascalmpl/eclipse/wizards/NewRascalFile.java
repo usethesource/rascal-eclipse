@@ -23,6 +23,7 @@ public class NewRascalFile extends Wizard implements INewWizard {
 	public NewRascalFile() {
 		super();
 		setNeedsProgressMonitor(true);
+		setWindowTitle("Create a new Rascal module file");
 	}
 	
 	public void addPages() {
