@@ -1,5 +1,6 @@
 package org.rascalmpl.eclipse.outline;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +13,8 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.Prod;
+import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Declaration.Alias;
@@ -23,8 +26,16 @@ import org.rascalmpl.ast.Declaration.Rule;
 import org.rascalmpl.ast.Declaration.Tag;
 import org.rascalmpl.ast.Declaration.Variable;
 import org.rascalmpl.ast.Declaration.View;
-import org.rascalmpl.ast.Import.Syntax;
 import org.rascalmpl.ast.Module.Default;
+import org.rascalmpl.ast.Prod.Action;
+import org.rascalmpl.ast.Prod.All;
+import org.rascalmpl.ast.Prod.AssociativityGroup;
+import org.rascalmpl.ast.Prod.First;
+import org.rascalmpl.ast.Prod.Follow;
+import org.rascalmpl.ast.Prod.Labeled;
+import org.rascalmpl.ast.Prod.Others;
+import org.rascalmpl.ast.Prod.Reference;
+import org.rascalmpl.ast.Prod.Unlabeled;
 import org.rascalmpl.ast.Toplevel.GivenVisibility;
 import org.rascalmpl.parser.ASTBuilder;
 
@@ -37,8 +48,11 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 	public static final int CATEGORY_TAG = 6;
 	public static final int CATEGORY_VARIABLE = 7;
 	public static final int CATEGORY_VIEW = 8;
+	public static final int CATEGORY_SYNTAX = 9;
+	
 	
 	private Group<AbstractAST> functions;
+	private Group<Group<AbstractAST>> syntax;
 	private Group<AbstractAST> variables;
 	private Group<AbstractAST> aliases;
 	private Group<Group<AbstractAST>> adts;
@@ -75,10 +89,13 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		views = new Group<AbstractAST>("Views",loc);
 		rules = new Group<AbstractAST>("Rules",loc);
 		imports = new Group<AbstractAST>("Imports", loc);
+		syntax = new Group<Group<AbstractAST>>("Syntax", loc);
+
 
 		mod.accept(new Visitor());
 		
 		createTopItem(module);
+		addGroups(syntax);
 		addGroup(imports);
 		addGroup(variables);
 		addGroup(functions);
@@ -88,6 +105,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		addGroup(annos);
 		addGroup(tags);
 		addGroup(views);
+		
 	}
 
 	private <T> void addGroup(Group<T> group) {
@@ -117,7 +135,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		}
 		
 		Group<AbstractAST> group = new Group<AbstractAST>(string, loc);
-		adts.add(group);
+		nested.add(group);
 		return group;
 	}
 	
@@ -134,15 +152,66 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 				if (i.hasModule()) {
 					imports.add(i.getModule());
 				}
+				if (i.isSyntax()) {
+					SyntaxDefinition d = i.getSyntax();
+					Group<AbstractAST> nonterminal = findGroup(syntax, d.getDefined().toString());
+					
+					for (AbstractAST prod : getProductions(d.getProduction())) {
+						nonterminal.add(prod);
+					}
+				}
 			}
 			return x;
 		}
 		
-		@Override
-		public AbstractAST visitImportSyntax(Syntax x) {
-			return x;
+		private List<AbstractAST> getProductions(Prod production) {
+			final List<AbstractAST> result = new LinkedList<AbstractAST>();
+			
+			production.accept(new NullASTVisitor<AbstractAST>() {
+				public AbstractAST visitProdOthers(Others x) {
+					// do nothing
+					return x;
+				}
+				public AbstractAST visitProdAction(Action x) {
+					return x.getProd().accept(this);
+				}
+				public AbstractAST visitProdAll(All x) {
+					x.getLhs().accept(this);
+					x.getRhs().accept(this);
+					return x;
+				}
+				public AbstractAST visitProdAssociativityGroup(
+						AssociativityGroup x) {
+					x.getGroup().accept(this);
+					return x;
+				}
+				public AbstractAST visitProdFirst(First x) {
+					x.getLhs().accept(this);
+					x.getRhs().accept(this);
+					return x;
+				}
+				public AbstractAST visitProdFollow(Follow x) {
+					x.getLhs().accept(this);
+					return x;
+				}
+				public AbstractAST visitProdLabeled(Labeled x) {
+					result.add(x);
+					return x;
+				}
+				public AbstractAST visitProdUnlabeled(Unlabeled x) {
+					result.add(x);
+					return x;
+				}
+				@Override
+				public AbstractAST visitProdReference(Reference x) {
+					// do nothing
+					return x;
+				}
+			});
+			
+			return Collections.unmodifiableList(result);
 		}
-		
+
 		@Override
 		public AbstractAST visitToplevelGivenVisibility(GivenVisibility x) {
 			return x.getDeclaration().accept(this);
@@ -233,6 +302,11 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		
 		public void setLocation(ISourceLocation loc) {
 			this.loc = loc;
+		}
+		
+		@Override
+		public String toString() {
+			return name + ":" + contents;
 		}
 	}
 }

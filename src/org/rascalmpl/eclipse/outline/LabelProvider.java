@@ -13,6 +13,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Module;
+import org.rascalmpl.ast.Prod;
 import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Declaration.Variable;
@@ -22,17 +23,6 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class LabelProvider implements ILabelProvider, ILanguageService  {
 	private Set<ILabelProviderListener> fListeners = new HashSet<ILabelProviderListener>();
-
-//	private static ImageRegistry sImageRegistry = Activator.getInstance()
-//			.getImageRegistry();
-//
-//	private static Image DEFAULT_IMAGE = sImageRegistry
-//			.get(IRascalResources.RASCAL_DEFAULT_IMAGE);
-//
-//	@Override
-//	public Image getImage(Object element) {
-//		return DEFAULT_IMAGE;
-//	}
 
 	public Image getImage(Object element) {
 		return null;
@@ -72,6 +62,27 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 		
 		if (node2 instanceof Module) {
 			result = ((Module) node2).getHeader().toString();
+		}
+		else if (node2 instanceof Prod.Labeled) {
+			Prod p = (Prod) node2;
+			StringBuilder b = new StringBuilder();
+			
+			b.append("| " + Names.name(p.getName()) + " : ");
+			for (AbstractAST arg : p.getArgs()) {
+				b.append(arg.toString());
+				b.append(' ');
+			}
+			result = b.toString();
+		}
+		else if (node2 instanceof Prod.Unlabeled) {
+			Prod p = (Prod) node2;
+			StringBuilder b = new StringBuilder();
+			b.append("| ");
+			for (AbstractAST arg : p.getArgs()) {
+				b.append(arg.toString());
+				b.append(' ');
+			}
+			result = b.toString();
 		}
 		else if (node2 instanceof Declaration.Function) {
 			Signature signature = ((Declaration.Function) node2).getFunctionDeclaration().getSignature();
