@@ -76,5 +76,8 @@ public interface IInterpreter{
 	 */
 	void setStdErr(PrintWriter w);
 
-	
+	/**
+	 * Prints the current stack trace
+	 */
+	String getTrace();
 }

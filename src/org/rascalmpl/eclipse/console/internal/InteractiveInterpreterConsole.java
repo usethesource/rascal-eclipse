@@ -103,6 +103,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 						toolBarManager.add(new StoreHistoryAction(InteractiveInterpreterConsole.this));
 						toolBarManager.add(new TerminationAction(InteractiveInterpreterConsole.this));
 						toolBarManager.add(new InterruptAction(InteractiveInterpreterConsole.this));
+						toolBarManager.add(new TraceAction(InteractiveInterpreterConsole.this));
 						
 						actionBars.updateActionBars();
 						
@@ -142,6 +143,20 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		}
 	}
 	
+	private static class TraceAction extends Action{
+		private final InteractiveInterpreterConsole console;
+		
+		public TraceAction(InteractiveInterpreterConsole console){
+			super("Trace");
+			
+			this.console = console;
+		}
+		
+		public void run(){
+			console.printTrace();
+		}
+	}
+	
 	private static class InterruptAction extends Action{
 		private final InteractiveInterpreterConsole console;
 		
@@ -162,6 +177,11 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		interpreter.terminate();
 	}
 	
+	public void printTrace() {
+		String trace = interpreter.getTrace();
+		writeToConsole(trace, true);
+	}
+
 	public void interrupt() {
 		interpreter.interrupt();
 	}

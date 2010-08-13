@@ -488,4 +488,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 	public void setStdOut(PrintWriter w) {
 		eval.setStdOut(w);  
 	}
+
+	public String getTrace() {
+		return eval.getStackTrace();
+	}
 }
