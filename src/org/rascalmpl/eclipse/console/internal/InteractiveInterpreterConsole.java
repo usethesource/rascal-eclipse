@@ -102,6 +102,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 						// Add custom stuff.
 						toolBarManager.add(new StoreHistoryAction(InteractiveInterpreterConsole.this));
 						toolBarManager.add(new TerminationAction(InteractiveInterpreterConsole.this));
+						toolBarManager.add(new InterruptAction(InteractiveInterpreterConsole.this));
 						
 						actionBars.updateActionBars();
 						
@@ -141,9 +142,28 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		}
 	}
 	
+	private static class InterruptAction extends Action{
+		private final InteractiveInterpreterConsole console;
+		
+		public InterruptAction(InteractiveInterpreterConsole console){
+			super("Interrupt");
+			
+			this.console = console;
+		}
+		
+		public void run(){
+			console.interrupt();
+		}
+	}
+	
 	public void terminate(){
 		commandExecutor.terminate();
+		interpreter.interrupt();
 		interpreter.terminate();
+	}
+	
+	public void interrupt() {
+		interpreter.interrupt();
 	}
 	
 	public IInterpreter getInterpreter(){

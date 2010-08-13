@@ -150,6 +150,10 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		commandExecutor.unblock();
 	}
 	
+	public void interrupt() {
+		interpreter.interrupt();
+	}
+	
 	public void terminate(){
 		commandExecutor.terminate();
 		interpreter.terminate();

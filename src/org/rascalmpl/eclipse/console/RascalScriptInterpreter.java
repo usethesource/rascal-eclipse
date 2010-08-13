@@ -56,6 +56,7 @@ import org.rascalmpl.eclipse.console.internal.TerminationException;
 import org.rascalmpl.eclipse.console.internal.TestReporter;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
@@ -136,13 +137,16 @@ public class RascalScriptInterpreter implements IInterpreter{
 		saveCommandHistory();
 	}
 
+	public void interrupt() {
+		eval.interrupt();
+	}
+	
 	public void terminate(){
 		saveCommandHistory();
 		content = null;
 		clearErrorMarker();
 		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
 		if (eval instanceof DebuggableEvaluator) ((DebuggableEvaluator) eval).getDebugger().destroy();
-
 	}
 
 	public boolean execute(String cmd) throws CommandExecutionException, TerminationException{
@@ -177,6 +181,10 @@ public class RascalScriptInterpreter implements IInterpreter{
 		}
 		catch(QuitException q){
 			throw new TerminationException();
+		}
+		catch(InterruptException i) {
+			content = i.toString();
+			command = "";
 		}
 		catch(StaticError e){
 			content = e.getMessage();
@@ -282,7 +290,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		});
 		
 		if (result == null) {
-			result = stat.accept(eval);
+			result = eval.eval(stat);
 		}
 		
 		IValue value = result.getValue();

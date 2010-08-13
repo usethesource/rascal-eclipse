@@ -52,6 +52,11 @@ public interface IInterpreter{
 	void terminate();
 	
 	/**
+	 * Requests the interpreter to stop what it is doing now and return to an initial state.
+	 */
+	void interrupt();
+	
+	/**
 	 * Gives the interpreter the command to persist the given history.
 	 * 
 	 * @param history
@@ -70,4 +75,6 @@ public interface IInterpreter{
 	 * @param printStream
 	 */
 	void setStdErr(PrintWriter w);
+
+	
 }
