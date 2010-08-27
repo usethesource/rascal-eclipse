@@ -48,12 +48,12 @@ public class BoxDocument extends Document {
 	void computeDocument(String textToPrint) {
 		final Stack<Frame> stack = new Stack<Frame>();
 		TAG current = TAG.df;
-		StringTokenizer t = new StringTokenizer(textToPrint, "\n\b", true);
+		StringTokenizer t = new StringTokenizer(textToPrint, "\n\r", true);
 		while (t.hasMoreTokens()) {
 			String c = t.nextToken();
 			if (c.equals("\n")) {
 				addString("\n");
-			} else if (c.equals("\b")) {
+			} else if (c.equals("\r")) {
 				c = t.nextToken();
 				if (c.charAt(0) == '{') {
 					String key = c.substring(1, 3);

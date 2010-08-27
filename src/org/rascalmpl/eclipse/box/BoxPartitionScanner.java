@@ -23,9 +23,9 @@ public class BoxPartitionScanner extends RuleBasedPartitionScanner {
         
         IPredicateRule[] rules = new IPredicateRule[3];
        
-        rules[0] = new MultiLineRule("\b{it", "\b}12", it);
-        rules[1] = new MultiLineRule("\b{nm", "\b}12", nm);
-        rules[2] = new MultiLineRule("\b{bf", "\b}12", bf);
-        rules[3] = new MultiLineRule("\b{df", "\b}12", df);
+        rules[0] = new MultiLineRule("\r{it", "\r}12", it);
+        rules[1] = new MultiLineRule("\r{nm", "\r}12", nm);
+        rules[2] = new MultiLineRule("\r{bf", "\r}12", bf);
+        rules[3] = new MultiLineRule("\r{df", "\r}12", df);
     }
 }
