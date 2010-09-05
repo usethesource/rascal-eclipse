@@ -76,4 +76,28 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 			return false;
 		}
 	}
+
+	public boolean isDirectory(URI uri) {
+		return false;
+	}
+
+	public boolean isFile(URI uri) {
+		// TODO Auto-generated method stub
+		return exists(uri);
+	}
+
+	public long lastModified(URI uri) {
+		try {
+			return resolve(uri).getModificationStamp();
+		} catch (MalformedURLException e) {
+			return 0L;
+		} catch (IOException e) {
+			return 0L;
+		}
+	}
+
+	public String[] listEntries(URI uri) {
+		String [] ls = {};
+		return ls;
+	}
 }

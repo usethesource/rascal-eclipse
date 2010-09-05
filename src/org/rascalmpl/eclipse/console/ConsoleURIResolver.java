@@ -40,4 +40,24 @@ public class ConsoleURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		return true;
 	}
 
+	public boolean isDirectory(URI uri) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean isFile(URI uri) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public long lastModified(URI uri) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public String[] listEntries(URI uri) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
