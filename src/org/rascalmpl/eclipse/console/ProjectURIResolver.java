@@ -100,4 +100,8 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		String [] ls = {};
 		return ls;
 	}
+
+	public boolean mkDirectory(URI uri) {
+		return false;
+	}
 }

@@ -41,23 +41,25 @@ public class ConsoleURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	}
 
 	public boolean isDirectory(URI uri) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	public boolean isFile(URI uri) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	public long lastModified(URI uri) {
-		// TODO Auto-generated method stub
-		return 0;
+		return 0L;
 	}
 
 	public String[] listEntries(URI uri) {
 		// TODO Auto-generated method stub
-		return null;
+		String[] ls = {};
+		return ls;
+	}
+
+	public boolean mkDirectory(URI uri) {
+		return false;
 	}
 
 }
