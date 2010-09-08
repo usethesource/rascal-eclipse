@@ -9,7 +9,7 @@ public class SubScanner extends RuleBasedScanner {
 	SubScanner(TextAttribute t) {
 		 IToken token = new Token(t);
 //		 IRule[] rules = new IRule[1];
-//		 rules[0] = new MultiLineRule("\b{", "\b}12", token);
+//		 rules[0] = new MultiLineRule("\r{", "\r}12", token);
 //		 setRules(rules);
 		 this.setDefaultReturnToken(token);
 	}

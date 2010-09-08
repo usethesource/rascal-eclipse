@@ -10,7 +10,7 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
-import org.rascalmpl.library.box.BoxPrinter;
+import org.rascalmpl.eclipse.box.BoxPrinter;
 
 /**
  * Our sample action implements workbench action delegate.

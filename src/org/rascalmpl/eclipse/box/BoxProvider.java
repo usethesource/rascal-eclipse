@@ -7,7 +7,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.FileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
-import org.rascalmpl.library.box.BoxPrinter;
+import org.rascalmpl.eclipse.box. BoxPrinter;
 
 public class BoxProvider extends FileDocumentProvider {
 
