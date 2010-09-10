@@ -209,6 +209,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		}
 		catch(Throwable e){
 			content = "internal exception: " + e.toString();
+			content += eval.getStackTrace();
 			e.printStackTrace();
 			command = "";
 		}
