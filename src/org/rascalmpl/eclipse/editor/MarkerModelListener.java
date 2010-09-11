@@ -125,9 +125,6 @@ public class MarkerModelListener {
 	}
 
 	public int compareTo(IModelListener o) {
-		if (o instanceof StaticCheckModelListener) {
-			return 1;
-		}
 		return 0;
 	}
 }

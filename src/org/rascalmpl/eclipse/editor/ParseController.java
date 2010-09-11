@@ -42,7 +42,6 @@ public class ParseController implements IParseController {
 	private IConstructor lastParseTree = null;
 	private byte[] lastParsedInput = null;
 	private IPath path;
-	private StaticCheckModelListener staticChecker = new StaticCheckModelListener();
 	
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
 		return null;
@@ -141,8 +140,6 @@ public class ParseController implements IParseController {
 			} else {
 				//lastParsedInput = input.getBytes();
 				parseTree = parser.parseModule(input.getBytes(), uri, new ModuleEnvironment("***editor***"));
-				if (staticChecker.isCheckerEnabled(this))
-					parseTree = staticChecker.check(parseTree, this, monitor);
 				lastParseTree = parseTree;
 			}
 			monitor.worked(1);
