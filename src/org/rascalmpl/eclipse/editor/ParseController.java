@@ -30,12 +30,13 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.parser.LegacyRascalParser;
 import org.rascalmpl.uri.ClassResourceInputStreamResolver;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ParseController implements IParseController {
-	private Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.err), new PrintWriter(System.out), new ModuleEnvironment("***parser***"), new GlobalEnvironment());
+	private Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.err), new PrintWriter(System.out), new LegacyRascalParser(), new ModuleEnvironment("***parser***"), new GlobalEnvironment());
 	private IMessageHandler handler;
 	private ISourceProject project;
 	private IConstructor parseTree;
