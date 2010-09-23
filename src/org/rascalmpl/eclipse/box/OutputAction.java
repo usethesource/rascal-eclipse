@@ -20,12 +20,12 @@ import org.rascalmpl.eclipse.box.BoxPrinter;
  * delegated to it.
  * @see IWorkbenchWindowActionDelegate
  */
-public class LatexAction implements IWorkbenchWindowActionDelegate {
+public class OutputAction implements IWorkbenchWindowActionDelegate {
 	// private IWorkbenchWindow window;
 	/**
 	 * The constructor.
 	 */
-	public LatexAction() {
+	public OutputAction() {
 	}
 	
 	private MessageConsole findConsole(String name) {
@@ -47,18 +47,14 @@ public class LatexAction implements IWorkbenchWindowActionDelegate {
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
-		/*
-		MessageDialog.openInformation(
-			window.getShell(),
-			"rascal-eclipse",
-			"Hello, Eclipse world");
-	    */
 		// ConsoleFactory consoleFactory = ConsoleFactory.getInstance();
 		// final IRascalConsole console = consoleFactory.openRunConsole();
-		MessageConsole c = findConsole("Box2Latex");
+		// System.err.println(action.getId());
+		MessageConsole c = findConsole("BoxConsole");
+		System.setProperty("rascal.no_cwd_path", "true");
 		final BoxPrinter boxPrinter = new BoxPrinter()/* .open() */;
 		boxPrinter.setPrintStream(new PrintStream(c.newOutputStream()));
-		boxPrinter.open();
+		boxPrinter.open(action.getId());
 		// BoxPrinter.close();
 		// BoxPrinter.main((String[]) null);
 	}

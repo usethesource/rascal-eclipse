@@ -121,7 +121,7 @@ public class BoxPrinter {
 
 	public static void main(String[] args) {
 		final BoxPrinter boxPrinter = new BoxPrinter()/* .open() */;
-		boxPrinter.open();
+		boxPrinter.open("toLatex");
 		close();
 	}
 
@@ -202,9 +202,9 @@ public class BoxPrinter {
 		}
 	}
 
-	private boolean readData(URI uri, boolean rich) {
-		System.err.println("readData:" + uri);
-		textToPrint = makeBox.toLatex(uri);
+	private boolean readData(String cmd, URI uri, boolean rich) {
+		System.err.println("readData:" + cmd + " "+ uri);
+		textToPrint = makeBox.toPrint(cmd, uri);
 //		IValue v = rich?makeBox.toRichTxt(uri):makeBox.toTxt(uri);
 //		// System.err.println("MakeBox finished1");
 //		if (v == null)
@@ -217,7 +217,7 @@ public class BoxPrinter {
 	
 	
 	public String getRichText(URI uri) {
-		readData(uri, true);
+		readData("toLatex", uri, true);
 		return textToPrint;
 	}
 
@@ -380,7 +380,8 @@ public class BoxPrinter {
 		});
 	}
 
-	public void open() {
+	public void open(String cmd) {
+		// System.err.println("SHELL:"+shell);
 		if (shell == null) {
 			shell = new Shell(screen);
 			shell.setLayout(new FillLayout());
@@ -388,7 +389,7 @@ public class BoxPrinter {
 					| SWT.NO_REDRAW_RESIZE | SWT.H_SCROLL | SWT.V_SCROLL);
 		}
 		URI uri;
-		while (!readData(uri = getFileName(), false))
+		while (!readData(cmd, uri = getFileName(), false))
 			;
 		shell.setText(new File(uri.getPath()).getName());
 		_open(uri);
@@ -507,7 +508,7 @@ public class BoxPrinter {
 
 	public void menuNew() {
 		shell.setVisible(false);
-		open();
+		open("toLatex");
 	}
 
 	void print() {
