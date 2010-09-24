@@ -141,7 +141,6 @@ public class ConsoleFactory{
 			getInterpreter().setStdOut(new PrintWriter(getConsoleOutputStream()));
 		}
 		
-
 		/* 
 		 * console associated to a given Eclipse project 
 		 * used to initialize the path with modules accessible 
@@ -210,11 +209,4 @@ public class ConsoleFactory{
 			return (RascalScriptInterpreter) getInterpreter();
 		}
 	}
-
-	
-
-
 }
-
-
-

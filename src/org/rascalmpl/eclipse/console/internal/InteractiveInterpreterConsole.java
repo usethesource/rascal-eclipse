@@ -215,6 +215,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 					moveCaretTo(endOfDocument);
 				}catch(BadLocationException blex){
 					// Ignore, never happens.
+				}catch(NullPointerException npex){
+					// Ignore, happens when the evaluator is interrupted before terminating.
 				}
 			}
 		});
@@ -666,6 +668,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 							return;
 						}
 					}while(commandQueue.size() > 0);
+					
+					if(!running) return;
 					
 					console.consoleOutputStream.disable();
 					

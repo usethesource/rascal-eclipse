@@ -11,6 +11,7 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
 import org.rascalmpl.interpreter.Evaluator;

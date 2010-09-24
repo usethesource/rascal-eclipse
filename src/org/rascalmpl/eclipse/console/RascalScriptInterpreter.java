@@ -85,7 +85,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 	public RascalScriptInterpreter(Evaluator eval, final IProject project){
 		this(eval);
 		this.project = project;
-//		eval.addRascalSearchPath(URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+		
 		eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
 			public void contributePaths(List<URI> path) {
 				path.add(0,URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
@@ -164,27 +164,22 @@ public class RascalScriptInterpreter implements IInterpreter{
 			((IO) ioInstance).setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
 			
 			execCommand(tree);
-		}
-		catch(SyntaxError e) {
+		}catch(SyntaxError e) {
 			execParseError(e);
 			return false;
-		}
-		catch(QuitException q){
+		}catch(QuitException q){
 			throw new TerminationException();
-		}
-		catch(InterruptException i) {
+		}catch(InterruptException i) {
 			content = i.toString();
 			command = "";
-		}
-		catch(StaticError e){
+		}catch(StaticError e){
 			content = e.getMessage();
 			command = "";
 			ISourceLocation location = e.getLocation();
 			e.printStackTrace();
 				setMarker(e.getMessage(), location);
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
-		}
-		catch(Throw e){
+		}catch(Throw e){
 			content = e.getMessage() + "\n";
 			String trace = e.getTrace();
 			if (trace != null) {
@@ -196,8 +191,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 				setMarker(e.getMessage(), location);
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
-		}
-		catch(Throwable e){
+		}catch(Throwable e){
 			content = "internal exception: " + e.toString();
 			content += eval.getStackTrace();
 			e.printStackTrace();
