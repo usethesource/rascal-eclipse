@@ -11,6 +11,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -63,6 +64,7 @@ import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedAmbiguity;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.library.IO;
@@ -85,7 +87,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 	public RascalScriptInterpreter(Evaluator eval, final IProject project){
 		this(eval);
 		this.project = project;
-		
+//		eval.addRascalSearchPath(URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
 		eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
 			public void contributePaths(List<URI> path) {
 				path.add(0,URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
@@ -160,26 +162,55 @@ public class RascalScriptInterpreter implements IInterpreter{
 			command += cmd;
 			final IConstructor tree = eval.parseCommand(command, URI.create("stdin:///"));
 			
-			Object ioInstance = eval.getJavaBridge().getJavaClassInstance(IO.class);
+			// TODO?? what is this doing here in the main loop?
+			Object ioInstance = eval.getJavaBridge().getJavaClassInstance(IO.class);  
 			((IO) ioInstance).setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
-			
-			execCommand(tree);
-		}catch(SyntaxError e) {
+
+			// This code makes sure that if files are read or written during Rascal execution, the build
+			// infra-structure of Eclipse is not triggered
+			IWorkspaceRunnable action = new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					monitor.beginTask("Rascal Command", IProgressMonitor.UNKNOWN);
+					execCommand(tree);
+					monitor.done();
+				}
+			};
+			project.getWorkspace().run(action, project, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+		}
+		catch(SyntaxError e) {
 			execParseError(e);
 			return false;
-		}catch(QuitException q){
+		}
+		catch(QuitException q){
 			throw new TerminationException();
-		}catch(InterruptException i) {
+		}
+		catch(InterruptException i) {
 			content = i.toString();
 			command = "";
-		}catch(StaticError e){
+		}
+		catch (UnexpectedAmbiguity e) {
+			content = "INTERNAL ERROR: content was ambiguous: " + e.getTree().toString();
+			content = content.replaceAll("loc", Matcher.quoteReplacement("\\loc"));
+			content = content.replaceAll("assoc", Matcher.quoteReplacement("\\assoc"));
+			content = content.replaceAll("cons", Matcher.quoteReplacement("\"cons\""));
+			content = content.replaceAll("lex", Matcher.quoteReplacement("\"lex\""));
+			content = content.replaceAll("term\\(literal\\(\\)\\)", Matcher.quoteReplacement("term(\"literal\"())"));
+			command = "";
+		}
+		catch(StaticError e){
 			content = e.getMessage();
 			command = "";
 			ISourceLocation location = e.getLocation();
 			e.printStackTrace();
+			if (location != null) {
 				setMarker(e.getMessage(), location);
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
-		}catch(Throw e){
+			}
+			else {
+				throw new CommandExecutionException(content);
+			}
+		}
+		catch(Throw e){
 			content = e.getMessage() + "\n";
 			String trace = e.getTrace();
 			if (trace != null) {
@@ -191,7 +222,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 				setMarker(e.getMessage(), location);
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
-		}catch(Throwable e){
+		}
+		catch(Throwable e){
 			content = "internal exception: " + e.toString();
 			content += eval.getStackTrace();
 			e.printStackTrace();
@@ -212,10 +244,10 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 					URI url = loc.getURI();
 
-					if(project != null && url.getScheme().equals("project")){
+					if (project != null && url.getScheme().equals("project")) {
 						lastMarked = project.getFile(url.getPath());
 
-						if(lastMarked != null){
+						if (lastMarked != null) {
 							IMarker m = lastMarked.createMarker(IMarker.PROBLEM);
 
 							m.setAttribute(IMarker.TRANSIENT, true);
@@ -226,7 +258,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 							m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 						}
 					}
-				}catch(CoreException ex){
+				} catch (CoreException ex) {
 					Activator.getInstance().logException("marker", ex);
 				} 
 			}
@@ -335,27 +367,17 @@ public class RascalScriptInterpreter implements IInterpreter{
 			}
 		}
 	}
-	
+
 	private void clearErrorMarker() {
-		IWorkspaceRunnable action = new IWorkspaceRunnable(){
-			public void run(IProgressMonitor monitor) throws CoreException{
-				if (lastMarked != null) {
-					try {
-						lastMarked.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
-					} catch (CoreException e) {
-						Activator.getInstance().logException("marker", e);
-					}
-				}
+		if (lastMarked != null) {
+			try {
+				lastMarked.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+			} catch (CoreException e) {
+				Activator.getInstance().logException("marker", e);
 			}
-		};
-		
-		try{
-			project.getWorkspace().run(action, project, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
-		}catch(CoreException cex){
-			Activator.getInstance().logException("marker", cex);
 		}
 	}
-	
+
 	private void execParseError(SyntaxError e) throws CommandExecutionException{
 		if (e.getLocation().getURI().getScheme().equals("stdin")) {
 			ISourceLocation location = e.getLocation();

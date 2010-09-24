@@ -46,13 +46,13 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 
 				if (path_project == null) {
 					// open a Rascal Console
-					console = consoleFactory.openRunConsole();
+					console = consoleFactory.openRunConsole(false);
 				} else {
 					// open a Rascal Console associated to the given project
 					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 					IProject project = root.getProject(path_project);
 					if (project != null) {
-						console = consoleFactory.openRunConsole(project);
+						console = consoleFactory.openRunConsole(project,false);
 					} 
 				}
 			} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
