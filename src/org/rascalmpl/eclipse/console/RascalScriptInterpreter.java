@@ -162,17 +162,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 			
 			Object ioInstance = eval.getJavaBridge().getJavaClassInstance(IO.class);
 			((IO) ioInstance).setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
-
-			// This code makes sure that if files are read or written during Rascal execution, the build
-			// infra-structure of Eclipse is not triggered
-			IWorkspaceRunnable action = new IWorkspaceRunnable() {
-				public void run(IProgressMonitor monitor) throws CoreException {
-					monitor.beginTask("Rascal Command", IProgressMonitor.UNKNOWN);
-					execCommand(tree);
-					monitor.done();
-				}
-			};
-			project.getWorkspace().run(action, project, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+			
+			execCommand(tree);
 		}
 		catch(SyntaxError e) {
 			execParseError(e);
@@ -215,23 +206,22 @@ public class RascalScriptInterpreter implements IInterpreter{
 		return true;
 	}
 
-	private void setMarker(final String message, final ISourceLocation loc) {
-		// this needs to be done asyncronously, because it will trigger a build, but we
-		// want to have a prompt back quickly.
-		
-		new Thread() {
-			public void run() {
-				try {
-					if (loc == null) {
+	private void setMarker(final String message, final ISourceLocation loc){
+		// This code makes sure that if files are read or written during Rascal execution, the build
+		// infra-structure of Eclipse is not triggered
+		IWorkspaceRunnable action = new IWorkspaceRunnable(){
+			public void run(IProgressMonitor monitor) throws CoreException{
+				try{
+					if(loc == null){
 						return;
 					}
 
 					URI url = loc.getURI();
 
-					if (project != null && url.getScheme().equals("project")) {
+					if(project != null && url.getScheme().equals("project")){
 						lastMarked = project.getFile(url.getPath());
 
-						if (lastMarked != null) {
+						if(lastMarked != null){
 							IMarker m = lastMarked.createMarker(IMarker.PROBLEM);
 
 							m.setAttribute(IMarker.TRANSIENT, true);
@@ -242,11 +232,17 @@ public class RascalScriptInterpreter implements IInterpreter{
 							m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 						}
 					}
-				} catch (CoreException ex) {
+				}catch(CoreException ex){
 					Activator.getInstance().logException("marker", ex);
 				} 
 			}
-		}.start();
+		};
+		
+		try{
+			project.getWorkspace().run(action, project, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+		}catch(CoreException cex){
+			Activator.getInstance().logException("marker", cex);
+		}
 	}
 
 	private void execCommand(IConstructor tree) {
@@ -345,17 +341,27 @@ public class RascalScriptInterpreter implements IInterpreter{
 			}
 		}
 	}
-
+	
 	private void clearErrorMarker() {
-		if (lastMarked != null) {
-			try {
-				lastMarked.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
-			} catch (CoreException e) {
-				Activator.getInstance().logException("marker", e);
+		IWorkspaceRunnable action = new IWorkspaceRunnable(){
+			public void run(IProgressMonitor monitor) throws CoreException{
+				if (lastMarked != null) {
+					try {
+						lastMarked.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+					} catch (CoreException e) {
+						Activator.getInstance().logException("marker", e);
+					}
+				}
 			}
+		};
+		
+		try{
+			project.getWorkspace().run(action, project, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+		}catch(CoreException cex){
+			Activator.getInstance().logException("marker", cex);
 		}
 	}
-
+	
 	private void execParseError(SyntaxError e) throws CommandExecutionException{
 		if (e.getLocation().getURI().getScheme().equals("stdin")) {
 			ISourceLocation location = e.getLocation();
