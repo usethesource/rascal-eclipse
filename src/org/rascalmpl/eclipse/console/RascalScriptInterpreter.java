@@ -160,7 +160,6 @@ public class RascalScriptInterpreter implements IInterpreter{
 			command += cmd;
 			final IConstructor tree = eval.parseCommand(command, URI.create("stdin:///"));
 			
-			// TODO?? what is this doing here in the main loop?
 			Object ioInstance = eval.getJavaBridge().getJavaClassInstance(IO.class);
 			((IO) ioInstance).setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
 
