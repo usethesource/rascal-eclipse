@@ -57,6 +57,7 @@ import org.rascalmpl.eclipse.console.internal.TerminationException;
 import org.rascalmpl.eclipse.console.internal.TestReporter;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -64,7 +65,6 @@ import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedAmbiguity;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.library.IO;
@@ -188,13 +188,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 			content = i.toString();
 			command = "";
 		}
-		catch (UnexpectedAmbiguity e) {
-			content = "INTERNAL ERROR: content was ambiguous: " + e.getTree().toString();
-			content = content.replaceAll("loc", Matcher.quoteReplacement("\\loc"));
-			content = content.replaceAll("assoc", Matcher.quoteReplacement("\\assoc"));
-			content = content.replaceAll("cons", Matcher.quoteReplacement("\"cons\""));
-			content = content.replaceAll("lex", Matcher.quoteReplacement("\"lex\""));
-			content = content.replaceAll("term\\(literal\\(\\)\\)", Matcher.quoteReplacement("term(\"literal\"())"));
+		catch (Ambiguous e) {
+			content = e.getMessage();
 			command = "";
 		}
 		catch(StaticError e){
@@ -389,12 +384,16 @@ public class RascalScriptInterpreter implements IInterpreter{
 				content = "";
 			} else {
 				content = "";
-				for (int i = 0; i < location.getEndColumn() + "rascal>".length(); i++) {
+				int i = 0;
+				for ( ; i < location.getEndColumn() + "rascal>".length(); i++) {
 
 					content += " ";
 				}
 				content += "^ ";
 				content += "parse error here";
+				if (i > 80) {
+					content += "\nparse error at column " + location.getEndColumn();
+				}
 				command = "";
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
