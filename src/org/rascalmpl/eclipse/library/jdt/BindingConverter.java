@@ -176,6 +176,34 @@ public class BindingConverter extends ASTVisitor {
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<IValue> getModifiers(int mods) {
+		List<IValue> result = new ArrayList<IValue>();
+		if (Modifier.isAbstract(mods))
+			result.add(VF.constructor(CONS_ABSTRACT));
+		if (Modifier.isFinal(mods))
+			result.add(VF.constructor(CONS_FINAL));
+		if (Modifier.isNative(mods))
+			result.add(VF.constructor(CONS_NATIVE));
+		if (Modifier.isPrivate(mods))
+			result.add(VF.constructor(CONS_PRIVATE));
+		if (Modifier.isProtected(mods))
+			result.add(VF.constructor(CONS_PROTECTED));
+		if (Modifier.isPublic(mods))
+			result.add(VF.constructor(CONS_PUBLIC));
+		if (Modifier.isStatic(mods))
+			result.add(VF.constructor(CONS_STATIC));
+		if (Modifier.isStrictfp(mods))
+			result.add(VF.constructor(CONS_STRICTFP));
+		if (Modifier.isSynchronized(mods))
+			result.add(VF.constructor(CONS_SYNCHRONIZED));
+		if (Modifier.isTransient(mods))
+			result.add(VF.constructor(CONS_TRANSIENT));
+		if (Modifier.isVolatile(mods))
+			result.add(VF.constructor(CONS_VOLATILE));
+		return result;
+	}
+
 	public void put(Object key, IList value) {
 		idStore.put(key, value);
 	}

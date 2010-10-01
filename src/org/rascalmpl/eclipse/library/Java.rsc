@@ -108,12 +108,17 @@ public str readable(list[Entity] entities) {
 
 public str readable(Id id) {
 	switch (id) {
-		case class(name, params):
-			return name + "\<<readable(params)>\>"; 		
-		case interface(name, params):
-			return name + "\<<readable(params)>\>"; 		
-        case method(name, params, returnType):
-			return name + "(<readable(params)>)"; 	
+		case class(name, params): {
+			if (/<cname:\w+>\</ := name) return cname + "\<<readable(params)>\>";
+			return name + "\<<readable(params)>\>";
+		} 		
+		case interface(name, params): {
+			if (/<iname:\w+>\</ := name) return iname + "\<<readable(params)>\>";
+			return name + "\<<readable(params)>\>";
+		} 		
+        case method(name, params, returnType): {
+			return name + "(<readable(params)>)";
+		} 	
         	
 	}
 

@@ -20,7 +20,10 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -82,7 +85,10 @@ public class JDTImporter extends ASTVisitor {
 	private static final Type bindingTupleType = TF.tupleType(locType, ADT_ENTITY);
 
 	private IRelationWriter typeBindings;
+	private IRelationWriter classBindings;
 	private IRelationWriter methodBindings;
+	private IRelationWriter methodDecls;
+	private IRelationWriter fieldDecls;
 	private IRelationWriter constructorBindings;
 	private IRelationWriter fieldBindings;
 	private IRelationWriter variableBindings;
@@ -107,7 +113,10 @@ public class JDTImporter extends ASTVisitor {
 	
 	public Map<String,IValue> importFacts(ISourceLocation loc, IFile file) {
 		typeBindings = VF.relationWriter(bindingTupleType);
+		classBindings = VF.relationWriter(bindingTupleType);
 		methodBindings = VF.relationWriter(bindingTupleType);
+		methodDecls = VF.relationWriter(bindingTupleType);
+		fieldDecls = VF.relationWriter(bindingTupleType);
 		constructorBindings = VF.relationWriter(bindingTupleType);
 		fieldBindings = VF.relationWriter(bindingTupleType);
 		variableBindings = VF.relationWriter(bindingTupleType);
@@ -131,10 +140,13 @@ public class JDTImporter extends ASTVisitor {
 		Map<String,IValue> facts = new HashMap<String,IValue>();
 		facts.put("types", typeBindings.done());
 		facts.put("methods", methodBindings.done());
+		facts.put("methodDecls", methodDecls.done());
 		facts.put("constructors", constructorBindings.done());
 		facts.put("fields", fieldBindings.done());
+		facts.put("fieldDecls", fieldDecls.done());
 		facts.put("variables", variableBindings.done());
 		facts.put("packages", packageBindings.done());
+		facts.put("classes", classBindings.done());
 		facts.put("declaredTopTypes", declaredTopTypes.done());
 		facts.put("implements", implmnts.done());
 		facts.put("extends", extnds.done());
@@ -289,7 +301,6 @@ public class JDTImporter extends ASTVisitor {
 			mb = ((MethodDeclaration) n).resolveBinding();
 		} else if (n instanceof MethodInvocation) {
 			mb = ((MethodInvocation) n).resolveMethodBinding();
-			
 			// if this is a method invocation on an AnonymousClassDeclaration,
 			// call importBindingInfo first to get declaration Entity.
 			Expression exp = ((MethodInvocation) n).getExpression();
@@ -307,7 +318,18 @@ public class JDTImporter extends ASTVisitor {
 		
 		if (mb != null) {
 			addBinding(methodBindings, n, bindingCache.getEntity(mb));
-		}		
+			if (n instanceof MethodDeclaration) addBinding(methodDecls, n, bindingCache.getEntity(mb));
+			if (n instanceof MethodInvocation) {
+				MethodInvocation mi = (MethodInvocation)n;
+				int mods = mi.resolveMethodBinding().getMethodDeclaration().getModifiers();
+				List<IValue> modsForN = bindingCache.getModifiers(mods);
+				if (mi.resolveMethodBinding().getMethodDeclaration().isDeprecated())
+					modsForN.add(BindingConverter.deprecatedModifier);
+				for (IValue modifier : modsForN)
+					modifiers.insert(VF.tuple(bindingCache.getEntity(mb), modifier));
+			}
+		}
+		
 		if (cb != null) {
 			addBinding(constructorBindings, n, bindingCache.getEntity(cb));
 		}
@@ -318,6 +340,12 @@ public class JDTImporter extends ASTVisitor {
 		
 		if (n instanceof EnumConstantDeclaration) {
 			fb = ((EnumConstantDeclaration) n).resolveVariable();
+		} else if (n instanceof FieldDeclaration) {
+			FieldDeclaration fd = (FieldDeclaration) n;
+			for (Object vdfo : fd.fragments()) {
+				VariableDeclarationFragment vdf = (VariableDeclarationFragment) vdfo;
+				addBinding(fieldDecls, n, bindingCache.getEntity(vdf.resolveBinding()));
+			}
 		} else if (n instanceof FieldAccess) {
 			FieldAccess fa = (FieldAccess) n;
 			fb = fa.resolveFieldBinding();
@@ -419,6 +447,7 @@ public class JDTImporter extends ASTVisitor {
 		
 		if (tb != null) {
 			importTypeInfo(tb);
+			if (tb.isClass()) addBinding(classBindings, n, bindingCache.getEntity(tb));
 		}
 		
 		//EnumDeclaration

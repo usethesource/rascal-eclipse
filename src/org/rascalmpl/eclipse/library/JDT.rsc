@@ -17,23 +17,32 @@ public alias EntitySet = set[Entity];
 @doc{maps an entity to its modifiers}
 public alias ModifierRel = rel[Entity entity, Modifier modifier];
 
-@doc{contains all type declarations}
+@doc{contains all type declarations and uses}
 anno BindingRel Resource@types;        
 
-@doc{contains all method declarations}
+@doc{contains all method declarations and uses}
 anno BindingRel Resource@methods;      
+
+@doc{contains just method declarations}
+anno BindingRel Resource@methodDecls;
 
 @doc{contains all constructor declarations}
 anno BindingRel Resource@constructors; 
 
-@doc{contains all field declarations}
+@doc{contains all field declarations and uses}
 anno BindingRel Resource@fields;       
+
+@doc{contains just field declarations}
+anno BindingRel Resource@fieldDecls;
 
 @doc{contains all local variable and method parameter declarations}
 anno BindingRel Resource@variables;    
 
 @doc{contains all package declarations} 
 anno BindingRel Resource@packages;     
+
+@doc{contains all class declarations}
+anno BindingRel Resource@classes;
 
 @doc{maps Entities to the modifiers that have been declared for it}
 anno ModifierRel Resource@modifiers; 
@@ -180,3 +189,15 @@ public tuple[rel[&T1, &T2] found, rel[loc, &T2] notfound] matchLocations(rel[&T1
 
   return <found, notfound>;
 }
+
+@doc{Invokes the EncapsulateField refactoring, generating public getters and setters, on the fields at the locs in the set}
+@javaClass{org.rascalmpl.eclipse.library.JDT}
+public rel[str,str] java encapsulateFields(set[int] fieldOffsetsFromLoc, loc file);
+
+@doc{Invokes the ChangeSignature refactoring, making the method public}
+@javaClass{org.rascalmpl.eclipse.library.JDT}
+public rel[str,str] java makeMethodsPublic(set[int] methodOffsetsFromLoc, loc file);
+
+@doc{Invokes the Code CleanUp on the given file}
+@javaClass{org.rascalmpl.eclipse.library.JDT}
+public rel[str,str] java cleanUpSource(loc file);
