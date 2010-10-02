@@ -87,4 +87,9 @@ public class BootstrapURIResolver implements IURIInputStreamResolver,
 		return getNewFile(uri).mkdir();
 	}
 
+	public String absolutePath(URI uri) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

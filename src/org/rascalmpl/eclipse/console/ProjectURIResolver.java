@@ -82,7 +82,6 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	}
 
 	public boolean isFile(URI uri) {
-		// TODO Auto-generated method stub
 		return exists(uri);
 	}
 
@@ -103,5 +102,15 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 
 	public boolean mkDirectory(URI uri) {
 		return false;
+	}
+
+	public String absolutePath(URI uri) throws IOException {
+		try {
+			return resolve(uri).getFullPath().toOSString();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
