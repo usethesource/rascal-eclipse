@@ -201,3 +201,7 @@ public rel[str,str] java makeMethodsPublic(set[int] methodOffsetsFromLoc, loc fi
 @doc{Invokes the Code CleanUp on the given file}
 @javaClass{org.rascalmpl.eclipse.library.JDT}
 public rel[str,str] java cleanUpSource(loc file);
+
+@doc{Invokes the Fully Qualify Type Names transformation on the given file}
+@javaClass{org.rascalmpl.eclipse.library.JDT}
+public void java fullyQualifyTypeNames(loc file);

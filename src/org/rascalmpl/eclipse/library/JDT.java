@@ -44,6 +44,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 import org.eclipse.ltk.core.refactoring.participants.ProcessorBasedRefactoring;
 import org.rascalmpl.eclipse.library.jdt.FindIFields;
 import org.rascalmpl.eclipse.library.jdt.FindIMethods;
+import org.rascalmpl.eclipse.library.jdt.FullyQualifyTypeNames;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
@@ -245,6 +246,11 @@ public class JDT {
     	
     }
     
+	public void fullyQualifyTypeNames(ISourceLocation loc) {
+    	IFile file = getIFileForLocation(loc);
+		new FullyQualifyTypeNames().fullyQualifyTypeNames(loc, file);
+    }
+
 	public  IConstructor extractClass(ISourceLocation loc) {
 		IFile file = getIFileForLocation(loc);
 
