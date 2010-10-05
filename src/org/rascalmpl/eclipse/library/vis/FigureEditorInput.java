@@ -1,9 +1,9 @@
-package org.rascalmpl.eclipse.library.viz.Figure;
+package org.rascalmpl.eclipse.library.vis;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
-import org.rascalmpl.library.viz.Figure.FigurePApplet;
+import org.rascalmpl.library.vis.FigurePApplet;
 
 public class FigureEditorInput implements IEditorInput {
 	private final FigurePApplet figurePApplet;

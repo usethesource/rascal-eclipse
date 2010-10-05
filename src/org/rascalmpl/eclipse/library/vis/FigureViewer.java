@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library.viz.Figure;
+package org.rascalmpl.eclipse.library.vis;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
@@ -20,7 +20,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.library.viz.Figure.FigurePApplet;
+import org.rascalmpl.library.vis.FigurePApplet;
 
 public class FigureViewer extends EditorPart {
 	protected static final String editorId = "rascal-eclipse.Figure.viewer";

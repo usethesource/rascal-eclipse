@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library.viz;
+package org.rascalmpl.eclipse.library.visdeprecated;
 
 import java.util.Stack;
 import java.util.StringTokenizer;

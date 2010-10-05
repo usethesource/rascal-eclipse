@@ -1,4 +1,4 @@
-module viz::Basic
+module vis::Basic
 
 // Various views on values
 

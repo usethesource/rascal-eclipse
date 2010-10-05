@@ -1,9 +1,9 @@
-package org.rascalmpl.eclipse.library.viz.Figure;
+package org.rascalmpl.eclipse.library.vis;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.viz.Figure.FigurePApplet;
+import org.rascalmpl.library.vis.FigurePApplet;
 
 public class FigureLibrary {
 	

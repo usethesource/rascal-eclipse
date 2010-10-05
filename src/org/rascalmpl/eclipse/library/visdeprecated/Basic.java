@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library.viz;
+package org.rascalmpl.eclipse.library.visdeprecated;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;

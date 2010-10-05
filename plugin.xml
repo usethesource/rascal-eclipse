@@ -224,7 +224,7 @@
             name="Box Viewer">
       </editor>
       <editor
-            class="org.rascalmpl.eclipse.library.viz.Figure.FigureViewer"
+            class="org.rascalmpl.eclipse.library.vis.FigureViewer"
             default="false"
             icon="icons/rascal3D_2-16px.gif"
             id="rascal-eclipse.Figure.viewer"
