@@ -13,8 +13,6 @@ import java.net.URISyntaxException;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -145,7 +143,7 @@ public class BoxPrinter {
 		displayBottomMargin = clientArea.height - dpi.y + trim.y + trim.height;
 	}
 
-	private URI getFileName() {
+	static URI getFileName() {
 		FileDialog dialog = new FileDialog(shell);
 //		String[] filterExtensions = new String[] { "*.asf" };
 //		dialog.setFilterExtensions(filterExtensions);
@@ -217,8 +215,12 @@ public class BoxPrinter {
 	
 	
 	public String getRichText(URI uri) {
+		IValue v = makeBox.toRichTxt(uri);
+		return  makeBox.text2String(v);
+		/*
 		readData("toLatex", uri, true);
 		return textToPrint;
+		*/
 	}
 
 	private void setMenuBar() {

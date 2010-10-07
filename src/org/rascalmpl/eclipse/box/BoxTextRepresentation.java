@@ -80,4 +80,5 @@ public class BoxTextRepresentation extends TextPresentation {
 	static Color boldColor = getColor(SWT.COLOR_MAGENTA);
 	static Color bgColor = getColor(SWT.COLOR_WHITE);
 	static Color numColor = new Color(Display.getCurrent(), new RGB(0, 0, 192));	
+	// static Color numColor = getColor(SWT.COLOR_RED);	
 }

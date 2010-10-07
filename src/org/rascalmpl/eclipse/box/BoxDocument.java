@@ -41,7 +41,9 @@ public class BoxDocument extends Document {
 	private String rename(String s) {
 		if (s.equals("KW")) return "bf";
 		if (s.equals("NM")) return "nm";
-		if (s.equals("VR")) return "it";
+		// if (s.equals("VR")) return "it";
+		if (s.equals("SG")) return "it";
+		if (s.equals("CT")) return "it";
 		return "df";
 	}
 

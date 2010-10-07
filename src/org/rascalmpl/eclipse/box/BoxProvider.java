@@ -16,7 +16,7 @@ public class BoxProvider extends FileDocumentProvider {
 	@Override
 	public IDocument createDocument(Object element) {
 		try {
-			System.err.println("createDocument:" + getDefaultEncoding());
+			// System.err.println("createDocument:" + getDefaultEncoding());
 
 			setDocumentContent(d, (IEditorInput) element, getDefaultEncoding());
 			return d;
