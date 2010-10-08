@@ -19,15 +19,17 @@ public class BoxTextRepresentation extends TextPresentation {
 	BoxTextRepresentation(IDocument d) {
 		this.d = d;
 		// System.err.println("Doclen:"+d.getLength());
-		setDefaultStyleRange(df(new Position(0, d.getLength())));
+		setDefaultStyleRange(DF(new Position(0, d.getLength())));
 			try {
 				for (Position p: d.getPositions(IDocument.DEFAULT_CATEGORY)) {
 					// System.err.println("S:"+c+" "+p);
 					TypedPosition q = (TypedPosition) p;
-					if (q.getType()=="bf") this.replaceStyleRange(bf(p));
-					if (q.getType()=="it") this.replaceStyleRange(it(p));
-					if (q.getType()=="nm") this.replaceStyleRange(nm(p));
-					if (q.getType()=="df") this.replaceStyleRange(df(p));
+					if (q.getType()=="KW") this.replaceStyleRange(KW(p));
+					if (q.getType()=="SG") this.replaceStyleRange(SG(p));
+					if (q.getType()=="NM") this.replaceStyleRange(NM(p));
+					if (q.getType()=="DF") this.replaceStyleRange(DF(p));
+					if (q.getType()=="SC") this.replaceStyleRange(SC(p));
+					if (q.getType()=="CT") this.replaceStyleRange(CT(p));
 				}
 			} catch (BadPositionCategoryException e) {
 				// TODO Auto-generated catch block
@@ -40,20 +42,28 @@ public class BoxTextRepresentation extends TextPresentation {
 		return this.d;
 	}
 	
-	public StyleRange bf(Position p) {
+	public StyleRange KW(Position p) {
 		return new StyleRange(p.getOffset(), p.getLength(), keyColor, bgColor, SWT.BOLD);
 	}
 
-	public StyleRange it(Position p) {
-		return new StyleRange(p.getOffset(), p.getLength(), textColor, bgColor, SWT.ITALIC);
+	public StyleRange SG(Position p) {
+		return new StyleRange(p.getOffset(), p.getLength(), numColor, bgColor, SWT.ITALIC);
 	}
 
-	public StyleRange nm(Position p) {
+	public StyleRange NM(Position p) {
 		return new StyleRange(p.getOffset(), p.getLength(), numColor, bgColor, SWT.NORMAL);
 	}
 	
-	public StyleRange df(Position p) {
+	public StyleRange DF(Position p) {
 		return new StyleRange(p.getOffset(), p.getLength(), textColor, bgColor, SWT.NORMAL);
+	}
+	
+	public StyleRange SC(Position p) {
+		return new StyleRange(p.getOffset(), p.getLength(), escColor, bgColor, SWT.ITALIC);
+	}
+	
+	public StyleRange CT(Position p) {
+		return new StyleRange(p.getOffset(), p.getLength(), textColor, bgColor, SWT.ITALIC);
 	}
 
 	private static Color getColor(final int which) {
@@ -80,5 +90,5 @@ public class BoxTextRepresentation extends TextPresentation {
 	static Color boldColor = getColor(SWT.COLOR_MAGENTA);
 	static Color bgColor = getColor(SWT.COLOR_WHITE);
 	static Color numColor = new Color(Display.getCurrent(), new RGB(0, 0, 192));	
-	// static Color numColor = getColor(SWT.COLOR_RED);	
+	static Color escColor = getColor(SWT.COLOR_DARK_GREEN);	
 }

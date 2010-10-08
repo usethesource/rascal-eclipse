@@ -10,7 +10,7 @@ import org.eclipse.jface.text.TypedPosition;
 public class BoxDocument extends Document {
 
 	enum TAG {
-		it, nm, bf, df;
+		KW, NM, SG, CT, SC, DF;
 	}
 
 	class Frame {
@@ -38,18 +38,11 @@ public class BoxDocument extends Document {
 		}
 	}
 	
-	private String rename(String s) {
-		if (s.equals("KW")) return "bf";
-		if (s.equals("NM")) return "nm";
-		// if (s.equals("VR")) return "it";
-		if (s.equals("SG")) return "it";
-		if (s.equals("CT")) return "it";
-		return "df";
-	}
+
 
 	void computeDocument(String textToPrint) {
 		final Stack<Frame> stack = new Stack<Frame>();
-		TAG current = TAG.df;
+		TAG current = TAG.DF;
 		StringTokenizer t = new StringTokenizer(textToPrint, "\n\r", true);
 		while (t.hasMoreTokens()) {
 			String c = t.nextToken();
@@ -59,7 +52,7 @@ public class BoxDocument extends Document {
 				c = t.nextToken();
 				if (c.charAt(0) == '{') {
 					String key = c.substring(1, 3);
-					TAG tag = TAG.valueOf(rename(key));
+					TAG tag = TAG.valueOf(key);
 					stack.push(new Frame(current, this.getLength()));
 					current = tag;
 				} else if (c.charAt(0) == '}') {
