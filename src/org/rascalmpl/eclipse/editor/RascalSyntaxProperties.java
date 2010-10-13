@@ -1,6 +1,8 @@
 package org.rascalmpl.eclipse.editor;
 
+import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
+import org.eclipse.jface.text.IRegion;
 
 public class RascalSyntaxProperties implements ILanguageSyntaxProperties {
 
@@ -35,5 +37,25 @@ public class RascalSyntaxProperties implements ILanguageSyntaxProperties {
 
 	public String getSingleLineCommentPrefix() {
 		return "//";
+	}
+
+	public IRegion getDoubleClickRegion(int offset, IParseController pc) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isIdentifierPart(char ch) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean isIdentifierStart(char ch) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean isWhitespace(char ch) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

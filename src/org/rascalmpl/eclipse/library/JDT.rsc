@@ -4,6 +4,7 @@ import Map;
 import Node;
 import Resources;
 import Java;
+import IO;
 
 @doc{maps any ast at a certain location to a qualified name}
 public alias BindingRel = rel[loc, Entity];
@@ -204,4 +205,13 @@ public rel[str,str] java cleanUpSource(loc file);
 
 @doc{Invokes the Fully Qualify Type Names transformation on the given file}
 @javaClass{org.rascalmpl.eclipse.library.JDT}
-public void java fullyQualifyTypeNames(loc file);
+public str java fullyQualifyTypeNames(loc file);
+
+public void fullyQualifyTypeNamesInFile(loc file) {
+	str contents = fullyQualifyTypeNames(file);
+	writeFile(file,contents);
+}
+
+@doc{Remove the methods at the given locs}
+@javaClass{org.rascalmpl.eclipse.library.JDT}
+public void java removeMethods(set[int] methodOffsetsFromLoc, loc file);

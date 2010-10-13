@@ -40,6 +40,7 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Command.Shell;
@@ -267,7 +268,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 
 	private void execCommand(IConstructor tree) {
-		Command stat = new ASTBuilder(new ASTFactory()).buildCommand(tree);
+		Command stat = new ASTBuilder(ASTFactoryFactory.getASTFactory()).buildCommand(tree);
 
 		clearErrorMarker();
 
@@ -275,10 +276,12 @@ public class RascalScriptInterpreter implements IInterpreter{
 		// Eclipse environment (such as editing a file). After that we simply call
 		// the evaluator to reuse as much of the evaluators standard implementation of commands
 		
-		Result<IValue> result = stat.accept(new NullASTVisitor<Result<IValue>>() {
+//		Result<IValue> result = stat.accept(new NullASTVisitor<Result<IValue>>() {
+		Result<IValue> result = stat.__evaluate(new NullASTVisitor<Result<IValue>>() {
 			@Override
 			public Result<IValue> visitCommandShell(Shell x) {
-				return x.getCommand().accept(this);
+//				return x.getCommand().accept(this);
+				return x.getCommand().__evaluate(this);
 			}
 			
 			@Override
@@ -291,7 +294,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 			@Override
 			public Result<IValue> visitShellCommandTest(final Test x) {
 				eval.setTestResultListener(new TestReporter());
-				x.accept(eval);								
+//				x.accept(eval);								
+				x.__evaluate(eval);								
 				return ResultFactory.nothing();
 			}
 

@@ -15,6 +15,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -45,6 +46,7 @@ import org.eclipse.ltk.core.refactoring.participants.ProcessorBasedRefactoring;
 import org.rascalmpl.eclipse.library.jdt.FindIFields;
 import org.rascalmpl.eclipse.library.jdt.FindIMethods;
 import org.rascalmpl.eclipse.library.jdt.FullyQualifyTypeNames;
+import org.rascalmpl.eclipse.library.jdt.RemoveMethods;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
@@ -104,26 +106,34 @@ public class JDT {
     }
     
 	public IRelation encapsulateFields(ISet fieldOffsetsFromLoc, ISourceLocation loc) {
-    	IFile file = getIFileForLocation(loc);
-
-		Set<IField> fields = new FindIFields().findFieldsAtLocs(fieldOffsetsFromLoc, loc, file);
 		IRelation result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
-		for (IField field : fields) {
-			result.union(encapsulateField(field, Flags.AccPublic));
-		}
-		
-		return result;
+		Job.getJobManager().beginRule(ResourcesPlugin.getWorkspace().getRoot(), new NullProgressMonitor());
+    	try {
+    		IFile file = getIFileForLocation(loc);
+			Set<IField> fields = new FindIFields().findFieldsAtLocs(fieldOffsetsFromLoc, loc, file);
+			for (IField field : fields) {
+				String fieldForGS = field.getElementName().substring(0,1).toUpperCase();
+				if (field.getElementName().length() > 1)
+					fieldForGS += field.getElementName().substring(1);
+				String getterName = "__get" + fieldForGS;
+				String setterName = "__set" + fieldForGS;
+				result.union(encapsulateField(field, Flags.AccPublic, getterName, setterName ));
+			}
+    	} finally {
+    		Job.getJobManager().endRule(ResourcesPlugin.getWorkspace().getRoot());
+    	}
+    	return result;
+    	
     }
 
 
-	private IRelation encapsulateField(IField field, int flags) {
-    	// TODO: Currently we only allow the visibility to be passed in. It may make sense to
-    	// also pass in other options, so we can use this as a general method to interact with
-    	// the encapsulate field refactoring.
+	private IRelation encapsulateField(IField field, int flags, String getterName, String setterName) {
 		try {
 			SelfEncapsulateFieldRefactoring refactoring = new SelfEncapsulateFieldRefactoring(field);
 			refactoring.setVisibility(flags);
 			refactoring.setConsiderVisibility(false); // only matters for IMethod objects
+			refactoring.setGetterName(getterName);
+			refactoring.setSetterName(setterName);
 			PerformRefactoringOperation operation = new PerformRefactoringOperation(refactoring, CheckConditionsOperation.ALL_CONDITIONS);
 			operation.run(new NullProgressMonitor());
 			IRelation result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
@@ -160,7 +170,10 @@ public class JDT {
     }    
     
 	private IRelation changeMethodSignature(IMethod method, int visibility) {
+		IRelation result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
 		try {
+			Job.getJobManager().beginRule(ResourcesPlugin.getWorkspace().getRoot(), new NullProgressMonitor());
+
 			ChangeSignatureProcessor processor = new ChangeSignatureProcessor(method);
 			Refactoring refactoring = new ProcessorBasedRefactoring(processor);
 			processor.setVisibility(visibility);
@@ -168,7 +181,6 @@ public class JDT {
 			PerformRefactoringOperation operation = new PerformRefactoringOperation(refactoring, CheckConditionsOperation.ALL_CONDITIONS);
 			operation.run(new NullProgressMonitor());
 
-			IRelation result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
 			RefactoringStatus rs = operation.getConditionStatus();
 			if (rs != null && rs.hasWarning()) {
 				for (RefactoringStatusEntry rse : rs.getEntries()) {
@@ -181,12 +193,14 @@ public class JDT {
 					result.insert(VF.tuple(VF.string(method.getElementName() + " " + method.getSignature()), VF.string(rse.getMessage())));
 				}
 			}
-			return result;
 		} catch (JavaModelException e) {
 			throw new Throw(VF.string(e.getMessage()), (ISourceLocation) null, null);
 		} catch (CoreException e) {
 			throw new Throw(VF.string(e.getMessage()), (ISourceLocation) null, null);
+		} finally {
+			Job.getJobManager().endRule(ResourcesPlugin.getWorkspace().getRoot());
 		}
+		return result;
 	}   
     
     public IRelation cleanUpSource(ISourceLocation loc) {
@@ -195,6 +209,8 @@ public class JDT {
 		IRelation result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
 		
 		try {
+			Job.getJobManager().beginRule(ResourcesPlugin.getWorkspace().getRoot(), new NullProgressMonitor());
+
 			// Create the refactoring for the cleanup
 			CleanUpRefactoring refactoring = new CleanUpRefactoring();
 			
@@ -240,15 +256,22 @@ public class JDT {
 			throw new Throw(VF.string(e.getMessage()), (ISourceLocation) null, null);
 		} catch (CoreException e) {
 			throw new Throw(VF.string(e.getMessage()), (ISourceLocation) null, null);
+		} finally {
+			Job.getJobManager().endRule(ResourcesPlugin.getWorkspace().getRoot());
 		}
 			
 		return result;
     	
     }
     
-	public void fullyQualifyTypeNames(ISourceLocation loc) {
+	public IValue fullyQualifyTypeNames(ISourceLocation loc) {
     	IFile file = getIFileForLocation(loc);
-		new FullyQualifyTypeNames().fullyQualifyTypeNames(loc, file);
+		return new FullyQualifyTypeNames().fullyQualifyTypeNames(loc, file);
+    }
+
+	public void removeMethods(ISet methodOffsetsFromLoc, ISourceLocation loc) {
+    	IFile file = getIFileForLocation(loc);
+		new RemoveMethods().removeMethodsAtLocs(methodOffsetsFromLoc, loc, file);
     }
 
 	public  IConstructor extractClass(ISourceLocation loc) {

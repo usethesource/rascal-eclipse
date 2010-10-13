@@ -9,18 +9,25 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.BadLocationException;
@@ -37,17 +44,21 @@ public class FullyQualifyTypeNames extends ASTVisitor {
 	private IFile file;
 	private ISourceLocation loc;
 	private ASTRewrite rewriter;
+	private String qualifiedSourceText;
 	
 	public FullyQualifyTypeNames() {
 		super();
 	}
 	
-	public void fullyQualifyTypeNames(ISourceLocation loc, IFile file) {
+	public IValue fullyQualifyTypeNames(ISourceLocation loc, IFile file) {
 		this.file = file;
 		this.loc = loc;
 		this.rewriter = null;
+		this.qualifiedSourceText = "";
 		
 		visitCompilationUnit();
+		
+		return VF.string(this.qualifiedSourceText);
 	}
 	
 	private void visitCompilationUnit() {
@@ -72,22 +83,29 @@ public class FullyQualifyTypeNames extends ASTVisitor {
 		rewriter = ASTRewrite.create(cu.getAST());
 		
 		cu.accept(this);
-		
-		ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
-		IPath path = file.getFullPath();
+
 		try {
+			IPath path = file.getFullPath();
+
+			ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
 			bufferManager.connect(path, LocationKind.IFILE, new NullProgressMonitor());
+
 			ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(path, LocationKind.IFILE);
-			TextEdit te = rewriter.rewriteAST();
-			te.apply(textFileBuffer.getDocument());
-			textFileBuffer.commit(new NullProgressMonitor(), true);
+			
+			IDocument doc = textFileBuffer.getDocument();
+			TextEdit te = rewriter.rewriteAST(doc,null);
+			te.apply(doc);
+			this.qualifiedSourceText = doc.get();
+			
+			textFileBuffer.revert(new NullProgressMonitor());
+			
 			bufferManager.disconnect(path, LocationKind.IFILE, new NullProgressMonitor());
 		} catch (CoreException e) {
-			throw new Throw(VF.string("Error(s) in rewrite of compilation unit: " + e.getMessage()), this.loc, null);
+			throw new Throw(VF.string("Error(s) in rewrite of compilation unit: " + e.getMessage()), loc, null);
 		} catch (MalformedTreeException e) {
-			throw new Throw(VF.string("Error(s) in rewrite of compilation unit: " + e.getMessage()), this.loc, null);
+			throw new Throw(VF.string("Error(s) in rewrite of compilation unit: " + e.getMessage()), loc, null);
 		} catch (BadLocationException e) {
-			throw new Throw(VF.string("Error(s) in rewrite of compilation unit: " + e.getMessage()), this.loc, null);
+			throw new Throw(VF.string("Error(s) in rewrite of compilation unit: " + e.getMessage()), loc, null);
 		}
 		
 //		try {
@@ -110,13 +128,128 @@ public class FullyQualifyTypeNames extends ASTVisitor {
 		if (tb != null) {
 			IPackageBinding pb = tb.getPackage();
 			if (pb != null && !pb.isUnnamed()) {
-				String qualifiedTypeName = pb.getName() + "." + node.getName();
-				SimpleType st = (SimpleType) rewriter.createCopyTarget(node);
-				st.setName(node.getAST().newName(qualifiedTypeName));
+				String qualifiedTypeName = "";
+				if (tb.isNested()) {
+					ITypeBinding parent = tb.getDeclaringClass();
+					String parentString = parent.getName();
+					while (parent != null && parent.isNested()) {
+						parent = parent.getDeclaringClass();
+						parentString = parent.getName() + "." + parentString;
+					}
+					qualifiedTypeName = pb.getName() + "." + parentString + ".";
+				} else {
+					qualifiedTypeName = pb.getName() + ".";					
+				}
+				Name stName = node.getName();
+				if (stName.isQualifiedName()) {
+					QualifiedName qn = (QualifiedName)stName;
+					qualifiedTypeName = qualifiedTypeName + qn.getName().toString();
+				} else {
+					SimpleName sn = (SimpleName) stName;
+					qualifiedTypeName = qualifiedTypeName + sn.toString();
+				}
+				SimpleType st = node.getAST().newSimpleType(node.getAST().newName(qualifiedTypeName));
 				rewriter.replace(node, st, null);
 			}
 		}
 		return true;
 	}
+
+	@Override
+	public boolean visit(FieldAccess node) {
+		Expression exp = node.getExpression();
+		if (exp instanceof SimpleName) {
+			SimpleName sn = (SimpleName)exp;
+			ITypeBinding tb = sn.resolveTypeBinding();
+			if (tb != null && (tb.isClass() || tb.isInterface())) {
+				IPackageBinding pb = tb.getPackage();
+				if (pb != null && !pb.isUnnamed()) {
+					String qualifiedTypeName = "";
+					if (tb.isNested()) {
+						ITypeBinding parent = tb.getDeclaringClass();
+						String parentString = parent.getName();
+						while (parent != null && parent.isNested()) {
+							parent = parent.getDeclaringClass();
+							parentString = parent.getName() + "." + parentString;
+						}
+						qualifiedTypeName = pb.getName() + "." + parentString + ".";
+					} else {
+						qualifiedTypeName = pb.getName() + ".";					
+					}
+					qualifiedTypeName = qualifiedTypeName + sn.toString();
+					Name n = node.getAST().newName(qualifiedTypeName);
+					rewriter.replace(exp, n, null);
+				}
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public boolean visit(MethodInvocation node) {
+		Expression exp = node.getExpression();
+		if (exp instanceof SimpleName) {
+			SimpleName sn = (SimpleName)exp;
+			IBinding b = sn.resolveBinding();
+			if (b.getKind() == IBinding.TYPE) {
+				ITypeBinding tb = sn.resolveTypeBinding();
+				if (tb != null && (tb.isClass() || tb.isInterface())) {
+					IPackageBinding pb = tb.getPackage();
+					if (pb != null && !pb.isUnnamed()) {
+						String qualifiedTypeName = "";
+						if (tb.isNested()) {
+							ITypeBinding parent = tb.getDeclaringClass();
+							String parentString = parent.getName();
+							while (parent != null && parent.isNested()) {
+								parent = parent.getDeclaringClass();
+								parentString = parent.getName() + "." + parentString;
+							}
+							qualifiedTypeName = pb.getName() + "." + parentString + ".";
+						} else {
+							qualifiedTypeName = pb.getName() + ".";					
+						}
+						qualifiedTypeName = qualifiedTypeName + sn.toString();
+						Name n = node.getAST().newName(qualifiedTypeName);
+						rewriter.replace(exp, n, null);
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+//	@Override
+//	public boolean visit(QualifiedName node) {
+//		Name qualifierHead = node.getQualifier();
+//		return true;
+//	}
+//
+//	@Override
+//	public boolean visit(SimpleName node) {
+//		if (node.getParent() instanceof QualifiedName && ( (QualifiedName) node.getParent()).getQualifier().equals(node)) {
+//			ITypeBinding tb = node.resolveTypeBinding();
+//			if (tb != null && (tb.isClass() || tb.isInterface())) {
+//				IPackageBinding pb = tb.getPackage();
+//				if (pb != null && !pb.isUnnamed()) {
+//					String qualifiedTypeName = "";
+//					if (tb.isNested()) {
+//						ITypeBinding parent = tb.getDeclaringClass();
+//						String parentString = parent.getName();
+//						while (parent != null && parent.isNested()) {
+//							parent = parent.getDeclaringClass();
+//							parentString = parent.getName() + "." + parentString;
+//						}
+//						qualifiedTypeName = pb.getName() + "." + parentString + ".";
+//					} else {
+//						qualifiedTypeName = pb.getName() + ".";					
+//					}
+//					qualifiedTypeName = qualifiedTypeName + node.toString();
+//					Name n = node.getAST().newName(qualifiedTypeName);
+//					rewriter.replace(node, n, null);
+//				}
+//			}
+//		}
+//		return true;
+//	}
 
 }
