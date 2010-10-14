@@ -603,6 +603,35 @@
         </action>
      </actionSet>
   </extension>
-  
+  <extension
+        point="org.eclipse.ui.exportWizards">
+        <wizard
+        id="TextBoxExport"
+        name="PrettyPrint -> Text"
+        class="org.rascalmpl.eclipse.box.TextBoxExport">
+        <description>Export to formatted source file</description>
+        <selection class="org.eclipse.core.resources.IResource" /> 
+        </wizard>
+  </extension>
+  <extension
+        point="org.eclipse.ui.exportWizards">
+        <wizard
+        id="LatexBoxExport"
+        name="PrettyPrint -> Latex"
+        class="org.rascalmpl.eclipse.box.LatexBoxExport">
+        <description>Export to formatted source file</description>
+        <selection class="org.eclipse.core.resources.IResource" /> 
+        </wizard>
+  </extension>
+  <extension
+        point="org.eclipse.ui.exportWizards">
+        <wizard
+        id="HtmlBoxExport"
+        name="PrettyPrint -> Html"
+        class="org.rascalmpl.eclipse.box.HtmlBoxExport">
+        <description>Export to formatted source file</description>
+        <selection class="org.eclipse.core.resources.IResource" /> 
+        </wizard>
+  </extension>
 	 
 </plugin>
