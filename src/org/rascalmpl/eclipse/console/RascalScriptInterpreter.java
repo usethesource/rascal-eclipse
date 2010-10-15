@@ -11,7 +11,6 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.List;
-import java.util.regex.Matcher;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -39,7 +38,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.part.FileEditorInput;
-import org.rascalmpl.ast.ASTFactory;
+import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Command.Shell;
@@ -267,7 +266,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 
 	private void execCommand(IConstructor tree) {
-		Command stat = new ASTBuilder(new ASTFactory()).buildCommand(tree);
+		Command stat = new ASTBuilder(ASTFactoryFactory.getASTFactory()).buildCommand(tree);
 
 		clearErrorMarker();
 
