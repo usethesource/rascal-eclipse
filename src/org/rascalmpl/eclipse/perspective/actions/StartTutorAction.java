@@ -59,7 +59,10 @@ public class StartTutorAction implements IWorkbenchWindowActionDelegate {
 				}
 			}
 			
-			int style = IWorkbenchBrowserSupport.AS_EDITOR | IWorkbenchBrowserSupport.LOCATION_BAR | IWorkbenchBrowserSupport.STATUS;
+			int style = IWorkbenchBrowserSupport.AS_EDITOR 
+					  | IWorkbenchBrowserSupport.LOCATION_BAR 
+			          | IWorkbenchBrowserSupport.STATUS
+			          ;
 			IWebBrowser browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(style, "RascalTutorBrowser", "RascalTutorBrowser", "Rascal Tutor");
 			browser.openURL(new URL("http://localhost:" + port));
 		} catch (PartInitException e) {
