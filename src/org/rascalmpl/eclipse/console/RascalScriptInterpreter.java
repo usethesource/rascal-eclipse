@@ -57,6 +57,7 @@ import org.rascalmpl.eclipse.console.internal.TestReporter;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -225,7 +226,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		}
 		return true;
 	}
-
+	
 	private void setMarker(final String message, final ISourceLocation loc){
 		// This code makes sure that if files are read or written during Rascal execution, the build
 		// infra-structure of Eclipse is not triggered
@@ -268,6 +269,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 	private void execCommand(IConstructor tree) {
 		Command stat = new ASTBuilder(ASTFactoryFactory.getASTFactory()).buildCommand(tree);
 
+		if (stat == null) {
+			throw new ImplementationError("null command");
+		}
 		clearErrorMarker();
 
 		// We first try to evaluate commands that have specific implementations in the

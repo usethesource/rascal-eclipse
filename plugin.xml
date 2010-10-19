@@ -633,5 +633,27 @@
         <selection class="org.eclipse.core.resources.IResource" /> 
         </wizard>
   </extension>
+  <extension
+        point="org.eclipse.ui.actionSets">
+     <actionSet
+           id="rascal_eclipse.rascalActionSet"
+           label="Rascal Action Set"
+           visible="true">
+        <menu
+              id="Rascal"
+              label="Rascal">
+           <separator
+                 name="rascalGroup">
+           </separator>
+        </menu>
+        <action
+              class="org.rascalmpl.eclipse.perspective.actions.StartTutorAction"
+              id="Tutor"
+              label="Start &amp;tutor"
+              menubarPath="rascal/rascalGroup"
+              tooltip="Start Rascal Tutor">
+        </action>
+     </actionSet>
+  </extension>
 	 
 </plugin>
