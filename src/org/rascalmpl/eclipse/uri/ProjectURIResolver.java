@@ -106,11 +106,9 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 
 	public String absolutePath(URI uri) throws IOException {
 		try {
-			return resolve(uri).getFullPath().toOSString();
+			return resolve(uri).getLocation().toOSString();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return null;
 		}
-		return null;
 	}
 }
