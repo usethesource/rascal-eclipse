@@ -22,8 +22,8 @@ import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ProjectSDFModuleContributor;
-import org.rascalmpl.eclipse.console.ProjectURIResolver;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
+import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -31,7 +31,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.parser.LegacyRascalParser;
-import org.rascalmpl.uri.ClassResourceInputStreamResolver;
+import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -90,11 +90,11 @@ public class ParseController implements IParseController {
 		}
 		
 		ProjectURIResolver resolver = new ProjectURIResolver();
-		parser.getResolverRegistry().registerInput(resolver.scheme(), resolver);
-		parser.getResolverRegistry().registerOutput(resolver.scheme(), resolver);
+		parser.getResolverRegistry().registerInput(resolver);
+		parser.getResolverRegistry().registerOutput(resolver);
 		
-		IURIInputStreamResolver library = new ClassResourceInputStreamResolver("rascal-eclipse-library", RascalScriptInterpreter.class);
-		parser.getResolverRegistry().registerInput(library.scheme(), library);
+//		IURIInputStreamResolver library = new ClassResourceInputOutput("rascal-eclipse-library", RascalScriptInterpreter.class);
+//		parser.getResolverRegistry().registerInput(library.scheme(), library);
 		
 		parser.addRascalSearchPath(URI.create("rascal-eclipse-library:///org/rascalmpl/eclipse/lib"));
 		parser.addRascalSearchPath(URI.create("file:///Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library"));

@@ -13,7 +13,9 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.library.experiments.RascalTutor.RascalTutor;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 
 public class StartTutorAction implements IWorkbenchWindowActionDelegate {
@@ -47,6 +49,10 @@ public class StartTutorAction implements IWorkbenchWindowActionDelegate {
 		try {
 			if (tutor == null) {
 				tutor = new RascalTutor();
+				URIResolverRegistry registry = tutor.getResolverRegistry();
+				BundleURIResolver resolver = new BundleURIResolver(registry);
+				registry.registerInput(resolver);
+				registry.registerOutput(resolver);
 				
 				for (int i = 0; i < 100; i++) {
 					try {
@@ -63,7 +69,7 @@ public class StartTutorAction implements IWorkbenchWindowActionDelegate {
 					  | IWorkbenchBrowserSupport.LOCATION_BAR 
 			          | IWorkbenchBrowserSupport.STATUS
 			          ;
-			IWebBrowser browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(style, "RascalTutorBrowser", "RascalTutorBrowser", "Rascal Tutor");
+			IWebBrowser browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(style, "RascalTutor", "Rascal Tutor", "Rascal Tutor");
 			browser.openURL(new URL("http://localhost:" + port));
 		} catch (PartInitException e) {
 			Activator.getInstance().logException("Could not start browser for tutor", e);

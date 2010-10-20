@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.console;
+package org.rascalmpl.eclipse.uri;
 
 import java.io.File;
 import java.io.FileInputStream;

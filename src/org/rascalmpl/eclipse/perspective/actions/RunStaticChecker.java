@@ -27,13 +27,13 @@ import org.rascalmpl.checker.StaticChecker;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ProjectSDFModuleContributor;
-import org.rascalmpl.eclipse.console.ProjectURIResolver;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.editor.MarkerModelListener;
 import org.rascalmpl.eclipse.editor.ParseController;
+import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
-import org.rascalmpl.uri.ClassResourceInputStreamResolver;
+import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -120,8 +120,8 @@ public class RunStaticChecker implements IEditorActionDelegate {
 		checker.registerInputResolver(resolver);
 		checker.registerOutputResolver(resolver);
 
-		IURIInputStreamResolver library = new ClassResourceInputStreamResolver("rascal-eclipse-library", RascalScriptInterpreter.class);
-		checker.registerInputResolver(library);
+//		IURIInputStreamResolver library = new ClassResourceInputOutput("rascal-eclipse-library", RascalScriptInterpreter.class);
+//		checker.registerInputResolver(library);
 		
 		checker.addRascalSearchPath(URI.create("rascal-eclipse-library:///org/rascalmpl/eclipse/lib"));
 		checker.addRascalSearchPath(URI.create("file:///Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library"));
