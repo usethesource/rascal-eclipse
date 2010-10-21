@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.console;
+package org.rascalmpl.eclipse.uri;
 
 import java.io.IOException;
 import java.io.InputStream;

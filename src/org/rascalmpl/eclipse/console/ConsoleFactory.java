@@ -23,9 +23,6 @@ import org.rascalmpl.interpreter.debug.IDebugger;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.parser.IRascalParser;
-import org.rascalmpl.parser.LegacyRascalParser;
-import org.rascalmpl.parser.NewRascalParser;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -53,14 +50,14 @@ public class ConsoleFactory{
 	}
 	
 	public IRascalConsole openRunConsole(boolean newParser){
-		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE), newParser ? new NewRascalParser() : new LegacyRascalParser());
+		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE));
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
 	}
 	
 	public IRascalConsole openRunConsole(IProject project, boolean newParser){
-		IRascalConsole console = new InteractiveRascalConsole(project, newParser ? new NewRascalParser() : new LegacyRascalParser(), new ModuleEnvironment(SHELL_MODULE));
+		IRascalConsole console = new InteractiveRascalConsole(project, new ModuleEnvironment(SHELL_MODULE));
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
@@ -136,8 +133,8 @@ public class ConsoleFactory{
 	}
 
 	private class InteractiveRascalConsole extends InteractiveInterpreterConsole implements IRascalConsole{
-		public InteractiveRascalConsole(ModuleEnvironment shell, IRascalParser parser){
-			super(new RascalScriptInterpreter(new Evaluator(vf, stderr, stdout, parser, shell, new GlobalEnvironment())), "Rascal", "rascal>", ">>>>>>>");
+		public InteractiveRascalConsole(ModuleEnvironment shell){
+			super(new RascalScriptInterpreter(new Evaluator(vf, stderr, stdout, shell, new GlobalEnvironment())), "Rascal", "rascal>", ">>>>>>>");
 			initializeConsole();
 			getInterpreter().initialize();
 			getInterpreter().setStdOut(new PrintWriter(getConsoleOutputStream()));
@@ -149,8 +146,8 @@ public class ConsoleFactory{
 		 * used to initialize the path with modules accessible 
 		 * from the selected project and all its referenced projects
 		 * */
-		public InteractiveRascalConsole(IProject project, IRascalParser parser, ModuleEnvironment shell){
-			super(new RascalScriptInterpreter(new Evaluator(vf, stderr, stdout, parser, shell, new GlobalEnvironment()), project), "Rascal ["+project.getName()+"]", "rascal>", ">>>>>>>");
+		public InteractiveRascalConsole(IProject project, ModuleEnvironment shell){
+			super(new RascalScriptInterpreter(new Evaluator(vf, stderr, stdout, shell, new GlobalEnvironment()), project), "Rascal ["+project.getName()+"]", "rascal>", ">>>>>>>");
 			initializeConsole();
 			getInterpreter().initialize();
 			getInterpreter().setStdOut(new PrintWriter(getConsoleOutputStream()));
@@ -179,7 +176,7 @@ public class ConsoleFactory{
 
 	private class OutputRascalConsole extends OutputInterpreterConsole implements IRascalConsole{
 		public OutputRascalConsole(ModuleEnvironment shell){
-			this(new Evaluator(vf, stderr, stdout,  new LegacyRascalParser(), shell, new GlobalEnvironment()));
+			this(new Evaluator(vf, stderr, stdout,  shell, new GlobalEnvironment()));
 		}
 
 		public OutputRascalConsole(IDebugger debugger, ModuleEnvironment shell){
@@ -205,7 +202,7 @@ public class ConsoleFactory{
 
 		public OutputRascalConsole(IProject project,
 				ModuleEnvironment shell) {
-			this(new Evaluator(vf, stderr, stdout,  new LegacyRascalParser(), shell, new GlobalEnvironment()), project);
+			this(new Evaluator(vf, stderr, stdout,  shell, new GlobalEnvironment()), project);
 		}
  
 		public RascalScriptInterpreter getRascalInterpreter(){

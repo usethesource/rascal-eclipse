@@ -20,7 +20,7 @@ import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.console.ProjectURIResolver;
+import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.errors.SummaryAdapter;

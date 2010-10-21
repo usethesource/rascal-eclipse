@@ -54,9 +54,12 @@ import org.rascalmpl.eclipse.console.internal.IInterpreter;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.TerminationException;
 import org.rascalmpl.eclipse.console.internal.TestReporter;
+import org.rascalmpl.eclipse.uri.BundleURIResolver;
+import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -68,7 +71,8 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.library.IO;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.uri.ClassResourceInputStreamResolver;
+import org.rascalmpl.uri.ClassResourceInputOutput;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -92,7 +96,6 @@ public class RascalScriptInterpreter implements IInterpreter{
 				path.add(0,URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
 			}
 		});
-		eval.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project));
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(new RascalModuleUpdateListener(this));
 	}
 	
@@ -111,11 +114,18 @@ public class RascalScriptInterpreter implements IInterpreter{
 		this.project = null;
 		
 		ProjectURIResolver resolver = new ProjectURIResolver();
-		eval.getResolverRegistry().registerInput(resolver.scheme(), resolver);
-		eval.getResolverRegistry().registerOutput(resolver.scheme(), resolver);
-		eval.getResolverRegistry().registerInput("eclipse-lib", new ClassResourceInputStreamResolver("eclipse-lib", RascalScriptInterpreter.class));
-		eval.addRascalSearchPath(URI.create("eclipse-lib:///org/rascalmpl/eclipse/library"));
+		URIResolverRegistry resolverRegistry = eval.getResolverRegistry();
+		resolverRegistry.registerInput(resolver);
+		resolverRegistry.registerOutput(resolver);
+		
+		ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(resolverRegistry, "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
+		resolverRegistry.registerInput(eclipseResolver);
+		eval.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
 		eval.addClassLoader(getClass().getClassLoader());
+		
+		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
+		resolverRegistry.registerInput(bundleResolver);
+		resolverRegistry.registerOutput(bundleResolver);
 		
 		try {
 			String rascalPlugin = FileLocator.resolve(Platform.getBundle("rascal").getEntry("/")).getPath();
@@ -225,7 +235,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		}
 		return true;
 	}
-
+	
 	private void setMarker(final String message, final ISourceLocation loc){
 		// This code makes sure that if files are read or written during Rascal execution, the build
 		// infra-structure of Eclipse is not triggered
@@ -268,6 +278,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 	private void execCommand(IConstructor tree) {
 		Command stat = new ASTBuilder(ASTFactoryFactory.getASTFactory()).buildCommand(tree);
 
+		if (stat == null) {
+			throw new ImplementationError("null command");
+		}
 		clearErrorMarker();
 
 		// We first try to evaluate commands that have specific implementations in the

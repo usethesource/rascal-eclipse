@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,22 +20,15 @@ import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.console.ProjectSDFModuleContributor;
-import org.rascalmpl.eclipse.console.ProjectURIResolver;
-import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
-import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.parser.LegacyRascalParser;
-import org.rascalmpl.uri.ClassResourceInputStreamResolver;
-import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ParseController implements IParseController {
-	private Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.err), new PrintWriter(System.out), new LegacyRascalParser(), new ModuleEnvironment("***parser***"), new GlobalEnvironment());
+	private Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.err), new PrintWriter(System.out), new ModuleEnvironment("***parser***"), new GlobalEnvironment());
 	private IMessageHandler handler;
 	private ISourceProject project;
 	private IConstructor parseTree;
@@ -90,27 +82,13 @@ public class ParseController implements IParseController {
 		}
 		
 		ProjectURIResolver resolver = new ProjectURIResolver();
-		parser.getResolverRegistry().registerInput(resolver.scheme(), resolver);
-		parser.getResolverRegistry().registerOutput(resolver.scheme(), resolver);
+		parser.getResolverRegistry().registerInput(resolver);
+		parser.getResolverRegistry().registerOutput(resolver);
 		
-		IURIInputStreamResolver library = new ClassResourceInputStreamResolver("rascal-eclipse-library", RascalScriptInterpreter.class);
-		parser.getResolverRegistry().registerInput(library.scheme(), library);
+//		IURIInputStreamResolver library = new ClassResourceInputOutput("rascal-eclipse-library", RascalScriptInterpreter.class);
+//		parser.getResolverRegistry().registerInput(library.scheme(), library);
 		
 		parser.addRascalSearchPath(URI.create("rascal-eclipse-library:///org/rascalmpl/eclipse/lib"));
-		parser.addRascalSearchPath(URI.create("file:///Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library"));
-		if (project != null) {
-			parser.addSdfSearchPathContributor(new ProjectSDFModuleContributor(project.getRawProject()));
-		}
-		
-		// add current wd and sdf-library to search path for SDF modules
-		parser.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
-			public java.util.List<String> contributePaths() {
-				java.util.List<String> result = new LinkedList<String>();
-				result.add(System.getProperty("user.dir"));
-				result.add(Configuration.getSdfLibraryPathProperty());
-				return result;
-			}
-		});
 	}
 
 	public Object parse(String input, IProgressMonitor monitor) {
