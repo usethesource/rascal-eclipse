@@ -331,12 +331,6 @@
                id="rascal.launchdebugconsole"
                label="Launch Debuggable Console">
          </action>
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal.launchconsole.new"
-               label="Launch Console with New Parser">
-         </action>
       </objectContribution>
    </extension>
    <extension

@@ -49,22 +49,22 @@ public class ConsoleFactory{
 		return InstanceKeeper.instance;
 	}
 	
-	public IRascalConsole openRunConsole(boolean newParser){
+	public IRascalConsole openRunConsole(){
 		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE));
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
 	}
 	
-	public IRascalConsole openRunConsole(IProject project, boolean newParser){
+	public IRascalConsole openRunConsole(IProject project){
 		IRascalConsole console = new InteractiveRascalConsole(project, new ModuleEnvironment(SHELL_MODULE));
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
 	}
 	
-	public void openRunConsole(IProject project, IFile file, boolean newParser) {
-		IRascalConsole console = openRunConsole(project, newParser);
+	public void openRunConsole(IProject project, IFile file) {
+		IRascalConsole console = openRunConsole(project);
 		Evaluator eval = console.getRascalInterpreter().getEval();
 		try {
 			IConstructor tree = eval.parseModule(file.getLocationURI(), new ModuleEnvironment("***tmp***"));

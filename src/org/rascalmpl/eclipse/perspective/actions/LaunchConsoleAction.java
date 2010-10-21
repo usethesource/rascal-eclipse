@@ -31,13 +31,11 @@ public class LaunchConsoleAction implements IObjectActionDelegate, IActionDelega
 	}
 
 	public void run(IAction action) {
-		boolean useNewParser = action.getId().equals("rascal.launchconsole.new");
-		
 		if (file != null) {
-			ConsoleFactory.getInstance().openRunConsole(project, file, useNewParser);
+			ConsoleFactory.getInstance().openRunConsole(project, file);
 		}
 		else {
-			ConsoleFactory.getInstance().openRunConsole(project, useNewParser);
+			ConsoleFactory.getInstance().openRunConsole(project);
 		}
 	}
 
