@@ -118,7 +118,7 @@ public class ParseController implements IParseController {
 				parseTree = lastParseTree;
 			} else {
 				//lastParsedInput = input.getBytes();
-				parseTree = parser.parseModule(input.getBytes(), uri, new ModuleEnvironment("***editor***"));
+				parseTree = parser.parseModule(input.toCharArray(), uri, new ModuleEnvironment("***editor***"));
 				lastParseTree = parseTree;
 			}
 			monitor.worked(1);
