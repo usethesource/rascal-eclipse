@@ -108,35 +108,6 @@
       </treeBuilder>
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.languageDescription">
-      <language
-            description="SDF"
-            extensions="sdf"
-            language="SDF">
-      </language>
-   </extension>
-   <extension
-         point="org.eclipse.imp.runtime.tokenColorer">
-      <tokenColorer
-            class="org.rascalmpl.eclipse.editor.TokenColorer"
-            language="SDF">
-      </tokenColorer>
-   </extension>
-   <extension
-         point="org.eclipse.imp.runtime.labelProvider">
-      <labelProvider
-            class="org.rascalmpl.eclipse.outline.LabelProvider"
-            language="SDF">
-      </labelProvider>
-   </extension>
-   <extension
-         point="org.eclipse.imp.runtime.parser">
-      <parser
-            class="org.rascalmpl.eclipse.editor.SDFParseController"
-            language="SDF">
-      </parser>
-   </extension>
-   <extension
          point="org.eclipse.imp.runtime.documentationProvider">
       <docProvider
             class="org.rascalmpl.eclipse.editor.DocumentationProvider"
