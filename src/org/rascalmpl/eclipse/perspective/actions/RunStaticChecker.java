@@ -3,11 +3,8 @@ package org.rascalmpl.eclipse.perspective.actions;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.HashMap;
-import java.util.LinkedList;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
@@ -26,15 +23,9 @@ import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.checker.StaticChecker;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.console.ProjectSDFModuleContributor;
-import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.editor.MarkerModelListener;
 import org.rascalmpl.eclipse.editor.ParseController;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
-import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
-import org.rascalmpl.uri.ClassResourceInputOutput;
-import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
