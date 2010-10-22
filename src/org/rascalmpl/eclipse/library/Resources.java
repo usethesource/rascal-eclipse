@@ -171,10 +171,14 @@ public class Resources {
 	}
 	
 	private  IProject getIProject(String projectName) {
-		IProject p = ROOT.getProject(projectName);
+		try {
+			IProject p = ROOT.getProject(projectName);
 		
-		if (p != null) {
-			return p;
+			if (p != null) {
+				return p;
+			}
+		} catch (Exception e) {
+			// Do nothing
 		}
 		throw new Throw(VF.string("Project does not exist: " + projectName), (ISourceLocation) null, null);
 	}

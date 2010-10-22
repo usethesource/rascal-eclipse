@@ -2,6 +2,7 @@ package org.rascalmpl.eclipse.perspective.actions;
 
 import java.net.BindException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 import org.eclipse.jface.action.IAction;
@@ -13,8 +14,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.experiments.RascalTutor.RascalTutor;
+import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 
@@ -53,6 +57,13 @@ public class StartTutorAction implements IWorkbenchWindowActionDelegate {
 				BundleURIResolver resolver = new BundleURIResolver(registry);
 				registry.registerInput(resolver);
 				registry.registerOutput(resolver);
+
+				ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(registry, "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
+				registry.registerInput(eclipseResolver);
+				
+				Evaluator eval = tutor.getRascalEvaluator();
+				eval.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
+				eval.addClassLoader(getClass().getClassLoader());
 				
 				for (int i = 0; i < 100; i++) {
 					try {
@@ -65,7 +76,7 @@ public class StartTutorAction implements IWorkbenchWindowActionDelegate {
 				}
 			}
 			
-			int style = IWorkbenchBrowserSupport.AS_EDITOR 
+			int style = IWorkbenchBrowserSupport.AS_VIEW 
 					  | IWorkbenchBrowserSupport.LOCATION_BAR 
 			          | IWorkbenchBrowserSupport.STATUS
 			          ;
