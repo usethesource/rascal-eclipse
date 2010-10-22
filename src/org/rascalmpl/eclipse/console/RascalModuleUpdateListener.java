@@ -62,7 +62,7 @@ public class RascalModuleUpdateListener implements IResourceChangeListener {
 							if (srcFolder != null && srcFolder.exists()) {
 								if (srcFolder.getProjectRelativePath().isPrefixOf(file.getProjectRelativePath())) {
 									URI uri = URI.create("project://" + proj.getName() + "/" + file.getProjectRelativePath().removeFirstSegments(1).toPortableString());
-									interpreter.moduleUpdated(uri);
+									interpreter.addDirtyModule(uri);
 								}
 							}
 						}

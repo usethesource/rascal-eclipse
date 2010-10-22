@@ -10,7 +10,9 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -86,24 +88,37 @@ public class RascalScriptInterpreter implements IInterpreter{
 	private IFile lastMarked;
 
 	private IProject project;
+
+	private final Set<URI> dirtyModules = new HashSet<URI>();
+	private final RascalModuleUpdateListener resourceChangeListener;
 	
 	public RascalScriptInterpreter(Evaluator eval, final IProject project){
 		this(eval);
 		this.project = project;
-//		eval.addRascalSearchPath(URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+		
 		eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
 			public void contributePaths(List<URI> path) {
 				path.add(0,URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
 			}
 		});
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(new RascalModuleUpdateListener(this));
 	}
 	
-	public void moduleUpdated(URI uri) {
-		String path = uri.getPath();
-		path = path.substring(0, path.indexOf(IRascalResources.RASCAL_EXT) - 1);
-		path = path.startsWith("/") ? path.substring(1) : path;
-		eval.reloadModule(path.replaceAll("/","::"));
+	public  void addDirtyModule(URI name) {
+		synchronized (dirtyModules) {
+			dirtyModules.add(name);
+		}
+	}
+	
+	public void updateModules() {
+		synchronized (dirtyModules) {
+		  for (URI uri : dirtyModules) {
+			  String path = uri.getPath();
+			  path = path.substring(0, path.indexOf(IRascalResources.RASCAL_EXT) - 1);
+			  path = path.startsWith("/") ? path.substring(1) : path;
+			  eval.reloadModule(path.replaceAll("/","::"), uri);	  
+		  }
+		  dirtyModules.clear();
+		}
 	}
 	
 	public RascalScriptInterpreter(Evaluator eval){
@@ -112,6 +127,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 		this.command = "";
 		this.eval = eval;
 		this.project = null;
+		this.resourceChangeListener = new RascalModuleUpdateListener(this);
+		
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(resourceChangeListener);
 		
 		ProjectURIResolver resolver = new ProjectURIResolver();
 		URIResolverRegistry resolverRegistry = eval.getResolverRegistry();
@@ -152,22 +170,26 @@ public class RascalScriptInterpreter implements IInterpreter{
 		eval.interrupt();
 	}
 	
-	public void terminate(){
+	public void terminate() {
 		saveCommandHistory();
 		content = null;
 		clearErrorMarker();
 		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
 		if (eval instanceof DebuggableEvaluator) ((DebuggableEvaluator) eval).getDebugger().destroy();
+		ResourcesPlugin.getWorkspace().removeResourceChangeListener(resourceChangeListener);
 	}
 
 	public boolean execute(String cmd) throws CommandExecutionException, TerminationException{
+		
+		
 		if(cmd.trim().length() == 0){
 			content = "cancelled";
 			command = "";
 			return true;
 		}
 
-		try{
+		try {
+			updateModules();
 			command += cmd;
 			final IConstructor tree = eval.parseCommand(command, URI.create("stdin:///"));
 			
@@ -424,12 +446,6 @@ public class RascalScriptInterpreter implements IInterpreter{
 		String output = content;
 		content = "";
 		return output;
-	}
-
-	@Override
-	protected void finalize() throws Throwable{
-		clearErrorMarker();
-		saveCommandHistory();
 	}
 
 	private void loadCommandHistory(){
