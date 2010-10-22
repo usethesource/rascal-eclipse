@@ -65,7 +65,7 @@ public class MarkerModelListener {
 			return;
 		}
 		
-		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isLexToCf(tree)) {
+		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isLexical(tree)) {
 			IValue anno = tree.getAnnotation("message");
 			if (anno != null && anno.getType().isAbstractDataType() && anno.getType().getName().equals("Message")) {
 				IConstructor marker = (IConstructor) anno;

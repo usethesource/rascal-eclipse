@@ -100,6 +100,7 @@ public class ParseController implements IParseController {
 			
 			URI uri = ProjectURIResolver.constructProjectURI(project, path);
 
+			// TODO: this may be a workaround for a bug that's not there anymore
 			byte[] inputBytes = input.getBytes();
 			boolean arraysMatch = true;
 			if (lastParsedInput != null) { 

@@ -37,7 +37,7 @@ public class FoldingUpdater extends FolderBase {
 			}
 			
 			for (IValue arg : TreeAdapter.getASTArgs(tree)) {
-				if (!TreeAdapter.isLexToCf((IConstructor) arg)) {
+				if (!TreeAdapter.isLexical((IConstructor) arg)) {
 					visitTree((IConstructor) arg);
 				}
 			}
