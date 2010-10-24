@@ -19,7 +19,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class MarkerModelListener {
@@ -60,11 +59,6 @@ public class MarkerModelListener {
 	}
 	
 	private void processMarkers(IFile file, IConstructor tree) throws CoreException {
-		if (ParsetreeAdapter.isParseTree(tree)) {
-			processMarkers(file, ParsetreeAdapter.getTop(tree));
-			return;
-		}
-		
 		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isLexical(tree)) {
 			IValue anno = tree.getAnnotation("message");
 			if (anno != null && anno.getType().isAbstractDataType() && anno.getType().getName().equals("Message")) {

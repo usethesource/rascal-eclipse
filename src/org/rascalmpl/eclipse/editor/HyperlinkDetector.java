@@ -9,7 +9,6 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class HyperlinkDetector implements ISourceHyperlinkDetector {
@@ -19,7 +18,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		IConstructor tree = (IConstructor) parseController.getCurrentAst();
 		
 		if (tree != null) {
-			IHyperlink link = getTreeLinks(ParsetreeAdapter.getTop(tree), region);
+			IHyperlink link = getTreeLinks(tree, region);
 			
 			if (link != null) {
 				return new IHyperlink[] { link };

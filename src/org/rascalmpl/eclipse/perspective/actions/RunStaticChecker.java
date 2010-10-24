@@ -26,7 +26,6 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.editor.MarkerModelListener;
 import org.rascalmpl.eclipse.editor.ParseController;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
-import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RunStaticChecker implements IEditorActionDelegate {
@@ -80,12 +79,12 @@ public class RunStaticChecker implements IEditorActionDelegate {
 			StaticChecker checker = createCheckerIfNeeded(parseController.getProject());
 			
 			if (checker != null) {
-				IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(parseTree)).get(1));
+				IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(parseTree).get(1));
 				if (newTree != null) {
-					IConstructor treeTop = ParsetreeAdapter.getTop(parseTree);
+					IConstructor treeTop = parseTree;
 					IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
 					IConstructor newTreeTop = treeTop.set("args", treeArgs).setAnnotation("loc", treeTop.getAnnotation("loc"));
-					parseTree = parseTree.set("top", newTreeTop);
+					parseTree = newTreeTop;
 					marker.update(parseTree, parseController, monitor);
 				}
 			} else {
