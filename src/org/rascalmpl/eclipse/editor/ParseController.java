@@ -127,9 +127,6 @@ public class ParseController implements IParseController {
 		catch(FactTypeUseException e){
 			Activator.getInstance().logException("parsing rascal failed", e);
 		}
-		catch(IOException e){
-			Activator.getInstance().logException("parsing rascal failed", e);
-		}
 		catch(SyntaxError e){
 			ISourceLocation loc = e.getLocation();
 			e.printStackTrace();
