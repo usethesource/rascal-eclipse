@@ -12,7 +12,6 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.MarkerModelListener;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -50,7 +49,7 @@ public class AnnotatorModelListener implements IModelListener {
 		}
 
 		try {
-			IConstructor top = ParsetreeAdapter.getTop(parseTree);
+			IConstructor top = parseTree;
 			boolean start = false;
 			IConstructor tree;
 			if (TreeAdapter.getSortName(top).equals("<START>")) {
@@ -68,7 +67,7 @@ public class AnnotatorModelListener implements IModelListener {
 					IList newArgs = TreeAdapter.getArgs(top).put(1, newTree);
 					newTree = top.set("args", newArgs).setAnnotation("loc", top.getAnnotation("loc"));
 				}
-				parseTree = parseTree.set("top", newTree).setAnnotation("loc", top.getAnnotation("loc"));
+				parseTree = newTree;
 				((TermParseController) parseController).setCurrentAst(parseTree);
 				marker.update(parseTree, parseController, monitor);
 			}

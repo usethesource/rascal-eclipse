@@ -10,7 +10,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
 import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class NodeLocator implements ISourcePositionLocator {
@@ -18,10 +17,7 @@ public class NodeLocator implements ISourcePositionLocator {
 	public Object findNode(Object ast, int offset) {
 		if (ast instanceof IConstructor) {
 			IConstructor cons = (IConstructor) ast;
-			if (cons.getConstructorType() == Factory.ParseTree_Top) {
-				return findNode(ParsetreeAdapter.getTop(cons), offset);
-			}
-			else if (cons.getType() == Factory.Tree) {
+			if (cons.getType() == Factory.Tree) {
 				return TreeAdapter.locateLexical((IConstructor) ast, offset);
 			}
 		}
@@ -37,10 +33,7 @@ public class NodeLocator implements ISourcePositionLocator {
 	public Object findNode(Object ast, int startOffset, int endOffset) {
 		if (ast instanceof IConstructor) {
 			IConstructor cons = (IConstructor) ast;
-			if (cons.getConstructorType() == Factory.ParseTree_Top) {
-				return findNode(ParsetreeAdapter.getTop(cons), startOffset, endOffset);
-			}
-			else if (cons.getType() == Factory.Tree) {
+			if (cons.getType() == Factory.Tree) {
 				return TreeAdapter.locateLexical((IConstructor) ast, startOffset);
 			}
 		}

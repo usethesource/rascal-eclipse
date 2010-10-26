@@ -2,31 +2,18 @@ package org.rascalmpl.eclipse;
 
 import java.net.URL;
 
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.osgi.framework.Bundle;
-import org.rascalmpl.eclipse.editor.SDFParseController;
-
-import sglr.LegacySGLRInvoker;
-import sglr.SGLRInvoker;
 
 public class Activator extends PluginBase {
 	public static final String PLUGIN_ID = "rascal_eclipse";
 	public static final String kLanguageName = "Rascal";
-	
-	private final static String RASCAL_BASE_LIBRARY_PATH = "baseLibraryPath";
-	private final static String RASCAL_BASE_BINARY_PATH = "baseBinaryPath";
 	
 	public Activator() {
 		super();
@@ -35,54 +22,6 @@ public class Activator extends PluginBase {
 
 	private static class InstanceKeeper {
 		private final static Activator sInstance = new Activator();
-		// Base Paths
-		static{
-			IExtensionRegistry registry = Platform.getExtensionRegistry();
-			IExtensionPoint baseLibraryPoint = registry.getExtensionPoint(PLUGIN_ID, RASCAL_BASE_LIBRARY_PATH);
-			
-			IExtension baseLibraryxtensions[] = baseLibraryPoint.getExtensions();
-			if(baseLibraryxtensions.length > 0){
-				IConfigurationElement[] binaryProviderElements = baseLibraryxtensions[0].getConfigurationElements();
-				IConfigurationElement ce = binaryProviderElements[0];
-				String bundle = ce.getAttribute("bundle");
-				String path = ce.getAttribute("path");
-				
-				String baseLibraryPath = getFile(Platform.getBundle(bundle), path);
-				
-				SGLRInvoker.setBaseLibraryPath(baseLibraryPath); // Set the base library path
-			}
-			
-			IExtensionPoint baseBinaryPoint = registry.getExtensionPoint(PLUGIN_ID, RASCAL_BASE_BINARY_PATH);
-			
-			IExtension baseBinaryExtensions[] = baseBinaryPoint.getExtensions();
-			if(baseBinaryExtensions.length > 0){
-				IConfigurationElement[] binaryProviderElements = baseBinaryExtensions[0].getConfigurationElements();
-				IConfigurationElement ce = binaryProviderElements[0];
-				String bundle = ce.getAttribute("bundle");
-				String path = ce.getAttribute("path");
-				
-				String baseBinaryPath = getFile(Platform.getBundle(bundle), path);
-				
-				LegacySGLRInvoker.setBaseBinaryPath(baseBinaryPath); // Set the base binary path
-			}
-		}
-		// Rascal Paths
-		static{
-			Bundle rascalPluginBundle = Platform.getBundle("rascal_plugin");
-			
-			System.setProperty("rascal.parsetable.default.file", getFile(rascalPluginBundle, "installed/share/rascal-grammar/rascal.tbl"));
-			System.setProperty("rascal.parsetable.header.file", getFile(rascalPluginBundle, "installed/share/rascal-grammar/rascal-header.tbl"));
-			System.setProperty("rascal.rascal2table.command", getFile(rascalPluginBundle, "installed/bin/rascal2table"));
-			System.setProperty("rascal.rascal2table.dir", getFile(rascalPluginBundle, "installed/bin"));
-
-			System.setProperty("rascal.sdf.library.dir", getFile(rascalPluginBundle, "installed/share/sdf-library/library")/* +":"+
-					getFile(rascalPluginBundle, "installed/share/rascal-grammar/library")*/);
-
-			System.setProperty("rascal.parsetable.cache.dir", System.getProperty("java.io.tmpdir"));
-			
-			// SDF parse table
-			SDFParseController.setParseTable(getFile(rascalPluginBundle, "installed/share/pgen/Sdf2.saf"));
-		}
 	}
 
 	public static Activator getInstance() {
@@ -144,36 +83,5 @@ public class Activator extends PluginBase {
 		Status status= new Status(IStatus.ERROR, PLUGIN_ID, 0, msg, t);
 
 		getLog().log(status);
-	}
-
-	// Definitions for image management end
-	
-	public static String getFile(Bundle bundle, String path){
-		String fileURL;
-		// System.err.println("getFile:"+path);
-		try{
-			fileURL = FileLocator.toFileURL(bundle.getEntry(path)).getPath();
-		}catch(Exception ex){
-			try{
-				return FileLocator.toFileURL(bundle.getResource(path)).getPath();
-			}catch(Exception ex2){
-				try{
-					URL file = FileLocator.find(bundle, new Path(path), null);
-					// System.err.println("getFile!!!:"+file);
-					if (file != null) {
-						fileURL = file.getPath();
-					}
-					else {
-						RuntimeException fnf = new RuntimeException("Can't find:" + bundle+" / "+path);
-						getInstance().logException(fnf.getMessage(), fnf);
-						throw fnf;
-					}
-				}catch(RuntimeException rex){
-					getInstance().logException("Can't find: "+bundle+" / "+path, rex);
-					throw rex;
-				}
-			}
-		}
-		return fileURL;
 	}
 }

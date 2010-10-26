@@ -3,11 +3,8 @@ package org.rascalmpl.eclipse.perspective.actions;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.HashMap;
-import java.util.LinkedList;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
@@ -26,16 +23,9 @@ import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.checker.StaticChecker;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.console.ProjectSDFModuleContributor;
-import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.editor.MarkerModelListener;
 import org.rascalmpl.eclipse.editor.ParseController;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
-import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.load.ISdfSearchPathContributor;
-import org.rascalmpl.uri.ClassResourceInputOutput;
-import org.rascalmpl.uri.IURIInputStreamResolver;
-import org.rascalmpl.values.uptr.ParsetreeAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RunStaticChecker implements IEditorActionDelegate {
@@ -89,12 +79,12 @@ public class RunStaticChecker implements IEditorActionDelegate {
 			StaticChecker checker = createCheckerIfNeeded(parseController.getProject());
 			
 			if (checker != null) {
-				IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(ParsetreeAdapter.getTop(parseTree)).get(1));
+				IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(parseTree).get(1));
 				if (newTree != null) {
-					IConstructor treeTop = ParsetreeAdapter.getTop(parseTree);
+					IConstructor treeTop = parseTree;
 					IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
 					IConstructor newTreeTop = treeTop.set("args", treeArgs).setAnnotation("loc", treeTop.getAnnotation("loc"));
-					parseTree = parseTree.set("top", newTreeTop);
+					parseTree = newTreeTop;
 					marker.update(parseTree, parseController, monitor);
 				}
 			} else {
@@ -125,19 +115,6 @@ public class RunStaticChecker implements IEditorActionDelegate {
 		
 		checker.addRascalSearchPath(URI.create("rascal-eclipse-library:///org/rascalmpl/eclipse/lib"));
 		checker.addRascalSearchPath(URI.create("file:///Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library"));
-		
-		if (sourceProject != null) {
-			checker.addSDFResolver(new ProjectSDFModuleContributor(sourceProject.getRawProject()));
-		}
-		
-		checker.addSDFResolver(new ISdfSearchPathContributor() {
-			public java.util.List<String> contributePaths() {
-				java.util.List<String> result = new LinkedList<String>();
-				result.add(System.getProperty("user.dir"));
-				result.add(Configuration.getSdfLibraryPathProperty());
-				return result;
-			}
-		});	
 		
 		checker.enableChecker();
 	}

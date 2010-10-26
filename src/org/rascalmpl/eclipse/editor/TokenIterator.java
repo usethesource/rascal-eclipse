@@ -20,7 +20,7 @@ public class TokenIterator implements Iterator<Token> {
 		
 		if (parseTree != null) {
 			try {
-				parseTree.get("top").accept(new LexicalCollector());
+				parseTree.accept(new LexicalCollector());
 			} catch (VisitorException e) {
 				// is not thrown
 			}
