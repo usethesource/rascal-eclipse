@@ -2,6 +2,7 @@ package org.rascalmpl.eclipse.perspective.actions;
 
 import java.net.BindException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 import org.eclipse.jface.action.IAction;
@@ -14,6 +15,7 @@ import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.experiments.RascalTutor.RascalTutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -53,6 +55,11 @@ public class StartTutorAction implements IWorkbenchWindowActionDelegate {
 				BundleURIResolver resolver = new BundleURIResolver(registry);
 				registry.registerInput(resolver);
 				registry.registerOutput(resolver);
+				
+				Evaluator eval = tutor.getRascalEvaluator();
+				eval.addRascalSearchPath(URI.create(resolver.scheme() + ":///"));
+				eval.addRascalSearchPath(URI.create("rascal-eclipse-library:///org/rascalmpl/eclipse/lib"));
+				eval.addClassLoader(getClass().getClassLoader());
 				
 				for (int i = 0; i < 100; i++) {
 					try {
