@@ -1,6 +1,5 @@
 package org.rascalmpl.eclipse.box;
 
-import java.io.File;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;

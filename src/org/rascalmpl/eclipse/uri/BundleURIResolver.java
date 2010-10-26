@@ -54,9 +54,8 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 			if (result == uri) {
 				throw new IOException("could not resolve " + uri);
 			}
-			else {
-				return result;
-			}
+			
+			return result;
 		} catch (URISyntaxException e) {
 			return null;
 		}

@@ -10,11 +10,6 @@
  *******************************************************************************/
 package org.rascalmpl.eclipse.box;
 
-import java.util.List;
-
-import org.eclipse.core.resources.IResource;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;

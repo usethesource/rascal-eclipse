@@ -37,9 +37,7 @@ public class BootstrapURIResolver implements IURIInputStreamResolver,
 		if (url != null) {
 			return new File(FileLocator.toFileURL(url).getFile());
 		}
-		else {
-			throw new FileNotFoundException(uri.toString());
-		}
+		throw new FileNotFoundException(uri.toString());
 	}
 	
 	private File getNewFile(URI uri) throws IOException {
