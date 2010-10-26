@@ -513,22 +513,6 @@
               debugModelId="rascal.debugModel">
         </modelContextBinding>
      </extension>
-     <extension
-           point="rascal_eclipse.baseLibraryPath">
-        <rascal_eclipse.baseLibraryPath
-              bundle="rascal_plugin"
-              path="installed/lib/">
-        </rascal_eclipse.baseLibraryPath>
-     </extension>
-     
-   
-  <extension
-        point="rascal_eclipse.baseBinaryPath">
-     <rascal_eclipse.baseBinaryPath
-           bundle="rascal_plugin"
-           path="installed/bin/">
-     </rascal_eclipse.baseBinaryPath>
-  </extension>
   <extension
         point="org.eclipse.ui.actionSets">
      <actionSet

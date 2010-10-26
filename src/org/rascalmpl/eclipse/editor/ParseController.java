@@ -1,6 +1,5 @@
 package org.rascalmpl.eclipse.editor;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Iterator;
@@ -20,11 +19,15 @@ import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
+import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.uri.ClassResourceInputOutput;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ParseController implements IParseController {
@@ -82,13 +85,18 @@ public class ParseController implements IParseController {
 		}
 		
 		ProjectURIResolver resolver = new ProjectURIResolver();
-		parser.getResolverRegistry().registerInput(resolver);
-		parser.getResolverRegistry().registerOutput(resolver);
+		URIResolverRegistry resolverRegistry = parser.getResolverRegistry();
+		resolverRegistry.registerInput(resolver);
+		resolverRegistry.registerOutput(resolver);
 		
-//		IURIInputStreamResolver library = new ClassResourceInputOutput("rascal-eclipse-library", RascalScriptInterpreter.class);
-//		parser.getResolverRegistry().registerInput(library.scheme(), library);
+		ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(resolverRegistry, "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
+		resolverRegistry.registerInput(eclipseResolver);
+		parser.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
+		parser.addClassLoader(getClass().getClassLoader());
 		
-		parser.addRascalSearchPath(URI.create("rascal-eclipse-library:///org/rascalmpl/eclipse/lib"));
+		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
+		resolverRegistry.registerInput(bundleResolver);
+		resolverRegistry.registerOutput(bundleResolver);
 	}
 
 	public Object parse(String input, IProgressMonitor monitor) {

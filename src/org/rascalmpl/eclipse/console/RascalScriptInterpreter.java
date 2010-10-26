@@ -232,9 +232,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 				setMarker(e.getMessage(), location);
 				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
-			else {
-				throw new CommandExecutionException(content);
-			}
+			
+			throw new CommandExecutionException(content);
 		}
 		catch(Throw e){
 			content = e.getMessage() + "\n";
