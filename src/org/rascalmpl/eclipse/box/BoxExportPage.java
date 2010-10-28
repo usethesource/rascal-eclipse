@@ -26,6 +26,7 @@ import org.eclipse.ui.dialogs.WizardExportResourcesPage;
 import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.rascalmpl.library.box.MakeBox;
 
+@SuppressWarnings("restriction")
 public class BoxExportPage extends WizardExportResourcesPage {
 
 	static final private MakeBox makeBox = new MakeBox();
@@ -125,7 +126,6 @@ public class BoxExportPage extends WizardExportResourcesPage {
 				throws InvocationTargetException, InterruptedException {
 			monitor.beginTask("Running long running operation",
 					indeterminate ? IProgressMonitor.UNKNOWN : TOTAL_TIME);
-			
 			System.setProperty("rascal.no_cwd_path", "true");
 			URI destdir = null;
 			try {
@@ -154,6 +154,7 @@ public class BoxExportPage extends WizardExportResourcesPage {
 				// System.err.println(res.getLocationURI());
 				currentDir = containerNameField.getText();
 				MessageConsole q = findConsole("BoxConsole");
+				makeBox.setPrintStream(new PrintStream(q.newOutputStream()));
 				try {
 					getContainer().run(true, true, runnable);
 				} catch (InvocationTargetException e) {
@@ -162,17 +163,13 @@ public class BoxExportPage extends WizardExportResourcesPage {
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
-				makeBox.setPrintStream(new PrintStream(q.newOutputStream()));
-
+				}			
 			}
 		}
 	}
 
 	private void destionationDir() {
 		DirectoryDialog dialog = new DirectoryDialog(getShell());
-		// String[] filterExtensions = new String[] { "*.asf" };
-		// dialog.setFilterExtensions(filterExtensions);
 		dialog.setFilterPath(defaultDir);
 		String dirName = dialog.open();
 		if (dirName == null) {
