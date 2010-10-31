@@ -598,7 +598,7 @@
         <action
               class="org.rascalmpl.eclipse.perspective.actions.StartTutorAction"
               id="Tutor"
-              label="Start &amp;tutor"
+              label="Start &amp;Tutor"
               menubarPath="rascal/rascalGroup"
               tooltip="Start Rascal Tutor">
         </action>
