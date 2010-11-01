@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: rascal-eclipse
 Bundle-SymbolicName: rascal_eclipse;singleton:=true
-Bundle-Version: 0.1.15
+Bundle-Version: 0.1.16
 Bundle-Activator: org.rascalmpl.eclipse.Activator
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: rascal-eclipse.jar,
