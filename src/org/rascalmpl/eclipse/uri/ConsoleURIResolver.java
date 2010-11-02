@@ -62,8 +62,8 @@ public class ConsoleURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		return false;
 	}
 
-	public String absolutePath(URI uri) {
-		return "console";
+	public URI getResourceURI(URI uri) {
+		return URI.create("file://-");
 	}
 
 }

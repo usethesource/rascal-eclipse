@@ -104,9 +104,9 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		return false;
 	}
 
-	public String absolutePath(URI uri) throws IOException {
+	public URI getResourceURI(URI uri) throws IOException {
 		try {
-			return resolve(uri).getLocation().toOSString();
+			return URI.create("file://" + resolve(uri).getLocation().toOSString());
 		} catch (MalformedURLException e) {
 			return null;
 		}

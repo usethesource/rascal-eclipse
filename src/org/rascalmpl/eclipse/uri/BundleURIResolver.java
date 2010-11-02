@@ -19,8 +19,8 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 		this.registry = registry;
 	}
 	
-	public String absolutePath(URI uri) throws IOException {
-		return registry.absolutePath(resolve(uri));
+	public URI getResourceURI(URI uri) throws IOException {
+		return resolve(uri);
 	}
 
 	public OutputStream getOutputStream(URI uri, boolean append)
