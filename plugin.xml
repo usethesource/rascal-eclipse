@@ -514,45 +514,6 @@
         </modelContextBinding>
      </extension>
   <extension
-        point="org.eclipse.ui.actionSets">
-     <actionSet
-           id="rascal_eclipse.actionSet"
-           label="Sample Action Set"
-           visible="true">
-        <menu
-              id="PrettyPrint"
-              label="PrettyPrint">
-           <separator
-                 name="prettyPrintGroup">
-           </separator>
-        </menu>
-        <action
-              class="org.rascalmpl.eclipse.box.OutputAction"
-              icon="icons/sample.gif"
-              id="toLatex"
-              label="&amp;latex"
-              menubarPath="PrettyPrint/prettyPrintGroup"
-              tooltip="Prettyprint to latex">
-        </action>
-         <action
-              class="org.rascalmpl.eclipse.box.OutputAction"
-              icon="icons/sample.gif"
-              id="toHtml"
-              label="&amp;html"
-              menubarPath="PrettyPrint/prettyPrintGroup"
-              tooltip="Prettyprint to html">
-        </action>
-        <action
-              class="org.rascalmpl.eclipse.box.OutputAction"
-              icon="icons/sample.gif"
-              id="toText"
-              label="&amp;data"
-              menubarPath="PrettyPrint/prettyPrintGroup"
-              tooltip="Prettyprint source code">
-        </action>
-     </actionSet>
-  </extension>
-  <extension
         point="org.eclipse.ui.exportWizards">
         <wizard
         id="TextBoxExport"
