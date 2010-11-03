@@ -106,7 +106,7 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 
 	public URI getResourceURI(URI uri) throws IOException {
 		try {
-			return URI.create("file://" + resolve(uri).getLocation().toOSString());
+			return resolve(uri).getLocation().toFile().toURI();
 		} catch (MalformedURLException e) {
 			return null;
 		}

@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -98,7 +99,11 @@ public class RascalScriptInterpreter implements IInterpreter{
 		
 		eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
 			public void contributePaths(List<URI> path) {
-				path.add(0,URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+				try{
+					path.add(0, new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+				}catch(URISyntaxException usex){
+					usex.printStackTrace(); // TODO Change to something better.
+				}
 			}
 		});
 	}

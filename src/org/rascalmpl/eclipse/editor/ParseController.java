@@ -2,6 +2,7 @@ package org.rascalmpl.eclipse.editor;
 
 import java.io.PrintWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IPath;
@@ -81,7 +82,11 @@ public class ParseController implements IParseController {
 		this.project = project;
 		
 		if (project != null) {
-			parser.addRascalSearchPath(URI.create("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+			try{
+				parser.addRascalSearchPath(new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+			}catch(URISyntaxException usex){
+				throw new RuntimeException(usex);
+			}
 		}
 		
 		ProjectURIResolver resolver = new ProjectURIResolver();

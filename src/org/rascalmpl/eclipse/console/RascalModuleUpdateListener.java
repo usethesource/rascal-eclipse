@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.console;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -61,8 +62,12 @@ public class RascalModuleUpdateListener implements IResourceChangeListener {
 							IFolder srcFolder = proj.getFolder(IRascalResources.RASCAL_SRC);
 							if (srcFolder != null && srcFolder.exists()) {
 								if (srcFolder.getProjectRelativePath().isPrefixOf(file.getProjectRelativePath())) {
-									URI uri = URI.create("project://" + proj.getName() + "/" + file.getProjectRelativePath().removeFirstSegments(1).toPortableString());
-									interpreter.addDirtyModule(uri);
+									try{
+										URI uri = new URI("project://" + proj.getName() + "/" + file.getProjectRelativePath().removeFirstSegments(1).toPortableString());
+										interpreter.addDirtyModule(uri);
+									}catch(URISyntaxException usex){
+										usex.printStackTrace(); // TODO Change to something better.
+									}
 								}
 							}
 						}

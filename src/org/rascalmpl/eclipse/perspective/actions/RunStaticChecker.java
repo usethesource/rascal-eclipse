@@ -2,6 +2,7 @@ package org.rascalmpl.eclipse.perspective.actions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -44,7 +45,7 @@ public class RunStaticChecker implements IEditorActionDelegate {
 	}
 	
 	public void selectionChanged(IAction action, ISelection selection) {
-	}	
+	}
 
 	public void run(IAction action) {
 		if (editor != null) {
@@ -103,7 +104,11 @@ public class RunStaticChecker implements IEditorActionDelegate {
 		checker.init();
 
 		if (sourceProject != null) {
-			checker.addRascalSearchPath(URI.create("project://" + sourceProject.getName() + "/" + IRascalResources.RASCAL_SRC));
+			try{
+				checker.addRascalSearchPath(new URI("project://" + sourceProject.getName() + "/" + IRascalResources.RASCAL_SRC));
+			}catch(URISyntaxException usex){
+				throw new RuntimeException(usex);
+			}
 		}
 		
 		ProjectURIResolver resolver = new ProjectURIResolver();
