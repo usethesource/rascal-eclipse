@@ -38,7 +38,13 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
+import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
+import org.rascalmpl.eclipse.uri.BundleURIResolver;
+import org.rascalmpl.eclipse.uri.ProjectURIResolver;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.box.MakeBox;
+import org.rascalmpl.uri.ClassResourceInputOutput;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class BoxPrinter {
 	/*
@@ -169,6 +175,20 @@ public class BoxPrinter {
 	}
 
 	public BoxPrinter() {
+		Evaluator ev = makeBox.getCommandEvaluator();
+		ProjectURIResolver resolver = new ProjectURIResolver();
+		URIResolverRegistry resolverRegistry = ev.getResolverRegistry();
+		resolverRegistry.registerInput(resolver);
+		resolverRegistry.registerOutput(resolver);
+		
+		ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(resolverRegistry, "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
+		resolverRegistry.registerInput(eclipseResolver);
+		ev.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
+		ev.addClassLoader(getClass().getClassLoader());
+		
+		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
+		resolverRegistry.registerInput(bundleResolver);
+		resolverRegistry.registerOutput(bundleResolver);
 		int tabSize = 4; // is tab width a user setting in your UI?
 		StringBuffer tabBuffer = new StringBuffer(tabSize);
 		for (int i = 0; i < tabSize; i++)
@@ -669,6 +689,7 @@ public class BoxPrinter {
 			return result[0];
 		}
 	}
+	
 
 	// static Color keyColor = getColor(SWT.COLOR_RED);
 	static Color keyColor = new Color(Display.getCurrent(), new RGB(127, 0, 85));
