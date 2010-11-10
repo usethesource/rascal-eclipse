@@ -189,19 +189,3 @@ public tuple[rel[&T1, &T2] found, rel[loc, &T2] notfound] matchLocations(rel[&T1
 
   return <found, notfound>;
 }
-
-@doc{Invokes the EncapsulateField refactoring, generating public getters and setters, on the fields at the locs in the set}
-@javaClass{org.rascalmpl.eclipse.library.JDT}
-public rel[str,str] java encapsulateFields(set[int] fieldOffsetsFromLoc, loc file);
-
-@doc{Invokes the ChangeSignature refactoring, making the method public}
-@javaClass{org.rascalmpl.eclipse.library.JDT}
-public rel[str,str] java makeMethodsPublic(set[int] methodOffsetsFromLoc, loc file);
-
-@doc{Invokes the Code CleanUp on the given file}
-@javaClass{org.rascalmpl.eclipse.library.JDT}
-public rel[str,str] java cleanUpSource(loc file);
-
-@doc{Invokes the Fully Qualify Type Names transformation on the given file}
-@javaClass{org.rascalmpl.eclipse.library.JDT}
-public void java fullyQualifyTypeNames(loc file);
