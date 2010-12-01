@@ -2,6 +2,8 @@ package org.rascalmpl.eclipse.editor;
 
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.services.IDocumentationProvider;
@@ -17,18 +19,33 @@ public class DocumentationProvider  implements IDocumentationProvider {
 			IParseController parseController) {
 		if (target instanceof IConstructor) {
 			if (((IConstructor) target).getType() == Factory.Tree) {
-				return getDocString((IConstructor) target);
+				return getDocString((IConstructor) target, (IConstructor) parseController.getCurrentAst());
 			}
 		}
 		
 		return null;
 	}
 
-	private String getDocString(IConstructor arg) {
+	private String getDocString(IConstructor arg, IConstructor top) {
 		IValue val = arg.getAnnotation("doc");
 
 		if (val != null && val.getType().isStringType()) {
 				return ((IString) val).getValue();
+		}
+		
+		if (top != null && top.getType() == Factory.Tree) {
+			IValue vals = arg.getAnnotation("docs");
+			
+			if (vals != null 
+					&& vals.getType().isMapType() 
+					&& vals.getType().getKeyType().isSourceLocationType() 
+					&& vals.getType().getValueType().isStringType()) {
+				IMap map = (IMap) vals;
+				ISourceLocation loc = (ISourceLocation) arg.getAnnotation("loc");
+				if (loc != null) {
+					return ((IString) map.get(loc)).getValue();
+				}
+			}
 		}
 		
 		return null;

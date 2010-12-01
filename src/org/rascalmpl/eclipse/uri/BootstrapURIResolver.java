@@ -13,16 +13,14 @@ import java.net.URL;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
-import org.rascalmpl.uri.IURIInputStreamResolver;
-import org.rascalmpl.uri.IURIOutputStreamResolver;
+import org.rascalmpl.uri.IURIInputOutputResolver;
 
 /**
  * This class provides read/write access to the source code of the rascal plugin 
  * when Rascal is run in a second level Eclipse for bootstrapping purposes.
  */
-public class BootstrapURIResolver implements IURIInputStreamResolver,
-		IURIOutputStreamResolver {
-	private final Bundle bundle = Platform.getBundle("rascal_plugin");
+public class BootstrapURIResolver implements IURIInputOutputResolver {
+	private final Bundle bundle = Platform.getBundle("rascal");
 
 	public boolean exists(URI uri) {
 		try {

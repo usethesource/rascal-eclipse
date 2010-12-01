@@ -57,6 +57,7 @@ import org.rascalmpl.eclipse.console.internal.IInterpreter;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.TerminationException;
 import org.rascalmpl.eclipse.console.internal.TestReporter;
+import org.rascalmpl.eclipse.uri.BootstrapURIResolver;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Configuration;
@@ -149,6 +150,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
 		resolverRegistry.registerInput(bundleResolver);
 		resolverRegistry.registerOutput(bundleResolver);
+		
+		BootstrapURIResolver boot = new BootstrapURIResolver();
+		resolverRegistry.registerInputOutput(boot);
 		
 		try {
 			String rascalPlugin = FileLocator.resolve(Platform.getBundle("rascal").getEntry("/")).getPath();
