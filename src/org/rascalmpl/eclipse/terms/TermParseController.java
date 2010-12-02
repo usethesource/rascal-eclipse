@@ -15,6 +15,8 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
@@ -24,6 +26,7 @@ import org.rascalmpl.eclipse.editor.TokenIterator;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -35,7 +38,7 @@ public class TermParseController implements IParseController {
 	private IPath path;
 	private Language language;
 	private IEvaluatorContext evaluator;
-	private IConstructor start; 
+	private AbstractFunction parser; 
 	
 	public Object getCurrentAst(){
 		return parseTree;
@@ -81,7 +84,7 @@ public class TermParseController implements IParseController {
 		TermLanguageRegistry reg = TermLanguageRegistry.getInstance();
 		this.language = reg.getLanguage(path.getFileExtension());
 		this.evaluator = reg.getEvaluator(this.language);
-		this.start = reg.getStart(this.language);
+		this.parser = reg.getParser(this.language);
 	}
 
 	public Object parse(String input, IProgressMonitor monitor){
@@ -93,7 +96,7 @@ public class TermParseController implements IParseController {
 		try{
 			handler.clearMessages();
 			monitor.beginTask("parsing " + language.getName(), 1);
-			parseTree = evaluator.getEvaluator().parseObject(start, location);
+			parseTree = (IConstructor) parser.call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] { vf.string(input)} ).getValue();
 			monitor.worked(1);
 			return parseTree;
 		}

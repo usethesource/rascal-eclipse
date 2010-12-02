@@ -563,5 +563,11 @@
         </action>
      </actionSet>
   </extension>
+  <extension
+        point="org.eclipse.ui.startup">
+     <startup
+           class="org.rascalmpl.eclipse.nature.InitializeRascalPlugins">
+     </startup>
+  </extension>
 	 
 </plugin>

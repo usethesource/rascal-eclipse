@@ -13,8 +13,8 @@ public class SourceEditor {
 	public SourceEditor(IValueFactory factory) {
 	}
 	
-	public void registerLanguage(IString name, IString extension, IConstructor start, IEvaluatorContext ctx) {
-		TermLanguageRegistry.getInstance().registerLanguage(name.getValue(), extension.getValue(), start, ctx);
+	public void registerLanguage(IString name, IString extension, IValue parser, IEvaluatorContext ctx) {
+		TermLanguageRegistry.getInstance().registerLanguage(name.getValue(), extension.getValue(), parser, ctx);
 	}
 	
 	public void registerAnnotator(IString name, IValue function) {

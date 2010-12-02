@@ -14,6 +14,10 @@ import org.rascalmpl.eclipse.IRascalResources;
 public class Nature implements IProjectNature {
 	private IProject project;
 
+	public static String getNatureId() {
+		return "rascal.nature";
+	}
+	
 	public void configure() throws CoreException {
 		IFolder folder = project.getFolder(IRascalResources.RASCAL_SRC);
 		
