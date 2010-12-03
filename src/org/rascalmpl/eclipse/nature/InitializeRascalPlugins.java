@@ -13,7 +13,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.ui.IStartup;
+import org.eclipse.imp.language.ILanguageRegistrar;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
@@ -27,9 +27,10 @@ import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class InitializeRascalPlugins implements IStartup {
-	public void earlyStartup() {
-		registerTermLanguagePlugins();
+public class InitializeRascalPlugins implements ILanguageRegistrar {
+
+	public void registerLanguages() {
+			registerTermLanguagePlugins();
 	}
 	
 	public static void registerTermLanguagePlugins() {

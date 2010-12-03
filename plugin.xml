@@ -124,6 +124,7 @@
       <language
             description="Abstract language which all Rascal-based implementations of languages are derived from to allow on-the-fly extension of the Eclipse IDE"
             extensions="trm"
+            initializerClass="org.rascalmpl.eclipse.nature.InitializeRascalPlugins"
             language="Terms">
       </language>
    </extension>
@@ -564,10 +565,11 @@
      </actionSet>
   </extension>
   <extension
-        point="org.eclipse.ui.startup">
-     <startup
-           class="org.rascalmpl.eclipse.nature.InitializeRascalPlugins">
-     </startup>
+        point="org.eclipse.imp.runtime.languageRegistrar">
+        <languageRegistrar   
+              class="org.rascalmpl.eclipse.nature.InitializeRascalPlugins"
+              id="rascalStarter"></languageRegistrar>
   </extension>
+ 
 	 
 </plugin>
