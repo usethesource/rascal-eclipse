@@ -43,6 +43,10 @@ public class JDT {
     	URI uri = loc.getURI();
 		
 		if (!uri.getScheme().equals("project")) {
+			// TODO: This is a terrible error message, since it isn't the case that
+			// this scheme isn't supported generally, it just isn't supported in this
+			// call. We should give a better message here, like saying we can only get
+			// resources that are included inside an Eclipse project.
 			throw RuntimeExceptionFactory.schemeNotSupported(loc, null, null);
 		}
 		
