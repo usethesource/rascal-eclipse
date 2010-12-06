@@ -333,7 +333,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 			@Override
 			public Result<IValue> visitShellCommandTest(final Test x) {
 				eval.setTestResultListener(new TestReporter());
-				x.accept(eval);								
+				x.__evaluate(eval);								
 				return ResultFactory.nothing();
 			}
 
