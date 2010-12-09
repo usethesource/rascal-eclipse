@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.console.internal;
 
-import java.io.PrintWriter;
+import org.rascalmpl.interpreter.Evaluator;
+
 
 /**
  * Interpreters should implement this.
@@ -12,7 +13,7 @@ public interface IInterpreter{
 	/**
 	 * Initializes the console.
 	 */
-	void initialize();
+	void initialize(Evaluator eval);
 	
 	/**
 	 * Requests the interpreter to execute the given command.
@@ -63,18 +64,6 @@ public interface IInterpreter{
 	 *          The command history associated with the console.
 	 */
 	void storeHistory(CommandHistory history);
-
-	/**
-	 * Change the stdout writer
-	 * @param printStream
-	 */
-	void setStdOut(PrintWriter w);
-	
-	/**
-	 * Change the stderr writer
-	 * @param printStream
-	 */
-	void setStdErr(PrintWriter w);
 
 	/**
 	 * Prints the current stack trace

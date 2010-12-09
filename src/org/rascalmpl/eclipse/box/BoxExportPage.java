@@ -1,6 +1,5 @@
 package org.rascalmpl.eclipse.box;
 
-import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -154,7 +153,6 @@ public class BoxExportPage extends WizardExportResourcesPage {
 				// System.err.println(res.getLocationURI());
 				currentDir = containerNameField.getText();
 				MessageConsole q = findConsole("BoxConsole");
-				makeBox.setPrintStream(new PrintStream(q.newOutputStream()));
 				try {
 					getContainer().run(true, true, runnable);
 				} catch (InvocationTargetException e) {

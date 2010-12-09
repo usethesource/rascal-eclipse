@@ -60,10 +60,6 @@ public class BoxPrinter {
 	
 	final private MakeBox makeBox = new MakeBox();
 	
-	public void setPrintStream(PrintStream p) {
-		  makeBox.setPrintStream(p);
-	}
-
 	// public static final String EditorId =
 	// "org.rascalmpl.eclipse.box.boxprinter";
 

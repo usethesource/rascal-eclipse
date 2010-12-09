@@ -369,7 +369,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		}
 	}
 	
-	private static class ConsoleOutputStream extends OutputStream{
+	protected static class ConsoleOutputStream extends OutputStream{
 		private final static int DEFAULT_SIZE = 64;
 		
 		private byte[] buffer;
@@ -379,7 +379,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		
 		private volatile boolean enabled;
 		
-		public ConsoleOutputStream(InteractiveInterpreterConsole console){
+		protected ConsoleOutputStream(InteractiveInterpreterConsole console){
 			super();
 			
 			this.console = console;

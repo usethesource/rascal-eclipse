@@ -53,7 +53,6 @@ public class OutputAction implements IWorkbenchWindowActionDelegate {
 		MessageConsole c = findConsole("BoxConsole");
 		System.setProperty("rascal.no_cwd_path", "true");
 		final BoxPrinter boxPrinter = new BoxPrinter()/* .open() */;
-		boxPrinter.setPrintStream(new PrintStream(c.newOutputStream()));
 		boxPrinter.open(action.getId());
 		// BoxPrinter.close();
 		// BoxPrinter.main((String[]) null);

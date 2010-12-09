@@ -1,5 +1,7 @@
 package org.rascalmpl.eclipse.perspective.actions;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,6 +13,7 @@ import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -125,7 +128,8 @@ public class RunStaticChecker implements IEditorActionDelegate {
 	}
 	
 	private StaticChecker createChecker(ISourceProject sourceProject) {
-		StaticChecker checker = new StaticChecker();
+		PrintStream consoleStream = RuntimePlugin.getInstance().getConsoleStream();
+		StaticChecker checker = new StaticChecker(new PrintWriter(consoleStream), new PrintWriter(consoleStream));
 		checkerMap.put(sourceProject, checker);
 		initChecker(checker, sourceProject);
 		return checker;

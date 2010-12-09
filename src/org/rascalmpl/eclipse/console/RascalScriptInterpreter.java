@@ -8,7 +8,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
@@ -83,7 +82,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class RascalScriptInterpreter implements IInterpreter{
 	private final static int LINE_LIMIT = 200;
 	
-	private final Evaluator eval;
+	private Evaluator eval;
 	private volatile IInterpreterConsole console;
 	private String command;
 	private String content;
@@ -94,19 +93,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 	private final Set<URI> dirtyModules = new HashSet<URI>();
 	private final RascalModuleUpdateListener resourceChangeListener;
 	
-	public RascalScriptInterpreter(Evaluator eval, final IProject project){
-		this(eval);
+	public RascalScriptInterpreter(IProject project){
+		this();
 		this.project = project;
-		
-		eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
-			public void contributePaths(List<URI> path) {
-				try{
-					path.add(0, new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
-				}catch(URISyntaxException usex){
-					usex.printStackTrace(); // TODO Change to something better.
-				}
-			}
-		});
 	}
 	
 	public  void addDirtyModule(URI name) {
@@ -127,14 +116,17 @@ public class RascalScriptInterpreter implements IInterpreter{
 		}
 	}
 	
-	public RascalScriptInterpreter(Evaluator eval){
+	public RascalScriptInterpreter(){
 		super();
 
 		this.command = "";
-		this.eval = eval;
 		this.project = null;
 		this.resourceChangeListener = new RascalModuleUpdateListener(this);
 		
+		
+	}
+
+	public void initialize(Evaluator eval){
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(resourceChangeListener);
 		
 		ProjectURIResolver resolver = new ProjectURIResolver();
@@ -161,10 +153,20 @@ public class RascalScriptInterpreter implements IInterpreter{
 		} catch (IOException e) {
 			Activator.getInstance().logException("could not create classpath for parser compilation", e);
 		}
-	}
-
-	public void initialize(){
+		
+		if (project != null) {
+			eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
+				public void contributePaths(List<URI> path) {
+					try{
+						path.add(0, new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+					}catch(URISyntaxException usex){
+						usex.printStackTrace(); // TODO Change to something better.
+					}
+				}
+			});
+		}
 		loadCommandHistory();
+		this.eval = eval;
 	}
 
 	public void setConsole(IInterpreterConsole console){
@@ -189,8 +191,6 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 
 	public boolean execute(String cmd) throws CommandExecutionException, TerminationException{
-		
-		
 		if(cmd.trim().length() == 0){
 			content = "cancelled";
 			command = "";
@@ -202,10 +202,6 @@ public class RascalScriptInterpreter implements IInterpreter{
 			command += cmd;
 			final IConstructor tree = eval.parseCommand(command, URI.create("stdin:///"));
 			
-			// TODO?? what is this doing here in the main loop?
-			Object ioInstance = eval.getJavaBridge().getJavaClassInstance(IO.class);  
-			((IO) ioInstance).setOutputStream(new PrintStream(console.getConsoleOutputStream())); // Set output collector.
-
 			// This code makes sure that if files are read or written during Rascal execution, the build
 			// infra-structure of Eclipse is not triggered
 			IWorkspaceRunnable action = new IWorkspaceRunnable() {
@@ -259,7 +255,9 @@ public class RascalScriptInterpreter implements IInterpreter{
 		}
 		catch(Throwable e){
 			content = "internal exception: " + e.toString();
-			content += eval.getStackTrace();
+			if (eval != null) {
+				content += eval.getStackTrace();
+			}
 			e.printStackTrace();
 			command = "";
 		}
@@ -535,15 +533,6 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 	public Evaluator getEval(){
 		return eval;
-	}
-
-	public void setStdErr(PrintWriter w) {
-		eval.setStdErr(w);
-	}
-
-
-	public void setStdOut(PrintWriter w) {
-		eval.setStdOut(w);  
 	}
 
 	public String getTrace() {
