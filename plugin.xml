@@ -570,6 +570,51 @@
               class="org.rascalmpl.eclipse.nature.InitializeRascalPlugins"
               id="rascalStarter"></languageRegistrar>
   </extension>
- 
+  <extension
+        point="org.eclipse.imp.runtime.editorService">
+     <editorService
+           class="org.rascalmpl.eclipse.editor.FocusService"
+           language="rascal">
+     </editorService>
+  </extension>
+ <extension 
+       id="rascal.focusMarker"
+       point="org.eclipse.ui.editors.markerAnnotationSpecification">
+     <specification
+           annotationType="rascal.focus"
+           colorPreferenceKey="FocusColorPreferenceKey"
+           colorPreferenceValue="250,250,210"
+           contributesToHeader="false"
+           highlightPreferenceKey="HighLightPreferenceKey"
+           highlightPreferenceValue="true"
+           includeOnPreferencePage="false"
+           isGoToNextNavigationTarget="false"
+           isGoToPreviousNavigationTarget="false"
+           overviewRulerPreferenceKey="FocusOverViewPreferenceKey"
+           overviewRulerPreferenceValue="false"
+           presentationLayer="4"
+           showInNextPrevDropdownToolbarAction="false"
+           textPreferenceKey="TextPreferenceKey"
+           textPreferenceValue="true"
+           textStylePreferenceKey="FocusStylePreferenceKey"
+           textStylePreferenceValue="BOX"
+           verticalRulerPreferenceKey="FocusVerticalRulerPreferenceKey"
+           verticalRulerPreferenceValue="false">
+     </specification>
+  </extension>
+ <extension
+       point="org.eclipse.ui.editors.annotationTypes">
+    <type
+          markerType="rascal.focusMarker"
+          name="rascal.focus">
+    </type>
+ </extension>
+ <extension
+       point="org.eclipse.imp.runtime.editorService">
+    <editorService
+          class="org.rascalmpl.eclipse.editor.FocusService"
+          language="Terms">
+    </editorService>
+ </extension>
 	 
 </plugin>
