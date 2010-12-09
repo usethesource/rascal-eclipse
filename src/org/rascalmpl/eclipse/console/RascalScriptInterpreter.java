@@ -166,6 +166,8 @@ public class RascalScriptInterpreter implements IInterpreter{
 			});
 		}
 		loadCommandHistory();
+		eval.doImport("IO");
+		eval.doImport("ParseTree");
 		this.eval = eval;
 	}
 

@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.language.ILanguageRegistrar;
+import org.eclipse.imp.runtime.RuntimePlugin;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
@@ -65,7 +66,8 @@ public class InitializeRascalPlugins implements ILanguageRegistrar {
 	}
 
 	private static Evaluator initializeEvaluator(final IProject project) {
-		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.err), new PrintWriter(System.out), new ModuleEnvironment("***plugin starter***"), new GlobalEnvironment());
+		PrintWriter err = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
+		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), err, err, new ModuleEnvironment("***plugin starter***"), new GlobalEnvironment());
 		
 		eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
 			public void contributePaths(List<URI> path) {
