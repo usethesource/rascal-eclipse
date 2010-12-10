@@ -149,9 +149,11 @@ public class FocusService implements IModelListener {
 				IParseController parseController = editor.getParseController();
 				IConstructor tree = (IConstructor) parseController.getCurrentAst();
 
-				IConstructor focussed = TreeAdapter.locateDeepestContextFreeNode(tree, textSelection.getOffset());
-				if (focussed != null) {
-					selectionTrackerTool.updateFocus(TreeAdapter.getSortName(focussed), focussed, editor, false);
+				if (tree != null) {
+					IConstructor focussed = TreeAdapter.locateDeepestContextFreeNode(tree, textSelection.getOffset());
+					if (focussed != null) {
+						selectionTrackerTool.updateFocus(TreeAdapter.getSortName(focussed), focussed, editor, false);
+					}
 				}
 			}
 		}
