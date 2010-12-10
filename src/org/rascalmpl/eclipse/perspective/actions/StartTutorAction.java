@@ -14,9 +14,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.experiments.RascalTutor.RascalTutor;
+import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 
@@ -57,8 +59,9 @@ public class StartTutorAction implements IWorkbenchWindowActionDelegate {
 				registry.registerOutput(resolver);
 				
 				Evaluator eval = tutor.getRascalEvaluator();
-				eval.addRascalSearchPath(URI.create(resolver.scheme() + ":///"));
-				eval.addRascalSearchPath(URI.create("rascal-eclipse-library:///org/rascalmpl/eclipse/lib"));
+				ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(eval.getResolverRegistry(), "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
+				eval.getResolverRegistry().registerInput(eclipseResolver);
+				eval.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
 				eval.addClassLoader(getClass().getClassLoader());
 				
 				for (int i = 0; i < 100; i++) {

@@ -2,8 +2,11 @@ package org.rascalmpl.eclipse.console.internal;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Vector;
 
+import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
@@ -378,6 +381,9 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		private final InteractiveInterpreterConsole console;
 		
 		private volatile boolean enabled;
+
+		private final PrintStream backup;
+		
 		
 		protected ConsoleOutputStream(InteractiveInterpreterConsole console){
 			super();
@@ -386,11 +392,15 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			
 			enabled = false;
 			
+			this.backup = RuntimePlugin.getInstance().getConsoleStream();
+			
 			reset();
 		}
 		
 		public synchronized void write(byte[] bytes, int offset, int length) throws IOException {
-			if(!enabled) throw new RuntimeException("Unable to write data while no commands are being executed");
+			if(!enabled) {
+				backup.write(bytes,offset,length);
+			}
 			
 			int currentSize = buffer.length;
 			if(index + length >= currentSize){
@@ -410,7 +420,9 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		}
 		
 		public synchronized void write(int arg) throws IOException{
-			if(!enabled) throw new RuntimeException("Unable to write data while no commands are being executed");
+			if(!enabled) {
+				backup.write(arg);
+			}
 			
 			if(arg == '\n'){ // If we encounter a new-line, print the content of the buffer.
 				print();
