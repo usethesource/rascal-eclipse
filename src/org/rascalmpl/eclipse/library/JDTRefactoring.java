@@ -37,6 +37,7 @@ import org.rascalmpl.eclipse.library.jdt.FindIFields;
 import org.rascalmpl.eclipse.library.jdt.FindIMethods;
 import org.rascalmpl.eclipse.library.jdt.FullyQualifyTypeNames;
 import org.rascalmpl.eclipse.library.jdt.RemoveMethods;
+import org.rascalmpl.eclipse.library.jdt.UnqualifyTypeNames;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 
 @SuppressWarnings("restriction")
@@ -218,6 +219,11 @@ public class JDTRefactoring {
 	public void removeMethods(ISet methodOffsetsFromLoc, ISourceLocation loc) {
     	IFile file = jdt.getIFileForLocation(loc);
 		new RemoveMethods().removeMethodsAtLocs(methodOffsetsFromLoc, loc, file);
+    }
+
+	public void unqualifyTypeNames(ISourceLocation loc) {
+    	IFile file = jdt.getIFileForLocation(loc);
+		new UnqualifyTypeNames().unqualifyTypeNames(loc, file);
     }
 
 }

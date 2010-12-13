@@ -31,3 +31,7 @@ public void fullyQualifyTypeNamesInFile(loc file) {
 @doc{Remove the methods at the given locs}
 @javaClass{org.rascalmpl.eclipse.library.JDTRefactoring}
 public void java removeMethods(set[int] methodOffsetsFromLoc, loc file);
+
+@doc{Unqualify names qualified using fullyQualifyTypeNames}
+@javaClass{org.rascalmpl.eclipse.library.JDTRefactoring}
+public void java unqualifyTypeNames(loc file);
