@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -38,6 +39,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
@@ -57,6 +59,7 @@ public class BoxPrinter {
 	static Printer printer;
 
 	private String outputFile, outputDir;
+	
 	
 	final private MakeBox makeBox = new MakeBox();
 	
@@ -124,6 +127,7 @@ public class BoxPrinter {
 		boxPrinter.open("toLatex");
 		close();
 	}
+	
 
 	static public void close() {
 		while (shell != null && !shell.isDisposed()) {
@@ -169,8 +173,13 @@ public class BoxPrinter {
 		}
 
 	}
-
+	
 	public BoxPrinter() {
+		this(null);
+	}
+	
+
+	public BoxPrinter(IProject project) {
 		Evaluator ev = makeBox.getCommandEvaluator();
 		ProjectURIResolver resolver = new ProjectURIResolver();
 		URIResolverRegistry resolverRegistry = ev.getResolverRegistry();
@@ -181,6 +190,14 @@ public class BoxPrinter {
 		resolverRegistry.registerInput(eclipseResolver);
 		ev.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
 		ev.addClassLoader(getClass().getClassLoader());
+		
+		if (project != null) {
+			try{
+				ev.addRascalSearchPath(new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+			}catch(URISyntaxException usex){
+				throw new RuntimeException(usex);
+			}
+		}
 		
 		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
 		resolverRegistry.registerInput(bundleResolver);

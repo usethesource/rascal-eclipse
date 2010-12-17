@@ -31,7 +31,7 @@ public class BoxViewer extends AbstractTextEditor {
 	public static final String EDITOR_ID = "org.rascalmpl.eclipse.box.boxviewer";
 
 	static final private Font displayFont = new Font(Display.getCurrent(),
-			new FontData("Monaco", 10, SWT.NORMAL));
+			new FontData("monospace", 8, SWT.NORMAL));
 
 	private Shell shell;
 

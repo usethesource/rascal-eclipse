@@ -2,12 +2,12 @@ package org.rascalmpl.eclipse.box;
 
 import java.net.URI;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.FileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
-import org.rascalmpl.eclipse.box. BoxPrinter;
 
 public class BoxProvider extends FileDocumentProvider {
 
@@ -36,8 +36,10 @@ public class BoxProvider extends FileDocumentProvider {
 			IEditorInput editorInput, String encoding) throws CoreException {
 		FileEditorInput f = (FileEditorInput) editorInput;
 		URI uri = f.getFile().getLocationURI();
-		((BoxDocument) document).computeDocument(new BoxPrinter()
-				.getRichText(uri));
+		IProject p = f.getFile().getProject();
+		BoxPrinter boxPrinter = new BoxPrinter(p);
+		((BoxDocument) document).computeDocument(boxPrinter
+		.getRichText(uri));	
 		return true;
 	}
 
