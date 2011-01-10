@@ -282,6 +282,7 @@
                   value="rascal.nature">
             </objectState>
          </visibility>
+         <!--declaration of prerequisite plugins  
          <action
                class="org.rascalmpl.eclipse.box.PrintAction"
                id = "org.rascalmpl.eclipse.box.printAction"
@@ -289,6 +290,7 @@
                icon="icons/rascal3D_2-16px.gif"
                menubarPath="additions">
          </action>
+         -->
          <action
                class="org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction"
                icon="icons/rascal3D_2-16px.gif"
@@ -551,9 +553,6 @@
         <menu
               id="Rascal"
               label="Rascal">
-           <separator
-                 name="rascalGroup">
-           </separator>
         </menu>
         <action
               class="org.rascalmpl.eclipse.perspective.actions.StartTutorAction"
@@ -616,5 +615,109 @@
           language="Terms">
     </editorService>
  </extension>
-	 
+ <extension
+       point="org.eclipse.ui.handlers">
+    <handler
+          class="org.rascalmpl.eclipse.box.PrintHandler"
+          commandId="org.eclipse.ui.file.print1">
+       <activeWhen>
+         <with
+            variable="selection">
+         <iterate
+               operator="or">
+            <and>
+            <instanceof
+                  value="org.eclipse.core.resources.IFile">
+            </instanceof>
+            <test property="org.eclipse.core.resources.name" 
+                     value="*.rsc"/>
+            </and>
+         </iterate>
+        </with>
+      </activeWhen> 
+    </handler>
+ </extension>
+ <extension
+       point="org.eclipse.ui.handlers">
+    <handler
+          class="org.rascalmpl.eclipse.box.PrintHandler"
+          commandId="org.eclipse.ui.file.print2">
+       <activeWhen>
+         <with variable="activeEditorId">
+         <equals value="org.rascalmpl.eclipse.box.boxviewer"/>
+        </with>
+      </activeWhen> 
+    </handler>
+ </extension>
+ 
+ <extension
+       point="org.eclipse.ui.commands">
+    <command
+          id="org.eclipse.ui.file.print1"
+          name="print1">
+    </command>
+ </extension>
+ 
+ <extension
+       point="org.eclipse.ui.commands">
+    <command
+          id="org.eclipse.ui.file.print2"
+          name="print2">
+    </command>
+ </extension>
+ 
+ <extension point="org.eclipse.core.expressions.definitions">
+      <definition id="rascal.file">
+            <adapt type="org.eclipse.core.resources.IFile">
+               <test property="org.eclipse.core.resources.name" 
+                     value="*.rsc"/>
+            </adapt>
+      </definition>
+   </extension>
+   
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="expression.onlyOneItemSelected">
+         <with
+               variable="activeMenuSelection">
+            <count
+                  value="1">
+            </count>
+         </with>
+      </definition>
+   </extension>
+   
+ <extension
+       point="org.eclipse.ui.menus">
+    <menuContribution
+          allPopups="false"
+          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+       <command
+             commandId="org.eclipse.ui.file.print1"
+             label="PrettyPrint"
+             style="push"
+             tooltip="Hallo">
+             <visibleWhen checkEnabled="false">
+              <reference definitionId="expression.onlyOneItemSelected"/> 
+            </visibleWhen>              
+       </command>
+    </menuContribution>
+    <menuContribution
+          locationURI="menu:org.eclipse.ui.main.menu?after=File">
+       <command
+             commandId="org.eclipse.ui.file.print2"
+             label="Print"
+             tooltip="Hallo">
+             <!--declaration of prerequisite plugins --> 
+             <visibleWhen checkEnabled="false">
+              <and>
+               <with variable="activeEditorId">
+               <equals value="org.rascalmpl.eclipse.box.boxviewer"/>
+               </with>
+              </and>
+            </visibleWhen>                  
+       </command>
+    </menuContribution>
+ </extension> 
 </plugin>
