@@ -19,7 +19,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -63,20 +62,6 @@ public class BoxPrinter {
 	
 	final private MakeBox makeBox = new MakeBox();
 	
-	// public static final String EditorId =
-	// "org.rascalmpl.eclipse.box.boxprinter";
-
-	enum TAG {
-		it(SWT.ITALIC), nm(SWT.NORMAL), bf(SWT.BOLD), df(SWT.NORMAL);
-		Font displayFont, printerFont;
-
-		TAG(int style) {
-			displayFont = new Font(Display.getCurrent(), new FontData(
-					"monospace", 10, style));
-			printerFont = new Font(Display.getCurrent(), new FontData(
-					"monospace", 6, style));
-		}
-	}
 
 	// Display display;
 
@@ -232,15 +217,14 @@ public class BoxPrinter {
 			e.printStackTrace();
 		}
 	}
+	
+	public void preparePrint(URI uri) {
+		textToPrint = getRichText(uri);
+	}
 
-	private boolean readData(String cmd, URI uri, boolean rich) {
+	private boolean readData(String cmd, URI uri) {
 		System.err.println("readData:" + cmd + " "+ uri);
 		textToPrint = makeBox.toPrint(cmd, uri);
-//		IValue v = rich?makeBox.toRichTxt(uri):makeBox.toTxt(uri);
-//		// System.err.println("MakeBox finished1");
-//		if (v == null)
-//			return false;
-//		textToPrint = text2String(v);
 		return true;
 		// System.err.println("MakeBox finished2");
 	}
@@ -424,7 +408,7 @@ public class BoxPrinter {
 					| SWT.NO_REDRAW_RESIZE | SWT.H_SCROLL | SWT.V_SCROLL);
 		}
 		URI uri;
-		while (!readData(cmd, uri = getFileName(), false))
+		while (!readData(cmd, uri = getFileName()))
 			;
 		shell.setText(new File(uri.getPath()).getName());
 		_open(uri);
@@ -462,7 +446,7 @@ public class BoxPrinter {
 		if (hBar == null)
 			initShell();
 		final GC gc = new GC(image);
-		setTag(gc, TAG.df);
+		setTag(gc, Box.TAG.DF);
 		displayTabWidth = gc.stringExtent(tabs).x;
 		displayLineHeight = gc.getFontMetrics().getHeight();
 		printText(gc);
@@ -475,22 +459,9 @@ public class BoxPrinter {
 		canvas.redraw();
 	}
 
-	private void setTag(GC gc, TAG tag) {
+	private void setTag(GC gc, Box.TAG tag) {
 		gc.setFont(printer != null ? tag.printerFont : tag.displayFont);
-		switch (tag) {
-		case bf:
-			gc.setForeground(keyColor);
-			return;
-		case it:
-			gc.setForeground(textColor);
-			return;
-		case nm:
-			gc.setForeground(numColor);
-			return;
-		case df:
-			gc.setForeground(textColor);
-			return;
-		}
+		gc.setForeground(tag.color);
 	}
 
 	private void adjustHandles(Image image) {
@@ -518,6 +489,7 @@ public class BoxPrinter {
 	}
 
 	public void menuPrint() {
+		if (shell==null) shell = new Shell(screen);
 		PrintDialog dialog = new PrintDialog(shell, SWT.PRIMARY_MODAL);
 		PrinterData data = dialog.open();
 		if (data == null)
@@ -546,7 +518,7 @@ public class BoxPrinter {
 		open("toLatex");
 	}
 
-	void print() {
+	private void print() {
 		if (printer.startJob("Text")) { // the string is the job name - shows up
 			// in the printer's job list
 			Rectangle clientArea = printer.getClientArea();
@@ -566,7 +538,7 @@ public class BoxPrinter {
 			 * foreground color.
 			 */
 			final GC gc = new GC(printer);
-			setTag(gc, TAG.df);
+			setTag(gc, Box.TAG.DF);
 			printerTabWidth = gc.stringExtent(tabs).x;
 			printerLineHeight = gc.getFontMetrics().getHeight();
 			// System.err.println("LH:"+lineHeight);
@@ -582,7 +554,7 @@ public class BoxPrinter {
 	
 
 	void save(File f) {
-		String[] data = textToPrint.split("\b.{3}");
+		String[] data = textToPrint.split("\r.{3}");
 		try {
 			PrintStream s = new PrintStream(f);
 			for (String a : data) {
@@ -596,18 +568,18 @@ public class BoxPrinter {
 	}
 
 	private Rectangle printText(GC gcc) {
-		final Stack<TAG> stack = new Stack<TAG>();
+		final Stack<Box.TAG> stack = new Stack<Box.TAG>();
 		boolean newGC = false;
 		GC gc;
 		if (gcc == null) {
 			gc = new GC(screen);
-			setTag(gc, TAG.df);
+			setTag(gc, Box.TAG.DF);
 			displayTabWidth = gc.stringExtent(tabs).x;
 			displayLineHeight = gc.getFontMetrics().getHeight();
 			newGC = true;
 		} else
 			gc = gcc;
-		TAG current = TAG.df;
+		Box.TAG current = Box.TAG.DF;
 		setTag(gc, current);
 		if (textToPrint == null)
 			return null;
@@ -617,30 +589,18 @@ public class BoxPrinter {
 		y = topMargin();
 		index = 0;
 		end = textToPrint.length();
-		StringTokenizer t = new StringTokenizer(textToPrint, "\n\b", true);
+		StringTokenizer t = new StringTokenizer(textToPrint, "\n\r", true);
 		while (t.hasMoreTokens()) {
 			String c = t.nextToken();
 			if (c.equals("\n")) {
 				newline();
-			} else if (c.equals("\b")) {
+			} else if (c.equals("\r")) {
 				c = t.nextToken();
 				if (c.charAt(0) == '{') {
+					stack.push(current);
 					String key = c.substring(1, 3);
-					if (key.equals(TAG.bf.name())) {
-						stack.push(current);
-						setTag(gc, TAG.bf);
-						current = TAG.bf;
-					}
-					if (key.equals(TAG.it.name())) {
-						stack.push(current);
-						setTag(gc, TAG.it);
-						current = TAG.it;
-					}
-					if (key.equals(TAG.nm.name())) {
-						stack.push(current);
-						setTag(gc, TAG.nm);
-						current = TAG.nm;
-					}
+					current = Box.TAG.valueOf(key);
+					setTag(gc, current);
 				} else if (c.charAt(0) == '}') {
 					current = stack.pop();
 					setTag(gc, current);
@@ -684,32 +644,5 @@ public class BoxPrinter {
 			}
 		}
 	}
-
-	private static Color getColor(final int which) {
-		Display display = Display.getCurrent();
-		if (display != null)
-			return display.getSystemColor(which);
-		display = Display.getDefault();
-		final Color result[] = new Color[1];
-		display.syncExec(new Runnable() {
-			public void run() {
-				synchronized (result) {
-					result[0] = Display.getCurrent().getSystemColor(which);
-				}
-			}
-		});
-		synchronized (result) {
-			return result[0];
-		}
-	}
-	
-
-	// static Color keyColor = getColor(SWT.COLOR_RED);
-	static Color keyColor = new Color(Display.getCurrent(), new RGB(127, 0, 85));
-	static Color textColor = getColor(SWT.COLOR_BLACK);
-	static Color varColor = getColor(SWT.COLOR_GRAY);
-	static Color bgColor = getColor(SWT.COLOR_YELLOW);
-	static Color boldColor = getColor(SWT.COLOR_MAGENTA);
-	static Color numColor = new Color(Display.getCurrent(), new RGB(0, 0, 192));
 
 }

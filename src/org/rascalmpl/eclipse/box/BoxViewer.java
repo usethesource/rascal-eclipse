@@ -14,8 +14,12 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.StyledTextContent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.printing.PrintDialog;
+import org.eclipse.swt.printing.Printer;
+import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
@@ -27,30 +31,19 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 public class BoxViewer extends AbstractTextEditor {
-	
+
 	public static final String EDITOR_ID = "org.rascalmpl.eclipse.box.boxviewer";
 
 	static final private Font displayFont = new Font(Display.getCurrent(),
 			new FontData("monospace", 8, SWT.NORMAL));
+	static final private Font printerFont = new Font(Display.getCurrent(),
+			new FontData("monospace", 6, SWT.NORMAL));
 
 	private Shell shell;
 
 	public BoxViewer() {
 		super();
 	}
-
-	// @Override
-	// public void doSave(IProgressMonitor monitor) {
-	// System.err.println("HELP SAVE");
-	// monitor.setCanceled(true);
-	// }
-
-	// @Override
-	// public void doSaveAs() {
-	// super.doSaveAs();
-	//		
-	// // TODO Auto-generated method stub
-	// }
 
 	@Override
 	protected void performSaveAs(IProgressMonitor progressMonitor) {
@@ -84,7 +77,6 @@ public class BoxViewer extends AbstractTextEditor {
 				f.setContents(inp, true, false, progressMonitor);
 			else
 				f.create(inp, true, progressMonitor);
-			// System.err.println("HELP SAVE AS" + f);
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -93,6 +85,8 @@ public class BoxViewer extends AbstractTextEditor {
 			e.printStackTrace();
 		}
 	}
+
+	
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input)
@@ -126,7 +120,6 @@ public class BoxViewer extends AbstractTextEditor {
 
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
 		return;
 		// super.setFocus();
 	}
@@ -141,55 +134,22 @@ public class BoxViewer extends AbstractTextEditor {
 		return false;
 	}
 
-	// private Canvas canvas;
-	// static Color keyColor = getColor(SWT.COLOR_RED);
-	// static Color textColor = getColor(SWT.COLOR_BLACK);
-	// static Color numColor = getColor(SWT.COLOR_BLUE);
+	void print() {
+		final StyledText st = this.getSourceViewer().getTextWidget();
+		StyledTextContent content = st.getContent();
+		final StyledText nst = new StyledText(st.getParent(), SWT.READ_ONLY);
+		nst.setContent(content);
+		nst.setStyleRanges(st.getStyleRanges());
+		shell = nst.getShell();
+		nst.setFont(printerFont);
+		nst.setLineSpacing(2);
+		PrintDialog dialog = new PrintDialog(shell, SWT.PRIMARY_MODAL);
+		final PrinterData data = dialog.open();
+		if (data == null)
+			return;
+		final Printer printer = new Printer(data);
+		nst.print(printer).run();
+	}
 	
-	// public static final String EDITOR_CONTEXT = EDITOR_ID + ".context";
-	// public static final String EDITOR_RULER = EDITOR_CONTEXT + ".ruler";
-	//
-	// private static Color getColor(final int which) {
-	// Display display = Display.getCurrent();
-	// if (display != null)
-	// return display.getSystemColor(which);
-	// display = Display.getDefault();
-	// final Color result[] = new Color[1];
-	// display.syncExec(new Runnable() {
-	// public void run() {
-	// synchronized (result) {
-	// result[0] = Display.getCurrent().getSystemColor(which);
-	// }
-	// }
-	// });
-	// synchronized (result) {
-	// return result[0];
-	// }
-	// }
-	// @Override
-	// protected void initializeEditor() {
-	// System.err.println("Initialize texteditor");
-	// super.initializeEditor();
-	// setEditorContextMenuId(EDITOR_CONTEXT);
-	// setRulerContextMenuId(EDITOR_RULER);
-	//		
-	// }
-	/*
-	 * @Override public void createPartControl(Composite parent) { canvas = new
-	 * Canvas(parent, SWT.NO_BACKGROUND // | SWT.NO_REDRAW_RESIZE | SWT.H_SCROLL
-	 * | SWT.V_SCROLL); // canvas = (Canvas) this.getSourceViewer();
-	 * canvas.setLayout(new FillLayout()); canvas.setVisible(true); IEditorInput
-	 * input = getEditorInput(); FileEditorInput f = (FileEditorInput) input; //
-	 * System.err.println("Folder:"+ f.getFile().getParent().getLocationURI());
-	 * setPartName(f.getFile().getName());
-	 * 
-	 * // boxPrinter = new BoxPrinter(); // URI uri =
-	 * f.getFile().getLocationURI(); // boxPrinter.open(uri, canvas); }
-	 */
-	// private BoxPrinter boxPrinter;
-	//
-	// public BoxPrinter getBoxPrinter() {
-	// return boxPrinter;
-	// }
-
+	
 }

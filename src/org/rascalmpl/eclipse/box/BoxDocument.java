@@ -9,25 +9,16 @@ import org.eclipse.jface.text.TypedPosition;
 
 public class BoxDocument extends Document {
 
-	enum TAG {
-		KW, NM, SG, CT, SC, DF;
-	}
-
+	
 	class Frame {
-		final TAG tag;
+		final Box.TAG tag;
 		final int start;
 
-		Frame(TAG tag, int start) {
+		Frame(Box.TAG tag, int start) {
 			this.tag = tag;
 			this.start = start;
 		}
 	}
-
-//	public BoxDocument() {
-//		for (TAG t : TAG.values()) {
-//			this.addPositionCategory(t.name());
-//		}
-//	}
 
 	private void addString(String s) {
 		try {
@@ -42,7 +33,7 @@ public class BoxDocument extends Document {
 
 	void computeDocument(String textToPrint) {
 		final Stack<Frame> stack = new Stack<Frame>();
-		TAG current = TAG.DF;
+		Box.TAG current = Box.TAG.DF;
 		StringTokenizer t = new StringTokenizer(textToPrint, "\n\r", true);
 		while (t.hasMoreTokens()) {
 			String c = t.nextToken();
@@ -52,7 +43,7 @@ public class BoxDocument extends Document {
 				c = t.nextToken();
 				if (c.charAt(0) == '{') {
 					String key = c.substring(1, 3);
-					TAG tag = TAG.valueOf(key);
+					Box.TAG tag = Box.TAG.valueOf(key);
 					stack.push(new Frame(current, this.getLength()));
 					current = tag;
 				} else if (c.charAt(0) == '}') {
@@ -72,7 +63,6 @@ public class BoxDocument extends Document {
 				addString(c);
 			}
 		}
-//		addString(textToPrint);
 	}
 
 }
