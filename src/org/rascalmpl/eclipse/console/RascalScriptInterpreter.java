@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
@@ -107,12 +108,15 @@ public class RascalScriptInterpreter implements IInterpreter{
 	public void updateModules() {
 		synchronized (dirtyModules) {
 			Set<String> names = new HashSet<String>();
+			PrintWriter pw = new PrintWriter(console.getConsoleOutputStream());
+			
 			for (URI uri : dirtyModules) {
-
 				String path = uri.getPath();
 				path = path.substring(0, path.indexOf(IRascalResources.RASCAL_EXT) - 1);
 				path = path.startsWith("/") ? path.substring(1) : path;
 				names.add(path.replaceAll("/","::"));
+				pw.println("Reloading module from " + uri);
+				pw.flush();
 			}
 			
 			eval.reloadModules(names, URI.create("console:///"));	
