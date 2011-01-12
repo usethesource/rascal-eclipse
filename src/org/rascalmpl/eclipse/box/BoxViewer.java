@@ -94,6 +94,7 @@ public class BoxViewer extends AbstractTextEditor {
 		setDocumentProvider(new BoxProvider());
 		setSite(site);
 		setInput(input);
+		shell = site.getShell();
 	}
 
 	@Override
@@ -110,7 +111,7 @@ public class BoxViewer extends AbstractTextEditor {
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		StyledText st = this.getSourceViewer().getTextWidget();
-		shell = st.getShell();
+		// shell = st.getShell();
 		st.setFont(displayFont);
 		st.setLineSpacing(2);
 		this.getSourceViewer().changeTextPresentation(
@@ -140,7 +141,7 @@ public class BoxViewer extends AbstractTextEditor {
 		final StyledText nst = new StyledText(st.getParent(), SWT.READ_ONLY);
 		nst.setContent(content);
 		nst.setStyleRanges(st.getStyleRanges());
-		shell = nst.getShell();
+		// shell = nst.getShell();
 		nst.setFont(printerFont);
 		nst.setLineSpacing(2);
 		PrintDialog dialog = new PrintDialog(shell, SWT.PRIMARY_MODAL);

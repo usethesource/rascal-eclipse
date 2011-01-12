@@ -129,7 +129,7 @@ public class BoxExportPage extends WizardExportResourcesPage {
 			URI destdir = null;
 			try {
 				destdir = new URI("file", currentDir, null);
-				makeBox.toRichTxt(pageName, res.getLocationURI(), destdir);
+				makeBox.toRichText(pageName, res.getLocationURI(), destdir);
 			} catch (URISyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

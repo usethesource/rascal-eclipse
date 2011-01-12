@@ -221,7 +221,11 @@ public class BoxPrinter {
 	public void preparePrint(URI uri) {
 		textToPrint = getRichText(uri);
 	}
-
+    
+	public void preparePrint(URI uri, String ext) {
+		textToPrint = getRichText(uri, ext);
+	}
+	
 	private boolean readData(String cmd, URI uri) {
 		System.err.println("readData:" + cmd + " "+ uri);
 		textToPrint = makeBox.toPrint(cmd, uri);
@@ -232,8 +236,15 @@ public class BoxPrinter {
 	
 	
 	public String getRichText(URI uri) {
-		IValue v = makeBox.toRichTxt(uri);
-		return  makeBox.text2String(v);
+		return makeBox.toRichText(uri);
+		/*
+		readData("toLatex", uri, true);
+		return textToPrint;
+		*/
+	}
+	
+	public String getRichText(URI uri, String ext) {
+		return makeBox.toRichText(uri, ext);
 		/*
 		readData("toLatex", uri, true);
 		return textToPrint;

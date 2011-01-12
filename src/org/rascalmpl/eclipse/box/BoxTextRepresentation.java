@@ -37,13 +37,13 @@ public class BoxTextRepresentation extends TextPresentation {
 		return this.d;
 	}
 	
-	void replaceStyleRange(Position p, Box.TAG tag) {
+	private void replaceStyleRange(Position p, Box.TAG tag) {
 		StyleRange r = new StyleRange(p.getOffset(), p.getLength(), tag.color, bgColor, tag.style);
 		this.replaceStyleRange(r);
 	}
 	
 	
-	public StyleRange DF(Position p) {
+	private StyleRange DF(Position p) {
 		return new StyleRange(p.getOffset(), p.getLength(), textColor, bgColor, SWT.NORMAL);
 	}
 

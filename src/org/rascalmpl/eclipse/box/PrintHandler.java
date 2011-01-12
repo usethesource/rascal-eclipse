@@ -19,11 +19,17 @@ public class PrintHandler extends AbstractHandler {
 					.getCurrentSelectionChecked(event);
 			if (sel.getFirstElement() instanceof IFile) {
 				IFile f = (IFile) sel.getFirstElement();
+				String ext = f.getFileExtension();
 				URI uri = f.getLocationURI();
 				IProject p = f.getProject();
 				BoxPrinter boxPrinter = new BoxPrinter(p);
-				boxPrinter.preparePrint(uri);
-				boxPrinter.menuPrint();
+				if (ext != null) {
+					if (ext.equals("rsc"))
+						boxPrinter.preparePrint(uri);
+					else if (ext.equals("pico"))
+						boxPrinter.preparePrint(uri, ext);
+					boxPrinter.menuPrint();
+				}
 				return null;
 			}
 		}

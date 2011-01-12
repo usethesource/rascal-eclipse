@@ -12,19 +12,22 @@ import org.eclipse.ui.part.FileEditorInput;
 
 public class BoxProvider extends FileDocumentProvider {
 
-	IDocument d = new BoxDocument();
+	private IDocument d = new BoxDocument();
 
 	@Override
 	public IDocument createDocument(Object element) {
-		try {
-			// System.err.println("createDocument:" + getDefaultEncoding());
-
-			setDocumentContent(d, (IEditorInput) element, getDefaultEncoding());
-			return d;
-		} catch (CoreException e) {
-			e.printStackTrace();
-			return null;
-		}
+		// System.err.println("createDocument:" + getDefaultEncoding());
+		FileEditorInput f = (FileEditorInput) element;
+		String ext = f.getFile().getFileExtension();
+		if (ext != null)
+			if (ext.equals("rsc"))
+				prettyPrintRascal(f.getFile());
+			else if (ext.equals("pico"))
+				prettyPrint(f.getFile(), ext);
+			else
+				System.err.println("Cannot display extension:"
+						+ f.getFile().getFileExtension());
+		return d;
 	}
 
 	@Override
@@ -32,23 +35,18 @@ public class BoxProvider extends FileDocumentProvider {
 		return d;
 	}
 
-	@Override
-	public boolean setDocumentContent(IDocument document,
-			IEditorInput editorInput, String encoding) throws CoreException {
-		FileEditorInput f = (FileEditorInput) editorInput;
-		prettyPrintRascal(document, f.getFile());
-		return true;
-	}
-	
-	public void prettyPrintRascal(IDocument document, IFile f) {
+	private void prettyPrintRascal(IFile f) {
 		URI uri = f.getLocationURI();
 		IProject p = f.getProject();
 		BoxPrinter boxPrinter = new BoxPrinter(p);
-		((BoxDocument) document).computeDocument(boxPrinter
-				.getRichText(uri));			
+		((BoxDocument) d).computeDocument(boxPrinter.getRichText(uri));
 	}
 
-	public void prettyPrintRascal(IFile f) {
-		prettyPrintRascal(d, f);
+	private void prettyPrint(IFile f, String ext) {
+		URI uri = f.getLocationURI();
+		IProject p = f.getProject();
+		BoxPrinter boxPrinter = new BoxPrinter(p);
+		((BoxDocument) d).computeDocument(boxPrinter.getRichText(uri, ext));
 	}
+
 }

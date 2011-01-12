@@ -9,8 +9,6 @@ import org.eclipse.ui.IEditorPart;
 
 public class EditorAction1Delegate extends org.eclipse.ui.actions.ActionDelegate implements
 		IEditorActionDelegate {
-    
-	private BoxViewer b;
 	
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
 		// TODO Auto-generated method stub
