@@ -106,13 +106,17 @@ public class RascalScriptInterpreter implements IInterpreter{
 	
 	public void updateModules() {
 		synchronized (dirtyModules) {
-		  for (URI uri : dirtyModules) {
-			  String path = uri.getPath();
-			  path = path.substring(0, path.indexOf(IRascalResources.RASCAL_EXT) - 1);
-			  path = path.startsWith("/") ? path.substring(1) : path;
-			  eval.reloadModule(path.replaceAll("/","::"), uri);	  
-		  }
-		  dirtyModules.clear();
+			Set<String> names = new HashSet<String>();
+			for (URI uri : dirtyModules) {
+
+				String path = uri.getPath();
+				path = path.substring(0, path.indexOf(IRascalResources.RASCAL_EXT) - 1);
+				path = path.startsWith("/") ? path.substring(1) : path;
+				names.add(path.replaceAll("/","::"));
+			}
+			
+			eval.reloadModules(names, URI.create("console:///"));	
+			dirtyModules.clear();
 		}
 	}
 	
