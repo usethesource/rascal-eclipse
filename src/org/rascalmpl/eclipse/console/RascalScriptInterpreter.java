@@ -392,25 +392,22 @@ public class RascalScriptInterpreter implements IInterpreter{
 			return;
 			
 		}
-		final IFile file = project.getFile(module);
-		IWorkbench wb = PlatformUI.getWorkbench();
-		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-		
-		if (win != null) {
-			final IWorkbenchPage page = win.getActivePage();
+		final IFile file = project.getFile(IRascalResources.RASCAL_SRC + "/" + module.replaceAll("::","/") + "." + IRascalResources.RASCAL_EXT);
 
-			if (page != null) {
-				Display.getDefault().asyncExec(new Runnable() {
-					public void run() {
-						try {
-							page.openEditor(new FileEditorInput(file), UniversalEditor.EDITOR_ID);
-						} catch (PartInitException e) {
-							Activator.getInstance().logException("edit", e);
-						}
-					}
-				});
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				try {
+					IWorkbench wb = PlatformUI.getWorkbench();
+					IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+					if (win == null) return;
+					final IWorkbenchPage page = win.getActivePage();
+					if (page == null) return;
+					page.openEditor(new FileEditorInput(file), UniversalEditor.EDITOR_ID);
+				} catch (PartInitException e) {
+					Activator.getInstance().logException("edit", e);
+				}
 			}
-		}
+		});
 	}
 
 	private void clearErrorMarker() {
