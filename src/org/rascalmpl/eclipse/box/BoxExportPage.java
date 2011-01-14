@@ -1,10 +1,17 @@
 package org.rascalmpl.eclipse.box;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -21,17 +28,27 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
+import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.dialogs.WizardExportResourcesPage;
 import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
+import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.library.box.MakeBox;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 @SuppressWarnings("restriction")
 public class BoxExportPage extends WizardExportResourcesPage {
 
-	static final private MakeBox makeBox = new MakeBox();
-	static final String defaultDir = System.getProperty("DEFAULTDIR", System
-			.getProperty("user.home"));
-	
+	final private MakeBox makeBox;
+	static final String defaultDir = System.getProperty("DEFAULTDIR",
+			System.getProperty("user.home"));
+
+	private boolean oberon0 = false;
+
+	private boolean rascal = false;
+
+	private ArrayList<String> exts = new ArrayList<String>();
+
 	final String pageName;
 
 	static private MessageConsole findConsole(String name) {
@@ -44,13 +61,54 @@ public class BoxExportPage extends WizardExportResourcesPage {
 		// no console found, so create a new one
 		MessageConsole myConsole = new MessageConsole(name, null);
 		conMan.addConsoles(new IConsole[] { myConsole });
-		System.err.println("Found: console" + myConsole);
+		// System.err.println("Found: console" + myConsole);
 		return myConsole;
 	}
 
 	protected BoxExportPage(String pageName, IStructuredSelection selection) {
 		super(pageName, selection);
-        this.pageName = pageName;
+		this.pageName = pageName;
+		MessageConsole m = findConsole("boxConsole");
+		PrintStream ps = new PrintStream(m.newMessageStream());
+		PrintWriter pwo = new PrintWriter(ps), pwe = new PrintWriter(System.err);
+		makeBox = new MakeBox(pwo, pwe);
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot()
+				.getProjects();
+		if (projects.length == 0)
+			return;
+		IProject p = projects[0];
+		for (IProject project : projects) {
+			if (project.getName().equals("oberon0")) {
+				oberon0 = true;
+				try {
+					makeBox.getCommandEvaluator().addRascalSearchPath(
+							new URI("project://" + project.getName() + "/"
+									+ IRascalResources.RASCAL_SRC));
+					ProjectURIResolver resolver = new ProjectURIResolver();
+					URIResolverRegistry resolverRegistry = makeBox
+							.getCommandEvaluator().getResolverRegistry();
+					resolverRegistry.registerInput(resolver);
+					resolverRegistry.registerOutput(resolver);
+				} catch (URISyntaxException usex) {
+					throw new RuntimeException(usex);
+				}
+				break;
+			}
+		}
+		try {
+			IFolder d = p.getFolder("std/box");
+			IResource[] fs = d.members();
+			for (IResource f : fs) {
+				if (f instanceof IFolder) {
+					if (!f.getName().startsWith("."))
+						exts.add("." + f.getName());
+				}
+			}
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		// TODO Auto-generated constructor stub
 	}
 
@@ -62,7 +120,18 @@ public class BoxExportPage extends WizardExportResourcesPage {
 	protected boolean hasExportableExtension(String s) {
 		if (s == null)
 			return true;
-		return s.endsWith(".rsc");
+		if (s.endsWith(".rsc")) {
+			rascal = true;
+			return true;
+		}
+		if (oberon0 && s.endsWith(".oberon0"))
+			return true;
+		for (String q : exts) {
+			if (s.endsWith(q)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -104,7 +173,7 @@ public class BoxExportPage extends WizardExportResourcesPage {
 		// TODO Auto-generated method stub
 		if (event.widget == containerBrowseButton) {
 			System.err.println("handleEvent:" + event);
-		    destionationDir();
+			destionationDir();
 		}
 	}
 
@@ -129,7 +198,13 @@ public class BoxExportPage extends WizardExportResourcesPage {
 			URI destdir = null;
 			try {
 				destdir = new URI("file", currentDir, null);
-				makeBox.toRichText(pageName, res.getLocationURI(), destdir);
+				if (rascal)
+					makeBox.rascalToPrint(pageName, res.getLocationURI(),
+							destdir);
+				else {
+					// System.err.println("BoxExport:"+pageName+" "+res.getLocationURI());
+					makeBox.toPrint(pageName, res.getLocationURI(), destdir);
+				}
 			} catch (URISyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -152,7 +227,7 @@ public class BoxExportPage extends WizardExportResourcesPage {
 					&& hasExportableExtension(res.getName())) {
 				// System.err.println(res.getLocationURI());
 				currentDir = containerNameField.getText();
-				MessageConsole q = findConsole("BoxConsole");
+				// MessageConsole q = findConsole("BoxConsole");
 				try {
 					getContainer().run(true, true, runnable);
 				} catch (InvocationTargetException e) {
@@ -161,7 +236,7 @@ public class BoxExportPage extends WizardExportResourcesPage {
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}			
+				}
 			}
 		}
 	}

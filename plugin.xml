@@ -187,8 +187,7 @@
       <editor
             class="org.rascalmpl.eclipse.box.BoxViewer"
             default="false"
-            extensions="rsc"
-            filenames="*.rsc"
+            extensions="rsc, pico, oberon0"
             icon="icons/rascal3D_2-16px.gif"
             id="org.rascalmpl.eclipse.box.boxviewer"
             name="Box Viewer">
@@ -694,21 +693,17 @@
           allPopups="false"
           locationURI="popup:org.eclipse.ui.popup.any?after=additions">
        <command
-             commandId="org.eclipse.ui.file.print1"
-             label="PrettyPrint"
+             commandId="org.eclipse.ui.file.print2"
+             label="Print"
              style="push"
-             tooltip="Hallo">
-             <visibleWhen checkEnabled="false">
-              <reference definitionId="expression.onlyOneItemSelected"/> 
-            </visibleWhen>              
+             tooltip="Print this file">       
        </command>
     </menuContribution>
-    <menuContribution
-          locationURI="menu:org.eclipse.ui.main.menu?after=File">
+    <menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=File"> 
        <command
              commandId="org.eclipse.ui.file.print2"
              label="Print"
-             tooltip="Hallo">
+             tooltip="Pretty Print">
              <!--declaration of prerequisite plugins --> 
              <visibleWhen checkEnabled="false">
               <and>

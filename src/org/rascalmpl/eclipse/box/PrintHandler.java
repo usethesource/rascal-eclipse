@@ -26,7 +26,7 @@ public class PrintHandler extends AbstractHandler {
 				if (ext != null) {
 					if (ext.equals("rsc"))
 						boxPrinter.preparePrint(uri);
-					else if (ext.equals("pico"))
+					else 
 						boxPrinter.preparePrint(uri, ext);
 					boxPrinter.menuPrint();
 				}

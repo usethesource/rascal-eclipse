@@ -14,6 +14,8 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -38,10 +40,12 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
+import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.box.MakeBox;
 import org.rascalmpl.uri.ClassResourceInputOutput;
@@ -175,7 +179,6 @@ public class BoxPrinter {
 		resolverRegistry.registerInput(eclipseResolver);
 		ev.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
 		ev.addClassLoader(getClass().getClassLoader());
-		
 		if (project != null) {
 			try{
 				ev.addRascalSearchPath(new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
@@ -183,7 +186,13 @@ public class BoxPrinter {
 				throw new RuntimeException(usex);
 			}
 		}
-		
+		try {
+			String rascalPlugin = FileLocator.resolve(Platform.getBundle("rascal").getEntry("/")).getPath();
+			String PDBValuesPlugin = FileLocator.resolve(Platform.getBundle("org.eclipse.imp.pdb.values").getEntry("/")).getPath();
+			Configuration.setRascalJavaClassPathProperty(rascalPlugin + File.pathSeparator + PDBValuesPlugin + File.pathSeparator + rascalPlugin + File.separator + "src" + File.pathSeparator + rascalPlugin + File.separator + "bin" + File.pathSeparator + PDBValuesPlugin + File.separator + "bin");
+		} catch (IOException e) {
+			Activator.getInstance().logException("could not create classpath for parser compilation", e);
+		}
 		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
 		resolverRegistry.registerInput(bundleResolver);
 		resolverRegistry.registerOutput(bundleResolver);

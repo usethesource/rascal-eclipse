@@ -4,9 +4,7 @@ import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.FileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
 
@@ -22,11 +20,8 @@ public class BoxProvider extends FileDocumentProvider {
 		if (ext != null)
 			if (ext.equals("rsc"))
 				prettyPrintRascal(f.getFile());
-			else if (ext.equals("pico"))
+			else 
 				prettyPrint(f.getFile(), ext);
-			else
-				System.err.println("Cannot display extension:"
-						+ f.getFile().getFileExtension());
 		return d;
 	}
 
