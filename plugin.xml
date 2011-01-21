@@ -621,61 +621,60 @@
           commandId="org.eclipse.ui.file.print1">
        <activeWhen>
          <with
-            variable="selection">
-         <iterate
-               operator="or">
+            variable="activeMenuSelection">
+            <count
+                  value="1">
+            </count>
+         <iterate ifEmpty="false">
             <and>
             <instanceof
                   value="org.eclipse.core.resources.IFile">
             </instanceof>
-            <test property="org.eclipse.core.resources.name" 
-                     value="*.rsc"/>
+            <or>
+            <test property="org.eclipse.core.resources.extension" 
+                     value="rsc"/>
+            <test property="org.eclipse.core.resources.extension" 
+                     value="pico"/>
+             <test property="org.eclipse.core.resources.extension" 
+                     value="oberon0"/>
+            </or>
             </and>
          </iterate>
         </with>
       </activeWhen> 
     </handler>
- </extension>
- <extension
-       point="org.eclipse.ui.handlers">
     <handler
           class="org.rascalmpl.eclipse.box.PrintHandler"
           commandId="org.eclipse.ui.file.print2">
        <activeWhen>
          <with variable="activeEditorId">
-         <equals value="org.rascalmpl.eclipse.box.boxviewer"/>
+          <or>
+          <!--instanceof value="org.eclipse.ui.texteditor.AbstractTextEditor"/>-->
+            <equals value="org.rascalmpl.eclipse.box.boxviewer"/>
+            <equals value="rascal.editor"/>
+          </or>
         </with>
       </activeWhen> 
     </handler>
  </extension>
- 
  <extension
        point="org.eclipse.ui.commands">
     <command
           id="org.eclipse.ui.file.print1"
           name="print1">
     </command>
- </extension>
- 
- <extension
-       point="org.eclipse.ui.commands">
     <command
           id="org.eclipse.ui.file.print2"
           name="print2">
     </command>
  </extension>
- 
- <extension point="org.eclipse.core.expressions.definitions">
+ <!--extension point="org.eclipse.core.expressions.definitions">
       <definition id="rascal.file">
             <adapt type="org.eclipse.core.resources.IFile">
                <test property="org.eclipse.core.resources.name" 
-                     value="*.rsc"/>
+                     value="*.rsc"/>           
             </adapt>
       </definition>
-   </extension>
-   
-   <extension
-         point="org.eclipse.core.expressions.definitions">
       <definition
             id="expression.onlyOneItemSelected">
          <with
@@ -685,34 +684,33 @@
             </count>
          </with>
       </definition>
-   </extension>
-   
+   </extension-->
  <extension
        point="org.eclipse.ui.menus">
     <menuContribution
           allPopups="false"
           locationURI="popup:org.eclipse.ui.popup.any?after=additions">
        <command
-             commandId="org.eclipse.ui.file.print2"
-             label="Print"
+             commandId="org.eclipse.ui.file.print1"
+             label="Pretty Print"
              style="push"
              tooltip="Print this file">       
        </command>
     </menuContribution>
-    <menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=File"> 
+    <!--menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=File"--> 
+    <menuContribution locationURI="menu:file"> 
        <command
              commandId="org.eclipse.ui.file.print2"
-             label="Print"
-             tooltip="Pretty Print">
-             <!--declaration of prerequisite plugins --> 
-             <visibleWhen checkEnabled="false">
-              <and>
-               <with variable="activeEditorId">
-               <equals value="org.rascalmpl.eclipse.box.boxviewer"/>
-               </with>
-              </and>
-            </visibleWhen>                  
+             label="My Print">           
        </command>
     </menuContribution>
+ </extension>
+ <extension
+       point="org.eclipse.ui.themes">
+    <fontDefinition
+          id="rascal-eclipse.printerFontDefinition"
+          label="Printer Font"
+          value="Monospace-regular-6">
+    </fontDefinition>
  </extension> 
 </plugin>

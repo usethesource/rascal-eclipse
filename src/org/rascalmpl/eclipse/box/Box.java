@@ -9,11 +9,14 @@ import org.eclipse.swt.widgets.Display;
 
 public class Box {
 	enum TAG {
-		VR(SWT.ITALIC, blackColor), NM(SWT.NORMAL, darkBlueColor), KW(SWT.BOLD, darkMagentaColor), DF(SWT.NORMAL, blackColor), SG(SWT.ITALIC, darkBlueColor)
-		, CT(SWT.ITALIC, blackColor), SC(SWT.ITALIC, darkGreenColor);
+		VR(SWT.ITALIC, blackColor), NM(SWT.NORMAL, darkBlueColor), KW(SWT.BOLD,
+				darkMagentaColor), DF(SWT.NORMAL, blackColor), SG(SWT.ITALIC,
+				darkBlueColor), CT(SWT.ITALIC, blackColor), SC(SWT.ITALIC,
+				darkGreenColor);
 		Font displayFont, printerFont;
 		Color color;
 		int style;
+
 		TAG(int stylePar, Color parColor) {
 			style = stylePar;
 			displayFont = new Font(Display.getCurrent(), new FontData(
@@ -23,17 +26,33 @@ public class Box {
 			color = parColor;
 		}
 	}
+
+	private static void updateFont(String fontName, int size) {
+		for (TAG t : Box.TAG.values()) {
+			t.printerFont = new Font(Display.getCurrent(), new FontData(
+					fontName, size, t.printerFont.getFontData()[0].getStyle()));
+		}
+
+	}
 	
-	static Color darkMagentaColor = new Color(Display.getCurrent(), new RGB(127, 0, 85));
+	static void updateFont(Font f) {
+		if (f.getFontData().length==0) return;
+		FontData d = f.getFontData()[0];
+		updateFont(d.getName(),d.getHeight());
+	}
+
+	static Color darkMagentaColor = new Color(Display.getCurrent(), new RGB(
+			127, 0, 85));
 	static Color blackColor = getColor(SWT.COLOR_BLACK);
 	static Color blueColor = getColor(SWT.COLOR_BLUE);
 	static Color grayColor = getColor(SWT.COLOR_GRAY);
 	static Color yellowColor = getColor(SWT.COLOR_YELLOW);
 	static Color magentaColor = getColor(SWT.COLOR_MAGENTA);
 	static Color darkGreenColor = getColor(SWT.COLOR_DARK_GREEN);
-	static Color whiteColor = getColor(SWT.COLOR_WHITE);	
-	static Color darkBlueColor = new Color(Display.getCurrent(), new RGB(0, 0, 192));
-	
+	static Color whiteColor = getColor(SWT.COLOR_WHITE);
+	static Color darkBlueColor = new Color(Display.getCurrent(), new RGB(0, 0,
+			192));
+
 	private static Color getColor(final int which) {
 		Display display = Display.getCurrent();
 		if (display != null)

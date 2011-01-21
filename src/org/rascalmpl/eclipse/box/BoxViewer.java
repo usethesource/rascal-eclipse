@@ -36,8 +36,6 @@ public class BoxViewer extends AbstractTextEditor {
 
 	static final private Font displayFont = new Font(Display.getCurrent(),
 			new FontData("monospace", 8, SWT.NORMAL));
-	static final private Font printerFont = new Font(Display.getCurrent(),
-			new FontData("monospace", 6, SWT.NORMAL));
 
 	private Shell shell;
 
@@ -134,23 +132,10 @@ public class BoxViewer extends AbstractTextEditor {
 	public boolean isSaveOnCloseNeeded() {
 		return false;
 	}
-
-	void print() {
-		final StyledText st = this.getSourceViewer().getTextWidget();
-		StyledTextContent content = st.getContent();
-		final StyledText nst = new StyledText(st.getParent(), SWT.READ_ONLY);
-		nst.setContent(content);
-		nst.setStyleRanges(st.getStyleRanges());
-		// shell = nst.getShell();
-		nst.setFont(printerFont);
-		nst.setLineSpacing(2);
-		PrintDialog dialog = new PrintDialog(shell, SWT.PRIMARY_MODAL);
-		final PrinterData data = dialog.open();
-		if (data == null)
-			return;
-		final Printer printer = new Printer(data);
-		nst.print(printer).run();
-	}
+	
+	public StyledText getTextWidget() {
+		    return this.getSourceViewer().getTextWidget();
+		    }
 	
 	
 }
