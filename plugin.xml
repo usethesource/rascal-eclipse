@@ -195,9 +195,26 @@
       <editor
             class="org.rascalmpl.eclipse.library.vis.FigureViewer"
             default="false"
-            icon="icons/rascal3D_2-16px.gif"
-            id="rascal-eclipse.Figure.viewer"
-            name="Figure">
+            extensions="cxt"
+            icon="icons/lattice.gif"
+            id="rascal-eclipse.Figure.lattice"
+            name="Lattice Figure">
+      </editor>
+      <editor
+            class="org.rascalmpl.eclipse.library.vis.FigureViewer"
+            default="false"
+            extensions="cxt"
+            icon="icons/spring.png"
+            id="rascal-eclipse.Figure.spring"
+            name="Spring Figure">
+      </editor>
+      <editor
+            class="org.rascalmpl.eclipse.library.vis.FigureViewer"
+            default="false"
+            extensions="cxt"
+            icon="icons/layered.gif"
+            id="rascal-eclipse.Figure.layered"
+            name="Layered Figure">
       </editor>
    </extension>
    <extension
@@ -652,6 +669,7 @@
           <!--instanceof value="org.eclipse.ui.texteditor.AbstractTextEditor"/>-->
             <equals value="org.rascalmpl.eclipse.box.boxviewer"/>
             <equals value="rascal.editor"/>
+            <equals value="rascal-eclipse.Figure.viewer"/>
           </or>
         </with>
       </activeWhen> 

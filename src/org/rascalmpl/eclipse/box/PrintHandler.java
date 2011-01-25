@@ -19,18 +19,21 @@ import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.themes.ITheme;
 import org.eclipse.ui.themes.IThemeManager;
 import org.rascalmpl.eclipse.editor.RascalEditor;
+import org.rascalmpl.eclipse.library.vis.FigureViewer;
 
 public class PrintHandler extends AbstractHandler {
-	static final IThemeManager themeManager = PlatformUI.getWorkbench().getThemeManager();
+	static final IThemeManager themeManager = PlatformUI.getWorkbench()
+			.getThemeManager();
 	static final ITheme currentTheme = themeManager.getCurrentTheme();
 	static final FontRegistry fontRegistry = currentTheme.getFontRegistry();
-	
-	void print(final Shell shell, final StyledText st, final Font printerFont) {
+
+	private void print(final Shell shell, final StyledText st, final Font printerFont) {
 		StyledTextContent content = st.getContent();
 		final StyledText nst = new StyledText(st.getParent(), SWT.READ_ONLY);
 		nst.setContent(content);
@@ -44,9 +47,19 @@ public class PrintHandler extends AbstractHandler {
 		final Printer printer = new Printer(data);
 		nst.print(printer).run();
 	}
+	
+	private void print(final Shell shell, FigureViewer fv) {
+		PrintDialog dialog = new PrintDialog(shell, SWT.PRIMARY_MODAL);
+		final PrinterData data = dialog.open();
+		if (data == null)
+			return;
+		final Printer printer = new Printer(data);
+		fv.print(printer);
+	}
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		final Font printerFont = fontRegistry.get("rascal-eclipse.printerFontDefinition");
+		final Font printerFont = fontRegistry
+				.get("rascal-eclipse.printerFontDefinition");
 		if (HandlerUtil.getCurrentSelection(event) != null
 				&& HandlerUtil.getCurrentSelectionChecked(event) instanceof IStructuredSelection) {
 			IStructuredSelection sel = (IStructuredSelection) HandlerUtil
@@ -61,33 +74,34 @@ public class PrintHandler extends AbstractHandler {
 				if (ext != null) {
 					if (ext.equals("rsc"))
 						boxPrinter.preparePrint(uri);
-					else 
+					else
 						boxPrinter.preparePrint(uri, ext);
 					boxPrinter.menuPrint();
 				}
 				return null;
 			}
 		}
-		if (HandlerUtil.getActiveEditor(event) != null
-				&& HandlerUtil.getActiveEditor(event) instanceof BoxViewer)
-						 {
-			BoxViewer ate = ((BoxViewer) HandlerUtil
-					.getActiveEditorChecked(event));
-			Shell shell = ate.getEditorSite().getShell();
-			print(shell, ate.getTextWidget(), printerFont);
-			return null;
+		IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
+		if (activeEditor != null) {
+			Shell shell = activeEditor.getEditorSite().getShell();
+			if (activeEditor instanceof BoxViewer) {
+				BoxViewer ate = ((BoxViewer) activeEditor);
+				print(shell, ate.getTextWidget(), printerFont);
+				return null;
+			}
+			if (activeEditor instanceof RascalEditor) {
+				RascalEditor ate = ((RascalEditor) activeEditor);
+				print(shell, ate.getTextWidget(), printerFont);
+				return null;
+
+			}
+			if (activeEditor instanceof FigureViewer) {
+				FigureViewer ate = ((FigureViewer) activeEditor);
+				print(shell, ate);
+				return null;
+			}
 		}
-		if (HandlerUtil.getActiveEditor(event) != null
-								&&			HandlerUtil.getActiveEditor(event) instanceof RascalEditor)
-		{
-			RascalEditor ate = ((RascalEditor) HandlerUtil
-					.getActiveEditorChecked(event));
-			Shell shell = ate.getEditorSite().getShell();
-			print(shell, ate.getTextWidget(), printerFont);
-			return null;
-			
-		}
-		System.err.println("Wrong:" + this.getClass());
+		System.err.println("Wrong:" + activeEditor.getClass());
 		return null;
 	}
 }

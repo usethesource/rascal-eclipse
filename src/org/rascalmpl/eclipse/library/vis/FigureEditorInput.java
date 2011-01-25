@@ -17,6 +17,8 @@ public class FigureEditorInput implements IEditorInput {
 	}
 
 	public FigurePApplet getFigurePApplet() {
+		// new Printer(figurePApplet.g.image.getGraphics().
+		// new GC(new Printer()).drawImage(figurePApplet.g.image, x, y);
 		return figurePApplet;
 	}
 	

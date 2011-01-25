@@ -16,7 +16,7 @@ import java.util.StringTokenizer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -243,14 +243,12 @@ public class BoxPrinter {
 		// System.err.println("MakeBox finished2");
 	}
 	
-	
+	public IConstructor getFigure(URI uri, String layout) {
+		return (IConstructor) makeBox.getFigure(uri, layout);
+	}
 	
 	public String getRichText(URI uri) {
 		return makeBox.toRichText(uri);
-		/*
-		readData("toLatex", uri, true);
-		return textToPrint;
-		*/
 	}
 	
 	public String getRichText(URI uri, String ext) {
