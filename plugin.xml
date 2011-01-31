@@ -669,6 +669,9 @@
           <!--instanceof value="org.eclipse.ui.texteditor.AbstractTextEditor"/>-->
             <equals value="org.rascalmpl.eclipse.box.boxviewer"/>
             <equals value="rascal.editor"/>
+            <equals value="rascal-eclipse.Figure.lattice"/>
+            <equals value="rascal-eclipse.Figure.spring"/>
+            <equals value="rascal-eclipse.Figure.layered"/>
             <equals value="rascal-eclipse.Figure.viewer"/>
           </or>
         </with>

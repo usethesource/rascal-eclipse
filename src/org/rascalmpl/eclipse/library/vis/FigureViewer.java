@@ -11,6 +11,7 @@ import java.net.URI;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -32,13 +33,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.box.BoxDocument;
 import org.rascalmpl.eclipse.box.BoxPrinter;
 import org.rascalmpl.library.vis.FigurePApplet;
-import org.eclipse.imp.pdb.facts.IConstructor;
 
 public class FigureViewer extends EditorPart {
-	protected static final String editorId = "rascal-eclipse.Figure.viewer";
+	protected static final String editorId  = "rascal-eclipse.Figure.viewer";
+	
+	FigurePApplet pa ;
 
 	private static Image makeSWTImage(Display display, java.awt.Image ai)
 			throws Exception {
@@ -70,22 +71,22 @@ public class FigureViewer extends EditorPart {
 	}
 
 	public void print(Printer printer) {
-//		if (printer.startJob("FigureViewer")) {
-//		FigureEditorInput fi = (FigureEditorInput) this.getEditorInput();
-//		java.awt.Image image = fi.getFigurePApplet().getImage();
-//		GC gc = new GC(printer);
-//		try {
-//			org.eclipse.swt.graphics.Image im = makeSWTImage(getSite()
-//					.getShell().getDisplay(), image);
-//			gc.drawImage(im, 20, 20);
-//			// gc.drawString("HALLO", 10,  10);
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		printer.endJob();
-//		gc.dispose();
-//		}
+		if (printer.startJob("FigureViewer")) {
+		
+		java.awt.Image image = pa.getImage();
+		GC gc = new GC(printer);
+		try {
+			org.eclipse.swt.graphics.Image im = makeSWTImage(getSite()
+					.getShell().getDisplay(), image);
+			gc.drawImage(im, 20, 20);
+			// gc.drawString("HALLO", 10,  10);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		printer.endJob();
+		gc.dispose();
+		}
 	}
 
 	@Override
@@ -121,7 +122,7 @@ public class FigureViewer extends EditorPart {
 	public void createPartControl(Composite parent) {
 		Composite composite = new Composite(parent, SWT.DOUBLE_BUFFERED
 				| SWT.EMBEDDED);
-		final FigurePApplet pa ;
+		
 		final String title;
 		if (getEditorInput() instanceof FigureEditorInput) {
 		    pa = ((FigureEditorInput) getEditorInput())
