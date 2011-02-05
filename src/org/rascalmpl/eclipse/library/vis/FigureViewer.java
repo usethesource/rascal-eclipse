@@ -14,8 +14,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -95,6 +97,7 @@ public class FigureViewer extends EditorPart {
 		setSite(site);
 		// System.err.println("QQQ:"+site.getId());
 		if (input instanceof FigureEditorInput) {
+			setSite(site);
 			setInput(input);
 		} 
 		else 
@@ -120,8 +123,9 @@ public class FigureViewer extends EditorPart {
 	@SuppressWarnings("serial")
 	@Override
 	public void createPartControl(Composite parent) {
-		Composite composite = new Composite(parent, SWT.DOUBLE_BUFFERED
-				| SWT.EMBEDDED);
+		
+		//final int defaultWidth = 400;
+		//final int defaultHeight = 400;
 		
 		final String title;
 		if (getEditorInput() instanceof FigureEditorInput) {
@@ -143,19 +147,45 @@ public class FigureViewer extends EditorPart {
 		    title = f.getName();
 		}
 		else return;
-		Frame frame = SWT_AWT.new_Frame(composite);
 		
-		frame.setLocation(100, 100);
-		frame.add(pa);
-		pa.init();
-		composite.addDisposeListener(new DisposeListener() {
-			public void widgetDisposed(DisposeEvent event) {
-				pa.destroy();
-			}
-		});
+		// Create a scrollable Composite that will contain a new FigurePApplet
+		
+		final ScrolledComposite sc = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		
+		
+		sc.setLayout(new FillLayout());
+		sc.setAlwaysShowScrollBars(true);
+		sc.setExpandHorizontal(true);
+		sc.setExpandVertical(true);
+		
+		// Create an embedded composite that will contain the real FigurePApplet
+		
+		final Composite awtChild = new Composite(sc, SWT.BORDER | SWT.DOUBLE_BUFFERED | SWT.EMBEDDED);
+		awtChild.setLayout(new FillLayout());
+		
+		// Create the FigurePApplet
+		
+		final FigurePApplet fpa = ((FigureEditorInput) getEditorInput()).getFigurePApplet();
+		
+		// A frame that forms the actual SWT+AWT bridge
+		
+		final Frame frame = SWT_AWT.new_Frame(awtChild); 
+		frame.setLocation(0,0);
+		frame.add(fpa);
+		fpa.init();			// Initialize the FigurePApplet
 
-		Panel panel = new Panel(new BorderLayout()) {
-			@Override
+		// Make sure to dispose of the FigurePApplet when this Viewer is closed
+		
+		awtChild.addDisposeListener(new DisposeListener() {
+			 public void widgetDisposed(DisposeEvent event) {
+				 fpa.destroy();
+			 }
+		});
+		
+		// An extra panel (a hack that is needed on older JDKs)
+		
+		final Panel panel = new Panel(new BorderLayout()) {
+		     @Override
 			public void update(java.awt.Graphics g) {
 				/* Do not erase the background */
 				paint(g);
@@ -165,6 +195,19 @@ public class FigureViewer extends EditorPart {
 		this.setPartName(title);
 		frame.setVisible(true);
 		frame.pack();
+		
+		// Set the contents and size of the scrollable Composite and
+		// its minimal size
+		
+		sc.setContent(awtChild);
+		
+		int figWidth = fpa.getFigureWidth();
+		int figHeight =  fpa.getFigureHeight();
+		
+		sc.setBounds(0, 0,figWidth, figHeight);
+		sc.setMinSize(figWidth, figHeight);
+		//sc.setMinSize(defaultWidth, defaultHeight);
+		sc.pack();
 	}
 
 	@Override
