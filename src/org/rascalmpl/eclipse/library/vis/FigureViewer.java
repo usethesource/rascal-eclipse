@@ -17,14 +17,18 @@ import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IWorkbench;
@@ -158,9 +162,30 @@ public class FigureViewer extends EditorPart {
 		sc.setExpandHorizontal(true);
 		sc.setExpandVertical(true);
 		
+		// <start experimental code> to make mouseWheel usable
+		
+		sc.addMouseTrackListener(new MouseTrackAdapter()
+		{
+			public void mouseEnter(MouseEvent e)
+			{
+				System.err.println("mouseEnter");
+				sc.forceFocus();
+			}
+		});
+		
+		sc.addListener(SWT.MouseWheel, new Listener(){
+			public void handleEvent(Event event) {
+				System.err.println("MouseWheelEvent: " + event);
+				sc.toDisplay(event.getBounds().x, event.getBounds().y);
+			}
+		}
+		);
+		
+		// </start experimental code>
+		
 		// Create an embedded composite that will contain the real FigurePApplet
 		
-		final Composite awtChild = new Composite(sc, SWT.BORDER | SWT.DOUBLE_BUFFERED | SWT.EMBEDDED);
+		final Composite awtChild = new Composite(sc, SWT.DOUBLE_BUFFERED | SWT.EMBEDDED);
 		awtChild.setLayout(new FillLayout());
 		
 		// Create the FigurePApplet
