@@ -135,7 +135,7 @@ public class FigureViewer extends EditorPart {
 		if (getEditorInput() instanceof FigureEditorInput) {
 		    pa = ((FigureEditorInput) getEditorInput())
 				.getFigurePApplet();
-		    title="Figure";
+		    title=pa.getName();
 		}
 		else if (getEditorInput() instanceof FileEditorInput) {
 			FileEditorInput fi = (FileEditorInput) getEditorInput();
@@ -162,7 +162,7 @@ public class FigureViewer extends EditorPart {
 		sc.setExpandHorizontal(true);
 		sc.setExpandVertical(true);
 		
-		// <start experimental code> to make mouseWheel usable
+		// <experimental code> to make mouseWheel usable
 		
 		sc.addMouseTrackListener(new MouseTrackAdapter()
 		{
@@ -181,7 +181,7 @@ public class FigureViewer extends EditorPart {
 		}
 		);
 		
-		// </start experimental code>
+		// </experimental code>
 		
 		// Create an embedded composite that will contain the real FigurePApplet
 		

@@ -27,7 +27,7 @@ public class FigureEditorInput implements IEditorInput {
 	}
 
 	public String getName() {
-		return "XXX"; //vlapplet.getTitle().getText();
+		return  figurePApplet.getName();
 	}
 
 	public IPersistableElement getPersistable() {
@@ -35,7 +35,7 @@ public class FigureEditorInput implements IEditorInput {
 	}
 
 	public String getToolTipText() {
-		return "XXX"; //vlapplet.getTitle().getText();
+		return figurePApplet.getName();
 	}
 
 	@SuppressWarnings("unchecked")
