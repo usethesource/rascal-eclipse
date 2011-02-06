@@ -16,3 +16,9 @@ public void java render(str name, Figure fig);
 @reflect{Needs calling context when calling argument function}
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
 public void java renderSave(Figure fig, loc file);
+
+
+@doc{Open a source editor}
+@reflect{Needs calling context when calling argument function}
+@javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
+public void java edit(loc file);
