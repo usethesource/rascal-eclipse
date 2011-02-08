@@ -22,3 +22,8 @@ public void java renderSave(Figure fig, loc file);
 @reflect{Needs calling context when calling argument function}
 @javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
 public void java edit(loc file);
+
+@doc{Open a source editor}
+@reflect{Needs calling context when calling argument function}
+@javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
+public void java edit(loc file, map[int,Color] coloredLines);

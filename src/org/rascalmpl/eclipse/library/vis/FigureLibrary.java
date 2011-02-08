@@ -2,6 +2,8 @@ package org.rascalmpl.eclipse.library.vis;
 
 import java.net.URI;
 
+import javax.swing.text.BadLocationException;
+
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
@@ -10,9 +12,17 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.imp.editor.IRegionSelectionService;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Display;
@@ -26,6 +36,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.FigurePApplet;
@@ -46,12 +57,18 @@ public class FigureLibrary {
 		FigureViewer.open(vlp);
 	}
 	
+	public void edit1(final ISourceLocation loc, IEvaluatorContext ctx) {
+	
+		org.eclipse.imp.pdb.ui.text.Editor.edit(loc);
+	}
+
+	
 	/*
 	 * Start an editor for the given source location
-	 * Code is cloned from SourceLocationHyperlink
+	 * Code is cloned from SourceLocationHyperlink (but heavily adapted)
 	 */
 	
-	public void edit(final ISourceLocation loc, IEvaluatorContext ctx) {
+	public void edit(final ISourceLocation loc, final IMap coloredLines, IEvaluatorContext ctx) {
 		
 	 	IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
@@ -64,31 +81,48 @@ public class FigureLibrary {
 			final IWorkbenchPage page = win.getActivePage();
 
 			if (page != null) {
+				System.err.println("loc = " + loc);
+				System.err.println("URI = " + loc.getURI());
+				System.err.println("Path = " + loc.getURI().getPath());
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						try {
 							IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(loc.getURI().getPath());
-							IEditorPart part;
+							IEditorPart editorPart;
 							
 							if (desc != null) {
-								part = page.openEditor(getEditorInput(loc.getURI()), desc.getId());
-								ISelectionProvider sp = part.getEditorSite().getSelectionProvider();
-								if (sp != null) {
-									sp.setSelection(new TextSelection(loc.getOffset(), loc.getLength()));
-								}
-								else {
-									Activator.getInstance().logException("no selection provider", new RuntimeException());
-								}
-							}
-							else {
+								editorPart = page.openEditor(getEditorInput(loc.getURI()), desc.getId());
+							} else {
 								IFileStore fileStore = EFS.getLocalFileSystem().getStore(loc.getURI());
 							    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-							    part = IDE.openEditorOnFileStore(page, fileStore);
+							    editorPart = IDE.openEditorOnFileStore(page, fileStore);
 							}
 
-							if (part != null) {
-								IRegionSelectionService ss = (IRegionSelectionService) part.getAdapter(IRegionSelectionService.class);
-								ss.selectAndReveal(loc.getOffset(), loc.getLength());
+							if (editorPart != null) {
+								
+								 if (!(editorPart instanceof ITextEditor)) {
+									    return;
+								  }
+								  ITextEditor editor = (ITextEditor) editorPart;
+								  IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+								  if (document != null) {
+									  for(IValue v : coloredLines){
+											int lineNumber = ((IInteger) v).intValue();
+											int color = ((IInteger) coloredLines.get(v)).intValue();
+									  
+											IRegion lineInfo = null;
+											try {
+											// line count internally starts with 0, and not with 1 like in GUI
+											lineInfo = document.getLineInformation(lineNumber - 1);
+											} catch (org.eclipse.jface.text.BadLocationException e) {
+												// TODO Auto-generated catch block
+												e.printStackTrace();
+											}
+											if (lineInfo != null) {
+												editor.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
+											}
+									  }							
+								}
 							}
 						} catch (PartInitException e) {
 							Activator.getInstance().logException("failed to open editor for source loc:" + loc, e);
@@ -118,7 +152,7 @@ public class FigureLibrary {
 							Activator.getInstance().logException("file " + uri + " not found", new RuntimeException());
 						}
 						else if (scheme.equals("rascal-library")) {
-							IFile [] files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
+							IFile [] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
 							if (files.length > 0) {
 								return new FileEditorInput(files[0]);
 							}
@@ -131,35 +165,13 @@ public class FigureLibrary {
 			}
 		}
 	}
-
 	
-//	public void edit(ISourceLocation loc, IEvaluatorContext ctx){
-//		File fileToOpen = new File("/Users/paulklint/test.txt");
-//		 
-//		if (fileToOpen.exists() && fileToOpen.isFile()) {
-//			System.err.println("It exists");
-//		    IFileStore fileStore = EFS.getLocalFileSystem().getStore(fileToOpen.toURI());
-//		    System.err.println("filestor made: " + fileStore);
-//		    
-//		    IWorkbench wb = PlatformUI.getWorkbench();
-//			IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-//
-//			if (win == null && wb.getWorkbenchWindowCount() != 0) {
-//				win = wb.getWorkbenchWindows()[0];
-//			}
-//
-//			if (win != null){
-//				final IWorkbenchPage page = win.getActivePage();
-//		    
-//				System.err.println("page found: " + page);
-//				try {
-//					IDE.openEditorOnFileStore( page, fileStore );
-//				} catch ( PartInitException e ) {
-//					e.printStackTrace();
-//					throw RuntimeExceptionFactory.io(ctx.getValueFactory().string("Cannot open editor"),ctx.getCurrentAST(), ctx.getStackTrace());
-//				}
-//			}
-//		} else
-//			throw RuntimeExceptionFactory.pathNotFound(loc,ctx.getCurrentAST(), ctx.getStackTrace());
-//	}
+	/*
+	 * Edit without map of coloredLines.
+	 */
+	
+	public void edit(final ISourceLocation loc, IEvaluatorContext ctx) {
+		TypeFactory tf = TypeFactory.getInstance();
+		edit(loc, ctx.getValueFactory().map(tf.integerType(), tf.integerType()), ctx);
+	}
 }
