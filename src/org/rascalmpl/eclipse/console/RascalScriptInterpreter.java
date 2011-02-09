@@ -341,7 +341,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 			@Override
 			public Result<IValue> visitShellCommandTest(final Test x) {
 				eval.setTestResultListener(new TestReporter());
-				x.__evaluate(eval);								
+				x.interpret(eval);								
 				return ResultFactory.nothing();
 			}
 

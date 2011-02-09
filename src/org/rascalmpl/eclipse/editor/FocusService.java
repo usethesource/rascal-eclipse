@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.editor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.parser.IModelListener;
 import org.eclipse.imp.parser.IParseController;
@@ -19,7 +20,10 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.texteditor.AnnotationTypeLookup;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 
@@ -121,10 +125,7 @@ public class FocusService implements IModelListener {
 			if(currentFocus != null) annotationModel.removeAnnotation(currentFocus);
 			
 			currentFocus = new Annotation(FOCUS_ANNOTATION, false, sort);
-			
-			focussedSort = sort;
 			focussedPosition = new Position(focusOffset, focusLength);
-			
 			annotationModel.addAnnotation(currentFocus, focussedPosition);
 		}
 	}

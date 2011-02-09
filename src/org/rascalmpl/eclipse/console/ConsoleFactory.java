@@ -51,14 +51,16 @@ public class ConsoleFactory{
 	}
 	
 	public IRascalConsole openRunConsole(){
-		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE));
+		GlobalEnvironment heap = new GlobalEnvironment();
+		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE, heap), heap);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
 	}
 	
 	public IRascalConsole openRunConsole(IProject project){
-		IRascalConsole console = new InteractiveRascalConsole(project, new ModuleEnvironment(SHELL_MODULE));
+		GlobalEnvironment heap = new GlobalEnvironment();
+		IRascalConsole console = new InteractiveRascalConsole(project, new ModuleEnvironment(SHELL_MODULE, heap), heap);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
@@ -99,28 +101,32 @@ public class ConsoleFactory{
 	}
 
 	public IRascalConsole openDebuggableConsole(IDebugger debugger){
-		IRascalConsole console = new InteractiveRascalConsole(debugger, new ModuleEnvironment(SHELL_MODULE));
+		GlobalEnvironment heap = new GlobalEnvironment();
+		IRascalConsole console = new InteractiveRascalConsole(debugger, new ModuleEnvironment(SHELL_MODULE, heap), heap);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
 	}
 	
 	public IRascalConsole openDebuggableConsole(IProject project, IDebugger debugger){
-		IRascalConsole console = new InteractiveRascalConsole(project, debugger, new ModuleEnvironment(SHELL_MODULE));
+		GlobalEnvironment heap = new GlobalEnvironment();
+		IRascalConsole console = new InteractiveRascalConsole(project, debugger, new ModuleEnvironment(SHELL_MODULE, heap), heap);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
 	}
 
 	public IRascalConsole openDebuggableOutputConsole(IDebugger debugger){
-		IRascalConsole console = new OutputRascalConsole(debugger, new ModuleEnvironment(SHELL_MODULE));
+		GlobalEnvironment heap = new GlobalEnvironment();
+		IRascalConsole console = new OutputRascalConsole(debugger, new ModuleEnvironment(SHELL_MODULE, heap), heap);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
 	}
 	
 	public IRascalConsole openDebuggableOutputConsole(IProject project, IDebugger debugger){
-		IRascalConsole console = new OutputRascalConsole(project, debugger, new ModuleEnvironment(SHELL_MODULE));
+		GlobalEnvironment heap = new GlobalEnvironment();
+		IRascalConsole console = new OutputRascalConsole(project, debugger, new ModuleEnvironment(SHELL_MODULE, heap), heap);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
@@ -134,9 +140,9 @@ public class ConsoleFactory{
 	}
 
 	private class InteractiveRascalConsole extends InteractiveInterpreterConsole implements IRascalConsole{
-		public InteractiveRascalConsole(ModuleEnvironment shell){
+		public InteractiveRascalConsole(ModuleEnvironment shell, GlobalEnvironment heap){
 			super(new RascalScriptInterpreter(), "Rascal", "rascal>", ">>>>>>>");
-			getInterpreter().initialize(new Evaluator(vf, stderr, new PrintWriter(getConsoleOutputStream()), shell, new GlobalEnvironment()));
+			getInterpreter().initialize(new Evaluator(vf, stderr, new PrintWriter(getConsoleOutputStream()), shell, heap));
 			initializeConsole();
 		}
 		
@@ -146,22 +152,22 @@ public class ConsoleFactory{
 		 * used to initialize the path with modules accessible 
 		 * from the selected project and all its referenced projects
 		 * */
-		public InteractiveRascalConsole(IProject project, ModuleEnvironment shell){
+		public InteractiveRascalConsole(IProject project, ModuleEnvironment shell, GlobalEnvironment heap){
 			super(new RascalScriptInterpreter(project), "Rascal ["+project.getName()+"]", "rascal>", ">>>>>>>");
-			getInterpreter().initialize(new Evaluator(vf, stderr, new PrintWriter(getConsoleOutputStream()), shell, new GlobalEnvironment()));
+			getInterpreter().initialize(new Evaluator(vf, stderr, new PrintWriter(getConsoleOutputStream()), shell, heap));
 			initializeConsole();
 		}
 
-		public InteractiveRascalConsole(IDebugger debugger, ModuleEnvironment shell){
+		public InteractiveRascalConsole(IDebugger debugger, ModuleEnvironment shell, GlobalEnvironment heap){
 			super(new RascalScriptInterpreter(), "Rascal", "rascal>", ">>>>>>>");
-			getInterpreter().initialize(new DebuggableEvaluator(vf, stderr, new PrintWriter(getConsoleOutputStream()),  shell, debugger));
+			getInterpreter().initialize(new DebuggableEvaluator(vf, stderr, new PrintWriter(getConsoleOutputStream()),  shell, debugger, heap));
 			initializeConsole();
 		}
 		
 		
 		public InteractiveRascalConsole(IProject project, IDebugger debugger, ModuleEnvironment shell){
 			super(new RascalScriptInterpreter(project), "Rascal ["+project.getName()+"]", "rascal>", ">>>>>>>");
-			getInterpreter().initialize(new DebuggableEvaluator(vf, new PrintWriter(RuntimePlugin.getInstance().getConsoleStream()), new PrintWriter(getConsoleOutputStream()), shell, debugger));
+			getInterpreter().initialize(new DebuggableEvaluator(vf, new PrintWriter(RuntimePlugin.getInstance().getConsoleStream()), new PrintWriter(getConsoleOutputStream()), shell, debugger, new GlobalEnvironment()));
 			initializeConsole();
 		}
 		
@@ -176,8 +182,8 @@ public class ConsoleFactory{
 			this(new Evaluator(vf, stderr, stdout,  shell, new GlobalEnvironment()));
 		}
 
-		public OutputRascalConsole(IDebugger debugger, ModuleEnvironment shell){
-			this(new DebuggableEvaluator(vf, stderr, stdout,  shell, debugger));
+		public OutputRascalConsole(IDebugger debugger, ModuleEnvironment shell, GlobalEnvironment heap){
+			this(new DebuggableEvaluator(vf, stderr, stdout,  shell, debugger, heap));
 		}
 
 		private OutputRascalConsole(Evaluator eval, IProject project){
@@ -193,8 +199,8 @@ public class ConsoleFactory{
 		}
 
 		public OutputRascalConsole(IProject project, IDebugger debugger,
-				ModuleEnvironment shell) {
-			this(new DebuggableEvaluator(vf, stderr, stdout,  shell, debugger), project);
+				ModuleEnvironment shell, GlobalEnvironment heap) {
+			this(new DebuggableEvaluator(vf, stderr, stdout,  shell, debugger, heap), project);
 		}
 
 		public OutputRascalConsole(IProject project,

@@ -39,7 +39,8 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ParseController implements IParseController {
 	private final PrintWriter out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
-	private final Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, new ModuleEnvironment("***parser***"), new GlobalEnvironment());
+	private final GlobalEnvironment heap = new GlobalEnvironment();
+	private final Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, new ModuleEnvironment("***parser***", heap), heap);
 	private IMessageHandler handler;
 	private ISourceProject project;
 	private IConstructor parseTree;

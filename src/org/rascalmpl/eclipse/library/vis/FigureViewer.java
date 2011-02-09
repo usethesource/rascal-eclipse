@@ -70,22 +70,22 @@ public class FigureViewer extends EditorPart {
 	}
 
 	public void print(Printer printer) {
-		if (printer.startJob("FigureViewer")) {
-		FigureEditorInput fi = (FigureEditorInput) this.getEditorInput();
-		java.awt.Image image = fi.getFigurePApplet().getImage();
-		GC gc = new GC(printer);
-		try {
-			org.eclipse.swt.graphics.Image im = makeSWTImage(getSite()
-					.getShell().getDisplay(), image);
-			gc.drawImage(im, 20, 20);
-			// gc.drawString("HALLO", 10,  10);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		printer.endJob();
-		gc.dispose();
-		}
+//		if (printer.startJob("FigureViewer")) {
+//		FigureEditorInput fi = (FigureEditorInput) this.getEditorInput();
+//		java.awt.Image image = fi.getFigurePApplet().getImage();
+//		GC gc = new GC(printer);
+//		try {
+//			org.eclipse.swt.graphics.Image im = makeSWTImage(getSite()
+//					.getShell().getDisplay(), image);
+//			gc.drawImage(im, 20, 20);
+//			// gc.drawString("HALLO", 10,  10);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		printer.endJob();
+//		gc.dispose();
+//		}
 	}
 
 	@Override
