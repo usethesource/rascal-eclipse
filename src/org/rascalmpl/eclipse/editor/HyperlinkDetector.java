@@ -15,6 +15,10 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 
 	public IHyperlink[] detectHyperlinks(IRegion region, ITextEditor editor,
 			ITextViewer textViewer, IParseController parseController) {
+		if (parseController == null) {
+			return null;
+		}
+		
 		IConstructor tree = (IConstructor) parseController.getCurrentAst();
 		
 		if (tree != null) {
