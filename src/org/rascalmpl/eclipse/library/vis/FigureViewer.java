@@ -17,6 +17,8 @@ import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.GC;
@@ -31,8 +33,12 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IPartListener;
+import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -45,7 +51,8 @@ import org.rascalmpl.library.vis.FigurePApplet;
 public class FigureViewer extends EditorPart {
 	protected static final String editorId  = "rascal-eclipse.Figure.viewer";
 	
-	FigurePApplet pa ;
+	private FigurePApplet fpa ;
+	ScrolledComposite sc = null;;
 
 	private static Image makeSWTImage(Display display, java.awt.Image ai)
 			throws Exception {
@@ -79,7 +86,7 @@ public class FigureViewer extends EditorPart {
 	public void print(Printer printer) {
 		if (printer.startJob("FigureViewer")) {
 		
-		java.awt.Image image = pa.getImage();
+		java.awt.Image image = fpa.getImage();
 		GC gc = new GC(printer);
 		try {
 			org.eclipse.swt.graphics.Image im = makeSWTImage(getSite()
@@ -133,9 +140,9 @@ public class FigureViewer extends EditorPart {
 		
 		final String title;
 		if (getEditorInput() instanceof FigureEditorInput) {
-		    pa = ((FigureEditorInput) getEditorInput())
+		    fpa = ((FigureEditorInput) getEditorInput())
 				.getFigurePApplet();
-		    title=pa.getName();
+		    title=fpa.getName();
 		}
 		else if (getEditorInput() instanceof FileEditorInput) {
 			FileEditorInput fi = (FileEditorInput) getEditorInput();
@@ -147,14 +154,14 @@ public class FigureViewer extends EditorPart {
 		    IProject p = f.getProject();
 		    BoxPrinter boxPrinter = new BoxPrinter(p);
 		    IConstructor ca = boxPrinter.getFigure(uri, layout);
-		    pa = new FigurePApplet(ca, null);
+		    fpa = new FigurePApplet(ca, null);
 		    title = f.getName();
 		}
 		else return;
 		
 		// Create a scrollable Composite that will contain a new FigurePApplet
 		
-		final ScrolledComposite sc = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		sc = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		
 		
 		sc.setLayout(new FillLayout());
@@ -164,22 +171,29 @@ public class FigureViewer extends EditorPart {
 		
 		// <experimental code> to make mouseWheel usable
 		
-		sc.addMouseTrackListener(new MouseTrackAdapter()
-		{
-			public void mouseEnter(MouseEvent e)
-			{
-				System.err.println("mouseEnter");
-				sc.forceFocus();
-			}
-		});
-		
-		sc.addListener(SWT.MouseWheel, new Listener(){
-			public void handleEvent(Event event) {
-				System.err.println("MouseWheelEvent: " + event);
-				sc.toDisplay(event.getBounds().x, event.getBounds().y);
-			}
-		}
-		);
+//		sc.addMouseTrackListener(new MouseTrackAdapter()
+//		{
+//			public void mouseEnter(MouseEvent e)
+//			{
+//				System.err.println("mouseEnter");
+//				sc.forceFocus();
+//			}
+//		});
+//		
+//		sc.addListener(SWT.MouseWheel, new Listener(){
+//			public void handleEvent(Event event) {
+//				System.err.println("MouseWheelEvent: " + event);
+//				sc.toDisplay(event.getBounds().x, event.getBounds().y);
+//			}
+//		}
+//		);
+//		sc.addListener(SWT.FOCUSED, new Listener(){
+//			public void handleEvent(Event event) {
+//			System.err.println("MouseWheelEvent: " + event);
+//			sc.update();
+//			}
+//		}
+//		);
 		
 		// </experimental code>
 		
@@ -190,7 +204,7 @@ public class FigureViewer extends EditorPart {
 		
 		// Create the FigurePApplet
 		
-		final FigurePApplet fpa = ((FigureEditorInput) getEditorInput()).getFigurePApplet();
+		fpa = ((FigureEditorInput) getEditorInput()).getFigurePApplet();
 		
 		// A frame that forms the actual SWT+AWT bridge
 		
@@ -225,6 +239,40 @@ public class FigureViewer extends EditorPart {
 		// its minimal size
 		
 		sc.setContent(awtChild);
+		
+		// Make sure that the frame gets the focus when the editor is brought to the top
+		
+		getSite().getPage().addPartListener(new IPartListener2(){
+
+			public void partActivated(IWorkbenchPartReference partRef) {
+				System.err.println("partActivated");				
+			}
+
+			public void partBroughtToTop(IWorkbenchPartReference partRef) {
+				System.err.println("partBroughtToTop");
+				frame.requestFocusInWindow();
+			}
+
+			public void partClosed(IWorkbenchPartReference partRef) {
+			}
+
+			public void partDeactivated(IWorkbenchPartReference partRef) {
+			}
+
+			public void partHidden(IWorkbenchPartReference partRef) {	
+			}
+
+			public void partInputChanged(IWorkbenchPartReference partRef) {
+			}
+
+			public void partOpened(IWorkbenchPartReference partRef) {
+			}
+
+			public void partVisible(IWorkbenchPartReference partRef) {				
+			}
+			
+		});
+
 		
 		int figWidth = fpa.getFigureWidth();
 		int figHeight =  fpa.getFigureHeight();

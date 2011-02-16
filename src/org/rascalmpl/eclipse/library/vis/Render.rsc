@@ -17,13 +17,11 @@ public void java render(str name, Figure fig);
 @javaClass{org.rascalmpl.library.vis.FigureLibrary}
 public void java renderSave(Figure fig, loc file);
 
+@doc{Set custom colors for line highlights}
+@javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
+public void java setHighlightColors(list[Color] colors);
 
 @doc{Open a source editor}
-@reflect{Needs calling context when calling argument function}
 @javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
-public void java edit(loc file);
+public void java edit(loc file, list[LineDecoration] lineInfo);
 
-@doc{Open a source editor}
-@reflect{Needs calling context when calling argument function}
-@javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
-public void java edit(loc file, map[int,Color] coloredLines);

@@ -599,6 +599,7 @@
            language="rascal">
      </editorService>
   </extension>
+
  <extension 
        id="rascal.focusMarker"
        point="org.eclipse.ui.editors.markerAnnotationSpecification">
@@ -624,13 +625,196 @@
            verticalRulerPreferenceValue="false">
      </specification>
   </extension>
- <extension
+  
+   <extension
        point="org.eclipse.ui.editors.annotationTypes">
     <type
           markerType="rascal.focusMarker"
           name="rascal.focus">
     </type>
  </extension>
+ 
+
+ <extension point="org.eclipse.core.resources.markers"
+            id="rascal.markerType.queryResult"
+            name="Rascal Marker">
+            <super type="org.eclipse.core.resources.problemmarker"/>
+            <super type="org.eclipse.core.resources.textmarker"/>
+            <persistent value="true"/>
+ </extension>
+
+  <extension
+       point="org.eclipse.ui.editors.annotationTypes">
+       
+     <type
+          markerType="org.eclipse.core.resources.problemmarker"
+          name="rascal.highlight0"
+          markerSeverity="0">
+    </type>
+    
+    <type
+          markerType="org.eclipse.core.resources.problemmarker"
+          name="rascal.highlight1"
+          markerSeverity="0">
+    </type>
+
+    <type
+          markerType="org.eclipse.core.resources.problemmarker"
+          name="rascal.highlight2"
+          markerSeverity="0">
+    </type>
+    <type
+          markerType="org.eclipse.core.resources.problemmarker"
+          name="rascal.highlight3"
+          markerSeverity="0">
+    </type>
+     <type
+          markerType="org.eclipse.core.resources.problemmarker"
+          name="rascal.highlight4"
+          markerSeverity="0">
+    </type>
+   
+ </extension>
+ 
+
+  <extension 
+  	   point="org.eclipse.ui.editors.markerAnnotationSpecification"
+       id="rascal.highlight1Marker">
+      
+     <specification
+           annotationType="rascal.highlight0"
+           colorPreferenceKey="Highlight0ColorPreferenceKey"
+           colorPreferenceValue="255,192,203"
+           contributesToHeader="false"
+           highlightPreferenceKey="Highlight0HighLightPreferenceKey"
+           highlightPreferenceValue="true"
+           includeOnPreferencePage="false"
+           isGoToNextNavigationTarget="true"
+           isGoToPreviousNavigationTarget="true"
+           overviewRulerPreferenceKey="Highlight0OverViewPreferenceKey"
+           overviewRulerPreferenceValue="true"
+           presentationLayer="4"
+           showInNextPrevDropdownToolbarAction="true"
+           textPreferenceKey="Highlight0TextPreferenceKey"
+           textPreferenceValue="true"
+           textStylePreferenceKey="Highlight0StylePreferenceKey"
+           textStylePreferenceValue="BOX"
+           verticalRulerPreferenceKey="Highlight0VerticalRulerPreferenceKey"
+           verticalRulerPreferenceValue="true">
+     </specification>
+  </extension>
+ 
+ 
+  <extension 
+       point="org.eclipse.ui.editors.markerAnnotationSpecification"
+       id="rascal.highlight1Marker">
+    
+     <specification
+           annotationType="rascal.highlight1"
+           colorPreferenceKey="Highlight1ColorPreferenceKey"
+           colorPreferenceValue="255,255,0"
+           contributesToHeader="false"
+           highlightPreferenceKey="Highlight1HighLightPreferenceKey"
+           highlightPreferenceValue="true"
+           includeOnPreferencePage="false"
+           isGoToNextNavigationTarget="true"
+           isGoToPreviousNavigationTarget="true"
+           overviewRulerPreferenceKey="Highlight1OverViewPreferenceKey"
+           overviewRulerPreferenceValue="true"
+           presentationLayer="4"
+           showInNextPrevDropdownToolbarAction="true"
+           textPreferenceKey="Highlight1TextPreferenceKey"
+           textPreferenceValue="true"
+           textStylePreferenceKey="Highlight1StylePreferenceKey"
+           textStylePreferenceValue="BOX"
+           verticalRulerPreferenceKey="Highlight1VerticalRulerPreferenceKey"
+           verticalRulerPreferenceValue="true">
+     </specification>
+  </extension>
+
+ 
+  <extension 
+       point="org.eclipse.ui.editors.markerAnnotationSpecification"
+       id="rascal.highlight2Marker">
+        
+     <specification
+           annotationType="rascal.highlight2"
+           colorPreferenceKey="Highlight2ColorPreferenceKey"
+           colorPreferenceValue="255,0,255"
+           contributesToHeader="false"
+           highlightPreferenceKey="Highlight2HighLightPreferenceKey"
+           highlightPreferenceValue="true"
+           includeOnPreferencePage="false"
+           isGoToNextNavigationTarget="true"
+           isGoToPreviousNavigationTarget="true"
+           overviewRulerPreferenceKey="Highlight2OverViewPreferenceKey"
+           overviewRulerPreferenceValue="true"
+           presentationLayer="4"
+           showInNextPrevDropdownToolbarAction="true"
+           textPreferenceKey="Highlight2TextPreferenceKey"
+           textPreferenceValue="true"
+           textStylePreferenceKey="Highlight2StylePreferenceKey"
+           textStylePreferenceValue="BOX"
+           verticalRulerPreferenceKey="Highlight2VerticalRulerPreferenceKey"
+           verticalRulerPreferenceValue="true">
+     </specification>
+  </extension>
+  
+   <extension 
+       point="org.eclipse.ui.editors.markerAnnotationSpecification"
+       id="rascal.highlight3Marker">
+        
+     <specification
+           annotationType="rascal.highlight3"
+           colorPreferenceKey="Highlight3ColorPreferenceKey"
+           colorPreferenceValue="0,255,255"
+           contributesToHeader="false"
+           highlightPreferenceKey="Highlight3HighLightPreferenceKey"
+           highlightPreferenceValue="true"
+           includeOnPreferencePage="false"
+           isGoToNextNavigationTarget="true"
+           isGoToPreviousNavigationTarget="true"
+           overviewRulerPreferenceKey="Highlight3OverViewPreferenceKey"
+           overviewRulerPreferenceValue="true"
+           presentationLayer="4"
+           showInNextPrevDropdownToolbarAction="true"
+           textPreferenceKey="Highlight3TextPreferenceKey"
+           textPreferenceValue="true"
+           textStylePreferenceKey="Highlight3StylePreferenceKey"
+           textStylePreferenceValue="BOX"
+           verticalRulerPreferenceKey="Highlight3VerticalRulerPreferenceKey"
+           verticalRulerPreferenceValue="true">
+     </specification>
+  </extension>
+  
+  
+   <extension 
+       point="org.eclipse.ui.editors.markerAnnotationSpecification"
+       id="rascal.highlight4Marker">
+        
+     <specification
+           annotationType="rascal.highlight4"
+           colorPreferenceKey="Highlight4ColorPreferenceKey"
+           colorPreferenceValue="0,255,0"
+           contributesToHeader="false"
+           highlightPreferenceKey="Highlight4HighLightPreferenceKey"
+           highlightPreferenceValue="true"
+           includeOnPreferencePage="false"
+           isGoToNextNavigationTarget="true"
+           isGoToPreviousNavigationTarget="true"
+           overviewRulerPreferenceKey="Highlight4OverViewPreferenceKey"
+           overviewRulerPreferenceValue="true"
+           presentationLayer="4"
+           showInNextPrevDropdownToolbarAction="true"
+           textPreferenceKey="Highlight4TextPreferenceKey"
+           textPreferenceValue="true"
+           textStylePreferenceKey="Highlight4StylePreferenceKey"
+           textStylePreferenceValue="BOX"
+           verticalRulerPreferenceKey="Highlight4VerticalRulerPreferenceKey"
+           verticalRulerPreferenceValue="true">
+     </specification>
+  </extension>
+ 
  <extension
        point="org.eclipse.imp.runtime.editorService">
     <editorService
@@ -740,5 +924,5 @@
           label="Printer Font"
           value="Monospace-regular-6">
     </fontDefinition>
- </extension> 
+ </extension>
 </plugin>
