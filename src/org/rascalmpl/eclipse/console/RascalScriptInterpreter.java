@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -73,7 +72,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.library.IO;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -218,10 +216,13 @@ public class RascalScriptInterpreter implements IInterpreter{
 				public void run(IProgressMonitor monitor) throws CoreException {
 					monitor.beginTask("Rascal Command", IProgressMonitor.UNKNOWN);
 					execCommand(tree);
-					monitor.done();
+//					monitor.done();
 				}
 			};
-			project.getWorkspace().run(action, project, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+			
+			// dont know how do syncronize this deleteMarkers otherwise.
+			project.getWorkspace().getRoot().deleteMarkers("rascal.markerType.testResult", false, IResource.DEPTH_INFINITE);
+			project.getWorkspace().run(action, project, 0, new NullProgressMonitor());
 		}
 		catch(SyntaxError e) {
 			execParseError(e);

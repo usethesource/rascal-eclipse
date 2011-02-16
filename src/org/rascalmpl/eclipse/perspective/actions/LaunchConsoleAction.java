@@ -31,12 +31,7 @@ public class LaunchConsoleAction implements IObjectActionDelegate, IActionDelega
 	}
 
 	public void run(IAction action) {
-		if (file != null) {
-			ConsoleFactory.getInstance().openRunConsole(project, file);
-		}
-		else {
-			ConsoleFactory.getInstance().openRunConsole(project);
-		}
+		ConsoleFactory.getInstance().openRunConsole(project);
 	}
 
 	public void selectionChanged(IAction action, ISelection selection) {

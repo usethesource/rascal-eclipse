@@ -1,11 +1,8 @@
 package org.rascalmpl.eclipse.console;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.text.BadLocationException;
@@ -14,7 +11,6 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IHyperlink;
-import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.OutputInterpreterConsole;
@@ -23,9 +19,7 @@ import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.interpreter.debug.IDebugger;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 
 public class ConsoleFactory{
@@ -66,26 +60,6 @@ public class ConsoleFactory{
 		return console;
 	}
 	
-	public void openRunConsole(IProject project, IFile file) {
-		IRascalConsole console = openRunConsole(project);
-		Evaluator eval = console.getRascalInterpreter().getEval();
-		try {
-			IConstructor tree = eval.parseModule(file.getLocationURI(), new ModuleEnvironment("***tmp***", eval.getHeap()));
-			IConstructor top = (IConstructor) tree.get(0);
-			IConstructor mod = (IConstructor) TreeAdapter.getArgs(top).get(1);
-			IConstructor header = (IConstructor) TreeAdapter.getArgs(mod).get(0);
-			IConstructor name = (IConstructor) TreeAdapter.getArgs(header).get(4);
-			String module = org.rascalmpl.values.uptr.TreeAdapter.yield(name);
-			eval.doImport(module);
-			new PrintWriter(console.getConsoleOutputStream()).print("Imported module " + module + "\n");
-		} catch (IOException e) {
-			Activator.getInstance().logException("failed to import module in " + file.getName(), e);
-		} catch (SyntaxError e) {
-			// can happen
-		}
-		
-	}
-
 	public IRascalConsole openRunOutputConsole(){
 		GlobalEnvironment heap = new GlobalEnvironment();
 		IRascalConsole console = new OutputRascalConsole(new ModuleEnvironment(SHELL_MODULE, heap), heap);

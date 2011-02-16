@@ -617,7 +617,8 @@
            verticalRulerPreferenceValue="false">
      </specification>
   </extension>
- <extension
+ 
+ <extension 
        point="org.eclipse.ui.editors.annotationTypes">
     <type
           markerType="rascal.focusMarker"
@@ -730,5 +731,30 @@
           label="Printer Font"
           value="Monospace-regular-6">
     </fontDefinition>
+ </extension>
+ <extension
+       id="rascal.markerType.testResult"
+       name="Rascal Test Result"
+       point="org.eclipse.core.resources.markers">
+    <persistent
+          value="true">
+    </persistent>
+    <super
+          type="org.eclipse.core.resources.problemmarker">
+    </super>
+ </extension>
+ <extension
+       id="rascal.focusMarker"
+       name="Rascal Syntax Focus"
+       point="org.eclipse.core.resources.markers">
+    <super
+          type="org.eclipse.core.resources.problemmarker">
+    </super>
+    <persistent
+          value="true">
+    </persistent>
+    <super
+          type="org.eclipse.core.resources.textmarker">
+    </super>
  </extension> 
 </plugin>

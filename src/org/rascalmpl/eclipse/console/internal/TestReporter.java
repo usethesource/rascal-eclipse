@@ -8,6 +8,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -33,10 +34,10 @@ public class TestReporter implements ITestResultListener {
 	
 	public void report(final boolean successful, String test, final ISourceLocation loc, final Throwable t) {
 //		monitor.worked(1);
+		final IFile file = getFile(loc);
+		
 		try {
-			final IFile file = getFile(loc);
-//			file.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_INFINITE);
-			IMarker m = file.createMarker(IMarker.PROBLEM);
+			IMarker m = file.createMarker("rascal.markerType.testResult");
 			Map<String,Object> attrs = new HashMap<String,Object>();
 			attrs.put(IMarker.TRANSIENT, true);
 			attrs.put(IMarker.CHAR_START, loc.getOffset());
@@ -49,15 +50,19 @@ public class TestReporter implements ITestResultListener {
 		} catch (CoreException e) {
 			Activator.getInstance().logException(e.getMessage(), e);
 		}
+		
 	}
 
 	public void start(int count) {
-		try {
+		
+//		try {
+//			ResourcesPlugin.getWorkspace().getRoot().deleteMarkers("rascal.markerType.testResult", false, IResource.DEPTH_INFINITE);
+//			file.deleteMarkers("rascal.markerType.testResult", false, IResource.DEPTH_INFINITE);
 //			monitor.beginTask("Rascal Test Runner", count);
-			for (IMarker m : markers) m.delete();
-		} catch (CoreException e) {
-			Activator.getInstance().logException(e.getMessage(), e);
-		}
+//			for (IMarker m : markers) m.delete();
+//		} catch (CoreException e) {
+//			Activator.getInstance().logException(e.getMessage(), e);
+//		}
 	}
 	
 	private IFile getFile(ISourceLocation loc) {
