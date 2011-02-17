@@ -5,18 +5,15 @@ import java.util.Map;
 
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class TermLanguageRegistry {
 	private final Map<String, Language> languages = new HashMap<String,Language>();
 	private final Map<String, IEvaluatorContext> evals = new HashMap<String, IEvaluatorContext>();
 	private final Map<String, IValue> parsers = new HashMap<String,IValue>();
-	private final Map<String, OverloadedFunctionResult> analyses = new HashMap<String,OverloadedFunctionResult>();
+	private final Map<String, AbstractFunction> analyses = new HashMap<String,AbstractFunction>();
 
 	static private class InstanceKeeper {
 		public static TermLanguageRegistry sInstance = new TermLanguageRegistry();
@@ -36,7 +33,7 @@ public class TermLanguageRegistry {
 		LanguageRegistry.registerLanguage(l);
 	}
 	
-	public void registerAnnotator(String lang, OverloadedFunctionResult function) {
+	public void registerAnnotator(String lang, AbstractFunction function) {
 		analyses.put(lang, function);
 	}
 
@@ -52,7 +49,7 @@ public class TermLanguageRegistry {
 		return (AbstractFunction) parsers.get(lang.getName());
 	}
 
-	public OverloadedFunctionResult getAnnotator(String name) {
+	public AbstractFunction getAnnotator(String name) {
 		return analyses.get(name);
 	}
 	
