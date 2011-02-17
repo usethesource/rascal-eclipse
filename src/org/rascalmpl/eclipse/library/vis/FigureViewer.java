@@ -204,7 +204,7 @@ public class FigureViewer extends EditorPart {
 		
 		// Create the FigurePApplet
 		
-		fpa = ((FigureEditorInput) getEditorInput()).getFigurePApplet();
+		// fpa = ((FigureEditorInput) getEditorInput()).getFigurePApplet();
 		
 		// A frame that forms the actual SWT+AWT bridge
 		
