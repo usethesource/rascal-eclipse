@@ -2,23 +2,21 @@ package org.rascalmpl.eclipse.console.internal;
 
 import java.net.URI;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.interpreter.ITestResultListener;
 
 public class TestReporter implements ITestResultListener {
 //	private final IProgressMonitor monitor;
-	private static HashSet<IMarker> markers = new HashSet<IMarker>();
 
 	public TestReporter() {
 //		this.monitor = monitor;
@@ -37,7 +35,7 @@ public class TestReporter implements ITestResultListener {
 		final IFile file = getFile(loc);
 		
 		try {
-			IMarker m = file.createMarker("rascal.markerType.testResult");
+			IMarker m = file.createMarker(IRascalResources.ID_RASCAL_MARKER_TYPE_TEST_RESULTS);
 			Map<String,Object> attrs = new HashMap<String,Object>();
 			attrs.put(IMarker.TRANSIENT, true);
 			attrs.put(IMarker.CHAR_START, loc.getOffset());
@@ -46,7 +44,6 @@ public class TestReporter implements ITestResultListener {
 			attrs.put(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 			attrs.put(IMarker.SEVERITY, successful ? IMarker.SEVERITY_INFO : IMarker.SEVERITY_ERROR);
 			m.setAttributes(attrs);
-			markers.add(m);
 		} catch (CoreException e) {
 			Activator.getInstance().logException(e.getMessage(), e);
 		}
@@ -54,15 +51,7 @@ public class TestReporter implements ITestResultListener {
 	}
 
 	public void start(int count) {
-		
-//		try {
-//			ResourcesPlugin.getWorkspace().getRoot().deleteMarkers("rascal.markerType.testResult", false, IResource.DEPTH_INFINITE);
-//			file.deleteMarkers("rascal.markerType.testResult", false, IResource.DEPTH_INFINITE);
-//			monitor.beginTask("Rascal Test Runner", count);
-//			for (IMarker m : markers) m.delete();
-//		} catch (CoreException e) {
-//			Activator.getInstance().logException(e.getMessage(), e);
-//		}
+
 	}
 	
 	private IFile getFile(ISourceLocation loc) {

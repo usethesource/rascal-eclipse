@@ -44,7 +44,10 @@ public class RascalModuleUpdateListener implements IResourceChangeListener {
 								case IResourceDelta.ADDED:
 									break;
 								case IResourceDelta.CHANGED:
-									notify(path);
+									if (delta.getFlags() != IResourceDelta.MARKERS) {
+										// only if its not just the markers
+										notify(path);
+									}
 									break;
 								case IResourceDelta.REMOVED:
 									break;

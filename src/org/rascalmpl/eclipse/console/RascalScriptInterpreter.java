@@ -221,7 +221,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 			};
 			
 			// dont know how do syncronize this deleteMarkers otherwise.
-			project.getWorkspace().getRoot().deleteMarkers("rascal.markerType.testResult", false, IResource.DEPTH_INFINITE);
+			project.getWorkspace().getRoot().deleteMarkers(IRascalResources.ID_RASCAL_MARKER_TYPE_TEST_RESULTS, false, IResource.DEPTH_INFINITE);
 			project.getWorkspace().run(action, project, 0, new NullProgressMonitor());
 		}
 		catch(SyntaxError e) {

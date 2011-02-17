@@ -153,12 +153,12 @@ public class ParseController implements IParseController {
 			monitor.worked(1);
 			return parseTree;
 		}
-		catch(FactTypeUseException e){
+		catch (FactTypeUseException e){
 			Activator.getInstance().logException("parsing rascal failed", e);
 		}
-		catch(SyntaxError e){
+		catch (SyntaxError e){
 			ISourceLocation loc = e.getLocation();
-			e.printStackTrace();
+//			e.printStackTrace();
 			if (loc.getOffset() >= 0) {
 				handler.handleSimpleMessage(e.getMessage(), loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 			}
