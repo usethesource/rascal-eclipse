@@ -10,8 +10,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.MarkerModelListener;
-import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
+import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -39,7 +38,7 @@ public class AnnotatorModelListener implements IModelListener {
 		monitor.beginTask("Annotating " + lang.getName() + " file:" + parseController.getPath().toString(), 1);
 		IConstructor parseTree = (IConstructor) parseController.getCurrentAst();
 
-		AbstractFunction func = TermLanguageRegistry.getInstance().getAnnotator(name);
+		ICallableValue func = TermLanguageRegistry.getInstance().getAnnotator(name);
 
 		if (func == null) {
 			return;

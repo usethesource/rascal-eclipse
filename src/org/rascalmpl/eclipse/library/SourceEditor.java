@@ -7,18 +7,19 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.ICallableValue;
 
 public class SourceEditor {
 	public SourceEditor(IValueFactory factory) {
 	}
 	
 	public void registerLanguage(IString name, IString extension, IValue parser, IEvaluatorContext ctx) {
-		TermLanguageRegistry.getInstance().registerLanguage(name.getValue(), extension.getValue(), parser, ctx);
+		TermLanguageRegistry.getInstance().registerLanguage(name.getValue(), extension.getValue(), (ICallableValue) parser, ctx);
 	}
 	
 	public void registerAnnotator(IString name, IValue function) {
 		if (function instanceof AbstractFunction) {
-			TermLanguageRegistry.getInstance().registerAnnotator(name.getValue(), (AbstractFunction) function);
+			TermLanguageRegistry.getInstance().registerAnnotator(name.getValue(), (ICallableValue) function);
 			return;
 		}
 		Activator.getInstance().logException("could not register analysis for " + name, new RuntimeException());

@@ -26,7 +26,7 @@ import org.rascalmpl.eclipse.editor.TokenIterator;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -38,7 +38,7 @@ public class TermParseController implements IParseController {
 	private IPath path;
 	private Language language;
 	private IEvaluatorContext evaluator;
-	private AbstractFunction parser; 
+	private ICallableValue parser; 
 	
 	public Object getCurrentAst(){
 		return parseTree;
