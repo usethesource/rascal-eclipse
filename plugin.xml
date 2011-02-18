@@ -638,7 +638,6 @@
             id="rascal.markerType.queryResult"
             name="Rascal Marker">
             <super type="org.eclipse.core.resources.problemmarker"/>
-            <super type="rascal.markerType.queryResult"/>
             <persistent value="true"/>
  </extension>
 
