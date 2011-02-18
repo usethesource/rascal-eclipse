@@ -216,6 +216,12 @@
             id="rascal-eclipse.Figure.layered"
             name="Layered Figure">
       </editor>
+      <editor
+            class="org.rascalmpl.eclipse.library.vis.FigureViewer"
+            default="false"
+            id="rascal-eclipse.Figure.viewer"
+            name="Figure Viewer">
+      </editor>
    </extension>
    <extension
          point="org.eclipse.ui.popupMenus">
