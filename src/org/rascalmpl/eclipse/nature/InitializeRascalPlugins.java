@@ -67,7 +67,8 @@ public class InitializeRascalPlugins implements ILanguageRegistrar {
 
 	private static Evaluator initializeEvaluator(final IProject project) {
 		PrintWriter err = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
-		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), err, err, new ModuleEnvironment("***plugin starter***"), new GlobalEnvironment());
+		GlobalEnvironment heap = new GlobalEnvironment();
+		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), err, err, new ModuleEnvironment("***plugin starter***", heap), heap);
 		
 		eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
 			public void contributePaths(List<URI> path) {

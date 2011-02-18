@@ -3,7 +3,6 @@ package org.rascalmpl.eclipse.console.internal;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.Vector;
 
 import org.eclipse.imp.runtime.RuntimePlugin;

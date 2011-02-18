@@ -216,13 +216,6 @@
             id="rascal-eclipse.Figure.layered"
             name="Layered Figure">
       </editor>
-      <editor
-            class="org.rascalmpl.eclipse.library.vis.FigureViewer"
-            default="false"
-            icon="icons/layered.gif"
-            id="rascal-eclipse.Figure.viewer"
-            name="Figure">
-      </editor>
    </extension>
    <extension
          point="org.eclipse.ui.popupMenus">
@@ -860,9 +853,6 @@
           <!--instanceof value="org.eclipse.ui.texteditor.AbstractTextEditor"/>-->
             <equals value="org.rascalmpl.eclipse.box.boxviewer"/>
             <equals value="rascal.editor"/>
-            <equals value="rascal-eclipse.Figure.lattice"/>
-            <equals value="rascal-eclipse.Figure.spring"/>
-            <equals value="rascal-eclipse.Figure.layered"/>
             <equals value="rascal-eclipse.Figure.viewer"/>
           </or>
         </with>
@@ -925,4 +915,29 @@
           value="Monospace-regular-6">
     </fontDefinition>
  </extension>
+ <extension
+       id="rascal.markerType.testResult"
+       name="Rascal Test Result"
+       point="org.eclipse.core.resources.markers">
+    <persistent
+          value="true">
+    </persistent>
+    <super
+          type="org.eclipse.core.resources.problemmarker">
+    </super>
+ </extension>
+ <extension
+       id="rascal.focusMarker"
+       name="Rascal Syntax Focus"
+       point="org.eclipse.core.resources.markers">
+    <super
+          type="org.eclipse.core.resources.problemmarker">
+    </super>
+    <persistent
+          value="true">
+    </persistent>
+    <super
+          type="org.eclipse.core.resources.textmarker">
+    </super>
+ </extension> 
 </plugin>

@@ -48,7 +48,7 @@ public class MarkerModelListener {
 			if (parseTree != null) {
 				IFile res = (IFile) project.findMember(path, false);
 
-				res.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+//				res.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
 				processMarkers(res, parseTree); 
 				res.refreshLocal(IResource.DEPTH_ZERO, monitor);
 				monitor.worked(1);
