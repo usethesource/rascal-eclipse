@@ -3,10 +3,14 @@ package org.rascalmpl.eclipse.editor;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Iterator;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -106,7 +110,20 @@ public class ParseController implements IParseController {
 		resolverRegistry.registerInput(eclipseResolver);
 		parser.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
 		parser.addClassLoader(getClass().getClassLoader());
-		
+		// add project's bin folder to class loaders
+		// TODO: should probably find project's output folder, instead of just
+		// using "bin"
+		String projectBinFolder = "";
+		if(project != null) {
+			try {
+				IResource res = project.getRawProject().findMember("bin");
+				if(res != null) {
+					projectBinFolder = res.getLocation().toString();
+					URLClassLoader loader = new java.net.URLClassLoader(new URL[] {new URL("file", "",  projectBinFolder + "/")}, getClass().getClassLoader());
+					parser.addClassLoader(loader);
+				}
+			} catch (MalformedURLException e1) {}
+		}
 		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
 		resolverRegistry.registerInput(bundleResolver);
 		resolverRegistry.registerOutput(bundleResolver);
@@ -114,7 +131,8 @@ public class ParseController implements IParseController {
 		try {
 			String rascalPlugin = FileLocator.resolve(Platform.getBundle("rascal").getEntry("/")).getPath();
 			String PDBValuesPlugin = FileLocator.resolve(Platform.getBundle("org.eclipse.imp.pdb.values").getEntry("/")).getPath();
-			Configuration.setRascalJavaClassPathProperty(rascalPlugin + File.pathSeparator + PDBValuesPlugin + File.pathSeparator + rascalPlugin + File.separator + "src" + File.pathSeparator + rascalPlugin + File.separator + "bin" + File.pathSeparator + PDBValuesPlugin + File.separator + "bin");
+			Configuration.setRascalJavaClassPathProperty(rascalPlugin + File.pathSeparator + PDBValuesPlugin + File.pathSeparator + rascalPlugin + File.separator + "src" + File.pathSeparator + rascalPlugin + File.separator + "bin" + File.pathSeparator + PDBValuesPlugin + File.separator + "bin" + (projectBinFolder != "" ? File.pathSeparator + projectBinFolder : ""));
+			System.out.println(Configuration.getRascalJavaClassPathProperty());
 		} catch (IOException e) {
 			Activator.getInstance().logException("could not create classpath for parser compilation", e);
 		}
