@@ -76,10 +76,12 @@ public class MarkerModelListener {
 					for (IValue message : ((ISet) anno)) {
 						IConstructor marker = (IConstructor) message;
 						ISourceLocation loc = (ISourceLocation) marker.get(1);
+						ISourceLocation treeLoc = (ISourceLocation) tree.getAnnotation("loc");
 						if (loc == null) {
-							loc = (ISourceLocation) tree.getAnnotation("loc");
+							loc = treeLoc;
 						}
-						processMarker(file, marker, loc);
+						if (loc.getURI().getPath().equals(treeLoc.getURI().getPath()))
+							processMarker(file, marker, loc);
 					}
 				}
 				

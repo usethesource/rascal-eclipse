@@ -1,5 +1,7 @@
 package org.rascalmpl.eclipse.perspective.actions;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -7,7 +9,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
@@ -15,7 +21,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Shell;
@@ -24,12 +29,19 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.eclipse.ui.progress.IProgressService;
 import org.rascalmpl.checker.StaticChecker;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.editor.MarkerModelListener;
 import org.rascalmpl.eclipse.editor.ParseController;
+import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
+import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.uri.ClassResourceInputOutput;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RunStaticChecker implements IEditorActionDelegate {
@@ -52,18 +64,16 @@ public class RunStaticChecker implements IEditorActionDelegate {
 
 	public void run(IAction action) {
 		if (editor != null) {
+			WorkspaceModifyOperation wmo = new WorkspaceModifyOperation(ResourcesPlugin.getWorkspace().getRoot()) {
+				public void execute(IProgressMonitor monitor) {
+					IConstructor toCheck = (IConstructor)editor.getParseController().getCurrentAst();
+					IConstructor res = check(toCheck,editor.getParseController(), monitor);
+					((ParseController) editor.getParseController()).setCurrentAst(res);
+				}
+			};
+			IProgressService ips = PlatformUI.getWorkbench().getProgressService();
 			try {
-				IRunnableWithProgress rup = new IRunnableWithProgress() {
-					public void run(IProgressMonitor monitor) {
-						IConstructor toCheck = (IConstructor)editor.getParseController().getCurrentAst();
-						IConstructor res = check(toCheck,editor.getParseController(), monitor);
-						((ParseController) editor.getParseController()).setCurrentAst(res);
-					}
-				};
-				IWorkbench wb = PlatformUI.getWorkbench();
-				IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-				Shell shell = win != null ? win.getShell() : null;
-				new ProgressMonitorDialog(shell).run(true, true, rup);
+				ips.run(true, true, wmo);
 			} catch (InvocationTargetException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -71,7 +81,6 @@ public class RunStaticChecker implements IEditorActionDelegate {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		
 		}
 	}
 
@@ -115,15 +124,27 @@ public class RunStaticChecker implements IEditorActionDelegate {
 		}
 		
 		ProjectURIResolver resolver = new ProjectURIResolver();
-		checker.registerInputResolver(resolver);
-		checker.registerOutputResolver(resolver);
+		URIResolverRegistry resolverRegistry = checker.getResolverRegistry();
+		resolverRegistry.registerInput(resolver);
+		resolverRegistry.registerOutput(resolver);
+		
+		ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(resolverRegistry, "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
+		resolverRegistry.registerInput(eclipseResolver);
+		checker.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
+		checker.addClassLoader(getClass().getClassLoader());
+		
+		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
+		resolverRegistry.registerInput(bundleResolver);
+		resolverRegistry.registerOutput(bundleResolver);
 
-//		IURIInputStreamResolver library = new ClassResourceInputOutput("rascal-eclipse-library", RascalScriptInterpreter.class);
-//		checker.registerInputResolver(library);
-		
-		checker.addRascalSearchPath(URI.create("rascal-eclipse-library:///org/rascalmpl/eclipse/lib"));
-		checker.addRascalSearchPath(URI.create("file:///Users/mhills/Projects/rascal/build/rascal/src/org/rascalmpl/library"));
-		
+		try {
+			String rascalPlugin = FileLocator.resolve(Platform.getBundle("rascal").getEntry("/")).getPath();
+			String PDBValuesPlugin = FileLocator.resolve(Platform.getBundle("org.eclipse.imp.pdb.values").getEntry("/")).getPath();
+			Configuration.setRascalJavaClassPathProperty(rascalPlugin + File.pathSeparator + PDBValuesPlugin + File.pathSeparator + rascalPlugin + File.separator + "src" + File.pathSeparator + rascalPlugin + File.separator + "bin" + File.pathSeparator + PDBValuesPlugin + File.separator + "bin");
+		} catch (IOException e) {
+			Activator.getInstance().logException("could not create classpath for parser compilation", e);
+		}
+
 		checker.enableChecker();
 	}
 	
