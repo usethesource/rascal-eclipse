@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.outline;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.editor.ModelTreeNode;
@@ -15,6 +16,7 @@ import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Prod;
 import org.rascalmpl.ast.Signature;
+import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Declaration.Variable;
 import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
@@ -65,10 +67,11 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 		}
 		else if (node2 instanceof Prod.Labeled) {
 			Prod p = (Prod) node2;
-			StringBuilder b = new StringBuilder();
+			List<Sym> args = p.getArgs();
+			StringBuilder b = new StringBuilder(20 + args.size() * 20);
 			
 			b.append("| " + Names.name(p.getName()) + " : ");
-			for (AbstractAST arg : p.getArgs()) {
+			for (AbstractAST arg : args) {
 				b.append(arg.toString());
 				b.append(' ');
 			}
@@ -76,9 +79,10 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 		}
 		else if (node2 instanceof Prod.Unlabeled) {
 			Prod p = (Prod) node2;
-			StringBuilder b = new StringBuilder();
+			List<Sym> args = p.getArgs();
+			StringBuilder b = new StringBuilder(args.size() * 20);
 			b.append("| ");
-			for (AbstractAST arg : p.getArgs()) {
+			for (AbstractAST arg : args) {
 				b.append(arg.toString());
 				b.append(' ');
 			}

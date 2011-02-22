@@ -283,10 +283,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		if(command.endsWith("\n")){
 			cmd = command;
 		}else{
-			StringBuilder sb = new StringBuilder();
-			sb.append(command);
-			sb.append('\n');
-			cmd = sb.toString();
+			cmd = command.concat("\n");
 		}
 		
 		Display.getDefault().syncExec(new Runnable(){
