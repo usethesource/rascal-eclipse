@@ -40,7 +40,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.part.FileEditorInput;
-import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Command.Shell;
@@ -315,7 +314,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 	}
 
 	private void execCommand(IConstructor tree) {
-		Command stat = new ASTBuilder(ASTFactoryFactory.getASTFactory()).buildCommand(tree);
+		Command stat = new ASTBuilder().buildCommand(tree);
 
 		if (stat == null) {
 			throw new ImplementationError("null command");

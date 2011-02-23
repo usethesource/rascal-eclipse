@@ -8,7 +8,6 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.services.base.TreeModelBuilderBase;
-import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.Module;
@@ -70,7 +69,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		if (root == null) {
 			return;
 		}
-		ASTBuilder builder = new ASTBuilder(ASTFactoryFactory.getASTFactory());
+		ASTBuilder builder = new ASTBuilder();
 		
 		Module mod = builder.buildModule((IConstructor) root);
 
