@@ -858,7 +858,9 @@
           <!--instanceof value="org.eclipse.ui.texteditor.AbstractTextEditor"/>-->
             <equals value="org.rascalmpl.eclipse.box.boxviewer"/>
             <equals value="rascal.editor"/>
-            <equals value="rascal-eclipse.Figure.viewer"/>
+            <equals value="rascal-eclipse.Figure.lattice"/>
+            <equals value="rascal-eclipse.Figure.spring"/>
+            <equals value="rascal-eclipse.Figure.layered"/>
           </or>
         </with>
       </activeWhen> 
@@ -919,6 +921,13 @@
           label="Printer Font"
           value="Monospace-regular-6">
     </fontDefinition>
+ </extension>
+ <extension
+       point="org.eclipse.imp.runtime.formatter">
+    <formatter
+          class="org.rascalmpl.eclipse.box.Formatter"
+          language="Rascal">
+    </formatter>
  </extension>
  <extension
        id="rascal.markerType.testResult"
