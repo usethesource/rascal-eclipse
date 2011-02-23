@@ -4,7 +4,6 @@ import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.services.ISourceFormatter;
-import org.rascalmpl.ast.ASTFactoryFactory;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.eclipse.editor.ParseController;
 import org.rascalmpl.interpreter.BoxEvaluator;
@@ -27,8 +26,7 @@ public class Formatter implements ISourceFormatter{
 		MakeBox makeBox = new MakeBox();
 		IConstructor currentAST = (IConstructor) p.getCurrentAst();
 		IList z = TreeAdapter.getArgs(currentAST);
-		ASTBuilder astBuilder = new ASTBuilder(
-				ASTFactoryFactory.getASTFactory());
+		ASTBuilder astBuilder = new ASTBuilder();
 		Module moduleAst = astBuilder.buildModule(currentAST);
 		// System.err.println("computeBox: build");
 		if (moduleAst != null) {
