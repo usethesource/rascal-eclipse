@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -122,6 +123,16 @@ public class SourceLocationHyperlink implements IHyperlink {
 							IFile [] files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
 							if (files.length > 0) {
 								return new FileEditorInput(files[0]);
+							}
+						}
+						else if (scheme.equals("std")) {
+							// NOTE: This is a terrible hack
+							// TODO: Fix this, making it something reasonable
+							try {
+								uri = new URI(uri.toString().replaceFirst("std:///", "rascal-library://rascal/"));
+								return getEditorInput(uri);
+							} catch (URISyntaxException e) {
+								// Do nothing, fall through and return null
 							}
 						}
 						
