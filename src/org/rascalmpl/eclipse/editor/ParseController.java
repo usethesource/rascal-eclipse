@@ -2,7 +2,6 @@ package org.rascalmpl.eclipse.editor;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -10,6 +9,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Iterator;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -23,36 +23,34 @@ import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
+import org.rascalmpl.eclipse.nature.ProjectParserFactory;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.control_exceptions.ControlException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ParseController implements IParseController {
-	private final PrintWriter out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
-	private final GlobalEnvironment heap = new GlobalEnvironment();
-	private final Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, new ModuleEnvironment("***parser***", heap), heap);
 	private IMessageHandler handler;
 	private ISourceProject project;
 	private IConstructor parseTree;
 	private IConstructor lastParseTree = null;
 	private byte[] lastParsedInput = null;
 	private IPath path;
+	
+	private Evaluator getParser(IProject project) {
+		return ProjectParserFactory.getInstance().getParser(project);
+	}
 	
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
 		return null;
@@ -94,6 +92,8 @@ public class ParseController implements IParseController {
 		this.path = filePath;
 		this.handler = handler;
 		this.project = project;
+		
+		Evaluator parser = getParser(project.getRawProject());
 		
 		if (project != null) {
 			try{
@@ -171,7 +171,7 @@ public class ParseController implements IParseController {
 			if (lastParsedInput != null && arraysMatch) {
 				parseTree = lastParseTree;
 			} else {
-				parseTree = parser.parseModule(input.toCharArray(), uri, null);
+				parseTree = getParser(project.getRawProject()).parseModule(input.toCharArray(), uri, null);
 				lastParseTree = parseTree;
 			}
 			monitor.worked(1);
@@ -206,6 +206,4 @@ public class ParseController implements IParseController {
 		
 		return null;
 	}
-
-	
 }

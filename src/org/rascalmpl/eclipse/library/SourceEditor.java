@@ -24,4 +24,12 @@ public class SourceEditor {
 		}
 		Activator.getInstance().logException("could not register analysis for " + name, new RuntimeException());
 	}
+	
+	public void clear() {
+		TermLanguageRegistry.getInstance().clear();
+	}
+	
+	public void clear(IString name) {
+		TermLanguageRegistry.getInstance().clear(name.getValue());
+	}
 }

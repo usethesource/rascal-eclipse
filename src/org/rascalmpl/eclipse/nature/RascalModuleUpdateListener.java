@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.console;
+package org.rascalmpl.eclipse.nature;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -17,9 +17,9 @@ import org.eclipse.core.runtime.IPath;
 import org.rascalmpl.eclipse.IRascalResources;
 
 public class RascalModuleUpdateListener implements IResourceChangeListener {
-	private RascalScriptInterpreter interpreter;
+	private IModuleChangedListener interpreter;
 
-	public RascalModuleUpdateListener(RascalScriptInterpreter interpreter) {
+	public RascalModuleUpdateListener(IModuleChangedListener interpreter) {
 		this.interpreter = interpreter;
 	}
 
@@ -67,7 +67,7 @@ public class RascalModuleUpdateListener implements IResourceChangeListener {
 								if (srcFolder.getProjectRelativePath().isPrefixOf(file.getProjectRelativePath())) {
 									try{
 										URI uri = new URI("project://" + proj.getName() + "/" + file.getProjectRelativePath().removeFirstSegments(1).toPortableString());
-										interpreter.addDirtyModule(uri);
+										interpreter.moduleChanged(uri);
 									}catch(URISyntaxException usex){
 										usex.printStackTrace(); // TODO Change to something better.
 									}

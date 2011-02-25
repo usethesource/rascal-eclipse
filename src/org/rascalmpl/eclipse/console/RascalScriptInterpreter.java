@@ -7,12 +7,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -20,7 +17,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -55,6 +51,7 @@ import org.rascalmpl.eclipse.console.internal.IInterpreter;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.TerminationException;
 import org.rascalmpl.eclipse.console.internal.TestReporter;
+import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.uri.BootstrapURIResolver;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
@@ -77,9 +74,9 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class RascalScriptInterpreter implements IInterpreter{
+public class RascalScriptInterpreter implements IInterpreter {
 	private final static int LINE_LIMIT = 200;
-	
+	private ModuleReloader reloader;
 	private Evaluator eval;
 	private volatile IInterpreterConsole console;
 	private String command;
@@ -88,52 +85,24 @@ public class RascalScriptInterpreter implements IInterpreter{
 
 	private IProject project;
 
-	private final Set<URI> dirtyModules = new HashSet<URI>();
-	private final RascalModuleUpdateListener resourceChangeListener;
-	
 	public RascalScriptInterpreter(IProject project){
 		this();
 		this.project = project;
 	}
 	
-	public  void addDirtyModule(URI name) {
-		synchronized (dirtyModules) {
-			dirtyModules.add(name);
-		}
-	}
 	
-	public void updateModules() {
-		synchronized (dirtyModules) {
-			Set<String> names = new HashSet<String>();
-			PrintWriter pw = new PrintWriter(console.getConsoleOutputStream());
-			
-			for (URI uri : dirtyModules) {
-				String path = uri.getPath();
-				path = path.substring(0, path.indexOf(IRascalResources.RASCAL_EXT) - 1);
-				path = path.startsWith("/") ? path.substring(1) : path;
-				names.add(path.replaceAll("/","::"));
-				pw.println("Reloading module from " + uri);
-				pw.flush();
-			}
-			
-			eval.reloadModules(names, URI.create("console:///"));	
-			dirtyModules.clear();
-		}
-	}
 	
 	public RascalScriptInterpreter(){
 		super();
 
 		this.command = "";
 		this.project = null;
-		this.resourceChangeListener = new RascalModuleUpdateListener(this);
+		
 		
 		
 	}
 
 	public void initialize(Evaluator eval){
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(resourceChangeListener);
-		
 		ProjectURIResolver resolver = new ProjectURIResolver();
 		URIResolverRegistry resolverRegistry = eval.getResolverRegistry();
 		resolverRegistry.registerInput(resolver);
@@ -174,6 +143,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		eval.doImport("IO");
 		eval.doImport("ParseTree");
 		this.eval = eval;
+		this.reloader = new ModuleReloader(eval);
 	}
 
 	public void setConsole(IInterpreterConsole console){
@@ -194,7 +164,6 @@ public class RascalScriptInterpreter implements IInterpreter{
 		clearErrorMarker();
 		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
 		if (eval instanceof DebuggableEvaluator) ((DebuggableEvaluator) eval).getDebugger().destroy();
-		ResourcesPlugin.getWorkspace().removeResourceChangeListener(resourceChangeListener);
 	}
 
 	public boolean execute(String cmd) throws CommandExecutionException, TerminationException{
@@ -205,7 +174,7 @@ public class RascalScriptInterpreter implements IInterpreter{
 		}
 
 		try {
-			updateModules();
+			reloader.updateModules();
 			command += cmd;
 			final IConstructor tree = eval.parseCommand(command, URI.create("stdin:///"));
 			

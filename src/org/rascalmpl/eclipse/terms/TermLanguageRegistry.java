@@ -5,9 +5,7 @@ import java.util.Map;
 
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 
 public class TermLanguageRegistry {
@@ -25,6 +23,24 @@ public class TermLanguageRegistry {
 	}
 	
 	private TermLanguageRegistry() { }
+	
+	public void clear() {
+		languages.clear();
+		evals.clear();
+		parsers.clear();
+		analyses.clear();
+	}
+	
+	public void clear(String value) {
+		Language lang = LanguageRegistry.findLanguage(value);
+		if (lang != null) {
+			LanguageRegistry.deregisterLanguage(lang);
+		}
+		languages.remove(value);
+		evals.remove(value);
+		parsers.remove(value);
+		analyses.remove(value);
+	}
 	
 	public void registerLanguage(String name, String extension, ICallableValue parser, IEvaluatorContext ctx) {
 		Language l = new Language(name, "", "demo editor for " + name, "Terms", "icons/rascal3D_2-32px.gif", "http://www.rascal-mpl.org","rascal-eclipse",extension,"",null);
@@ -53,5 +69,4 @@ public class TermLanguageRegistry {
 	public ICallableValue getAnnotator(String name) {
 		return analyses.get(name);
 	}
-	
 }
