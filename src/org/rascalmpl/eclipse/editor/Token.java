@@ -1,22 +1,28 @@
 package org.rascalmpl.eclipse.editor;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-
-
-public class Token {
+public class Token{
 	private final String category;
-	private final ISourceLocation loc;
 	
-	public Token(String category, ISourceLocation area) {
+	private final int offset;
+	private final int length;
+	
+	public Token(String category, int offset, int length){
+		super();
+		
 		this.category = category;
-		this.loc = area;
+		this.offset = offset;
+		this.length = length;
 	}
 	
-	public String getCategory() {
+	public String getCategory(){
 		return category;
 	}
 	
-	public ISourceLocation getLocation() {
-		return loc;
+	public int getOffset(){
+		return offset;
+	}
+	
+	public int getLength(){
+		return length;
 	}
 }

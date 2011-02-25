@@ -51,39 +51,42 @@ public class NodeLocator implements ISourcePositionLocator {
 		return getStartOffset(node) + getLength(node) - 1;
 	}
 
-	public int getLength(Object node) {
-		return getLocation(node) == null ? 0 : getLocation(node).getLength();
-	}
-
 	public IPath getPath(Object node) {
 		return null;
 	}
 
 	public int getStartOffset(Object node) {
+		if(node instanceof Token){
+			return ((Token) node).getOffset();
+		}
+		
 		return getLocation(node) == null ? 0 : getLocation(node).getOffset();
 	}
+
+	public int getLength(Object node) {
+		if(node instanceof Token){
+			return ((Token) node).getLength();
+		}
+		
+		return getLocation(node) == null ? 0 : getLocation(node).getLength();
+	}
 	
-	private ISourceLocation getLocation(Object node) {
-		if (node instanceof Token) {
-			return ((Token) node).getLocation();
-		}
-		else if (node instanceof IConstructor) {
+	private ISourceLocation getLocation(Object node){
+		if(node instanceof IConstructor){
 			return TreeAdapter.getLocation((IConstructor) node);
-		}
-		else if (node instanceof AbstractAST) {
+		}else if(node instanceof AbstractAST){
 			return getLocation(((AbstractAST) node).getTree());
-		}
-		else if (node instanceof ModelTreeNode) {
+		}else if(node instanceof ModelTreeNode){
 			return getLocation(((ModelTreeNode) node).getASTNode());
-		}
-		else if (node instanceof Group<?>) {
+		}else if(node instanceof Group<?>){
 			Group<?> group = (Group<?>) node;
 			Iterator<?> i = group.iterator();
-			if (i.hasNext()) {
+			if(i.hasNext()){
 				return getLocation(i.next());
 			}
 			return group.getLocation();
+		}else{
+			throw new RuntimeException("Unknown node type " + node);
 		}
-		throw new RuntimeException("Unknown node type " + node);
 	}
 }

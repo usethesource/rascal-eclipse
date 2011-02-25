@@ -5,59 +5,70 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
-public class TokenIterator implements Iterator<Token> {
+public class TokenIterator implements Iterator<Token>{
 	private final List<Token> tokenList;
 	private final Iterator<Token> tokenIterator;
 
-	public TokenIterator(IConstructor parseTree) {
+	public TokenIterator(IConstructor parseTree){
 		this.tokenList = new LinkedList<Token>();
 		
-		if (parseTree != null) {
-			try {
+		if(parseTree != null){
+			try{
 				parseTree.accept(new LexicalCollector());
-			} catch (VisitorException e) {
+			}catch(VisitorException e){
 				// is not thrown
 			}
 		}
 		tokenIterator = tokenList.iterator();
 	}
 
-	public boolean hasNext() {
+	public boolean hasNext(){
 		return tokenIterator.hasNext();
 	}
 
-	public Token next() {
+	public Token next(){
 		return tokenIterator.next();
 	}
 
-	public void remove() {
+	public void remove(){
 		throw new UnsupportedOperationException();
 	}
 
-	private class LexicalCollector extends TreeVisitor {
+	private class LexicalCollector extends TreeVisitor{
+		private int location;
+		
+		public LexicalCollector(){
+			super();
+			
+			location = 0;
+		}
+		
 		@Override
-		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException{
 			// we just go into the first, it's arbitrary but at least we'll get some nice highlighting
 			TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
 			return arg;
 		}
 
 		@Override
-		public IConstructor visitTreeAppl(IConstructor arg)
-				throws VisitorException {
-			String category = TreeAdapter.isAppl(arg) ? ProductionAdapter.getCategory(TreeAdapter.getProduction(arg)) : null ;
+		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException{
+			String category = TreeAdapter.isAppl(arg) ? ProductionAdapter.getCategory(TreeAdapter.getProduction(arg)) : null;
 			
-			if (category == null) {
-				if (TreeAdapter.isLiteral(arg)) {
+			int offset = location;
+			
+			if(TreeAdapter.isLiteral(arg)){
+				if(category == null){
 					String yield = TreeAdapter.yield(arg);
-					for (byte c : yield.getBytes()) {
-						if (c != '-' && !Character.isJavaIdentifierPart(c)) {
+					for(byte c : yield.getBytes()) {
+						if(c != '-' && !Character.isJavaIdentifierPart(c)){
+							location += TreeAdapter.yield(arg).length();
 							return arg;
 						}
 					}
@@ -65,24 +76,28 @@ public class TokenIterator implements Iterator<Token> {
 				}
 			}
 			
-			if (category == null) {
-				for (IValue child : TreeAdapter.getArgs(arg)) {
+			if(category == null){
+				for(IValue child : TreeAdapter.getArgs(arg)){
 					child.accept(this);
 				}
-			} else {
-				tokenList.add(new Token(category, TreeAdapter.getLocation(arg)));
+			}else{
+				location += TreeAdapter.yield(arg).length();
+				
+				tokenList.add(new Token(category, offset, location - offset));
 			}
 
 			return arg;
 		}
 
 		@Override
-		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException{
+			++location;
+			
 			return arg;
 		}
 
 		@Override
-		public IConstructor visitTreeCycle(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeCycle(IConstructor arg) throws VisitorException{
 			return arg;
 		}
 	}
