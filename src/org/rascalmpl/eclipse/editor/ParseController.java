@@ -134,7 +134,6 @@ public class ParseController implements IParseController {
 			String rascalPlugin = FileLocator.resolve(Platform.getBundle("rascal").getEntry("/")).getPath();
 			String PDBValuesPlugin = FileLocator.resolve(Platform.getBundle("org.eclipse.imp.pdb.values").getEntry("/")).getPath();
 			Configuration.setRascalJavaClassPathProperty(rascalPlugin + File.pathSeparator + PDBValuesPlugin + File.pathSeparator + rascalPlugin + File.separator + "src" + File.pathSeparator + rascalPlugin + File.separator + "bin" + File.pathSeparator + PDBValuesPlugin + File.separator + "bin" + (projectBinFolder != "" ? File.pathSeparator + projectBinFolder : ""));
-			System.out.println(Configuration.getRascalJavaClassPathProperty());
 		} catch (IOException e) {
 			Activator.getInstance().logException("could not create classpath for parser compilation", e);
 		}
