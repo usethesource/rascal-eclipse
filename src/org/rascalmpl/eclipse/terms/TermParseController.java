@@ -24,7 +24,6 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.NodeLocator;
 import org.rascalmpl.eclipse.editor.TokenIterator;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -37,7 +36,6 @@ public class TermParseController implements IParseController {
 	private IConstructor parseTree;
 	private IPath path;
 	private Language language;
-	private IEvaluatorContext evaluator;
 	private ICallableValue parser; 
 	
 	public Object getCurrentAst(){
@@ -83,7 +81,6 @@ public class TermParseController implements IParseController {
 		this.handler = handler;
 		TermLanguageRegistry reg = TermLanguageRegistry.getInstance();
 		this.language = reg.getLanguage(path.getFileExtension());
-		this.evaluator = reg.getEvaluator(this.language);
 		this.parser = reg.getParser(this.language);
 	}
 

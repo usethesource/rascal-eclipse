@@ -34,6 +34,8 @@ import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.control_exceptions.ControlException;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
@@ -141,6 +143,11 @@ public class ParseController implements IParseController {
 	public Object parse(String input, IProgressMonitor monitor) {
 		parseTree = null;
 		
+		if (project == null || path == null || input == null) {
+			// may happen when project is deleted before Eclipse was started
+			return null;
+		}
+		
 		try{
 			handler.clearMessages();
 			monitor.beginTask("parsing Rascal", 1);
@@ -176,7 +183,17 @@ public class ParseController implements IParseController {
 		}
 		catch (SyntaxError e){
 			ISourceLocation loc = e.getLocation();
-//			e.printStackTrace();
+
+			if (loc.getOffset() >= 0) {
+				handler.handleSimpleMessage(e.getMessage(), loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
+			}
+			else {
+				handler.handleSimpleMessage(e.getMessage(), 0, 0, 0, 0, 1, 1);
+			}
+		}
+		catch (Throw e) {
+			ISourceLocation loc = e.getLocation();
+
 			if (loc.getOffset() >= 0) {
 				handler.handleSimpleMessage(e.getMessage(), loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 			}
