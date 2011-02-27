@@ -1,6 +1,5 @@
 package org.rascalmpl.eclipse.terms;
 
-import java.net.URI;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IPath;
@@ -33,10 +32,12 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class TermParseController implements IParseController {
 	private IMessageHandler handler;
 	private ISourceProject project;
+	private ISourceLocation loc;
 	private IConstructor parseTree;
 	private IPath path;
 	private Language language;
-	private ICallableValue parser; 
+	private ICallableValue parser;
+	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory(); 
 	
 	public Object getCurrentAst(){
 		return parseTree;
@@ -82,24 +83,24 @@ public class TermParseController implements IParseController {
 		TermLanguageRegistry reg = TermLanguageRegistry.getInstance();
 		this.language = reg.getLanguage(path.getFileExtension());
 		this.parser = reg.getParser(this.language);
+		this.loc = VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, path));
 	}
 
 	public Object parse(String input, IProgressMonitor monitor){
 		parseTree = null;
-		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		URI location = ProjectURIResolver.constructProjectURI(project, path);
 		
 		
 		try{
 			handler.clearMessages();
 			monitor.beginTask("parsing " + language.getName(), 1);
-			parseTree = (IConstructor) parser.call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] { vf.string(input)} ).getValue();
+			TypeFactory TF = TypeFactory.getInstance();
+			parseTree = (IConstructor) parser.call(new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}).getValue();
 			monitor.worked(1);
 			return parseTree;
 		}
 		catch (SyntaxError e) {
 			ISourceLocation loc = e.getLocation();
-			loc = vf.sourceLocation(location, loc.getOffset(), loc.getLength(), loc.getBeginLine(),
+			loc = VF.sourceLocation(this.loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(),
 					loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
 			handler.handleSimpleMessage("parse error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 		} 

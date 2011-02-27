@@ -953,5 +953,19 @@
     <super
           type="org.eclipse.core.resources.textmarker">
     </super>
+ </extension>
+ <extension
+       point="org.eclipse.imp.runtime.modelTreeBuilder">
+    <treeBuilder
+          class="org.rascalmpl.eclipse.terms.TreeModelBuilder"
+          language="Terms">
+    </treeBuilder>
+ </extension>
+ <extension
+       point="org.eclipse.imp.runtime.labelProvider">
+    <labelProvider
+          class="org.rascalmpl.eclipse.terms.LabelProvider"
+          language="Terms">
+    </labelProvider>
  </extension> 
 </plugin>

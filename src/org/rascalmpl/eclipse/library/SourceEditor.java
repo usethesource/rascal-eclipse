@@ -18,11 +18,20 @@ public class SourceEditor {
 	}
 	
 	public void registerAnnotator(IString name, IValue function) {
-		if (function instanceof AbstractFunction) {
+		if (function instanceof ICallableValue) {
 			TermLanguageRegistry.getInstance().registerAnnotator(name.getValue(), (ICallableValue) function);
 			return;
 		}
 		Activator.getInstance().logException("could not register analysis for " + name, new RuntimeException());
+	}
+	
+	public void registerOutliner(IString name, IValue builder) {
+		if (builder instanceof ICallableValue) {
+			TermLanguageRegistry.getInstance().registerOutliner(name.getValue(), (ICallableValue) builder);
+		}
+		else {
+			Activator.getInstance().logException("could not register tree model builder for " + name, new RuntimeException());
+		}
 	}
 	
 	public void clear() {

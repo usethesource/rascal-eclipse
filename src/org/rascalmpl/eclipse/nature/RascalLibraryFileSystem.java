@@ -19,6 +19,7 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.provider.FileInfo;
 import org.eclipse.core.filesystem.provider.FileStore;
 import org.eclipse.core.filesystem.provider.FileSystem;
+import org.eclipse.core.internal.filesystem.NullFileSystem;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,6 +28,7 @@ import org.eclipse.core.runtime.Status;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.Evaluator;
 
+// TODO: link this stuff with the rascal search path instead
 public class RascalLibraryFileSystem extends FileSystem {
 	private static final String SCHEME = "rascal-library";
 	public static final String ECLIPSE = "eclipse";

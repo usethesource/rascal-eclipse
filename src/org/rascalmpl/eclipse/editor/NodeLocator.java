@@ -6,7 +6,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
 import org.rascalmpl.values.uptr.Factory;
@@ -72,21 +74,35 @@ public class NodeLocator implements ISourcePositionLocator {
 	}
 	
 	private ISourceLocation getLocation(Object node){
-		if(node instanceof IConstructor){
+		if (node instanceof IConstructor){
 			return TreeAdapter.getLocation((IConstructor) node);
-		}else if(node instanceof AbstractAST){
+		}
+		
+		if (node instanceof INode) {
+			INode n = (INode) node;
+			IValue ann = n.getAnnotation("loc");
+			if (ann != null) {
+				return (ISourceLocation) ann;
+			}
+		}
+		
+		if (node instanceof AbstractAST){
 			return getLocation(((AbstractAST) node).getTree());
-		}else if(node instanceof ModelTreeNode){
+		}
+		
+		if (node instanceof ModelTreeNode){
 			return getLocation(((ModelTreeNode) node).getASTNode());
-		}else if(node instanceof Group<?>){
+		}
+		
+		if (node instanceof Group<?>){
 			Group<?> group = (Group<?>) node;
 			Iterator<?> i = group.iterator();
 			if(i.hasNext()){
 				return getLocation(i.next());
 			}
 			return group.getLocation();
-		}else{
-			throw new RuntimeException("Unknown node type " + node);
 		}
+		
+		return null;
 	}
 }
