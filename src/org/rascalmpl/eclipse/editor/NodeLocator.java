@@ -84,7 +84,7 @@ public class NodeLocator implements ISourcePositionLocator {
 			if (ann != null) {
 				return (ISourceLocation) ann;
 			}
-		}
+		} 
 		
 		if (node instanceof AbstractAST){
 			return getLocation(((AbstractAST) node).getTree());

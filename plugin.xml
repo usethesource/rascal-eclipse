@@ -628,8 +628,8 @@
    <extension
        point="org.eclipse.ui.editors.annotationTypes">
     <type
-          markerType="rascal.focusMarker"
           name="rascal.focus">
+           <super type="org.eclipse.core.resources.textmarker"/>
     </type>
  </extension>
  

@@ -35,6 +35,8 @@ public class FocusService implements IModelListener {
 	
 	private volatile String focussedSort;
 	private volatile Position focussedPosition;
+
+	private IWindowListener windowListener;
 	
 	public FocusService() {
 		selectionChangeListener = new SelectionChangeListener(this);
@@ -52,7 +54,7 @@ public class FocusService implements IModelListener {
 
 	private void init(){
 		IWorkbench workbench = PlatformUI.getWorkbench();
-		workbench.addWindowListener(new IWindowListener(){
+		windowListener = new IWindowListener(){
 			public void windowActivated(IWorkbenchWindow window){
 				ISelectionService selectionService = window.getSelectionService();
 				selectionService.addPostSelectionListener(selectionChangeListener);
@@ -72,7 +74,8 @@ public class FocusService implements IModelListener {
 				ISelectionService selectionService = window.getSelectionService();
 				selectionService.addPostSelectionListener(selectionChangeListener);
 			}
-		});
+		};
+		workbench.addWindowListener(windowListener);
 	}
 	
 	public String getFocussedSort(){
@@ -128,6 +131,12 @@ public class FocusService implements IModelListener {
 			focussedPosition = new Position(focusOffset, focusLength);
 			annotationModel.addAnnotation(currentFocus, focussedPosition);
 		}
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		workbench.removeWindowListener(windowListener);
 	}
 	
 	private static class SelectionChangeListener implements ISelectionListener{
