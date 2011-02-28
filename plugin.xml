@@ -974,5 +974,12 @@
           class="org.rascalmpl.eclipse.terms.FoldingUpdater"
           language="Terms">
     </foldingUpdater>
+ </extension>
+ <extension
+       point="org.eclipse.imp.runtime.editorActionContributions">
+    <editorActionContributor
+          class="org.rascalmpl.eclipse.terms.ActionContributor"
+          language="Terms">
+    </editorActionContributor>
  </extension> 
 </plugin>

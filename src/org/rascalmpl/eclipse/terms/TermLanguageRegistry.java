@@ -110,8 +110,8 @@ public class TermLanguageRegistry {
 		return outliners.get(lang.getName());
 	}
 	
-	public Map<String, ISet> getContributions() {
-		return Collections.unmodifiableMap(contributions);
+	public ISet getContributions(Language lang) {
+		return contributions.get(lang.getName());
 	}
 
 	public ICallableValue getAnnotator(String name) {

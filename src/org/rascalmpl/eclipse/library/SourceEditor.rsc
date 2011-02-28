@@ -6,12 +6,11 @@ import ParseTree;
 @doc{Use this type to add items to the menus of the IDE (unfinished)}
 data Contribution 
   = popup(Menu menu)
-  | toolbar(Menu menu)
   | menu(Menu menu)
   ;
   
 data Menu 
-  = item(str label, void () action)
+  = action(str label, (&T<:Tree) ((&T<:Tree) tree, loc selection) action)
   | group(str label, list[Menu] members)
   | menu(str label, list[Menu] members)
   ;
