@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.language.Language;
+import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IParseController;
@@ -47,6 +48,7 @@ public class ParseController implements IParseController {
 	private IConstructor lastParseTree = null;
 	private byte[] lastParsedInput = null;
 	private IPath path;
+	private Language language;
 	
 	private Evaluator getParser(IProject project) {
 		return ProjectParserFactory.getInstance().getParser(project);
@@ -65,7 +67,10 @@ public class ParseController implements IParseController {
 	}
 
 	public Language getLanguage() {
-		return null;
+		if (language == null) {
+			language = LanguageRegistry.findLanguage("Rascal");
+		}
+		return language;
 	}
 
 	public ISourcePositionLocator getSourcePositionLocator() {
