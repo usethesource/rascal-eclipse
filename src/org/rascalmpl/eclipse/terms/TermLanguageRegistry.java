@@ -117,6 +117,4 @@ public class TermLanguageRegistry {
 	public ICallableValue getAnnotator(String name) {
 		return analyses.get(name);
 	}
-
-	
 }
