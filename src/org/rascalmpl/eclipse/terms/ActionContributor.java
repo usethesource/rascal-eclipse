@@ -17,7 +17,11 @@ import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Point;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -75,12 +79,24 @@ public class ActionContributor implements ILanguageActionsContributor {
 					Type[] actualTypes = new Type[] { RTF.nonTerminalType(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree))), TF.sourceLocationType() };
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] actuals = new IValue[] { tree, VF.sourceLocation(loc.getURI(), selection.x, selection.y, -1, -1, -1, -1)};
-					IConstructor newTree = (IConstructor) func.call(actualTypes, actuals).getValue();
+					try {
+						IConstructor newTree = (IConstructor) func.call(actualTypes, actuals).getValue();
 					
-					if (newTree != null && newTree != tree) {
-						String newText = TreeAdapter.yield(newTree);
-						// TODO replace editor contents with new text
-						System.err.println("new contents: " + newText);
+						if (newTree != null && newTree != tree) {
+							try {
+								String newText = TreeAdapter.yield(newTree);
+								IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+								doc.replace(0, doc.getLength(), newText);
+								if (selection.x < doc.getLength()) {
+									editor.selectAndReveal(selection.x, 0);
+								}
+							} catch (BadLocationException e) {
+								Activator.getInstance().logException("could not replace text", e);
+							}
+						}
+					}
+					catch (Throwable e) {
+						Activator.getInstance().logException("error while executing action", e);
 					}
 				}
 			}
