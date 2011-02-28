@@ -96,7 +96,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 						}
 					}
 					catch (Throwable e) {
-						Activator.getInstance().logException("error while executing action", e);
+						Activator.getInstance().logException("error while executing action:" + e.getMessage(), e);
 					}
 				}
 			}
