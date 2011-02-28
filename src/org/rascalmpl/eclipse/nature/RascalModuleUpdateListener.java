@@ -36,8 +36,8 @@ public class RascalModuleUpdateListener implements IResourceChangeListener {
 						
 						if (resource instanceof IFile) {
 							IPath path = resource.getLocation();
-							
-							if (path.getFileExtension().equals(IRascalResources.RASCAL_EXT))  {
+
+							if (path != null && path.getFileExtension().equals(IRascalResources.RASCAL_EXT))  {
 								switch (delta.getKind()) {
 								case IResourceDelta.OPEN:
 									break;

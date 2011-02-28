@@ -29,7 +29,7 @@ public class ModuleReloader implements IModuleChangedListener {
 	public void updateModules() {
 		synchronized (dirtyModules) {
 			Set<String> names = new HashSet<String>();
-			PrintWriter pw = new PrintWriter(eval.getStdErr());
+			PrintWriter pw = new PrintWriter(eval.getStdOut());
 			
 			for (URI uri : dirtyModules) {
 				String path = uri.getPath();
