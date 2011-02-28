@@ -1,5 +1,6 @@
 package org.rascalmpl.eclipse.library;
 
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -32,6 +33,10 @@ public class SourceEditor {
 		else {
 			Activator.getInstance().logException("could not register tree model builder for " + name, new RuntimeException());
 		}
+	}
+	
+	public void registerContributions(IString name, ISet contributions) {
+		TermLanguageRegistry.getInstance().registerContributions(name.getValue(),contributions);
 	}
 	
 	public void clear() {

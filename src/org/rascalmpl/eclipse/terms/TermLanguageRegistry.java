@@ -1,11 +1,13 @@
 package org.rascalmpl.eclipse.terms;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -18,6 +20,7 @@ public class TermLanguageRegistry {
 	private final Map<String, ICallableValue> parsers = new HashMap<String,ICallableValue>();
 	private final Map<String, ICallableValue> analyses = new HashMap<String,ICallableValue>();
 	private final Map<String, ICallableValue> outliners = new HashMap<String,ICallableValue>();
+	private final Map<String, ISet> contributions = new HashMap<String, ISet>();
 
 	static private class InstanceKeeper {
 		public static TermLanguageRegistry sInstance = new TermLanguageRegistry();
@@ -35,6 +38,7 @@ public class TermLanguageRegistry {
 		parsers.clear();
 		analyses.clear();
 		outliners.clear();
+		contributions.clear();
 	}
 	
 	public void clear(String value) {
@@ -47,6 +51,7 @@ public class TermLanguageRegistry {
 		parsers.remove(value);
 		analyses.remove(value);
 		outliners.remove(value);
+		contributions.remove(value);
 	}
 	
 	public void registerLanguage(String name, String extension, ICallableValue parser, IEvaluatorContext ctx) {
@@ -63,6 +68,10 @@ public class TermLanguageRegistry {
 	
 	public void registerOutliner(String lang, ICallableValue builder) {
 		outliners.put(lang, builder);
+	}
+	
+	public void registerContributions(String lang, ISet set) {
+		contributions.put(lang, set);
 	}
 
 	public Language getLanguage(String fileExtension) {
@@ -100,8 +109,14 @@ public class TermLanguageRegistry {
 	public ICallableValue getOutliner(Language lang) {
 		return outliners.get(lang.getName());
 	}
+	
+	public Map<String, ISet> getContributions() {
+		return Collections.unmodifiableMap(contributions);
+	}
 
 	public ICallableValue getAnnotator(String name) {
 		return analyses.get(name);
 	}
+
+	
 }

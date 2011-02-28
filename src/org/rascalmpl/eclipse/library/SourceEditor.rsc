@@ -1,6 +1,25 @@
 module SourceEditor
 
+// Especially annotations defined in this module are relevant for SourceEditor
 import ParseTree;
+
+@doc{Use this type to add items to the menus of the IDE (unfinished)}
+data Contribution 
+  = popup(Menu menu)
+  | toolbar(Menu menu)
+  | menu(Menu menu)
+  ;
+  
+data Menu 
+  = item(str label, void () action)
+  | group(str label, list[Menu] members)
+  | menu(str label, list[Menu] members)
+  ;
+  
+
+     
+anno str node@label; // an String label for an outline node
+anno loc node@\loc;  // a link for an outline node
 
 @reflect{Use the evaluator to parse editor contents and apply functions to parse trees}
 @doc{This registers an extension with a parser for Eclipse}
@@ -26,9 +45,9 @@ item is displayed, which item it links to and what image is displayed next to it
 @javaClass{org.rascalmpl.eclipse.library.SourceEditor}
 public void java registerOutliner(str name, node (&T<:Tree input) outliner);
 
-anno loc node@image; // an Eclipse URI to an image (not all Rascal schemes supported!)
-anno str node@label; // an String label for an outline node
-anno loc node@\loc;  // a link for an outline node
+@doc{This registers a number of contributions to the menus of the IDE}
+@javaClass{org.rascalmpl.eclipse.library.SourceEditor}
+public void java registerContributions(str name, set[Contribution] contributions);
 
 @doc{Use with caution! This will clear all registered languages (for debugging purposes)}
 @javaClass{org.rascalmpl.eclipse.library.SourceEditor}
