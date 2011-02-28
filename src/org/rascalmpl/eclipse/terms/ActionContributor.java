@@ -18,7 +18,6 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.eclipse.Activator;
@@ -29,6 +28,53 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ActionContributor implements ILanguageActionsContributor {
+	private static final class RascalAction extends Action {
+		private final UniversalEditor editor;
+		private final ICallableValue func;
+
+		private RascalAction(String text, UniversalEditor editor,
+				ICallableValue func) {
+			super(text);
+			this.editor = editor;
+			this.func = func;
+		}
+
+		@Override
+		public void run() {
+			IConstructor tree = (IConstructor) editor.getParseController().getCurrentAst();
+			Point selection = editor.getSelection();
+			
+			if (tree != null) {
+				Type[] actualTypes = new Type[] { RTF.nonTerminalType(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree))), TF.sourceLocationType() };
+				ISourceLocation loc = TreeAdapter.getLocation(tree);
+				IValue[] actuals = new IValue[] { tree, VF.sourceLocation(loc.getURI(), selection.x, selection.y, -1, -1, -1, -1)};
+				try {
+					IConstructor newTree = (IConstructor) func.call(actualTypes, actuals).getValue();
+				
+					if (newTree != null && newTree != tree) {
+						replaceText(selection, newTree);
+					}
+				}
+				catch (Throwable e) {
+					Activator.getInstance().logException("error while executing action:" + e.getMessage(), e);
+				}
+			}
+		}
+
+		private void replaceText(Point selection, IConstructor newTree) {
+			try {
+				String newText = TreeAdapter.yield(newTree);
+				IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+				doc.replace(0, doc.getLength(), newText);
+				if (selection.x < doc.getLength()) {
+					editor.selectAndReveal(selection.x, 0);
+				}
+			} catch (BadLocationException e) {
+				Activator.getInstance().logException("could not replace text", e);
+			}
+		}
+	}
+
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	private final static RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
@@ -69,38 +115,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 	private void contributeAction(IMenuManager menuManager,
 			final UniversalEditor editor, IConstructor menu, String label) {
 		final ICallableValue func = (ICallableValue) menu.get("action");
-		menuManager.add(new Action(label) {
-			@Override
-			public void run() {
-				IConstructor tree = (IConstructor) editor.getParseController().getCurrentAst();
-				Point selection = editor.getSelection();
-				
-				if (tree != null) {
-					Type[] actualTypes = new Type[] { RTF.nonTerminalType(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree))), TF.sourceLocationType() };
-					ISourceLocation loc = TreeAdapter.getLocation(tree);
-					IValue[] actuals = new IValue[] { tree, VF.sourceLocation(loc.getURI(), selection.x, selection.y, -1, -1, -1, -1)};
-					try {
-						IConstructor newTree = (IConstructor) func.call(actualTypes, actuals).getValue();
-					
-						if (newTree != null && newTree != tree) {
-							try {
-								String newText = TreeAdapter.yield(newTree);
-								IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
-								doc.replace(0, doc.getLength(), newText);
-								if (selection.x < doc.getLength()) {
-									editor.selectAndReveal(selection.x, 0);
-								}
-							} catch (BadLocationException e) {
-								Activator.getInstance().logException("could not replace text", e);
-							}
-						}
-					}
-					catch (Throwable e) {
-						Activator.getInstance().logException("error while executing action:" + e.getMessage(), e);
-					}
-				}
-			}
-		});
+		menuManager.add(new RascalAction(label, editor, func));
 	}
 
 	private ISet getContribs(UniversalEditor editor) {
