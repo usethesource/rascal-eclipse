@@ -20,6 +20,7 @@ import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.editor.IMessageHandlerProvider;
 import org.rascalmpl.eclipse.editor.NodeLocator;
 import org.rascalmpl.eclipse.editor.TokenIterator;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
@@ -29,7 +30,7 @@ import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class TermParseController implements IParseController {
+public class TermParseController implements IParseController, IMessageHandlerProvider {
 	private IMessageHandler handler;
 	private ISourceProject project;
 	private ISourceLocation loc;
@@ -125,5 +126,9 @@ public class TermParseController implements IParseController {
 		}
 		
 		return null;
+	}
+
+	public IMessageHandler getMessageHandler() {
+		return handler;
 	}
 }

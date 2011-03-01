@@ -9,7 +9,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.editor.MarkerModelListener;
+import org.rascalmpl.eclipse.editor.MessageProcessor;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -25,7 +25,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * API in SourceEditor.rsc
  */
 public class AnnotatorModelListener implements IModelListener {
-	private final MarkerModelListener marker = new MarkerModelListener();
+	private final MessageProcessor marker = new MessageProcessor();
 	
 	public AnalysisRequired getAnalysisRequired() {
 		return AnalysisRequired.LEXICAL_ANALYSIS;
@@ -69,7 +69,7 @@ public class AnnotatorModelListener implements IModelListener {
 				}
 				parseTree = newTree;
 				((TermParseController) parseController).setCurrentAst(parseTree);
-				marker.update(parseTree, parseController, monitor);
+				marker.process(parseTree, parseController, monitor);
 			}
 			else {
 				Activator.getInstance().logException("annotator returned null", new RuntimeException());

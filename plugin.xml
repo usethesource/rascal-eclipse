@@ -146,7 +146,7 @@
          point="org.eclipse.imp.runtime.editorService">
       <editorService
             class="org.rascalmpl.eclipse.terms.AnnotatorModelListener"
-            language="term">
+            language="Terms">
       </editorService>
    </extension>
    <extension
@@ -591,49 +591,7 @@
               class="org.rascalmpl.eclipse.nature.InitializeRascalPlugins"
               id="rascalStarter"></languageRegistrar>
   </extension>
-  <extension
-        point="org.eclipse.imp.runtime.editorService">
-     <editorService
-           class="org.rascalmpl.eclipse.editor.FocusService"
-           language="rascal">
-     </editorService>
-  </extension>
-
- <extension 
-       id="rascal.focusMarker"
-       point="org.eclipse.ui.editors.markerAnnotationSpecification">
-     <specification
-           annotationType="rascal.focus"
-           colorPreferenceKey="FocusColorPreferenceKey"
-           colorPreferenceValue="250,250,210"
-           contributesToHeader="false"
-           highlightPreferenceKey="HighLightPreferenceKey"
-           highlightPreferenceValue="true"
-           includeOnPreferencePage="false"
-           isGoToNextNavigationTarget="false"
-           isGoToPreviousNavigationTarget="false"
-           overviewRulerPreferenceKey="FocusOverViewPreferenceKey"
-           overviewRulerPreferenceValue="false"
-           presentationLayer="4"
-           showInNextPrevDropdownToolbarAction="false"
-           textPreferenceKey="TextPreferenceKey"
-           textPreferenceValue="true"
-           textStylePreferenceKey="FocusStylePreferenceKey"
-           textStylePreferenceValue="BOX"
-           verticalRulerPreferenceKey="FocusVerticalRulerPreferenceKey"
-           verticalRulerPreferenceValue="false">
-     </specification>
-  </extension>
   
-   <extension
-       point="org.eclipse.ui.editors.annotationTypes">
-    <type
-          markerType="rascal.focusMarker"
-          name="rascal.focus">
-    </type>
- </extension>
- 
-
  <extension point="org.eclipse.core.resources.markers"
             id="rascal.markerType.queryResult"
             name="Rascal Marker">
@@ -814,13 +772,6 @@
   </extension>
  
  <extension
-       point="org.eclipse.imp.runtime.editorService">
-    <editorService
-          class="org.rascalmpl.eclipse.editor.FocusService"
-          language="Terms">
-    </editorService>
- </extension>
- <extension
        point="org.eclipse.ui.handlers">
     <handler
           class="org.rascalmpl.eclipse.box.PrintHandler"
@@ -938,20 +889,6 @@
     </persistent>
     <super
           type="org.eclipse.core.resources.problemmarker">
-    </super>
- </extension>
- <extension
-       id="rascal.focusMarker"
-       name="Rascal Syntax Focus"
-       point="org.eclipse.core.resources.markers">
-    <super
-          type="org.eclipse.core.resources.problemmarker">
-    </super>
-    <persistent
-          value="true">
-    </persistent>
-    <super
-          type="org.eclipse.core.resources.textmarker">
     </super>
  </extension>
  <extension

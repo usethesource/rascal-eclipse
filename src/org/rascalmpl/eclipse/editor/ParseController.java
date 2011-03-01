@@ -36,12 +36,11 @@ import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
 
-public class ParseController implements IParseController {
+public class ParseController implements IParseController, IMessageHandlerProvider {
 	private IMessageHandler handler;
 	private ISourceProject project;
 	private IConstructor parseTree;
@@ -58,6 +57,10 @@ public class ParseController implements IParseController {
 		return null;
 	}
 
+	public IMessageHandler getMessageHandler() {
+		return handler;
+	}
+	
 	public Object getCurrentAst() {
 		return parseTree;
 	}

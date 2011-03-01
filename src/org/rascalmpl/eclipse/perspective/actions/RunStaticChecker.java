@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.imp.builder.MarkerCreator;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
@@ -35,7 +36,7 @@ import org.rascalmpl.checker.StaticChecker;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
-import org.rascalmpl.eclipse.editor.MarkerModelListener;
+import org.rascalmpl.eclipse.editor.MessageProcessor;
 import org.rascalmpl.eclipse.editor.ParseController;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
@@ -45,7 +46,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RunStaticChecker implements IEditorActionDelegate {
-	private final MarkerModelListener marker = new MarkerModelListener();
+	private final MessageProcessor marker = new MessageProcessor();
 	private static HashMap<ISourceProject, StaticChecker> checkerMap = new HashMap<ISourceProject, StaticChecker>();
 	
 	private UniversalEditor editor;
@@ -98,7 +99,7 @@ public class RunStaticChecker implements IEditorActionDelegate {
 					IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
 					IConstructor newTreeTop = treeTop.set("args", treeArgs).setAnnotation("loc", treeTop.getAnnotation("loc"));
 					parseTree = newTreeTop;
-					marker.update(parseTree, parseController, monitor);
+					marker.process(parseTree, parseController, monitor);
 				}
 			} else {
 				Activator.getInstance().logException("static checker could not be created", new RuntimeException());
