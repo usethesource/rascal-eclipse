@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.interpreter.Evaluator;
 
@@ -29,18 +30,21 @@ public class ModuleReloader implements IModuleChangedListener {
 	public void updateModules() {
 		synchronized (dirtyModules) {
 			Set<String> names = new HashSet<String>();
-			PrintWriter pw = new PrintWriter(eval.getStdOut());
 			
 			for (URI uri : dirtyModules) {
 				String path = uri.getPath();
 				path = path.substring(0, path.indexOf(IRascalResources.RASCAL_EXT) - 1);
 				path = path.startsWith("/") ? path.substring(1) : path;
 				names.add(path.replaceAll("/","::"));
-				pw.println("Reloading module from " + uri);
-				pw.flush();
 			}
 			
-			eval.reloadModules(names, URI.create("console:///"));	
+			try {
+				eval.reloadModules(names, URI.create("console:///"));
+			}
+			catch (Throwable x) {
+				Activator.getInstance().logException("error while reloading", x);
+			}
+			
 			dirtyModules.clear();
 		}
 	}
