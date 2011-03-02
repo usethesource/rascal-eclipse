@@ -47,7 +47,7 @@ public class BoxExportPage extends WizardExportResourcesPage {
 
 	private boolean rascal = false;
 
-	private ArrayList<String> exts = new ArrayList<String>();
+	private ArrayList<String> exst = new ArrayList<String>();
 
 	final String pageName;
 
@@ -65,6 +65,26 @@ public class BoxExportPage extends WizardExportResourcesPage {
 		return myConsole;
 	}
 
+	boolean isBoxFormatPresent(IFolder f) {
+		IResource[] fs;
+		try {
+			fs = f.members();
+			for (IResource r : fs) {
+				if (r instanceof IFolder && r.getName().equals("util")) {
+					IResource[] ft = ((IFolder) r).members();
+					for (IResource q : ft) {
+						if (q.getName().equals("BoxFormat.rsc"))
+							return true;
+					}
+				}
+			}
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 	protected BoxExportPage(String pageName, IStructuredSelection selection) {
 		super(pageName, selection);
 		this.pageName = pageName;
@@ -76,7 +96,13 @@ public class BoxExportPage extends WizardExportResourcesPage {
 				.getProjects();
 		if (projects.length == 0)
 			return;
-		IProject p = projects[0];
+		IProject p = null;
+		for (IProject q : projects) {
+			if (q.getFolder("std/lang").isAccessible()) {
+			p = q;
+			break;
+			}
+		}
 		for (IProject project : projects) {
 			if (project.getName().equals("oberon0")) {
 				oberon0 = true;
@@ -96,12 +122,16 @@ public class BoxExportPage extends WizardExportResourcesPage {
 			}
 		}
 		try {
-			IFolder d = p.getFolder("std/box");
+			IResource[] qs = p.members();
+			for (IResource q : qs) {
+				System.err.println(q);
+			}
+			IFolder d = p.getFolder("std/lang");
 			IResource[] fs = d.members();
 			for (IResource f : fs) {
-				if (f instanceof IFolder) {
+				if (f instanceof IFolder && isBoxFormatPresent((IFolder) f)) {
 					if (!f.getName().startsWith("."))
-						exts.add("." + f.getName());
+						exst.add("." + f.getName());
 				}
 			}
 		} catch (CoreException e) {
@@ -126,7 +156,7 @@ public class BoxExportPage extends WizardExportResourcesPage {
 		}
 		if (oberon0 && s.endsWith(".oberon0"))
 			return true;
-		for (String q : exts) {
+		for (String q : exst) {
 			if (s.endsWith(q)) {
 				return true;
 			}
