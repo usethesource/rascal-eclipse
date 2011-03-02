@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.imp.editor.IRegionSelectionService;
+import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
@@ -28,6 +29,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 
 public class SourceLocationHyperlink implements IHyperlink {
 	private final ISourceLocation from;
@@ -69,11 +71,18 @@ public class SourceLocationHyperlink implements IHyperlink {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						try {
-							IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(to.getURI().getPath());
+							IEditorDescriptor desc;
+							if (TermLanguageRegistry.getInstance().getLanguage(to) != null) {
+								desc = PlatformUI.getWorkbench().getEditorRegistry().findEditor(UniversalEditor.EDITOR_ID);
+							} 
+							else {
+								desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(to.getURI().getPath());
+							}
 							IEditorPart part;
 							
 							if (desc != null) {
-								part = page.openEditor(getEditorInput(to.getURI()), desc.getId());
+								IEditorInput editorInput = getEditorInput(to.getURI());
+								part = page.openEditor(editorInput, desc.getId());
 								ISelectionProvider sp = part.getEditorSite().getSelectionProvider();
 								if (sp != null) {
 									sp.setSelection(new TextSelection(to.getOffset(), to.getLength()));
@@ -136,7 +145,7 @@ public class SourceLocationHyperlink implements IHyperlink {
 							}
 						}
 						
-						Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
+//						Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
 						return null;
 					}
 				});
