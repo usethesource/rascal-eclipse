@@ -49,7 +49,7 @@ public class BoxExportPage extends WizardExportResourcesPage {
 
 	private ArrayList<String> exst = new ArrayList<String>();
 
-	final String pageName;
+	final String cmd, ext;
 
 	static private MessageConsole findConsole(String name) {
 		ConsolePlugin plugin = ConsolePlugin.getDefault();
@@ -85,9 +85,10 @@ public class BoxExportPage extends WizardExportResourcesPage {
 		return false;
 	}
 
-	protected BoxExportPage(String pageName, IStructuredSelection selection) {
-		super(pageName, selection);
-		this.pageName = pageName;
+	protected BoxExportPage(String cmd, String ext, IStructuredSelection selection) {
+		super(cmd, selection);
+		this.cmd = cmd;
+		this.ext = ext;
 		MessageConsole m = findConsole("boxConsole");
 		PrintStream ps = new PrintStream(m.newMessageStream());
 		PrintWriter pwo = new PrintWriter(ps), pwe = new PrintWriter(System.err);
@@ -122,10 +123,10 @@ public class BoxExportPage extends WizardExportResourcesPage {
 			}
 		}
 		try {
-			IResource[] qs = p.members();
-			for (IResource q : qs) {
-				System.err.println(q);
-			}
+//			IResource[] qs = p.members();
+//			for (IResource q : qs) {
+//				System.err.println(q);
+//			}
 			IFolder d = p.getFolder("std/lang");
 			IResource[] fs = d.members();
 			for (IResource f : fs) {
@@ -229,11 +230,11 @@ public class BoxExportPage extends WizardExportResourcesPage {
 			try {
 				destdir = new URI("file", currentDir, null);
 				if (rascal)
-					makeBox.rascalToPrint(pageName, res.getLocationURI(),
+					makeBox.rascalToExport(cmd, res.getLocationURI(),
 							destdir);
 				else {
 					// System.err.println("BoxExport:"+pageName+" "+res.getLocationURI());
-					makeBox.toPrint(pageName, res.getLocationURI(), destdir);
+					makeBox.toExport(cmd, ext, res.getLocationURI(), destdir);
 				}
 			} catch (URISyntaxException e) {
 				// TODO Auto-generated catch block

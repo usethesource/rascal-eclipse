@@ -39,7 +39,7 @@ public class BoxExport extends Wizard implements IExportWizard {
 
 	private IStructuredSelection fSelection = StructuredSelection.EMPTY;
 
-	protected String cmd;
+	protected String ext, cmd;
 
 	/**
 	 * Creates a wizard for exporting workspace resources to a JAR file.
@@ -52,7 +52,7 @@ public class BoxExport extends Wizard implements IExportWizard {
 	 */
 	public void addPages() {
 		super.addPages();
-		fExportPage = new BoxExportPage(cmd, fSelection);
+		fExportPage = new BoxExportPage(cmd, ext, fSelection);
 		addPage(fExportPage);
 	}
 
