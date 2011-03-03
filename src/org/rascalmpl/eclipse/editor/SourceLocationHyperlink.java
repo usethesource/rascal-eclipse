@@ -45,7 +45,7 @@ public class SourceLocationHyperlink implements IHyperlink {
 	}
 
 	public String getHyperlinkText() {
-		return null;
+		return to.toString();
 	}
 
 	public String getTypeLabel() {
@@ -145,7 +145,7 @@ public class SourceLocationHyperlink implements IHyperlink {
 							}
 						}
 						
-//						Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
+						Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
 						return null;
 					}
 				});

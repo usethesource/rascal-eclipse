@@ -38,11 +38,11 @@ public class SourceEditor {
 		TermLanguageRegistry.getInstance().registerContributions(name.getValue(),contributions);
 	}
 	
-	public void clear() {
+	public void clearLanguages() {
 		TermLanguageRegistry.getInstance().clear();
 	}
 	
-	public void clear(IString name) {
+	public void clearLanguage(IString name) {
 		TermLanguageRegistry.getInstance().clear(name.getValue());
 	}
 }

@@ -22,6 +22,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -49,10 +50,12 @@ public class ActionContributor implements ILanguageActionsContributor {
 				ISourceLocation loc = TreeAdapter.getLocation(tree);
 				IValue[] actuals = new IValue[] { tree, VF.sourceLocation(loc.getURI(), selection.x, selection.y, -1, -1, -1, -1)};
 				try {
-					IConstructor newTree = (IConstructor) func.call(actualTypes, actuals).getValue();
+					IValue result = func.call(actualTypes, actuals).getValue();
 				
-					if (newTree != null && newTree != tree) {
-						replaceText(selection, newTree);
+					if (((FunctionType) func.getType()).getReturnType() != TF.voidType()) {
+						if (result != null) {
+							replaceText(selection, (IString) result);
+						}
 					}
 				}
 				catch (Throwable e) {
@@ -61,9 +64,9 @@ public class ActionContributor implements ILanguageActionsContributor {
 			}
 		}
 
-		private void replaceText(Point selection, IConstructor newTree) {
+		private void replaceText(Point selection, IString newTree) {
 			try {
-				String newText = TreeAdapter.yield(newTree);
+				String newText = newTree.getValue();
 				IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 				doc.replace(0, doc.getLength(), newText);
 				if (selection.x < doc.getLength()) {
@@ -94,7 +97,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 	private void contribute(IMenuManager menuManager, final UniversalEditor editor, IConstructor menu) {
 		String label = ((IString) menu.get("label")).getValue();
 		
-		if (menu.getName().equals("action")) {
+		if (menu.getName().equals("action") || menu.getName().equals("edit")) {
 			contributeAction(menuManager, editor, menu, label);
 		}
 		else if (menu.getName().equals("group")) {
@@ -114,8 +117,14 @@ public class ActionContributor implements ILanguageActionsContributor {
 
 	private void contributeAction(IMenuManager menuManager,
 			final UniversalEditor editor, IConstructor menu, String label) {
-		final ICallableValue func = (ICallableValue) menu.get("action");
-		menuManager.add(new RascalAction(label, editor, func));
+		if (menu.has("action")) {
+			final ICallableValue func = (ICallableValue) menu.get("action");
+			menuManager.add(new RascalAction(label, editor, func));
+		}
+		else if (menu.has("edit")) {
+			final ICallableValue func = (ICallableValue) menu.get("edit");
+			menuManager.add(new RascalAction(label, editor, func));
+		}
 	}
 
 	private ISet getContribs(UniversalEditor editor) {

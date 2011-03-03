@@ -103,6 +103,9 @@ public class TermLanguageRegistry {
 	}
 	
 	public ICallableValue getParser(Language lang) {
+		if (lang == null) {
+			return null;
+		}
 		return  parsers.get(lang.getName());
 	}
 	

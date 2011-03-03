@@ -11,7 +11,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.MessageProcessor;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -52,7 +52,7 @@ public class AnnotatorModelListener implements IModelListener {
 			IConstructor top = parseTree;
 			boolean start = false;
 			IConstructor tree;
-			if (TreeAdapter.getSortName(top).equals("<START>")) {
+			if (TreeAdapter.isAppl(top) && TreeAdapter.getSortName(top).equals("<START>")) {
 				tree = (IConstructor) TreeAdapter.getArgs(top).get(1);
 				start = true;
 			}
@@ -60,7 +60,8 @@ public class AnnotatorModelListener implements IModelListener {
 				tree = top;
 			}
 			
-			IConstructor newTree = (IConstructor) func.call(new Type[] {Factory.Tree}, new IValue[] {tree}).getValue();
+			Type type = RascalTypeFactory.getInstance().nonTerminalType(tree);
+			IConstructor newTree = (IConstructor) func.call(new Type[] {type}, new IValue[] {tree}).getValue();
 			
 			if (newTree != null) {
 				if (start) {

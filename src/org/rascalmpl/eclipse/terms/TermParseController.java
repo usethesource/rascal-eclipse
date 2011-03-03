@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IMessageHandlerProvider;
@@ -38,6 +39,7 @@ public class TermParseController implements IParseController, IMessageHandlerPro
 	private IPath path;
 	private Language language;
 	private ICallableValue parser;
+	private IDocument document;
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory(); 
 	
 	public Object getCurrentAst(){
@@ -87,6 +89,18 @@ public class TermParseController implements IParseController, IMessageHandlerPro
 		this.loc = VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, path));
 	}
 
+	public IDocument getDocument() {
+		return document;
+	};
+	
+	public Object parse(IDocument doc, IProgressMonitor monitor) {
+		if (doc == null) {
+			return null;
+		}
+		this.document = doc;
+		return parse(doc.get(), monitor);
+	}
+	
 	public Object parse(String input, IProgressMonitor monitor){
 		parseTree = null;
 		
@@ -95,7 +109,9 @@ public class TermParseController implements IParseController, IMessageHandlerPro
 			handler.clearMessages();
 			monitor.beginTask("parsing " + language.getName(), 1);
 			TypeFactory TF = TypeFactory.getInstance();
-			parseTree = (IConstructor) parser.call(new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}).getValue();
+			if (parser != null) {
+				parseTree = (IConstructor) parser.call(new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}).getValue();
+			}
 			monitor.worked(1);
 			return parseTree;
 		}

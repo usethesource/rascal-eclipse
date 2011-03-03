@@ -23,7 +23,7 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.eclipse.imp.services.base.TreeModelBuilderBase;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
 public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageService  {
 	private Language lang;
@@ -43,7 +43,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 			return;
 		}
 		
-		IValue outline = outliner.call(new Type[] {Factory.Tree}, new IValue[] {pt}).getValue();
+		IValue outline = outliner.call(new Type[] {RascalTypeFactory.getInstance().nonTerminalType(pt)}, new IValue[] {pt}).getValue();
 		
 		if (outline instanceof INode) {
 			INode node = (INode) outline;

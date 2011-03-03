@@ -2,6 +2,7 @@ package org.rascalmpl.eclipse.editor;
 
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.services.ISourceHyperlinkDetector;
@@ -22,24 +23,35 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		IConstructor tree = (IConstructor) parseController.getCurrentAst();
 		
 		if (tree != null) {
-			IHyperlink link = getTreeLinks(tree, region);
-			
-			if (link != null) {
-				return new IHyperlink[] { link };
-			}
+			return getTreeLinks(tree, region);
 		}
 		
 		return null;
 	}
 
-	private IHyperlink getTreeLinks(IConstructor tree, IRegion region) {
-		IConstructor lexical = TreeAdapter.locateAnnotatedTree(tree, "link", region.getOffset());
+	private IHyperlink[] getTreeLinks(IConstructor tree, IRegion region) {
+		IConstructor ref = TreeAdapter.locateAnnotatedTree(tree, "link", region.getOffset());
 		
-		if (lexical != null) {
-			IValue link = lexical.getAnnotation("link");
+		if (ref != null) {
+			IValue link = ref.getAnnotation("link");
 			
 			if (link != null && link.getType().isSourceLocationType()) { 
-				return new SourceLocationHyperlink(TreeAdapter.getLocation(lexical), (ISourceLocation) link);
+				return new IHyperlink[] { new SourceLocationHyperlink(TreeAdapter.getLocation(ref), (ISourceLocation) link) };
+			}
+			
+			
+		}
+		
+		ref = TreeAdapter.locateAnnotatedTree(tree, "links", region.getOffset());
+		if (ref != null) {
+			IValue links = ref.getAnnotation("links");
+			if (links != null && links.getType().isSetType() && links.getType().getElementType().isSourceLocationType()) {
+				IHyperlink[] a = new IHyperlink[((ISet) links).size()];
+				int i = 0;
+				for (IValue l : ((ISet) links)) {
+					a[i++] = new SourceLocationHyperlink(TreeAdapter.getLocation(ref), (ISourceLocation) l);
+				}
+				return a;
 			}
 		}
 		

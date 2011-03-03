@@ -10,7 +10,8 @@ data Contribution
   ;
   
 data Menu 
-  = action(str label, (&T<:Tree) ((&T<:Tree) tree, loc selection) action)
+  = action(str label, void (Tree tree, loc selection) action)
+  | edit(str label, str (Tree tree, loc selection) edit)
   | group(str label, list[Menu] members)
   | menu(str label, list[Menu] members)
   ;
@@ -50,8 +51,8 @@ public void java registerContributions(str name, set[Contribution] contributions
 
 @doc{Use with caution! This will clear all registered languages (for debugging purposes)}
 @javaClass{org.rascalmpl.eclipse.library.SourceEditor}
-public void java clear();
+public void java clearLanguages();
 
 @doc{Use with caution! This will clear a registered language (for debugging purposes)}
 @javaClass{org.rascalmpl.eclipse.library.SourceEditor}
-public void java clear(str name);
+public void java clearLanguage(str name);

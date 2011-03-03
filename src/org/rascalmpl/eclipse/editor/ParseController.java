@@ -26,6 +26,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
@@ -48,6 +49,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	private byte[] lastParsedInput = null;
 	private IPath path;
 	private Language language;
+	private IDocument document;
 	
 	private Evaluator getParser(IProject project) {
 		return ProjectParserFactory.getInstance().getParser(project);
@@ -147,10 +149,21 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		}
 	}
 
+	public IDocument getDocument() {
+		return document;
+	}
+	
+	public Object parse(IDocument doc, IProgressMonitor monitor) {
+		if (doc == null) {
+			return null;
+		}
+		this.document = doc;
+		return parse(doc.get(), monitor);
+	}
+	
 	public Object parse(String input, IProgressMonitor monitor) {
 		parseTree = null;
-		
-		if (project == null || path == null || input == null) {
+		if (input == null || project == null || path == null) {
 			// may happen when project is deleted before Eclipse was started
 			return null;
 		}
