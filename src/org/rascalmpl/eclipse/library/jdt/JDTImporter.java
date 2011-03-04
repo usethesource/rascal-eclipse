@@ -257,7 +257,6 @@ public class JDTImporter extends ASTVisitor {
 		ITypeBinding tb = null;
 		
 		if (n instanceof org.eclipse.jdt.core.dom.Type) {
-			org.eclipse.jdt.core.dom.Type ty = (org.eclipse.jdt.core.dom.Type)n;
 			tb = ((org.eclipse.jdt.core.dom.Type)n).resolveBinding(); 	
 		} else if (n instanceof AbstractTypeDeclaration) {
 			tb = ((AbstractTypeDeclaration) n).resolveBinding();

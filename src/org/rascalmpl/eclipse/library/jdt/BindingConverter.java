@@ -176,7 +176,6 @@ public class BindingConverter extends ASTVisitor {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<IValue> getModifiers(int mods) {
 		List<IValue> result = new ArrayList<IValue>();
 		if (Modifier.isAbstract(mods))

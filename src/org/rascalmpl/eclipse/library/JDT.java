@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.rascalmpl.eclipse.library.jdt.JDTImporter;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
@@ -80,7 +81,7 @@ public class JDT {
 	public IConstructor extractClass(ISourceLocation loc) {
 		IFile file = getIFileForLocation(loc);
 
-		Map<String,IValue> facts = new org.rascalmpl.eclipse.library.jdt.JDTImporter().importFacts(loc, file);
+		Map<String,IValue> facts = new JDTImporter().importFacts(loc, file);
 		IConstructor resource = (IConstructor) Resources.file.make(VF, loc);
 		return resource.setAnnotations(facts);
 	}
