@@ -80,14 +80,12 @@ public Resource extractProject(loc project) {
 @doc{import JDT facts from a project, file or folder}
 public Resource extractResource(Resource res) {
   if (res.id?) {
-    if (project(l, c) := res || isOnBuildPath(res.id)) {
-      if (res.contents?) {
-        return extractResources(res, res.contents);
-      } else {
-        loc file = res.id;
-      	if (file.extension == "java") {
-      	  return extractClass(file);
-      	}
+    if (res.contents?) {
+      return extractResources(res, res.contents);
+    } else {
+      loc file = res.id;
+      if (file.extension == "java" && isOnBuildPath(file)) {
+        return extractClass(file);
       }
     }
   }
