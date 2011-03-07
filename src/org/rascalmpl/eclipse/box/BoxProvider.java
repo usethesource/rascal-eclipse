@@ -34,7 +34,7 @@ public class BoxProvider extends FileDocumentProvider {
 		URI uri = f.getLocationURI();
 		IProject p = f.getProject();
 		BoxPrinter boxPrinter = new BoxPrinter(p);
-		((BoxDocument) d).computeDocument(boxPrinter.getRichText(uri));
+		((BoxDocument) d).computeDocument(boxPrinter.getRichTextRascal(uri));
 	}
 
 	private void prettyPrint(IFile f, String ext) {
