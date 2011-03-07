@@ -1,7 +1,5 @@
 package org.rascalmpl.eclipse.box;
 
-import java.io.PrintStream;
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -10,7 +8,6 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
-import org.rascalmpl.eclipse.box.BoxPrinter;
 
 /**
  * Our sample action implements workbench action delegate.

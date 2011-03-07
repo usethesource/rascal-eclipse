@@ -1,6 +1,5 @@
 package org.rascalmpl.eclipse.nature;
 
-import java.io.PrintWriter;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;

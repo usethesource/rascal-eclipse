@@ -1,6 +1,5 @@
 package org.rascalmpl.eclipse.terms;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
