@@ -55,9 +55,8 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 							if (img instanceof IString) {
 								return ((IString) img).getValue();
 							}
-							else {
-								return img.toString();
-							}
+							
+							return img.toString();
 						}
 
 						return o.getName();
@@ -90,9 +89,8 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 							if (label instanceof IString) {
 								return ((IString) label).getValue();
 							}
-							else {
-								return label.toString();
-							}
+							
+							return label.toString();
 						}
 
 						return o.getName();

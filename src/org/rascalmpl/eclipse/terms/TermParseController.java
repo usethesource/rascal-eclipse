@@ -91,7 +91,7 @@ public class TermParseController implements IParseController, IMessageHandlerPro
 
 	public IDocument getDocument() {
 		return document;
-	};
+	}
 	
 	public Object parse(IDocument doc, IProgressMonitor monitor) {
 		if (doc == null) {

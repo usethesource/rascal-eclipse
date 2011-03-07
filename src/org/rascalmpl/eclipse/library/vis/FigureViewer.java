@@ -44,7 +44,7 @@ public class FigureViewer extends EditorPart {
 	protected static final String editorId  = "rascal-eclipse.Figure.viewer";
 	
 	private FigurePApplet fpa ;
-	ScrolledComposite sc = null;;
+	ScrolledComposite sc = null;
 
 	private static Image makeSWTImage(Display display, java.awt.Image ai)
 			throws Exception {
