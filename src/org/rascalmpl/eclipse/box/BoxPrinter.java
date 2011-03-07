@@ -228,8 +228,8 @@ public class BoxPrinter {
 		}
 	}
 	
-	public void preparePrint(URI uri) {
-		textToPrint = getRichText(uri);
+	public void preparePrintRascal(URI uri) {
+		textToPrint = getRichTextRascal(uri);
 	}
     
 	public void preparePrint(URI uri, String ext) {
@@ -247,8 +247,8 @@ public class BoxPrinter {
 		return (IConstructor) makeBox.getFigure(uri, layout);
 	}
 	
-	public String getRichText(URI uri) {
-		return makeBox.toRichText(uri);
+	public String getRichTextRascal(URI uri) {
+		return makeBox.toRichTextRascal(uri);
 	}
 	
 	public String getRichText(URI uri, String ext) {

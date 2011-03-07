@@ -73,7 +73,7 @@ public class PrintHandler extends AbstractHandler {
 				boxPrinter.updateFont(printerFont);
 				if (ext != null) {
 					if (ext.equals("rsc"))
-						boxPrinter.preparePrint(uri);
+						boxPrinter.preparePrintRascal(uri);
 					else
 						boxPrinter.preparePrint(uri, ext);
 					boxPrinter.menuPrint();

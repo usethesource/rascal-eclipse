@@ -230,8 +230,8 @@ public class BoxExportPage extends WizardExportResourcesPage {
 			try {
 				destdir = new URI("file", currentDir, null);
 				if (rascal)
-					makeBox.rascalToExport(cmd, res.getLocationURI(),
-							destdir);
+					makeBox.rascalToExport(cmd, ext,
+							res.getLocationURI(), destdir);
 				else {
 					// System.err.println("BoxExport:"+pageName+" "+res.getLocationURI());
 					makeBox.toExport(cmd, ext, res.getLocationURI(), destdir);
