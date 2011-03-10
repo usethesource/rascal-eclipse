@@ -376,12 +376,11 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		
 		private final InteractiveInterpreterConsole console;
 		
-		private volatile boolean enabled;
+		private boolean enabled;
 
 		private final PrintStream backup;
 		
-		
-		protected ConsoleOutputStream(InteractiveInterpreterConsole console){
+		private ConsoleOutputStream(InteractiveInterpreterConsole console){
 			super();
 			
 			this.console = console;
@@ -394,7 +393,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		}
 		
 		public synchronized void write(byte[] bytes, int offset, int length) throws IOException {
-			if(!enabled) {
+			if(!enabled){
 				backup.write(bytes,offset,length);
 			}
 			
@@ -416,7 +415,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		}
 		
 		public synchronized void write(int arg) throws IOException{
-			if(!enabled) {
+			if(!enabled){
 				backup.write(arg);
 			}
 			
@@ -446,11 +445,11 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			}
 		}
 		
-		public void enable(){
+		public synchronized void enable(){
 			enabled = true;
 		}
 		
-		public void disable(){
+		public synchronized void disable(){
 			enabled = false;
 		}
 		
