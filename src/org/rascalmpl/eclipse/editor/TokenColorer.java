@@ -22,14 +22,10 @@ public class TokenColorer implements ITokenColorer {
 	public static final String META_VARIABLE = "MetaVariable";
 	public static final String META_KEYWORD = "MetaKeyword";
 
-	private final TextAttribute normal;
-
 	private final Map<String,TextAttribute> map = new HashMap<String,TextAttribute>();
 
 	public TokenColorer() {
 		super();
-		normal = new TextAttribute(Display.getDefault().getSystemColor(SWT.COLOR_BLACK), null, SWT.NONE);
-		
 	    map.put(META_KEYWORD, new TextAttribute(new Color(Display.getDefault(), 123, 0, 82), null, SWT.BOLD));
 	    map.put(META_VARIABLE, new TextAttribute(new Color(Display.getDefault(), 0, 0, 255), null, SWT.ITALIC));
 	    //map.put(META_AMBIGUITY,  new TextAttribute(new Color(Display.getDefault(), 186, 29, 29), null, SWT.BOLD));
@@ -46,10 +42,6 @@ public class TokenColorer implements ITokenColorer {
 	}
 
 	public TextAttribute getColoring(IParseController controller, Object token) {
-		String category = ((Token) token).getCategory();
-		TextAttribute attr = map.get(category);
-		
-		return attr != null ? attr : normal;
+		return map.get(((Token) token).getCategory());
 	}
-
 }
