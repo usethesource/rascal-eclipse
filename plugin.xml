@@ -244,14 +244,6 @@
                tooltip="Evaluate the selected text in the current evaluation environment. This only works if the Rascal debugger is executing in the scope of the selected expressions.">
          </action>
          <action
-               class="org.rascalmpl.eclipse.perspective.actions.OpenGraphEditor"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal-eclipse.editor.context.showRelationGraph"
-               label="Show Graph"
-               menubarPath="additions"
-               tooltip="Evaluate the selected expression and display the result as a graph. This only works if the Rascal debugger is currently executing in the scope of the selected expression.">
-         </action>
-         <action
                class="org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.launchconsole"
@@ -284,17 +276,6 @@
                tooltip="Statically checks the contents of the current editor">
          </action>
       </viewerContribution>
-      <objectContribution
-            adaptable="false"
-            id="rascal-eclispe.variablemenu"
-            objectClass="org.rascalmpl.eclipse.debug.core.model.RascalVariable">
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.OpenGraphEditor"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal-eclipse.showRelationGraph"
-               label="Show Graph">
-         </action>
-      </objectContribution>
       <objectContribution
             id="rascal.project"
             objectClass="org.eclipse.core.resources.IResource">
