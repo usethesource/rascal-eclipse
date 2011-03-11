@@ -2,7 +2,6 @@ package org.rascalmpl.eclipse.library.visdeprecated;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.ui.graph.Editor;
 
 public class Basic {
 
@@ -11,10 +10,6 @@ public class Basic {
 	}
 
 	// Various views
-
-	public void graphView(IValue v) {
-		Editor.open(v);
-	}
 
 	public void textView(IValue v) {
 		org.eclipse.imp.pdb.ui.text.Editor.edit(v);
