@@ -1,12 +1,16 @@
 package org.eclipse.imp.pdb.ui;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IStorageEditorInput;
@@ -14,15 +18,21 @@ import org.eclipse.ui.IStorageEditorInput;
 public class ValueEditorInput implements IStorageEditorInput {
 	private final IValue value;
 	private final String label;
+	private final boolean indent;
+	private final int tabsize;
 
-	public ValueEditorInput(IValue value) {
+	public ValueEditorInput(IValue value, boolean indent, int tabsize) {
 		this.value = value;
 		this.label = value.getType().toString();
+		this.indent = indent;
+		this.tabsize = tabsize;
 	}
 	
-	public ValueEditorInput(String label, IValue value) {
+	public ValueEditorInput(String label, IValue value, boolean indent, int tabsize) {
 		this.value = value;
 		this.label = label;
+		this.indent = indent;
+		this.tabsize = tabsize;
 	}
 	
 	
@@ -73,7 +83,14 @@ public class ValueEditorInput implements IStorageEditorInput {
 		return new IStorage() {
 
 			public InputStream getContents() throws CoreException {
-				return new ByteArrayInputStream(value.toString().getBytes());
+				try {
+					ByteArrayOutputStream out = new ByteArrayOutputStream(10000);
+					StandardTextWriter w = new StandardTextWriter(indent, tabsize);
+					w.write(value, out);
+					return new ByteArrayInputStream(out.toByteArray());
+				} catch (IOException e) {
+					throw new CoreException(Status.OK_STATUS);
+				}
 			}
 
 			public IPath getFullPath() {

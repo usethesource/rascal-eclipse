@@ -12,10 +12,10 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 public class Editor {
-	public static void edit(final IValue v) {
+	public static void edit(final IValue v, boolean indent, int tabsize) {
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-		final IEditorInput input = new ValueEditorInput(v);
+		final IEditorInput input = new ValueEditorInput(v, indent, tabsize);
 
 		if (win == null && wb.getWorkbenchWindowCount() != 0) {
 			win = wb.getWorkbenchWindows()[0];

@@ -80,7 +80,7 @@ public class Editor extends EditorPart {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						try {
-							page.openEditor(new ValueEditorInput(value), Editor.EditorId);
+							page.openEditor(new ValueEditorInput(value, true, 2), Editor.EditorId);
 						} catch (PartInitException e) {
 							PDBUIPlugin.getDefault().logException("failed to open tree editor", e);
 						}
