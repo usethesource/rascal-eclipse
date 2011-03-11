@@ -11,13 +11,7 @@ public class Basic {
 
 	// Various views
 
-	public void textView(IValue v) {
-		org.eclipse.imp.pdb.ui.text.Editor.edit(v);
-	}
 
-	public void treeView(IValue v) {
-		org.eclipse.imp.pdb.ui.tree.Editor.open(v);
-	}
 
 	public void boxView(IValue v) {
 		BoxViewer.display(v);
