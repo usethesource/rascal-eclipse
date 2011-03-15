@@ -41,7 +41,9 @@ public class ModuleReloader implements IModuleChangedListener {
 				eval.reloadModules(names, URI.create("console:///"));
 			}
 			catch (Throwable x) {
-				Activator.getInstance().logException("error while reloading", x);
+				// reloading modules may trigger many issues, however, these should be visible
+				// already in the editors for the respective modules, so we ignore them here
+				// to prevent redundant error messages
 			}
 			
 			dirtyModules.clear();
