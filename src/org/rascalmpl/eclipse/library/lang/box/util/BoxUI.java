@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library.visdeprecated;
+package org.rascalmpl.eclipse.library.lang.box.util;
 
 import java.util.Stack;
 import java.util.StringTokenizer;
@@ -6,6 +6,7 @@ import java.util.StringTokenizer;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
@@ -15,13 +16,21 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
-public class BoxViewer {
+public class BoxUI {
 
 	static Color keyColor =   getColor(SWT.COLOR_RED);
 	static Color textColor =   getColor(SWT.COLOR_BLACK);
 	static Color numColor =   getColor(SWT.COLOR_BLUE);
 	
 	static private final String CONSOLE_NAME="BoxView";
+	
+	public BoxUI(IValueFactory values) {
+		super();
+	}
+
+	public void boxView(IValue v) {
+		display(v);
+	}
 	
 	private static Color getColor(final int which) {
 		Display display = Display.getCurrent();
