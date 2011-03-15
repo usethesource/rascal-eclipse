@@ -42,7 +42,7 @@ public class InitializeRascalPlugins implements ILanguageRegistrar {
 
 	public static void registerTermLanguagePlugin(final IProject project) {
 		try {
-			if (project.hasNature(Nature.getNatureId())) {
+			if (project.isOpen() && project.hasNature(Nature.getNatureId())) {
 				IResource pluginRsc = project.findMember("src/Plugin.rsc");
 				if (pluginRsc != null) {
 					runPluginMain(project);
