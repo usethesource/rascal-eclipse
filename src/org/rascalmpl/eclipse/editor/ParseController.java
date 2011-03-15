@@ -37,7 +37,7 @@ import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -202,7 +202,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		catch (FactTypeUseException e){
 			Activator.getInstance().logException("parsing rascal failed", e);
 		}
-		catch (SyntaxError e){
+		catch (StaticError e){
 			ISourceLocation loc = e.getLocation();
 
 			if (loc.getOffset() >= 0) {
