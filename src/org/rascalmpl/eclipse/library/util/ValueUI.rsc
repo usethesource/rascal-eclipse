@@ -3,6 +3,7 @@ module util::ValueUI
 import vis::Figure;
 import vis::Render;
 import Node;
+import Map;
 
 @javaClass{org.rascalmpl.eclipse.library.util.ValueUI}
 @doc{Starts an editor with an indented textual representation of any value}
@@ -23,7 +24,7 @@ public void graph(value v) {
 }
 
 Figure toGraph(value v) {
- props = [hcenter(),vcenter(),gap(5)];
+ props = [hcenter(),vcenter(),gap(5),width(0),height(0)];
  
   switch (v) {
     case bool b : return text("<b>");
@@ -33,9 +34,9 @@ Figure toGraph(value v) {
     case rel[value from, value to] r : {
       int next = 0;
       int id() { next = next + 1; return next; }
-      ids = ( e : "<id()>" | e <- (b.from + b.to) );
-      return box(graph([box(toGraph(e),[id(ids[e])]) | e <- names],
-                   [edge(ids[from],ids[to]) | from <- r.from, to <- r[from]]));
+      ids = ( e : "<id()>" | value e <- (r.from + r.to) );
+      return box(graph([box(toGraph(e),[id(ids[e])] + props) | e <- ids],
+                   [edge(ids[from],ids[to]) | from <- r.from, to <- r[from]],width(400),height(300)));
     }
     case set[value] l :  return box(pack([toGraph(e) | e <- l]),[hcenter(),vcenter()]);
     case node x :  return box(vcat([text(getName(x),fontSize(20)), vcat([toGraph(c) | c <- x ])]),props);
