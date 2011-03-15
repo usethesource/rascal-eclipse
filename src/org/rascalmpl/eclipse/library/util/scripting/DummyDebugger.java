@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library.scripting;
+package org.rascalmpl.eclipse.library.util.scripting;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
