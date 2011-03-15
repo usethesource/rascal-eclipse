@@ -8,6 +8,7 @@ import org.eclipse.imp.runtime.RuntimePlugin;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -48,7 +49,14 @@ public class ProjectParserFactory {
 			return parser;
 		}
 		
-		reloaderForProject.get(project).updateModules();
+		try {
+			reloaderForProject.get(project).updateModules();
+		}
+		catch (StaticError e) {
+			// things may go wrong while reloading modules, simply because the modules still have parse errors in them.
+			// these are safely ignored here, the user will have had feedback on those errors elsewhere
+		}
+		
 		return parser;
 	}
 }
