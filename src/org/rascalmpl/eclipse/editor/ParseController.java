@@ -192,7 +192,8 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			if (lastParsedInput != null && arraysMatch) {
 				parseTree = lastParseTree;
 			} else {
-				parseTree = getParser(project.getRawProject()).parseModule(input.toCharArray(), uri, null);
+					Evaluator parser = getParser(project.getRawProject());
+					parseTree = parser.parseModule(input.toCharArray(), uri, null);
 				lastParseTree = parseTree;
 			}
 			monitor.worked(1);
