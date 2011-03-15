@@ -1,0 +1,453 @@
+<html><head><META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Rascal Concepts</title><meta content="DocBook XSL Stylesheets V1.75.2" name="generator"><link rel="home" href="index.html" title="Chapter&nbsp;1.&nbsp;EASY Meta-Programming with Rascal"><link rel="up" href="index.html" title="Chapter&nbsp;1.&nbsp;EASY Meta-Programming with Rascal"><link rel="prev" href="index.html" title="Chapter&nbsp;1.&nbsp;EASY Meta-Programming with Rascal"><link rel="next" href="ch01s03.html" title="Some Classical Examples"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table summary="Navigation header" width="100%"><tr><th align="center" colspan="3">Rascal Concepts</th></tr><tr><td align="left" width="20%"><a accesskey="p" href="index.html">Prev</a>&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="ch01s03.html">Next</a></td></tr></table><hr></div><div class="section" title="Rascal Concepts"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="section.rascal-concepts"></a>Rascal Concepts</h2></div></div></div>
+    
+
+    <p>Before explaining the Rascal language in more detail, we detail our
+    elevator pitch a bit and give you a general understanding of the concepts
+    on which the language is based.</p>
+
+    <div class="section" title="Values"><div class="titlepage"><div><div><h3 class="title"><a name="N2021E"></a>Values</h3></div></div></div>
+      
+
+      <p>Values are the basic building blocks of a language and the type of
+      values determines how they may be used.</p>
+
+      <p>Rascal is a value-oriented language. This means that values are
+      immutable and are always freshly constructed from existing parts and
+      that sharing and aliasing problems are completely avoided. The language
+      does provide assignment to variables either as the result of an explicit
+      assignment statement or as the result of a successful match.</p>
+    </div>
+
+    <div class="section" title="Data structures"><div class="titlepage"><div><div><h3 class="title"><a name="N2022A"></a>Data structures</h3></div></div></div>
+      
+
+      <p>Rascal provides a rich set of datatypes. From booleans, infinite
+      precision integers and reals to strings and source code locations. From
+      lists, (optionally labelled) tuples and sets to (optionally labelled)
+      maps and relations. From untyped tree structures to fully typed
+      datastructures. Syntax trees that are the result of parsing source files
+      are represented as datatypes. There is a wealth of built-in operators
+      and library functions available on the standard datatypes. The basic
+      Rascal datatypes are illustrated in <a class="xref" href="ch01s02.html#table.types" title="Table&nbsp;1.1.&nbsp;Basic Rascal Types">Table&nbsp;1.1, &ldquo;Basic Rascal Types&rdquo;</a>.</p>
+
+      <p>These builtin datatypes are closely related to ech other:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>In a <span class="bold"><strong>list</strong></span> all elements have
+          the same static type and the order of elements matters. A list may
+          contain the same value more than once.</p>
+        </li><li class="listitem">
+          <p>In a <span class="bold"><strong>set</strong></span> all elements have
+          the same static type and the order of elements does not matter. A
+          set contains an element only once. In other words, duplicate
+          elements are eliminated and no matter how many times an element is
+          added to a set, it will occur in it only once.</p>
+        </li><li class="listitem">
+          <p>In a <span class="bold"><strong>tuple</strong></span> alle elements
+          (may) have a different static type. Each element of a tuple may have
+          a label that can be used to select that element of the tuple.</p>
+        </li><li class="listitem">
+          <p>A <span class="bold"><strong>relation</strong></span> is a set of tuples
+          which all have the same static tuple type.</p>
+        </li><li class="listitem">
+          <p>A <span class="bold"><strong>map</strong></span> is a binary relation
+          consisting of (key, value) pairs. Key and value (may) have different
+          static type and a key can only be associated with a value
+          once</p>
+        </li></ul></div>
+
+      <p>User-defined datatypes allow the introduction of problem-specific
+      types. A fragment of the abstract syntax for statements in a programming
+      language would look as follows:</p><pre class="programlisting">data STAT = asgStat(Id name, EXP exp) 
+          | ifStat(EXP exp,list[STAT] thenpart,
+                           list[STAT] elsepart) 
+          | whileStat(EXP exp, list[STAT] body) 
+          ;</pre><div class="table"><a name="table.types"></a><p class="title"><b>Table&nbsp;1.1.&nbsp;Basic Rascal Types</b></p><div class="table-contents">
+          
+
+          <table summary="Basic Rascal Types" border="1"><colgroup><col align="left"><col align="left"></colgroup><thead><tr><th align="left">Type&nbsp;</th><th align="left">Examples&nbsp;</th></tr></thead><tbody><tr><td align="left"><code class="literal">bool</code></td><td align="left"><code class="literal">true</code>,
+                <code class="literal">false</code></td></tr><tr><td align="left"><code class="literal">int</code></td><td align="left"><code class="literal">1</code>, <code class="literal">0</code>,
+                <code class="literal">-1</code>, <code class="literal">123456789</code></td></tr><tr><td align="left"><code class="literal">real</code></td><td align="left"><code class="literal">1.0</code>,
+                <code class="literal">1.0232e20</code>,<code class="literal"> -25.5</code></td></tr><tr><td align="left"><code class="literal">str</code></td><td align="left"><code class="literal">"abc"</code>,
+                <code class="literal">"first\nnext"</code>, <code class="literal">"result:
+                &lt;X&gt;"</code></td></tr><tr><td align="left"><code class="literal">loc</code></td><td align="left"><code class="literal">|file:///etc/passwd|</code></td></tr><tr><td align="left"><code class="literal">tuple[<em class="replaceable"><code>T</code></em><sub>1</sub>,...,<em class="replaceable"><code>T</code></em><sub>n</sub>]</code></td><td align="left"><code class="literal">&lt;1,2&gt;</code>, <code class="literal">&lt;"john",
+                43, true&gt;</code></td></tr><tr><td align="left"><code class="literal">list[<em class="replaceable"><code>T</code></em>]</code></td><td align="left"><code class="literal">[]</code>, <code class="literal">[1]</code>,
+                <code class="literal">[1,2,3]</code>, <code class="literal">[true, 2,
+                "abc"]</code></td></tr><tr><td align="left"><code class="literal">set[<em class="replaceable"><code>T</code></em>]</code></td><td align="left"><code class="literal">{}</code>,
+                <code class="literal">{1,2,3,5,7}</code>,<code class="literal"> {"john",
+                4.0}</code></td></tr><tr><td align="left"><code class="literal">rel[</code><em class="replaceable"><code>T</code></em><sub>1</sub><code class="literal">,...,</code><em class="replaceable"><code>T</code></em><sub>n</sub>]</td><td align="left"><code class="literal">{&lt;1,2&gt;,&lt;2,3&gt;,&lt;1,3&gt;}</code>,
+                <code class="literal">{&lt;1,10,100&gt;,
+                &lt;2,20,200&gt;}</code></td></tr><tr><td align="left"><code class="literal">map[<em class="replaceable"><code>T</code></em>,
+                <em class="replaceable"><code>U</code></em>]</code></td><td align="left"><code class="literal">()</code>, <code class="literal">(1:true,
+                2:false)</code>, <code class="literal">("a":1, "b":2)</code></td></tr><tr><td align="left">node</td><td align="left"><code class="literal">f</code>, <code class="literal">add(x,y)</code>,
+                <code class="literal">g("abc", [2,3,4])</code></td></tr></tbody></table>
+        </div></div><p><br class="table-break"></p>
+    </div>
+
+    <div class="section" title="Pattern Matching"><div class="titlepage"><div><div><h3 class="title"><a name="N20368"></a>Pattern Matching</h3></div></div></div>
+      
+
+      <p>Pattern matching determines whether a given pattern matches a
+      given value. The outcome can be false (no match) or true (a
+      match).</p>
+
+      <p>Pattern matching is <span class="emphasis"><em>the</em></span> mechanism for case
+      distinction and search in Rascal and a very rich pattern language is
+      provided that includes string matching based on regular expressions,
+      list (associative) and set (associative, commutative, identity)
+      matching, matching of abstract patterns, matching of concrete syntax
+      patterns, and matching of descendant (nested) patterns. All these forms
+      of matching can be used in a single pattern and can be nested. Patterns
+      may contain variables that are bound when the match is successful.
+      Anonymous (don't care) positions are indicated by an underscore
+      (<code class="literal">_</code>). Here is a regular expression that matches a line
+      of text, finds the first alphanumeric word in it, and extracts the word
+      itself as well as the before and after it:</p>
+
+      <pre class="programlisting">/^&lt;before:\W*&gt;&lt;word:\w+&gt;&lt;after:.*$&gt;/</pre>
+
+      <p>Regular expressions follow the Java regular expression syntax with
+      one exception: instead of using <code class="literal">$1</code>,
+      <code class="literal">$2</code> as names for parts of the subject string that have
+      been matched by a part of the regular expression we use the
+      notation:</p><pre class="programlisting">&lt;<em class="replaceable"><code>Name</code></em>:<em class="replaceable"><code>RegularExpression</code></em>&gt;</pre>
+
+      <p>If <em class="replaceable"><code>RegularExpression</code></em> matches, the
+      matched substring is assigned to string variable
+      <em class="replaceable"><code>Name</code></em>.</p>
+
+      <p>The following abstract pattern matches the while statement defined
+      above: </p><pre class="programlisting">whileStat(EXP Exp, list[STAT] Stats)</pre>
+
+      <p>Variables in a pattern are either explicitly declared in the
+      pattern itself---as done in the example---or they may be declared in the
+      context in which the pattern occurs. So-called multi-variables in list
+      and set patterns are declared by a <code class="literal">*</code> suffix. The
+      above pattern can then be written as</p>
+
+      <pre class="programlisting">whileStat(EXP Exp, Stats*)</pre><p>or, if
+      you are not interested in the actual value of the statements as</p>
+
+      <pre class="programlisting">whileStat(EXP Exp, _*)</pre>
+
+      <p>When there is a grammar for this example language (in the form of
+      an imported SDF definition), we can also write concrete patterns as we
+      will see below.</p>
+
+      <p>Patterns can also be used in an explicit match operator
+      <code class="literal">:=</code> and can then be part of larger boolean
+      expressions. Since a pattern match may have more than one solution,
+      local backtracking over the alternatives of a match is provided.
+      Patterns can also be used in control structures, enumerators and
+      visits.</p>
+    </div>
+
+    <div class="section" title="Enumerators"><div class="titlepage"><div><div><h3 class="title"><a name="N203B5"></a>Enumerators</h3></div></div></div>
+      
+
+      <p>Enumerators enumerate the values in a given (finite) domain, be it
+      the elements in a list, the substrings of a string, or all the nodes in
+      a tree. Each value that is enumerated is first matched against a pattern
+      before it can possibly contribute to the result of the enumerator.
+      Examples are:</p>
+
+      <pre class="programlisting">int x &lt;- { 1, 3, 5, 7, 11 }
+int x &lt;- [ 1 .. 10 ]
+asgStat(Id name, _) &lt;- P</pre>
+
+      <p>The first two produce the integer elements of a set of integers,
+      respectively, a range of integers. The third enumerator traverses the
+      complete program <code class="literal">P</code> (that is assumed to have a
+      <code class="literal">PROGRAM</code> as value) and only yields statements that
+      match the assignment pattern. Note the use of an anonymous variable at
+      the <code class="literal">EXP</code> position in the pattern.</p>
+    </div>
+
+    <div class="section" title="Comprehensions"><div class="titlepage"><div><div><h3 class="title"><a name="N203CE"></a>Comprehensions</h3></div></div></div>
+      
+
+      <p>A comprehension is a notation inspired by mathematical set-builder
+      notation that helps to write succinct definitions of lists and
+      sets.</p>
+
+      <p>Rascal generalizes comprehensions in various ways. Comprehensions
+      exist for lists, sets and maps. A comprehension consists of an
+      expression that determines the successive elements to be included in the
+      result and a list of enumerators and tests (boolean expressions). The
+      enumerators produce values and the tests filter them. A standard example
+      is</p>
+
+      <pre class="programlisting">{ x * x | int x &lt;- [1 .. 10], x % 3 == 0 }</pre>
+
+      <p>which returns the set <code class="literal">{9, 36, 81}</code>, i.e., the
+      squares of the integers in the range <code class="literal">[ 1 .. 10 ]</code> that
+      are divisible by 3. A more intriguing example is</p>
+
+      <pre class="programlisting">{name | asgStat(Id name, _) &lt;- P}</pre>
+
+      <p>which returns a list of all identifiers that occur on the left
+      hand side of assignment statements in program
+      <code class="literal">P</code>.</p>
+    </div>
+
+    <div class="section" title="Control structures"><div class="titlepage"><div><div><h3 class="title"><a name="N203F1"></a>Control structures</h3></div></div></div>
+      
+
+      <p>Control structures like <code class="literal">if</code> and
+      <code class="literal">while</code> statement are driven by Boolean expressions,
+      for instance</p><pre class="programlisting">if(N &lt;= 0)
+     return 1; 
+  else
+     return N * fac(N - 1);</pre><p>Actually, combinations of
+      generators and boolean expressions can be used to drive the control
+      structures. For instance,</p>
+
+      <pre class="programlisting">
+for(asgStat(Id name, _) &lt;- P, size(name) &gt; 10){
+    println(Id);
+}</pre>
+
+      <p>prints all identifiers in assignment statements that consist of
+      more than 10 characters.</p>
+    </div>
+
+    <div class="section" title="Switching"><div class="titlepage"><div><div><h3 class="title"><a name="N2040A"></a>Switching</h3></div></div></div>
+      
+
+      <p>The switch statement as known from C and Java is generalized: the
+      subject value to switch on may be an arbitrary value and the cases are
+      arbitrary patterns. When a match fails, all its side-effects are undone
+      and when it succeeds the statements associated with that case are
+      executed. Here is an example where we take a program P and distinguish
+      two cases for while and if statement:</p><pre class="programlisting">switch (P){
+case whileStat(EXP Exp, Stats*):
+     println("A while statement");
+case ifStat(Exp, Stats1*, Stat2*):
+     println("An if statement");
+}</pre>
+    </div>
+
+    <div class="section" title="Visiting"><div class="titlepage"><div><div><h3 class="title"><a name="N20415"></a>Visiting</h3></div></div></div>
+      
+
+      <p>Visiting the elements of a datastructure is one of the most common
+      operations in our domain and the visitor design pattern is a solution
+      known to every software engineer. Given a tree-like datastructure we
+      want to perform an operation on some (or all) nodes of the tree. The
+      purpose of the visitor design pattern is to decouple the logistics of
+      visiting each node from the actual operation. In Rascal the logistics of
+      visiting is completely automated.</p>
+
+      <p>Visiting is achieved by way of visit expressions that resemble the
+      switch statement. A visit expression consists of an expression that may
+      yield an arbitrarily complex subject value and a number of cases. All
+      the elements of the subject are visited and when one of the cases
+      matches the statements associated with that case are executed. These
+      cases may:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>cause some side effect, i.e., assign a value to local or
+          global variables;</p>
+        </li><li class="listitem">
+          <p>execute an <code class="literal">insert</code> statement that replaces
+          the current element;</p>
+        </li><li class="listitem">
+          <p>execute a <code class="literal">fail</code> statement that causes the
+          match for the current case to fail (and undoing all side-effects due
+          to the successful match itself and the execution of the statements
+          so far).</p>
+        </li></ul></div>
+
+      <p>Side-effects including assignments to local and global variables
+      in the Rascal program are undone on failure. External side-effects like
+      I/O and side-effects in user-defined Java code are not undone.</p>
+
+      <p>The value of a visit expression is the original subject value with
+      all replacements made as dictated by matching cases. The traversal order
+      in a visit expressions can be explicitly defined by the programmer. An
+      example of visiting is given in <a class="xref" href="ch01s03.html#section.colored-trees" title="Colored Trees">the section called &ldquo;Colored Trees&rdquo;</a>.</p>
+    </div>
+
+    <div class="section" title="Functions"><div class="titlepage"><div><div><h3 class="title"><a name="N20445"></a>Functions</h3></div></div></div>
+      
+
+      <p>Functions allow the definition of frequently used operations. They
+      have a name and formal parameters. They are explicitly declared and are
+      fully typed. Here is an example of a function that counts the number of
+      assignment statements in a program:</p>
+
+      <pre class="programlisting">int countAssignments(PROGRAM P){
+    int n = 0;
+    visit (P){
+    case asgStat(Id name, _):
+         n += 1;
+    }
+    return n;
+}</pre>
+    </div>
+
+    <div class="section" title="Syntax Definition and Parsing"><div class="titlepage"><div><div><h3 class="title"><a name="N20452"></a>Syntax Definition and Parsing</h3></div></div></div>
+      
+
+      <p>All source code analysis projects need to extract information
+      directly from the source code. There are two main approaches to
+      this:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>Use regular expressions to extract useful, but somewhat
+          superficial, information. This can be achieved using regular
+          expression patterns.</p>
+        </li><li class="listitem">
+          <p>Use syntax analysis to extract the complete, nested, structure
+          of the source code in the form of a syntax tree.</p>
+        </li></ul></div>
+
+      <p>In Rascal, we reuse the Syntax Definition Formalism (SDF) and its
+      tooling. SDF modules define grammars and these modules can be imported
+      in a Rascal module. These grammar rules can be applied in writing
+      concrete patterns to match parts of parsed source code. Here is an
+      example of the same pattern we saw above, but now in concrete
+      form:</p><pre class="programlisting">while &lt;Exp&gt; do &lt;Stats&gt; od</pre>
+
+      <p>Importing an SDF module has the following effects:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>All non-terminals (<span class="emphasis"><em>sorts</em></span> in SDF jargon)
+          that are used in the imported grammar are implicitly declared as
+          Rascal types. This makes it possible to handle parse trees and parse
+          tree fragments as fully typed values and assign them to variables,
+          store them in larger datastructures or pass them as arguments to
+          functions.</p>
+        </li><li class="listitem">
+          <p>For all <span class="emphasis"><em>start symbols</em></span> of the grammar
+          <span class="emphasis"><em>parse functions</em></span> are implicitly declared that
+          can parse source files according to a specific start symbol.</p>
+        </li><li class="listitem">
+          <p>Concrete syntax patterns for that specific grammar can be
+          used.</p>
+        </li><li class="listitem">
+          <p>Concrete syntax constructors can be used that allow the
+          construction of new parse trees.</p>
+        </li></ul></div>
+
+      <p>The following example parses a Java compilation unit from a text
+      file and counts the number of method declarations:</p>
+
+      <pre class="programlisting">module Count
+import languages::syntax::Java;
+
+public int countMethods(str file){
+  int n = 0;
+  for(MethodDeclaration md &lt;- parseCompilationUnit(file))
+      n += 1;
+  return n;
+}</pre>
+
+      <p>The function <code class="literal">parseCompilationUnit</code> is implicitly
+      defined as a result of importing the Java grammar and
+      <code class="literal">MethodDeclaration</code> is a non-terminal from the Java
+      grammar that becomes available as type. This example ignores many
+      potential error issues but does illustrate some of Rascal's syntax and
+      parsing features.</p>
+    </div>
+
+    <div class="section" title="Rewrite Rules"><div class="titlepage"><div><div><h3 class="title"><a name="N204A5"></a>Rewrite Rules</h3></div></div></div>
+      
+
+      <p>A <span class="emphasis"><em>rewrite rule</em></span> is a recipe how to simplify
+      values. Remember: <code class="literal">(a + b)<sup>2</sup> =
+      a<sup>2</sup> + 2ab +
+      b<sup>2</sup></code>? A rewrite rule has a pattern as
+      left-hand side (here: <code class="literal">(a +
+      b)<sup>2</sup></code>) and a replacement as
+      right-hand side (here: <code class="literal">a<sup>2</sup> + 2ab +
+      b<sup>2</sup></code>). Given a value and a set of
+      rewrite rules the patterns are tried on every subpart of the value and
+      replacements are made on the way. This is repeated as long as some
+      pattern matches.</p>
+
+      <p>Rewrite rules are the only implicit control mechanism in the
+      language and are used to maintain invariants during computations. For
+      example, in a package for symbolic differentiation it is desirable to
+      keep expressions in simplified form in order to avoid intermediate
+      results like <code class="literal">sum(product(1, x), product(0, y))</code> that
+      can be simplified to <code class="literal">x</code>. The following rules achieve
+      this:</p><pre class="programlisting">rule simplify1 product(1, Expression e) =&gt; e;
+rule simplify2 product(Expression e, 1) =&gt; e;
+rule simplify3 product(0, Expression e) =&gt; 0;
+rule simplify4 product(Expression e, 0) =&gt; 0;
+rule simplify5 sum(0, Expression e)     =&gt; e;
+rule simplify6 sum(Expression e, 0)     =&gt; e;</pre><p>Whenever a
+      new expression is constructed during symbolic differentiation, these
+      rules are applied to that expression and all its subexpressions and when
+      a pattern at the left-hand side of a rule applies the matching
+      subexpression is replaced by the right-hand side of the rule. This is
+      repeated as long as any rule can be applied.</p>
+
+      <p>Since rewrite rules are activated automatically, one may always
+      assume that expressions are in simplified form.</p>
+
+      <p>Rewrite rules are <span class="emphasis"><em>computationally complete</em></span>,
+      in other words any computable function can be defined using rewrite
+      rules, including functions that do not terminate. This is a point of
+      attention when using rewrite rules.</p>
+    </div>
+
+    <div class="section" title="Constraint solving"><div class="titlepage"><div><div><h3 class="title"><a name="N204DE"></a>Constraint solving</h3></div></div></div>
+      
+
+      <p>Many problems can be solved by forms of <span class="emphasis"><em>constraint
+      solving</em></span>. This is a declarative way of programming: specify
+      the constraints that a problem solution should satisfy and how potential
+      solutions can be generated. The actual solution (if any) is found by
+      enumerating solutions and testing their compliance with the
+      constraints.</p>
+
+      <p>Rascal provides a <code class="literal">solve</code> statement that helps
+      writing constraint solvers. A typical example is dataflow analysis where
+      the propagation of values through a program can be described by a set of
+      equations. Their solution can be found with the <code class="literal">solve</code>
+      statement. See <a class="xref" href="ch01s05.html#section.dataflow" title="Dataflow Analysis">the section called &ldquo;Dataflow Analysis&rdquo;</a> for examples.</p>
+    </div>
+
+    <div class="section" title="Other features"><div class="titlepage"><div><div><h3 class="title"><a name="N204F6"></a>Other features</h3></div></div></div>
+      
+
+      <p>All language features (including the ones just mentioned) are
+      described in more detail later on in this book. Some features we have
+      not yet mentioned are:</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+          <p>Rascal programs consist of modules that are organized in
+          packages.</p>
+        </li><li class="listitem">
+          <p>Modules can import other modules.</p>
+        </li><li class="listitem">
+          <p>The visibility of entities declared in modules can be
+          controlled by a public/private mechanism.</p>
+        </li><li class="listitem">
+          <p>Datastructures may have annotations that can be explicitly
+          used and modified.</p>
+        </li></ul></div>
+    </div>
+
+    <div class="section" title="Typechecking and Execution"><div class="titlepage"><div><div><h3 class="title"><a name="N2051A"></a>Typechecking and Execution</h3></div></div></div>
+      
+
+      <p>Rascal has a statically checked type system that prevents type
+      errors and uninitialized variables at runtime. There are no runtime type
+      casts as in Java and there are therefore less opportunities for run-time
+      errors. The language provides <span class="emphasis"><em>higher-order, parametric,
+      polymorphism</em></span>. A type aliasing mechanism allows documenting
+      specific uses of a type. Built-in operators are heavily overloaded. For
+      instance, the operator + is used for addition on integers and reals but
+      also for list concatenation, set union etc.</p>
+
+      <p>The flow of Rascal program execution is completely explicit.
+      Boolean expressions determine choices that drive the control structures.
+      Rewrite rules form the only exception to the explicit control flow
+      principle. Only local backtracking is provided (no surprise) in the
+      context of boolean expressions and pattern matching; side effects are
+      undone in case of backtracking.</p>
+    </div>
+  </div><div class="navfooter"><hr><table summary="Navigation footer" width="100%"><tr><td align="left" width="40%"><a accesskey="p" href="index.html">Prev</a>&nbsp;</td><td align="center" width="20%">&nbsp;</td><td align="right" width="40%">&nbsp;<a accesskey="n" href="ch01s03.html">Next</a></td></tr><tr><td valign="top" align="left" width="40%">Chapter&nbsp;1.&nbsp;EASY Meta-Programming with Rascal&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">Home</a></td><td valign="top" align="right" width="40%">&nbsp;Some Classical Examples</td></tr></table></div></body></html>

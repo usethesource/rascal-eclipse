@@ -1,0 +1,229 @@
+<toc topic="help/index.html" label="EASY Meta-Programming with Rascal">
+<topic href="help/index.html#section.why-a-new-language"
+label="A New Language for Meta-Programming">
+<topic href="help/index.html#section.EASY-programming"
+label="EASY Programming"></topic>
+<topic href="help/index.html#N200AE" label="Rascal"></topic>
+<topic href="help/index.html#N200BD" label="Benefits of Rascal"></topic>
+<topic href="help/index.html#N2012F" label="Aim and Scope of this Book">
+</topic>
+<topic href="help/index.html#N20159"
+label="Installing and Running Rascal"></topic>
+<topic href="help/index.html#N20162" label="Reading Guide"></topic>
+<topic href="help/index.html#N201CF" label="Typographic Conventions">
+</topic>
+</topic>
+<topic href="help/ch01s02.html" label="Rascal Concepts">
+<topic href="help/ch01s02.html#N2021E" label="Values"></topic>
+<topic href="help/ch01s02.html#N2022A" label="Data structures"></topic>
+<topic href="help/ch01s02.html#N20368" label="Pattern Matching"></topic>
+<topic href="help/ch01s02.html#N203B5" label="Enumerators"></topic>
+<topic href="help/ch01s02.html#N203CE" label="Comprehensions"></topic>
+<topic href="help/ch01s02.html#N203F1" label="Control structures">
+</topic>
+<topic href="help/ch01s02.html#N2040A" label="Switching"></topic>
+<topic href="help/ch01s02.html#N20415" label="Visiting"></topic>
+<topic href="help/ch01s02.html#N20445" label="Functions"></topic>
+<topic href="help/ch01s02.html#N20452"
+label="Syntax Definition and Parsing"></topic>
+<topic href="help/ch01s02.html#N204A5" label="Rewrite Rules"></topic>
+<topic href="help/ch01s02.html#N204DE" label="Constraint solving">
+</topic>
+<topic href="help/ch01s02.html#N204F6" label="Other features"></topic>
+<topic href="help/ch01s02.html#N2051A"
+label="Typechecking and Execution"></topic>
+</topic>
+<topic href="help/ch01s03.html" label="Some Classical Examples">
+<topic href="help/ch01s03.html#N2053B" label="Hello"></topic>
+<topic href="help/ch01s03.html#N20595" label="Factorial"></topic>
+<topic href="help/ch01s03.html#section.colored-trees"
+label="Colored Trees"></topic>
+<topic href="help/ch01s03.html#N2063B" label="Word Replacement"></topic>
+</topic>
+<topic href="help/ch01s04.html" label="Problem Solving Strategies">
+<topic href="help/ch01s04.html#section.defining-extraction"
+label="Defining Extraction"></topic>
+<topic href="help/ch01s04.html#section.defining-analysis"
+label="Defining Analysis"></topic>
+<topic href="help/ch01s04.html#section.defining-synthesis"
+label="Defining Synthesis"></topic>
+</topic>
+<topic href="help/ch01s05.html" label="Larger Examples">
+<topic href="help/ch01s05.html#section.motivating-example"
+label="Call Graph Analysis">
+<topic href="help/ch01s05.html#N209BF" label="Preparations"></topic>
+<topic href="help/ch01s05.html#N20A29" label="Questions">
+<topic href="help/ch01s05.html#N20A2E"
+label="How many procedure calls occur in this system?"></topic>
+<topic href="help/ch01s05.html#N20A5F"
+label="How many procedures are contained in it?"></topic>
+<topic href="help/ch01s05.html#N20A9B"
+label="What are the entry points for this system?"></topic>
+<topic href="help/ch01s05.html#N20AD5"
+label="What are the leaves of this application?"></topic>
+<topic href="help/ch01s05.html#N20AF4"
+label="Which procedures call each other indirectly?"></topic>
+<topic href="help/ch01s05.html#N20B0D"
+label="Which procedures are called directly or indirectly from each entry point?">
+</topic>
+<topic href="help/ch01s05.html#N20B36"
+label="Which procedures are called from all entry points?"></topic>
+<topic href="help/ch01s05.html#N20B55" label="Wrap-up"></topic>
+</topic>
+</topic>
+<topic href="help/ch01s05.html#section.analyzing-components"
+label="Analyzing the Component Structure of an Application">
+</topic>
+<topic href="help/ch01s05.html#section.analyzing-java"
+label="Analyzing the Structure of Java Systems"></topic>
+<topic href="help/ch01s05.html#section.unitialized-variables"
+label="Finding Uninitialized and Unused Variables in a Program">
+</topic>
+<topic href="help/ch01s05.html#section.McCabe"
+label="McCabe Cyclomatic Complexity"></topic>
+<topic href="help/ch01s05.html#section.dataflow"
+label="Dataflow Analysis">
+<topic href="help/ch01s05.html#section.dominators" label="Dominators">
+</topic>
+<topic href="help/ch01s05.html#section.reaching-definitions"
+label="Reaching Definitions"></topic>
+<topic href="help/ch01s05.html#section.live-variables"
+label="Live Variables"></topic>
+</topic>
+<topic href="help/ch01s05.html#section.program-slicing"
+label="Program Slicing"></topic>
+</topic>
+<topic href="help/ch01s06.html" label="The Rascal Language">
+<topic href="help/ch01s06.html#section.types-and-values"
+label="Types and Values">
+<topic href="help/ch01s06.html#section.elementary-types"
+label="Elementary Types and Values"></topic>
+<topic href="help/ch01s06.html#N21306"
+label="List, Set, Map, Tuple, and Relation"></topic>
+<topic href="help/ch01s06.html#section.alias" label="Alias Type">
+</topic>
+<topic href="help/ch01s06.html#section.abstract-data-type"
+label="Data Type"></topic>
+<topic href="help/ch01s06.html#N21779"
+label="Type Parameters and Parameterized types"></topic>
+<topic href="help/ch01s06.html#N21804" label="Typing"></topic>
+</topic>
+<topic href="help/ch01s06.html#section.declarations"
+label="Declarations">
+<topic href="help/ch01s06.html#N2183C" label="Rascal Program"></topic>
+<topic href="help/ch01s06.html#N21845" label="Module"></topic>
+<topic href="help/ch01s06.html#section.import" label="Import"></topic>
+<topic href="help/ch01s06.html#section.function"
+label="Function Declaration"></topic>
+<topic href="help/ch01s06.html#section.variable"
+label="Variable Declaration"></topic>
+<topic href="help/ch01s06.html#section.declaration-tag"
+label="Declaration Tag"></topic>
+<topic href="help/ch01s06.html#section.node-annotation"
+label="Node Annotation Declaration"></topic>
+<topic href="help/ch01s06.html#section.rewrite-rule"
+label="Rewrite Rule Declaration"></topic>
+</topic>
+<topic href="help/ch01s06.html#section.expressions" label="Expressions">
+<topic href="help/ch01s06.html#section.expressions-non-boolean"
+label="Non-Boolean Operator Expressions"></topic>
+<topic href="help/ch01s06.html#section.expressions-boolean"
+label="Boolean Operator Expressions"></topic>
+<topic href="help/ch01s06.html#section.pattern" label="Patterns">
+<topic href="help/ch01s06.html#section.regular-patterns"
+label="Regular Expression Patterns"></topic>
+<topic href="help/ch01s06.html#section.abstract-patterns"
+label="Abstract Patterns"></topic>
+<topic href="help/ch01s06.html#section.concrete-patterns"
+label="Concrete Syntax Patterns"></topic>
+</topic>
+<topic href="help/ch01s06.html#section.pattern-with-action"
+label="PatternWithAction"></topic>
+<topic href="help/ch01s06.html#section.comprehension"
+label="Comprehension Expression">
+<topic href="help/ch01s06.html#N228FB" label="Enumerator"></topic>
+<topic href="help/ch01s06.html#N229A9" label="Test"></topic>
+<topic href="help/ch01s06.html#N229E3"
+label="Examples of Comprehensions"></topic>
+</topic>
+<topic href="help/ch01s06.html#section.visit" label="Visit expression">
+</topic>
+<topic href="help/ch01s06.html#section.one" label="One Expression">
+</topic>
+<topic href="help/ch01s06.html#section.all" label="All Expression">
+</topic>
+</topic>
+<topic href="help/ch01s06.html#section.statements" label="Statements">
+<topic href="help/ch01s06.html#N22B90" label="If Statement"></topic>
+<topic href="help/ch01s06.html#N22BC2" label="While Statement"></topic>
+<topic href="help/ch01s06.html#N22BDF" label="Do Statement"></topic>
+<topic href="help/ch01s06.html#N22BFB" label="For Statement"></topic>
+<topic href="help/ch01s06.html#section.switch" label="Switch Statement">
+</topic>
+<topic href="help/ch01s06.html#section.assignment"
+label="Assignment Statement"></topic>
+<topic href="help/ch01s06.html#section.return" label="Return Statement">
+</topic>
+<topic href="help/ch01s06.html#section.try-catch"
+label="Try Catch Statement"></topic>
+<topic href="help/ch01s06.html#section.throw" label="Throw Statement">
+</topic>
+<topic href="help/ch01s06.html#N2300D" label="Assert Statement"></topic>
+<topic href="help/ch01s06.html#section.insert" label="Insert Statement">
+</topic>
+<topic href="help/ch01s06.html#section.fail" label="Fail Statement">
+</topic>
+<topic href="help/ch01s06.html#section.block" label="Block Statement">
+</topic>
+<topic href="help/ch01s06.html#N230B8" label="Solve Statement"></topic>
+</topic>
+</topic>
+<topic href="help/ch01s07.html"
+label="Built-in Operators and Library Functions">
+<topic href="help/ch01s07.html#section.lib-Benchmark" label="Benchmark">
+</topic>
+<topic href="help/ch01s07.html#section.lib-Boolean" label="Boolean">
+</topic>
+<topic href="help/ch01s07.html#section.lib-Exception" label="Exception">
+</topic>
+<topic href="help/ch01s07.html#section.lib-Graph" label="Graph"></topic>
+<topic href="help/ch01s07.html#section.lib-Integer" label="Integer">
+</topic>
+<topic href="help/ch01s07.html#section.lib-IO" label="IO"></topic>
+<topic href="help/ch01s07.html#section.lib-JDT"
+label="JDT (Eclipse only)"></topic>
+<topic href="help/ch01s07.html#section.lib-LabelledGraph"
+label="Labelled Graph"></topic>
+<topic href="help/ch01s07.html#section.lib-List" label="List"></topic>
+<topic href="help/ch01s07.html#section.lib-Location" label="Location">
+</topic>
+<topic href="help/ch01s07.html#section.lib-Map" label="Map"></topic>
+<topic href="help/ch01s07.html#section.lib-Node" label="Node"></topic>
+<topic href="help/ch01s07.html#section.lib-Real" label="Real"></topic>
+<topic href="help/ch01s07.html#section.lib-Relation" label="Relation">
+</topic>
+<topic href="help/ch01s07.html#section.lib-RSF" label="RSF"></topic>
+<topic href="help/ch01s07.html#section.lib-Resource"
+label="Resource (Eclipse only)"></topic>
+<topic href="help/ch01s07.html#section.lib-Set" label="Set"></topic>
+<topic href="help/ch01s07.html#section.lib-String" label="String">
+</topic>
+<topic href="help/ch01s07.html#section.lib-Tuple" label="Tuple"></topic>
+<topic href="help/ch01s07.html#section.lib-UnitTest" label="UnitTest">
+</topic>
+<topic href="help/ch01s07.html#section.lib-Value" label="Value"></topic>
+<topic href="help/ch01s07.html#section.lib-ValueIO" label="ValueIO">
+</topic>
+<topic href="help/ch01s07.html#section.lib-View"
+label="View (Eclipse only)"></topic>
+<topic href="help/ch01s07.html#section.lib-Void" label="Void"></topic>
+</topic>
+<topic href="help/ch01s08.html" label="Table of Built-in Operators">
+</topic>
+<topic href="help/ch01s09.html" label="Table of Built-in Functions">
+</topic>
+<topic href="help/ch01s10.html" label="Bibliography"></topic>
+<topic href="help/ch01s11.html" label="Acknowledgements"></topic>
+<topic href="help/index.html#section.glossary"
+label="Glossary of Terminology"></topic>
+</toc>

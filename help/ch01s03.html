@@ -1,0 +1,237 @@
+<html><head><META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Some Classical Examples</title><meta content="DocBook XSL Stylesheets V1.75.2" name="generator"><link rel="home" href="index.html" title="Chapter&nbsp;1.&nbsp;EASY Meta-Programming with Rascal"><link rel="up" href="index.html" title="Chapter&nbsp;1.&nbsp;EASY Meta-Programming with Rascal"><link rel="prev" href="ch01s02.html" title="Rascal Concepts"><link rel="next" href="ch01s04.html" title="Problem Solving Strategies"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table summary="Navigation header" width="100%"><tr><th align="center" colspan="3">Some Classical Examples</th></tr><tr><td align="left" width="20%"><a accesskey="p" href="ch01s02.html">Prev</a>&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="ch01s04.html">Next</a></td></tr></table><hr></div><div class="section" title="Some Classical Examples"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="section.classical-examples"></a>Some Classical Examples</h2></div></div></div>
+    
+
+    <p>The following simple examples will help you to grasp the main
+    features of Rascal quickly. You can also look ahead and consult <a class="xref" href="ch01s06.html" title="The Rascal Language">the section called &ldquo;The Rascal Language&rdquo;</a> for details of the language or <a class="xref" href="ch01s07.html" title="Built-in Operators and Library Functions">the section called &ldquo;Built-in Operators and Library Functions&rdquo;</a> for specific operators or functions.</p>
+
+    <div class="section" title="Hello"><div class="titlepage"><div><div><h3 class="title"><a name="N2053B"></a>Hello</h3></div></div></div>
+      
+
+      <p>The ubiquitous hello world program looks in Rascal as
+      follows:</p><pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>import IO;</code></strong>
+<code class="computeroutput">ok</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>println("Hello, this is my first Rascal program");</code></strong>
+<code class="computeroutput">Hello, this is my first Rascal program
+ok</code>
+</pre><p>First, the library module IO (see <a class="xref" href="ch01s07.html#section.lib-IO" title="IO">the section called &ldquo;IO&rdquo;</a>)
+      is imported since hello world requires printing. Next, we call
+      <code class="literal">println</code> and proudly observe our first Rascal
+      output!</p>
+
+      <p>A slightly more audacious approach is to wrap the print statement
+      in a function and call it:</p>
+
+      <pre class="screen"><code class="prompt">rascal&gt; </code><strong class="userinput"><code>void hello() {
+   println("Hello, this is my first Rascal program");
+}</code></strong>
+<code class="computeroutput">Rascal.Function ...</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>hello();</code></strong>
+<code class="computeroutput">Hello, this is my first Rascal program
+ok</code></pre><p>The summit of hello-engineering can be reached by
+      placing all the above in a separate module:</p><pre class="programlisting">module demo::Hello
+	import IO;
+
+public void hello() {
+   println("Hello, this is my first Rascal program");
+}</pre><p>Note that we added a public modifier to the definition of
+      hello, since we want it to be visible outside the Hello module. Using
+      this Hello module is now simple:</p><pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>import demo::Hello;</code></strong>
+<code class="computeroutput">ok</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>hello();</code></strong>
+<code class="computeroutput">Hello, this is my first Rascal program
+ok</code></pre><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+          <p>All examples in this book can be found in the
+          <code class="literal">demo</code> directory of the Rascal distribution. That
+          is why we prefix all names of examples modules with
+          <code class="literal">demo::</code>.</p>
+        </div>
+    </div>
+
+    <div class="section" title="Factorial"><div class="titlepage"><div><div><h3 class="title"><a name="N20595"></a>Factorial</h3></div></div></div>
+      
+
+      <p>Here is another classical example, computing the factorial
+      function:</p><pre class="programlisting">module demo::Factorial
+
+public int fac(int N)
+{
+  if(N &lt;= 0)
+     return 1; 
+  else
+     return N * fac(N - 1);
+}</pre>
+
+      <p>It uses a conditional statement to distinguish cases and here is
+      how to use it:</p><pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>import demo::Factorial;</code></strong>
+<code class="computeroutput">ok</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>fac(47);</code></strong>
+<code class="computeroutput">int: 2586232415111681806429643551536119799691976323891200
+00000000</code></pre>
+
+      <p>Indeed, Rascal has infinite length integers.</p>
+    </div>
+
+    <div class="section" title="Colored Trees"><div class="titlepage"><div><div><h3 class="title"><a name="section.colored-trees"></a>Colored Trees</h3></div></div></div>
+      
+
+      <p>Suppose we have binary trees---trees with exactly two
+      children--that have integers as their leaves. Also suppose that our
+      trees can have red and black nodes. Such trees can be defined as
+      follows:</p><pre class="programlisting">module demo::ColoredTrees
+
+data ColoredTree = 
+            leaf(int N) 
+          | red(ColoredTree left, ColoredTree right) 
+          | black(ColoredTree left, ColoredTree right);</pre>
+
+      <p>We can use them as follows:</p>
+
+      <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>import demo::ColoredTrees;</code></strong>
+<code class="computeroutput">ok
+</code>
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>rb = red(black(leaf(1), red(leaf(2),leaf(3))), 
+                 black(leaf(3), leaf(4)));</code></strong>
+<code class="computeroutput">ColoredTree: red(black(leaf(1),red(leaf(2),leaf(3))),
+                 black(leaf(3),leaf(4)))</code></pre><p>We define
+      two operations on ColoredTrees, one to count the red nodes, and one to
+      add the values contained in all leaves:</p><pre class="programlisting">// continuing module demo::ColoredTrees
+
+public int cntRed(ColoredTree t){
+   int c = 0;
+   visit(t) {
+     case red(_,_): c = c + 1;<a name="co.cntRed"></a><img border="0" alt="1" src="images/callouts/1.png">
+   };
+   return c;
+}
+
+public int addLeaves(ColoredTree t){
+   int c = 0;
+   visit(t) {
+     case leaf(int N): c = c + N;<a name="co.cntLeaves"></a><img border="0" alt="2" src="images/callouts/2.png">
+   };
+   return c;
+}</pre><div class="calloutlist"><table summary="Callout list" border="0"><tr><td align="left" valign="top" width="5%"><p><a href="#co.cntRed"><img border="0" alt="1" src="images/callouts/1.png"></a> </p></td><td align="left" valign="top">
+            <p>Visit all the nodes of the tree and increment the counter
+            <code class="literal">c</code> for each red node.</p>
+          </td></tr><tr><td align="left" valign="top" width="5%"><p><a href="#co.cntLeaves"><img border="0" alt="2" src="images/callouts/2.png"></a> </p></td><td align="left" valign="top">
+            <p>Visit all nodes of the tree and add the integers in the leaf
+            nodes.</p>
+          </td></tr></table></div>
+
+      <p>This can be used as follows:</p>
+
+      <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>cntRed(rb);</code></strong>
+<code class="computeroutput">int: 2</code>
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>addLeaves(rb);</code></strong>
+<code class="computeroutput">int: 13</code></pre>
+
+      <p>A final touch to this example is to introduce green nodes and to
+      replace all red nodes by green ones:</p><pre class="programlisting">// continuing module demo::ColoredTrees
+
+data ColoredTree = green(ColoredTree left, 
+                         ColoredTree right);<a name="co.Tree-green"></a><img border="0" alt="1" src="images/callouts/1.png">
+
+public ColoredTree makeGreen(ColoredTree t){
+   return visit(t) {
+     case red(l, r) =&gt; green(l, r)      <a name="co.makeGreen"></a><img border="0" alt="2" src="images/callouts/2.png">
+   };
+}</pre><div class="calloutlist"><table summary="Callout list" border="0"><tr><td align="left" valign="top" width="5%"><p><a href="#co.Tree-green"><img border="0" alt="1" src="images/callouts/1.png"></a> </p></td><td align="left" valign="top">
+            <p>Extend the ColoredTree datatype with a new green
+            constructor.</p>
+          </td></tr><tr><td align="left" valign="top" width="5%"><p><a href="#co.makeGreen"><img border="0" alt="2" src="images/callouts/2.png"></a> </p></td><td align="left" valign="top">
+            <p>Visit all nodes in the tree and replace red nodes by green
+            ones. Note that the variables <code class="literal">l</code> and
+            <code class="literal">r</code> are introduced here without a
+            declaration.</p>
+          </td></tr></table></div>
+
+      <p>This is used as follows:</p><pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>makeGreen(rb);</code></strong>
+<code class="computeroutput">ColoredTree: green(black(leaf(1),green(leaf(2),leaf(3))),
+                   black(leaf(3),leaf(4)))</code></pre>
+    </div>
+
+    <div class="section" title="Word Replacement"><div class="titlepage"><div><div><h3 class="title"><a name="N2063B"></a>Word Replacement</h3></div></div></div>
+      
+
+      <p>Suppose you are in the publishing business and are responsible for
+      the systematic layout of publications. Authors do not systematically
+      capitalize words in titles---"Word replacement" instead of Word
+      Replacement"--- and you want to correct this. Here is one way to solve
+      this problem:</p><pre class="programlisting">module demo::WordReplacement
+import String;
+
+public str capitalize(str word)
+{
+   if(/^&lt;letter:[a-z]&gt;&lt;rest:.*$&gt;/ := word) <a name="co.capitalize-regexp"></a><img border="0" alt="1" src="images/callouts/1.png">
+      return toUpperCase(letter) + rest;<a name="co.capitalize-regexp-return1"></a><img border="0" alt="2" src="images/callouts/2.png">
+   else
+     return word;<a name="co.capitalize-regexp-return2"></a><img border="0" alt="3" src="images/callouts/3.png">
+}</pre><div class="calloutlist"><table summary="Callout list" border="0"><tr><td align="left" valign="top" width="5%"><p><a href="#co.capitalize-regexp"><img border="0" alt="1" src="images/callouts/1.png"></a> </p></td><td align="left" valign="top">
+            <p>The function capitalize takes a string as input and
+            capitalizes its first character if that is a letter. This is done
+            using a regular expression match that anchors the match at the
+            beginning (<code class="literal">^</code>), expects a single letter and
+            assigns it to the variable letter
+            (<code class="literal">letter:[a-z]</code>) followed by an arbitrary
+            sequence of letters until the end of the string that is assigned
+            to the variable rest (<code class="literal">&lt;rest:.*$&gt;</code>).</p>
+          </td></tr><tr><td align="left" valign="top" width="5%"><p><a href="#co.capitalize-regexp-return1"><img border="0" alt="2" src="images/callouts/2.png"></a> </p></td><td align="left" valign="top">
+            <p>If the regular expression matches we return a new string
+            with the first letter capitalized.</p>
+          </td></tr><tr><td align="left" valign="top" width="5%"><p><a href="#co.capitalize-regexp-return2"><img border="0" alt="3" src="images/callouts/3.png"></a> </p></td><td align="left" valign="top">
+            <p>Otherwise we return the word unmodified.</p>
+          </td></tr></table></div>
+
+      <p>The next challenge is how to capitalize all the words in a string.
+      Here are two solutions:</p><pre class="programlisting">// continuing module demo::WordReplacement
+
+public str capAll1(str S)
+{
+ result = "";
+ while (/^&lt;before:\W*&gt;&lt;word:\w+&gt;&lt;after:.*$&gt;/ := S) { <a name="co.capAll1-regexp"></a><img border="0" alt="1" src="images/callouts/1.png">
+    result += before + capitalize(word);
+    S = after;
+  }
+  return result;
+}
+
+public str capAll2(str S)
+{
+   return visit(S){<a name="co.capAll2-visit"></a><img border="0" alt="2" src="images/callouts/2.png">
+     case /&lt;word:\w+&gt;/i <a name="co.capAll2-match"></a><img border="0" alt="3" src="images/callouts/3.png"> =&gt; capitalize(word)<a name="co.capAll1-insert"></a><img border="0" alt="4" src="images/callouts/4.png">
+   };
+}</pre><div class="calloutlist"><table summary="Callout list" border="0"><tr><td align="left" valign="top" width="5%"><p><a href="#co.capAll1-regexp"><img border="0" alt="1" src="images/callouts/1.png"></a> </p></td><td align="left" valign="top">
+            <p>In the first solution <code class="literal">capAll1</code> we just
+            loop over all the words in the string and capitalize each word.
+            The variable <code class="literal">result</code> is used to collect the
+            successive capitalized words.</p>
+          </td></tr><tr><td align="left" valign="top" width="5%"><p><a href="#co.capAll2-visit"><img border="0" alt="2" src="images/callouts/2.png"></a> </p></td><td align="left" valign="top">
+            <p>In the second solution we use a visit expression to visit
+            all the substrings of S. Each matching case advances the substring
+            by the length of the pattern it matches and replaces that pattern
+            by another string. If no case matches the next substring is
+            tried.</p>
+          </td></tr><tr><td align="left" valign="top" width="5%"><p><a href="#co.capAll2-match"><img border="0" alt="3" src="images/callouts/3.png"></a> </p></td><td align="left" valign="top">
+            <p>The single case matches a word (note that
+            <code class="literal">\w</code> matches a word character).</p>
+          </td></tr><tr><td align="left" valign="top" width="5%"><p><a href="#co.capAll1-insert"><img border="0" alt="4" src="images/callouts/4.png"></a> </p></td><td align="left" valign="top">
+            <p>When the case matches a word, it is replaced by a
+            capitalized version.</p>
+          </td></tr></table></div>
+
+      <p>We can apply this all as follows:</p>
+
+      <pre class="screen"><code class="prompt">rascal&gt;</code> <strong class="userinput"><code>import demo::WordReplacement;</code></strong>
+<code class="computeroutput">ok</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>capitalize("rascal");</code></strong>
+<code class="computeroutput">str: "rascal"</code>
+
+<code class="prompt">rascal&gt;</code> <strong class="userinput"><code>capAll1("rascal is great");</code></strong>
+<code class="computeroutput">str: "Rascal Is Great"</code></pre>
+    </div>
+  </div><div class="navfooter"><hr><table summary="Navigation footer" width="100%"><tr><td align="left" width="40%"><a accesskey="p" href="ch01s02.html">Prev</a>&nbsp;</td><td align="center" width="20%">&nbsp;</td><td align="right" width="40%">&nbsp;<a accesskey="n" href="ch01s04.html">Next</a></td></tr><tr><td valign="top" align="left" width="40%">Rascal Concepts&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">Home</a></td><td valign="top" align="right" width="40%">&nbsp;Problem Solving Strategies</td></tr></table></div></body></html>

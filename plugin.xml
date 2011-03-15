@@ -1,0 +1,903 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+   </extension>
+   <extension
+         point="org.eclipse.core.variables.valueVariables">
+   </extension>
+   <extension
+         id="rascal.markerType.lineBreakpoint"
+         name="Rascal Line Breakpoint"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.debug.core.lineBreakpointMarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+   <extension
+         id="rascal.markerType.expressionBreakpoint"
+         name="Expression Breakpoint"
+         point="org.eclipse.core.resources.markers">
+      <persistent
+            value="true">
+      </persistent>
+      <super
+            type="org.eclipse.debug.core.lineBreakpointMarker">
+      </super>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.rascalmpl.eclipse.editor.RascalEditor"
+            class="org.rascalmpl.eclipse.debug.ui.breakpoints.RascalEditorAdapterFactory">
+         <adapter
+               type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget">
+         </adapter>
+      </factory>
+   </extension>
+   <extension
+         id="rascal.nature"
+         name="Rascal Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.rascalmpl.eclipse.nature.Nature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.core.filesystem.filesystems">
+      <filesystem
+            scheme="rascal-library">
+         <run
+               class="org.rascalmpl.eclipse.nature.RascalLibraryFileSystem">
+         </run>
+      </filesystem>
+   </extension>
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="help/toc.xml"
+            primary="true">
+      </toc>
+   </extension>
+
+   <extension
+         point="org.eclipse.imp.runtime.languageDescription">
+      <language
+            description="Source analysis and manipulation language"
+            extensions="rsc"
+            icon="icons/rascal3D_2-32px.gif"
+            language="Rascal">
+      </language>
+   </extension>
+   <extension
+         id="rascal-eclipse.parserWrapper"
+         name="Rascal Parser Wrapper"
+         point="org.eclipse.imp.runtime.parser">
+      <parser
+            class="org.rascalmpl.eclipse.editor.ParseController"
+            language="Rascal">
+      </parser>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.tokenColorer">
+      <tokenColorer
+            class="org.rascalmpl.eclipse.editor.TokenColorer"
+            language="Rascal">
+      </tokenColorer>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.labelProvider">
+      <labelProvider
+            class="org.rascalmpl.eclipse.outline.LabelProvider"
+            language="Rascal">
+      </labelProvider>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.modelTreeBuilder">
+      <treeBuilder
+            class="org.rascalmpl.eclipse.outline.TreeModelBuilder"
+            language="Rascal">
+      </treeBuilder>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.documentationProvider">
+      <docProvider
+            class="org.rascalmpl.eclipse.editor.DocumentationProvider"
+            language="Rascal">
+      </docProvider>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.parser">
+      <parser
+            class="org.rascalmpl.eclipse.terms.TermParseController"
+            language="Terms">
+      </parser>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.languageDescription">
+      <language
+            description="Abstract language which all Rascal-based implementations of languages are derived from to allow on-the-fly extension of the Eclipse IDE"
+            extensions="trm"
+            initializerClass="org.rascalmpl.eclipse.nature.InitializeRascalPlugins"
+            language="Terms">
+      </language>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.hyperLink">
+      <hyperlinkDetector
+            class="org.rascalmpl.eclipse.editor.HyperlinkDetector"
+            language="Rascal">
+      </hyperlinkDetector>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.documentationProvider">
+      <docProvider
+            class="org.rascalmpl.eclipse.editor.DocumentationProvider"
+            language="Terms">
+      </docProvider>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.editorService">
+      <editorService
+            class="org.rascalmpl.eclipse.terms.AnnotatorModelListener"
+            language="Terms">
+      </editorService>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.hyperLink">
+      <hyperlinkDetector
+            class="org.rascalmpl.eclipse.editor.HyperlinkDetector"
+            language="Terms">
+      </hyperlinkDetector>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.tokenColorer">
+      <tokenColorer
+            class="org.rascalmpl.eclipse.editor.TokenColorer"
+            language="Terms">
+      </tokenColorer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.rascalmpl.eclipse.perspective.Factory"
+            fixed="false"
+            icon="icons/rascal3D_2-16px.gif"
+            id="rascal.perspective"
+            name="Rascal">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.rascalmpl.eclipse.editor.RascalEditor"
+            default="true"
+            extensions="rsc"
+            filenames="*.rsc"
+            icon="icons/rascal3D_2-16px.gif"
+            id="rascal.editor"
+            name="Rascal Editor">
+      </editor>
+      <editor
+            class="org.rascalmpl.eclipse.box.BoxViewer"
+            default="false"
+            extensions="rsc, pico"
+            icon="icons/rascal3D_2-16px.gif"
+            id="org.rascalmpl.eclipse.box.boxviewer"
+            name="Box Viewer">
+      </editor>
+      <editor
+            class="org.rascalmpl.eclipse.library.vis.FigureViewer"
+            default="false"
+            extensions="cxt"
+            icon="icons/lattice.gif"
+            id="rascal-eclipse.Figure.lattice"
+            name="Lattice Figure">
+      </editor>
+      <editor
+            class="org.rascalmpl.eclipse.library.vis.FigureViewer"
+            default="false"
+            extensions="cxt"
+            icon="icons/spring.png"
+            id="rascal-eclipse.Figure.spring"
+            name="Spring Figure">
+      </editor>
+      <editor
+            class="org.rascalmpl.eclipse.library.vis.FigureViewer"
+            default="false"
+            extensions="cxt"
+            icon="icons/layered.gif"
+            id="rascal-eclipse.Figure.layered"
+            name="Layered Figure">
+      </editor>
+      <editor
+            class="org.rascalmpl.eclipse.library.vis.FigureViewer"
+            default="false"
+            id="rascal-eclipse.Figure.viewer"
+            name="Figure Viewer">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            id="rascal.editorpopupmenu"
+            targetID="rascal.editor.contextMenu">
+         <action
+               class="org.rascalmpl.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.editor.context.ExprBreakpointAction"
+               label="Add an Expression Breakpoint"
+               menubarPath="additions">
+         </action>
+         <action
+               class="org.rascalmpl.eclipse.perspective.actions.EvaluateExpression"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.editor.context.EvalExprtAction"
+               label="Evaluate"
+               menubarPath="additions"
+               tooltip="Evaluate the selected text in the current evaluation environment. This only works if the Rascal debugger is executing in the scope of the selected expressions.">
+         </action>
+         <action
+               class="org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.launchconsole"
+               label="Launch Console"
+               menubarPath="additions"
+               tooltip="Launch a console with a command prompt">
+         </action>
+         <action
+               class="org.rascalmpl.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.launchdebugconsole"
+               label="Launch Debuggable Console"
+               menubarPath="additions"
+               tooltip="Launch a console that allows interaction via the debugging interfaces">
+         </action>
+         <action
+               class="org.rascalmpl.eclipse.perspective.actions.CopyToConsole"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal-eclipse.editor.context.copyToConsole"
+               label="Copy to console"
+               menubarPath="additions"
+               tooltip="Copy the current selection to the currently active console (if any) and execute the command">
+         </action>
+         <action
+               class="org.rascalmpl.eclipse.perspective.actions.RunStaticChecker"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal-eclipse.editor.context.runStaticChecker"
+               label="Run static checker"
+               menubarPath="additions"
+               tooltip="Statically checks the contents of the current editor">
+         </action>
+      </viewerContribution>
+      <objectContribution
+            id="rascal.project"
+            objectClass="org.eclipse.core.resources.IResource">
+         <visibility>
+            <objectState
+                  name="projectNature"
+                  value="rascal.nature">
+            </objectState>
+         </visibility>
+         <!--declaration of prerequisite plugins  
+         <action
+               class="org.rascalmpl.eclipse.box.PrintAction"
+               id = "org.rascalmpl.eclipse.box.printAction"
+               label="Pretty Print"
+               icon="icons/rascal3D_2-16px.gif"
+               menubarPath="additions">
+         </action>
+         -->
+         <action
+               class="org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.launchconsole"
+               label="Launch Console">
+         </action>
+         <action
+               class="org.rascalmpl.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.launchdebugconsole"
+               label="Launch Debuggable Console">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="org.rascalmpl.eclipse.debug.ui.views.FunctionView"
+            icon="icons/rascal3D_2-16px.gif"
+            id="rascal-eclipse.functionview"
+            name="Rascal functions"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            description="Debugging Rascal Programs"
+            id="rascal.debugging"
+            name="Debugging Rascal Programs"
+            parentId="org.eclipse.debug.ui.debugging">
+      </context>
+   </extension>
+   <extension
+         id="rascal.editorContribution"
+         name="rascalEditorContribution"
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            id="rascal.editorContribution"
+            targetID="rascal.editor">
+         <action
+               actionID="RulerDoubleClick"
+               class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+               id="rascal.doubleClickBreakpointAction"
+               label="Double click breakpoint action"
+               style="push">
+         </action>
+      </editorContribution>
+   </extension>
+   <extension
+         id="rascal.bindings"
+         name="Rascal key bindings"
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="rascal-eclipse.EvalExpression"
+            contextId="rascal.debugging"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+E">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.rascalmpl.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
+            id="rascal-eclipse.AddExprBreakpoint"
+            name="Add Expression Breakpoint">
+      </command>
+      <command
+            defaultHandler="org.rascalmpl.eclipse.perspective.actions.EvaluateExpression"
+            id="rascal-eclipse.EvalExpression"
+            name="Evaluate Expression">
+      </command>
+      <command
+            defaultHandler="org.rascalmpl.eclipse.perspective.actions.CopyToConsole"
+            description="Copy current selection to active console"
+            id="rascal-eclipse.copyToConsole"
+            name="Copy to console">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            category="rascal_eclipse"
+            class="org.rascalmpl.eclipse.perspective.RascalProjectWizard"
+            descriptionImage="icons/rascal3D_2-16px.gif"
+            finalPerspective="rascal.perspective"
+            icon="icons/rascal3D_2-32px.png"
+            id="rascal-eclipse.projectwizard"
+            name="Rascal Project"
+            project="true">
+      </wizard>
+      <category
+            id="rascal_eclipse"
+            name="Rascal">
+      </category>
+      <wizard
+            category="rascal_eclipse"
+            class="org.rascalmpl.eclipse.wizards.NewRascalFile"
+            icon="icons/rascal3D_2-32px.png"
+            id="rascal_eclipse.wizards.NewRascalFile"
+            name="Rascal File">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.debug.ui.DebugPerspective">
+         <view
+               id="rascal-eclipse.functionview"
+               relationship="right"
+               relative="org.eclipse.debug.ui.VariableView"
+               visible="false">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/rascal3D_2-32px.png"
+            id="rascal.nature.image"
+            natureId="rascal.nature">
+      </image>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="org.rascalmpl.eclipse.launch.LaunchDelegate"
+            id="rascal.launchType"
+            modes="run, debug"
+            name="Rascal Application"
+            sourceLocatorId="rascal-eclipse.sourceLocator"
+            sourcePathComputerId="rascal-eclipse.sourcePathComputer">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.breakpoints">
+      <breakpoint
+            class="org.rascalmpl.eclipse.debug.core.breakpoints.RascalLineBreakpoint"
+            id="rascal.linebreakpoint"
+            markerType="rascal.markerType.lineBreakpoint"
+            name="Rascal LineBreakpoint">
+      </breakpoint>
+      <breakpoint
+            class="org.rascalmpl.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint"
+            id="rascal-eclipse.exprbreakpoint"
+            markerType="rascal.markerType.expressionBreakpoint"
+            name="Expression Breakpoint">
+      </breakpoint>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.sourceLocators">
+      <sourceLocator
+            class="org.rascalmpl.eclipse.debug.core.sourcelookup.RascalSourceLookupDirector"
+            id="rascal-eclipse.sourceLocator"
+            name="Rascal source Locator">
+      </sourceLocator>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.sourcePathComputers">
+      <sourcePathComputer
+            class="org.rascalmpl.eclipse.debug.core.sourcelookup.RascalSourcePathComputerDelegate"
+            id="rascal-eclipse.sourcePathComputer">
+      </sourcePathComputer>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="org.rascalmpl.eclipse.launch.TabGroup"
+            description="Specify and launch a Rascal program"
+            id="rascal.tabGroup"
+            type="rascal.launchType">
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            icon="icons/rascal3D_2-16px.gif"
+            configTypeID="rascal.launchType"
+            id="rascal.typeImage"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            label="Rascal Application"
+            icon="icons/rascal3D_2-16px.gif"
+            class="org.rascalmpl.eclipse.launch.LaunchShortcut"
+            modes="run, debug"
+            id="rascal.launchShortcut">
+         <contextualLaunch>
+            <enablement>
+               <with variable="selection">
+                  <count value="1"/>
+                  <iterate>
+                     <instanceof value="org.eclipse.core.resources.IFile"/>
+                     <test
+                           value="*.rsc"
+                           property="org.eclipse.debug.ui.matchesPattern"/>
+                  </iterate>
+               </with>
+            </enablement>
+         </contextualLaunch>
+      </shortcut>
+   </extension>
+     <extension
+         point="org.eclipse.debug.ui.debugModelPresentations">
+      <debugModelPresentation
+            class="org.rascalmpl.eclipse.debug.ui.presentation.RascalModelPresentation"
+            id="rascal.debugModel"/>
+   </extension>
+     <extension
+           point="org.eclipse.debug.ui.contextViewBindings">
+        <contextViewBinding
+              contextId="rascal.debugging"
+              viewId="rascal-eclipse.functionview">
+        </contextViewBinding>
+     </extension>
+     <extension
+           point="org.eclipse.debug.ui.debugModelContextBindings">
+        <modelContextBinding
+              contextId="rascal.debugging"
+              debugModelId="rascal.debugModel">
+        </modelContextBinding>
+     </extension>
+  <extension
+        point="org.eclipse.ui.exportWizards">
+        <wizard
+        id="TextBoxExport"
+        name="PrettyPrint -> Text"
+        class="org.rascalmpl.eclipse.box.TextBoxExport">
+        <description>Export to formatted source file</description>
+        <selection class="org.eclipse.core.resources.IResource" /> 
+        </wizard>
+  </extension>
+  <extension
+        point="org.eclipse.ui.exportWizards">
+        <wizard
+        id="LatexBoxExport"
+        name="PrettyPrint -> Latex"
+        class="org.rascalmpl.eclipse.box.LatexBoxExport">
+        <description>Export to formatted source file</description>
+        <selection class="org.eclipse.core.resources.IResource" /> 
+        </wizard>
+  </extension>
+  <extension
+        point="org.eclipse.ui.exportWizards">
+        <wizard
+        id="HtmlBoxExport"
+        name="PrettyPrint -> Html"
+        class="org.rascalmpl.eclipse.box.HtmlBoxExport">
+        <description>Export to formatted source file</description>
+        <selection class="org.eclipse.core.resources.IResource" /> 
+        </wizard>
+  </extension>
+  <extension
+        point="org.eclipse.ui.actionSets">
+     <actionSet
+           id="rascal_eclipse.rascalActionSet"
+           label="Rascal Action Set"
+           visible="true">
+        <menu
+              id="Rascal"
+              label="Rascal">
+        </menu>
+        <action
+              class="org.rascalmpl.eclipse.perspective.actions.StartTutorAction"
+              id="Tutor"
+              label="Start &amp;Tutor"
+              menubarPath="rascal/rascalGroup"
+              tooltip="Start Rascal Tutor">
+        </action>
+     </actionSet>
+  </extension>
+  <extension
+        point="org.eclipse.imp.runtime.languageRegistrar">
+        <languageRegistrar   
+              class="org.rascalmpl.eclipse.nature.InitializeRascalPlugins"
+              id="rascalStarter"></languageRegistrar>
+  </extension>
+  
+ <extension point="org.eclipse.core.resources.markers"
+            id="rascal.markerType.queryResult"
+            name="Rascal Marker">
+            <super type="org.eclipse.core.resources.problemmarker"/>
+            <persistent value="true"/>
+ </extension>
+
+  <extension
+       point="org.eclipse.ui.editors.annotationTypes">
+       
+     <type
+          markerType="org.eclipse.core.resources.problemmarker"
+          name="rascal.highlight0"
+          markerSeverity="0">
+    </type>
+    
+    <type
+          markerType="org.eclipse.core.resources.problemmarker"
+          name="rascal.highlight1"
+          markerSeverity="0">
+    </type>
+
+    <type
+          markerType="org.eclipse.core.resources.problemmarker"
+          name="rascal.highlight2"
+          markerSeverity="0">
+    </type>
+    <type
+          markerType="org.eclipse.core.resources.problemmarker"
+          name="rascal.highlight3"
+          markerSeverity="0">
+    </type>
+     <type
+          markerType="org.eclipse.core.resources.problemmarker"
+          name="rascal.highlight4"
+          markerSeverity="0">
+    </type>
+   
+ </extension>
+ 
+
+  <extension 
+  	   point="org.eclipse.ui.editors.markerAnnotationSpecification"
+       id="rascal.highlight1Marker">
+      
+     <specification
+           annotationType="rascal.highlight0"
+           colorPreferenceKey="Highlight0ColorPreferenceKey"
+           colorPreferenceValue="255,192,203"
+           contributesToHeader="false"
+           highlightPreferenceKey="Highlight0HighLightPreferenceKey"
+           highlightPreferenceValue="true"
+           includeOnPreferencePage="false"
+           isGoToNextNavigationTarget="true"
+           isGoToPreviousNavigationTarget="true"
+           overviewRulerPreferenceKey="Highlight0OverViewPreferenceKey"
+           overviewRulerPreferenceValue="true"
+           presentationLayer="4"
+           showInNextPrevDropdownToolbarAction="true"
+           textPreferenceKey="Highlight0TextPreferenceKey"
+           textPreferenceValue="true"
+           textStylePreferenceKey="Highlight0StylePreferenceKey"
+           textStylePreferenceValue="BOX"
+           verticalRulerPreferenceKey="Highlight0VerticalRulerPreferenceKey"
+           verticalRulerPreferenceValue="true">
+     </specification>
+  </extension>
+ 
+ 
+  <extension 
+       point="org.eclipse.ui.editors.markerAnnotationSpecification"
+       id="rascal.highlight1Marker">
+    
+     <specification
+           annotationType="rascal.highlight1"
+           colorPreferenceKey="Highlight1ColorPreferenceKey"
+           colorPreferenceValue="255,255,0"
+           contributesToHeader="false"
+           highlightPreferenceKey="Highlight1HighLightPreferenceKey"
+           highlightPreferenceValue="true"
+           includeOnPreferencePage="false"
+           isGoToNextNavigationTarget="true"
+           isGoToPreviousNavigationTarget="true"
+           overviewRulerPreferenceKey="Highlight1OverViewPreferenceKey"
+           overviewRulerPreferenceValue="true"
+           presentationLayer="4"
+           showInNextPrevDropdownToolbarAction="true"
+           textPreferenceKey="Highlight1TextPreferenceKey"
+           textPreferenceValue="true"
+           textStylePreferenceKey="Highlight1StylePreferenceKey"
+           textStylePreferenceValue="BOX"
+           verticalRulerPreferenceKey="Highlight1VerticalRulerPreferenceKey"
+           verticalRulerPreferenceValue="true">
+     </specification>
+  </extension>
+
+ 
+  <extension 
+       point="org.eclipse.ui.editors.markerAnnotationSpecification"
+       id="rascal.highlight2Marker">
+        
+     <specification
+           annotationType="rascal.highlight2"
+           colorPreferenceKey="Highlight2ColorPreferenceKey"
+           colorPreferenceValue="255,0,255"
+           contributesToHeader="false"
+           highlightPreferenceKey="Highlight2HighLightPreferenceKey"
+           highlightPreferenceValue="true"
+           includeOnPreferencePage="false"
+           isGoToNextNavigationTarget="true"
+           isGoToPreviousNavigationTarget="true"
+           overviewRulerPreferenceKey="Highlight2OverViewPreferenceKey"
+           overviewRulerPreferenceValue="true"
+           presentationLayer="4"
+           showInNextPrevDropdownToolbarAction="true"
+           textPreferenceKey="Highlight2TextPreferenceKey"
+           textPreferenceValue="true"
+           textStylePreferenceKey="Highlight2StylePreferenceKey"
+           textStylePreferenceValue="BOX"
+           verticalRulerPreferenceKey="Highlight2VerticalRulerPreferenceKey"
+           verticalRulerPreferenceValue="true">
+     </specification>
+  </extension>
+  
+   <extension 
+       point="org.eclipse.ui.editors.markerAnnotationSpecification"
+       id="rascal.highlight3Marker">
+        
+     <specification
+           annotationType="rascal.highlight3"
+           colorPreferenceKey="Highlight3ColorPreferenceKey"
+           colorPreferenceValue="0,255,255"
+           contributesToHeader="false"
+           highlightPreferenceKey="Highlight3HighLightPreferenceKey"
+           highlightPreferenceValue="true"
+           includeOnPreferencePage="false"
+           isGoToNextNavigationTarget="true"
+           isGoToPreviousNavigationTarget="true"
+           overviewRulerPreferenceKey="Highlight3OverViewPreferenceKey"
+           overviewRulerPreferenceValue="true"
+           presentationLayer="4"
+           showInNextPrevDropdownToolbarAction="true"
+           textPreferenceKey="Highlight3TextPreferenceKey"
+           textPreferenceValue="true"
+           textStylePreferenceKey="Highlight3StylePreferenceKey"
+           textStylePreferenceValue="BOX"
+           verticalRulerPreferenceKey="Highlight3VerticalRulerPreferenceKey"
+           verticalRulerPreferenceValue="true">
+     </specification>
+  </extension>
+  
+  
+   <extension 
+       point="org.eclipse.ui.editors.markerAnnotationSpecification"
+       id="rascal.highlight4Marker">
+        
+     <specification
+           annotationType="rascal.highlight4"
+           colorPreferenceKey="Highlight4ColorPreferenceKey"
+           colorPreferenceValue="0,255,0"
+           contributesToHeader="false"
+           highlightPreferenceKey="Highlight4HighLightPreferenceKey"
+           highlightPreferenceValue="true"
+           includeOnPreferencePage="false"
+           isGoToNextNavigationTarget="true"
+           isGoToPreviousNavigationTarget="true"
+           overviewRulerPreferenceKey="Highlight4OverViewPreferenceKey"
+           overviewRulerPreferenceValue="true"
+           presentationLayer="4"
+           showInNextPrevDropdownToolbarAction="true"
+           textPreferenceKey="Highlight4TextPreferenceKey"
+           textPreferenceValue="true"
+           textStylePreferenceKey="Highlight4StylePreferenceKey"
+           textStylePreferenceValue="BOX"
+           verticalRulerPreferenceKey="Highlight4VerticalRulerPreferenceKey"
+           verticalRulerPreferenceValue="true">
+     </specification>
+  </extension>
+ 
+ <extension
+       point="org.eclipse.ui.handlers">
+    <handler
+          class="org.rascalmpl.eclipse.box.PrintHandler"
+          commandId="org.eclipse.ui.file.print1">
+       <activeWhen>
+         <with
+            variable="activeMenuSelection">
+            <count
+                  value="1">
+            </count>
+         <iterate ifEmpty="false">
+            <and>
+            <instanceof
+                  value="org.eclipse.core.resources.IFile">
+            </instanceof>
+            <or>
+            <test property="org.eclipse.core.resources.extension" 
+                     value="rsc"/>
+            <test property="org.eclipse.core.resources.extension" 
+                     value="pico"/>
+             <test property="org.eclipse.core.resources.extension" 
+                     value="oberon0"/>
+            </or>
+            </and>
+         </iterate>
+        </with>
+      </activeWhen> 
+    </handler>
+    <handler
+          class="org.rascalmpl.eclipse.box.PrintHandler"
+          commandId="org.eclipse.ui.file.print2">
+       <activeWhen>
+         <with variable="activeEditorId">
+          <or>
+          <!--instanceof value="org.eclipse.ui.texteditor.AbstractTextEditor"/>-->
+            <equals value="org.rascalmpl.eclipse.box.boxviewer"/>
+            <equals value="rascal.editor"/>
+            <equals value="rascal-eclipse.Figure.lattice"/>
+            <equals value="rascal-eclipse.Figure.spring"/>
+            <equals value="rascal-eclipse.Figure.layered"/>
+          </or>
+        </with>
+      </activeWhen> 
+    </handler>
+ </extension>
+ <extension
+       point="org.eclipse.ui.commands">
+    <command
+          id="org.eclipse.ui.file.print1"
+          name="print1">
+    </command>
+    <command
+          id="org.eclipse.ui.file.print2"
+          name="print2">
+    </command>
+ </extension>
+ <!--extension point="org.eclipse.core.expressions.definitions">
+      <definition id="rascal.file">
+            <adapt type="org.eclipse.core.resources.IFile">
+               <test property="org.eclipse.core.resources.name" 
+                     value="*.rsc"/>           
+            </adapt>
+      </definition>
+      <definition
+            id="expression.onlyOneItemSelected">
+         <with
+               variable="activeMenuSelection">
+            <count
+                  value="1">
+            </count>
+         </with>
+      </definition>
+   </extension-->
+ <extension
+       point="org.eclipse.ui.menus">
+    <menuContribution
+          allPopups="false"
+          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+       <command
+             commandId="org.eclipse.ui.file.print1"
+             label="Pretty Print"
+             style="push"
+             tooltip="Print this file">       
+       </command>
+    </menuContribution>
+    <!--menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=File"--> 
+    <menuContribution locationURI="menu:file"> 
+       <command
+             commandId="org.eclipse.ui.file.print2"
+             label="My Print">           
+       </command>
+    </menuContribution>
+ </extension>
+ <extension
+       point="org.eclipse.ui.themes">
+    <fontDefinition
+          id="rascal-eclipse.printerFontDefinition"
+          label="Printer Font"
+          value="Monospace-regular-6">
+    </fontDefinition>
+ </extension>
+ <extension
+       point="org.eclipse.imp.runtime.formatter">
+    <formatter
+          class="org.rascalmpl.eclipse.box.Formatter"
+          language="Rascal">
+    </formatter>
+ </extension>
+ <extension
+       id="rascal.markerType.testResult"
+       name="Rascal Test Result"
+       point="org.eclipse.core.resources.markers">
+    <persistent
+          value="true">
+    </persistent>
+    <super
+          type="org.eclipse.core.resources.problemmarker">
+    </super>
+ </extension>
+ <extension
+       point="org.eclipse.imp.runtime.modelTreeBuilder">
+    <treeBuilder
+          class="org.rascalmpl.eclipse.terms.TreeModelBuilder"
+          language="Terms">
+    </treeBuilder>
+ </extension>
+ <extension
+       point="org.eclipse.imp.runtime.labelProvider">
+    <labelProvider
+          class="org.rascalmpl.eclipse.terms.LabelProvider"
+          language="Terms">
+    </labelProvider>
+ </extension>
+ <extension
+       point="org.eclipse.imp.runtime.foldingUpdater">
+    <foldingUpdater
+          class="org.rascalmpl.eclipse.terms.FoldingUpdater"
+          language="Terms">
+    </foldingUpdater>
+ </extension>
+ <extension
+       point="org.eclipse.imp.runtime.editorActionContributions">
+    <editorActionContributor
+          class="org.rascalmpl.eclipse.terms.ActionContributor"
+          language="Terms">
+    </editorActionContributor>
+ </extension> 
+</plugin>

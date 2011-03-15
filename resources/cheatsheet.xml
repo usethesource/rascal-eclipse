@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="GraphBrowser Cheat Sheet">
+  <intro>
+    <description>
+      This cheat sheet is a overview of how you can navigate through the graph browser.
+<br/><br/>
+This is only a guide to how to browse the graph, and how to change properties of nodes and edges. If you want to write a plugin using this framework you should read the quickstart guide.
+<br/><br/>
+Open a graph to get started!
+    </description>
+  </intro>
+  <item title="Selecting nodes">
+    <description>
+      You can select a node by clicking on it.
+Click on the background of the graph, or on the same node to deselect it.
+<br/><br/>
+When a node is selected, you can navigate the graph using the keyboard:<br/>
+<b>Up/down arrows:</b> Switch focus between the in and out edges of the selected node.<br/>
+<b>Left/right arrows:</b> Change the focussed edge to the left/right of the current edge.<br/>
+<b>Enter:</b> Traverse to the other side of the current selected edge.
+      
+<br/><br/>
+<b>Selecting multiple nodes</b><br/>
+You can select the <b>marquee</b> tool in the left bar to select multiple nodes.
+You can use the <b>ctrl</b> key to add nodes to your current selection.  
+Pressing <b>right mouse button</b> on one of the selected nodes brings up a context menu.  
+    </description>
+  </item>
+  <item title="Zooming and Panning">
+    <description>
+      <b>Zooming with the mouse</b><br/>
+You can zoom in a graph using the scrollwheel on your mouse.
+<br/><br/>
+<b>Zooming with the keyboard</b><br/>
+<b>Ctrl + +</b>: Zoom in<br/>
+<b>Ctrl + -</b>: Zoom out<br/>
+<b>Ctrl + 0</b>: Zoom to default
+<br/><br/>
+<b>Panning</b><br/>
+Press <b>space</b> with left click on the graph, then drag to move around the graph.
+<br/><br/>
+<b>Center screen on active node</b><br/>
+Select a node, then press <b>home</b> to center the view on it.
+    </description>
+  </item>
+  <item
+        title="Property editor">
+     <description>
+        You can open the property browser in eclipse by <b>Window</b> -&gt; <b>Show view</b> -&gt; <b>General</b> -&gt; <b>Properties</b>. Select a node to see and edit its properties.
+<br/><br/>
+<b>Example</b><br/>
+Select a node, and edit its properties so that the <b>link</b> property is the full path to a file present in the workspace, and the <b>linenumber</b> property to a line number of the file. You can now double click on the node to go to that file!
+     </description>
+  </item>
+  <item title="Hotkey summary">
+    <description>
+      <b>Mouse interaction</b><br/>
+<b>Left click:</b> Select a node.<br/>
+<b>Space + drag the mouse:</b> Pan around the graph.<br/>
+<b>Marquee + drag the mouse:</b> Select all nodes within the box.<br/>
+<b>Ctrl + click:</b> Toggle whether clicked node belongs to the selection.<br/>
+<b>Double click:</b> Go to the source code behind the clicked node.<br/>See also: Property editor.
+<br/><br/>
+<b>Navigate the graph</b><br/>
+<b>Up/down:</b> Change select mode.<br/>
+<b>Left/Right:</b> Change selected edge.<br/>
+<b>Enter:</b> Traverse selected edge.<br/>
+<b>Home:</b> Focus on the current selected node.
+<br/><br/>
+<b>Zooming</b><br/>
+<b>Ctrl + +</b>: Zoom in.<br/>
+<b>Ctrl + -</b>: Zoom out.<br/>
+<b>Ctrl + 0</b>: Zoom to default.
+<br/><br/>
+<b>Other hotkeys</b><br/>
+<b>Ctrl + D:</b> Deselect everything.<br/>
+<b>Ctrl + R:</b> Relayout the graph.<br/>
+<b>Ctrl + T:</b> Open new tab containing only selected nodes.
+    </description>
+  </item>
+</cheatsheet>
