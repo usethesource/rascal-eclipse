@@ -37,9 +37,11 @@ import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ParseController implements IParseController, IMessageHandlerProvider {
 	private IMessageHandler handler;
@@ -192,40 +194,40 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			if (lastParsedInput != null && arraysMatch) {
 				parseTree = lastParseTree;
 			} else {
-					Evaluator parser = getParser(project.getRawProject());
-					parseTree = parser.parseModule(input.toCharArray(), uri, null);
+				Evaluator parser = getParser(project.getRawProject());
+				parseTree = parser.parseModuleWithErrorTree(input.toCharArray(), uri, null);
 				lastParseTree = parseTree;
+				
+				if(parseTree.getConstructorType() == Factory.Tree_Error){
+					ISourceLocation parsedLocation = TreeAdapter.getLocation(parseTree);
+					
+					setParseError(parsedLocation.getLength(), 0, parsedLocation.getEndLine(), parsedLocation.getEndColumn(), parsedLocation.getEndLine(), parsedLocation.getEndColumn(), "Parse error.");
+				}
 			}
 			monitor.worked(1);
 			return parseTree;
-		}
-		catch (FactTypeUseException e){
+		}catch (FactTypeUseException e){
 			Activator.getInstance().logException("parsing rascal failed", e);
-		}
-		catch (StaticError e){
+		}catch (SyntaxError e){
 			ISourceLocation loc = e.getLocation();
 
-			if (loc.getOffset() >= 0) {
-				handler.handleSimpleMessage(e.getMessage(), loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
-			}
-			else {
-				handler.handleSimpleMessage(e.getMessage(), 0, 0, 0, 0, 1, 1);
-			}
-		}
-		catch (Throw e) {
+			setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), e.getMessage());
+		}catch(Throw e){
 			ISourceLocation loc = e.getLocation();
-
-			if (loc.getOffset() >= 0) {
-				handler.handleSimpleMessage(e.getMessage(), loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
-			}
-			else {
-				handler.handleSimpleMessage(e.getMessage(), 0, 0, 0, 0, 1, 1);
-			}
-		}
-		finally{
+			
+			setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), e.getMessage());
+		}finally{
 			monitor.done();
 		}
 		
 		return null;
+	}
+	
+	private void setParseError(int offset, int length, int beginLine, int beginColumn, int endLine, int endColumn, String message){
+		if(offset >= 0){
+			handler.handleSimpleMessage(message, offset, offset + length, beginColumn, endColumn, beginLine, endLine);
+		}else{
+			handler.handleSimpleMessage(message, 0, 0, 0, 0, 1, 1);
+		}
 	}
 }

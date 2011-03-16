@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -49,16 +50,14 @@ public class TokenIterator implements Iterator<Token>{
 			location = 0;
 		}
 		
-		@Override
 		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException{
 			// we just go into the first, it's arbitrary but at least we'll get some nice highlighting
 			TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
 			return arg;
 		}
-
-		@Override
+		
 		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException{
-			String category = TreeAdapter.isAppl(arg) ? ProductionAdapter.getCategory(TreeAdapter.getProduction(arg)) : null;
+			String category = ProductionAdapter.getCategory(TreeAdapter.getProduction(arg));
 			
 			int offset = location;
 			
@@ -87,16 +86,49 @@ public class TokenIterator implements Iterator<Token>{
 
 			return arg;
 		}
-
-		@Override
+		
 		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException{
 			++location;
 			
 			return arg;
 		}
-
-		@Override
+		
 		public IConstructor visitTreeCycle(IConstructor arg) throws VisitorException{
+			return arg;
+		}
+		
+		public IConstructor visitTreeError(IConstructor arg) throws VisitorException{
+			String category = ProductionAdapter.getCategory(TreeAdapter.getProduction(arg));
+			
+			int offset = location;
+			
+			if(TreeAdapter.isLiteral(arg)){
+				if(category == null){
+					String yield = TreeAdapter.yield(arg);
+					for(byte c : yield.getBytes()) {
+						if(c != '-' && !Character.isJavaIdentifierPart(c)){
+							location += TreeAdapter.yield(arg).length();
+							return arg;
+						}
+					}
+					category = TokenColorer.META_KEYWORD;
+				}
+			}
+			
+			if(category == null){
+				for(IValue child : (IList) arg.get("args")){
+					child.accept(this);
+				}
+			}else{
+				location += TreeAdapter.yield(arg).length();
+				
+				tokenList.add(new Token(category, offset, location - offset));
+			}
+
+			return arg;
+		}
+		
+		public IConstructor visitTreeExpected(IConstructor arg) throws VisitorException{
 			return arg;
 		}
 	}
