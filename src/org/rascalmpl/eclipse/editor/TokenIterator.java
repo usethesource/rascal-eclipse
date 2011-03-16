@@ -119,6 +119,11 @@ public class TokenIterator implements Iterator<Token>{
 				for(IValue child : (IList) arg.get("args")){
 					child.accept(this);
 				}
+				
+				// The rest (all characters, for which no highlighting is needed, but visit them anyway).
+				for(IValue child : (IList) arg.get("rest")){
+					child.accept(this);
+				}
 			}else{
 				location += TreeAdapter.yield(arg).length();
 				
