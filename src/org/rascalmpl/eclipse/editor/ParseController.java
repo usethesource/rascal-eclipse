@@ -201,6 +201,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 				if(parseTree.getConstructorType() == Factory.Tree_Error){
 					ISourceLocation parsedLocation = TreeAdapter.getLocation(parseTree);
 					
+					// Set the error location to where the error tree ends.
 					setParseError(parsedLocation.getLength(), 0, parsedLocation.getEndLine(), parsedLocation.getEndColumn(), parsedLocation.getEndLine(), parsedLocation.getEndColumn(), "Parse error.");
 				}
 			}
