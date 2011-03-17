@@ -62,6 +62,9 @@ anno EntityRel  Resource@declaredSubTypes;
 @doc{defines which class defines which methods}
 anno EntityRel  Resource@declaredMethods;  
 
+@doc{defines the relation between a method and its body}
+anno EntityRel 	Resource@methodBodies;
+
 @doc{defines which class defines which fields}
 anno EntityRel  Resource@declaredFields;   
 
