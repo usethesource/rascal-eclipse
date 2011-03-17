@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -103,6 +104,7 @@ public class JDTImporter extends ASTVisitor {
 	private ISetWriter declaredTopTypes;
 	private IRelationWriter calls;
 	private IRelationWriter modifiers;
+	private IRelationWriter methodBodies;
 	
 	public JDTImporter() {
 		super();
@@ -127,6 +129,7 @@ public class JDTImporter extends ASTVisitor {
 		declaredMethods = VF.relationWriter(entityTupleType);
 		declaredFields = VF.relationWriter(entityTupleType);
 		calls = VF.relationWriter(entityTupleType);
+		methodBodies = VF.relationWriter(entityTupleType);
 
 		modifiers = VF.relationWriter(modifierTupleType);
 
@@ -151,6 +154,7 @@ public class JDTImporter extends ASTVisitor {
 		facts.put("declaredMethods", declaredMethods.done());
 		facts.put("declaredFields", declaredFields.done());
 		facts.put("calls", calls.done());
+		facts.put("methodBodies", methodBodies.done());
 		
 		facts.put("modifiers", modifiers.done());
 		
@@ -315,7 +319,11 @@ public class JDTImporter extends ASTVisitor {
 		
 		if (mb != null) {
 			addBinding(methodBindings, n, bindingCache.getEntity(mb));
-			if (n instanceof MethodDeclaration) addBinding(methodDecls, n, bindingCache.getEntity(mb));
+			if (n instanceof MethodDeclaration) {
+				addBinding(methodDecls, n, bindingCache.getEntity(mb));
+				
+				addMethodBody((MethodDeclaration) n, mb);
+			}
 			if (n instanceof MethodInvocation) {
 				MethodInvocation mi = (MethodInvocation)n;
 				int mods = mi.resolveMethodBinding().getMethodDeclaration().getModifiers();
@@ -427,6 +435,13 @@ public class JDTImporter extends ASTVisitor {
 		}
 	}
 	
+	private void addMethodBody(MethodDeclaration method, IMethodBinding methodBinding) {
+		AstToINodeConverter converter = new AstToINodeConverter(VF);
+		method.accept(converter);
+		
+		addRelation(methodBodies, method, bindingCache.getEntity(methodBinding), converter.getNode());
+	}
+
 	private void importTypeInfo(ASTNode n) {
 		ITypeBinding tb = null;
 		
@@ -607,5 +622,10 @@ public class JDTImporter extends ASTVisitor {
 		ISourceLocation fileLoc = new org.rascalmpl.eclipse.library.Resources(VF).makeFile(file);
 		ISourceLocation loc = VF.sourceLocation(fileLoc.getURI(), n.getStartPosition(), n.getLength(), -1, -1, -1, -1);
 		rw.insert(VF.tuple(loc, entity));
+	}
+	
+	private void addRelation(IRelationWriter rw, ASTNode n, IValue from, IValue to) {
+		ITuple relation = VF.tuple(from, to);
+		rw.insert(relation);
 	}
 }
