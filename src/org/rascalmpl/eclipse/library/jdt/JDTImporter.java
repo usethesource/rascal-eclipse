@@ -321,7 +321,6 @@ public class JDTImporter extends ASTVisitor {
 			addBinding(methodBindings, n, bindingCache.getEntity(mb));
 			if (n instanceof MethodDeclaration) {
 				addBinding(methodDecls, n, bindingCache.getEntity(mb));
-				
 				addMethodBody((MethodDeclaration) n, mb);
 			}
 			if (n instanceof MethodInvocation) {

@@ -1358,6 +1358,7 @@ public class AstToINodeConverter extends ASTVisitor {
 		}
 		attributes.add(createNodeWithChildren(FRAGMENTS, fragments));
 		
+		ownNode = createNodeWithChildren(getNodeName(node), attributes);
 		return false;
 	}
 

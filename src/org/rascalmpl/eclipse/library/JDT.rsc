@@ -17,6 +17,8 @@ public alias EntitySet = set[Entity];
 @doc{maps an entity to its modifiers}
 public alias ModifierRel = rel[Entity entity, Modifier modifier];
 
+public alias NodeRel = rel[Entity, node];
+
 @doc{contains all type declarations and uses}
 anno BindingRel Resource@types;        
 
@@ -63,7 +65,7 @@ anno EntityRel  Resource@declaredSubTypes;
 anno EntityRel  Resource@declaredMethods;  
 
 @doc{defines the relation between a method and its body}
-anno EntityRel 	Resource@methodBodies;
+anno NodeRel 	Resource@methodBodies;
 
 @doc{defines which class defines which fields}
 anno EntityRel  Resource@declaredFields;   
