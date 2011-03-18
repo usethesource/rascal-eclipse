@@ -49,8 +49,10 @@ public class NewRascalFile extends Wizard implements INewWizard {
 					fileToCreate = fileToCreate.endsWith(".rsc") ? fileToCreate : fileToCreate + ".rsc";
 					
 					moduleName = fileToCreate;
-					moduleName = moduleName.substring(moduleName.lastIndexOf('/') + 1, moduleName.length());
 					moduleName = moduleName.substring(0, moduleName.length() - 4);
+					moduleName = moduleName.replaceAll("/", "::");
+					moduleName = moduleName.startsWith("::") ? moduleName.substring(2) : moduleName;
+					moduleName = moduleName.startsWith("src::") ? moduleName.substring(5) : moduleName;
 					
 					doFinish(containerToPutFileIn, fileToCreate, monitor);
 				} catch (CoreException e) {
