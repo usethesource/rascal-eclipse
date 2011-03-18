@@ -42,8 +42,8 @@ public class NewRascalFilePage extends WizardPage {
 	 */
 	public NewRascalFilePage(ISelection selection) {
 		super("wizardPage");
-		setTitle("Rascal module file");
-		setDescription("This wizard creates a new file with *.rsc extension that can be opened by a multi-page editor.");
+		setTitle("New Rascal Module");
+		setDescription("This wizard creates a new Rascal module.");
 		this.selection = selection;
 	}
 
@@ -57,7 +57,7 @@ public class NewRascalFilePage extends WizardPage {
 		layout.numColumns = 3;
 		layout.verticalSpacing = 9;
 		Label label = new Label(container, SWT.NULL);
-		label.setText("&Container:");
+		label.setText("&Folder:");
 
 		containerText = new Text(container, SWT.BORDER | SWT.SINGLE);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -76,7 +76,7 @@ public class NewRascalFilePage extends WizardPage {
 			}
 		});
 		label = new Label(container, SWT.NULL);
-		label.setText("&File name:");
+		label.setText("&Module name:");
 
 		fileText = new Text(container, SWT.BORDER | SWT.SINGLE);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -123,7 +123,7 @@ public class NewRascalFilePage extends WizardPage {
 	private void handleBrowse() {
 		ContainerSelectionDialog dialog = new ContainerSelectionDialog(
 				getShell(), ResourcesPlugin.getWorkspace().getRoot(), false,
-				"Select new file container");
+				"Select new folder");
 		if (dialog.open() == Window.OK) {
 			Object[] result = dialog.getResult();
 			if (result.length == 1) {
@@ -142,12 +142,12 @@ public class NewRascalFilePage extends WizardPage {
 		String fileName = getFileName();
 
 		if (getContainerName().length() == 0) {
-			updateStatus("File container must be specified");
+			updateStatus("Folder must be specified");
 			return;
 		}
 		if (container == null
 				|| (container.getType() & (IResource.PROJECT | IResource.FOLDER)) == 0) {
-			updateStatus("File container must exist");
+			updateStatus("Folder must exist");
 			return;
 		}
 		if (!container.isAccessible()) {
@@ -155,21 +155,45 @@ public class NewRascalFilePage extends WizardPage {
 			return;
 		}
 		if (fileName.length() == 0) {
-			updateStatus("File name must be specified");
+			updateStatus("Module name must be specified");
 			return;
 		}
-		if (fileName.replace('\\', '/').indexOf('/', 1) > 0) {
-			updateStatus("File name must be valid");
+		if (fileName.contains("::")) {
+			updateStatus("Module name must not be qualified");
 			return;
 		}
+
 		int dotLoc = fileName.lastIndexOf('.');
 		if (dotLoc != -1) {
-			String ext = fileName.substring(dotLoc + 1);
-			if (ext.equalsIgnoreCase("rsc") == false) {
-				updateStatus("File extension must be \"rsc\"");
+			updateStatus("\".\" not allowed in module name.");
+			return;
+		}
+		int slashLoc = fileName.lastIndexOf('\\');
+		if (slashLoc != -1 && slashLoc != 0) {
+			updateStatus("\"\\\" not allowed in module name.");
+			return;
+		}
+		
+		String rest = fileName.startsWith("\\") ? fileName.substring(1) : fileName;
+
+		if (rest.length() == 0) {
+			updateStatus("illegal module name");
+			return;
+		}
+		
+		if (!Character.isJavaIdentifierStart(rest.charAt(0))) {
+			updateStatus("illegal module name");
+			return;
+		}
+		
+		for (int i = rest.length() - 1; i > 0; i--) {
+			char c = rest.charAt(i);
+			if (!(Character.isJavaIdentifierPart(c))) {
+				updateStatus("illegal module name");
 				return;
 			}
 		}
+		
 		updateStatus(null);
 	}
 
