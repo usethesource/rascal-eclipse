@@ -7,8 +7,11 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -138,6 +141,15 @@ public class RascalScriptInterpreter implements IInterpreter {
 					}
 				}
 			});
+			try {
+				IResource res = project.findMember("bin");
+				if(res != null) {
+					String projectBinFolder = res.getLocation().toString();
+					URLClassLoader loader = new java.net.URLClassLoader(new URL[] {new URL("file", "",  projectBinFolder + "/")}, getClass().getClassLoader());
+					eval.addClassLoader(loader);
+				}
+			} catch (MalformedURLException e1) {}
+
 		}
 		loadCommandHistory();
 		eval.doImport("IO");
