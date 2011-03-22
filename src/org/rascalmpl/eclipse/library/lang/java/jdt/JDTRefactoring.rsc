@@ -2,7 +2,7 @@ module lang::java::jdt::JDTRefactoring
 
 import Map;
 import Node;
-import Resources;
+import util::Resources;
 import lang::java::jdt::Java;
 import lang::java::jdt::JDT;
 import IO;

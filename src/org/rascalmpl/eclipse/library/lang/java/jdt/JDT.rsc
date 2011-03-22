@@ -2,7 +2,7 @@ module lang::java::jdt::JDT
 
 import Map;
 import Node;
-import Resources;
+import util::Resources;
 import lang::java::jdt::Java;
 
 @doc{maps any ast at a certain location to a qualified name}
@@ -69,7 +69,7 @@ anno EntityRel  Resource@declaredFields;
 anno EntityRel  Resource@calls;
 
 @doc{import JDT facts from a Java file}
-@javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal}
+@javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal.JDT}
 public Resource java extractClass(loc file);
 
 @doc{import JDT facts from a file or an entire project}
@@ -103,7 +103,7 @@ public Resource extractFactsTransitive(loc project) {
 }
 
 @doc{checks if a Resource is in its project's build path}
-@javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal}
+@javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal.JDT}
 public bool java isOnBuildPath(loc file);
 
 @doc{
