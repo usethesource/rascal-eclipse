@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.perspective;
+package org.rascalmpl.eclipse.wizards;
 
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;

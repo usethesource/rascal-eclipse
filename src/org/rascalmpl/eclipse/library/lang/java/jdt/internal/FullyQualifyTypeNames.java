@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library.jdt;
+package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;

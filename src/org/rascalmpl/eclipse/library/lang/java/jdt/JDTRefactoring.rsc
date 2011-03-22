@@ -1,10 +1,10 @@
-module JDTRefactoring
+module lang::java::jdt::JDTRefactoring
 
 import Map;
 import Node;
 import Resources;
-import Java;
-import JDT;
+import lang::java::jdt::Java;
+import lang::java::jdt::JDT;
 import IO;
 
 @doc{Invokes the EncapsulateField refactoring, generating public getters and setters, on the fields at the locs in the set}

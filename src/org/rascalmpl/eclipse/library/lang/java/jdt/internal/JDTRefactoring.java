@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library;
+package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,11 +33,6 @@ import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 import org.eclipse.ltk.core.refactoring.participants.ProcessorBasedRefactoring;
-import org.rascalmpl.eclipse.library.jdt.FindIFields;
-import org.rascalmpl.eclipse.library.jdt.FindIMethods;
-import org.rascalmpl.eclipse.library.jdt.FullyQualifyTypeNames;
-import org.rascalmpl.eclipse.library.jdt.RemoveMethods;
-import org.rascalmpl.eclipse.library.jdt.UnqualifyTypeNames;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 
 @SuppressWarnings("restriction")

@@ -38,6 +38,11 @@ public class ProjectParserFactory {
 		parserForProject.clear();
 	}
 	
+	public void resetParser(IProject project) {
+		parserForProject.remove(project);
+		reloaderForProject.remove(project);
+	}
+	
 	public Evaluator getParser(IProject project) {
 		Evaluator parser = parserForProject.get(project);
 		
@@ -55,6 +60,9 @@ public class ProjectParserFactory {
 		catch (StaticError e) {
 			// things may go wrong while reloading modules, simply because the modules still have parse errors in them.
 			// these are safely ignored here, the user will have had feedback on those errors elsewhere
+			// TODO: remove this debug code
+			System.err.println("ignored error: " + e.getMessage());
+			e.printStackTrace();
 		}
 		
 		return parser;

@@ -4,12 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IModelListener;
-import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -20,14 +17,9 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class MessageProcessor {
 
-	public void process(final IConstructor parseTree, final IParseController parseController, final IProgressMonitor monitor) {
-			IPath path = parseController.getPath();
-			IMessageHandler handler = ((IMessageHandlerProvider) parseController).getMessageHandler();
-			
-			monitor.beginTask("Marking errors and warnings in " + path, 1);
+	public void process(final IConstructor parseTree, IMessageHandler handler) {
 			if (parseTree != null) {
 				processMarkers(parseTree, handler); 
-				handler.endMessages();
 			}
 	}
 	

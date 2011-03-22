@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library;
+package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;

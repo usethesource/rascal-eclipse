@@ -21,7 +21,6 @@ import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.editor.IMessageHandlerProvider;
 import org.rascalmpl.eclipse.editor.NodeLocator;
 import org.rascalmpl.eclipse.editor.TokenIterator;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
@@ -31,7 +30,7 @@ import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class TermParseController implements IParseController, IMessageHandlerProvider {
+public class TermParseController implements IParseController {
 	private IMessageHandler handler;
 	private ISourceProject project;
 	private ISourceLocation loc;
@@ -40,7 +39,9 @@ public class TermParseController implements IParseController, IMessageHandlerPro
 	private Language language;
 	private ICallableValue parser;
 	private IDocument document;
+	private ICallableValue annotator;
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory(); 
+	private final static AnnotatorExecutor executor = new AnnotatorExecutor();
 	
 	public Object getCurrentAst(){
 		return parseTree;
@@ -86,6 +87,7 @@ public class TermParseController implements IParseController, IMessageHandlerPro
 		TermLanguageRegistry reg = TermLanguageRegistry.getInstance();
 		this.language = reg.getLanguage(path.getFileExtension());
 		this.parser = reg.getParser(this.language);
+		this.annotator = reg.getAnnotator(this.language.getName());
 		this.loc = VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, path));
 	}
 
@@ -104,13 +106,15 @@ public class TermParseController implements IParseController, IMessageHandlerPro
 	public Object parse(String input, IProgressMonitor monitor){
 		parseTree = null;
 		
-		
 		try{
 			handler.clearMessages();
 			monitor.beginTask("parsing " + language.getName(), 1);
 			TypeFactory TF = TypeFactory.getInstance();
 			if (parser != null) {
 				parseTree = (IConstructor) parser.call(new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}).getValue();
+				if (parseTree != null && annotator != null) {
+					executor.annotate(annotator, parseTree, handler);
+				}
 			}
 			monitor.worked(1);
 			return parseTree;
@@ -142,9 +146,5 @@ public class TermParseController implements IParseController, IMessageHandlerPro
 		}
 		
 		return null;
-	}
-
-	public IMessageHandler getMessageHandler() {
-		return handler;
 	}
 }

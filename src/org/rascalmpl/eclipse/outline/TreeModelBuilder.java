@@ -36,6 +36,7 @@ import org.rascalmpl.ast.Prod.Others;
 import org.rascalmpl.ast.Prod.Reference;
 import org.rascalmpl.ast.Prod.Unlabeled;
 import org.rascalmpl.ast.Toplevel.GivenVisibility;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.parser.ASTBuilder;
 
 public class TreeModelBuilder extends TreeModelBuilderBase {
@@ -71,40 +72,46 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		}
 		ASTBuilder builder = new ASTBuilder();
 		
-		Module mod = builder.buildModule((IConstructor) root);
+		try {
+			Module mod = builder.buildModule((IConstructor) root);
+		
 
-		if (mod == null) {
+			if (mod == null) {
+				return;
+			}
+
+			loc = mod.getLocation();
+
+			functions = new Group<AbstractAST>("Functions", loc);
+			variables = new Group<AbstractAST>("Variables",loc);
+			aliases = new Group<AbstractAST>("Aliases",loc);
+			adts = new Group<Group<AbstractAST>>("Types",loc);
+			annos = new Group<AbstractAST>("Annotations",loc);
+			tags = new Group<AbstractAST>("Tags",loc);
+			views = new Group<AbstractAST>("Views",loc);
+			rules = new Group<AbstractAST>("Rules",loc);
+			imports = new Group<AbstractAST>("Imports", loc);
+			syntax = new Group<Group<AbstractAST>>("Syntax", loc);
+
+
+			mod.accept(new Visitor());
+
+			createTopItem(module);
+			addGroups(syntax);
+			addGroup(imports);
+			addGroup(variables);
+			addGroup(functions);
+			addGroups(adts);
+			addGroup(aliases);
+			addGroup(rules);
+			addGroup(annos);
+			addGroup(tags);
+			addGroup(views);
+		}
+		catch (Throwable e) {
+			Activator.getInstance().logException("could not create outline", e);
 			return;
 		}
-		
-		loc = mod.getLocation();
-		
-		functions = new Group<AbstractAST>("Functions", loc);
-		variables = new Group<AbstractAST>("Variables",loc);
-		aliases = new Group<AbstractAST>("Aliases",loc);
-		adts = new Group<Group<AbstractAST>>("Types",loc);
-		annos = new Group<AbstractAST>("Annotations",loc);
-		tags = new Group<AbstractAST>("Tags",loc);
-		views = new Group<AbstractAST>("Views",loc);
-		rules = new Group<AbstractAST>("Rules",loc);
-		imports = new Group<AbstractAST>("Imports", loc);
-		syntax = new Group<Group<AbstractAST>>("Syntax", loc);
-
-
-		mod.accept(new Visitor());
-		
-		createTopItem(module);
-		addGroups(syntax);
-		addGroup(imports);
-		addGroup(variables);
-		addGroup(functions);
-		addGroups(adts);
-		addGroup(aliases);
-		addGroup(rules);
-		addGroup(annos);
-		addGroup(tags);
-		addGroup(views);
-		
 	}
 
 	private <T> void addGroup(Group<T> group) {

@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library.jdt;
+package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 
 import java.util.Arrays;
 import java.util.HashMap;

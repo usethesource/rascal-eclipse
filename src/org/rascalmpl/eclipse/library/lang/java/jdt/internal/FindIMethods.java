@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library.jdt;
+package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,8 +9,8 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -18,33 +18,33 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class FindIFields extends ASTVisitor {
+public class FindIMethods extends ASTVisitor {
 
 	protected static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	private IFile file;
 	private ISourceLocation loc;
-	private Set<IField> fieldSet;
-	private ISet fieldOffsetsFromLoc;
+	private Set<IMethod> methodSet;
+	private ISet methodOffsetsFromLoc;
 	
-	public FindIFields() {
+	public FindIMethods() {
 		super();
 	}
 	
-	public Set<IField> findFieldsAtLocs(ISet fieldOffsetsFromLoc, ISourceLocation loc, IFile file) {
+	public Set<IMethod> findMethodsAtLocs(ISet methodOffsetsFromLoc, ISourceLocation loc, IFile file) {
 		this.file = file;
 		this.loc = loc;
-		this.fieldOffsetsFromLoc = fieldOffsetsFromLoc;
+		this.methodOffsetsFromLoc = methodOffsetsFromLoc;
 		
-		fieldSet = new HashSet<IField>();
+		methodSet = new HashSet<IMethod>();
 		
 		visitCompilationUnit();
 		
-		return fieldSet;
+		return methodSet;
 	}
 	
 	private void visitCompilationUnit() {
@@ -70,20 +70,22 @@ public class FindIFields extends ASTVisitor {
 		cu.accept(this);
 	}
 
+	
 	@Override
-	public boolean visit(VariableDeclarationFragment node) {
-		if (fieldOffsetsFromLoc.contains(VF.integer(node.getParent().getStartPosition()))) {
+	public boolean visit(MethodDeclaration node) {
+		if (methodOffsetsFromLoc.contains(VF.integer(node.getStartPosition()))) {
 			ICompilationUnit icu = JavaCore.createCompilationUnitFrom(file);			
 			try {
-				IJavaElement fieldElement = icu.getElementAt(node.getStartPosition());
-				if (fieldElement != null && fieldElement instanceof IField) {
-					fieldSet.add((IField)fieldElement);
+				IJavaElement methodDeclElement = icu.getElementAt(node.getStartPosition());
+				if (methodDeclElement != null && methodDeclElement instanceof IMethod) {
+					methodSet.add((IMethod)methodDeclElement);
 				}
 			} catch (JavaModelException e) {
 				ISourceLocation pos = VF.sourceLocation(loc.getURI(), node.getStartPosition(), node.getLength(), -1, -1, -1, -1);
-				throw new Throw(VF.string("Error during field find visit: " + e.getMessage()), pos, null);
+				throw new Throw(VF.string("Error during method find visit: " + e.getMessage()), pos, null);
 			}
 		}
 		return true;
 	}
+	
 }

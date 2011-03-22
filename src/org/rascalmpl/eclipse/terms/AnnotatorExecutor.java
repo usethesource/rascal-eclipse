@@ -1,9 +1,6 @@
 package org.rascalmpl.eclipse.terms;
  
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.imp.language.Language;
-import org.eclipse.imp.parser.IModelListener;
-import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -24,30 +21,10 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * Note that this class only works for languages that have been registered using the
  * API in SourceEditor.rsc
  */
-public class AnnotatorModelListener implements IModelListener {
+public class AnnotatorExecutor {
 	private final MessageProcessor marker = new MessageProcessor();
 	
-	public AnalysisRequired getAnalysisRequired() {
-		return AnalysisRequired.LEXICAL_ANALYSIS;
-	}
-
-	public void update(final IParseController parseController, final IProgressMonitor monitor) {
-		final Language lang = parseController.getLanguage();
-		final String name = lang.getName();
-		
-		monitor.beginTask("Annotating " + lang.getName() + " file:" + parseController.getPath().toString(), 1);
-		IConstructor parseTree = (IConstructor) parseController.getCurrentAst();
-
-		ICallableValue func = TermLanguageRegistry.getInstance().getAnnotator(name);
-
-		if (func == null) {
-			return;
-		}
-
-		if (parseTree == null) {
-			return;
-		}
-
+	public synchronized void annotate(ICallableValue func, IConstructor parseTree, IMessageHandler handler) {
 		try {
 			IConstructor top = parseTree;
 			boolean start = false;
@@ -69,8 +46,7 @@ public class AnnotatorModelListener implements IModelListener {
 					newTree = top.set("args", newArgs).setAnnotation("loc", top.getAnnotation("loc"));
 				}
 				parseTree = newTree;
-				((TermParseController) parseController).setCurrentAst(parseTree);
-				marker.process(parseTree, parseController, monitor);
+				marker.process(parseTree, handler);
 			}
 			else {
 				Activator.getInstance().logException("annotator returned null", new RuntimeException());
@@ -79,7 +55,5 @@ public class AnnotatorModelListener implements IModelListener {
 		catch (Throwable e) {
 			Activator.getInstance().logException("annotater failed", e);
 		}
-		monitor.worked(1);
 	}
-
 }

@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library;
+package org.rascalmpl.eclipse.library.util;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
@@ -9,8 +9,8 @@ import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 
-public class SourceEditor {
-	public SourceEditor(IValueFactory factory) {
+public class IDE {
+	public IDE(IValueFactory factory) {
 	}
 	
 	public void registerLanguage(IString name, IString extension, IValue parser, IEvaluatorContext ctx) {

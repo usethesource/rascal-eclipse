@@ -1,4 +1,4 @@
-module lang::sdf2::Plugin
+module lang::c90::Plugin
 
 import lang::c90::syntax::C;
 import util::IDE;
@@ -9,6 +9,6 @@ public TranslationUnit parseTU(str input, loc l) {
 }
 
 public void main() {
-  registerLanguage("C program", "c", parseTU);
-  registerLanguage("C header", "h", parseTU);
+  registerLanguage("C90 program", "c", parseTU);
+  registerLanguage("C90 header file", "h", parseTU);
 }

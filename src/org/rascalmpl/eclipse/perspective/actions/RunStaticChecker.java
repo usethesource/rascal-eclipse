@@ -9,12 +9,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.builder.MarkerCreator;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -58,11 +62,15 @@ public class RunStaticChecker implements IEditorActionDelegate {
 	}
 
 	public void run(IAction action) {
+		IProject project = editor.getParseController().getProject().getRawProject();
+		IFile file = project.getFile(editor.getParseController().getPath());
+		final IMessageHandler handler = new MarkerCreator(file);
+		
 		if (editor != null) {
 			WorkspaceModifyOperation wmo = new WorkspaceModifyOperation(ResourcesPlugin.getWorkspace().getRoot()) {
 				public void execute(IProgressMonitor monitor) {
 					IConstructor toCheck = (IConstructor)editor.getParseController().getCurrentAst();
-					IConstructor res = check(toCheck,editor.getParseController(), monitor);
+					IConstructor res = check(toCheck,editor.getParseController(), handler);
 					((ParseController) editor.getParseController()).setCurrentAst(res);
 				}
 			};
@@ -79,10 +87,9 @@ public class RunStaticChecker implements IEditorActionDelegate {
 		}
 	}
 
-	public IConstructor check(IConstructor parseTree, final IParseController parseController, final IProgressMonitor monitor) {
+	public IConstructor check(IConstructor parseTree, final IParseController parseController, final IMessageHandler handler) {
 		if (parseTree == null) return null;
 						
-		monitor.beginTask("Checking Rascal module " + parseController.getPath().toString(), 1);
 		try {
 			StaticChecker checker = createCheckerIfNeeded(parseController.getProject());
 			
@@ -93,15 +100,15 @@ public class RunStaticChecker implements IEditorActionDelegate {
 					IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
 					IConstructor newTreeTop = treeTop.set("args", treeArgs).setAnnotation("loc", treeTop.getAnnotation("loc"));
 					parseTree = newTreeTop;
-					marker.process(parseTree, parseController, monitor);
+					handler.clearMessages();
+					marker.process(parseTree, handler);
+					handler.endMessages();
 				}
 			} else {
 				Activator.getInstance().logException("static checker could not be created", new RuntimeException());
 			}
 		} catch (Throwable e) {
 			Activator.getInstance().logException("static checker failed", e);
-		} finally {
-			monitor.worked(1);
 		}
 		
 		return parseTree;

@@ -1,9 +1,13 @@
-package org.rascalmpl.eclipse.library.jdt;
+package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -19,32 +23,34 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.MalformedTreeException;
+import org.eclipse.text.edits.TextEdit;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class FindIMethods extends ASTVisitor {
+public class RemoveMethods extends ASTVisitor {
 
 	protected static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	private IFile file;
 	private ISourceLocation loc;
-	private Set<IMethod> methodSet;
 	private ISet methodOffsetsFromLoc;
-	
-	public FindIMethods() {
+	private ASTRewrite rewriter;
+
+	public RemoveMethods() {
 		super();
 	}
 	
-	public Set<IMethod> findMethodsAtLocs(ISet methodOffsetsFromLoc, ISourceLocation loc, IFile file) {
+	public void removeMethodsAtLocs(ISet methodOffsetsFromLoc, ISourceLocation loc, IFile file) {
 		this.file = file;
 		this.loc = loc;
+		this.rewriter = null;
 		this.methodOffsetsFromLoc = methodOffsetsFromLoc;
 		
-		methodSet = new HashSet<IMethod>();
-		
 		visitCompilationUnit();
-		
-		return methodSet;
 	}
 	
 	private void visitCompilationUnit() {
@@ -67,7 +73,31 @@ public class FindIMethods extends ASTVisitor {
 			}
 		}
 		
+		rewriter = ASTRewrite.create(cu.getAST());
+
 		cu.accept(this);
+		
+		try {
+			IPath path = file.getFullPath();
+
+			ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
+			bufferManager.connect(path, LocationKind.IFILE, new NullProgressMonitor());
+
+			ITextFileBuffer textFileBuffer = bufferManager.getTextFileBuffer(path, LocationKind.IFILE);
+			
+			IDocument doc = textFileBuffer.getDocument();
+			TextEdit te = rewriter.rewriteAST(doc,null);
+			te.apply(doc);
+			textFileBuffer.commit(new NullProgressMonitor(), true);
+			
+			bufferManager.disconnect(path, LocationKind.IFILE, new NullProgressMonitor());
+		} catch (CoreException e) {
+			throw new Throw(VF.string("Error(s) in rewrite of compilation unit: " + e.getMessage()), loc, null);
+		} catch (MalformedTreeException e) {
+			throw new Throw(VF.string("Error(s) in rewrite of compilation unit: " + e.getMessage()), loc, null);
+		} catch (BadLocationException e) {
+			throw new Throw(VF.string("Error(s) in rewrite of compilation unit: " + e.getMessage()), loc, null);
+		}		
 	}
 
 	
@@ -78,7 +108,7 @@ public class FindIMethods extends ASTVisitor {
 			try {
 				IJavaElement methodDeclElement = icu.getElementAt(node.getStartPosition());
 				if (methodDeclElement != null && methodDeclElement instanceof IMethod) {
-					methodSet.add((IMethod)methodDeclElement);
+					rewriter.remove(node, null);
 				}
 			} catch (JavaModelException e) {
 				ISourceLocation pos = VF.sourceLocation(loc.getURI(), node.getStartPosition(), node.getLength(), -1, -1, -1, -1);

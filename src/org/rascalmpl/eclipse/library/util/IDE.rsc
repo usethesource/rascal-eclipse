@@ -1,6 +1,6 @@
-module SourceEditor
+module util::IDE
 
-// Especially annotations defined in this module are relevant for SourceEditor
+// Especially annotations defined in this module are relevant for util::IDE
 import ParseTree;
 
 @doc{Use this type to add items to the menus of the IDE (unfinished)}
@@ -23,7 +23,7 @@ anno loc node@\loc;  // a link for an outline node
 
 @reflect{Use the evaluator to parse editor contents and apply functions to parse trees}
 @doc{This registers an extension with a parser for Eclipse}
-@javaClass{org.rascalmpl.eclipse.library.SourceEditor}
+@javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public void java registerLanguage(str name, str extension, Tree (str input, loc origin) parse);
 
 @doc{
@@ -32,7 +32,7 @@ public void java registerLanguage(str name, str extension, Tree (str input, loc 
   processed by the editor to generate visual effects such as error markers, hyperlinks
   and documentation hovers.
 }
-@javaClass{org.rascalmpl.eclipse.library.SourceEditor}
+@javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public void java registerAnnotator(str name, (&T<:Tree) (&T<:Tree input) annotator);
 
 @doc{This registers an outliner function. An outliner maps a parse tree to a simpler
@@ -42,17 +42,17 @@ view in Eclipse.
 Use the "label", "loc" and "image" annotations on each node to guide how each outline
 item is displayed, which item it links to and what image is displayed next to it.
 }
-@javaClass{org.rascalmpl.eclipse.library.SourceEditor}
+@javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public void java registerOutliner(str name, node (&T<:Tree input) outliner);
 
 @doc{This registers a number of contributions to the menus of the IDE}
-@javaClass{org.rascalmpl.eclipse.library.SourceEditor}
+@javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public void java registerContributions(str name, set[Contribution] contributions);
 
 @doc{Use with caution! This will clear all registered languages (for debugging purposes)}
-@javaClass{org.rascalmpl.eclipse.library.SourceEditor}
+@javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public void java clearLanguages();
 
 @doc{Use with caution! This will clear a registered language (for debugging purposes)}
-@javaClass{org.rascalmpl.eclipse.library.SourceEditor}
+@javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public void java clearLanguage(str name);

@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.library;
+package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -17,7 +17,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.rascalmpl.eclipse.library.jdt.JDTImporter;
+import org.rascalmpl.eclipse.library.util.Resources;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 

@@ -142,13 +142,7 @@
             language="Terms">
       </docProvider>
    </extension>
-   <extension
-         point="org.eclipse.imp.runtime.editorService">
-      <editorService
-            class="org.rascalmpl.eclipse.terms.AnnotatorModelListener"
-            language="Terms">
-      </editorService>
-   </extension>
+  
    <extension
          point="org.eclipse.imp.runtime.hyperLink">
       <hyperlinkDetector
@@ -377,7 +371,7 @@
          point="org.eclipse.ui.newWizards">
       <wizard
             category="rascal_eclipse"
-            class="org.rascalmpl.eclipse.perspective.RascalProjectWizard"
+            class="org.rascalmpl.eclipse.wizards.RascalProjectWizard"
             descriptionImage="icons/rascal3D_2-16px.gif"
             finalPerspective="rascal.perspective"
             icon="icons/rascal3D_2-32px.png"

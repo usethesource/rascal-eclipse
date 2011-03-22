@@ -1,4 +1,4 @@
-module Java
+module lang::java::jdt::Java
 
 import List;
 import Integer;
