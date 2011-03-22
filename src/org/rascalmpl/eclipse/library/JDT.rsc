@@ -4,6 +4,7 @@ import Map;
 import Node;
 import Resources;
 import Java;
+import JavaADT;
 
 @doc{maps any ast at a certain location to a qualified name}
 public alias BindingRel = rel[loc, Entity];
@@ -17,7 +18,7 @@ public alias EntitySet = set[Entity];
 @doc{maps an entity to its modifiers}
 public alias ModifierRel = rel[Entity entity, Modifier modifier];
 
-public alias NodeRel = rel[Entity, node];
+public alias AstNodeRel = rel[Entity, AstNode];
 
 @doc{contains all type declarations and uses}
 anno BindingRel Resource@types;        
@@ -65,7 +66,7 @@ anno EntityRel  Resource@declaredSubTypes;
 anno EntityRel  Resource@declaredMethods;  
 
 @doc{defines the relation between a method and its body}
-anno NodeRel 	Resource@methodBodies;
+anno AstNodeRel	Resource@methodBodies;
 
 @doc{defines which class defines which fields}
 anno EntityRel  Resource@declaredFields;   
@@ -75,6 +76,7 @@ anno EntityRel  Resource@calls;
 
 @doc{import JDT facts from a Java file}
 @javaClass{org.rascalmpl.eclipse.library.JDT}
+@reflect{for constructing the correct Java Ast Nodes}
 public Resource java extractClass(loc file);
 
 @doc{import JDT facts from a file or an entire project}
@@ -132,6 +134,9 @@ private Resource unionFacts(Resource r1, Resource r2) {
 		}
 		else if (ModifierRel mr1 := m1[s] && ModifierRel mr2 := m2[s]) {
 			m1[s] = mr1 + mr2;
+		}
+		else if (AstNodeRel anr1 := m1[s] && AstNodeRel anr2 := m2[s]) {
+			m1[s] = anr1 + anr2;
 		}
 	}
 	

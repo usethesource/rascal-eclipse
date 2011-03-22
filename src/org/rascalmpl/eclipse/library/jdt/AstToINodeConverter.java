@@ -2,9 +2,11 @@ package org.rascalmpl.eclipse.library.jdt;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -47,6 +49,7 @@ import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
+import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.LabeledStatement;
 import org.eclipse.jdt.core.dom.LineComment;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
@@ -57,6 +60,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.MethodRefParameter;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NullLiteral;
@@ -97,675 +101,567 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.WildcardType;
+import org.rascalmpl.eclipse.library.Java;
 
 @SuppressWarnings({"deprecation", "rawtypes"})
 public class AstToINodeConverter extends ASTVisitor {
-	private static final String IMPORT = "import";
-	private static final String PACKAGE = "package";
-	private static final String SUPER = "super";
-	private static final String EXTENDS = "extends";
-	private static final String CLASS = "class";
-	private static final String INTERFACE = "interface";
-	private static final String FINALLY = "finally";
-	private static final String CATCH_CLAUSES = "catchClauses";
-	private static final String STATEMENTS = "statements";
-	private static final String ANNOTATIONS = "annotations";
-	private static final String MEMBER_VALUE_PAIRS = "memberValuePairs";
-	private static final String INDEX = "index";
-	private static final String THROWS = "throws";
-	private static final String RETURN = "return";
-	private static final String VALUE = "value";
-	private static final String EXTENDED_OPERANDS = "extendedOperands";
-	private static final String ELSE = "else";
-	private static final String THEN = "then";
-	private static final String UPDATERS = "updaters";
-	private static final String INITIALIZER = "initializer";
-	private static final String FRAGMENTS = "fragments";
-	private static final String ENUM_CONSTANTS = "enumConstants";
-	private static final String IMPLEMENTS = "implements";
-	private static final String PARAMETER = "parameter";
-	private static final String WHILE = "while";
-	private static final String ARGUMENTS = "arguments";
-	private static final String TYPE = "type";
-	private static final String ARRAY_DIMENSIONS = "arrayDimensions";
-	private static final String DEFAULT_BLOCK = "defaultBlock";
-	private static final String BODY = "body";
-	private static final String NAME = "name";
-	private static final String MODIFIERS = "modifiers";
-	private static final String RIGHTSIDE = "right";
-	private static final String LEFTSIDE = "left";
-	private static final String TYPE_ARGUMENTS = "typeArguments";
+	private static final String DATATYPE_OPTION = "Option";
+	private static final String DATATYPE_RASCAL_AST_NODE = "AstNode";
+	private static final String DATATYPE_OBJECT_TYPE = "ObjectType";
 
-	private INode ownNode;
+	private IValue ownValue;
 
 	private final IValueFactory values;
+	private final TypeStore typeStore;
 
-	public AstToINodeConverter(final IValueFactory values) {
+	public AstToINodeConverter(final IValueFactory values, final TypeStore typeStore) {
 		this.values = values;
+		this.typeStore = typeStore;
 	}
 
-	public INode getNode() {
-		return ownNode;
+	public IValue getValue() {
+		return ownValue;
 	}
 
-	@SuppressWarnings("unused")
-	private INode[] toArray(List<INode> nodeList) {
-		return nodeList.toArray(new INode[0]);
-	}
-
-	private INode parseModifiers(int modifiers) {
-		NodeList modifierList = new NodeList();
+	private IValueList parseModifiers(int modifiers) {
+		IValueList modifierList = new IValueList(values);
 
 		if (Modifier.isPublic(modifiers)) {
-			modifierList.add(values.node("public"));
+			modifierList.add(Java.CONS_PUBLIC.make(values)); 
 		}
 		if (Modifier.isProtected(modifiers)) {
-			modifierList.add(values.node("protected"));
+			modifierList.add(Java.CONS_PROTECTED.make(values));
 		}
 		if (Modifier.isPrivate(modifiers)) {
-			modifierList.add(values.node("private"));
+			modifierList.add(Java.CONS_PRIVATE.make(values));
 		}
 		if (Modifier.isStatic(modifiers)) {
-			modifierList.add(values.node("static"));
+			modifierList.add(Java.CONS_STATIC.make(values));
 		}
 		if (Modifier.isAbstract(modifiers)) {
-			modifierList.add(values.node("abstract"));
+			modifierList.add(Java.CONS_ABSTRACT.make(values));
 		}
 		if (Modifier.isFinal(modifiers)) {
-			modifierList.add(values.node("final"));
+			modifierList.add(Java.CONS_FINAL.make(values));
 		}
 		if (Modifier.isSynchronized(modifiers)) {
-			modifierList.add(values.node("synchronized"));
+			modifierList.add(Java.CONS_SYNCHRONIZED.make(values));
 		}
 		if (Modifier.isVolatile(modifiers)) {
-			modifierList.add(values.node("volatile"));
+			modifierList.add(Java.CONS_VOLATILE.make(values));
 		}
 		if (Modifier.isNative(modifiers)) {
-			modifierList.add(values.node("native"));
+			modifierList.add(Java.CONS_NATIVE.make(values));
 		}
 		if (Modifier.isStrictfp(modifiers)) {
-			modifierList.add(values.node("strictfp"));
+			modifierList.add(Java.CONS_STRICTFP.make(values));
 		}
 		if (Modifier.isTransient(modifiers)) {
-			modifierList.add(values.node("transient"));
+			modifierList.add(Java.CONS_TRANSIENT.make(values));
 		}
 
-		return values.node(MODIFIERS, modifierList.toArray());
+		return modifierList;
 	}
 
-	private INode parseModifiers(List ext) {
-		NodeList modifierList = new NodeList();
+	private IValueList parseModifiers(List ext) {
+		IValueList modifierList = new IValueList(values);
 
 		for (Iterator it = ext.iterator(); it.hasNext();) {
 			ASTNode p = (ASTNode) it.next();
-			modifierList.add(convertAstNode(p));
+			modifierList.add(visitChild(p));
 		}
 
-		return values.node(MODIFIERS, modifierList.toArray());
+		return modifierList;
 	}
 
-	private INode parseModifiers(BodyDeclaration node) {
+	private IValueList parseModifiers(BodyDeclaration node) {
 		if (node.getAST().apiLevel() == AST.JLS2) {
 			return parseModifiers(node.getModifiers());
 		} else {
 			return parseModifiers(node.modifiers());
 		}
 	}
-
-	private INode createNode(String label) {
-		return values.node(label);
-	}
-
-	private INode createNodeWithChildren(String label, NodeList list) {
-		return values.node(label, list.toArray());
+	
+	private IValue optional(IValue value) {
+		if (value == null) {
+			return none();
+		} else {
+			return some(value);
+		}
 	}
 	
-	private INode createNodeWithChild(String label, INode child) {
-		return values.node(label, child);
+	private IValue none() {
+		return constructRascalNode(DATATYPE_OPTION, "none");
+	}
+	
+	private IValue some(IValue value) {
+		return constructRascalNode(DATATYPE_OPTION, "some", value);		
 	}
 
-	private INode createNodeAndConvertChild(String label, ASTNode node) {
-		return values.node(label, convertAstNode(node));
-	}
-
-	private INode convertAstNode(ASTNode node) {
-		AstToINodeConverter newConverter = new AstToINodeConverter(values);
+	private IValue visitChild(ASTNode node) {
+		AstToINodeConverter newConverter = new AstToINodeConverter(values, typeStore);
 		node.accept(newConverter);
 
-		return newConverter.getNode();
+		return newConverter.getValue();
 	}
 
 	private String getNodeName(ASTNode node) {
 		return node.getClass().getSimpleName();
 	}
 
+	private IValue constructRascalNode(ASTNode node, IValue... children) {
+		return constructRascalNode(DATATYPE_RASCAL_AST_NODE, getNodeName(node), children);
+	}
+
+	private IValue constructRascalNode(String dataType, String constructorName, IValue... children) {
+		org.eclipse.imp.pdb.facts.type.Type constructor = getConstructor(dataType, constructorName);
+		
+		return constructor.make(values, children);
+	}	
+
+	private IValue constructRascalNode(String dataType, String constructorName) {
+		org.eclipse.imp.pdb.facts.type.Type constructor = getConstructor(dataType, constructorName);
+		
+		return constructor.make(values);
+	}
+	
+	private org.eclipse.imp.pdb.facts.type.Type getConstructor(String dataType, String constructorName) {
+		org.eclipse.imp.pdb.facts.type.Type type = typeStore.lookupAbstractDataType(dataType);
+
+		// Make sure that the constructor name starts with a lowercase character
+		String modifiedConstructorName = constructorName.substring(0, 1).toLowerCase() + constructorName.substring(1);
+		Set<org.eclipse.imp.pdb.facts.type.Type> constructors = typeStore.lookupConstructor(type, modifiedConstructorName);
+		
+		// There should be only one constructor. 
+		return constructors.iterator().next();
+	}
+	
 	public boolean visit(AnnotationTypeDeclaration node) {
-		NodeList attributes = new NodeList();
-
-		attributes.add(parseModifiers(node.modifiers()));
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
-
-		NodeList bodyDeclarations = new NodeList();
+		IValueList modifiers = parseModifiers(node.modifiers());
+		IValue name = values.string(node.getName().getFullyQualifiedName()); 
+		
+		IValueList bodyDeclarations = new IValueList(values);
 		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
 			BodyDeclaration d = (BodyDeclaration) it.next();
-			bodyDeclarations.add(convertAstNode(d));
+			bodyDeclarations.add(visitChild(d));
 		}
-		attributes.add(createNodeWithChildren(BODY, bodyDeclarations));
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, modifiers.asList(), name, bodyDeclarations.asList());
 		return false;
 	}
 
 	public boolean visit(AnnotationTypeMemberDeclaration node) {
-		NodeList attributes = new NodeList();
+		IValueList modifiers = parseModifiers(node.modifiers());
+		IValue typeArgument = visitChild(node.getType());
+		IValue name = values.string(node.getName().getFullyQualifiedName()); 
+		IValue defaultBlock = node.getDefault() == null ? null : visitChild(node.getDefault());
 
-		attributes.add(parseModifiers(node.modifiers()));
-		attributes.add(createNodeAndConvertChild(TYPE_ARGUMENTS, node.getType()));
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
-
-		if (node.getDefault() != null) {
-			attributes.add(createNodeAndConvertChild(DEFAULT_BLOCK, node.getDefault()));
-		}
-
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, modifiers.asList(), typeArgument, name, optional(defaultBlock));
 		return false;
 	}
 
 	public boolean visit(AnonymousClassDeclaration node) {
-		NodeList bodyDeclarations = new NodeList();
+		IValueList bodyDeclarations = new IValueList(values);
 
 		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
 			BodyDeclaration b = (BodyDeclaration) it.next();
-			bodyDeclarations.add(convertAstNode(b));
+			bodyDeclarations.add(visitChild(b));
 		}
 
-		ownNode = createNodeWithChildren(getNodeName(node), bodyDeclarations);
+		ownValue = constructRascalNode(node, bodyDeclarations.asList());
 		return false;
 	}
 
 	public boolean visit(ArrayAccess node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(convertAstNode(node.getArray()));
-		attributes.add(createNodeAndConvertChild(INDEX, node.getIndex()));
+		IValue array = visitChild(node.getArray());
+		IValue index = visitChild(node.getIndex());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, array, index);
 		return false;
 	}
 
 	public boolean visit(ArrayCreation node) {
-		NodeList attributes = new NodeList();
+		IValue type = visitChild(node.getType().getElementType());
 
-		attributes.add(createNodeAndConvertChild(TYPE, node.getType().getElementType()));
-
-		NodeList dimensions = new NodeList();
+		IValueList dimensions = new IValueList(values);
 		for (Iterator it = node.dimensions().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			attributes.add(convertAstNode(e));
-		}
-		attributes.add(createNodeWithChildren(ARRAY_DIMENSIONS, dimensions));
-
-		if (node.getInitializer() != null) {
-			attributes.add(createNodeAndConvertChild(INITIALIZER, node.getInitializer()));
+			dimensions.add(visitChild(e));
 		}
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
+
+		ownValue = constructRascalNode(node, type, dimensions.asList(), optional(initializer));
 		return false;
 	}
 
 	public boolean visit(ArrayInitializer node) {
-		NodeList attributes = new NodeList();
-		
+		IValueList expressions = new IValueList(values);
 		for (Iterator it = node.expressions().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			attributes.add(convertAstNode(e));
+			expressions.add(visitChild(e));
 		}
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, expressions.asList());
 		return false;
 	}
 
 	public boolean visit(ArrayType node) {
-		ownNode = createNodeAndConvertChild(getNodeName(node), node.getComponentType());
+		IValue type = visitChild(node.getComponentType());
+		ownValue = constructRascalNode(node, type);
 		return false;
 	}
 
 	public boolean visit(AssertStatement node) {
-		NodeList attributes = new NodeList();
-
-		attributes.add(convertAstNode(node.getExpression()));
-
-		if (node.getMessage() != null) {
-			attributes.add(convertAstNode(node.getMessage()));
-		}
-
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		IValue expression = visitChild(node.getExpression());
+		IValue message = node.getMessage() == null ? null : visitChild(node.getMessage());
+	
+		ownValue = constructRascalNode(node, optional(expression), message);
 		return false;
 	}
 
 	public boolean visit(Assignment node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(createNodeAndConvertChild(LEFTSIDE, node.getLeftHandSide()));
-		attributes.add(createNodeAndConvertChild(RIGHTSIDE, node.getRightHandSide()));
+		IValue leftSide = visitChild(node.getLeftHandSide());
+		IValue rightSide = visitChild(node.getRightHandSide());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, leftSide, rightSide);
 		return false;
 	}
 
 	public boolean visit(Block node) {
-		NodeList attributes = new NodeList();
-
+		IValueList statements = new IValueList(values);
 		for (Iterator it = node.statements().iterator(); it.hasNext();) {
 			Statement s = (Statement) it.next();
-			attributes.add(convertAstNode(s));
+			statements.add(visitChild(s));
 		}
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, statements.asList());
 		return false;
 	}
 
 	public boolean visit(BlockComment node) {
-		ownNode = createNode(getNodeName(node));
+		ownValue = constructRascalNode(node);
 		return false;
 	}
 
 	public boolean visit(BooleanLiteral node) {
-		NodeList attributes = new NodeList();
-		
-		if (node.booleanValue() == true) {
-			attributes.add(createNode("true"));
-		} else {
-			attributes.add(createNode("false"));
-		}
+		IValue booleanValue = values.bool(node.booleanValue());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, booleanValue);
 		return false;
 	}
 
 	public boolean visit(BreakStatement node) {
-		NodeList attributes = new NodeList();
-		
-		if (node.getLabel() != null) {
-			attributes.add(convertAstNode(node.getLabel()));
-		}
-
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		IValue label = node.getLabel() == null ? values.string("") : values.string(node.getLabel().getFullyQualifiedName());
+		ownValue = constructRascalNode(node, optional(label));
 		return false;
 	}
 
 	public boolean visit(CastExpression node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(convertAstNode(node.getType()));
-		attributes.add(convertAstNode(node.getExpression()));
+		IValue type = visitChild(node.getType());
+		IValue expression = visitChild(node.getExpression());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, type, expression);
 		return false;
 	}
 
 	public boolean visit(CatchClause node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(convertAstNode(node.getException()));
-		attributes.add(convertAstNode(node.getBody()));
+		IValue exception = visitChild(node.getException());
+		IValue body = visitChild(node.getBody());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, exception, body);
 		return false;
 	}
 
 	public boolean visit(CharacterLiteral node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(createNode(node.getEscapedValue()));
+		IValue value = values.string(node.getEscapedValue()); 
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, value);
 		return false;
 	}
 
 	public boolean visit(ClassInstanceCreation node) {
-		NodeList attributes = new NodeList();
+		IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
 
-		if (node.getExpression() != null) {
-			attributes.add(convertAstNode(node.getExpression()));
-		}
-
+		IValue type = null;
+		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			attributes.add(convertAstNode(node.getName()));
+			type = visitChild(node.getName());
 		} 
-		else if (node.getAST().apiLevel() >= AST.JLS3) {
+		else {
+			type = visitChild(node.getType()); 
 
 			if (!node.typeArguments().isEmpty()) {
-				NodeList types = new NodeList();
 				for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
 					Type t = (Type) it.next();
-					types.add(convertAstNode(t));
+					genericTypes.add(visitChild(t));
 				}
-
-				attributes.add(createNodeWithChildren(TYPE_ARGUMENTS, types));
 			}
-
-			attributes.add(convertAstNode(node.getType()));
 		}
 
+		IValueList arguments = new IValueList(values);
 		for (Iterator it = node.arguments().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			attributes.add(convertAstNode(e));
+			arguments.add(visitChild(e));
 		}
 
-		if (node.getAnonymousClassDeclaration() != null) {
-			attributes.add(convertAstNode(node.getAnonymousClassDeclaration()));
-		}
+		IValue anonymousClassDeclaration = node.getAnonymousClassDeclaration() == null ? null : visitChild(node.getAnonymousClassDeclaration());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, optional(expression), type, genericTypes.asList(), arguments.asList(), optional(anonymousClassDeclaration));
 		return false;
 	}
 
 	public boolean visit(CompilationUnit node) {
-		NodeList attributes = new NodeList();
+		IValue packageOfUnit = node.getPackage() == null ? null : visitChild(node.getPackage());
 
-		if (node.getPackage() != null) {
-			attributes.add(createNodeAndConvertChild(PACKAGE, node.getPackage()));
-		}
-
+		IValueList imports = new IValueList(values);
 		for (Iterator it = node.imports().iterator(); it.hasNext();) {
 			ImportDeclaration d = (ImportDeclaration) it.next();
-			attributes.add(createNodeAndConvertChild(IMPORT, d));
+			imports.add(visitChild(d));
 		}
 
+		IValueList typeDeclarations = new IValueList(values);
 		for (Iterator it = node.types().iterator(); it.hasNext();) {
 			AbstractTypeDeclaration d = (AbstractTypeDeclaration) it.next();
-			attributes.add(createNodeAndConvertChild(TYPE, d));
+			typeDeclarations.add(visitChild(d));
 		}
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, packageOfUnit, imports.asList(), typeDeclarations.asList());
 		return false;
 	}
 
 	public boolean visit(ConditionalExpression node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(convertAstNode(node.getExpression()));
-		attributes.add(createNodeAndConvertChild(THEN, node.getThenExpression()));
-		attributes.add(createNodeAndConvertChild(ELSE, node.getElseExpression()));
+		IValue expression = visitChild(node.getExpression());
+		IValue thenBranch = visitChild(node.getThenExpression());
+		IValue elseBranch = visitChild(node.getElseExpression());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, expression, thenBranch, elseBranch);
 		return false;
 	}
 
 	public boolean visit(ConstructorInvocation node) {
-		NodeList attributes = new NodeList();
-
+		IValueList types = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeArguments().isEmpty()) {
-				NodeList types = new NodeList();
 
 				for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
 					Type t = (Type) it.next();
-					types.add(convertAstNode(t));
+					types.add(visitChild(t));
 				}
-
-				attributes.add(createNodeWithChildren(TYPE_ARGUMENTS, types));
 			}
 		}
 
-		NodeList arguments = new NodeList();
+		IValueList arguments = new IValueList(values);
 		for (Iterator it = node.arguments().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			arguments.add(convertAstNode(e));
+			arguments.add(visitChild(e));
 		}
-		attributes.add(createNodeWithChildren(ARGUMENTS, arguments));
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, types.asList(), arguments.asList());
 		return false;
 	}
 
 	public boolean visit(ContinueStatement node) {
-		NodeList attributes = new NodeList();
-		
-		if (node.getLabel() != null) {
-			attributes.add(convertAstNode(node.getLabel()));
-		}
-
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		IValue label = node.getLabel() == null ? null : values.string(node.getLabel().getFullyQualifiedName());
+		ownValue = constructRascalNode(node, optional(label));
 		return false;
 	}
 
 	public boolean visit(DoStatement node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(createNodeAndConvertChild(BODY, node.getBody()));
-		attributes.add(createNodeAndConvertChild(WHILE, node.getExpression()));
+		IValue body = visitChild(node.getBody());
+		IValue whileExpression = visitChild(node.getExpression());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, body, whileExpression);
 		return false;
 	}
 
 	public boolean visit(EmptyStatement node) {
-		ownNode = createNode(getNodeName(node));
+		ownValue = constructRascalNode(node);
 		return false;
 	}
 
 	public boolean visit(EnhancedForStatement node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(createNodeAndConvertChild(PARAMETER, node.getParameter()));
-		attributes.add(convertAstNode(node.getExpression()));
-		attributes.add(createNodeAndConvertChild(BODY, node.getBody()));
+		IValue parameter = visitChild(node.getParameter());
+		IValue collectionExpression = visitChild(node.getExpression());
+		IValue body = visitChild(node.getBody());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, parameter, collectionExpression, body);
 		return false;
 	}
 
 	public boolean visit(EnumConstantDeclaration node) {
-		NodeList attributes = new NodeList();
+		IValueList modifiers = parseModifiers(node.modifiers());
+		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 
-		attributes.add(parseModifiers(node.modifiers()));
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
-
-		NodeList arguments = new NodeList();
+		IValueList arguments = new IValueList(values);
 		if (!node.arguments().isEmpty()) {
 			for (Iterator it = node.arguments().iterator(); it.hasNext();) {
 				Expression e = (Expression) it.next();
-				arguments.add(convertAstNode(e));
+				arguments.add(visitChild(e));
 			}
-
-			attributes.add(createNodeWithChildren(ARGUMENTS, arguments));
 		}
 
-		if (node.getAnonymousClassDeclaration() != null) {
-			attributes.add(convertAstNode(node.getAnonymousClassDeclaration()));
-		}
-
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		IValue anonymousClassDeclaration = node.getAnonymousClassDeclaration() == null ? null : visitChild(node.getAnonymousClassDeclaration());
+		
+		ownValue = constructRascalNode(node, modifiers.asList(), name, arguments.asList(), optional(anonymousClassDeclaration));
 		return false;
 	}
 
 	public boolean visit(EnumDeclaration node) {
-		NodeList attributes = new NodeList();
+		IValueList modifiers = parseModifiers(node.modifiers());
+		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 
-		attributes.add(parseModifiers(node.modifiers()));
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
-
+		IValueList implementedInterfaces = new IValueList(values);
 		if (!node.superInterfaceTypes().isEmpty()) {
-			NodeList implementedInterfaces = new NodeList();
-
 			for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext();) {
 				Type t = (Type) it.next();
-				implementedInterfaces.add(convertAstNode(t));
+				implementedInterfaces.add(visitChild(t));
 			}
-			attributes.add(createNodeWithChildren(IMPLEMENTS, implementedInterfaces));
 		}
 
-		NodeList enumConstants = new NodeList();
+		IValueList enumConstants = new IValueList(values);
 		for (Iterator it = node.enumConstants().iterator(); it.hasNext();) {
 			EnumConstantDeclaration d = (EnumConstantDeclaration) it.next();
-			enumConstants.add(convertAstNode(d));
+			enumConstants.add(visitChild(d));
 		}
-		attributes.add(createNodeWithChildren(ENUM_CONSTANTS, enumConstants));
 
+		IValueList bodyDeclarations = new IValueList(values);
 		if (!node.bodyDeclarations().isEmpty()) {
-			NodeList body = new NodeList();
-			
 			for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
 				BodyDeclaration d = (BodyDeclaration) it.next();
-				body.add(convertAstNode(d));
+				bodyDeclarations.add(visitChild(d));
 			}
-			attributes.add(createNodeWithChildren(BODY, body));
 		}
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, modifiers.asList(), name, implementedInterfaces.asList(), enumConstants.asList(), bodyDeclarations.asList());
 		return false;
 	}
 
 	public boolean visit(ExpressionStatement node) {
-		ownNode = createNodeAndConvertChild(getNodeName(node), node.getExpression());
+		IValue expression = visitChild(node.getExpression());
+		ownValue = constructRascalNode(node, expression);
 		return false;
 	}
 
 	public boolean visit(FieldAccess node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(convertAstNode(node.getExpression()));
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
+		IValue expression = visitChild(node.getExpression());
+		IValue name = values.string(node.getName().getFullyQualifiedName());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, expression, name);
 		return false;
 	}
 
 	public boolean visit(FieldDeclaration node) {
-		NodeList attributes = new NodeList();
+		IValueList modifiers = parseModifiers(node);
+		IValue type = visitChild(node.getType());
 
-		attributes.add(parseModifiers(node));
-		attributes.add(createNodeAndConvertChild(TYPE, node.getType()));
-
-		NodeList fragments = new NodeList();
+		IValueList fragments = new IValueList(values);
 		for (Iterator it = node.fragments().iterator(); it.hasNext();) {
 			VariableDeclarationFragment f = (VariableDeclarationFragment) it.next();
-			fragments.add(convertAstNode(f));
+			fragments.add(visitChild(f));
 		}
-		attributes.add(createNodeWithChildren(FRAGMENTS, fragments));
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, modifiers.asList(), type, fragments.asList());
 		return false;
 	}
 
 	public boolean visit(ForStatement node) {
-		NodeList attributes = new NodeList();
-
-		NodeList initializers = new NodeList();
+		IValueList initializers = new IValueList(values);
 		for (Iterator it = node.initializers().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			initializers.add(convertAstNode(e));
-		}
-		attributes.add(createNodeWithChildren(INITIALIZER, initializers));
-
-		if (node.getExpression() != null) {
-			attributes.add(convertAstNode(node.getExpression()));
+			initializers.add(visitChild(e));
 		}
 
-		NodeList updaters = new NodeList();
+		IValue booleanExpression = node.getExpression() == null ? null : visitChild(node.getExpression());
+
+		IValueList updaters = new IValueList(values);
 		for (Iterator it = node.updaters().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			updaters.add(convertAstNode(e));
+			updaters.add(visitChild(e));
 		}
-		attributes.add(createNodeWithChildren(UPDATERS, updaters));
 
-		attributes.add(createNodeAndConvertChild(BODY, node.getBody()));
+		IValue body = visitChild(node.getBody());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, initializers.asList(), optional(booleanExpression), updaters.asList(), body);
 		return false;
 	}
 
 	public boolean visit(IfStatement node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(convertAstNode(node.getExpression()));
-		attributes.add(createNodeAndConvertChild(THEN, node.getThenStatement()));
+		IValue booleanExpression = visitChild(node.getExpression());
+		IValue thenStatement = visitChild(node.getThenStatement());
+		IValue elseStatement = node.getElseStatement() == null ? null : visitChild(node.getElseStatement());
 
-		if (node.getElseStatement() != null) {
-			attributes.add(createNodeAndConvertChild(ELSE, node.getElseStatement()));
-		}
-
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, booleanExpression, thenStatement, optional(elseStatement));
 		return false;
 	}
 
 	public boolean visit(ImportDeclaration node) {
-		NodeList attributes = new NodeList();
+		IValue name = values.string(node.getName().getFullyQualifiedName());
 
+		IValue staticImport = values.bool(false);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
-			if (node.isStatic()) {
-				attributes.add(createNode("static"));
-			}
+			staticImport = values.bool(node.isStatic());
 		}
+		IValue onDemand = values.bool(node.isOnDemand());
 
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
-
-		if (node.isOnDemand()) {
-			attributes.add(createNode("onDemand"));
-		}
-
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, name, staticImport, onDemand); 
 		return false;
 	}
 
 	public boolean visit(InfixExpression node) {
-		NodeList attributes = new NodeList();
-		attributes.add(createNode(node.getOperator().toString()));
-		attributes.add(createNodeAndConvertChild(LEFTSIDE, node.getLeftOperand()));
-		attributes.add(createNodeAndConvertChild(RIGHTSIDE, node.getRightOperand()));
+		IValue operator = values.string(node.getOperator().toString());
+		IValue leftSide = visitChild(node.getLeftOperand());
+		IValue rightSide = visitChild(node.getRightOperand());
 
+		IValueList extendedOperands = new IValueList(values);
 		if (node.hasExtendedOperands()) {
-			NodeList extendedOperands = new NodeList();
 			for (Iterator it = node.extendedOperands().iterator(); it.hasNext();) {
 				Expression e = (Expression) it.next();
-				extendedOperands.add(convertAstNode(e));
+				extendedOperands.add(visitChild(e));
 			}
-
-			attributes.add(createNodeWithChildren(EXTENDED_OPERANDS, extendedOperands));
 		}
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, operator, leftSide, rightSide, extendedOperands.asList());
 		return false;
 	}
 
 	public boolean visit(Initializer node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(parseModifiers(node));
-		attributes.add(createNodeAndConvertChild(BODY, node.getBody()));
+		IValueList modifier = parseModifiers(node);
+		IValue body = visitChild(node.getBody());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, modifier.asList(), body);
 		return false;
 	}
 
 	public boolean visit(InstanceofExpression node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(createNodeAndConvertChild(LEFTSIDE, node.getLeftOperand()));
-		attributes.add(createNodeAndConvertChild(RIGHTSIDE, node.getRightOperand()));
+		IValue leftSide = visitChild(node.getLeftOperand());
+		IValue rightSide = visitChild(node.getRightOperand());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, leftSide, rightSide);
+		return false;
+	}
+
+	public boolean visit(Javadoc node) {
+		ownValue = constructRascalNode(node);
 		return false;
 	}
 
 	public boolean visit(LabeledStatement node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(convertAstNode(node.getLabel()));
-		attributes.add(createNodeAndConvertChild(BODY, node.getBody()));
+		IValue label = values.string(node.getLabel().getFullyQualifiedName());
+		IValue body = visitChild(node.getBody());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, label, body);
 		return false;
 	}
 
 	public boolean visit(LineComment node) {
+		ownValue = constructRascalNode(node);
 		return false;
 	}
 
 	public boolean visit(MarkerAnnotation node) {
-		ownNode = createNodeAndConvertChild(getNodeName(node), node.getTypeName());
+		IValue typeName = values.string(node.getTypeName().getFullyQualifiedName());
+		ownValue = constructRascalNode(node, typeName);
 		return false;
 	}
 
@@ -774,51 +670,45 @@ public class AstToINodeConverter extends ASTVisitor {
 	}
 
 	public boolean visit(MemberValuePair node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
-		attributes.add(createNodeAndConvertChild(VALUE, node.getValue()));
+		IValue name = values.string(node.getName().getFullyQualifiedName());
+		IValue value = visitChild(node.getValue());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, name, value);
 		return false;
 	}
 
 	public boolean visit(MethodDeclaration node) {
-		NodeList attributes = new NodeList();
+		IValueList modifiers = parseModifiers(node);
 
-		attributes.add(parseModifiers(node));
-
+		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeParameters().isEmpty()) {
-				NodeList typeParameters = new NodeList();
-
 				for (Iterator it = node.typeParameters().iterator(); it.hasNext();) {
 					TypeParameter t = (TypeParameter) it.next();
-					typeParameters.add(convertAstNode(t));
+					genericTypes.add(visitChild(t));
 				}
-				attributes.add(createNodeWithChildren(TYPE_ARGUMENTS, typeParameters));
 			}
 		}
 
+		IValue returnType = null;
 		if (!node.isConstructor()) {
 			if (node.getAST().apiLevel() == AST.JLS2) {
-				attributes.add(createNodeAndConvertChild(RETURN, node.getReturnType()));
+				returnType = visitChild(node.getReturnType());
 			} else if (node.getReturnType2() != null) {
-				attributes.add(createNodeAndConvertChild(RETURN, node.getReturnType2()));
+				returnType = visitChild(node.getReturnType2());
 			} else {
 				// methods really ought to have a return type
-				attributes.add(createNodeWithChild(RETURN, createNode("void")));
+				returnType = Java.CONS_VOID.make(values);
 			}
 		}
 
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
+		IValue name = values.string(node.getName().getFullyQualifiedName());
 
-		NodeList parameters = new NodeList();
+		IValueList parameters = new IValueList(values);
 		for (Iterator it = node.parameters().iterator(); it.hasNext();) {
 			SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
-			parameters.add(convertAstNode(v));
+			parameters.add(visitChild(v));
 		}
-		attributes.add(createNodeWithChildren(PARAMETER, parameters));
 
 		/*
 		 * for (int i = 0; i < node.getExtraDimensions(); i++) {
@@ -826,53 +716,43 @@ public class AstToINodeConverter extends ASTVisitor {
 		 * }
 		 */
 
+		IValueList possibleExceptions = new IValueList(values);
 		if (!node.thrownExceptions().isEmpty()) {
-			NodeList thrownExceptions = new NodeList();
 
 			for (Iterator it = node.thrownExceptions().iterator(); it.hasNext();) {
 				Name n = (Name) it.next();
-				thrownExceptions.add(convertAstNode(n));
+				possibleExceptions.add(visitChild(n));
 			}
-			attributes.add(createNodeWithChildren(THROWS, thrownExceptions));
 		}
 
-		if (node.getBody() != null) {
-			attributes.add(createNodeAndConvertChild(BODY, node.getBody()));
-		}
+		IValue body = node.getBody() == null ? null : visitChild(node.getBody()); 
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, modifiers.asList(), genericTypes.asList(), optional(returnType), name, parameters.asList(), possibleExceptions.asList(), optional(body));
 		return false;
 	}
 
 	public boolean visit(MethodInvocation node) {
-		NodeList attributes = new NodeList();
+		IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
 
-		if (node.getExpression() != null) {
-			attributes.add(convertAstNode(node.getExpression()));
-		}
-
+		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeArguments().isEmpty()) {
-
-				NodeList typeArguments = new NodeList();
 				for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
 					Type t = (Type) it.next();
-					typeArguments.add(convertAstNode(t));
+					genericTypes.add(visitChild(t));
 				}
-				attributes.add(createNodeWithChildren(TYPE_ARGUMENTS, typeArguments));
 			}
 		}
 
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
+		IValue name = values.string(node.getName().getFullyQualifiedName());
 
-		NodeList arguments = new NodeList();
+		IValueList arguments = new IValueList(values);
 		for (Iterator it = node.arguments().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			arguments.add(convertAstNode(e));
+			arguments.add(visitChild(e));
 		}
-		attributes.add(createNodeWithChildren(ARGUMENTS, arguments));
-
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		
+		ownValue = constructRascalNode(node, optional(expression), genericTypes.asList(), name, arguments.asList());
 		return false;
 	}
 
@@ -885,173 +765,188 @@ public class AstToINodeConverter extends ASTVisitor {
 	}
 
 	public boolean visit(Modifier node) {
-		ownNode = createNode(node.getKeyword().toString());
+		if (node.getKeyword().equals(ModifierKeyword.PUBLIC_KEYWORD)) {
+			ownValue = Java.CONS_PUBLIC.make(values); 
+		} else if (node.getKeyword().equals(ModifierKeyword.PROTECTED_KEYWORD)) {
+			ownValue = Java.CONS_PROTECTED.make(values);
+		} else if (node.getKeyword().equals(ModifierKeyword.PRIVATE_KEYWORD)) {
+			ownValue = Java.CONS_PRIVATE.make(values);
+		} else if (node.getKeyword().equals(ModifierKeyword.STATIC_KEYWORD)) {
+			ownValue = Java.CONS_STATIC.make(values);
+		} else if (node.getKeyword().equals(ModifierKeyword.ABSTRACT_KEYWORD)) {
+			ownValue = Java.CONS_ABSTRACT.make(values);
+		} else if (node.getKeyword().equals(ModifierKeyword.FINAL_KEYWORD)) {
+			ownValue = Java.CONS_FINAL.make(values);
+		} else if (node.getKeyword().equals(ModifierKeyword.SYNCHRONIZED_KEYWORD)) {
+			ownValue = Java.CONS_SYNCHRONIZED.make(values);
+		} else if (node.getKeyword().equals(ModifierKeyword.VOLATILE_KEYWORD)) {
+			ownValue = Java.CONS_VOLATILE.make(values);
+		} else if (node.getKeyword().equals(ModifierKeyword.NATIVE_KEYWORD)) {
+			ownValue = Java.CONS_NATIVE.make(values);
+		} else if (node.getKeyword().equals(ModifierKeyword.STRICTFP_KEYWORD)) {
+			ownValue = Java.CONS_STRICTFP.make(values);
+		} else if (node.getKeyword().equals(ModifierKeyword.TRANSIENT_KEYWORD)) {
+			ownValue = Java.CONS_TRANSIENT.make(values);
+		}
+
 		return false;
 	}
 
 	public boolean visit(NormalAnnotation node) {
-		NodeList attributes = new NodeList();
+		IValue typeName = values.string(node.getTypeName().getFullyQualifiedName());
 
-		attributes.add(createNodeAndConvertChild(NAME, node.getTypeName()));
-
-		NodeList memberValuePairs = new NodeList();
+		IValueList memberValuePairs = new IValueList(values);
 		for (Iterator it = node.values().iterator(); it.hasNext();) {
 			MemberValuePair p = (MemberValuePair) it.next();
-			memberValuePairs.add(convertAstNode(p));
+			memberValuePairs.add(visitChild(p));
 		}
-		attributes.add(createNodeWithChildren(MEMBER_VALUE_PAIRS, memberValuePairs));
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, typeName, memberValuePairs.asList());
 		return false;
 	}
 
 	public boolean visit(NullLiteral node) {
-		ownNode = createNode(getNodeName(node));
+		ownValue = constructRascalNode(node);
 		return false;
 	}
 
 	public boolean visit(NumberLiteral node) {
-		NodeList attributes = new NodeList();
-		attributes.add(createNode(node.getToken()));
+		IValue number = values.string(node.getToken());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, number);
 		return false;
 	}
 
 	public boolean visit(PackageDeclaration node) {
-		NodeList attributes = new NodeList();
-
+		IValue name = values.string(node.getName().getFullyQualifiedName());
+		
+		IValueList annotations = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
-			NodeList annotations = new NodeList();
 			for (Iterator it = node.annotations().iterator(); it.hasNext();) {
 				Annotation p = (Annotation) it.next();
-				annotations.add(convertAstNode(p));
+				annotations.add(visitChild(p));
 			}
-			attributes.add(createNodeWithChildren(ANNOTATIONS, annotations));
 		}
 
-		attributes.add(convertAstNode(node.getName()));
-
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, name, annotations.asList());
 		return false;
 	}
 
 	public boolean visit(ParameterizedType node) {
-		NodeList attributes = new NodeList();
-		attributes.add(createNodeAndConvertChild(TYPE, node.getType()));
+		IValue type = visitChild(node.getType());
 
-		NodeList typeArguments = new NodeList();
+		IValueList genericTypes = new IValueList(values);
 		for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
 			Type t = (Type) it.next();
-			typeArguments.add(convertAstNode(t));
+			genericTypes.add(visitChild(t));
 		}
-		attributes.add(createNodeWithChildren(TYPE_ARGUMENTS, typeArguments));
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, type, genericTypes.asList());
 		return false;
 	}
 
 	public boolean visit(ParenthesizedExpression node) {
-		ownNode = createNodeAndConvertChild(getNodeName(node), node.getExpression());
+		IValue expression = visitChild(node.getExpression());
+		ownValue = constructRascalNode(node, expression);
 		return false;
 	}
 
 	public boolean visit(PostfixExpression node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(createNodeAndConvertChild(LEFTSIDE, node.getOperand()));
-		attributes.add(createNode(node.getOperator().toString()));
+		IValue operand = visitChild(node.getOperand());
+		IValue operator = values.string(node.getOperator().toString());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, operand, operator);
 		return false;
 	}
 
 	public boolean visit(PrefixExpression node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(createNode(node.getOperator().toString()));
-		attributes.add(createNodeAndConvertChild(RIGHTSIDE, node.getOperand()));
+		IValue operand = visitChild(node.getOperand());
+		IValue operator = values.string(node.getOperator().toString());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, operand, operator);
 		return false;
 	}
 
 	public boolean visit(PrimitiveType node) {
-		NodeList attributes = new NodeList();
-		attributes.add(createNode(node.getPrimitiveTypeCode().toString()));		
+		if (node.getPrimitiveTypeCode().equals(PrimitiveType.BOOLEAN)) {
+			ownValue = Java.CONS_BOOLEAN.make(values);
+		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.BYTE)) {
+			ownValue = Java.CONS_BYTE.make(values);
+		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.CHAR)) {
+			ownValue = Java.CONS_CHAR.make(values);
+		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.DOUBLE)) {
+			ownValue = Java.CONS_DOUBLE.make(values);
+		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.FLOAT)) {
+			ownValue = Java.CONS_FLOAT.make(values);
+		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.INT)) {
+			ownValue = Java.CONS_INT.make(values);
+		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.LONG)) {
+			ownValue = Java.CONS_LONG.make(values);
+		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.SHORT)) {
+			ownValue = Java.CONS_SHORT.make(values);
+		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.VOID)) {
+			ownValue = Java.CONS_VOID.make(values);
+		}			
 				
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
 		return false;
 	}
 
 	public boolean visit(QualifiedName node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(convertAstNode(node.getQualifier()));
-		attributes.add(convertAstNode(node.getName()));
-
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		IValue name = values.string(node.getFullyQualifiedName());
+		ownValue = constructRascalNode(node, name);
 		return false;
 	}
 
 	public boolean visit(QualifiedType node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(convertAstNode(node.getQualifier()));
-		attributes.add(convertAstNode(node.getName()));
+		IValue qualifier = visitChild(node.getQualifier());
+		IValue name = visitChild(node.getName());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, qualifier, name);
 		return false;
 	}
 
 	public boolean visit(ReturnStatement node) {
-		NodeList attributes = new NodeList();
-		
-		if (node.getExpression() != null) {
-			attributes.add(convertAstNode(node.getExpression()));
-		}
-
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
+		ownValue = constructRascalNode(node, optional(expression));
 		return false;
 	}
 
 	public boolean visit(SimpleName node) {
-		ownNode = createNode("'" + node.getIdentifier() + "'");
+		IValue value = values.string(node.getFullyQualifiedName());
+		ownValue = constructRascalNode(node, value);
 		return false;
 	}
 
 	public boolean visit(SimpleType node) {
+		ownValue = constructRascalNode(node);
 		return true;
 	}
 
 	public boolean visit(SingleMemberAnnotation node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(createNodeAndConvertChild(NAME, node.getTypeName()));
-		attributes.add(createNodeAndConvertChild(VALUE, node.getValue()));
+		IValue name = values.string(node.getTypeName().getFullyQualifiedName());
+		IValue value = visitChild(node.getValue());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, name, value);
 		return false;
 	}
 
 	public boolean visit(SingleVariableDeclaration node) {
-		NodeList attributes = new NodeList();
+		IValue name = values.string(node.getName().getFullyQualifiedName());
 
+		IValueList modifiers;
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			attributes.add(parseModifiers(node.getModifiers()));
-		} else if (node.getAST().apiLevel() >= AST.JLS3) {
-			attributes.add(parseModifiers(node.modifiers()));
+			modifiers = parseModifiers(node.getModifiers());
+		} else {
+			modifiers = parseModifiers(node.modifiers());
 		}
 
-		attributes.add(createNodeAndConvertChild(TYPE, node.getType()));
+		IValue type = visitChild(node.getType());
+		IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
 
+		IValue isVarags = values.bool(false);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
-			if (node.isVarargs()) {
-				attributes.add(createNode("vararg"));
-			}
+			isVarags = values.bool(node.isVarargs());
 		}
-
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
 
 		/*
 		 * for (int i = 0; i < node.getExtraDimensions(); i++) { //TODO: What to
@@ -1059,131 +954,98 @@ public class AstToINodeConverter extends ASTVisitor {
 		 * //$NON-NLS-1$ }
 		 */
 
-		if (node.getInitializer() != null) {
-			attributes.add(createNodeAndConvertChild(INITIALIZER, node.getInitializer()));
-		}
-
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, name, modifiers.asList(), type, optional(initializer), isVarags);
 		return false;
 	}
 
 	public boolean visit(StringLiteral node) {
-		NodeList attributes = new NodeList();
-		attributes.add(createNode(node.getEscapedValue()));
-		
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		IValue value = values.string(node.getEscapedValue());		
+		ownValue = constructRascalNode(node, value);
 		return false;
 	}
 
 	public boolean visit(SuperConstructorInvocation node) {
-		NodeList attributes = new NodeList();
+		IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
 
-		if (node.getExpression() != null) {
-			attributes.add(convertAstNode(node.getExpression()));
-		}
-
+		IValueList genericTypes = new IValueList(values);	
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeArguments().isEmpty()) {
-
-				NodeList typeArguments = new NodeList();
 				for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
 					Type t = (Type) it.next();
-					typeArguments.add(convertAstNode(t));
+					genericTypes.add(visitChild(t));
 				}
-				attributes.add(createNodeWithChildren(TYPE_ARGUMENTS, typeArguments));
 			}
 		}
 
-		NodeList arguments = new NodeList();
+		IValueList arguments = new IValueList(values);
 		for (Iterator it = node.arguments().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			arguments.add(convertAstNode(e));
+			arguments.add(visitChild(e));
 		}
-		attributes.add(createNodeWithChildren(ARGUMENTS, arguments));
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, optional(expression), genericTypes.asList(), arguments.asList());
 		return false;
 	}
 
 	public boolean visit(SuperFieldAccess node) {
-		NodeList attributes = new NodeList();
-		
-		if (node.getQualifier() != null) {
-			attributes.add(convertAstNode(node.getQualifier()));
-		}
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
+		IValue qualifier = node.getQualifier() == null ? null : values.string(node.getQualifier().getFullyQualifiedName());
+		IValue name = visitChild(node.getName());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, optional(qualifier), name);
 		return false;
 	}
 
 	public boolean visit(SuperMethodInvocation node) {
-		NodeList attributes = new NodeList();
-
-		if (node.getQualifier() != null) {
-			attributes.add(convertAstNode(node.getQualifier()));
-		}
-
+		IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
+		
+		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeArguments().isEmpty()) {
-
-				NodeList typeArguments = new NodeList();
 				for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
 					Type t = (Type) it.next();
-					typeArguments.add(convertAstNode(t));
+					genericTypes.add(visitChild(t));
 				}
-				attributes.add(createNodeWithChildren(TYPE_ARGUMENTS, typeArguments));
 			}
 		}
 
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
+		IValue name = values.string(node.getName().getFullyQualifiedName());
 
-		NodeList arguments = new NodeList();
+		IValueList arguments = new IValueList(values);
 		for (Iterator it = node.arguments().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			arguments.add(convertAstNode(e));
+			arguments.add(visitChild(e));
 		}
-		attributes.add(createNodeWithChildren(ARGUMENTS, arguments));
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, optional(qualifier), genericTypes.asList(), name, arguments.asList());
 		return false;
 	}
 
 	public boolean visit(SwitchCase node) {
-		NodeList attributes = new NodeList();
-		if (node.isDefault()) {
-			attributes.add(createNode("default"));
-		} else {
-			attributes.add(convertAstNode(node.getExpression()));
-		}
+		IValue isDefault = values.bool(node.isDefault());
+		IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, isDefault, optional(expression));
 		return false;
 	}
 
 	public boolean visit(SwitchStatement node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(convertAstNode(node.getExpression()));
+		IValue expression = visitChild(node.getExpression());
 
-		NodeList statements = new NodeList();
+		IValueList statements = new IValueList(values);
 		for (Iterator it = node.statements().iterator(); it.hasNext();) {
 			Statement s = (Statement) it.next();
-			statements.add(convertAstNode(s));
+			statements.add(visitChild(s));
 		}
-		attributes.add(createNodeWithChildren(STATEMENTS, statements));
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, expression, statements.asList());
 		return false;
 	}
 
 	public boolean visit(SynchronizedStatement node) {
-		NodeList attributes = new NodeList();
+		IValue expression = visitChild(node.getExpression());
+		IValue body = visitChild(node.getBody());
 		
-		attributes.add(convertAstNode(node.getExpression()));
-		attributes.add(createNodeAndConvertChild(BODY, node.getBody()));
-		
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, expression, body);
 		return false;
 	}
 
@@ -1198,236 +1060,198 @@ public class AstToINodeConverter extends ASTVisitor {
 	}
 
 	public boolean visit(ThisExpression node) {
-		NodeList attributes = new NodeList();
-		
-		if (node.getQualifier() != null) {
-			attributes.add(convertAstNode(node.getQualifier()));
-		}
-		
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		IValue qualifier = node.getQualifier() == null ? null : values.string(node.getQualifier().getFullyQualifiedName());
+
+		ownValue = constructRascalNode(node, optional(qualifier));
 		return false;
 	}
 
 	public boolean visit(ThrowStatement node) {
-		NodeList attributes = new NodeList();
-		attributes.add(convertAstNode(node.getExpression()));
+		IValue expression = visitChild(node.getExpression());
 		
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, expression);
 		return false;
 	}
 
 	public boolean visit(TryStatement node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(createNodeAndConvertChild(BODY, node.getBody()));
+		IValue body = visitChild(node.getBody());
 
-		NodeList catchClauses = new NodeList();
+		IValueList catchClauses = new IValueList(values);
 		for (Iterator it = node.catchClauses().iterator(); it.hasNext();) {
 			CatchClause cc = (CatchClause) it.next();
-			catchClauses.add(convertAstNode(cc));
-		}
-		attributes.add(createNodeWithChildren(CATCH_CLAUSES, catchClauses));
-		
-		if (node.getFinally() != null) {
-			attributes.add(createNodeAndConvertChild(FINALLY, node.getFinally()));
+			catchClauses.add(visitChild(cc));
 		}
 		
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		IValue finallyBlock = node.getFinally() == null ? null : visitChild(node.getFinally()); 
+		
+		ownValue = constructRascalNode(node, body, catchClauses.asList(), optional(finallyBlock));
 		return false;
 	}
 
 	public boolean visit(TypeDeclaration node) {
-		NodeList attributes = new NodeList();
+		IValueList modifiers = parseModifiers(node);
+		IValue objectType = node.isInterface() ? constructRascalNode(DATATYPE_OBJECT_TYPE, "interface") : constructRascalNode(DATATYPE_OBJECT_TYPE, "class");
+		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 		
-		attributes.add(parseModifiers(node));
-
-		if (node.isInterface()) {
-			attributes.add(createNode(INTERFACE));
-		} else {
-			attributes.add(createNode(CLASS));
-		}
-
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
-		
+		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
-			if (!node.typeParameters().isEmpty()) {
-				
-				NodeList typeParameters = new NodeList();
+			if (!node.typeParameters().isEmpty()) {			
 				for (Iterator it = node.typeParameters().iterator(); it.hasNext();) {
 					TypeParameter t = (TypeParameter) it.next();
-					typeParameters.add(convertAstNode(t));					
+					genericTypes.add(visitChild(t));					
 				}
-				attributes.add(createNodeWithChildren(TYPE_ARGUMENTS, typeParameters));
 			}
 		}
+		
+		IValue extendsClass = null;
+		IValueList implementsInterfaces = new IValueList(values);
 		
 		if (node.getAST().apiLevel() == AST.JLS2) {
 			if (node.getSuperclass() != null) {
-				attributes.add(createNodeAndConvertChild(EXTENDS, node.getSuperclass()));
+				extendsClass = visitChild(node.getSuperclass());
 			}
 			if (!node.superInterfaces().isEmpty()) {
-
-				NodeList interfaces = new NodeList();
 				for (Iterator it = node.superInterfaces().iterator(); it.hasNext();) {
 					Name n = (Name) it.next();
-					interfaces.add(convertAstNode(n));
+					implementsInterfaces.add(visitChild(n));
 				}
-				attributes.add(createNodeWithChildren(IMPLEMENTS, interfaces));
 			}
 		} else if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (node.getSuperclassType() != null) {
-				attributes.add(createNodeAndConvertChild(EXTENDS, node.getSuperclassType()));
+				extendsClass = visitChild(node.getSuperclassType());
 			}
 			if (!node.superInterfaceTypes().isEmpty()) {
-
-				NodeList interfaces = new NodeList();
 				for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext();) {
 					Type t = (Type) it.next();
-					interfaces.add(convertAstNode(t));
+					implementsInterfaces.add(visitChild(t));
 				}
-				attributes.add(createNodeWithChildren(IMPLEMENTS, interfaces));
 			}
 		}
 
-		NodeList bodies = new NodeList();
+		IValueList bodyDeclarations = new IValueList(values);
 		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
 			BodyDeclaration d = (BodyDeclaration) it.next();
-			bodies.add(convertAstNode(d));
+			bodyDeclarations.add(visitChild(d));
 		}
-		attributes.add(createNodeWithChildren(BODY, bodies));
 		
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, modifiers.asList(), objectType, name, genericTypes.asList(), optional(extendsClass), implementsInterfaces.asList(), bodyDeclarations.asList());
 		return false;
 	}
 
 	public boolean visit(TypeDeclarationStatement node) {
+		IValue typeDeclaration;
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			ownNode = convertAstNode(node.getTypeDeclaration());
+			typeDeclaration = visitChild(node.getTypeDeclaration());
 		}
-		if (node.getAST().apiLevel() >= AST.JLS3) {
-			ownNode = convertAstNode(node.getDeclaration());
+		else {
+			typeDeclaration = visitChild(node.getDeclaration());
 		}
 		
+		ownValue = constructRascalNode(node, typeDeclaration);
 		return false;
 	}
 
 	public boolean visit(TypeLiteral node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(convertAstNode(node.getType()));
+		IValue type = visitChild(node.getType());
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, type);
 		return false;
 	}
 
 	public boolean visit(TypeParameter node) {
-		NodeList attributes = new NodeList();
+		IValue name = values.string(node.getName().getFullyQualifiedName());
 		
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
-		
+		IValueList extendsList = new IValueList(values);
 		if (!node.typeBounds().isEmpty()) {
-
-			NodeList extentionList = new NodeList();
 			for (Iterator it = node.typeBounds().iterator(); it.hasNext();) {
 				Type t = (Type) it.next();
-				extentionList.add(convertAstNode(t));
+				extendsList.add(visitChild(t));
 			}
-			attributes.add(createNodeWithChildren(EXTENDS, extentionList));
 		}
 		
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, name, extendsList.asList());
 		return false;
 	}
 
 	public boolean visit(VariableDeclarationExpression node) {
-		NodeList attributes = new NodeList();
-		
+
+		IValueList modifiers;
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			attributes.add(parseModifiers(node.getModifiers()));
-		}
-		if (node.getAST().apiLevel() >= AST.JLS3) {
-			attributes.add(parseModifiers(node.modifiers()));
+			modifiers = parseModifiers(node.getModifiers());
+		} else {
+			modifiers = parseModifiers(node.modifiers());
 		}
 		
-		attributes.add(createNodeAndConvertChild(TYPE, node.getType()));
+		IValue type = visitChild(node.getType());
 		
-		NodeList fragments = new NodeList();
+		IValueList fragments = new IValueList(values);
 		for (Iterator it = node.fragments().iterator(); it.hasNext();) {
 			VariableDeclarationFragment f = (VariableDeclarationFragment) it.next();
-			fragments.add(convertAstNode(f));
+			fragments.add(visitChild(f));
 		}
-		attributes.add(createNodeWithChildren(FRAGMENTS, fragments));
 		
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, modifiers.asList(), type, fragments.asList());
 		return false;
 	}
 
 	public boolean visit(VariableDeclarationFragment node) {
-		NodeList attributes = new NodeList();
-		
-		attributes.add(createNodeAndConvertChild(NAME, node.getName()));
+		IValue name = values.string(node.getName().getFullyQualifiedName());
 		
 		//TODO: Extra dimensions?
 		/*for (int i = 0; i < node.getExtraDimensions(); i++) {
 			this.buffer.append("[]");//$NON-NLS-1$
 		}*/
 		
-		if (node.getInitializer() != null) {
-			attributes.add(createNodeAndConvertChild(INITIALIZER, node.getInitializer()));
-		}
-		
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
+
+		ownValue = constructRascalNode(node, name, optional(initializer));
 		return false;
 	}
 
 	public boolean visit(VariableDeclarationStatement node) {
-		NodeList attributes = new NodeList();
-		
+		IValueList modifiers;
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			attributes.add(parseModifiers(node.getModifiers()));
-		}
-		if (node.getAST().apiLevel() >= AST.JLS3) {
-			attributes.add(parseModifiers(node.modifiers()));
+			modifiers = parseModifiers(node.getModifiers());
+		} else {		
+			modifiers = parseModifiers(node.modifiers());
 		}
 		
-		attributes.add(createNodeAndConvertChild(TYPE, node.getType()));
+		IValue type = visitChild(node.getType());
 
-		NodeList fragments = new NodeList();
+		IValueList fragments = new IValueList(values);
 		for (Iterator it = node.fragments().iterator(); it.hasNext();) {
 			VariableDeclarationFragment f = (VariableDeclarationFragment) it.next();
-			fragments.add(convertAstNode(f));
+			fragments.add(visitChild(f));
 		}
-		attributes.add(createNodeWithChildren(FRAGMENTS, fragments));
 		
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, modifiers.asList(), type, fragments.asList());
 		return false;
 	}
 
 	public boolean visit(WhileStatement node) {
-		NodeList attributes = new NodeList();
+		IValue expression = visitChild(node.getExpression());
+		IValue body = visitChild(node.getBody());
 		
-		attributes.add(convertAstNode(node.getExpression()));
-		attributes.add(createNodeAndConvertChild(BODY, node.getBody()));
-		
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, expression, body);
 		return false;
 	}
 
 	public boolean visit(WildcardType node) {
-		NodeList attributes = new NodeList();
+		IValue type = null;
+		IValue bound = null;
 		
-		Type bound = node.getBound();
-		if (bound != null) {
-			attributes.add(createNodeAndConvertChild(TYPE, bound));
+		if (node.getBound() != null) {
+			type = visitChild(node.getBound());
 			
 			if (node.isUpperBound()) {
-				attributes.add(createNode(EXTENDS));
+				bound = Java.CONS_EXTENDS.make(values);
+				
 			} else {
-				attributes.add(createNode(SUPER));
+				bound = Java.CONS_SUPER.make(values);
 			}
 		}
 
-		ownNode = createNodeWithChildren(getNodeName(node), attributes);
+		ownValue = constructRascalNode(node, optional(type), optional(bound));
 		return false;
 	}
 

@@ -1,7 +1,6 @@
 package org.rascalmpl.eclipse.library.jdt;
 
-import static org.rascalmpl.eclipse.library.Java.ADT_ENTITY;
-import static org.rascalmpl.eclipse.library.Java.ADT_MODIFIER;
+import static org.rascalmpl.eclipse.library.Java.*;
 
 import java.util.ArrayList;
 import java.util.EmptyStackException;
@@ -19,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -29,7 +29,6 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
-import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -95,6 +94,7 @@ public class JDTImporter extends ASTVisitor {
 	// type facts
 	private static final Type entityTupleType = TF.tupleType(ADT_ENTITY, "from", ADT_ENTITY, "to");
 	private static final Type modifierTupleType = TF.tupleType(ADT_ENTITY, "entity", ADT_MODIFIER, "modifier");
+	private static final Type astNodeTupleType = TF.tupleType(ADT_ENTITY, "method", ADT_ASTNODE, "body");
 
 	private IRelationWriter extnds;
 	private IRelationWriter implmnts;
@@ -106,8 +106,11 @@ public class JDTImporter extends ASTVisitor {
 	private IRelationWriter modifiers;
 	private IRelationWriter methodBodies;
 	
-	public JDTImporter() {
+	private final TypeStore typeStore;
+	
+	public JDTImporter(final TypeStore typeStore) {
 		super();
+		this.typeStore = typeStore;
 	}
 	
 	public Map<String,IValue> importFacts(ISourceLocation loc, IFile file) {
@@ -129,7 +132,7 @@ public class JDTImporter extends ASTVisitor {
 		declaredMethods = VF.relationWriter(entityTupleType);
 		declaredFields = VF.relationWriter(entityTupleType);
 		calls = VF.relationWriter(entityTupleType);
-		methodBodies = VF.relationWriter(entityTupleType);
+		methodBodies = VF.relationWriter(astNodeTupleType);
 
 		modifiers = VF.relationWriter(modifierTupleType);
 
@@ -435,10 +438,14 @@ public class JDTImporter extends ASTVisitor {
 	}
 	
 	private void addMethodBody(MethodDeclaration method, IMethodBinding methodBinding) {
-		AstToINodeConverter converter = new AstToINodeConverter(VF);
+//		System.out.println("Current file: " + file.getName());
+//		System.out.println(method.toString());
+		
+		AstToINodeConverter converter = new AstToINodeConverter(VF, typeStore);
 		method.accept(converter);
 		
-		addRelation(methodBodies, method, bindingCache.getEntity(methodBinding), converter.getNode());
+		ITuple relation = VF.tuple(bindingCache.getEntity(methodBinding), converter.getValue());
+		methodBodies.insert(relation);
 	}
 
 	private void importTypeInfo(ASTNode n) {
@@ -621,10 +628,5 @@ public class JDTImporter extends ASTVisitor {
 		ISourceLocation fileLoc = new org.rascalmpl.eclipse.library.Resources(VF).makeFile(file);
 		ISourceLocation loc = VF.sourceLocation(fileLoc.getURI(), n.getStartPosition(), n.getLength(), -1, -1, -1, -1);
 		rw.insert(VF.tuple(loc, entity));
-	}
-	
-	private void addRelation(IRelationWriter rw, ASTNode n, IValue from, IValue to) {
-		ITuple relation = VF.tuple(from, to);
-		rw.insert(relation);
 	}
 }

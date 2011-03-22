@@ -19,6 +19,7 @@ public class Java {
 	public static final Type ADT_PRIMITIVETYPE = TF.abstractDataType(store, "PrimitiveType");
 	public static final Type ADT_BOUND = TF.abstractDataType(store, "Bound");
 	public static final Type ADT_MODIFIER = TF.abstractDataType(store, "Modifier"); 
+	public static final Type ADT_ASTNODE = TF.abstractDataType(store, "AstNode");
 
 	public static final Type CONS_ENTITY = TF.constructor(store, ADT_ENTITY, "entity", TF.listType(ADT_ID), "id");
 
