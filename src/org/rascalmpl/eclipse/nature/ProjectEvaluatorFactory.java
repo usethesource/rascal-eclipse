@@ -172,6 +172,8 @@ public class ProjectEvaluatorFactory {
 				return path.substring(path.indexOf("/"), path.indexOf('!'));
 			}
 			else {
+				// TODO this is a monumental workaround, apparently the Rascal plugin gets unpacked and in 
+				// it is a rascal.jar file that we should lookup...
 				String path = rascalURI.getPath();
 				File folder = new File(path);
 				if (folder.isDirectory()) {
