@@ -107,7 +107,6 @@ import org.rascalmpl.eclipse.library.Java;
 public class AstToINodeConverter extends ASTVisitor {
 	private static final String DATATYPE_OPTION = "Option";
 	private static final String DATATYPE_RASCAL_AST_NODE = "AstNode";
-	private static final String DATATYPE_OBJECT_TYPE = "ObjectType";
 
 	private IValue ownValue;
 
@@ -1090,7 +1089,7 @@ public class AstToINodeConverter extends ASTVisitor {
 
 	public boolean visit(TypeDeclaration node) {
 		IValueList modifiers = parseModifiers(node);
-		IValue objectType = node.isInterface() ? constructRascalNode(DATATYPE_OBJECT_TYPE, "interface") : constructRascalNode(DATATYPE_OBJECT_TYPE, "class");
+		IValue objectType = node.isInterface() ? values.string("interface") : values.string("class");
 		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 		
 		IValueList genericTypes = new IValueList(values);
@@ -1244,10 +1243,10 @@ public class AstToINodeConverter extends ASTVisitor {
 			type = visitChild(node.getBound());
 			
 			if (node.isUpperBound()) {
-				bound = Java.CONS_EXTENDS.make(values);
+				bound = values.string(Java.CONS_EXTENDS.getName());
 				
 			} else {
-				bound = Java.CONS_SUPER.make(values);
+				bound = values.string(Java.CONS_SUPER.getName());
 			}
 		}
 

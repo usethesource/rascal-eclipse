@@ -10,7 +10,7 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| annotationTypeMemberDeclaration(list[Modifier] modifiers, AstNode typeArgument, str name, Option[AstNode] defaultBlock)
 				| enumDeclaration(list[Modifier] modifiers, str name, list[AstNode] implements, list[AstNode] enumConstants, list[AstNode] bodyDeclarations)
 				| enumConstantDeclaration(list[Modifier] modifiers, str name, list[AstNode] arguments, Option[AstNode] anonymousClassDeclaration)
-				| typeDeclaration(list[Modifier] modifiers, ObjectType objectType, str name, list[AstNode] genericTypes, Option[AstNode] extends, list[AstNode] implements, list[AstNode] bodyDeclarations)
+				| typeDeclaration(list[Modifier] modifiers, str objectType, str name, list[AstNode] genericTypes, Option[AstNode] extends, list[AstNode] implements, list[AstNode] bodyDeclarations)
 				| fieldDeclaration(list[Modifier] modifiers, AstNode \type, list[AstNode] fragments)
 				| initializer(list[Modifier] modifiers, AstNode body)
 				| methodDeclaration(list[Modifier] modifiers, list[AstNode] genericTypes, Option[AstNode] returnType, str name, list[AstNode] parameters, list[AstNode] possibleExceptions, Option[AstNode] implementation)
@@ -42,7 +42,7 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| qualifiedName(str qualifiedName)
 				| simpleName(str simpleName)
 				| nullLiteral()
-				| numberLiteral(real number)
+				| numberLiteral(str number)
 				| parenthesizedExpression(AstNode expression)
 				| postfixExpression(AstNode operand, str operator)
 				| prefixExpression(AstNode operand, str operator)
@@ -82,7 +82,7 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| parameterizedType(AstNode \type, list[AstNode] genericTypes)
 				| qualifiedType(str qualifier, str name)
 				| simpleType()
-				| wildcardType(Option[AstNode] optionalType, Option[Bound] bound)
+				| wildcardType(Option[AstNode] optionalType, Option[str] bound)
 																			
 				// Comments 
 				| blockComment()
@@ -95,10 +95,6 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| memberRef()
 				| memberRefParameter()
 				;
-
-data ObjectType = interface()
-				| class()
-				; 
 				
 data Option[&T] = some(&T opt)
 				| none()
