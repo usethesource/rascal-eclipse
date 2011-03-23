@@ -172,7 +172,18 @@ public class ProjectEvaluatorFactory {
 				return path.substring(path.indexOf("/"), path.indexOf('!'));
 			}
 			else {
-				return rascalURI.getPath();
+				String path = rascalURI.getPath();
+				File folder = new File(path);
+				if (folder.isDirectory()) {
+					File[] list = folder.listFiles();
+					for (File f : list) {
+						if (f.getName().startsWith(pluginName) && f.getName().endsWith(".jar")) {
+							return f.getAbsolutePath();
+						}
+					}
+				}
+				
+				return path;
 			}
 		}
 		catch (URISyntaxException e) {
