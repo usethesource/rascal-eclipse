@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.interpreter.Evaluator;
 

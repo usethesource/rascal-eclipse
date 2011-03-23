@@ -7,12 +7,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -21,10 +16,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -55,10 +48,7 @@ import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.TerminationException;
 import org.rascalmpl.eclipse.console.internal.TestReporter;
 import org.rascalmpl.eclipse.nature.ModuleReloader;
-import org.rascalmpl.eclipse.uri.BootstrapURIResolver;
-import org.rascalmpl.eclipse.uri.BundleURIResolver;
-import org.rascalmpl.eclipse.uri.ProjectURIResolver;
-import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -66,14 +56,11 @@ import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
-import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.uri.ClassResourceInputOutput;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -93,64 +80,15 @@ public class RascalScriptInterpreter implements IInterpreter {
 		this.project = project;
 	}
 	
-	
-	
 	public RascalScriptInterpreter(){
 		super();
 
 		this.command = "";
 		this.project = null;
-		
-		
-		
 	}
 
 	public void initialize(Evaluator eval){
-		ProjectURIResolver resolver = new ProjectURIResolver();
-		URIResolverRegistry resolverRegistry = eval.getResolverRegistry();
-		resolverRegistry.registerInput(resolver);
-		resolverRegistry.registerOutput(resolver);
-		
-		ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(resolverRegistry, "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
-		resolverRegistry.registerInput(eclipseResolver);
-		eval.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
-		eval.addClassLoader(getClass().getClassLoader());
-		
-		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
-		resolverRegistry.registerInput(bundleResolver);
-		resolverRegistry.registerOutput(bundleResolver);
-		
-		BootstrapURIResolver boot = new BootstrapURIResolver();
-		resolverRegistry.registerInputOutput(boot);
-		
-		try {
-			String rascalPlugin = FileLocator.resolve(Platform.getBundle("rascal").getEntry("/")).getPath();
-			String PDBValuesPlugin = FileLocator.resolve(Platform.getBundle("org.eclipse.imp.pdb.values").getEntry("/")).getPath();
-			Configuration.setRascalJavaClassPathProperty(rascalPlugin + File.pathSeparator + PDBValuesPlugin + File.pathSeparator + rascalPlugin + File.separator + "src" + File.pathSeparator + rascalPlugin + File.separator + "bin" + File.pathSeparator + PDBValuesPlugin + File.separator + "bin");
-		} catch (IOException e) {
-			Activator.getInstance().logException("could not create classpath for parser compilation", e);
-		}
-		
-		if (project != null) {
-			eval.addRascalSearchPathContributor(new IRascalSearchPathContributor() {
-				public void contributePaths(List<URI> path) {
-					try{
-						path.add(0, new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
-					}catch(URISyntaxException usex){
-						usex.printStackTrace(); // TODO Change to something better.
-					}
-				}
-			});
-			try {
-				IResource res = project.findMember("bin");
-				if(res != null) {
-					String projectBinFolder = res.getLocation().toString();
-					URLClassLoader loader = new java.net.URLClassLoader(new URL[] {new URL("file", "",  projectBinFolder + "/")}, getClass().getClassLoader());
-					eval.addClassLoader(loader);
-				}
-			} catch (MalformedURLException e1) {}
-
-		}
+		eval = ProjectEvaluatorFactory.getInstance().initializeProjectEvaluator(project, eval);
 		loadCommandHistory();
 		eval.doImport("IO");
 		eval.doImport("ParseTree");

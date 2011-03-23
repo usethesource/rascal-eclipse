@@ -31,7 +31,7 @@ import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
-import org.rascalmpl.eclipse.nature.ProjectParserFactory;
+import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Configuration;
@@ -54,7 +54,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	private IDocument document;
 	
 	private Evaluator getParser(IProject project) {
-		return ProjectParserFactory.getInstance().getParser(project);
+		return ProjectEvaluatorFactory.getInstance().getEvaluator(project);
 	}
 	
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
@@ -104,51 +104,6 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		this.path = filePath;
 		this.handler = handler;
 		this.project = project;
-		
-		Evaluator parser = getParser(project.getRawProject());
-		
-		if (project != null) {
-			try{
-				parser.addRascalSearchPath(new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
-			}catch(URISyntaxException usex){
-				throw new RuntimeException(usex);
-			}
-		}
-		
-		ProjectURIResolver resolver = new ProjectURIResolver();
-		URIResolverRegistry resolverRegistry = parser.getResolverRegistry();
-		resolverRegistry.registerInput(resolver);
-		resolverRegistry.registerOutput(resolver);
-		
-		ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(resolverRegistry, "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
-		resolverRegistry.registerInput(eclipseResolver);
-		parser.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
-		parser.addClassLoader(getClass().getClassLoader());
-		// add project's bin folder to class loaders
-		// TODO: should probably find project's output folder, instead of just
-		// using "bin"
-		String projectBinFolder = "";
-		if(project != null) {
-			try {
-				IResource res = project.getRawProject().findMember("bin");
-				if(res != null) {
-					projectBinFolder = res.getLocation().toString();
-					URLClassLoader loader = new java.net.URLClassLoader(new URL[] {new URL("file", "",  projectBinFolder + "/")}, getClass().getClassLoader());
-					parser.addClassLoader(loader);
-				}
-			} catch (MalformedURLException e1) {}
-		}
-		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
-		resolverRegistry.registerInput(bundleResolver);
-		resolverRegistry.registerOutput(bundleResolver);
-
-		try {
-			String rascalPlugin = FileLocator.resolve(Platform.getBundle("rascal").getEntry("/")).getPath();
-			String PDBValuesPlugin = FileLocator.resolve(Platform.getBundle("org.eclipse.imp.pdb.values").getEntry("/")).getPath();
-			Configuration.setRascalJavaClassPathProperty(rascalPlugin + File.pathSeparator + PDBValuesPlugin + File.pathSeparator + rascalPlugin + File.separator + "src" + File.pathSeparator + rascalPlugin + File.separator + "bin" + File.pathSeparator + PDBValuesPlugin + File.separator + "bin" + (projectBinFolder != "" ? File.pathSeparator + projectBinFolder : ""));
-		} catch (IOException e) {
-			Activator.getInstance().logException("could not create classpath for parser compilation", e);
-		}
 	}
 
 	public IDocument getDocument() {
