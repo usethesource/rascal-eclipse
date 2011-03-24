@@ -33,123 +33,129 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 	@Override
 	protected void visitTree(Object root) {
 		Language lang = initLanguage(root);
-		
+
 		if (lang == null || root == null) return;
-		
+
 		IConstructor pt = (IConstructor) root;
 		ICallableValue outliner = TermLanguageRegistry.getInstance().getOutliner(lang);
 
 		if (outliner == null) {
 			return;
 		}
-		
-		IValue outline = outliner.call(new Type[] {RascalTypeFactory.getInstance().nonTerminalType(pt)}, new IValue[] {pt}).getValue();
-		
-		if (outline instanceof INode) {
-			INode node = (INode) outline;
-			createTopItem(outline);
 
-			try {
-				for (IValue child : node) {
-					child.accept(new IValueVisitor<Object>() {
-						public Object visitBoolean(IBool o)
-						throws VisitorException {
-							createSubItem(o);
-							return null;
-						}
+		try {
+			IValue outline = outliner.call(new Type[] {RascalTypeFactory.getInstance().nonTerminalType(pt)}, new IValue[] {pt}).getValue();
 
-						public Object visitConstructor(IConstructor o)
-						throws VisitorException {
-							pushSubItem(o);
-							for (IValue child : o) {
-								child.accept(this);
+			if (outline instanceof INode) {
+				INode node = (INode) outline;
+				createTopItem(outline);
+
+				try {
+					for (IValue child : node) {
+						child.accept(new IValueVisitor<Object>() {
+							public Object visitBoolean(IBool o)
+							throws VisitorException {
+								createSubItem(o);
+								return null;
 							}
-							popSubItem();
-							return null;
-						}
 
-						public Object visitDateTime(IDateTime o)
-						throws VisitorException {
-							createSubItem(o);
-							return null;
-						}
-
-						public Object visitExternal(IExternalValue o)
-						throws VisitorException {
-							createSubItem(o);
-							return null;
-						}
-
-						public Object visitInteger(IInteger o) throws VisitorException {
-							createSubItem(o);
-							return null;
-						}
-
-						public Object visitList(IList o) throws VisitorException {
-							for (IValue elem : o) {
-								elem.accept(this);
-							}
-							return null;
-						}
-
-						public Object visitMap(IMap o) throws VisitorException {
-							for (IValue key : o) {
-								pushSubItem(key);
-								o.get(key).accept(this);
+							public Object visitConstructor(IConstructor o)
+							throws VisitorException {
+								pushSubItem(o);
+								for (IValue child : o) {
+									child.accept(this);
+								}
 								popSubItem();
+								return null;
 							}
-							return null;
-						}
 
-						public Object visitNode(INode o) throws VisitorException {
-							pushSubItem(o);
-							for (IValue child : o) {
-								child.accept(this);
+							public Object visitDateTime(IDateTime o)
+							throws VisitorException {
+								createSubItem(o);
+								return null;
 							}
-							popSubItem();
-							return null;
-						}
 
-						public Object visitReal(IReal o) throws VisitorException {
-							return createSubItem(o);
-						}
-
-						public Object visitRelation(IRelation o)
-						throws VisitorException {
-							for (IValue tuple : o) {
-								tuple.accept(this);
+							public Object visitExternal(IExternalValue o)
+							throws VisitorException {
+								createSubItem(o);
+								return null;
 							}
-							return null;
-						}
 
-						public Object visitSet(ISet o) throws VisitorException {
-							for (IValue tuple : o) {
-								tuple.accept(this);
+							public Object visitInteger(IInteger o) throws VisitorException {
+								createSubItem(o);
+								return null;
 							}
-							return null;
-						}
 
-						public Object visitSourceLocation(ISourceLocation o)
-						throws VisitorException {
-							return createSubItem(o);
-						}
-
-						public Object visitString(IString o) throws VisitorException {
-							return createSubItem(o);
-						}
-
-						public Object visitTuple(ITuple o) throws VisitorException {
-							for (IValue field : o) {
-								field.accept(this);
+							public Object visitList(IList o) throws VisitorException {
+								for (IValue elem : o) {
+									elem.accept(this);
+								}
+								return null;
 							}
-							return null;
-						}
-					});
 
+							public Object visitMap(IMap o) throws VisitorException {
+								for (IValue key : o) {
+									pushSubItem(key);
+									o.get(key).accept(this);
+									popSubItem();
+								}
+								return null;
+							}
+
+							public Object visitNode(INode o) throws VisitorException {
+								pushSubItem(o);
+								for (IValue child : o) {
+									child.accept(this);
+								}
+								popSubItem();
+								return null;
+							}
+
+							public Object visitReal(IReal o) throws VisitorException {
+								return createSubItem(o);
+							}
+
+							public Object visitRelation(IRelation o)
+							throws VisitorException {
+								for (IValue tuple : o) {
+									tuple.accept(this);
+								}
+								return null;
+							}
+
+							public Object visitSet(ISet o) throws VisitorException {
+								for (IValue tuple : o) {
+									tuple.accept(this);
+								}
+								return null;
+							}
+
+							public Object visitSourceLocation(ISourceLocation o)
+							throws VisitorException {
+								return createSubItem(o);
+							}
+
+							public Object visitString(IString o) throws VisitorException {
+								return createSubItem(o);
+							}
+
+							public Object visitTuple(ITuple o) throws VisitorException {
+								for (IValue field : o) {
+									field.accept(this);
+								}
+								return null;
+							}
+						});
+
+					}
+				} catch (VisitorException e) {
+					Activator.getInstance().logException("could not compute outline", e);
 				}
-			} catch (VisitorException e) {
-				Activator.getInstance().logException("could not compute outline", e);
 			}
+		}
+		catch (Throwable e) {
+			Activator.getInstance().logException("outliner failed: " + e.getMessage(), e);
+			return;
 		}
 	}
 
