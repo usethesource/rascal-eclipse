@@ -5,10 +5,13 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Vector;
 
+import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.preference.PreferenceConverter;
+import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -19,6 +22,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
@@ -69,6 +74,19 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		partitioner.connect(doc);
 		
 		documentListener.enable();
+		
+		FontRegistry fontRegistry= RuntimePlugin.getInstance().getFontRegistry();
+		String fontDescriptor = RuntimePlugin.getInstance().getPreferenceStore().getString(PreferenceConstants.P_SOURCE_FONT);
+		
+		if (fontDescriptor != null) {
+			if (!fontRegistry.hasValueFor(fontDescriptor)) {
+				FontData[] fontData= PreferenceConverter.readFontData(fontDescriptor);
+				fontRegistry.put(fontDescriptor, fontData);
+			}
+			
+			Font sourceFont= fontRegistry.get(fontDescriptor);
+			setFont(sourceFont);
+		}
 	}
 	
 	public void initializeConsole(){
