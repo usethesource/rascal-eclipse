@@ -191,7 +191,7 @@ public class FigureLibrary {
 										if(useMarker){ // Add a marker
 											IMarker marker = inputResource.createMarker(RASCAL_MARKER);
 											marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-											marker.setAttribute(IMarker.MESSAGE, "marker, sev=" + severity + " " + msg);
+											marker.setAttribute(IMarker.MESSAGE, msg);
 											marker.setAttribute(IMarker.LOCATION, "line " + lineNumber);
 											marker.setAttribute(IMarker.SEVERITY, severity);
 										} else {	// Add an annotation
@@ -211,7 +211,7 @@ public class FigureLibrary {
 												// line count internally starts with 0, and not with 1 like in GUI
 												IRegion lineInfo = document.getLineInformation(lineNumber - 1);
 												synchronized(lockObject){
-													Annotation currentLine = new Annotation(highlightName, true, "anno=" + highlightName + " " + msg);
+													Annotation currentLine = new Annotation(highlightName, true, msg);
 													Position currentPosition = new Position(lineInfo.getOffset(), lineInfo.getLength());
 													annotationModel.addAnnotation(currentLine, currentPosition);
 												}

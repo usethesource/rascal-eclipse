@@ -237,11 +237,11 @@ public class FigureViewer extends EditorPart {
 		getSite().getPage().addPartListener(new IPartListener2(){
 
 			public void partActivated(IWorkbenchPartReference partRef) {
-				System.err.println("partActivated");				
+				//System.err.println("partActivated");				
 			}
 
 			public void partBroughtToTop(IWorkbenchPartReference partRef) {
-				System.err.println("partBroughtToTop");
+				//System.err.println("partBroughtToTop");
 				frame.requestFocusInWindow();
 			}
 
