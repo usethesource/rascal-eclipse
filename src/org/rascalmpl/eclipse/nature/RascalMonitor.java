@@ -14,7 +14,8 @@ public class RascalMonitor implements IRascalMonitor {
 	}
 	
 	public void endJob(boolean succeeded) {
-		monitorStack.pop().done();
+		if (!monitorStack.empty())
+			monitorStack.pop().done();
 	}
 
 	public void event(String name) {

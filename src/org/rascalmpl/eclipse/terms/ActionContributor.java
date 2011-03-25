@@ -1,5 +1,9 @@
 package org.rascalmpl.eclipse.terms;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -21,6 +25,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -29,41 +34,34 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ActionContributor implements ILanguageActionsContributor {
-	private static final class RascalAction extends Action {
-		private final UniversalEditor editor;
-		private final ICallableValue func;
+	private static final class Runner extends Action {
+		private RascalAction job;
+		private boolean sync;
+		private UniversalEditor editor;
 
-		private RascalAction(String text, UniversalEditor editor,
-				ICallableValue func) {
-			super(text);
+		public Runner(boolean synchronous, String label, UniversalEditor editor, RascalAction job) {
+			super(label);
 			this.editor = editor;
-			this.func = func;
+			this.job = job;
+			this.sync = synchronous;
 		}
-
-		@Override
+		
 		public void run() {
-			IConstructor tree = (IConstructor) editor.getParseController().getCurrentAst();
 			Point selection = editor.getSelection();
-			
-			if (tree != null) {
-				Type[] actualTypes = new Type[] { RTF.nonTerminalType(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree))), TF.sourceLocationType() };
-				ISourceLocation loc = TreeAdapter.getLocation(tree);
-				IValue[] actuals = new IValue[] { tree, VF.sourceLocation(loc.getURI(), selection.x, selection.y, -1, -1, -1, -1)};
+			job.init(editor);
+			job.schedule();
+			if (sync) {
 				try {
-					IValue result = func.call(actualTypes, actuals).getValue();
-				
-					if (((FunctionType) func.getType()).getReturnType() != TF.voidType()) {
-						if (result != null) {
-							replaceText(selection, (IString) result);
-						}
+					job.join();
+					if (job.result != null) {
+						replaceText(selection, job.result);
 					}
+				} catch (InterruptedException e) {
+					Activator.getInstance().logException("action interrupted", e);
 				}
-				catch (Throwable e) {
-					Activator.getInstance().logException("error while executing action:" + e.getMessage(), e);
-				}
-			}
+			}	
 		}
-
+		
 		private void replaceText(Point selection, IString newTree) {
 			try {
 				String newText = newTree.getValue();
@@ -76,6 +74,54 @@ public class ActionContributor implements ILanguageActionsContributor {
 				Activator.getInstance().logException("could not replace text", e);
 			}
 		}
+	}
+	
+	private static final class RascalAction extends Job {
+		private final ICallableValue func;
+		private IConstructor tree;
+		private Point selection;
+		public IString result = null;
+
+		private RascalAction(String text, ICallableValue func) {
+			super(text);
+			this.func = func;
+		}
+		
+		public void init(UniversalEditor editor) {
+			this.tree = (IConstructor) editor.getParseController().getCurrentAst();
+			this.selection = editor.getSelection();
+		}
+
+		@Override
+		public IStatus run(IProgressMonitor monitor) {
+			RascalMonitor rascalMonitor = new RascalMonitor(monitor);
+			
+			if (tree != null) {
+				Type[] actualTypes = new Type[] { RTF.nonTerminalType(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree))), TF.sourceLocationType() };
+				ISourceLocation loc = TreeAdapter.getLocation(tree);
+				IValue[] actuals = new IValue[] { tree, VF.sourceLocation(loc.getURI(), selection.x, selection.y, -1, -1, -1, -1)};
+				try {
+					
+					rascalMonitor.startJob("Executing " + getName(), 10000);
+					IValue result = func.call(rascalMonitor, actualTypes, actuals).getValue();
+					rascalMonitor.endJob(true);
+					
+					if (((FunctionType) func.getType()).getReturnType() != TF.voidType()) {
+						this.result = (IString) result;
+					}
+				}
+				catch (Throwable e) {
+					Activator.getInstance().logException("error while executing action:" + e.getMessage(), e);
+				}
+				finally {
+					rascalMonitor.endJob(true);
+				}
+			}
+			
+			return Status.OK_STATUS;
+		}
+
+		
 	}
 
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -119,11 +165,11 @@ public class ActionContributor implements ILanguageActionsContributor {
 			final UniversalEditor editor, IConstructor menu, String label) {
 		if (menu.has("action")) {
 			final ICallableValue func = (ICallableValue) menu.get("action");
-			menuManager.add(new RascalAction(label, editor, func));
+			menuManager.add(new Runner(false, label, editor, new RascalAction(label, func)));
 		}
 		else if (menu.has("edit")) {
 			final ICallableValue func = (ICallableValue) menu.get("edit");
-			menuManager.add(new RascalAction(label, editor, func));
+			menuManager.add(new Runner(true, label, editor, new RascalAction(label, func)));
 		}
 	}
 

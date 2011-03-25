@@ -35,9 +35,14 @@ public class InitializeRascalPlugins implements ILanguageRegistrar {
 	}
 
 	private static void runPluginMain(final IProject project) {
-		Evaluator eval = initializeEvaluator(project);
-		eval.doImport(null, "Plugin");
-		eval.call(new NullRascalMonitor(), "main");
+		try {
+			Evaluator eval = initializeEvaluator(project);
+			eval.doImport(null, "Plugin");
+			eval.call(new NullRascalMonitor(), "main");
+		}
+		catch (Throwable e) {
+			Activator.getInstance().logException("could not run Plugin.rsc main of " + project.getName(), e);
+		}
 	}
 
 	private static Evaluator initializeEvaluator(final IProject project) {
