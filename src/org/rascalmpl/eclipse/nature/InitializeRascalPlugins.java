@@ -7,9 +7,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.language.ILanguageRegistrar;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.NullRascalMonitor;
 
 public class InitializeRascalPlugins implements ILanguageRegistrar {
-
 	public void registerLanguages() {
 			registerTermLanguagePlugins();
 	}
@@ -35,14 +35,9 @@ public class InitializeRascalPlugins implements ILanguageRegistrar {
 	}
 
 	private static void runPluginMain(final IProject project) {
-		try {
-			Evaluator eval = initializeEvaluator(project);
-			eval.doImport("Plugin");
-			eval.call("main");
-		} 
-		catch (Throwable e) {
-			Activator.getInstance().logException("could not run plugin main", e);
-		}
+		Evaluator eval = initializeEvaluator(project);
+		eval.doImport(null, "Plugin");
+		eval.call(new NullRascalMonitor(), "main");
 	}
 
 	private static Evaluator initializeEvaluator(final IProject project) {

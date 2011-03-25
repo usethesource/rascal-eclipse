@@ -17,7 +17,10 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -49,7 +52,9 @@ import org.rascalmpl.eclipse.console.internal.TerminationException;
 import org.rascalmpl.eclipse.console.internal.TestReporter;
 import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
+import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -64,7 +69,7 @@ import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class RascalScriptInterpreter implements IInterpreter {
+public class RascalScriptInterpreter extends Job implements IInterpreter {
 	private final static int LINE_LIMIT = 200;
 	private ModuleReloader reloader;
 	private Evaluator eval;
@@ -72,8 +77,8 @@ public class RascalScriptInterpreter implements IInterpreter {
 	private String command;
 	private String content;
 	private IFile lastMarked;
-
 	private IProject project;
+	private Throwable error = null;
 
 	public RascalScriptInterpreter(IProject project){
 		this();
@@ -81,7 +86,7 @@ public class RascalScriptInterpreter implements IInterpreter {
 	}
 	
 	public RascalScriptInterpreter(){
-		super();
+		super("Rascal");
 
 		this.command = "";
 		this.project = null;
@@ -90,8 +95,8 @@ public class RascalScriptInterpreter implements IInterpreter {
 	public void initialize(Evaluator eval){
 		eval = ProjectEvaluatorFactory.getInstance().initializeProjectEvaluator(project, eval);
 		loadCommandHistory();
-		eval.doImport("IO");
-		eval.doImport("ParseTree");
+		eval.doImport(null, "IO");
+		eval.doImport(null, "ParseTree");
 		this.eval = eval;
 		this.reloader = new ModuleReloader(eval);
 	}
@@ -115,39 +120,28 @@ public class RascalScriptInterpreter implements IInterpreter {
 		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
 		if (eval instanceof DebuggableEvaluator) ((DebuggableEvaluator) eval).getDebugger().destroy();
 	}
-
-	public boolean execute(String cmd) throws CommandExecutionException, TerminationException{
-		if(cmd.trim().length() == 0){
-			content = "cancelled";
-			command = "";
-			return true;
-		}
-
+	
+	@Override
+	protected IStatus run(IProgressMonitor monitor) {
 		try {
-			reloader.updateModules();
-			command += cmd;
-			final IConstructor tree = eval.parseCommand(command, URI.create("stdin:///"));
-			
-			// This code makes sure that if files are read or written during Rascal execution, the build
-			// infra-structure of Eclipse is not triggered
-			IWorkspaceRunnable action = new IWorkspaceRunnable() {
-				public void run(IProgressMonitor monitor) throws CoreException {
-					monitor.beginTask("Rascal Command", IProgressMonitor.UNKNOWN);
-					execCommand(tree);
-//					monitor.done();
-				}
-			};
-			
-			// dont know how do syncronize this deleteMarkers otherwise.
-			project.getWorkspace().getRoot().deleteMarkers(IRascalResources.ID_RASCAL_MARKER_TYPE_TEST_RESULTS, false, IResource.DEPTH_INFINITE);
-			project.getWorkspace().run(action, project, 0, new NullProgressMonitor());
+			RascalMonitor rm = new RascalMonitor(monitor);
+			rm.startJob("executing command", 10000);
+			rm.event("parsing command");
+			final IConstructor tree = eval.parseCommand(rm, command, URI.create("stdin:///"));
+			rm.event("running command");
+			execCommand(rm, tree);
+			rm.endJob(true);
+		
 		}
-		catch(SyntaxError e) {
-			execParseError(e);
-			return false;
+		catch (SyntaxError e) {
+			try {
+				execParseError(e);
+			} catch (CommandExecutionException e1) {
+				error = e1;
+			}
 		}
-		catch(QuitException q){
-			throw new TerminationException();
+		catch (QuitException q){
+			error = new TerminationException();
 		}
 		catch(InterruptException i) {
 			content = i.toString();
@@ -164,10 +158,10 @@ public class RascalScriptInterpreter implements IInterpreter {
 			e.printStackTrace();
 			if (location != null) {
 				setMarker(e.getMessage(), location);
-				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
+				error = new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
 			
-			throw new CommandExecutionException(content);
+			error = new CommandExecutionException(content);
 		}
 		catch(Throw e){
 			content = e.getMessage() + "\n";
@@ -179,7 +173,7 @@ public class RascalScriptInterpreter implements IInterpreter {
 			ISourceLocation location = e.getLocation();
 			if(location != null && !location.getURI().getScheme().equals("stdin")){
 				setMarker(e.getMessage(), location);
-				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
+				error = new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
 		}
 		catch(Throwable e){
@@ -190,6 +184,47 @@ public class RascalScriptInterpreter implements IInterpreter {
 			e.printStackTrace();
 			command = "";
 		}
+		
+		return Status.OK_STATUS;
+	}
+
+	public boolean execute(String cmd) throws CommandExecutionException, TerminationException{
+		if(cmd.trim().length() == 0){
+			content = "cancelled";
+			command = "";
+			return true;
+		}
+
+		try {
+			reloader.updateModules();
+			command += cmd;
+			
+			project.getWorkspace().getRoot().deleteMarkers(IRascalResources.ID_RASCAL_MARKER_TYPE_TEST_RESULTS, false, IResource.DEPTH_INFINITE);
+			error = null;
+			schedule();
+			join();
+			if (error != null) {
+				if (error instanceof CommandExecutionException) {
+					throw ((CommandExecutionException) error);
+				}
+				else {
+					throw ((TerminationException) error);
+				}
+			}
+			
+//			project.getWorkspace().run(null, project, 0, new NullProgressMonitor());
+		} catch (CoreException e) {
+			Activator.getInstance().logException("could not delete test markers", e);
+		} catch (InterruptedException e) {
+			eval.interrupt();
+			command = "";
+			content = "interrupted";
+			eval.__setInterrupt(false);
+		}
+		finally {
+			
+		}
+		
 		return true;
 	}
 	
@@ -232,7 +267,7 @@ public class RascalScriptInterpreter implements IInterpreter {
 		}
 	}
 
-	private void execCommand(IConstructor tree) {
+	private void execCommand(IRascalMonitor monitor, IConstructor tree) {
 		Command stat = new ASTBuilder().buildCommand(tree);
 
 		if (stat == null) {
@@ -276,7 +311,7 @@ public class RascalScriptInterpreter implements IInterpreter {
 		});
 		
 		if (result == null) {
-			result = eval.eval(stat);
+			result = eval.eval(monitor, stat);
 		}
 		
 		IValue value = result.getValue();
@@ -464,4 +499,6 @@ public class RascalScriptInterpreter implements IInterpreter {
 	public String getTrace() {
 		return eval.getStackTrace();
 	}
+
+	
 }

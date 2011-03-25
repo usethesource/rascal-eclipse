@@ -119,7 +119,7 @@ public class EvaluateExpression extends AbstractHandler implements IEditorAction
 		}
 
 		//evaluate
-		Result<org.eclipse.imp.pdb.facts.IValue> value = target.getEvaluator().eval(expr, URI.create("debug:///"));
+		Result<org.eclipse.imp.pdb.facts.IValue> value = target.getEvaluator().eval(null, expr, URI.create("debug:///"));
 
 		try {
 			String result = null;

@@ -94,7 +94,7 @@ public class RunStaticChecker implements IEditorActionDelegate {
 			StaticChecker checker = createCheckerIfNeeded(parseController.getProject());
 			
 			if (checker != null) {
-				IConstructor newTree = checker.checkModule((IConstructor) TreeAdapter.getArgs(parseTree).get(1));
+				IConstructor newTree = checker.checkModule(null, (IConstructor) TreeAdapter.getArgs(parseTree).get(1));
 				if (newTree != null) {
 					IConstructor treeTop = parseTree;
 					IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
@@ -147,7 +147,7 @@ public class RunStaticChecker implements IEditorActionDelegate {
 			Activator.getInstance().logException("could not create classpath for parser compilation", e);
 		}
 
-		checker.enableChecker();
+		checker.enableChecker(null);
 	}
 	
 	private StaticChecker createChecker(ISourceProject sourceProject) {

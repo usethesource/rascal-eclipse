@@ -84,7 +84,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 */
 	public void setValue(String expression) throws DebugException {
 		//evaluate
-		value = getRascalDebugTarget().getEvaluator().eval(expression, URI.create("debug:///"));
+		value = getRascalDebugTarget().getEvaluator().eval(null, expression, URI.create("debug:///"));
 
 		//store the result in its environment
 		envt.storeVariable(name, value);

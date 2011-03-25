@@ -37,7 +37,7 @@ public class ModuleReloader implements IModuleChangedListener {
 			}
 			
 			try {
-				eval.reloadModules(names, URI.create("console:///"));
+				eval.reloadModules(eval.getMonitor(), names, URI.create("console:///"));
 			}
 			catch (Throwable x) {
 				// reloading modules may trigger many issues, however, these should be visible
