@@ -161,8 +161,8 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 				} else {
 					Evaluator parser = getParser(project.getRawProject());
 					// TODO Re-enable the error tree thing when it's working.
-					//parseTree = parser.parseModuleWithErrorTree(input.toCharArray(), uri, null);
-					parseTree = parser.parseModule(rm, input.toCharArray(), uri, null);
+					parseTree = parser.parseModuleWithErrorTree(rm, input.toCharArray(), uri, null);
+					//parseTree = parser.parseModule(rm, input.toCharArray(), uri, null);
 					lastParseTree = parseTree;
 					
 					if(parseTree.getConstructorType() == Factory.Tree_Error){
