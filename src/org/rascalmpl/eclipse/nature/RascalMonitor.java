@@ -1,9 +1,11 @@
 package org.rascalmpl.eclipse.nature;
 
+import java.util.EmptyStackException;
 import java.util.Stack;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 
 public class RascalMonitor implements IRascalMonitor {
@@ -16,6 +18,9 @@ public class RascalMonitor implements IRascalMonitor {
 	public void endJob(boolean succeeded) {
 		if (!monitorStack.empty())
 			monitorStack.pop().done();
+		else {
+			Activator.getInstance().logException("endJob without a start Job!", new EmptyStackException());
+		}
 	}
 
 	public void event(String name) {
