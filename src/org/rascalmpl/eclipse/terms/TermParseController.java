@@ -126,7 +126,7 @@ public class TermParseController implements IParseController {
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			RascalMonitor rm = new RascalMonitor(monitor);
-			rm.startJob("parsing", 10000);
+			rm.startJob("Parsing Term", 105);
 			
 			try{
 				handler.clearMessages();
