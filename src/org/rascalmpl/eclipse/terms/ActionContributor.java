@@ -104,7 +104,6 @@ public class ActionContributor implements ILanguageActionsContributor {
 					
 					rascalMonitor.startJob("Executing " + getName(), 10000);
 					IValue result = func.call(rascalMonitor, actualTypes, actuals).getValue();
-					rascalMonitor.endJob(true);
 					
 					if (((FunctionType) func.getType()).getReturnType() != TF.voidType()) {
 						this.result = (IString) result;
