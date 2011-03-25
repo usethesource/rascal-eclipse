@@ -136,6 +136,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		catch (SyntaxError e) {
 			try {
 				execParseError(e);
+				error = e;
 			} catch (CommandExecutionException e1) {
 				error = e1;
 			}
@@ -188,7 +189,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		return Status.OK_STATUS;
 	}
 
-	public boolean execute(String cmd) throws CommandExecutionException, TerminationException{
+	public synchronized boolean execute(String cmd) throws CommandExecutionException, TerminationException{
 		if(cmd.trim().length() == 0){
 			content = "cancelled";
 			command = "";
@@ -203,16 +204,15 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			error = null;
 			schedule();
 			join();
-			if (error != null) {
-				if (error instanceof CommandExecutionException) {
+			if(error != null){
+				if(error instanceof CommandExecutionException) {
 					throw ((CommandExecutionException) error);
-				}
-				else {
+				}else if(error instanceof TerminationException){
 					throw ((TerminationException) error);
 				}
+				
+				return false;
 			}
-			
-//			project.getWorkspace().run(null, project, 0, new NullProgressMonitor());
 		} catch (CoreException e) {
 			Activator.getInstance().logException("could not delete test markers", e);
 		} catch (InterruptedException e) {
@@ -220,9 +220,6 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			command = "";
 			content = "interrupted";
 			eval.__setInterrupt(false);
-		}
-		finally {
-			
 		}
 		
 		return true;
