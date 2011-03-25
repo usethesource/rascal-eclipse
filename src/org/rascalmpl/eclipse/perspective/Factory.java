@@ -13,7 +13,6 @@ public class Factory implements IPerspectiveFactory {
 
 		IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, (float) 0.25, editorArea); 
 		folder.addView(JavaUI.ID_PACKAGES);
-		folder.addView("org.eclipse.ui.navigator");
 
 		IFolderLayout outputfolder = layout.createFolder("bottom", IPageLayout.BOTTOM, (float) 0.75, editorArea); 
 		outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
@@ -31,7 +30,6 @@ public class Factory implements IPerspectiveFactory {
 
 		layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
 		layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
-		layout.addShowViewShortcut("org.eclipse.ui.navigator");
 		layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
 		layout.addShowViewShortcut(IPageLayout.ID_PROGRESS_VIEW);
 
