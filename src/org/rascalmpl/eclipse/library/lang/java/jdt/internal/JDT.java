@@ -18,6 +18,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.rascalmpl.eclipse.library.util.Resources;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
@@ -78,10 +79,10 @@ public class JDT {
 		return r;
     }
     
-	public IConstructor extractClass(ISourceLocation loc) {
+	public IConstructor extractClass(ISourceLocation loc, IEvaluatorContext eval) {
 		IFile file = getIFileForLocation(loc);
 
-		Map<String,IValue> facts = new JDTImporter().importFacts(loc, file);
+		Map<String,IValue> facts = new JDTImporter(eval.getCurrentEnvt().getStore()).importFacts(loc, file);
 		IConstructor resource = (IConstructor) Resources.file.make(VF, loc);
 		return resource.setAnnotations(facts);
 	}
