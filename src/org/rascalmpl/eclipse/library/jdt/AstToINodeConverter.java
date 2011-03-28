@@ -112,10 +112,12 @@ public class AstToINodeConverter extends ASTVisitor {
 
 	private final IValueFactory values;
 	private final TypeStore typeStore;
-
-	public AstToINodeConverter(final IValueFactory values, final TypeStore typeStore) {
+	private final BindingConverter bindingConverter;	
+	
+	public AstToINodeConverter(final IValueFactory values, final TypeStore typeStore, final BindingConverter bindingConverter) {
 		this.values = values;
 		this.typeStore = typeStore;
+		this.bindingConverter = bindingConverter;
 	}
 
 	public IValue getValue() {
@@ -198,10 +200,24 @@ public class AstToINodeConverter extends ASTVisitor {
 	}
 
 	private IValue visitChild(ASTNode node) {
-		AstToINodeConverter newConverter = new AstToINodeConverter(values, typeStore);
+		AstToINodeConverter newConverter = new AstToINodeConverter(values, typeStore, bindingConverter);
 		node.accept(newConverter);
 
 		return newConverter.getValue();
+	}
+	
+	private <T extends Type> IValue visitAndTypeChild(T node) {
+		IValue type = bindingConverter.getEntity(node.resolveBinding());
+		IValue childValue = visitChild(node);
+		
+		return values.tuple(type, childValue);
+	}
+	
+	private <T extends Expression> IValue visitAndTypeChild(T node) {
+		IValue type = bindingConverter.getEntity(node.resolveTypeBinding());
+		IValue childValue = visitChild(node);
+		
+		return values.tuple(type, childValue);		
 	}
 
 	private String getNodeName(ASTNode node) {
@@ -280,7 +296,7 @@ public class AstToINodeConverter extends ASTVisitor {
 	}
 
 	public boolean visit(ArrayCreation node) {
-		IValue type = visitChild(node.getType().getElementType());
+		IValue type = visitAndTypeChild(node.getType().getElementType());
 
 		IValueList dimensions = new IValueList(values);
 		for (Iterator it = node.dimensions().iterator(); it.hasNext();) {
@@ -357,7 +373,7 @@ public class AstToINodeConverter extends ASTVisitor {
 	}
 
 	public boolean visit(CastExpression node) {
-		IValue type = visitChild(node.getType());
+		IValue type = visitAndTypeChild(node.getType());
 		IValue expression = visitChild(node.getExpression());
 
 		ownValue = constructRascalNode(node, type, expression);
@@ -385,10 +401,10 @@ public class AstToINodeConverter extends ASTVisitor {
 		IValue type = null;
 		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			type = visitChild(node.getName());
+			type = visitAndTypeChild(node.getName());
 		} 
 		else {
-			type = visitChild(node.getType()); 
+			type = visitAndTypeChild(node.getType()); 
 
 			if (!node.typeArguments().isEmpty()) {
 				for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
@@ -552,7 +568,7 @@ public class AstToINodeConverter extends ASTVisitor {
 
 	public boolean visit(FieldDeclaration node) {
 		IValueList modifiers = parseModifiers(node);
-		IValue type = visitChild(node.getType());
+		IValue type = visitAndTypeChild(node.getType());
 
 		IValueList fragments = new IValueList(values);
 		for (Iterator it = node.fragments().iterator(); it.hasNext();) {
@@ -731,14 +747,14 @@ public class AstToINodeConverter extends ASTVisitor {
 	}
 
 	public boolean visit(MethodInvocation node) {
-		IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
-
+		IValue expression = node.getExpression() == null ? null : visitAndTypeChild(node.getExpression());
+		
 		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeArguments().isEmpty()) {
 				for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
 					Type t = (Type) it.next();
-					genericTypes.add(visitChild(t));
+					genericTypes.add(visitAndTypeChild(t));
 				}
 			}
 		}
@@ -748,8 +764,8 @@ public class AstToINodeConverter extends ASTVisitor {
 		IValueList arguments = new IValueList(values);
 		for (Iterator it = node.arguments().iterator(); it.hasNext();) {
 			Expression e = (Expression) it.next();
-			arguments.add(visitChild(e));
-		}
+			arguments.add(visitAndTypeChild(e));
+		}		
 		
 		ownValue = constructRascalNode(node, optional(expression), genericTypes.asList(), name, arguments.asList());
 		return false;
@@ -867,26 +883,29 @@ public class AstToINodeConverter extends ASTVisitor {
 	}
 
 	public boolean visit(PrimitiveType node) {
+		IValue type;
+		
 		if (node.getPrimitiveTypeCode().equals(PrimitiveType.BOOLEAN)) {
-			ownValue = Java.CONS_BOOLEAN.make(values);
+			type = Java.CONS_BOOLEAN.make(values);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.BYTE)) {
-			ownValue = Java.CONS_BYTE.make(values);
+			type = Java.CONS_BYTE.make(values);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.CHAR)) {
-			ownValue = Java.CONS_CHAR.make(values);
+			type = Java.CONS_CHAR.make(values);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.DOUBLE)) {
-			ownValue = Java.CONS_DOUBLE.make(values);
+			type = Java.CONS_DOUBLE.make(values);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.FLOAT)) {
-			ownValue = Java.CONS_FLOAT.make(values);
+			type = Java.CONS_FLOAT.make(values);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.INT)) {
-			ownValue = Java.CONS_INT.make(values);
+			type = Java.CONS_INT.make(values);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.LONG)) {
-			ownValue = Java.CONS_LONG.make(values);
+			type = Java.CONS_LONG.make(values);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.SHORT)) {
-			ownValue = Java.CONS_SHORT.make(values);
-		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.VOID)) {
-			ownValue = Java.CONS_VOID.make(values);
+			type = Java.CONS_SHORT.make(values);
+		} else {
+			type = Java.CONS_VOID.make(values);
 		}			
 				
+		ownValue = constructRascalNode(node, type);
 		return false;
 	}
 
@@ -917,8 +936,9 @@ public class AstToINodeConverter extends ASTVisitor {
 	}
 
 	public boolean visit(SimpleType node) {
-		ownValue = constructRascalNode(node);
-		return true;
+		IValue type = values.string(node.getName().getFullyQualifiedName());
+		ownValue = constructRascalNode(node, type);
+		return false;
 	}
 
 	public boolean visit(SingleMemberAnnotation node) {
@@ -939,7 +959,7 @@ public class AstToINodeConverter extends ASTVisitor {
 			modifiers = parseModifiers(node.modifiers());
 		}
 
-		IValue type = visitChild(node.getType());
+		IValue type = visitAndTypeChild(node.getType());
 		IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
 
 		IValue isVarags = values.bool(false);
@@ -948,8 +968,9 @@ public class AstToINodeConverter extends ASTVisitor {
 		}
 
 		/*
-		 * for (int i = 0; i < node.getExtraDimensions(); i++) { //TODO: What to
-		 * do with the extra dimensions... this.buffer.append("[]");
+		 * for (int i = 0; i < node.getExtraDimensions(); i++) { 
+		 * //TODO: What todo with the extra dimensions... 
+		 * 		this.buffer.append("[]");
 		 * //$NON-NLS-1$ }
 		 */
 
@@ -1151,7 +1172,7 @@ public class AstToINodeConverter extends ASTVisitor {
 	}
 
 	public boolean visit(TypeLiteral node) {
-		IValue type = visitChild(node.getType());
+		IValue type = visitAndTypeChild(node.getType());
 
 		ownValue = constructRascalNode(node, type);
 		return false;
@@ -1181,7 +1202,7 @@ public class AstToINodeConverter extends ASTVisitor {
 			modifiers = parseModifiers(node.modifiers());
 		}
 		
-		IValue type = visitChild(node.getType());
+		IValue type = visitAndTypeChild(node.getType());
 		
 		IValueList fragments = new IValueList(values);
 		for (Iterator it = node.fragments().iterator(); it.hasNext();) {
@@ -1215,7 +1236,7 @@ public class AstToINodeConverter extends ASTVisitor {
 			modifiers = parseModifiers(node.modifiers());
 		}
 		
-		IValue type = visitChild(node.getType());
+		IValue type = visitAndTypeChild(node.getType());
 
 		IValueList fragments = new IValueList(values);
 		for (Iterator it = node.fragments().iterator(); it.hasNext();) {

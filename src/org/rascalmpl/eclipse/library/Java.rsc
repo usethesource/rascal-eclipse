@@ -129,11 +129,11 @@ public str readable(Id id) {
 	switch (id) {
 		case anonymousClass(nr): return "anonymousClass$" + "<nr>";		
 		case constr(params): return "constructor(" + readable(params) + ")";		
-		case initializer: return "initializer";
+		case initializer(): return "initializer";
 		case initializer(nr): return "initializer$" + "<nr>";		
 		case primitive(p): return getName(p);
 		case array(elementType): return readable(elementType) + "[]";		
-		case wildcard: return "?";
+		case wildcard(): return "?";
 		case wildcard(extends(bound)): return "? extends " + readable(bound);
 		case wildcard(super(bound)): return "? super " + readable(bound);
 		default : throw IllegalArgument(id);
