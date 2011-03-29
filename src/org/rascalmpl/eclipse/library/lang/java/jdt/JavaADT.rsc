@@ -2,6 +2,9 @@ module lang::java::jdt::JavaADT
 
 import lang::java::jdt::Java;
 
+@doc{Returns the entity of the AstNode if it can be resolved}
+anno Entity AstNode@javaType; 
+
 data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstNode] typeDeclarations)
 				
 				// Declarations
@@ -10,13 +13,13 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| annotationTypeMemberDeclaration(list[Modifier] modifiers, AstNode typeArgument, str name, Option[AstNode] defaultBlock)
 				| enumDeclaration(list[Modifier] modifiers, str name, list[AstNode] implements, list[AstNode] enumConstants, list[AstNode] bodyDeclarations)
 				| enumConstantDeclaration(list[Modifier] modifiers, str name, list[AstNode] arguments, Option[AstNode] anonymousClassDeclaration)
-				| typeDeclaration(list[Modifier] modifiers, str objectType, str name, list[TypedAstNode] genericTypes, Option[AstNode] extends, list[AstNode] implements, list[AstNode] bodyDeclarations)
-				| fieldDeclaration(list[Modifier] modifiers, TypedAstNode \type, list[AstNode] fragments)
+				| typeDeclaration(list[Modifier] modifiers, str objectType, str name, list[AstNode] genericTypes, Option[AstNode] extends, list[AstNode] implements, list[AstNode] bodyDeclarations)
+				| fieldDeclaration(list[Modifier] modifiers, AstNode \type, list[AstNode] fragments)
 				| initializer(list[Modifier] modifiers, AstNode body)
-				| methodDeclaration(list[Modifier] modifiers, list[TypedAstNode] genericTypes, Option[AstNode] returnType, str name, list[AstNode] parameters, list[AstNode] possibleExceptions, Option[AstNode] implementation)
+				| methodDeclaration(list[Modifier] modifiers, list[AstNode] genericTypes, Option[AstNode] returnType, str name, list[AstNode] parameters, list[AstNode] possibleExceptions, Option[AstNode] implementation)
 				| importDeclaration(str name, bool staticImport, bool onDemand)
 				| packageDeclaration(str name, list[AstNode] annotations)
-				| singleVariableDeclaration(str name, list[Modifier] modifiers, TypedAstNode \type, Option[AstNode] initializer, bool isVarargs)
+				| singleVariableDeclaration(str name, list[Modifier] modifiers, AstNode \type, Option[AstNode] initializer, bool isVarargs)
 				| variableDeclarationFragment(str name, Option[AstNode] initializer)
 				| typeParameter(str name, list[AstNode] extendsList)
 
@@ -26,19 +29,19 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| memberValuePair(str name, AstNode \value)				
 				| singleMemberAnnotation(str typeName, AstNode \value)
 				| arrayAccess(AstNode array, AstNode index)
-				| arrayCreation(TypedAstNode \type, list[AstNode] dimensions, Option[AstNode] initializer)
+				| arrayCreation(AstNode \type, list[AstNode] dimensions, Option[AstNode] initializer)
 				| arrayInitializer(list[AstNode] expressions)
 				| assignment(AstNode leftSide, AstNode rightSide)
 				| booleanLiteral(bool boolValue)
-				| castExpression(TypedAstNode \type, AstNode expression)
+				| castExpression(AstNode \type, AstNode expression)
 				| characterLiteral(str charValue)
-				| classInstanceCreation(Option[TypedAstNode] optionalExpression, TypedAstNode \type, list[TypedAstNode] genericTypes, list[TypedAstNode] typedArguments, Option[AstNode] anonymousClassDeclaration)
+				| classInstanceCreation(Option[AstNode] optionalExpression, AstNode \type, list[AstNode] genericTypes, list[AstNode] typedArguments, Option[AstNode] anonymousClassDeclaration)
 				| conditionalExpression(AstNode expression, AstNode thenBranch, AstNode elseBranch)
 				| fieldAccess(AstNode expression, str name)
 				| infixExpression(str operator, AstNode leftSide, AstNode rightSide, list[AstNode] extendedOperands)
 				| instanceofExpression(AstNode leftSide, AstNode rightSide)
-				| methodInvocation(Option[TypedAstNode] optionalExpression, list[TypedAstNode] genericTypes, str name, list[TypedAstNode] typedArguments)
-				| superMethodInvocation(Option[str] qualifier, list[TypedAstNode] genericTypes, str name, list[TypedAstNode] typedArguments)
+				| methodInvocation(Option[AstNode] optionalExpression, list[AstNode] genericTypes, str name, list[AstNode] typedArguments)
+				| superMethodInvocation(Option[str] qualifier, list[AstNode] genericTypes, str name, list[AstNode] typedArguments)
 				| qualifiedName(str qualifiedName)
 				| simpleName(str simpleName)
 				| nullLiteral()
@@ -49,15 +52,15 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| stringLiteral(str stringValue)
 				| superFieldAccess(Option[str] qualifier, str name)
 				| thisExpression(Option[str] qualifierString)
-				| typeLiteral(TypedAstNode \type)
-				| variableDeclarationExpression(list[Modifier] modifiers, TypedAstNode \type, list[AstNode] fragments)
+				| typeLiteral(AstNode \type)
+				| variableDeclarationExpression(list[Modifier] modifiers, AstNode \type, list[AstNode] fragments)
 						
 				// Statements
 				| assertStatement(AstNode expression, Option[AstNode] message)
 				| block(list[AstNode] statements)
 				| breakStatement(Option[str] label)
-				| constructorInvocation(list[TypedAstNode] genericTypes, list[TypedAstNode] typedArguments)
-				| superConstructorInvocation(Option[TypedAstNode] optionalExpression, list[TypedAstNode] genericTypes, list[TypedAstNode] typedArguments)
+				| constructorInvocation(list[AstNode] genericTypes, list[AstNode] typedArguments)
+				| superConstructorInvocation(Option[AstNode] optionalExpression, list[AstNode] genericTypes, list[AstNode] typedArguments)
 				| continueStatement(Option[str] label)
 				| doStatement(AstNode body, AstNode whileExpression)
 				| emptyStatement()
@@ -66,20 +69,20 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| forStatement(list[AstNode] initializers, Option[AstNode] booleanExpression, list[AstNode] updaters, AstNode body)
 				| ifStatement(AstNode booleanExpression, AstNode thenStatement, Option[AstNode] elseStatement)
 				| labeledStatement(str label, AstNode body)
-				| returnStatement(Option[TypedAstNode] optionalExpression)
+				| returnStatement(Option[AstNode] optionalExpression)
 				| switchStatement(AstNode expression, list[AstNode] statements)
-				| switchCase(bool isDefault, Option[TypedAstNode] optionalExpression)
+				| switchCase(bool isDefault, Option[AstNode] optionalExpression)
 				| synchronizedStatement(AstNode expression, AstNode body)
 				| throwStatement(AstNode expression)
 				| tryStatement(AstNode body, list[AstNode] catchClauses, Option[AstNode] \finally)										
 				| catchClause(AstNode exception, AstNode body)
 				| typeDeclarationStatement(AstNode typeDeclaration)
-				| variableDeclarationStatement(list[Modifier] modifiers, TypedAstNode \type, list[AstNode] fragments)
+				| variableDeclarationStatement(list[Modifier] modifiers, AstNode \type, list[AstNode] fragments)
 				| whileStatement(AstNode expression, AstNode body)
 							
 				// Types
 				| arrayType(AstNode \typeOfArray)
-				| parameterizedType(AstNode \typeOfParam, list[TypedAstNode] genericTypes)
+				| parameterizedType(AstNode \typeOfParam, list[AstNode] genericTypes)
 				| qualifiedType(str qualifier, str name)
 				| primitiveType(str primitive)
 				| simpleType(str name)
@@ -100,5 +103,3 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 data Option[&T] = some(&T opt)
 				| none()
 				;
-
-public alias TypedAstNode = tuple[Entity \type, AstNode astNode];
