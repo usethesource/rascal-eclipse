@@ -118,7 +118,7 @@ public bool java isOnBuildPath(loc file);
     TODO: implement in Java to generalize over value types
     Will collect all facts on r1 and r2 and annotate r1 with the union
 }
-private Resource unionFacts(Resource r1, Resource r2) {
+public Resource unionFacts(Resource r1, Resource r2) {
     m1 = getAnnotations(r1);
     m2 = getAnnotations(r2);
     
@@ -145,7 +145,7 @@ private Resource unionFacts(Resource r1, Resource r2) {
 	return setAnnotations(r1, m1);
 }
 
-private Resource unionFacts(Resource receiver, set[Resource] facts) {
+public Resource unionFacts(Resource receiver, set[Resource] facts) {
 	for (Resource fact <- facts) {
 		receiver = unionFacts(receiver, fact);
 	}
