@@ -9,19 +9,45 @@ public class CommandHistory{
 	
 	private int index;
 	
+	private boolean updated;
+	
 	public CommandHistory(){
 		super();
 		
 		history = new ArrayList<String>();
 		
 		index = 0;
+		
+		updated = true;
 	}
 	
 	public void addToHistory(String command){
-		if(history.size() == COMMAND_LIMIT) history.remove(0);
-		
-		history.add(command);
+		if(updated){
+			if(history.size() == COMMAND_LIMIT) history.remove(0);
+			
+			history.add(command);
+		}else{
+			history.set(index, command);
+		}
 		resetState();
+	}
+	
+	public void updateCurrent(String command){
+		if(command.length() == 0) return;
+		
+		if(index == history.size()){
+			if(history.size() == COMMAND_LIMIT){
+				history.remove(0);
+				--index;
+			}
+			
+			history.add(command);
+			updated = false;
+		}else{
+			if(index < history.size()){
+				history.set(index, command);
+			}
+		}
 	}
 	
 	// Sooner
@@ -44,5 +70,6 @@ public class CommandHistory{
 	
 	public void resetState(){
 		index = history.size();
+		updated = true;
 	}
 }

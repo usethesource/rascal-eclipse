@@ -272,6 +272,10 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		});
 	}
 	
+	protected String getCurrentConsoleInput(){
+		return documentListener.getCurrentBufferContent();
+	}
+	
 	protected void printOutput(String output){
 		consoleOutputStream.print();
 		writeToConsole(output, true);
@@ -497,7 +501,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		
 		private volatile boolean enabled;
 		
-		private StringBuffer buffer;
+		private final StringBuffer buffer;
 		
 		public ConsoleDocumentListener(InteractiveInterpreterConsole console){
 			super();
@@ -582,6 +586,10 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			}
 		}
 		
+		public String getCurrentBufferContent(){
+			return buffer.toString();
+		}
+		
 		public void queue(String command, int commandStartOffset){
 			if(!command.equals("\n")) console.commandHistory.addToHistory(command);
 			console.commandExecutor.queue(command, commandStartOffset);
@@ -592,7 +600,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		}
 		
 		public void reset(){
-			buffer = new StringBuffer();
+			buffer.delete(0, buffer.length());
 		}
 	}
 	

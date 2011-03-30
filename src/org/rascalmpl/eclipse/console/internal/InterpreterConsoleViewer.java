@@ -33,10 +33,12 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 		public void invokeAction(int action){
 			switch(action){
 				case ST.LINE_UP:
+					history.updateCurrent(console.getCurrentConsoleInput());
 					String previousCommand = history.getPreviousCommand();
 					console.historyCommand(previousCommand);
 					return;
 				case ST.LINE_DOWN:
+					history.updateCurrent(console.getCurrentConsoleInput());
 					String nextCommand = history.getNextCommand();
 					console.historyCommand(nextCommand);
 					return;
