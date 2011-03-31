@@ -38,6 +38,7 @@ import org.rascalmpl.ast.Prod.Unlabeled;
 import org.rascalmpl.ast.Toplevel.GivenVisibility;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class TreeModelBuilder extends TreeModelBuilderBase {
 	public static final int CATEGORY_ALIAS = 1;
@@ -70,15 +71,15 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		if (root == null) {
 			return;
 		}
-		ASTBuilder builder = new ASTBuilder();
 		
+		if(!(root instanceof IConstructor)) return;
+		IConstructor tree = (IConstructor) root;
+		if(!TreeAdapter.isAppl(tree)) return;
+		
+		ASTBuilder builder = new ASTBuilder();
 		try {
 			Module mod = builder.buildModule((IConstructor) root);
-		
-
-			if (mod == null) {
-				return;
-			}
+			if(mod == null) return;
 
 			loc = mod.getLocation();
 
@@ -92,8 +93,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			rules = new Group<AbstractAST>("Rules",loc);
 			imports = new Group<AbstractAST>("Imports", loc);
 			syntax = new Group<Group<AbstractAST>>("Syntax", loc);
-
-
+			
 			mod.accept(new Visitor());
 
 			createTopItem(module);
