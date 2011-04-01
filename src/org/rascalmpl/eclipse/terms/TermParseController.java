@@ -153,6 +153,9 @@ public class TermParseController implements IParseController {
 						ISourceLocation loc = (ISourceLocation) ((IConstructor) e.getException()).get(0);
 						handler.handleSimpleMessage("parse error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 					}
+					else {
+						Activator.getInstance().logException(e.getMessage(), e);
+					}
 				}
 			}
 			catch (FactTypeUseException ftuex) {
