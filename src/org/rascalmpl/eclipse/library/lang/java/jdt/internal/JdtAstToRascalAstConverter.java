@@ -45,7 +45,6 @@ import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
-import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
@@ -221,7 +220,6 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 			if (type != null) {
 				IConstructor rascalNode = (IConstructor) rascalValue;
 				rascalValue = rascalNode.setAnnotation(ANNOTATION_JAVA_TYPE, type);
-				//System.out.println("Added a type to the node: " + type.toString());
 			}			
 		}
 		
@@ -351,7 +349,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		IValue expression = visitChild(node.getExpression());
 		IValue message = node.getMessage() == null ? null : visitChild(node.getMessage());
 	
-		ownValue = constructRascalNode(node, optional(expression), message);
+		ownValue = constructRascalNode(node, expression, optional(message));
 		return false;
 	}
 
