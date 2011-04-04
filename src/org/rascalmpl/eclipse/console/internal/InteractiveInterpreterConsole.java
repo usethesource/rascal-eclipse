@@ -75,8 +75,12 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		
 		documentListener.enable();
 		
-		FontRegistry fontRegistry= RuntimePlugin.getInstance().getFontRegistry();
-		String fontDescriptor = RuntimePlugin.getInstance().getPreferenceStore().getString(PreferenceConstants.P_SOURCE_FONT);
+		setFont();
+	}
+	
+	private void setFont(){
+		final FontRegistry fontRegistry= RuntimePlugin.getInstance().getFontRegistry();
+		final String fontDescriptor = RuntimePlugin.getInstance().getPreferenceStore().getString(PreferenceConstants.P_SOURCE_FONT);
 		
 		if (fontDescriptor != null) {
 			if (!fontRegistry.hasValueFor(fontDescriptor)) {
@@ -84,8 +88,12 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				fontRegistry.put(fontDescriptor, fontData);
 			}
 			
-			Font sourceFont= fontRegistry.get(fontDescriptor);
-			setFont(sourceFont);
+			Display.getDefault().syncExec(new Runnable(){
+				public void run(){
+					Font sourceFont= fontRegistry.get(fontDescriptor);
+					setFont(sourceFont);
+				}
+			});
 		}
 	}
 	
