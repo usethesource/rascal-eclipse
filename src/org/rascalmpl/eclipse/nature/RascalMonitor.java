@@ -8,6 +8,7 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
+ *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
 *******************************************************************************/
 package org.rascalmpl.eclipse.nature;
 
@@ -122,7 +123,7 @@ public class RascalMonitor implements IRascalMonitor {
 			monitor.done();
 			workActuallyDone += nextWorkUnit;
 			nextWorkUnit = 0;
-			RuntimePlugin.getInstance().getConsoleStream().println("Work done: " + workActuallyDone + " (" + name + ")");
+//			RuntimePlugin.getInstance().getConsoleStream().println("Work done: " + workActuallyDone + " (" + name + ")");
 
 			if (parent != null) {
 				parent.workActuallyDone += parent.nextWorkUnit;
