@@ -8,15 +8,19 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::sdf2::Plugin
 
-import lang::c90::syntax::C;
+import lang::sdf2::syntax::Sdf2;
 import util::IDE;
 import ParseTree;
 
-public TranslationUnit parseTU(str input, loc l) {
-  return parse(#TranslationUnit, input, l);
+public Module parseModule(str input, loc l) {
+  return parse(#Module, input, l);
+}
+
+public Module parseDef(str input, loc l) {
+  return parse(#SDF, input, l);
 }
 
 public void main() {
-  registerLanguage("C program", "c", parseTU);
-  registerLanguage("C header", "h", parseTU);
+  registerLanguage("SDF2 module", "sdf", parseModule);
+  registerLanguage("SDF2 definition", "def", parseDef);
 }
