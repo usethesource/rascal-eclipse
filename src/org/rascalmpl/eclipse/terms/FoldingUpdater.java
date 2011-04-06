@@ -44,6 +44,12 @@ public class FoldingUpdater extends FolderBase {
 					}
 					
 					@Override
+					public IConstructor visitTreeErrorCycle(IConstructor arg)
+							throws VisitorException {
+						return null;
+					}
+					
+					@Override
 					public IConstructor visitTreeChar(IConstructor arg) throws VisitorException {
 						return null;
 					}
@@ -70,6 +76,10 @@ public class FoldingUpdater extends FolderBase {
 					}
 					
 					public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+						return null;
+					}
+					
+					public IConstructor visitTreeErrorAmb(IConstructor arg) throws VisitorException {
 						return null;
 					}
 					

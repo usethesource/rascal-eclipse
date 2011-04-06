@@ -67,6 +67,12 @@ public class TokenIterator implements Iterator<Token>{
 			return arg;
 		}
 		
+		public IConstructor visitTreeErrorAmb(IConstructor arg) throws VisitorException{
+			// we just go into the first, it's arbitrary but at least we'll get some nice highlighting
+			TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
+			return arg;
+		}
+		
 		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException{
 			String category = ProductionAdapter.getCategory(TreeAdapter.getProduction(arg));
 			
@@ -105,6 +111,10 @@ public class TokenIterator implements Iterator<Token>{
 		}
 		
 		public IConstructor visitTreeCycle(IConstructor arg) throws VisitorException{
+			return arg;
+		}
+		
+		public IConstructor visitTreeErrorCycle(IConstructor arg) throws VisitorException{
 			return arg;
 		}
 		
