@@ -144,7 +144,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			RascalMonitor rm = new RascalMonitor(monitor);
-			rm.startJob("parsing", 135);
+			rm.startJob("parsing", 500);
 			parseTree = null;
 			if (input == null || project == null || path == null) {
 				// may happen when project is deleted before Eclipse was started
