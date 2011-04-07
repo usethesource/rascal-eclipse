@@ -12,34 +12,48 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.vis;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.FigurePApplet;
 
 public class FigureEditorInput implements IEditorInput {
-	private final FigurePApplet figurePApplet;
+	
+	final private IConstructor fig;  
+	final private IEvaluatorContext ctx;
+	final private IString name;
+	
+	public IConstructor getFig() {
+		return fig;
+	}	
 
-	public FigureEditorInput(FigurePApplet figurePApplet) {
-		this.figurePApplet = figurePApplet;
+	public IEvaluatorContext getCtx() {
+		return ctx;
+	}
+
+	public FigureEditorInput(IString name, IConstructor fig,  IEvaluatorContext ctx) {
+		this.fig = fig;
+		this.ctx = ctx;
+		this.name = name;
 	}
 	
 	public boolean exists() {
-		return figurePApplet != null;
+		return fig != null;
 	}
 
-	public FigurePApplet getFigurePApplet() {
-		// new Printer(figurePApplet.g.image.getGraphics().
-		// new GC(new Printer()).drawImage(figurePApplet.g.image, x, y);
-		return figurePApplet;
-	}
-	
 	public ImageDescriptor getImageDescriptor() {
 		return null;
 	}
 
+	public IString getIString() {
+		return  name;
+	}
+	
 	public String getName() {
-		return  figurePApplet.getName();
+		return name.getValue();
 	}
 
 	public IPersistableElement getPersistable() {
@@ -47,7 +61,7 @@ public class FigureEditorInput implements IEditorInput {
 	}
 
 	public String getToolTipText() {
-		return figurePApplet.getName();
+		return name.getValue();
 	}
 
 	@SuppressWarnings("unchecked")

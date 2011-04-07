@@ -57,22 +57,21 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.FigureColorUtils;
-import org.rascalmpl.library.vis.FigurePApplet;
 
 public class FigureLibrary {
+	IValueFactory values;
 	
 	public FigureLibrary(IValueFactory values){
 		super();
+		this.values=values;		
 	}
 	
 	public void render(IConstructor fig, IEvaluatorContext ctx){
-		FigurePApplet vlp = new FigurePApplet(fig, ctx);
-		FigureViewer.open(vlp);
+		FigureViewer.open(values.string("Figure"), fig, ctx);
 	}
 	
 	public void render(IString name, IConstructor fig, IEvaluatorContext ctx){
-		FigurePApplet vlp = new FigurePApplet(name, fig, ctx);
-		FigureViewer.open(vlp);
+		FigureViewer.open(name, fig, ctx);
 	}
 	
 	/*
