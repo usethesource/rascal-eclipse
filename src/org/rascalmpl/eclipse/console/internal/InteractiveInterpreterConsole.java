@@ -437,6 +437,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		public synchronized void write(byte[] bytes, int offset, int length) throws IOException {
 			if(!enabled){
 				backup.write(bytes,offset,length);
+				return;
 			}
 			
 			int currentSize = buffer.length;
@@ -459,6 +460,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		public synchronized void write(int arg) throws IOException{
 			if(!enabled){
 				backup.write(arg);
+				return;
 			}
 			
 			if(arg == '\n'){ // If we encounter a new-line, print the content of the buffer.
