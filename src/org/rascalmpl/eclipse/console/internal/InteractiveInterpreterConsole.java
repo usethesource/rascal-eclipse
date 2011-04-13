@@ -209,6 +209,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	}
 	
 	public void terminate(){
+		partitionerFinished();
 		documentListener.deregisterListener();
 		
 		commandExecutor.terminate();
