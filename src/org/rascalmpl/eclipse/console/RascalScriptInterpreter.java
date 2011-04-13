@@ -108,7 +108,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 	}
 
 	public void initialize(Evaluator eval){
-		eval = ProjectEvaluatorFactory.getInstance().initializeProjectEvaluator(project, eval);
+		ProjectEvaluatorFactory.getInstance().initializeProjectEvaluator(project, eval);
 		loadCommandHistory();
 		eval.doImport(null, "IO");
 		eval.doImport(null, "ParseTree");
@@ -132,6 +132,9 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		saveCommandHistory();
 		content = null;
 		clearErrorMarker();
+		
+		reloader.destroy();
+		
 		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
 		if (eval instanceof DebuggableEvaluator) ((DebuggableEvaluator) eval).getDebugger().destroy();
 	}

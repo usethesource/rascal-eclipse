@@ -201,11 +201,4 @@ public class ConsoleFactory{
 			return (RascalScriptInterpreter) getInterpreter();
 		}
 	}
-
-	
-
-
 }
-
-
-

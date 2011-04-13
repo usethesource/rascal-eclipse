@@ -209,6 +209,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	}
 	
 	public void terminate(){
+		documentListener.deregisterListener();
+		
 		commandExecutor.terminate();
 		interpreter.interrupt();
 		interpreter.terminate();
@@ -546,6 +548,11 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		public void registerListener(){
 			IDocument doc = console.getDocument();
 			doc.addDocumentListener(this);
+		}
+		
+		public void deregisterListener(){
+			IDocument doc = console.getDocument();
+			doc.removeDocumentListener(this);
 		}
 
 		public void documentAboutToBeChanged(DocumentEvent event){

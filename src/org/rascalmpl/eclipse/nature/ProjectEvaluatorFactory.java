@@ -99,7 +99,8 @@ public class ProjectEvaluatorFactory {
 	public Evaluator createProjectEvaluator(IProject project) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, new ModuleEnvironment("***parser***", heap), heap);
-		return initializeProjectEvaluator(project, parser);
+		initializeProjectEvaluator(project, parser);
+		return parser;
 	}
 
 	/**
@@ -107,7 +108,7 @@ public class ProjectEvaluatorFactory {
 	 * @param project context to run the evaluator in, may be null
 	 * @param evaluator the evaluator to configure, may not be null
 	 */
-	public Evaluator initializeProjectEvaluator(IProject project, Evaluator parser) {
+	public void initializeProjectEvaluator(IProject project, Evaluator parser) {
 		if (project != null) {
 			try {
 				parser.addRascalSearchPath(new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
@@ -169,8 +170,6 @@ public class ProjectEvaluatorFactory {
 		catch (IOException e) {
 			Activator.getInstance().logException("could not create classpath for parser compilation", e);
 		}
-		
-		return parser;
 	}
 
 	private String jarForPlugin(String pluginName) throws IOException {

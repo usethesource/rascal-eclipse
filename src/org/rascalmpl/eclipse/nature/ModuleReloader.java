@@ -13,14 +13,13 @@ package org.rascalmpl.eclipse.nature;
 
 import java.net.URI;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.interpreter.Evaluator;
 
 public class ModuleReloader implements IModuleChangedListener {
-	private final Set<URI> dirtyModules = new HashSet<URI>();
+	private final HashSet<URI> dirtyModules = new HashSet<URI>();
 	private final RascalModuleUpdateListener resourceChangeListener;
 	private final Evaluator eval;
 	
@@ -38,7 +37,7 @@ public class ModuleReloader implements IModuleChangedListener {
 	
 	public void updateModules() {
 		synchronized (dirtyModules) {
-			Set<String> names = new HashSet<String>();
+			HashSet<String> names = new HashSet<String>();
 			
 			for (URI uri : dirtyModules) {
 				String path = uri.getPath();
@@ -60,8 +59,7 @@ public class ModuleReloader implements IModuleChangedListener {
 		}
 	}
 
-	public void finalize() {
-		// make sure the resource listener is removed when we are garbage collected
+	public void destroy() {
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(resourceChangeListener);
 	}
 }
