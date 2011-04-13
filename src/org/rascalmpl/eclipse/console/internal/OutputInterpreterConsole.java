@@ -166,6 +166,8 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 	}
 	
 	public void terminate(){
+		partitionerFinished();
+		
 		commandExecutor.terminate();
 		interpreter.terminate();
 	}
