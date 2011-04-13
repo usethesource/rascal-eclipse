@@ -137,6 +137,10 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		
 		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
 		if (eval instanceof DebuggableEvaluator) ((DebuggableEvaluator) eval).getDebugger().destroy();
+		
+		// Make the memory leak less severe (Eclipse is broken, I can't help it).
+		eval = null;
+		reloader = null;
 	}
 	
 	@Override
