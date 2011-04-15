@@ -55,7 +55,7 @@ public class FigureViewer extends EditorPart {
 	protected static final String editorId  = "rascal-eclipse.Figure.viewer";
 	
 	private IFigureApplet fpa ;
-	private ScrolledComposite sc = null;
+	private ScrolledComposite sc;
 	
 	private IPartListener2 partListener;
 
@@ -78,15 +78,14 @@ public class FigureViewer extends EditorPart {
 	}
 
 	public FigureViewer() {
+		super();
 	}
 
 	@Override
-	public void doSave(IProgressMonitor monitor) {
-	}
+	public void doSave(IProgressMonitor monitor) {}
 
 	@Override
-	public void doSaveAs() {
-	}
+	public void doSaveAs() {}
 
 	public void print(Printer printer) {
 		if (printer.startJob("FigureViewer")) {
@@ -216,14 +215,19 @@ public class FigureViewer extends EditorPart {
 	}
 	
 	public void dispose(){
-		if(partListener != null) getSite().getPage().removePartListener(partListener);
+		IWorkbenchPage page = getSite().getPage();
+		page.removePartListener(partListener);
+		
+		fpa = null; // Make the memory leak less severe.
+		sc = null; // Make the memory leak less severe.
+		
+		setInput(null); // Make the memory leak less severe.
 		
 		super.dispose();
 	}
 
 	@Override
-	public void setFocus() {
-	}
+	public void setFocus() {}
 	
 	public static void open(final IString name, final IConstructor fig,  final IEvaluatorContext ctx) {
 		IWorkbench wb = PlatformUI.getWorkbench();

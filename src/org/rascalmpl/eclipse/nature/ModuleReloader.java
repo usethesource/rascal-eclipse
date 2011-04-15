@@ -62,4 +62,8 @@ public class ModuleReloader implements IModuleChangedListener {
 	public void destroy() {
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(resourceChangeListener);
 	}
+	
+	public void finalize() throws Throwable{
+		destroy();
+	}
 }
