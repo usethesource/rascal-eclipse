@@ -55,7 +55,9 @@ public class FigureViewer extends EditorPart {
 	protected static final String editorId  = "rascal-eclipse.Figure.viewer";
 	
 	private IFigureApplet fpa ;
-	ScrolledComposite sc = null;
+	private ScrolledComposite sc = null;
+	
+	private IPartListener2 partListener;
 
 	private static Image makeSWTImage(Display display, java.awt.Image ai)
 			throws Exception {
@@ -178,8 +180,7 @@ public class FigureViewer extends EditorPart {
 		
 		// Make sure that the frame gets the focus when the editor is brought to the top
 		
-		getSite().getPage().addPartListener(new IPartListener2(){
-
+		partListener = new IPartListener2(){
 			public void partActivated(IWorkbenchPartReference partRef) {
 				//System.err.println("partActivated");				
 			}
@@ -189,25 +190,20 @@ public class FigureViewer extends EditorPart {
 				awtChild.getFrame().requestFocusInWindow();
 			}
 
-			public void partClosed(IWorkbenchPartReference partRef) {
-			}
+			public void partClosed(IWorkbenchPartReference partRef) {}
 
-			public void partDeactivated(IWorkbenchPartReference partRef) {
-			}
+			public void partDeactivated(IWorkbenchPartReference partRef) {}
 
-			public void partHidden(IWorkbenchPartReference partRef) {	
-			}
+			public void partHidden(IWorkbenchPartReference partRef) {}
 
-			public void partInputChanged(IWorkbenchPartReference partRef) {
-			}
+			public void partInputChanged(IWorkbenchPartReference partRef) {}
 
-			public void partOpened(IWorkbenchPartReference partRef) {
-			}
+			public void partOpened(IWorkbenchPartReference partRef) {}
 
-			public void partVisible(IWorkbenchPartReference partRef) {				
-			}
-			
-		});
+			public void partVisible(IWorkbenchPartReference partRef) {}
+		};
+		
+		getSite().getPage().addPartListener(partListener);
 
 		
 		int figWidth = fpa.getFigureWidth();
@@ -218,13 +214,17 @@ public class FigureViewer extends EditorPart {
 		//sc.setMinSize(defaultWidth, defaultHeight);
 		sc.pack();
 	}
+	
+	public void dispose(){
+		if(partListener != null) getSite().getPage().removePartListener(partListener);
+		
+		super.dispose();
+	}
 
 	@Override
 	public void setFocus() {
 	}
 	
-	
-		
 	public static void open(final IString name, final IConstructor fig,  final IEvaluatorContext ctx) {
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
