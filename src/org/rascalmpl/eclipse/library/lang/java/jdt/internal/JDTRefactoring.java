@@ -62,7 +62,7 @@ public class JDTRefactoring {
 		IRelation result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
 		Job.getJobManager().beginRule(ResourcesPlugin.getWorkspace().getRoot(), new NullProgressMonitor());
     	try {
-    		IFile file = jdt.getIFileForLocation(loc);
+    		IFile file = jdt.getJavaIFileForLocation(loc);
 			Set<IField> fields = new FindIFields().findFieldsAtLocs(fieldOffsetsFromLoc, loc, file);
 			for (IField field : fields) {
 				String fieldForGS = field.getElementName().substring(0,1).toUpperCase();
@@ -111,7 +111,7 @@ public class JDTRefactoring {
 	}    
 
 	public IRelation makeMethodsPublic(ISet methodOffsetsFromLoc, ISourceLocation loc) {
-    	IFile file = jdt.getIFileForLocation(loc);
+    	IFile file = jdt.getJavaIFileForLocation(loc);
 
 		Set<IMethod> methods = new FindIMethods().findMethodsAtLocs(methodOffsetsFromLoc, loc, file);
 		IRelation result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
@@ -157,7 +157,7 @@ public class JDTRefactoring {
 	}   
     
     public IRelation cleanUpSource(ISourceLocation loc) {
-    	IFile file = jdt.getIFileForLocation(loc);
+    	IFile file = jdt.getJavaIFileForLocation(loc);
 
 		IRelation result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
 		
@@ -219,17 +219,17 @@ public class JDTRefactoring {
     }
     
 	public IValue fullyQualifyTypeNames(ISourceLocation loc) {
-    	IFile file = jdt.getIFileForLocation(loc);
+    	IFile file = jdt.getJavaIFileForLocation(loc);
 		return new FullyQualifyTypeNames().fullyQualifyTypeNames(loc, file);
     }
 
 	public void removeMethods(ISet methodOffsetsFromLoc, ISourceLocation loc) {
-    	IFile file = jdt.getIFileForLocation(loc);
+    	IFile file = jdt.getJavaIFileForLocation(loc);
 		new RemoveMethods().removeMethodsAtLocs(methodOffsetsFromLoc, loc, file);
     }
 
 	public void unqualifyTypeNames(ISourceLocation loc) {
-    	IFile file = jdt.getIFileForLocation(loc);
+    	IFile file = jdt.getJavaIFileForLocation(loc);
 		new UnqualifyTypeNames().unqualifyTypeNames(loc, file);
     }
 

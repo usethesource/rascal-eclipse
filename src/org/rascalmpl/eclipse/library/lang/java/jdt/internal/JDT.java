@@ -94,7 +94,7 @@ public class JDT {
     }
     
 	public IConstructor extractClass(ISourceLocation loc, IEvaluatorContext eval) {
-		IFile file = getIFileForLocation(loc);
+		IFile file = getJavaIFileForLocation(loc);
 
 		Map<String,IValue> facts = new JDTImporter(eval.getCurrentEnvt().getStore()).importFacts(loc, file);
 		IConstructor resource = (IConstructor) Resources.file.make(VF, loc);
@@ -114,15 +114,15 @@ public class JDT {
 	
 	public IFile getIFileForLocation(ISourceLocation loc) {
 		IResource projectRes = getResource(loc);
-		if (!(projectRes instanceof IFile)) {
+		if (!(projectRes instanceof IFile))
 			throw new Throw(VF.string("Location is not a file: " + loc), (ISourceLocation) null, null);
-		}
-		
-		IFile file = (IFile) projectRes;
-		if (!file.getFileExtension().equals("java")) {
+		return (IFile) projectRes;
+	}
+
+	public IFile getJavaIFileForLocation(ISourceLocation loc) {
+		IFile file = getIFileForLocation(loc);
+		if (!file.getFileExtension().equals("java"))
 			throw new Throw(VF.string("Location is not a Java file: " + loc), (ISourceLocation) null, null);
-		}
 		return file;
 	}
-	
 }
