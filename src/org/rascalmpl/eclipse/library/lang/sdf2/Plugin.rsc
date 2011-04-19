@@ -20,7 +20,8 @@ public Module parseDef(str input, loc l) {
   return parse(#SDF, input, l);
 }
 
-public void main() {
+public int main() {
   registerLanguage("SDF2 module", "sdf", parseModule);
   registerLanguage("SDF2 definition", "def", parseDef);
+  return 0;
 }
