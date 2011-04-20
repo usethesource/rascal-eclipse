@@ -10,10 +10,11 @@
  *   * Bert Lisser - Bert.Lisser@cwi.nl (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-*******************************************************************************/
+ *******************************************************************************/
 package org.rascalmpl.eclipse.library.vis;
 
 import java.awt.Graphics2D;
+
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.net.URI;
@@ -31,10 +32,13 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.printing.Printer;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Scrollable;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -48,16 +52,20 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.box.BoxPrinter;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.FigurePApplet;
+import org.rascalmpl.library.vis.FigureSWTApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 
-
 public class FigureViewer extends EditorPart {
-	protected static final String editorId  = "rascal-eclipse.Figure.viewer";
+	final boolean processing = true;
 	
-	private IFigureApplet fpa ;
+	protected static final String editorId = "rascal-eclipse.Figure.viewer";
+
+	private IFigureApplet fpa;
 	private ScrolledComposite sc;
-	
-	private IPartListener2 partListener;
+	// ScrolledComposite sc = null;
+	// Scrollable sc = null;
+
+	private IPartListener partListener;
 
 	private static Image makeSWTImage(Display display, java.awt.Image ai)
 			throws Exception {
@@ -89,19 +97,19 @@ public class FigureViewer extends EditorPart {
 
 	public void print(Printer printer) {
 		if (printer.startJob("FigureViewer")) {
-		java.awt.Image image = ((FigurePApplet) fpa).getImage();
-		GC gc = new GC(printer);
-		try {
-			org.eclipse.swt.graphics.Image im = makeSWTImage(getSite()
-					.getShell().getDisplay(), image);
-			gc.drawImage(im, 20, 20);
-			// gc.drawString("HALLO", 10,  10);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		printer.endJob();
-		gc.dispose();
+			java.awt.Image image = ((FigurePApplet) fpa).getImage();
+			GC gc = new GC(printer);
+			try {
+				org.eclipse.swt.graphics.Image im = makeSWTImage(getSite()
+						.getShell().getDisplay(), image);
+				gc.drawImage(im, 20, 20);
+				// gc.drawString("HALLO", 10, 10);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			printer.endJob();
+			gc.dispose();
 		}
 	}
 
@@ -113,12 +121,9 @@ public class FigureViewer extends EditorPart {
 		if (input instanceof FigureEditorInput) {
 			setSite(site);
 			setInput(input);
-		} 
-		else 
-		if (input instanceof FileEditorInput) {
-				setInput(input);
-			} 
-		else {
+		} else if (input instanceof FileEditorInput) {
+			setInput(input);
+		} else {
 			throw new PartInitException(
 					"Input of Figure visualization is not a Figure object");
 		}
@@ -137,81 +142,90 @@ public class FigureViewer extends EditorPart {
 	@SuppressWarnings("serial")
 	@Override
 	public void createPartControl(Composite parent) {
-		
-		//final int defaultWidth = 400;
-		//final int defaultHeight = 400;
-		
+
+		// final int defaultWidth = 400;
+		// final int defaultHeight = 400;
+
 		final String title;
+		sc = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL
+				| SWT.V_SCROLL);
+		// sc.setLayout(new FillLayout());
+		sc.setAlwaysShowScrollBars(true);
+		sc.setExpandHorizontal(true);
+		sc.setExpandVertical(true);
 		if (getEditorInput() instanceof FigureEditorInput) {
 			FigureEditorInput f = (FigureEditorInput) getEditorInput();
-		    fpa = new FigurePApplet(f.getIString(), f.getFig(), f.getCtx());
-		    title=fpa.getName();
-		}
-		else if (getEditorInput() instanceof FileEditorInput) {
+			if (processing) {
+				fpa = new FigurePApplet(f.getIString(), f.getFig(), f.getCtx());
+				final AwtChild awtChild = new AwtChild(sc, (FigurePApplet) fpa);
+				sc.setContent(awtChild);
+			}
+			else {
+				Canvas canvas = new Canvas(sc, SWT.NONE);
+				fpa = new FigureSWTApplet(canvas, f.getIString().getValue(),
+						f.getFig(), f.getCtx());
+				sc.setContent(canvas);
+			}
+			title = fpa.getName();
+		} else if (getEditorInput() instanceof FileEditorInput) {
 			FileEditorInput fi = (FileEditorInput) getEditorInput();
 			IFile f = fi.getFile();
 			String layout = this.getEditorSite().getId();
 			int start = layout.lastIndexOf(".");
-			layout = layout.substring(start+1);
+			layout = layout.substring(start + 1);
 			URI uri = f.getLocationURI();
-		    IProject p = f.getProject();
-		    BoxPrinter boxPrinter = new BoxPrinter(p);
-		    IConstructor ca = boxPrinter.getFigure(uri, layout);
-		    fpa = new FigurePApplet(ca, null);
-		    title = f.getName();
-		}
-		else return;
-		
-		// Create a scrollable Composite that will contain a new FigurePApplet
-		
-		sc = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		sc.setLayout(new FillLayout());
-		sc.setAlwaysShowScrollBars(true);
-		sc.setExpandHorizontal(true);
-		sc.setExpandVertical(true);
-
+			IProject p = f.getProject();
+			BoxPrinter boxPrinter = new BoxPrinter(p);
+			IConstructor ca = boxPrinter.getFigure(uri, layout);
+			if (processing) {
+				fpa = new FigurePApplet(ca, null);
+			    final AwtChild awtChild = new AwtChild(sc, (FigurePApplet) fpa);
+			    sc.setContent(awtChild);
+			}
+			else {
+				Canvas canvas = new Canvas(sc, SWT.NONE);
+				fpa = new FigureSWTApplet(canvas, ca, null);
+				sc.setContent(canvas);
+			}
+			title = f.getName();
+		} else
+			return;
+		sc.setMinSize( fpa.getFigureWidth(), fpa.getFigureHeight());
+		sc.pack();
 		this.setPartName(title);
-	
-		// Set the contents and size of the scrollable Composite and
-		// its minimal size
-		final AwtChild awtChild = new AwtChild(sc, (FigurePApplet) fpa);
-		sc.setContent(awtChild);
-		
-		// Make sure that the frame gets the focus when the editor is brought to the top
-		
-		partListener = new IPartListener2(){
+
+		// Make sure that the frame gets the focus when the editor is brought to
+		// the top
+		IPartListener2 partListener = new IPartListener2() {
+
 			public void partActivated(IWorkbenchPartReference partRef) {
-				//System.err.println("partActivated");				
+				// System.err.println("partActivated");
 			}
 
 			public void partBroughtToTop(IWorkbenchPartReference partRef) {
-				//System.err.println("partBroughtToTop");
-				awtChild.getFrame().requestFocusInWindow();
+				// System.err.println("partBroughtToTop");
+				// awtChild.getFrame().requestFocusInWindow();
 			}
 
 			public void partClosed(IWorkbenchPartReference partRef) {}
 
 			public void partDeactivated(IWorkbenchPartReference partRef) {}
-
 			public void partHidden(IWorkbenchPartReference partRef) {}
-
-			public void partInputChanged(IWorkbenchPartReference partRef) {}
-
-			public void partOpened(IWorkbenchPartReference partRef) {}
-
 			public void partVisible(IWorkbenchPartReference partRef) {}
-		};
-		
-		getSite().getPage().addPartListener(partListener);
 
+			public void partOpened(IWorkbenchPartReference partRef) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void partInputChanged(IWorkbenchPartReference partRef) {
+				// TODO Auto-generated method stub
+				
+			}
+		};
+
+		getSite().getPage().addPartListener(partListener);
 		
-		int figWidth = fpa.getFigureWidth();
-		int figHeight =  fpa.getFigureHeight();
-		
-		sc.setBounds(0, 0,figWidth, figHeight);
-		sc.setMinSize(figWidth, figHeight);
-		//sc.setMinSize(defaultWidth, defaultHeight);
-		sc.pack();
 	}
 	
 	public void dispose(){
@@ -227,9 +241,12 @@ public class FigureViewer extends EditorPart {
 	}
 
 	@Override
-	public void setFocus() {}
-	
-	public static void open(final IString name, final IConstructor fig,  final IEvaluatorContext ctx) {
+	public void setFocus() {
+	}
+
+	public static void open(final IString name, final IConstructor fig,
+			final IEvaluatorContext ctx) {
+
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
 
@@ -244,8 +261,8 @@ public class FigureViewer extends EditorPart {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						try {
-							page.openEditor(new FigureEditorInput(name, fig, ctx),
-									editorId);
+							page.openEditor(new FigureEditorInput(name, fig,
+									ctx), editorId);
 						} catch (PartInitException e) {
 							Activator.getInstance().logException(
 									"failed to open Figure viewer", e);
