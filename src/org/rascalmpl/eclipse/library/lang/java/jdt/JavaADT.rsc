@@ -10,7 +10,7 @@ module lang::java::jdt::JavaADT
 
 import lang::java::jdt::Java;
 
-@doc{Returns the entity of the AstNode if it can be resolved}
+@doc{Returns the type of the AstNode if it can be resolved}
 anno Entity AstNode@javaType; 
 
 data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstNode] typeDeclarations)
@@ -49,7 +49,7 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| infixExpression(str operator, AstNode leftSide, AstNode rightSide, list[AstNode] extendedOperands)
 				| instanceofExpression(AstNode leftSide, AstNode rightSide)
 				| methodInvocation(Option[AstNode] optionalExpression, list[AstNode] genericTypes, str name, list[AstNode] typedArguments)
-				| superMethodInvocation(Option[str] qualifier, list[AstNode] genericTypes, str name, list[AstNode] typedArguments)
+				| superMethodInvocation(Option[str] optionalQualifier, list[AstNode] genericTypes, str name, list[AstNode] typedArguments)
 				| qualifiedName(str qualifiedName)
 				| simpleName(str simpleName)
 				| nullLiteral()
@@ -58,8 +58,8 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| postfixExpression(AstNode operand, str operator)
 				| prefixExpression(AstNode operand, str operator)
 				| stringLiteral(str stringValue)
-				| superFieldAccess(Option[str] qualifier, str name)
-				| thisExpression(Option[str] qualifierString)
+				| superFieldAccess(Option[str] optionalQualifier, str name)
+				| thisExpression(Option[str] optionalQualifierString)
 				| typeLiteral(AstNode \type)
 				| variableDeclarationExpression(list[Modifier] modifiers, AstNode \type, list[AstNode] fragments)
 						
@@ -74,7 +74,7 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| emptyStatement()
 				| enhancedForStatement(AstNode parameter, AstNode collectionExpression, AstNode body)
 				| expressionStatement(AstNode expression)
-				| forStatement(list[AstNode] initializers, Option[AstNode] booleanExpression, list[AstNode] updaters, AstNode body)
+				| forStatement(list[AstNode] initializers, Option[AstNode] optionalBooleanExpression, list[AstNode] updaters, AstNode body)
 				| ifStatement(AstNode booleanExpression, AstNode thenStatement, Option[AstNode] elseStatement)
 				| labeledStatement(str label, AstNode body)
 				| returnStatement(Option[AstNode] optionalExpression)

@@ -462,9 +462,6 @@ public class JDTImporter extends ASTVisitor {
 	}
 
 	private void addMethodBody(MethodDeclaration method, IMethodBinding methodBinding) {
-		// System.out.println("Current file: " + file.getName());
-		// System.out.println(method.toString());
-
 		JdtAstToRascalAstConverter converter = new JdtAstToRascalAstConverter(VF, typeStore, bindingCache);
 		method.accept(converter);
 
