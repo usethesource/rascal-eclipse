@@ -14,7 +14,6 @@
 package org.rascalmpl.eclipse.library.vis;
 
 import java.awt.Graphics2D;
-
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.net.URI;
@@ -30,15 +29,12 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Scrollable;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -46,6 +42,7 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
@@ -62,24 +59,18 @@ public class FigureViewer extends EditorPart {
 
 	private IFigureApplet fpa;
 	private ScrolledComposite sc;
-	// ScrolledComposite sc = null;
-	// Scrollable sc = null;
 
-	private IPartListener partListener;
+	private IPartListener2 partListener;
 
-	private static Image makeSWTImage(Display display, java.awt.Image ai)
-			throws Exception {
+	private static Image makeSWTImage(Display display, java.awt.Image ai) throws Exception {
 		int width = ai.getWidth(null);
 		int height = ai.getHeight(null);
-		BufferedImage bufferedImage = new BufferedImage(width, height,
-				BufferedImage.TYPE_INT_RGB);
+		BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2d = bufferedImage.createGraphics();
 		g2d.drawImage(ai, 0, 0, null);
 		g2d.dispose();
-		int[] data = ((DataBufferInt) bufferedImage.getData().getDataBuffer())
-				.getData();
-		ImageData imageData = new ImageData(width, height, 24, new PaletteData(
-				0xFF0000, 0x00FF00, 0x0000FF));
+		int[] data = ((DataBufferInt) bufferedImage.getData().getDataBuffer()).getData();
+		ImageData imageData = new ImageData(width, height, 24, new PaletteData(0xFF0000, 0x00FF00, 0x0000FF));
 		imageData.setPixels(0, 0, data.length, data, 0);
 		org.eclipse.swt.graphics.Image swtImage = new Image(display, imageData);
 		return swtImage;
@@ -114,18 +105,13 @@ public class FigureViewer extends EditorPart {
 	}
 
 	@Override
-	public void init(IEditorSite site, IEditorInput input)
-			throws PartInitException {
+	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		setSite(site);
 		// System.err.println("QQQ:"+site.getId());
-		if (input instanceof FigureEditorInput) {
-			setSite(site);
-			setInput(input);
-		} else if (input instanceof FileEditorInput) {
+		if (input instanceof FigureEditorInput || input instanceof FileEditorInput) {
 			setInput(input);
 		} else {
-			throw new PartInitException(
-					"Input of Figure visualization is not a Figure object");
+			throw new PartInitException("Input of Figure visualization is not a Figure object");
 		}
 	}
 
@@ -196,7 +182,7 @@ public class FigureViewer extends EditorPart {
 
 		// Make sure that the frame gets the focus when the editor is brought to
 		// the top
-		IPartListener2 partListener = new IPartListener2() {
+		partListener = new IPartListener2() {
 
 			public void partActivated(IWorkbenchPartReference partRef) {
 				// System.err.println("partActivated");
@@ -208,20 +194,11 @@ public class FigureViewer extends EditorPart {
 			}
 
 			public void partClosed(IWorkbenchPartReference partRef) {}
-
 			public void partDeactivated(IWorkbenchPartReference partRef) {}
 			public void partHidden(IWorkbenchPartReference partRef) {}
 			public void partVisible(IWorkbenchPartReference partRef) {}
-
-			public void partOpened(IWorkbenchPartReference partRef) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			public void partInputChanged(IWorkbenchPartReference partRef) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void partOpened(IWorkbenchPartReference partRef) {}
+			public void partInputChanged(IWorkbenchPartReference partRef) {}
 		};
 
 		getSite().getPage().addPartListener(partListener);
@@ -232,20 +209,15 @@ public class FigureViewer extends EditorPart {
 		IWorkbenchPage page = getSite().getPage();
 		page.removePartListener(partListener);
 		
-		fpa = null; // Make the memory leak less severe.
-		sc = null; // Make the memory leak less severe.
-		
-		setInput(null); // Make the memory leak less severe.
+		Workbench.getInstance().getEditorHistory().remove(getEditorInput());
 		
 		super.dispose();
 	}
 
 	@Override
-	public void setFocus() {
-	}
+	public void setFocus() {}
 
-	public static void open(final IString name, final IConstructor fig,
-			final IEvaluatorContext ctx) {
+	public static void open(final IString name, final IConstructor fig, final IEvaluatorContext ctx) {
 
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
@@ -261,13 +233,10 @@ public class FigureViewer extends EditorPart {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						try {
-							page.openEditor(new FigureEditorInput(name, fig,
-									ctx), editorId);
+							page.openEditor(new FigureEditorInput(name, fig, ctx), editorId);
 						} catch (PartInitException e) {
-							Activator.getInstance().logException(
-									"failed to open Figure viewer", e);
+							Activator.getInstance().logException("failed to open Figure viewer", e);
 						}
-
 					}
 				});
 			}
