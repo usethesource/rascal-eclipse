@@ -565,7 +565,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			
 			String text = event.getText();
 			
-			if(text.equals("\n")){
+			if(text.equals("\n") || text.equals("\r\n")){
 				if(buffer.length() > 0){ // If we just get a new-line token, execute the current 'thing'.
 					buffer.append('\n');
 					String command = buffer.toString();
