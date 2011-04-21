@@ -96,15 +96,15 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 	private Throwable error = null;
 
 	public RascalScriptInterpreter(IProject project){
-		this();
+		super("Rascal");
+		
 		this.project = project;
+
+		this.command = "";
 	}
 	
 	public RascalScriptInterpreter(){
-		super("Rascal");
-
-		this.command = "";
-		this.project = null;
+		this(null);
 	}
 
 	public void initialize(Evaluator eval){

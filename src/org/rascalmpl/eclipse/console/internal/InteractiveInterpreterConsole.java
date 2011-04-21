@@ -49,6 +49,8 @@ import org.eclipse.ui.part.IPageBookViewPage;
 public class InteractiveInterpreterConsole extends TextConsole implements IInterpreterConsole{
 	private final static String CONSOLE_TYPE = InteractiveInterpreterConsole.class.getName();
 	
+	private final static String COMMAND_TERMINATOR = System.getProperty("line.separator");
+	
 	private final IInterpreter interpreter;
 	
 	private final CommandExecutor commandExecutor;
@@ -252,7 +254,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				try{
 					IDocument doc = getDocument();
 					doc.replace(doc.getLength(), 0, line);
-					if(terminateLine) doc.replace(doc.getLength(), 0, "\n");
+					if(terminateLine) doc.replace(doc.getLength(), 0, COMMAND_TERMINATOR);
 					
 					int endOfDocument = doc.getLength();
 					moveCaretTo(endOfDocument);
@@ -325,10 +327,10 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	
 	public void executeCommand(String command){
 		final String cmd;
-		if(command.endsWith("\n")){
+		if(command.endsWith(COMMAND_TERMINATOR)){
 			cmd = command;
 		}else{
-			cmd = command.concat("\n");
+			cmd = command.concat(COMMAND_TERMINATOR);
 		}
 		
 		Display.getDefault().syncExec(new Runnable(){
@@ -466,7 +468,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				return;
 			}
 			
-			if(arg == '\n'){ // If we encounter a new-line, print the content of the buffer.
+			if(arg == '\n' || arg == '\r'){ // If we encounter a new-line, print the content of the buffer.
 				print();
 				return;
 			}
@@ -565,15 +567,15 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			
 			String text = event.getText();
 			
-			if(text.equals("\n") || text.equals("\r\n")){
+			if(text.equals(COMMAND_TERMINATOR)){
 				if(buffer.length() > 0){ // If we just get a new-line token, execute the current 'thing'.
-					buffer.append('\n');
+					buffer.append(COMMAND_TERMINATOR);
 					String command = buffer.toString();
 					reset();
 					
 					console.revertAndAppend(command);
-				}else{ // If there is no current 'thing', just execute the '\n' command.
-					queue("\n", console.getInputOffset());
+				}else{ // If there is no current 'thing', just execute the command terminator ('\n', '\r' or '\r\n') command.
+					queue(COMMAND_TERMINATOR, console.getInputOffset());
 					execute();
 				}
 				return;
@@ -591,7 +593,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				String rest = buffer.toString();
 				boolean commandsQueued = false;
 				do{
-					int index = rest.indexOf('\n');
+					int index = rest.indexOf(COMMAND_TERMINATOR);
 					if(index == -1){
 						reset();
 						buffer.append(rest);
@@ -621,7 +623,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		}
 		
 		public void queue(String command, int commandStartOffset){
-			if(!(command.equals("\n") || command.equals("\r\n"))) console.commandHistory.addToHistory(command);
+			if(!command.equals(COMMAND_TERMINATOR)) console.commandHistory.addToHistory(command);
 			console.commandExecutor.queue(command, commandStartOffset);
 		}
 		
