@@ -502,7 +502,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			enabled = false;
 		}
 		
-		public void reset(){
+		private void reset(){
 			buffer = new byte[DEFAULT_SIZE];
 			index = 0;
 		}

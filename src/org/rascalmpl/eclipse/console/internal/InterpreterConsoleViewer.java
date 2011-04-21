@@ -20,7 +20,7 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 	private final InteractiveInterpreterConsole console;
 	private final CommandHistory history;
 	
-	private StyledText styledText;
+	private InterpreterConsoleStyledText styledText;
 
 	public InterpreterConsoleViewer(InteractiveInterpreterConsole console, Composite parent){
 		super(parent, console);
@@ -34,14 +34,32 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 	public StyledText createTextWidget(Composite parent, int styles){
 		return (styledText != null) ? styledText : (styledText = new InterpreterConsoleStyledText(parent, styles));
 	}
+	
+	public void setEditable(boolean editable){
+		super.setEditable(editable);
+		
+		InterpreterConsoleStyledText styledText = this.styledText;
+		if(styledText != null){
+			if(editable){
+				styledText.enable();
+			}else{
+				styledText.disable();
+			}
+		}
+	}
 
 	private class InterpreterConsoleStyledText extends StyledText{
+		private boolean enabled;
 
 		public InterpreterConsoleStyledText(Composite parent, int style){
 			super(parent, style);
+			
+			enable();
 		}
 
-		public void invokeAction(int action){
+		public synchronized void invokeAction(int action){
+			if(!enabled) return;
+			
 			switch(action){
 				case ST.LINE_UP:
 					history.updateCurrent(console.getCurrentConsoleInput());
@@ -56,6 +74,14 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 			}
 
 			super.invokeAction(action);
+		}
+		
+		public synchronized void enable(){
+			enabled = true;
+		}
+		
+		public synchronized void disable(){
+			enabled = false;
 		}
 	}
 }
