@@ -59,8 +59,7 @@ public class FigureViewer extends EditorPart {
 
 	private IFigureApplet fpa;
 	private ScrolledComposite sc;
-
-
+	
 	private IPartListener2 partListener;
 
 	private static Image makeSWTImage(Display display, java.awt.Image ai) throws Exception {
