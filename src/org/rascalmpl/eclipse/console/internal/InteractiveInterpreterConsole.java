@@ -621,7 +621,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		}
 		
 		public void queue(String command, int commandStartOffset){
-			if(!command.equals("\n")) console.commandHistory.addToHistory(command);
+			if(!(command.equals("\n") || command.equals("\r\n"))) console.commandHistory.addToHistory(command);
 			console.commandExecutor.queue(command, commandStartOffset);
 		}
 		
