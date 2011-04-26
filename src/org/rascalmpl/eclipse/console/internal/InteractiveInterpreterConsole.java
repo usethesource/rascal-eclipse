@@ -21,6 +21,7 @@ import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.FontRegistry;
@@ -412,6 +413,18 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 
 		public TextConsoleViewer createViewer(Composite parent){
 			return new InterpreterConsoleViewer(console, parent);
+		}
+		
+		public void createActions(){
+			// Don't do anything.
+		}
+		
+		public void contextMenuAboutToShow(IMenuManager menuManager){
+			// Don't do anything.
+		}
+		
+		public void configureToolBar(IToolBarManager mgr){
+			// Don't do anything.
 		}
 	}
 	
