@@ -33,6 +33,7 @@ import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IPartListener2;
@@ -53,7 +54,7 @@ import org.rascalmpl.library.vis.FigureSWTApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 
 public class FigureViewer extends EditorPart {
-	final boolean processing = true;
+	final boolean processing = false;
 	
 	protected static final String editorId = "rascal-eclipse.Figure.viewer";
 
@@ -148,6 +149,8 @@ public class FigureViewer extends EditorPart {
 			}
 			else {
 				Canvas canvas = new Canvas(sc, SWT.NONE);
+				// canvas.setBackground(FigureSWTApplet.getColor(SWT.COLOR_YELLOW));
+				// canvas.setBackgroundMode(SWT.INHERIT_NONE);
 				fpa = new FigureSWTApplet(canvas, f.getIString().getValue(),
 						f.getFig(), f.getCtx());
 				sc.setContent(canvas);
