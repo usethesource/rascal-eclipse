@@ -121,7 +121,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			addGroup(views);
 		}
 		catch (Throwable e) {
-			Activator.getInstance().logException("could not create outline", e);
+			//Activator.getInstance().logException("could not create outline", e);
 			return;
 		}
 	}
