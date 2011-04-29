@@ -48,7 +48,6 @@ import org.rascalmpl.ast.Prod.Others;
 import org.rascalmpl.ast.Prod.Reference;
 import org.rascalmpl.ast.Prod.Unlabeled;
 import org.rascalmpl.ast.Toplevel.GivenVisibility;
-import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
