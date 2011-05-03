@@ -74,7 +74,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		this.interpreter = interpreter;
 		commandExecutor = new CommandExecutor(this);
 		consoleOutputStream = new ConsoleOutputStream(this);
-		interpreter.setConsole(this); // Sucks but has to happen.
+		interpreter.setConsole(this); 
 		
 		this.prompt = prompt;
 		this.continuationPrompt = continuationPrompt;
@@ -117,7 +117,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		commandExecutorThread.setDaemon(true);
 		commandExecutorThread.setName("Console Command Executor");
 
-		// This stinks, but works.
+		// TODO: refactor to use an Eclipse provided extension point for console toolbar items
 		new Thread(){
 			public void run(){
 				do{
