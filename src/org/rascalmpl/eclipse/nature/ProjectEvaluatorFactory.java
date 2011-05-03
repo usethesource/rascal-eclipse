@@ -23,6 +23,7 @@ import java.util.WeakHashMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.rascalmpl.eclipse.Activator;
@@ -111,7 +112,12 @@ public class ProjectEvaluatorFactory {
 	public void initializeProjectEvaluator(IProject project, Evaluator parser) {
 		if (project != null) {
 			try {
-				parser.addRascalSearchPath(new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+				if (project.exists(new Path(IRascalResources.RASCAL_SRC))) {
+					parser.addRascalSearchPath(new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+				}
+				else {
+					parser.addRascalSearchPath(new URI("project://" + project.getName() + "/"));
+				}
 			} catch (URISyntaxException usex) {
 				throw new RuntimeException(usex);
 			}

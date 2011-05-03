@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.CoreException;
 import java.io.*;
 import org.eclipse.ui.*;
 import org.eclipse.ui.ide.IDE;
+import org.rascalmpl.eclipse.IRascalResources;
 
 public class NewRascalFile extends Wizard implements INewWizard {
 	private NewRascalFilePage page;
@@ -56,7 +57,13 @@ public class NewRascalFile extends Wizard implements INewWizard {
 						fileToCreate = containerName.substring(till + 1) + "/" + filename;
 					}
 					
-					fileToCreate = fileToCreate.startsWith("/src/") ? fileToCreate : "/src/" + fileToCreate;
+					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+					IProject project = root.findMember(new Path(containerName)).getProject();
+					
+					if (project.exists(new Path(IRascalResources.RASCAL_SRC))) {
+						fileToCreate = fileToCreate.startsWith("/src/") ? fileToCreate : "/src/" + fileToCreate;
+					}
+					
 					fileToCreate = fileToCreate.endsWith(".rsc") ? fileToCreate : fileToCreate + ".rsc";
 					
 					moduleName = fileToCreate;
