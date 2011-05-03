@@ -619,7 +619,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 					commandStartOffset += index;
 					commandsQueued = true;
 					
-					rest = rest.substring(index + 1);
+					rest = rest.substring(index + COMMAND_TERMINATOR.length());
 				}while(true);
 				
 				if(commandsQueued) execute();
