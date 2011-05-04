@@ -16,9 +16,6 @@ import IO;
 import ToString;
 import Node;
 
-import util::AstUtil;
-
-
 @doc{Construct a nano pattern profile for the given method}
 public NanoPatternProfile analyse(AstNode method, list[Entity] fieldsInClass) {
 	list[str] classFieldnames = getClassFieldnames(fieldsInClass);
@@ -122,7 +119,7 @@ private bool isFieldReader(AstNode method, list[str] classFieldnames, list[str] 
 	visit(alteredMethod) {
 		case fieldAccess(_,_) : return true; // reads field on other or this (explicit this) object
 		case simpleName(name:_) : {
-			// Whatch out for shadowing, method variables have precedence over class attributes
+			// Watch out for shadowing, method variables have precedence over class attributes
 			if ((name in classFieldnames) && (name notin methodVariablenames)) {
 				return true; // read field on this object (implicit this)
 			}
@@ -263,5 +260,64 @@ private bool isArrayWriter(AstNode method) {
 
 @doc{Display the given nano pattern profile as text}
 public str asString(NanoPatternProfile profile) {
-	return toString(domain(profile.patterns));
+	return toString([patternName | patternName <- profile.patterns, profile.patterns[patternName]]);
+}
+
+private str getMethodname(AstNode method) {
+	str methodname = "";
+	
+	if (methodDeclaration(_,_,_,name:_,_,_,_) := method) {
+		methodname = name;
+	}
+	
+	return methodname;
+}
+
+private list[Entity] getTypesOfParameters(AstNode method) {
+	list[Entity] types = [];
+	
+	if (methodDeclaration(_,_,_,_,params:_,_,_) := method) {
+		for (param <- params) {
+			
+			if (singleVariableDeclaration(_,_,paramType:_,_,_) := param) {
+				if ((paramType@javaType) ?) {
+					types += paramType@javaType;
+				}
+			}  
+		}
+	}
+	
+	return types;
+}
+
+private list[str] getClassFieldnames(list[Entity] fieldsInClass) {
+	return [fieldname | current <- fieldsInClass, /field(fieldname:_) := current];
+}
+
+private list[str] getMethodVariablenames(AstNode method) {
+	list[str] variableNames = [];
+	
+	// 1: Get all the method parameternames
+	if (methodDeclaration(_,_,_,_,params:_,_,_) := method) {
+		for (param <- params) {		
+			if (singleVariableDeclaration(name:_,_,_,_,_) := param) {
+				variableNames += name;				
+			}
+		}
+	}
+	
+	// 2: Find all the locally created variables
+	for(/variableDeclarationFragment(name:_,_) := method) {
+		variableNames += name;
+	}
+	
+	return variableNames;
+}
+
+private AstNode getMethodImplementation(AstNode method) {
+	if (methodDeclaration(_,_,_,_,_,_,some(implementation:_)) := method) {
+		return implementation;
+	}
+	
+	return nullLiteral();	
 }
