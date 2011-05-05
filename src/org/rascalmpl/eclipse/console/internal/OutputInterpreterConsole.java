@@ -151,12 +151,10 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		commandExecutor.execute(command);
 	}
 	
-	// NOTE: This method here as a 'hack' and can only be used in a single threaded fashion (by me and noone else!).
 	public void executeCommandAndWait(String command){
 		commandExecutor.executeAndWait(command);
 	}
 
-	// NOTE: This method here as a 'hack' and can only be used in a single threaded fashion (by me and noone else!).
 	public void unblock(){
 		commandExecutor.unblock();
 	}

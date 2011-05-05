@@ -146,8 +146,6 @@ public class SourceLocationHyperlink implements IHyperlink {
 							}
 						}
 						else if (scheme.equals("std")) {
-							// NOTE: This is a terrible hack
-							// TODO: Fix this, making it something reasonable
 							try {
 								uri = new URI(uri.toString().replaceFirst("std:///", "rascal-library://rascal/"));
 								return getEditorInput(uri);

@@ -226,7 +226,7 @@ public class FigureViewer extends EditorPart {
 			 }
 		});
 		
-		// An extra panel (a hack that is needed on older JDKs)
+		// An extra panel (needed on older JDKs)
 		
 		final Panel panel = new Panel(new BorderLayout()) {
 		     @Override
