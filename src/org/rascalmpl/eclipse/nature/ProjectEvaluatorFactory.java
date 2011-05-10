@@ -29,6 +29,7 @@ import org.eclipse.imp.runtime.RuntimePlugin;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
+import org.rascalmpl.eclipse.uri.BootstrapURIResolver;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Configuration;
@@ -155,6 +156,9 @@ public class ProjectEvaluatorFactory {
 		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
 		resolverRegistry.registerInput(bundleResolver);
 		resolverRegistry.registerOutput(bundleResolver);
+		
+		BootstrapURIResolver bootResolver = new BootstrapURIResolver();
+		resolverRegistry.registerInputOutput(bootResolver);
 
 		try {
 			String rascalPlugin = jarForPlugin("rascal");

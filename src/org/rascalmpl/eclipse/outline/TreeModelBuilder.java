@@ -36,7 +36,6 @@ import org.rascalmpl.ast.Declaration.Function;
 import org.rascalmpl.ast.Declaration.Rule;
 import org.rascalmpl.ast.Declaration.Tag;
 import org.rascalmpl.ast.Declaration.Variable;
-import org.rascalmpl.ast.Declaration.View;
 import org.rascalmpl.ast.Module.Default;
 import org.rascalmpl.ast.Prod.Action;
 import org.rascalmpl.ast.Prod.All;
@@ -59,7 +58,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 	public static final int CATEGORY_RULE = 5;
 	public static final int CATEGORY_TAG = 6;
 	public static final int CATEGORY_VARIABLE = 7;
-	public static final int CATEGORY_VIEW = 8;
 	public static final int CATEGORY_SYNTAX = 9;
 	
 	
@@ -70,7 +68,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 	private Group<Group<AbstractAST>> adts;
 	private Group<AbstractAST> annos;
 	private Group<AbstractAST> tags;
-	private Group<AbstractAST> views;
 	private Group<AbstractAST> rules;
 	private Group<AbstractAST> imports;
 	
@@ -100,7 +97,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			adts = new Group<Group<AbstractAST>>("Types",loc);
 			annos = new Group<AbstractAST>("Annotations",loc);
 			tags = new Group<AbstractAST>("Tags",loc);
-			views = new Group<AbstractAST>("Views",loc);
 			rules = new Group<AbstractAST>("Rules",loc);
 			imports = new Group<AbstractAST>("Imports", loc);
 			syntax = new Group<Group<AbstractAST>>("Syntax", loc);
@@ -117,7 +113,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			addGroup(rules);
 			addGroup(annos);
 			addGroup(tags);
-			addGroup(views);
 		}
 		catch (Throwable e) {
 			//Activator.getInstance().logException("could not create outline", e);
@@ -282,11 +277,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 				variables.add(v);
 			}
 			return x;
-		}
-		
-		@Override
-		public AbstractAST visitDeclarationView(View x) {
-			return views.add(x);
 		}
 	}
 

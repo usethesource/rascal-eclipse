@@ -150,13 +150,19 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 	public void executeCommand(String command){
 		commandExecutor.execute(command);
 	}
-	
-	// NOTE: This method here as a 'hack' and can only be used in a single threaded fashion (by me and noone else!).
+
+        /**
+         * Do not call this method unless you're absolutely sure you
+         * understand the concurrency implications. (Arnold Lankamp)
+         */	 
 	public void executeCommandAndWait(String command){
 		commandExecutor.executeAndWait(command);
 	}
 
-	// NOTE: This method here as a 'hack' and can only be used in a single threaded fashion (by me and noone else!).
+        /**
+         * Do not call this method unless you're absolutely sure you
+         * understand the concurrency implications. (Arnold Lankamp)
+         */	 
 	public void unblock(){
 		commandExecutor.unblock();
 	}
