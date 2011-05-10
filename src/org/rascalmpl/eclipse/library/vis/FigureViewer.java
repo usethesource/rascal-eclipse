@@ -48,29 +48,31 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.box.BoxPrinter;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.FigurePApplet;
 import org.rascalmpl.library.vis.FigureSWTApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
 
 public class FigureViewer extends EditorPart {
-	final boolean processing = false;
-	
+
 	protected static final String editorId = "rascal-eclipse.Figure.viewer";
 
 	private IFigureApplet fpa;
 	private ScrolledComposite sc;
-	
+
 	private IPartListener2 partListener;
 
-	private static Image makeSWTImage(Display display, java.awt.Image ai) throws Exception {
+	private static Image makeSWTImage(Display display, java.awt.Image ai)
+			throws Exception {
 		int width = ai.getWidth(null);
 		int height = ai.getHeight(null);
-		BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		BufferedImage bufferedImage = new BufferedImage(width, height,
+				BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2d = bufferedImage.createGraphics();
 		g2d.drawImage(ai, 0, 0, null);
 		g2d.dispose();
-		int[] data = ((DataBufferInt) bufferedImage.getData().getDataBuffer()).getData();
-		ImageData imageData = new ImageData(width, height, 24, new PaletteData(0xFF0000, 0x00FF00, 0x0000FF));
+		int[] data = ((DataBufferInt) bufferedImage.getData().getDataBuffer())
+				.getData();
+		ImageData imageData = new ImageData(width, height, 24, new PaletteData(
+				0xFF0000, 0x00FF00, 0x0000FF));
 		imageData.setPixels(0, 0, data.length, data, 0);
 		org.eclipse.swt.graphics.Image swtImage = new Image(display, imageData);
 		return swtImage;
@@ -81,37 +83,36 @@ public class FigureViewer extends EditorPart {
 	}
 
 	@Override
-	public void doSave(IProgressMonitor monitor) {}
-
-	@Override
-	public void doSaveAs() {}
-
-	public void print(Printer printer) {
-		if (printer.startJob("FigureViewer")) {
-			java.awt.Image image = ((FigurePApplet) fpa).getImage();
-			GC gc = new GC(printer);
-			try {
-				org.eclipse.swt.graphics.Image im = makeSWTImage(getSite()
-						.getShell().getDisplay(), image);
-				gc.drawImage(im, 20, 20);
-				// gc.drawString("HALLO", 10, 10);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			printer.endJob();
-			gc.dispose();
-		}
+	public void doSave(IProgressMonitor monitor) {
 	}
 
 	@Override
-	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
+	public void doSaveAs() {
+	}
+
+	public void print(Printer printer) {
+		/*
+		 * if (printer.startJob("FigureViewer")) { java.awt.Image image =
+		 * ((FigurePApplet) fpa).getImage(); GC gc = new GC(printer); try {
+		 * org.eclipse.swt.graphics.Image im = makeSWTImage(getSite()
+		 * .getShell().getDisplay(), image); gc.drawImage(im, 20, 20); //
+		 * gc.drawString("HALLO", 10, 10); } catch (Exception e) { // TODO
+		 * Auto-generated catch block e.printStackTrace(); } printer.endJob();
+		 * gc.dispose(); }
+		 */
+	}
+
+	@Override
+	public void init(IEditorSite site, IEditorInput input)
+			throws PartInitException {
 		setSite(site);
 		// System.err.println("QQQ:"+site.getId());
-		if (input instanceof FigureEditorInput || input instanceof FileEditorInput) {
+		if (input instanceof FigureEditorInput
+				|| input instanceof FileEditorInput) {
 			setInput(input);
 		} else {
-			throw new PartInitException("Input of Figure visualization is not a Figure object");
+			throw new PartInitException(
+					"Input of Figure visualization is not a Figure object");
 		}
 	}
 
@@ -141,19 +142,12 @@ public class FigureViewer extends EditorPart {
 		sc.setExpandVertical(true);
 		if (getEditorInput() instanceof FigureEditorInput) {
 			FigureEditorInput f = (FigureEditorInput) getEditorInput();
-			if (processing) {
-				fpa = new FigurePApplet(f.getIString(), f.getFig(), f.getCtx());
-				final AwtChild awtChild = new AwtChild(sc, (FigurePApplet) fpa);
-				sc.setContent(awtChild);
-			}
-			else {
-				Canvas canvas = new Canvas(sc, SWT.NONE);
-				// canvas.setBackground(FigureSWTApplet.getColor(SWT.COLOR_YELLOW));
-				// canvas.setBackgroundMode(SWT.INHERIT_NONE);
-				fpa = new FigureSWTApplet(canvas, f.getIString().getValue(),
-						f.getFig(), f.getCtx());
-				sc.setContent(canvas);
-			}
+			Canvas canvas = new Canvas(sc, SWT.NONE);
+			// canvas.setBackground(FigureSWTApplet.getColor(SWT.COLOR_YELLOW));
+			// canvas.setBackgroundMode(SWT.INHERIT_NONE);
+			fpa = new FigureSWTApplet(canvas, f.getIString().getValue(),
+					f.getFig(), f.getCtx());
+			sc.setContent(canvas);
 			title = fpa.getName();
 		} else if (getEditorInput() instanceof FileEditorInput) {
 			FileEditorInput fi = (FileEditorInput) getEditorInput();
@@ -165,20 +159,13 @@ public class FigureViewer extends EditorPart {
 			IProject p = f.getProject();
 			BoxPrinter boxPrinter = new BoxPrinter(p);
 			IConstructor ca = boxPrinter.getFigure(uri, layout);
-			if (processing) {
-				fpa = new FigurePApplet(ca, null);
-			    final AwtChild awtChild = new AwtChild(sc, (FigurePApplet) fpa);
-			    sc.setContent(awtChild);
-			}
-			else {
-				Canvas canvas = new Canvas(sc, SWT.NONE);
-				fpa = new FigureSWTApplet(canvas, ca, null);
-				sc.setContent(canvas);
-			}
+			Canvas canvas = new Canvas(sc, SWT.NONE);
+			fpa = new FigureSWTApplet(canvas, ca, null);
+			sc.setContent(canvas);
 			title = f.getName();
 		} else
 			return;
-		sc.setMinSize( fpa.getFigureWidth(), fpa.getFigureHeight());
+		sc.setMinSize(fpa.getFigureWidth(), fpa.getFigureHeight());
 		sc.pack();
 		this.setPartName(title);
 
@@ -195,31 +182,44 @@ public class FigureViewer extends EditorPart {
 				// awtChild.getFrame().requestFocusInWindow();
 			}
 
-			public void partClosed(IWorkbenchPartReference partRef) {}
-			public void partDeactivated(IWorkbenchPartReference partRef) {}
-			public void partHidden(IWorkbenchPartReference partRef) {}
-			public void partVisible(IWorkbenchPartReference partRef) {}
-			public void partOpened(IWorkbenchPartReference partRef) {}
-			public void partInputChanged(IWorkbenchPartReference partRef) {}
+			public void partClosed(IWorkbenchPartReference partRef) {
+			}
+
+			public void partDeactivated(IWorkbenchPartReference partRef) {
+			}
+
+			public void partHidden(IWorkbenchPartReference partRef) {
+			}
+
+			public void partVisible(IWorkbenchPartReference partRef) {
+			}
+
+			public void partOpened(IWorkbenchPartReference partRef) {
+			}
+
+			public void partInputChanged(IWorkbenchPartReference partRef) {
+			}
 		};
 
 		getSite().getPage().addPartListener(partListener);
-		
+
 	}
-	
-	public void dispose(){
+
+	public void dispose() {
 		IWorkbenchPage page = getSite().getPage();
 		page.removePartListener(partListener);
-		
+
 		Workbench.getInstance().getEditorHistory().remove(getEditorInput());
-		
+
 		super.dispose();
 	}
 
 	@Override
-	public void setFocus() {}
+	public void setFocus() {
+	}
 
-	public static void open(final IString name, final IConstructor fig, final IEvaluatorContext ctx) {
+	public static void open(final IString name, final IConstructor fig,
+			final IEvaluatorContext ctx) {
 
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
@@ -235,9 +235,11 @@ public class FigureViewer extends EditorPart {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						try {
-							page.openEditor(new FigureEditorInput(name, fig, ctx), editorId);
+							page.openEditor(new FigureEditorInput(name, fig,
+									ctx), editorId);
 						} catch (PartInitException e) {
-							Activator.getInstance().logException("failed to open Figure viewer", e);
+							Activator.getInstance().logException(
+									"failed to open Figure viewer", e);
 						}
 					}
 				});
