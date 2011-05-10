@@ -66,7 +66,7 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 	}
 	
 	public CommandHistory getHistory(){
-		return null; // Unsupported
+		throw new UnsupportedOperationException("History commands are not supported by non-interactive consoles.");
 	}
 	
 	public void initializeConsole(){
