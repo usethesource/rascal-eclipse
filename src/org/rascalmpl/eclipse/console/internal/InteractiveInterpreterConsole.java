@@ -116,8 +116,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		final Thread commandExecutorThread = new Thread(commandExecutor);
 		commandExecutorThread.setDaemon(true);
 		commandExecutorThread.setName("Console Command Executor");
-
-		// TODO: refactor to use an Eclipse provided extension point for console toolbar items
+		
 		new Thread(){
 			public void run(){
 				do{
@@ -381,6 +380,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	public void historyCommand(final String command){
 		Display.getDefault().syncExec(new Runnable(){
 			public void run(){
+				documentListener.reset();
+				
 				IDocument doc = getDocument();
 				try{
 					doc.replace(inputOffset, doc.getLength() - inputOffset, command);
@@ -541,14 +542,14 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		
 		private volatile boolean enabled;
 		
-		private final StringBuffer buffer;
+		private final StringBuilder buffer;
 		
 		public ConsoleDocumentListener(InteractiveInterpreterConsole console){
 			super();
 			
 			this.console = console;
 			
-			buffer = new StringBuffer();
+			buffer = new StringBuilder();
 			
 			enabled = false;
 		}
@@ -575,7 +576,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			// Don't care.
 		}
 		
-		public void documentChanged(DocumentEvent event){
+		public synchronized void documentChanged(DocumentEvent event){
 			if(!enabled) return;
 			
 			String text = event.getText();
@@ -631,7 +632,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			}
 		}
 		
-		public String getCurrentBufferContent(){
+		public synchronized String getCurrentBufferContent(){
 			return buffer.toString();
 		}
 		
@@ -640,11 +641,11 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			console.commandExecutor.queue(command, commandStartOffset);
 		}
 		
-		public void execute(){
+		private void execute(){
 			console.commandExecutor.execute();
 		}
 		
-		public void reset(){
+		public synchronized void reset(){
 			buffer.delete(0, buffer.length());
 		}
 	}
