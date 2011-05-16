@@ -7,6 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Davy Landman - Davy.Landman@cwi.nl - CWI}
 module vis::Render
 
 import vis::Figure;
@@ -39,4 +40,9 @@ public void java setHighlightColors(list[Color] colors);
 @doc{Open a source editor}
 @javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
 public void java edit(loc file, list[LineDecoration] lineInfo);
+
+alias ComputedLineDecorations = list[LineDecoration] ();
+@doc{Open a source editor, but with computed line dectorations}
+@javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
+public void java edit(loc file,  ComputedLineDecorations lineInfo);
 

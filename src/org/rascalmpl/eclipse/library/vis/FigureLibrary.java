@@ -9,11 +9,14 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Davy Landman - Davy.Landman@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.vis;
 
 import java.net.URI;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -31,6 +34,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.IDocument;
@@ -43,8 +47,10 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -56,6 +62,8 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.FigureColorUtils;
 
 public class FigureLibrary {
@@ -109,6 +117,10 @@ public class FigureLibrary {
 		}		
 	}
 	
+	
+	
+	
+	
 	/**
 	 * Start an editor for a given source location
 	 * 
@@ -119,7 +131,20 @@ public class FigureLibrary {
 	 */
 	
 	public void edit(final ISourceLocation loc, final IList lineInfo) {
-
+		edit(loc, (IValue)lineInfo);
+	}
+	
+	
+	/**
+	 * Start an editor for a given source location
+	 * 
+	 * @param loc		The source location to be edited
+	 * @param lineInfo	A list of LineDecorations (see Render.rsc) or a Computed list of LineDecorations
+	 * 
+	 * Code is cloned from SourceLocationHyperlink (but heavily adapted)
+	 */	
+	public void edit(final ISourceLocation loc, final IValue lineInfo) {
+		final Boolean computedLineInfo = lineInfo instanceof ICallableValue; 
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
 
@@ -129,7 +154,7 @@ public class FigureLibrary {
 
 		if (win != null) {
 			final IWorkbenchPage page = win.getActivePage();
-
+			page.addPartListener(annotationListener);
 			if (page != null) {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
@@ -149,6 +174,9 @@ public class FigureLibrary {
 
 								if (!(editorPart instanceof ITextEditor)) {
 									return;
+								}
+								if (computedLineInfo) {
+									annotationRunners.put(editorPart, this);
 								}
 
 								ITextEditor editor = (ITextEditor) editorPart;
@@ -179,9 +207,16 @@ public class FigureLibrary {
 											if(anno.getType().startsWith("rascal.highlight"))
 												annotationModel.removeAnnotation(anno);
 										}
-									}		
-
-									for(IValue v : lineInfo){
+									}	
+									IList actualLineInfo;
+									if (computedLineInfo) {
+										Result<?> result = (Result<?>)((ICallableValue)lineInfo).call(new Type[0], new IValue[0]);
+										actualLineInfo = (IList)(result.getValue());
+									}
+									else {
+										actualLineInfo = (IList)lineInfo;
+									}
+									for(IValue v : actualLineInfo){
 										IConstructor lineDecor = (IConstructor) v;
 										int lineNumber = ((IInteger)lineDecor.get(0)).intValue();
 										String msg = ((IString)lineDecor.get(1)).getValue();
@@ -217,7 +252,7 @@ public class FigureLibrary {
 											}
 						
 											String highlightName = RASCAL_LINE_HIGHLIGHT[highlightKind];
-
+											
 											try {
 												// line count internally starts with 0, and not with 1 like in GUI
 												IRegion lineInfo = document.getLineInformation(lineNumber - 1);
@@ -277,4 +312,38 @@ public class FigureLibrary {
 			}
 		}
 	}
+	
+	/*
+	 * This is the storage of WorkbenchPart and their associated annotation runners.
+	 */
+	private final static Map<IWorkbenchPart, Runnable> annotationRunners = new ConcurrentHashMap<IWorkbenchPart, Runnable>();
+	private final static IPartListener annotationListener = new IPartListener() {
+		@Override
+		public void partActivated(IWorkbenchPart part) {
+			Runnable runAgain = annotationRunners.get(part);
+			if (runAgain != null) {
+				Display.getDefault().asyncExec(runAgain);
+			}
+		}
+
+		@Override
+		public void partClosed(IWorkbenchPart part) {
+			annotationRunners.remove(part);
+		}
+		
+		
+		@Override
+		public void partBroughtToTop(IWorkbenchPart part) {
+		}
+
+		@Override
+		public void partDeactivated(IWorkbenchPart part) {
+		}
+
+		@Override
+		public void partOpened(IWorkbenchPart part) {
+		}
+		
+		
+	};
 }
