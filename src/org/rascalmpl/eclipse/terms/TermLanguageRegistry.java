@@ -32,6 +32,7 @@ public class TermLanguageRegistry {
 	private final Map<String, ICallableValue> analyses = new HashMap<String,ICallableValue>();
 	private final Map<String, ICallableValue> outliners = new HashMap<String,ICallableValue>();
 	private final Map<String, ISet> contributions = new HashMap<String, ISet>();
+	private final Map<String, ISet> nonRascalContributions = new HashMap<String, ISet>();
 
 	static private class InstanceKeeper {
 		public static TermLanguageRegistry sInstance = new TermLanguageRegistry();
@@ -52,6 +53,10 @@ public class TermLanguageRegistry {
 		contributions.clear();
 	}
 	
+	public void clearNonRascal() {
+		nonRascalContributions.clear();
+	}
+	
 	public void clear(String value) {
 		Language lang = LanguageRegistry.findLanguage(value);
 		if (lang != null) {
@@ -63,6 +68,10 @@ public class TermLanguageRegistry {
 		analyses.remove(value);
 		outliners.remove(value);
 		contributions.remove(value);
+	}
+	
+	public void clearNonRascal(String value) {
+		nonRascalContributions.remove(value);
 	}
 	
 	public void registerLanguage(String name, String extension, ICallableValue parser, IEvaluatorContext ctx) {
@@ -83,6 +92,10 @@ public class TermLanguageRegistry {
 	
 	public void registerContributions(String lang, ISet set) {
 		contributions.put(lang, set);
+	}
+	
+	public void registerNonRascalContributions(String lang, ISet set) {
+		nonRascalContributions.put(lang, set);
 	}
 
 	public Language getLanguage(String fileExtension) {
@@ -128,7 +141,14 @@ public class TermLanguageRegistry {
 		return contributions.get(lang.getName());
 	}
 
+	public ISet getNonRascalContributions(String editorId) {
+		return nonRascalContributions.get(editorId);
+	}
+	
+	
 	public ICallableValue getAnnotator(String name) {
 		return analyses.get(name);
 	}
+
+
 }

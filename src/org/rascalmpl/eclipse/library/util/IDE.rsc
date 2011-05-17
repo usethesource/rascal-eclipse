@@ -6,6 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Davy Landman - Davy.Landman@cwi.nl - CWI}
 module util::IDE
 
 // Especially annotations defined in this module are relevant for util::IDE
@@ -19,6 +20,7 @@ data Contribution
   
 data Menu 
   = action(str label, void (Tree tree, loc selection) action)
+  | click(str label, void (loc selection) click) // for non rascal menu's
   | edit(str label, str (Tree tree, loc selection) edit)
   | group(str label, list[Menu] members)
   | menu(str label, list[Menu] members)
@@ -64,3 +66,18 @@ public void java clearLanguages();
 @doc{Use with caution! This will clear a registered language (for debugging purposes)}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public void java clearLanguage(str name);
+
+@doc{This registers a number of contributions to the menus of the a non rascal code editor
+	@name: eclipse editor id
+	@contributions: (edit is not supported), and Tree parameter of the callback will be empty)}
+@javaClass{org.rascalmpl.eclipse.library.util.IDE}
+public void java registerNonRascalContributions(str name, set[Contribution] contributions);
+
+@doc{This will clear all non rascal IDE contributions.}
+@javaClass{org.rascalmpl.eclipse.library.util.IDE}
+public void java clearNonRascalContributions();
+
+@doc{This will clear all non rascal IDE contributions for the specified editor.
+	@name: eclipse editor id}
+@javaClass{org.rascalmpl.eclipse.library.util.IDE}
+public void java clearNonRascalContribution(str name);

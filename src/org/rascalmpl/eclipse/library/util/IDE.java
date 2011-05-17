@@ -8,6 +8,7 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
+ *   * Davy Landman - Davy.Landman@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.util;
 
@@ -48,6 +49,19 @@ public class IDE {
 	public void registerContributions(IString name, ISet contributions) {
 		TermLanguageRegistry.getInstance().registerContributions(name.getValue(),contributions);
 	}
+	
+	public void registerNonRascalContributions(IString name, ISet contributions) {
+		TermLanguageRegistry.getInstance().registerNonRascalContributions(name.getValue(),contributions);
+	}
+	
+	public void clearNonRascalContributions() {
+		TermLanguageRegistry.getInstance().clearNonRascal();
+	}
+
+	public void clearNonRascalContribution(IString name) {
+		TermLanguageRegistry.getInstance().clearNonRascal(name.getValue());
+	}
+
 	
 	public void clearLanguages() {
 		TermLanguageRegistry.getInstance().clear();
