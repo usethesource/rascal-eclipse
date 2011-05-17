@@ -52,9 +52,10 @@ public class FigureViewer extends EditorPart {
 	private IFigureApplet fpa;
 	private ScrolledComposite sc;
 
+	private IConstructor figure;
+
 	private IPartListener2 partListener;
 
-	
 	public FigureViewer() {
 		super();
 	}
@@ -77,6 +78,12 @@ public class FigureViewer extends EditorPart {
 		 * Auto-generated catch block e.printStackTrace(); } printer.endJob();
 		 * gc.dispose(); }
 		 */
+		if (printer.startJob("Figure")) {
+			fpa = new FigureSWTApplet(printer, figure, null);
+			fpa.print();
+			printer.endJob();
+			fpa.dispose();
+		}
 	}
 
 	@Override
@@ -121,8 +128,9 @@ public class FigureViewer extends EditorPart {
 			Canvas canvas = new Canvas(sc, SWT.NONE);
 			// canvas.setBackground(FigureSWTApplet.getColor(SWT.COLOR_YELLOW));
 			// canvas.setBackgroundMode(SWT.INHERIT_NONE);
+			figure = f.getFig();
 			fpa = new FigureSWTApplet(canvas, f.getIString().getValue(),
-					f.getFig(), f.getCtx());
+					figure, f.getCtx());
 			sc.setContent(canvas);
 			title = fpa.getName();
 		} else if (getEditorInput() instanceof FileEditorInput) {
@@ -134,9 +142,9 @@ public class FigureViewer extends EditorPart {
 			URI uri = f.getLocationURI();
 			IProject p = f.getProject();
 			BoxPrinter boxPrinter = new BoxPrinter(p);
-			IConstructor ca = boxPrinter.getFigure(uri, layout);
+			figure = boxPrinter.getFigure(uri, layout);
 			Canvas canvas = new Canvas(sc, SWT.NONE);
-			fpa = new FigureSWTApplet(canvas, ca, null);
+			fpa = new FigureSWTApplet(canvas, figure, null);
 			sc.setContent(canvas);
 			title = f.getName();
 		} else
