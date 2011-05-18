@@ -137,11 +137,11 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 			IHandler handler = new AbstractHandler() {
 				@Override
 				public Object execute(ExecutionEvent event) throws ExecutionException {
-					ITextSelection selection = (ITextSelection)HandlerUtil.getCurrentSelection(event);
+					ITextSelection selection = (ITextSelection)HandlerUtil.getActiveWorkbenchWindowChecked(event).getSelectionService().getSelection();
 					IEditorPart activeEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 					String fileName = activeEditor.getEditorInput().getName();
 					
-					ISourceLocation selectedLine = VF.sourceLocation(fileName, selection.getStartLine() ,selection.getLength(),  -1, -1, -1, -1);
+					ISourceLocation selectedLine = VF.sourceLocation(fileName, selection.getStartLine()+1 , (selection.getEndLine() - selection.getStartLine()) + 1 , -1,-1,-1,-1);
 					if (selectedLine != null) {
 						func.call(new Type[] { TF.sourceLocationType() }, new IValue[] {selectedLine });
 					}
