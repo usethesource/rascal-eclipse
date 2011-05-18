@@ -4,6 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.Category;
@@ -11,8 +13,6 @@ import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -21,13 +21,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.CompoundContributionItem;
@@ -39,7 +34,6 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.services.IServiceLocator;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -50,7 +44,6 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 	private static String NON_RASCAL_CONTRIBUTION_COMMAND_CATEGORY = "org.rascalmpl.eclipse.library.util.NRCMCC";
 	private static String NON_RASCAL_CONTRIBUTION_COMMAND_PREFIX = "org.rascalmpl.eclipse.library.util.NRCMCP";
 	private final static TypeFactory TF = TypeFactory.getInstance();
-	private final static RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
 	
@@ -70,36 +63,61 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
         super(id);
     }
     
+    private class ContributionCacheItem {
+    	public ISet rascalContributions;
+    	public List<String> eclipseContributionsIds;
+    }
+    private static Map<String, ContributionCacheItem> contributionCache = new ConcurrentHashMap<String, ContributionCacheItem>();
+    
 	
 	@Override
 	protected IContributionItem[] getContributionItems() {
-		String currentEditor = getCurrentEditorID();
-		System.out.println(currentEditor);
-		ISet contribs = TermLanguageRegistry.getInstance().getNonRascalContributions(currentEditor);
+		String currentEditorId = getCurrentEditorID();
+		if (currentEditorId.isEmpty()) {
+			return new IContributionItem[0];
+		}
+		ISet contribs = TermLanguageRegistry.getInstance().getNonRascalContributions(currentEditorId);
 		if (contribs == null) {
 			return new IContributionItem[0];
 		}
-		// we should cache this I guess
+		
+		ContributionCacheItem cachedItemIds = contributionCache.get(currentEditorId);
+		List<String> contributionItemIds;
+		if (cachedItemIds != null && cachedItemIds.rascalContributions == contribs) {
+			contributionItemIds = cachedItemIds.eclipseContributionsIds;
+		}
+		else {
+			contributionItemIds = generateContributions(contribs);
+			
+			// updating the cache
+			cachedItemIds = new ContributionCacheItem();
+			cachedItemIds.rascalContributions = contribs;
+			cachedItemIds.eclipseContributionsIds = contributionItemIds;
+			contributionCache.put(currentEditorId, cachedItemIds);
+		}
+		// we cannot cache this because eclipse disposes these menu items.
+		IContributionItem[] result = new IContributionItem[contributionItemIds.size()];
+		IServiceLocator serviceLocator = getServiceLocator();
+		for (int i = 0; i < contributionItemIds.size(); i++ ) {
+			CommandContributionItemParameter newCommandParams = new CommandContributionItemParameter(
+					serviceLocator, null, contributionItemIds.get(i), CommandContributionItem.STYLE_PUSH);
+			result[i] =  new CommandContributionItem(newCommandParams);
+		}
+	    return result;
+	}
+
+	private List<String> generateContributions(ISet contribs) {
 		ICommandService cmdService = getCommandService();
 		IHandlerService handlerService = getHandlerService();
-		Category defaultCategory = getDefaultCategory();
-		List<String> contributionItemIds = new ArrayList<String>();
+		Category defaultCategory = getDefaultCategory(cmdService);
+		List<String> result = new ArrayList<String>();
 		for (IValue contrib : contribs) {
 			IConstructor node = (IConstructor) contrib;
 			if (node.getName().equals("popup")) {
-				contributionItemIds.add(contribute(defaultCategory, cmdService, handlerService, (IConstructor)node.get("menu")));
+				result.add(contribute(defaultCategory, cmdService, handlerService, (IConstructor)node.get("menu")));
 			}
 		}
-		
-		// now just add the new dynamic commands to the popup menu
-		IContributionItem[] result = new IContributionItem[contributionItemIds.size()];
-		for (int i = 0; i < contributionItemIds.size(); i++ ) {
-			result[0] =  new CommandContributionItem( 
-					new CommandContributionItemParameter(
-							findServiceLocator(), null, 
-							contributionItemIds.get(i), CommandContributionItem.STYLE_PUSH));	
-		}
-	    return result;
+		return result;
 	}
 
 	private String contribute(Category defaultCategory, ICommandService cmdService, IHandlerService handlerService, IConstructor menu) {
@@ -154,16 +172,19 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorSite().getId();
 	}
 
-	private IServiceLocator findServiceLocator() {
+	private IServiceLocator getServiceLocator() {
 		return PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 	}
 	   
 	private IHandlerService getHandlerService() {
-		return (IHandlerService) findServiceLocator().getService(IHandlerService.class);
+		return (IHandlerService) getServiceLocator().getService(IHandlerService.class);
+	}
+	
+	private ICommandService getCommandService() {
+		return (ICommandService)getServiceLocator().getService(ICommandService.class);
 	}
 
-	private Category getDefaultCategory() {
-		ICommandService cmdService = getCommandService();
+	private Category getDefaultCategory(ICommandService cmdService) {
 		Category defaultCategory = cmdService.getCategory(NON_RASCAL_CONTRIBUTION_COMMAND_CATEGORY);
 		if (!defaultCategory.isDefined()) {
 			defaultCategory.define("Non Rascal Contributions", "A category for non rascal contributions");
@@ -171,8 +192,6 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 		return defaultCategory;
 	}
 
-	private ICommandService getCommandService() {
-		return (ICommandService)findServiceLocator().getService(ICommandService.class);
-	}
+	
 
 }
