@@ -35,10 +35,9 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.services.IServiceLocator;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
+import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.values.ValueFactoryFactory;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
 public class NonRascalMenuContributionItem extends CompoundContributionItem {
@@ -164,7 +163,7 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 			
 		}
 		else {
-			throw new NotImplementedException();
+			throw new NotYetImplemented("Advanced menu structures are not yet implemented.");
 		}
 	}
 	
