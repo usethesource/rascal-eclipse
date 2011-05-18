@@ -898,8 +898,20 @@
 <extension point="org.eclipse.ui.menus">
   <menuContribution locationURI="popup:#TextEditorContext">
     <dynamic class="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem"
-             id="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem.dynamic1">
+             id="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem.dynamic2">
     </dynamic>
   </menuContribution>
 </extension>
+
+<extension point="org.eclipse.ui.menus">
+  <menuContribution locationURI="popup:#ClassFileEditorContext">
+    <dynamic class="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem"
+             id="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem.dynamic3">
+    </dynamic>
+  </menuContribution>
+</extension>
+
+
+
+
 </plugin>
