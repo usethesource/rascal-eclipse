@@ -13,6 +13,7 @@ import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -23,7 +24,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.CompoundContributionItem;
 import org.eclipse.ui.commands.ICommandService;
@@ -31,6 +32,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.services.IServiceLocator;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -138,10 +140,18 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 				@Override
 				public Object execute(ExecutionEvent event) throws ExecutionException {
 					ITextSelection selection = (ITextSelection)HandlerUtil.getActiveWorkbenchWindowChecked(event).getSelectionService().getSelection();
-					IEditorPart activeEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-					String fileName = activeEditor.getEditorInput().getName();
+					IEditorInput activeEditorInput = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
+					ISourceLocation selectedLine;
+					if (activeEditorInput instanceof FileEditorInput) {
+						IFile actualFile = ((FileEditorInput)activeEditorInput).getFile();
+						ISourceLocation fileLoc = new Resources(VF).makeFile(actualFile);
+						selectedLine =  VF.sourceLocation(fileLoc.getURI(), selection.getStartLine()+1 , (selection.getEndLine() - selection.getStartLine()) + 1 , -1,-1,-1,-1);
+					} 
+					else { // a non file editor (not part of any project, such as annotated class files
+						String fileName = activeEditorInput.getName();
+						selectedLine = VF.sourceLocation(fileName, selection.getStartLine()+1 , (selection.getEndLine() - selection.getStartLine()) + 1 , -1,-1,-1,-1);
+					}
 					
-					ISourceLocation selectedLine = VF.sourceLocation(fileName, selection.getStartLine()+1 , (selection.getEndLine() - selection.getStartLine()) + 1 , -1,-1,-1,-1);
 					if (selectedLine != null) {
 						func.call(new Type[] { TF.sourceLocationType() }, new IValue[] {selectedLine });
 					}
