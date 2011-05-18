@@ -2,6 +2,7 @@ package org.rascalmpl.eclipse.library.util;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -164,17 +165,17 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 				public Object execute(ExecutionEvent event) throws ExecutionException {
 					ITextSelection selection = (ITextSelection)HandlerUtil.getActiveWorkbenchWindowChecked(event).getSelectionService().getSelection();
 					IEditorInput activeEditorInput = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
-					ISourceLocation selectedLine;
+					URI fileRef;
 					if (activeEditorInput instanceof FileEditorInput) {
 						IFile actualFile = ((FileEditorInput)activeEditorInput).getFile();
 						ISourceLocation fileLoc = new Resources(VF).makeFile(actualFile);
-						selectedLine =  VF.sourceLocation(fileLoc.getURI(), selection.getStartLine()+1 , (selection.getEndLine() - selection.getStartLine()) + 1 , -1,-1,-1,-1);
+						fileRef = fileLoc.getURI();
 					} 
 					else { // a non file editor (not part of any project, such as annotated class files
 						String fileName = activeEditorInput.getName();
-						selectedLine = VF.sourceLocation(fileName, selection.getStartLine()+1 , (selection.getEndLine() - selection.getStartLine()) + 1 , -1,-1,-1,-1);
+						fileRef = VF.sourceLocation(fileName).getURI();
 					}
-					
+					ISourceLocation selectedLine = VF.sourceLocation(fileRef, selection.getOffset(), selection.getLength(), selection.getStartLine() + 1, selection.getEndLine() + 1, -1, -1);
 					if (selectedLine != null) {
 						func.call(new Type[] { TF.sourceLocationType() }, new IValue[] {selectedLine });
 					}
