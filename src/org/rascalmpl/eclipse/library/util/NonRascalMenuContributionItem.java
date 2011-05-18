@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.library.util;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,11 +66,30 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
     }
     
     private class ContributionCacheItem {
-    	public ISet rascalContributions;
+    	public WeakReference<ISet> rascalContributions; // avoid being to only one with a reference to a bunch of rascal callbacks with evaluators
     	public List<String> eclipseContributionsIds;
     }
     private static Map<String, ContributionCacheItem> contributionCache = new ConcurrentHashMap<String, ContributionCacheItem>();
-    
+	private static void cleanupCacheFor(String currentEditorId) {
+		ContributionCacheItem cachedItemIds;
+		synchronized (contributionCache) { // avoid double deletion
+			cachedItemIds = contributionCache.get(currentEditorId);
+			if (cachedItemIds != null){
+				contributionCache.remove(currentEditorId);
+			}
+		}
+		if (cachedItemIds != null){
+			ICommandService cmdService = getCommandService();
+			for (String cmdId : cachedItemIds.eclipseContributionsIds) {
+				Command currentCommand = cmdService.getCommand(cmdId);
+				IHandler currentHandler = currentCommand.getHandler();
+				currentCommand.undefine();
+				currentHandler.dispose();
+			}
+			
+		}			
+
+	}
 	
 	@Override
 	protected IContributionItem[] getContributionItems() {
@@ -79,20 +99,22 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 		}
 		ISet contribs = TermLanguageRegistry.getInstance().getNonRascalContributions(currentEditorId);
 		if (contribs == null) {
+			cleanupCacheFor(currentEditorId);
 			return new IContributionItem[0];
 		}
 		
 		ContributionCacheItem cachedItemIds = contributionCache.get(currentEditorId);
 		List<String> contributionItemIds;
-		if (cachedItemIds != null && cachedItemIds.rascalContributions == contribs) {
+		if (cachedItemIds != null && cachedItemIds.rascalContributions.get() == contribs) {
 			contributionItemIds = cachedItemIds.eclipseContributionsIds;
 		}
 		else {
+			cleanupCacheFor(currentEditorId); // first cleanup the cache items to avoid reusing an old one
 			contributionItemIds = generateContributions(contribs);
 			
 			// updating the cache
 			cachedItemIds = new ContributionCacheItem();
-			cachedItemIds.rascalContributions = contribs;
+			cachedItemIds.rascalContributions = new WeakReference<ISet>(contribs);
 			cachedItemIds.eclipseContributionsIds = contributionItemIds;
 			contributionCache.put(currentEditorId, cachedItemIds);
 		}
@@ -106,6 +128,8 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 		}
 	    return result;
 	}
+
+
 
 	private List<String> generateContributions(ISet contribs) {
 		ICommandService cmdService = getCommandService();
@@ -177,19 +201,19 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 		
 	}
 
-	private String getCurrentEditorID() {
+	private static String getCurrentEditorID() {
 		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorSite().getId();
 	}
 
-	private IServiceLocator getServiceLocator() {
+	private static IServiceLocator getServiceLocator() {
 		return PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 	}
 	   
-	private IHandlerService getHandlerService() {
+	private static IHandlerService getHandlerService() {
 		return (IHandlerService) getServiceLocator().getService(IHandlerService.class);
 	}
 	
-	private ICommandService getCommandService() {
+	private static ICommandService getCommandService() {
 		return (ICommandService)getServiceLocator().getService(ICommandService.class);
 	}
 
