@@ -10,6 +10,7 @@
  *   * Bas Basten - Bas.Basten@cwi.nl (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Davy Landman - Davy.Landman@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.util;
 
@@ -35,6 +36,8 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -153,6 +156,17 @@ public class Resources {
 			return VF.sourceLocation(new URI("project", resource.getProject().getName(), path.replaceAll(" ", "%20"), null));
 		} catch (URISyntaxException e) {
 			throw RuntimeExceptionFactory.malformedURI("project://" + resource.getProject().getName() + path.replaceAll(" ", "%20"), null, null);
+		}
+	}
+	
+	public ISourceLocation makeFile(IEditorInput activeEditorInput) {
+		if (activeEditorInput instanceof FileEditorInput) {
+			IFile actualFile = ((FileEditorInput)activeEditorInput).getFile();
+			return makeFile(actualFile);
+		} 
+		else { // a non file editor (not part of any project, such as annotated class files
+			String fileName = activeEditorInput.getName();
+			return VF.sourceLocation(fileName);
 		}
 	}
 	

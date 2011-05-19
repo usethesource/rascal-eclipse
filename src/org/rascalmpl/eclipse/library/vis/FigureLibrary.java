@@ -35,6 +35,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.IDocument;
@@ -61,10 +62,12 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.library.util.Resources;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.FigureColorUtils;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class FigureLibrary {
 	IValueFactory values;
@@ -313,16 +316,54 @@ public class FigureLibrary {
 		}
 	}
 	
+	
+	public void provideDefaultLineDecorations(IString extension,  IValue handleNewFile) {
+		if(handleNewFile instanceof ICallableValue){
+			IWorkbench wb = PlatformUI.getWorkbench();
+			IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+
+			if (win == null && wb.getWorkbenchWindowCount() != 0) {
+				win = wb.getWorkbenchWindows()[0];
+			}
+
+			if (win != null) {
+				IWorkbenchPage page = win.getActivePage();
+				page.addPartListener(annotationListener);
+				defaultProviders.put(extension.getValue(), (ICallableValue)handleNewFile);
+			}
+		}
+	}
+	
+	
 	/*
 	 * This is the storage of WorkbenchPart and their associated annotation runners.
 	 */
 	private final static Map<IWorkbenchPart, Runnable> annotationRunners = new ConcurrentHashMap<IWorkbenchPart, Runnable>();
+	private final static Map<String, ICallableValue> defaultProviders = new ConcurrentHashMap<String, ICallableValue>();
+	private final static TypeFactory TF = TypeFactory.getInstance();
+	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final static IPartListener annotationListener = new IPartListener() {
 		@Override
 		public void partActivated(IWorkbenchPart part) {
 			Runnable runAgain = annotationRunners.get(part);
 			if (runAgain != null) {
 				Display.getDefault().asyncExec(runAgain);
+			}
+			IEditorInput editorInput = part.getSite().getPage().getActiveEditor().getEditorInput();
+			String fileName = editorInput.getName();
+			String extension = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+			final ICallableValue defaultProvider = defaultProviders.get(extension);
+			if (defaultProvider != null) {
+				final ISourceLocation fileLoc = new Resources(VF).makeFile(editorInput);
+				Thread callBackThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						Result<IValue> result = defaultProvider.call(new Type[] { TF.sourceLocationType() }, 
+								new IValue[] { fileLoc });
+						new FigureLibrary(VF).edit(fileLoc, result.getValue());
+					}
+				});
+				callBackThread.run(); // execute the callback on a seperate thread to avoid slowing down the page switches
 			}
 		}
 
