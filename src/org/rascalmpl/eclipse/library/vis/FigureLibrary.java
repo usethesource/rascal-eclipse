@@ -70,6 +70,212 @@ import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class FigureLibrary {
+	/*
+	 * Code is cloned from SourceLocationHyperlink (but heavily adapted)
+	 */
+	private abstract class DecoratorRunnerBase implements Runnable {
+		private final ISourceLocation loc;
+		private final IWorkbenchPage page;
+
+		
+		protected abstract IList getLineInfo();
+
+		private DecoratorRunnerBase(ISourceLocation loc, IWorkbenchPage page) {
+			this.loc = loc;
+			this.page = page;
+		}
+		
+		private IEditorPart cachedEditorPart = null;
+		protected IEditorPart getEditorPart() throws PartInitException {
+			// we cache the editor part because each openEditorOnFileStore / openEditor will reactive that editor part
+			// to avoid looping due to events fired by a editor part activation we want to avoid that except for the first time.
+			if (cachedEditorPart == null) {
+				IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(loc.getURI().getPath());
+
+				if (desc != null) {
+					cachedEditorPart = page.openEditor(getEditorInput(loc.getURI()), desc.getId());
+				} else {
+					IFileStore fileStore = EFS.getLocalFileSystem().getStore(loc.getURI());
+					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+					cachedEditorPart = IDE.openEditorOnFileStore(page, fileStore);
+				}
+			
+			}
+			return cachedEditorPart;
+			
+		}
+		private IList previousList = null;
+		public void run() {
+			try {
+				IEditorPart editorPart = getEditorPart();
+				if (editorPart != null && editorPart instanceof ITextEditor) {
+					ITextEditor editor = (ITextEditor) editorPart;
+					IDocumentProvider documentProvider = editor.getDocumentProvider();
+					IDocument document = documentProvider.getDocument(editor.getEditorInput());
+					if (document != null) {
+						IList lines = getLineInfo();
+						if (previousList != null && previousList.equals(lines)) {
+							return; // nothing has changed, so we can avoid removing and re-adding everything
+						} 
+						else { //
+							previousList = lines;
+						}
+						// First delete old markers
+
+						IEditorInput input = editor.getEditorInput();
+						IResource inputResource = ResourceUtil.getResource(input);
+						for(IMarker marker : inputResource.findMarkers(RASCAL_MARKER, true, IResource.DEPTH_INFINITE)){
+							if(marker.exists())
+								marker.delete();
+						}
+
+						// ... and old annotations
+
+						IAnnotationModel annotationModel = documentProvider.getAnnotationModel(editor.getEditorInput());
+
+						// Lock on the annotation model
+						Object lockObject = ((ISynchronizable) annotationModel).getLockObject();
+						synchronized(lockObject){
+							Iterator<Annotation> iter = annotationModel.getAnnotationIterator();
+							while(iter.hasNext()){
+								Annotation anno = iter.next();
+								if(anno.getType().startsWith("rascal.highlight"))
+									annotationModel.removeAnnotation(anno);
+							}
+						}	
+						
+						
+						
+						for(IValue v : lines){
+							IConstructor lineDecor = (IConstructor) v;
+							int lineNumber = ((IInteger)lineDecor.get(0)).intValue();
+							String msg = ((IString)lineDecor.get(1)).getValue();
+							int severity = 0;
+							boolean useMarker = true;
+							
+							String name = lineDecor.getName();
+							if(name.equals("info"))
+								severity = IMarker.SEVERITY_INFO;
+							else if(name.equals("warning"))
+								severity = IMarker.SEVERITY_WARNING;
+							else if(name.equals("error"))
+								severity = IMarker.SEVERITY_ERROR;
+							else {
+								useMarker = false;
+							}
+
+							if(useMarker){ // Add a marker
+								IMarker marker = inputResource.createMarker(RASCAL_MARKER);
+								marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+								marker.setAttribute(IMarker.MESSAGE, msg);
+								marker.setAttribute(IMarker.LOCATION, "line " + lineNumber);
+								marker.setAttribute(IMarker.SEVERITY, severity);
+							} else {	// Add an annotation
+								int highlightKind = 0;
+								
+								if(lineDecor.arity() > 2){
+									highlightKind = ((IInteger)lineDecor.get(2)).intValue();
+									if(highlightKind < 0)
+										highlightKind = 0;
+									if(highlightKind >= LINE_HIGHLIGHT_LENGTH)
+										highlightKind = LINE_HIGHLIGHT_LENGTH - 1;
+								}
+			
+								String highlightName = RASCAL_LINE_HIGHLIGHT[highlightKind];
+								
+								try {
+									// line count internally starts with 0, and not with 1 like in GUI
+									IRegion lineInfo = document.getLineInformation(lineNumber - 1);
+									synchronized(lockObject){
+										Annotation currentLine = new Annotation(highlightName, true, msg);
+										Position currentPosition = new Position(lineInfo.getOffset(), lineInfo.getLength());
+										annotationModel.addAnnotation(currentLine, currentPosition);
+									}
+								} catch (org.eclipse.jface.text.BadLocationException e) {
+									// Ignore, lineNumber may just not exist in file
+								}
+							}
+						}
+					}  
+				}
+			} catch (PartInitException e) {
+				Activator.getInstance().logException("failed to open editor for source loc:" + loc, e);
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		private IEditorInput getEditorInput(URI uri) {
+			String scheme = uri.getScheme();
+
+			if (scheme.equals("project")) {
+				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getHost());
+
+				if (project != null) {
+					return new FileEditorInput(project.getFile(uri.getPath()));
+				}
+
+				Activator.getInstance().logException("project " + uri.getHost() + " does not exist", new RuntimeException());
+			}
+			else if (scheme.equals("file")) {
+				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+				IFile[] cs = root.findFilesForLocationURI(uri);
+
+				if (cs != null && cs.length > 0) {
+					return new FileEditorInput(cs[0]);
+				}
+
+				Activator.getInstance().logException("file " + uri + " not found", new RuntimeException());
+			}
+			else if (scheme.equals("rascal-library")) {
+				IFile [] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
+				if (files.length > 0) {
+					return new FileEditorInput(files[0]);
+				}
+			}
+
+			Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
+			return null;
+		}
+	}
+	
+	private class OneTimeDecoratorRunner extends DecoratorRunnerBase {
+		private IList lineInfo;
+
+		public OneTimeDecoratorRunner(ISourceLocation loc, IList lineInfo,  IWorkbenchPage page) {
+			super(loc, page);
+			this.lineInfo = lineInfo;
+		}
+		@Override
+		protected IList getLineInfo() {
+			return lineInfo;
+		}
+	}
+	
+	private class RepeatableDecoratorRunner extends DecoratorRunnerBase {
+		private ICallableValue fun;
+		public RepeatableDecoratorRunner(ISourceLocation loc, ICallableValue fun,  IWorkbenchPage page) {
+			super(loc, page);
+			this.fun = fun;
+		}
+		@Override
+		protected IList getLineInfo() {
+			return (IList)fun.call(new Type[0], new IValue[0]).getValue();
+		}
+		
+		private boolean firstTime = true;
+		@Override
+		protected IEditorPart getEditorPart() throws PartInitException {
+			IEditorPart result = super.getEditorPart();
+			if (firstTime) {
+				annotationRunners.put(result, this);
+				firstTime = false;
+			}
+			return result;
+		}
+	}
+	
 	IValueFactory values;
 	
 	public FigureLibrary(IValueFactory values){
@@ -134,7 +340,14 @@ public class FigureLibrary {
 	 */
 	
 	public void edit(final ISourceLocation loc, final IList lineInfo) {
-		edit(loc, (IValue)lineInfo);
+		IWorkbenchWindow win = getWorkbenchWindow();
+		if (win != null) {
+			IWorkbenchPage page = win.getActivePage();
+			if (page != null) {
+				Display.getDefault().asyncExec(new OneTimeDecoratorRunner(loc, lineInfo,  page));
+			}
+		}
+
 	}
 	
 	
@@ -147,205 +360,32 @@ public class FigureLibrary {
 	 * Code is cloned from SourceLocationHyperlink (but heavily adapted)
 	 */	
 	public void edit(final ISourceLocation loc, final IValue lineInfo) {
-		final Boolean computedLineInfo = lineInfo instanceof ICallableValue; 
+		if (lineInfo instanceof ICallableValue) { 
+			IWorkbenchWindow win = getWorkbenchWindow();
+			if (win != null) {
+				IWorkbenchPage page = win.getActivePage();
+				if (page != null) {
+					page.addPartListener(annotationListener);
+					Display.getDefault().asyncExec(new RepeatableDecoratorRunner(loc, (ICallableValue)lineInfo,  page));
+				}
+			}
+		}
+	}
+
+	private IWorkbenchWindow getWorkbenchWindow() {
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
 
 		if (win == null && wb.getWorkbenchWindowCount() != 0) {
 			win = wb.getWorkbenchWindows()[0];
 		}
-
-		if (win != null) {
-			final IWorkbenchPage page = win.getActivePage();
-			page.addPartListener(annotationListener);
-			if (page != null) {
-				Display.getDefault().asyncExec(new Runnable() {
-					private IList previousList = null;
-					private IEditorDescriptor desc = null;
-					private IEditorPart editorPart = null;
-					private ITextEditor editor = null;
-					private IDocument document = null;
-					private IDocumentProvider documentProvider = null;
-					
-					private void makeSureInitialized() throws PartInitException {
-						// we cache everything for this runner, because if it is used multiple times
-						// the document.getDocument() will reopen the document causing an infinite loop 
-						// due to the refire of the partActivated.
-						// Another solution is to create 2 versions of this class, one which is only intended to run once
-						// the other which can be run multiple times.
-						if (desc == null) {
-							desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(loc.getURI().getPath());
-
-							if (desc != null) {
-								editorPart = page.openEditor(getEditorInput(loc.getURI()), desc.getId());
-							} else {
-								IFileStore fileStore = EFS.getLocalFileSystem().getStore(loc.getURI());
-								IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-								editorPart = IDE.openEditorOnFileStore(page, fileStore);
-							}
-							if (editorPart != null && editorPart instanceof ITextEditor) {
-								if (computedLineInfo) {
-									annotationRunners.put(editorPart, this);
-								}
-								editor = (ITextEditor) editorPart;
-								documentProvider = editor.getDocumentProvider();
-								document = documentProvider.getDocument(editor.getEditorInput());
-							}
-						}
-						
-					}
-					
-					public void run() {
-						try {
-							makeSureInitialized();
-							if (editorPart != null && editorPart instanceof ITextEditor) {
-								if (document != null) {
-									IList actualLineInfo;
-									if (computedLineInfo) {
-										Result<?> result = (Result<?>)((ICallableValue)lineInfo).call(new Type[0], new IValue[0]);
-										actualLineInfo = (IList)(result.getValue());
-									}
-									else {
-										actualLineInfo = (IList)lineInfo;
-									}
-									if (previousList != null && previousList.equals(actualLineInfo)) {
-										return; // nothing has changed, so we can avoid removing and re-adding everything
-									} 
-									else { //
-										previousList = actualLineInfo;
-									}
-									// First delete old markers
-
-									IEditorInput input = editor.getEditorInput();
-									IResource inputResource = ResourceUtil.getResource(input);
-									for(IMarker marker : inputResource.findMarkers(RASCAL_MARKER, true, IResource.DEPTH_INFINITE)){
-										if(marker.exists())
-											marker.delete();
-									}
-
-									// ... and old annotations
-
-									IAnnotationModel annotationModel = documentProvider.getAnnotationModel(editor.getEditorInput());
-
-									// Lock on the annotation model
-									Object lockObject = ((ISynchronizable) annotationModel).getLockObject();
-									synchronized(lockObject){
-										Iterator<Annotation> iter = annotationModel.getAnnotationIterator();
-										while(iter.hasNext()){
-											Annotation anno = iter.next();
-											if(anno.getType().startsWith("rascal.highlight"))
-												annotationModel.removeAnnotation(anno);
-										}
-									}	
-									
-									
-									
-									for(IValue v : actualLineInfo){
-										IConstructor lineDecor = (IConstructor) v;
-										int lineNumber = ((IInteger)lineDecor.get(0)).intValue();
-										String msg = ((IString)lineDecor.get(1)).getValue();
-										int severity = 0;
-										boolean useMarker = true;
-										
-										String name = lineDecor.getName();
-										if(name.equals("info"))
-											severity = IMarker.SEVERITY_INFO;
-										else if(name.equals("warning"))
-											severity = IMarker.SEVERITY_WARNING;
-										else if(name.equals("error"))
-											severity = IMarker.SEVERITY_ERROR;
-										else {
-											useMarker = false;
-										}
-
-										if(useMarker){ // Add a marker
-											IMarker marker = inputResource.createMarker(RASCAL_MARKER);
-											marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-											marker.setAttribute(IMarker.MESSAGE, msg);
-											marker.setAttribute(IMarker.LOCATION, "line " + lineNumber);
-											marker.setAttribute(IMarker.SEVERITY, severity);
-										} else {	// Add an annotation
-											int highlightKind = 0;
-											
-											if(lineDecor.arity() > 2){
-												highlightKind = ((IInteger)lineDecor.get(2)).intValue();
-												if(highlightKind < 0)
-													highlightKind = 0;
-												if(highlightKind >= LINE_HIGHLIGHT_LENGTH)
-													highlightKind = LINE_HIGHLIGHT_LENGTH - 1;
-											}
-						
-											String highlightName = RASCAL_LINE_HIGHLIGHT[highlightKind];
-											
-											try {
-												// line count internally starts with 0, and not with 1 like in GUI
-												IRegion lineInfo = document.getLineInformation(lineNumber - 1);
-												synchronized(lockObject){
-													Annotation currentLine = new Annotation(highlightName, true, msg);
-													Position currentPosition = new Position(lineInfo.getOffset(), lineInfo.getLength());
-													annotationModel.addAnnotation(currentLine, currentPosition);
-												}
-											} catch (org.eclipse.jface.text.BadLocationException e) {
-												// Ignore, lineNumber may just not exist in file
-											}
-										}
-									}
-								}  
-							}
-						} catch (PartInitException e) {
-							Activator.getInstance().logException("failed to open editor for source loc:" + loc, e);
-						} catch (CoreException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-
-					private IEditorInput getEditorInput(URI uri) {
-						String scheme = uri.getScheme();
-
-						if (scheme.equals("project")) {
-							IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getHost());
-
-							if (project != null) {
-								return new FileEditorInput(project.getFile(uri.getPath()));
-							}
-
-							Activator.getInstance().logException("project " + uri.getHost() + " does not exist", new RuntimeException());
-						}
-						else if (scheme.equals("file")) {
-							IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-							IFile[] cs = root.findFilesForLocationURI(uri);
-
-							if (cs != null && cs.length > 0) {
-								return new FileEditorInput(cs[0]);
-							}
-
-							Activator.getInstance().logException("file " + uri + " not found", new RuntimeException());
-						}
-						else if (scheme.equals("rascal-library")) {
-							IFile [] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
-							if (files.length > 0) {
-								return new FileEditorInput(files[0]);
-							}
-						}
-
-						Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
-						return null;
-					}
-				});
-			}
-		}
+		return win;
 	}
 	
 	
 	public void provideDefaultLineDecorations(IString extension,  IValue handleNewFile) {
 		if(handleNewFile instanceof ICallableValue){
-			IWorkbench wb = PlatformUI.getWorkbench();
-			IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-
-			if (win == null && wb.getWorkbenchWindowCount() != 0) {
-				win = wb.getWorkbenchWindows()[0];
-			}
+			IWorkbenchWindow win = getWorkbenchWindow();
 
 			if (win != null) {
 				IWorkbenchPage page = win.getActivePage();
