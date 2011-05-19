@@ -20,7 +20,7 @@ data Contribution
   
 data Menu 
   = action(str label, void (Tree tree, loc selection) action)
-  | click(str label, void (loc selection) click) // for non rascal menu's
+  | action(str label, void (str selection, loc selection) handler) // for non rascal menu's
   | edit(str label, str (Tree tree, loc selection) edit)
   | group(str label, list[Menu] members)
   | menu(str label, list[Menu] members)

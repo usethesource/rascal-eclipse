@@ -152,14 +152,14 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 		if (menu.getName().equals("edit")) {
 			throw new RuntimeException("Edit is not support by non rascal windows");
 		}
-		else if (menu.getName().equals("click")) {
+		else if (menu.getName().equals("action") && menu.has("handler")) {
 			//Because we are not sure a label will not break the characters in a command id, we encode it.
 			String commandId = NON_RASCAL_CONTRIBUTION_COMMAND_PREFIX + encodeLabel(label);
 			Command newCommand = cmdService.getCommand(commandId);
 			if (!newCommand.isDefined()) {
 				newCommand.define(label, "A non rascal contribution", defaultCategory);
 			}
-			final ICallableValue func = (ICallableValue) menu.get("click");
+			final ICallableValue func = (ICallableValue) menu.get("handler");
 			IHandler handler = new AbstractHandler() {
 				@Override
 				public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -177,7 +177,7 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 					}
 					ISourceLocation selectedLine = VF.sourceLocation(fileRef, selection.getOffset(), selection.getLength(), selection.getStartLine() + 1, selection.getEndLine() + 1, -1, -1);
 					if (selectedLine != null) {
-						func.call(new Type[] { TF.sourceLocationType() }, new IValue[] {selectedLine });
+						func.call(new Type[] { TF.stringType(), TF.sourceLocationType() }, new IValue[] { VF.string(selection.getText()),  selectedLine });
 					}
 					return null;
 				}
