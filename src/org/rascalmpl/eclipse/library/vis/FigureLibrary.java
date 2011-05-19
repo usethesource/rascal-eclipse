@@ -160,10 +160,21 @@ public class FigureLibrary {
 			page.addPartListener(annotationListener);
 			if (page != null) {
 				Display.getDefault().asyncExec(new Runnable() {
-					public void run() {
-						try {
-							IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(loc.getURI().getPath());
-							IEditorPart editorPart;
+					private IList previousList = null;
+					private IEditorDescriptor desc = null;
+					private IEditorPart editorPart = null;
+					private ITextEditor editor = null;
+					private IDocument document = null;
+					private IDocumentProvider documentProvider = null;
+					
+					private void makeSureInitialized() throws PartInitException {
+						// we cache everything for this runner, because if it is used multiple times
+						// the document.getDocument() will reopen the document causing an infinite loop 
+						// due to the refire of the partActivated.
+						// Another solution is to create 2 versions of this class, one which is only intended to run once
+						// the other which can be run multiple times.
+						if (desc == null) {
+							desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(loc.getURI().getPath());
 
 							if (desc != null) {
 								editorPart = page.openEditor(getEditorInput(loc.getURI()), desc.getId());
@@ -172,22 +183,37 @@ public class FigureLibrary {
 								IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 								editorPart = IDE.openEditorOnFileStore(page, fileStore);
 							}
-
-							if (editorPart != null) {
-
-								if (!(editorPart instanceof ITextEditor)) {
-									return;
-								}
+							if (editorPart != null && editorPart instanceof ITextEditor) {
 								if (computedLineInfo) {
 									annotationRunners.put(editorPart, this);
 								}
-
-								ITextEditor editor = (ITextEditor) editorPart;
-								IDocumentProvider documentProvider = editor.getDocumentProvider();
-								IDocument document = documentProvider.getDocument(editor.getEditorInput());
-
+								editor = (ITextEditor) editorPart;
+								documentProvider = editor.getDocumentProvider();
+								document = documentProvider.getDocument(editor.getEditorInput());
+							}
+						}
+						
+					}
+					
+					public void run() {
+						try {
+							makeSureInitialized();
+							if (editorPart != null && editorPart instanceof ITextEditor) {
 								if (document != null) {
-
+									IList actualLineInfo;
+									if (computedLineInfo) {
+										Result<?> result = (Result<?>)((ICallableValue)lineInfo).call(new Type[0], new IValue[0]);
+										actualLineInfo = (IList)(result.getValue());
+									}
+									else {
+										actualLineInfo = (IList)lineInfo;
+									}
+									if (previousList != null && previousList.equals(actualLineInfo)) {
+										return; // nothing has changed, so we can avoid removing and re-adding everything
+									} 
+									else { //
+										previousList = actualLineInfo;
+									}
 									// First delete old markers
 
 									IEditorInput input = editor.getEditorInput();
@@ -211,14 +237,9 @@ public class FigureLibrary {
 												annotationModel.removeAnnotation(anno);
 										}
 									}	
-									IList actualLineInfo;
-									if (computedLineInfo) {
-										Result<?> result = (Result<?>)((ICallableValue)lineInfo).call(new Type[0], new IValue[0]);
-										actualLineInfo = (IList)(result.getValue());
-									}
-									else {
-										actualLineInfo = (IList)lineInfo;
-									}
+									
+									
+									
 									for(IValue v : actualLineInfo){
 										IConstructor lineDecor = (IConstructor) v;
 										int lineNumber = ((IInteger)lineDecor.get(0)).intValue();
@@ -348,25 +369,28 @@ public class FigureLibrary {
 			Runnable runAgain = annotationRunners.get(part);
 			if (runAgain != null) {
 				Display.getDefault().asyncExec(runAgain);
-			}
-			IEditorInput editorInput = part.getSite().getPage().getActiveEditor().getEditorInput();
-			String fileName = editorInput.getName();
-			int dotPosition = fileName.lastIndexOf('.');
-			if (dotPosition != -1) {
-				String extension = fileName.substring(dotPosition).toLowerCase();
-				final ICallableValue defaultProvider = defaultProviders.get(extension);
-				if (defaultProvider != null) {
-					final ISourceLocation fileLoc = new Resources(VF).makeFile(editorInput);
-					Thread callBackThread = new Thread(new Runnable() {
-						@Override
-						public void run() {
-							Result<IValue> result = defaultProvider.call(new Type[] { TF.sourceLocationType() }, 
-									new IValue[] { fileLoc });
-							new FigureLibrary(VF).edit(fileLoc, result.getValue());
-						}
-					});
-					callBackThread.run(); // execute the callback on a seperate thread to avoid slowing down the page switches
+			} 
+			else if (part instanceof ITextEditor) { // only try to run the callback if there wasn't another runner associated
+				IEditorInput editorInput = part.getSite().getPage().getActiveEditor().getEditorInput();
+				String fileName = editorInput.getName();
+				int dotPosition = fileName.lastIndexOf('.');
+				if (dotPosition != -1) {
+					String extension = fileName.substring(dotPosition).toLowerCase();
+					final ICallableValue defaultProvider = defaultProviders.get(extension);
+					if (defaultProvider != null) {
+						final ISourceLocation fileLoc = new Resources(VF).makeFile(editorInput);
+						Thread callBackThread = new Thread(new Runnable() {
+							@Override
+							public void run() {
+								Result<IValue> result = defaultProvider.call(new Type[] { TF.sourceLocationType() }, 
+										new IValue[] { fileLoc });
+								new FigureLibrary(VF).edit(fileLoc, result.getValue());
+							}
+						});
+						callBackThread.run(); // execute the callback on a seperate thread to avoid slowing down the page switches
+					}
 				}
+				
 			}
 		}
 
