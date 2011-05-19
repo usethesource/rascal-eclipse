@@ -351,19 +351,22 @@ public class FigureLibrary {
 			}
 			IEditorInput editorInput = part.getSite().getPage().getActiveEditor().getEditorInput();
 			String fileName = editorInput.getName();
-			String extension = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
-			final ICallableValue defaultProvider = defaultProviders.get(extension);
-			if (defaultProvider != null) {
-				final ISourceLocation fileLoc = new Resources(VF).makeFile(editorInput);
-				Thread callBackThread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						Result<IValue> result = defaultProvider.call(new Type[] { TF.sourceLocationType() }, 
-								new IValue[] { fileLoc });
-						new FigureLibrary(VF).edit(fileLoc, result.getValue());
-					}
-				});
-				callBackThread.run(); // execute the callback on a seperate thread to avoid slowing down the page switches
+			int dotPosition = fileName.lastIndexOf('.');
+			if (dotPosition != -1) {
+				String extension = fileName.substring(dotPosition).toLowerCase();
+				final ICallableValue defaultProvider = defaultProviders.get(extension);
+				if (defaultProvider != null) {
+					final ISourceLocation fileLoc = new Resources(VF).makeFile(editorInput);
+					Thread callBackThread = new Thread(new Runnable() {
+						@Override
+						public void run() {
+							Result<IValue> result = defaultProvider.call(new Type[] { TF.sourceLocationType() }, 
+									new IValue[] { fileLoc });
+							new FigureLibrary(VF).edit(fileLoc, result.getValue());
+						}
+					});
+					callBackThread.run(); // execute the callback on a seperate thread to avoid slowing down the page switches
+				}
 			}
 		}
 
