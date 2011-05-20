@@ -71,14 +71,10 @@ public class Box {
 		final Color result[] = new Color[1];
 		display.syncExec(new Runnable() {
 			public void run() {
-				synchronized (result) {
-					result[0] = Display.getCurrent().getSystemColor(which);
-				}
+				result[0] = Display.getCurrent().getSystemColor(which);
 			}
 		});
-		synchronized (result) {
-			return result[0];
-		}
+		return result[0];
 	}
 
 }
