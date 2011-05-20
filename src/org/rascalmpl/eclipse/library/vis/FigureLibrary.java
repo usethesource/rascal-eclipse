@@ -14,9 +14,12 @@
 package org.rascalmpl.eclipse.library.vis;
 
 import java.net.URI;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -270,6 +273,16 @@ public class FigureLibrary {
 			IEditorPart result = super.getEditorPart();
 			if (firstTime) {
 				annotationRunners.put(result, this);
+				String fileName = ((IEditorInput)result.getEditorInput()).getName();
+				int dotPosition = fileName.lastIndexOf('.');
+				if (dotPosition != -1) {
+					String extension = fileName.substring(dotPosition).toLowerCase();
+					Set<IWorkbenchPart> extensionList = partsProvided.get(extension);
+					if (extensionList != null) {
+						extensionList.add(result);
+					}
+					
+				}
 				firstTime = false;
 			}
 			return result;
@@ -390,6 +403,13 @@ public class FigureLibrary {
 			if (win != null) {
 				IWorkbenchPage page = win.getActivePage();
 				page.addPartListener(annotationListener);
+				if (partsProvided.containsKey(extension)) {
+					// okay, we have to remove the old provided LineDecorators
+					for (IWorkbenchPart part : partsProvided.get(extension)) {
+						annotationRunners.remove(part);
+					}
+				}
+				partsProvided.put(extension.getValue(), new HashSet<IWorkbenchPart>());
 				defaultProviders.put(extension.getValue(), (ICallableValue)handleNewFile);
 			}
 		}
@@ -400,6 +420,7 @@ public class FigureLibrary {
 	 * This is the storage of WorkbenchPart and their associated annotation runners.
 	 */
 	private final static Map<IWorkbenchPart, Runnable> annotationRunners = new ConcurrentHashMap<IWorkbenchPart, Runnable>();
+	private final static Map<String, Set<IWorkbenchPart>> partsProvided = new ConcurrentHashMap<String, Set<IWorkbenchPart>>();
 	private final static Map<String, ICallableValue> defaultProviders = new ConcurrentHashMap<String, ICallableValue>();
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
@@ -418,6 +439,7 @@ public class FigureLibrary {
 					String extension = fileName.substring(dotPosition).toLowerCase();
 					final ICallableValue defaultProvider = defaultProviders.get(extension);
 					if (defaultProvider != null) {
+						partsProvided.get(extension).add(part);
 						final ISourceLocation fileLoc = new Resources(VF).makeFile(editorInput);
 						Thread callBackThread = new Thread(new Runnable() {
 							@Override
@@ -437,6 +459,9 @@ public class FigureLibrary {
 		@Override
 		public void partClosed(IWorkbenchPart part) {
 			annotationRunners.remove(part);
+			for (String ext : partsProvided.keySet()) {
+				partsProvided.get(ext).remove(part);
+			}
 		}
 		
 		
