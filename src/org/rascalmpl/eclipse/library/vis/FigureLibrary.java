@@ -403,9 +403,9 @@ public class FigureLibrary {
 			if (win != null) {
 				IWorkbenchPage page = win.getActivePage();
 				page.addPartListener(annotationListener);
-				if (partsProvided.containsKey(extension)) {
+				if (partsProvided.containsKey(extension.getValue())) {
 					// okay, we have to remove the old provided LineDecorators
-					for (IWorkbenchPart part : partsProvided.get(extension)) {
+					for (IWorkbenchPart part : partsProvided.get(extension.getValue())) {
 						annotationRunners.remove(part);
 					}
 				}
