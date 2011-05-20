@@ -50,6 +50,7 @@ public class FigureViewer extends EditorPart {
 	protected static final String editorId = "rascal-eclipse.Figure.viewer";
 
 	private IFigureApplet fpa;
+	
 	private ScrolledComposite sc;
 
 	private IConstructor figure;
@@ -67,22 +68,12 @@ public class FigureViewer extends EditorPart {
 	@Override
 	public void doSaveAs() {
 	}
+	
 
 	public void print(Printer printer) {
-		/*
-		 * if (printer.startJob("FigureViewer")) { java.awt.Image image =
-		 * ((FigurePApplet) fpa).getImage(); GC gc = new GC(printer); try {
-		 * org.eclipse.swt.graphics.Image im = makeSWTImage(getSite()
-		 * .getShell().getDisplay(), image); gc.drawImage(im, 20, 20); //
-		 * gc.drawString("HALLO", 10, 10); } catch (Exception e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); } printer.endJob();
-		 * gc.dispose(); }
-		 */
 		if (printer.startJob("Figure")) {
-			fpa = new FigureSWTApplet(printer, figure, null);
-			fpa.print();
+			if (fpa!=null) fpa.print(printer);
 			printer.endJob();
-			fpa.dispose();
 		}
 	}
 
