@@ -257,16 +257,14 @@ public class FigureLibrary {
 	}
 	
 	private class RepeatableDecoratorRunner extends DecoratorRunnerBase {
-		private final IList lineInfo;
-		
-		public RepeatableDecoratorRunner(ISourceLocation loc, ICallableValue fun, IWorkbenchPage page) {
+		private ICallableValue fun;
+		public RepeatableDecoratorRunner(ISourceLocation loc, ICallableValue fun,  IWorkbenchPage page) {
 			super(loc, page);
-			
-			this.lineInfo = (IList)fun.call(new Type[0], new IValue[0]).getValue();
+			this.fun = fun;
 		}
 		@Override
 		protected IList getLineInfo() {
-			return lineInfo;
+			return (IList)fun.call(new Type[0], new IValue[0]).getValue();
 		}
 		
 		private boolean firstTime = true;
