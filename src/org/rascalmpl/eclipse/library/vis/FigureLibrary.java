@@ -257,14 +257,16 @@ public class FigureLibrary {
 	}
 	
 	private class RepeatableDecoratorRunner extends DecoratorRunnerBase {
-		private ICallableValue fun;
-		public RepeatableDecoratorRunner(ISourceLocation loc, ICallableValue fun,  IWorkbenchPage page) {
+		private final IList lineInfo;
+		
+		public RepeatableDecoratorRunner(ISourceLocation loc, ICallableValue fun, IWorkbenchPage page) {
 			super(loc, page);
-			this.fun = fun;
+			
+			this.lineInfo = (IList)fun.call(new Type[0], new IValue[0]).getValue();
 		}
 		@Override
 		protected IList getLineInfo() {
-			return (IList)fun.call(new Type[0], new IValue[0]).getValue();
+			return lineInfo;
 		}
 		
 		private boolean firstTime = true;
@@ -449,7 +451,7 @@ public class FigureLibrary {
 								new FigureLibrary(VF).edit(fileLoc, result.getValue());
 							}
 						});
-						callBackThread.run(); // execute the callback on a seperate thread to avoid slowing down the page switches
+						callBackThread.start(); // execute the callback on a seperate thread to avoid slowing down the page switches
 					}
 				}
 				
