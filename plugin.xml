@@ -174,7 +174,7 @@
       <editor
             class="org.rascalmpl.eclipse.box.BoxViewer"
             default="false"
-            extensions="rsc, pico"
+            extensions="rsc, pico, oberon0"
             icon="icons/rascal3D_2-16px.gif"
             id="org.rascalmpl.eclipse.box.boxviewer"
             name="Box Viewer">
@@ -776,6 +776,7 @@
           <or>
           <!--instanceof value="org.eclipse.ui.texteditor.AbstractTextEditor"/>-->
             <equals value="org.rascalmpl.eclipse.box.boxviewer"/>
+            <equals value="rascal-eclipse.Figure.viewer"/>
             <equals value="rascal.editor"/>
             <equals value="rascal-eclipse.Figure.lattice"/>
             <equals value="rascal-eclipse.Figure.spring"/>
