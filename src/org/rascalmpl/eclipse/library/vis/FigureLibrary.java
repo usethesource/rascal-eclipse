@@ -276,7 +276,7 @@ public class FigureLibrary {
 			if (firstTime) {
 				annotationRunners.put(result, this);
 				annotationRunnerEvaluators.put(result, fun.getEval());
-				String fileName = ((IEditorInput)result.getEditorInput()).getName();
+				String fileName = result.getEditorInput().getName();
 				int dotPosition = fileName.lastIndexOf('.');
 				if (dotPosition != -1) {
 					String extension = fileName.substring(dotPosition).toLowerCase();
