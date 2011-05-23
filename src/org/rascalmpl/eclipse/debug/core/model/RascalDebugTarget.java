@@ -38,11 +38,11 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	private volatile IRascalConsole console;
 
 	// containing launch object
-	private ILaunch fLaunch;
+	private final ILaunch fLaunch;
 
 	// threads
-	private IThread[] fThreads;
-	private RascalThread fThread;
+	private final IThread[] fThreads;
+	private final RascalThread fThread;
 
 	/**
 	 * Constructs a new debug target in the given launch for the 
@@ -231,11 +231,10 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @return this debug target's single thread, or <code>null</code>
 	 * if terminated
 	 */
-	public synchronized RascalThread getThread() {
+	public RascalThread getThread() {
 		return fThread;
 	}
-
-
+	
 	public IProcess getProcess() {
 		return null;
 	}

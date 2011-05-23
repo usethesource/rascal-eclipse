@@ -74,10 +74,7 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 	private static void cleanupCacheFor(String currentEditorId) {
 		ContributionCacheItem cachedItemIds;
 		synchronized (contributionCache) { // avoid double deletion
-			cachedItemIds = contributionCache.get(currentEditorId);
-			if (cachedItemIds != null){
-				contributionCache.remove(currentEditorId);
-			}
+			cachedItemIds = contributionCache.remove(currentEditorId);
 		}
 		if (cachedItemIds != null){
 			ICommandService cmdService = getCommandService();
