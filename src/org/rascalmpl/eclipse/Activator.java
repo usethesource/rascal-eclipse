@@ -24,7 +24,7 @@ import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.osgi.framework.Bundle;
-import org.rascalmpl.eclipse.util.UIToRascalInvoker;
+import org.rascalmpl.eclipse.util.RascalInvoker;
 import org.rascalmpl.parser.Parser;
 
 public class Activator extends PluginBase {
@@ -37,7 +37,7 @@ public class Activator extends PluginBase {
 		Activator.getInstance(); // Stupid ...
 		Parser.getInfo(); // Trigger the initialization of the static stuff in the Rascal parser.
 		
-		UIToRascalInvoker.initialize(); // Start the UIInvoker.
+		RascalInvoker.initialize(); // Start the UIInvoker.
 	}
 
 	private static class InstanceKeeper {
