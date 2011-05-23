@@ -168,13 +168,12 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 					URI fileRef = new Resources(VF).makeFile(activeEditorInput).getURI();
 					ISourceLocation selectedLine = VF.sourceLocation(fileRef, selection.getOffset(), selection.getLength(), selection.getStartLine() + 1, selection.getEndLine() + 1, -1, -1);
 					if (selectedLine != null) {
-						func.call(new Type[] { TF.stringType(), TF.sourceLocationType() }, new IValue[] { VF.string(selection.getText()),  selectedLine });
+						synchronized(func.getEval()){
+							func.call(new Type[] { TF.stringType(), TF.sourceLocationType() }, new IValue[] { VF.string(selection.getText()),  selectedLine });
+						}
 					}
 					return null;
 				}
-
-				
-				
 			};
 			newCommand.setHandler(handler);
 			return commandId;

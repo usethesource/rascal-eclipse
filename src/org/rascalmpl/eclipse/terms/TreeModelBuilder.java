@@ -35,10 +35,12 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
-public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageService  {
+public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageService{
 	private Language lang;
 	
-	public TreeModelBuilder() {}
+	public TreeModelBuilder(){
+		super();
+	}
 
 	@Override
 	protected void visitTree(Object root) {
@@ -54,7 +56,10 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 		}
 
 		try {
-			IValue outline = outliner.call(new Type[] {RascalTypeFactory.getInstance().nonTerminalType(pt)}, new IValue[] {pt}).getValue();
+			IValue outline;
+			synchronized(outliner.getEval()){
+				outline = outliner.call(new Type[] {RascalTypeFactory.getInstance().nonTerminalType(pt)}, new IValue[] {pt}).getValue();
+			}
 
 			if (outline instanceof INode) {
 				INode node = (INode) outline;

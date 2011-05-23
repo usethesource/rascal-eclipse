@@ -19,7 +19,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -66,6 +65,8 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.library.util.Resources;
+import org.rascalmpl.eclipse.util.RascalInvoker;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
@@ -107,7 +108,9 @@ public class FigureLibrary {
 			return cachedEditorPart;
 			
 		}
+		
 		private IList previousList = null;
+		
 		public void run() {
 			try {
 				IEditorPart editorPart = getEditorPart();
@@ -146,8 +149,6 @@ public class FigureLibrary {
 									annotationModel.removeAnnotation(anno);
 							}
 						}	
-						
-						
 						
 						for(IValue v : lines){
 							IConstructor lineDecor = (IConstructor) v;
@@ -244,7 +245,7 @@ public class FigureLibrary {
 	}
 	
 	private class OneTimeDecoratorRunner extends DecoratorRunnerBase {
-		private IList lineInfo;
+		private final IList lineInfo;
 
 		public OneTimeDecoratorRunner(ISourceLocation loc, IList lineInfo,  IWorkbenchPage page) {
 			super(loc, page);
@@ -257,7 +258,8 @@ public class FigureLibrary {
 	}
 	
 	private class RepeatableDecoratorRunner extends DecoratorRunnerBase {
-		private ICallableValue fun;
+		private final ICallableValue fun;
+		
 		public RepeatableDecoratorRunner(ISourceLocation loc, ICallableValue fun,  IWorkbenchPage page) {
 			super(loc, page);
 			this.fun = fun;
@@ -273,6 +275,7 @@ public class FigureLibrary {
 			IEditorPart result = super.getEditorPart();
 			if (firstTime) {
 				annotationRunners.put(result, this);
+				annotationRunnerEvaluators.put(result, fun.getEval());
 				String fileName = ((IEditorInput)result.getEditorInput()).getName();
 				int dotPosition = fileName.lastIndexOf('.');
 				if (dotPosition != -1) {
@@ -339,10 +342,6 @@ public class FigureLibrary {
 		}		
 	}
 	
-	
-	
-	
-	
 	/**
 	 * Start an editor for a given source location
 	 * 
@@ -351,7 +350,6 @@ public class FigureLibrary {
 	 * 
 	 * Code is cloned from SourceLocationHyperlink (but heavily adapted)
 	 */
-	
 	public void edit(final ISourceLocation loc, final IList lineInfo) {
 		IWorkbenchWindow win = getWorkbenchWindow();
 		if (win != null) {
@@ -363,7 +361,6 @@ public class FigureLibrary {
 
 	}
 	
-	
 	/**
 	 * Start an editor for a given source location
 	 * 
@@ -373,13 +370,15 @@ public class FigureLibrary {
 	 * Code is cloned from SourceLocationHyperlink (but heavily adapted)
 	 */	
 	public void edit(final ISourceLocation loc, final IValue lineInfo) {
-		if (lineInfo instanceof ICallableValue) { 
+		if (lineInfo instanceof ICallableValue) {
+			ICallableValue lineInfoFunc = (ICallableValue) lineInfo;
+			
 			IWorkbenchWindow win = getWorkbenchWindow();
 			if (win != null) {
 				IWorkbenchPage page = win.getActivePage();
 				if (page != null) {
 					page.addPartListener(annotationListener);
-					Display.getDefault().asyncExec(new RepeatableDecoratorRunner(loc, (ICallableValue)lineInfo,  page));
+					RascalInvoker.invokeUIAsync(new RepeatableDecoratorRunner(loc, lineInfoFunc,  page), lineInfoFunc.getEval());
 				}
 			}
 		}
@@ -395,7 +394,6 @@ public class FigureLibrary {
 		return win;
 	}
 	
-	
 	public void provideDefaultLineDecorations(IString extension,  IValue handleNewFile) {
 		if(handleNewFile instanceof ICallableValue){
 			IWorkbenchWindow win = getWorkbenchWindow();
@@ -407,6 +405,7 @@ public class FigureLibrary {
 					// okay, we have to remove the old provided LineDecorators
 					for (IWorkbenchPart part : partsProvided.get(extension.getValue())) {
 						annotationRunners.remove(part);
+						annotationRunnerEvaluators.remove(part);
 					}
 				}
 				partsProvided.put(extension.getValue(), new HashSet<IWorkbenchPart>());
@@ -415,11 +414,11 @@ public class FigureLibrary {
 		}
 	}
 	
-	
 	/*
 	 * This is the storage of WorkbenchPart and their associated annotation runners.
 	 */
 	private final static Map<IWorkbenchPart, Runnable> annotationRunners = new ConcurrentHashMap<IWorkbenchPart, Runnable>();
+	private final static Map<IWorkbenchPart, Evaluator> annotationRunnerEvaluators = new ConcurrentHashMap<IWorkbenchPart, Evaluator>();
 	private final static Map<String, Set<IWorkbenchPart>> partsProvided = new ConcurrentHashMap<String, Set<IWorkbenchPart>>();
 	private final static Map<String, ICallableValue> defaultProviders = new ConcurrentHashMap<String, ICallableValue>();
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -429,7 +428,8 @@ public class FigureLibrary {
 		public void partActivated(IWorkbenchPart part) {
 			Runnable runAgain = annotationRunners.get(part);
 			if (runAgain != null) {
-				Display.getDefault().asyncExec(runAgain);
+				Evaluator eval = annotationRunnerEvaluators.get(part);
+				RascalInvoker.invokeAsync(runAgain, eval);
 			} 
 			else if (part instanceof ITextEditor) { // only try to run the callback if there wasn't another runner associated
 				IEditorInput editorInput = part.getSite().getPage().getActiveEditor().getEditorInput();
@@ -444,8 +444,7 @@ public class FigureLibrary {
 						Thread callBackThread = new Thread(new Runnable() {
 							@Override
 							public void run() {
-								Result<IValue> result = defaultProvider.call(new Type[] { TF.sourceLocationType() }, 
-										new IValue[] { fileLoc });
+								Result<IValue> result = defaultProvider.call(new Type[] { TF.sourceLocationType() }, new IValue[] { fileLoc });
 								new FigureLibrary(VF).edit(fileLoc, result.getValue());
 							}
 						});
@@ -459,11 +458,11 @@ public class FigureLibrary {
 		@Override
 		public void partClosed(IWorkbenchPart part) {
 			annotationRunners.remove(part);
+			annotationRunnerEvaluators.remove(part);
 			for (String ext : partsProvided.keySet()) {
 				partsProvided.get(ext).remove(part);
 			}
 		}
-		
 		
 		@Override
 		public void partBroughtToTop(IWorkbenchPart part) {
@@ -476,7 +475,5 @@ public class FigureLibrary {
 		@Override
 		public void partOpened(IWorkbenchPart part) {
 		}
-		
-		
 	};
 }

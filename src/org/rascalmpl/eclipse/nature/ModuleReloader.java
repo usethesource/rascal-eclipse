@@ -157,7 +157,9 @@ public class ModuleReloader{
 				
 				
 				try {
-					eval.reloadModules(eval.getMonitor(), names, URI.create("console:///"));
+					synchronized(eval){
+						eval.reloadModules(eval.getMonitor(), names, URI.create("console:///"));
+					}
 				}catch (Throwable x) {
 					// reloading modules may trigger many issues, however, these should be visible
 					// already in the editors for the respective modules, so we ignore them here

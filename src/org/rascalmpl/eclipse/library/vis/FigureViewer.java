@@ -40,6 +40,7 @@ import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.box.BoxPrinter;
+import org.rascalmpl.eclipse.util.RascalInvoker;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.FigureSWTApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
@@ -204,17 +205,15 @@ public class FigureViewer extends EditorPart {
 			final IWorkbenchPage page = win.getActivePage();
 
 			if (page != null) {
-				Display.getDefault().asyncExec(new Runnable() {
+				RascalInvoker.invokeAsync(new Runnable() {
 					public void run() {
 						try {
-							page.openEditor(new FigureEditorInput(name, fig,
-									ctx), editorId);
+							page.openEditor(new FigureEditorInput(name, fig, ctx), editorId);
 						} catch (PartInitException e) {
-							Activator.getInstance().logException(
-									"failed to open Figure viewer", e);
+							Activator.getInstance().logException("failed to open Figure viewer", e);
 						}
 					}
-				});
+				}, ctx.getEvaluator());
 			}
 		}
 	}

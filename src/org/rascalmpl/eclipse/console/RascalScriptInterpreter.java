@@ -110,8 +110,10 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 	public void initialize(Evaluator eval){
 		ProjectEvaluatorFactory.getInstance().initializeProjectEvaluator(project, eval);
 		loadCommandHistory();
-		eval.doImport(null, "IO");
-		eval.doImport(null, "ParseTree");
+		synchronized(eval){
+			eval.doImport(null, "IO");
+			eval.doImport(null, "ParseTree");
+		}
 		this.eval = eval;
 		this.reloader = new ModuleReloader(eval);
 	}
@@ -149,9 +151,11 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			RascalMonitor rm = new RascalMonitor(monitor);
 			rm.startJob("executing command", 10000);
 			rm.event("parsing command");
-			final IConstructor tree = eval.parseCommand(rm, command, URI.create("stdin:///"));
-			rm.event("running command");
-			execCommand(rm, tree);
+			synchronized(eval){
+				IConstructor tree = eval.parseCommand(rm, command, URI.create("stdin:///"));
+				rm.event("running command");
+				execCommand(rm, tree);
+			}
 			rm.endJob(true);
 		
 		}

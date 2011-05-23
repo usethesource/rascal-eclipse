@@ -49,5 +49,3 @@ public void java edit(loc file,  ComputedLineDecorations lineInfo);
 @doc{Provide a closure to add line decorations for file not opened using the edit method, but of a certain extensions (such as .java)}
 @javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
 public void java provideDefaultLineDecorations(str extension,  ComputedLineDecorations (loc newFile) handleNewFile);
-
-
