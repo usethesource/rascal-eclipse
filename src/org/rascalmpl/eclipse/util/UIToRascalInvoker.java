@@ -52,7 +52,7 @@ public class UIToRascalInvoker{
 						}
 					}
 					
-					LOCK.block();
+					if(r == null) LOCK.block();
 					
 					if(!running) return;
 				}while(r == null);
