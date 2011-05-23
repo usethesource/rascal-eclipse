@@ -81,6 +81,8 @@ public class UIToRascalInvoker{
 	}
 	
 	public static void invokeAsync(Runnable runnable, Evaluator evaluator){
+		if(runnable == null || evaluator == null) throw new IllegalArgumentException();
+		
 		synchronized(QUEUE){
 			QUEUE.put(runnable, evaluator);
 		}
