@@ -35,6 +35,7 @@ import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.services.IServiceLocator;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
+import org.rascalmpl.eclipse.util.RascalInvoker;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -158,14 +159,17 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 			IHandler handler = new AbstractHandler() {
 				@Override
 				public Object execute(ExecutionEvent event) throws ExecutionException {
-					ITextSelection selection = (ITextSelection)HandlerUtil.getActiveWorkbenchWindowChecked(event).getSelectionService().getSelection();
+					final ITextSelection selection = (ITextSelection)HandlerUtil.getActiveWorkbenchWindowChecked(event).getSelectionService().getSelection();
 					IEditorInput activeEditorInput = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
 					URI fileRef = new Resources(VF).makeFile(activeEditorInput).getURI();
-					ISourceLocation selectedLine = VF.sourceLocation(fileRef, selection.getOffset(), selection.getLength(), selection.getStartLine() + 1, selection.getEndLine() + 1, -1, -1);
+					final ISourceLocation selectedLine = VF.sourceLocation(fileRef, selection.getOffset(), selection.getLength(), selection.getStartLine() + 1, selection.getEndLine() + 1, -1, -1);
 					if (selectedLine != null) {
-						synchronized(func.getEval()){
-							func.call(new Type[] { TF.stringType(), TF.sourceLocationType() }, new IValue[] { VF.string(selection.getText()),  selectedLine });
-						}
+						RascalInvoker.invokeUIAsync(new Runnable() {
+							@Override
+							public void run() {
+								func.call(new Type[] { TF.stringType(), TF.sourceLocationType() }, new IValue[] { VF.string(selection.getText()),  selectedLine });
+							}
+						}, func.getEval());
 					}
 					return null;
 				}

@@ -204,7 +204,7 @@ public class FigureViewer extends EditorPart {
 			final IWorkbenchPage page = win.getActivePage();
 
 			if (page != null) {
-				RascalInvoker.invokeAsync(new Runnable() {
+				RascalInvoker.invokeUIAsync(new Runnable() {
 					public void run() {
 						try {
 							page.openEditor(new FigureEditorInput(name, fig, ctx), editorId);

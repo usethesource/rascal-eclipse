@@ -429,7 +429,7 @@ public class FigureLibrary {
 			Runnable runAgain = annotationRunners.get(part);
 			if (runAgain != null) {
 				Evaluator eval = annotationRunnerEvaluators.get(part);
-				RascalInvoker.invokeAsync(runAgain, eval);
+				RascalInvoker.invokeUIAsync(runAgain, eval);
 			} 
 			else if (part instanceof ITextEditor) { // only try to run the callback if there wasn't another runner associated
 				IEditorInput editorInput = part.getSite().getPage().getActiveEditor().getEditorInput();
@@ -444,7 +444,10 @@ public class FigureLibrary {
 						Thread callBackThread = new Thread(new Runnable() {
 							@Override
 							public void run() {
-								Result<IValue> result = defaultProvider.call(new Type[] { TF.sourceLocationType() }, new IValue[] { fileLoc });
+								Result<IValue> result ;
+								synchronized (defaultProvider.getEval()) {
+									result = defaultProvider.call(new Type[] { TF.sourceLocationType() }, new IValue[] { fileLoc });	
+								}
 								new FigureLibrary(VF).edit(fileLoc, result.getValue());
 							}
 						});
