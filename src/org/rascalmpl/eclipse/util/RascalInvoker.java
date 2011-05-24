@@ -25,12 +25,6 @@ public class RascalInvoker{
 		}).start();
 	}
 	
-	public static void invokeUISync(Runnable runnable, Evaluator evaluator){
-		synchronized(evaluator){
-			Display.getDefault().syncExec(runnable);
-		}
-	}
-	
 	public static void invokeUIAsync(final Runnable runnable, final Evaluator evaluator){
 		new Thread(new Runnable(){
 			public void run(){
