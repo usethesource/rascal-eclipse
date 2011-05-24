@@ -46,12 +46,13 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ActionContributor implements ILanguageActionsContributor {
 	private static final class Runner extends Action {
-		private RascalAction job;
-		private boolean sync;
-		private UniversalEditor editor;
+		private final UniversalEditor editor;
+		private final RascalAction job;
+		private final boolean sync;
 
 		public Runner(boolean synchronous, String label, UniversalEditor editor, RascalAction job) {
 			super(label);
+			
 			this.editor = editor;
 			this.job = job;
 			this.sync = synchronous;
@@ -95,6 +96,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 
 		private RascalAction(String text, ICallableValue func) {
 			super(text);
+			
 			this.func = func;
 		}
 		
@@ -112,9 +114,11 @@ public class ActionContributor implements ILanguageActionsContributor {
 				ISourceLocation loc = TreeAdapter.getLocation(tree);
 				IValue[] actuals = new IValue[] { tree, VF.sourceLocation(loc.getURI(), selection.x, selection.y, -1, -1, -1, -1)};
 				try {
-					
 					rascalMonitor.startJob("Executing " + getName(), 10000);
-					IValue result = func.call(rascalMonitor, actualTypes, actuals).getValue();
+					IValue result;
+					synchronized(func.getEval()){
+						result = func.call(rascalMonitor, actualTypes, actuals).getValue();
+					}
 					
 					if (((FunctionType) func.getType()).getReturnType() != TF.voidType()) {
 						this.result = (IString) result;
