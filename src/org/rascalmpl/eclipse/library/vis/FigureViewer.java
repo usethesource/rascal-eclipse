@@ -25,6 +25,7 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IPartListener2;
@@ -34,6 +35,7 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
@@ -99,6 +101,10 @@ public class FigureViewer extends EditorPart {
 	@Override
 	public boolean isSaveAsAllowed() {
 		return false;
+	}
+	
+	public Shell getShell() {
+		return sc.getShell();
 	}
 
 	@Override
@@ -174,6 +180,10 @@ public class FigureViewer extends EditorPart {
 		};
 
 		getSite().getPage().addPartListener(partListener);
+		
+		MyPrintAction printAction = new MyPrintAction(this);
+		getEditorSite().getActionBars().setGlobalActionHandler(ActionFactory.PRINT.getId(),
+		printAction); 
 
 	}
 
