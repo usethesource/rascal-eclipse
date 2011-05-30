@@ -10,34 +10,34 @@ public class RascalInvoker{
 	}
 	
 	public static void invokeSync(Runnable runnable, Evaluator evaluator){
-		if (evaluator != null){
-			synchronized(evaluator){
-				runnable.run();
-			}
+		if(evaluator == null) throw new IllegalArgumentException("Evaluator can't be null.");
+		
+		synchronized(evaluator){
+			runnable.run();
 		}
 	}
 	
 	public static void invokeAsync(final Runnable runnable, final Evaluator evaluator){
-		if (evaluator != null){
-			new Thread(new Runnable(){
-				public void run(){
-					synchronized(evaluator){
-						runnable.run();
-					}
+		if(evaluator == null) throw new IllegalArgumentException("Evaluator can't be null.");
+		
+		new Thread(new Runnable(){
+			public void run(){
+				synchronized(evaluator){
+					runnable.run();
 				}
-			}).start();
-		}
+			}
+		}).start();
 	}
 	
 	public static void invokeUIAsync(final Runnable runnable, final Evaluator evaluator){
-		if (evaluator != null){
-			new Thread(new Runnable(){
-				public void run(){
-					synchronized(evaluator){
-						Display.getDefault().syncExec(runnable);
-					}
+		if(evaluator == null) throw new IllegalArgumentException("Evaluator can't be null.");
+		
+		new Thread(new Runnable(){
+			public void run(){
+				synchronized(evaluator){
+					Display.getDefault().syncExec(runnable);
 				}
-			}).start();
-		}
+			}
+		}).start();
 	}
 }
