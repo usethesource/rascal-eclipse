@@ -5,6 +5,7 @@ import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -108,6 +109,7 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 		else {
 			cleanupCacheFor(currentEditorId); // first cleanup the cache items to avoid reusing an old one
 			contributionItemIds = generateContributions(contribs);
+			Collections.sort(contributionItemIds);// make sure the members are always in the same order.
 			
 			// updating the cache
 			cachedItemIds = new ContributionCacheItem();
