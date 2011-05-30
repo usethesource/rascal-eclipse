@@ -70,7 +70,7 @@ public class MessageProcessor {
 				processMarkers((IConstructor) child, handler);
 			}
 		}
-		else if (TreeAdapter.isAmb(tree)) {
+		else if (TreeAdapter.isAmb(tree) || TreeAdapter.isErrorAmb(tree)) {
 			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
 				processMarkers((IConstructor) alt, handler);
 			}
