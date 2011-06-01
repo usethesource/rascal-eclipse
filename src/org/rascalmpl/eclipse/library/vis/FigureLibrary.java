@@ -10,9 +10,12 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Davy Landman - Davy.Landman@cwi.nl - CWI
-*******************************************************************************/
+ *******************************************************************************/
 package org.rascalmpl.eclipse.library.vis;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,7 +49,9 @@ import org.eclipse.jface.text.ISynchronizable;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -70,7 +75,10 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.FigureColorUtils;
+import org.rascalmpl.library.vis.FigureSWTApplet;
+import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class FigureLibrary {
@@ -81,129 +89,159 @@ public class FigureLibrary {
 		private final ISourceLocation loc;
 		private final IWorkbenchPage page;
 
-		
 		protected abstract IList getLineInfo();
 
 		private DecoratorRunnerBase(ISourceLocation loc, IWorkbenchPage page) {
 			this.loc = loc;
 			this.page = page;
 		}
-		
+
 		private IEditorPart cachedEditorPart = null;
+
 		protected IEditorPart getEditorPart() throws PartInitException {
-			// we cache the editor part because each openEditorOnFileStore / openEditor will reactive that editor part
-			// to avoid looping due to events fired by a editor part activation we want to avoid that except for the first time.
+			// we cache the editor part because each openEditorOnFileStore /
+			// openEditor will reactive that editor part
+			// to avoid looping due to events fired by a editor part activation
+			// we want to avoid that except for the first time.
 			if (cachedEditorPart == null) {
-				IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(loc.getURI().getPath());
+				IEditorDescriptor desc = PlatformUI.getWorkbench()
+						.getEditorRegistry()
+						.getDefaultEditor(loc.getURI().getPath());
 
 				if (desc != null) {
-					cachedEditorPart = page.openEditor(getEditorInput(loc.getURI()), desc.getId());
+					cachedEditorPart = page.openEditor(
+							getEditorInput(loc.getURI()), desc.getId());
 				} else {
-					IFileStore fileStore = EFS.getLocalFileSystem().getStore(loc.getURI());
-					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-					cachedEditorPart = IDE.openEditorOnFileStore(page, fileStore);
+					IFileStore fileStore = EFS.getLocalFileSystem().getStore(
+							loc.getURI());
+					IWorkbenchPage page = PlatformUI.getWorkbench()
+							.getActiveWorkbenchWindow().getActivePage();
+					cachedEditorPart = IDE.openEditorOnFileStore(page,
+							fileStore);
 				}
-			
+
 			}
 			return cachedEditorPart;
-			
+
 		}
-		
+
 		private IList previousList = null;
-		
+
 		public void run() {
 			try {
 				IEditorPart editorPart = getEditorPart();
 				if (editorPart != null && editorPart instanceof ITextEditor) {
 					ITextEditor editor = (ITextEditor) editorPart;
-					IDocumentProvider documentProvider = editor.getDocumentProvider();
-					IDocument document = documentProvider.getDocument(editor.getEditorInput());
+					IDocumentProvider documentProvider = editor
+							.getDocumentProvider();
+					IDocument document = documentProvider.getDocument(editor
+							.getEditorInput());
 					if (document != null) {
 						IList lines = getLineInfo();
 						if (previousList != null && previousList.equals(lines)) {
-							return; // nothing has changed, so we can avoid removing and re-adding everything
-						} 
-						else { //
+							return; // nothing has changed, so we can avoid
+									// removing and re-adding everything
+						} else { //
 							previousList = lines;
 						}
 						// First delete old markers
 
 						IEditorInput input = editor.getEditorInput();
-						IResource inputResource = ResourceUtil.getResource(input);
-						for(IMarker marker : inputResource.findMarkers(RASCAL_MARKER, true, IResource.DEPTH_INFINITE)){
-							if(marker.exists())
+						IResource inputResource = ResourceUtil
+								.getResource(input);
+						for (IMarker marker : inputResource.findMarkers(
+								RASCAL_MARKER, true, IResource.DEPTH_INFINITE)) {
+							if (marker.exists())
 								marker.delete();
 						}
 
 						// ... and old annotations
 
-						IAnnotationModel annotationModel = documentProvider.getAnnotationModel(editor.getEditorInput());
+						IAnnotationModel annotationModel = documentProvider
+								.getAnnotationModel(editor.getEditorInput());
 
 						// Lock on the annotation model
-						Object lockObject = ((ISynchronizable) annotationModel).getLockObject();
-						synchronized(lockObject){
-							Iterator<Annotation> iter = annotationModel.getAnnotationIterator();
-							while(iter.hasNext()){
+						Object lockObject = ((ISynchronizable) annotationModel)
+								.getLockObject();
+						synchronized (lockObject) {
+							Iterator<Annotation> iter = annotationModel
+									.getAnnotationIterator();
+							while (iter.hasNext()) {
 								Annotation anno = iter.next();
-								if(anno.getType().startsWith("rascal.highlight"))
+								if (anno.getType().startsWith(
+										"rascal.highlight"))
 									annotationModel.removeAnnotation(anno);
 							}
-						}	
-						
-						for(IValue v : lines){
+						}
+
+						for (IValue v : lines) {
 							IConstructor lineDecor = (IConstructor) v;
-							int lineNumber = ((IInteger)lineDecor.get(0)).intValue();
-							String msg = ((IString)lineDecor.get(1)).getValue();
+							int lineNumber = ((IInteger) lineDecor.get(0))
+									.intValue();
+							String msg = ((IString) lineDecor.get(1))
+									.getValue();
 							int severity = 0;
 							boolean useMarker = true;
-							
+
 							String name = lineDecor.getName();
-							if(name.equals("info"))
+							if (name.equals("info"))
 								severity = IMarker.SEVERITY_INFO;
-							else if(name.equals("warning"))
+							else if (name.equals("warning"))
 								severity = IMarker.SEVERITY_WARNING;
-							else if(name.equals("error"))
+							else if (name.equals("error"))
 								severity = IMarker.SEVERITY_ERROR;
 							else {
 								useMarker = false;
 							}
 
-							if(useMarker){ // Add a marker
-								IMarker marker = inputResource.createMarker(RASCAL_MARKER);
-								marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+							if (useMarker) { // Add a marker
+								IMarker marker = inputResource
+										.createMarker(RASCAL_MARKER);
+								marker.setAttribute(IMarker.LINE_NUMBER,
+										lineNumber);
 								marker.setAttribute(IMarker.MESSAGE, msg);
-								marker.setAttribute(IMarker.LOCATION, "line " + lineNumber);
+								marker.setAttribute(IMarker.LOCATION, "line "
+										+ lineNumber);
 								marker.setAttribute(IMarker.SEVERITY, severity);
-							} else {	// Add an annotation
+							} else { // Add an annotation
 								int highlightKind = 0;
-								
-								if(lineDecor.arity() > 2){
-									highlightKind = ((IInteger)lineDecor.get(2)).intValue();
-									if(highlightKind < 0)
+
+								if (lineDecor.arity() > 2) {
+									highlightKind = ((IInteger) lineDecor
+											.get(2)).intValue();
+									if (highlightKind < 0)
 										highlightKind = 0;
-									if(highlightKind >= LINE_HIGHLIGHT_LENGTH)
+									if (highlightKind >= LINE_HIGHLIGHT_LENGTH)
 										highlightKind = LINE_HIGHLIGHT_LENGTH - 1;
 								}
-			
+
 								String highlightName = RASCAL_LINE_HIGHLIGHT[highlightKind];
-								
+
 								try {
-									// line count internally starts with 0, and not with 1 like in GUI
-									IRegion lineInfo = document.getLineInformation(lineNumber - 1);
-									synchronized(lockObject){
-										Annotation currentLine = new Annotation(highlightName, true, msg);
-										Position currentPosition = new Position(lineInfo.getOffset(), lineInfo.getLength());
-										annotationModel.addAnnotation(currentLine, currentPosition);
+									// line count internally starts with 0, and
+									// not with 1 like in GUI
+									IRegion lineInfo = document
+											.getLineInformation(lineNumber - 1);
+									synchronized (lockObject) {
+										Annotation currentLine = new Annotation(
+												highlightName, true, msg);
+										Position currentPosition = new Position(
+												lineInfo.getOffset(),
+												lineInfo.getLength());
+										annotationModel.addAnnotation(
+												currentLine, currentPosition);
 									}
 								} catch (org.eclipse.jface.text.BadLocationException e) {
-									// Ignore, lineNumber may just not exist in file
+									// Ignore, lineNumber may just not exist in
+									// file
 								}
 							}
 						}
-					}  
+					}
 				}
 			} catch (PartInitException e) {
-				Activator.getInstance().logException("failed to open editor for source loc:" + loc, e);
+				Activator.getInstance().logException(
+						"failed to open editor for source loc:" + loc, e);
 			} catch (CoreException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -214,15 +252,17 @@ public class FigureLibrary {
 			String scheme = uri.getScheme();
 
 			if (scheme.equals("project")) {
-				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getHost());
+				IProject project = ResourcesPlugin.getWorkspace().getRoot()
+						.getProject(uri.getHost());
 
 				if (project != null) {
 					return new FileEditorInput(project.getFile(uri.getPath()));
 				}
 
-				Activator.getInstance().logException("project " + uri.getHost() + " does not exist", new RuntimeException());
-			}
-			else if (scheme.equals("file")) {
+				Activator.getInstance().logException(
+						"project " + uri.getHost() + " does not exist",
+						new RuntimeException());
+			} else if (scheme.equals("file")) {
 				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 				IFile[] cs = root.findFilesForLocationURI(uri);
 
@@ -230,46 +270,54 @@ public class FigureLibrary {
 					return new FileEditorInput(cs[0]);
 				}
 
-				Activator.getInstance().logException("file " + uri + " not found", new RuntimeException());
-			}
-			else if (scheme.equals("rascal-library")) {
-				IFile [] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
+				Activator.getInstance().logException(
+						"file " + uri + " not found", new RuntimeException());
+			} else if (scheme.equals("rascal-library")) {
+				IFile[] files = ResourcesPlugin.getWorkspace().getRoot()
+						.findFilesForLocationURI(uri);
 				if (files.length > 0) {
 					return new FileEditorInput(files[0]);
 				}
 			}
 
-			Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
+			Activator.getInstance().logException(
+					"scheme " + uri.getScheme() + " not supported",
+					new RuntimeException());
 			return null;
 		}
 	}
-	
+
 	private class OneTimeDecoratorRunner extends DecoratorRunnerBase {
 		private final IList lineInfo;
 
-		public OneTimeDecoratorRunner(ISourceLocation loc, IList lineInfo,  IWorkbenchPage page) {
+		public OneTimeDecoratorRunner(ISourceLocation loc, IList lineInfo,
+				IWorkbenchPage page) {
 			super(loc, page);
 			this.lineInfo = lineInfo;
 		}
+
 		@Override
 		protected IList getLineInfo() {
 			return lineInfo;
 		}
 	}
-	
+
 	private class RepeatableDecoratorRunner extends DecoratorRunnerBase {
 		private final ICallableValue fun;
-		
-		public RepeatableDecoratorRunner(ISourceLocation loc, ICallableValue fun,  IWorkbenchPage page) {
+
+		public RepeatableDecoratorRunner(ISourceLocation loc,
+				ICallableValue fun, IWorkbenchPage page) {
 			super(loc, page);
 			this.fun = fun;
 		}
+
 		@Override
 		protected IList getLineInfo() {
-			return (IList)fun.call(new Type[0], new IValue[0]).getValue();
+			return (IList) fun.call(new Type[0], new IValue[0]).getValue();
 		}
-		
+
 		private boolean firstTime = true;
+
 		@Override
 		protected IEditorPart getEditorPart() throws PartInitException {
 			IEditorPart result = super.getEditorPart();
@@ -279,106 +327,117 @@ public class FigureLibrary {
 				String fileName = result.getEditorInput().getName();
 				int dotPosition = fileName.lastIndexOf('.');
 				if (dotPosition != -1) {
-					String extension = fileName.substring(dotPosition).toLowerCase();
-					Set<IWorkbenchPart> extensionList = partsProvided.get(extension);
+					String extension = fileName.substring(dotPosition)
+							.toLowerCase();
+					Set<IWorkbenchPart> extensionList = partsProvided
+							.get(extension);
 					if (extensionList != null) {
 						extensionList.add(result);
 					}
-					
+
 				}
 				firstTime = false;
 			}
 			return result;
 		}
 	}
-	
+
 	IValueFactory values;
-	
-	public FigureLibrary(IValueFactory values){
+
+	public FigureLibrary(IValueFactory values) {
 		super();
-		this.values=values;		
+		this.values = values;
 	}
-	
-	public void render(IConstructor fig, IEvaluatorContext ctx){
+
+	public void render(IConstructor fig, IEvaluatorContext ctx) {
 		FigureViewer.open(values.string("Figure"), fig, ctx);
 	}
-	
-	public void render(IString name, IConstructor fig, IEvaluatorContext ctx){
+
+	public void render(IString name, IConstructor fig, IEvaluatorContext ctx) {
 		FigureViewer.open(name, fig, ctx);
 	}
-	
+
 	/*
 	 * Local declarations for annotations and markers
 	 */
-	
+
 	private final int LINE_HIGHLIGHT_LENGTH = 5;
-	
-	// This following list of annotations has to be in sync with the annotations declared in plugin.xml
-	
-	private final static String[] RASCAL_LINE_HIGHLIGHT = 
-	{ "rascal.highlight0",
-	  "rascal.highlight1",
-	  "rascal.highlight2",
-	  "rascal.highlight3",
-	  "rascal.highlight4"
-	};
-	
+
+	// This following list of annotations has to be in sync with the annotations
+	// declared in plugin.xml
+
+	private final static String[] RASCAL_LINE_HIGHLIGHT = {
+			"rascal.highlight0", "rascal.highlight1", "rascal.highlight2",
+			"rascal.highlight3", "rascal.highlight4" };
+
 	private final static String RASCAL_MARKER = "rascal.markerType.queryResult";
-	
+
 	/**
 	 * Define a list of custom colors for line highlights in the editor
-	 * @param colors	The list of colors
+	 * 
+	 * @param colors
+	 *            The list of colors
 	 */
-	public void setHighlightColors(final IList colors){
-		
+	public void setHighlightColors(final IList colors) {
+
 		FigureColorUtils.setHighlightColors(colors);
-		
+
 		IPreferenceStore prefStore = EditorsUI.getPreferenceStore();
 
-		for(int i = 0; i < colors.length() && i < LINE_HIGHLIGHT_LENGTH; i++){
-			int color = ((IInteger)colors.get(i)).intValue();
+		for (int i = 0; i < colors.length() && i < LINE_HIGHLIGHT_LENGTH; i++) {
+			int color = ((IInteger) colors.get(i)).intValue();
 			String prefKey = "Highlight" + i + "ColorPreferenceKey";
-			PreferenceConverter.setValue(prefStore, prefKey, FigureColorUtils.toRGB(color));
-		}		
+			PreferenceConverter.setValue(prefStore, prefKey,
+					FigureColorUtils.toRGB(color));
+		}
 	}
-	
+
 	/**
 	 * Start an editor for a given source location
 	 * 
-	 * @param loc		The source location to be edited
-	 * @param lineInfo	A list of LineDecorations (see Render.rsc)
+	 * @param loc
+	 *            The source location to be edited
+	 * @param lineInfo
+	 *            A list of LineDecorations (see Render.rsc)
 	 * 
-	 * Code is cloned from SourceLocationHyperlink (but heavily adapted)
+	 *            Code is cloned from SourceLocationHyperlink (but heavily
+	 *            adapted)
 	 */
 	public void edit(final ISourceLocation loc, final IList lineInfo) {
 		IWorkbenchWindow win = getWorkbenchWindow();
 		if (win != null) {
 			IWorkbenchPage page = win.getActivePage();
 			if (page != null) {
-				Display.getDefault().asyncExec(new OneTimeDecoratorRunner(loc, lineInfo,  page));
+				Display.getDefault().asyncExec(
+						new OneTimeDecoratorRunner(loc, lineInfo, page));
 			}
 		}
 
 	}
-	
+
 	/**
 	 * Start an editor for a given source location
 	 * 
-	 * @param loc		The source location to be edited
-	 * @param lineInfo	A list of LineDecorations (see Render.rsc) or a Computed list of LineDecorations
+	 * @param loc
+	 *            The source location to be edited
+	 * @param lineInfo
+	 *            A list of LineDecorations (see Render.rsc) or a Computed list
+	 *            of LineDecorations
 	 * 
-	 * Code is cloned from SourceLocationHyperlink (but heavily adapted)
-	 */	
+	 *            Code is cloned from SourceLocationHyperlink (but heavily
+	 *            adapted)
+	 */
 	public void edit(final ISourceLocation loc, final IValue lineInfo) {
 		if (lineInfo instanceof ICallableValue) {
 			ICallableValue lineInfoFunc = (ICallableValue) lineInfo;
-			
+
 			IWorkbenchWindow win = getWorkbenchWindow();
 			if (win != null) {
 				IWorkbenchPage page = win.getActivePage();
 				if (page != null) {
 					page.addPartListener(annotationListener);
-					RascalInvoker.invokeUIAsync(new RepeatableDecoratorRunner(loc, lineInfoFunc,  page), lineInfoFunc.getEval());
+					RascalInvoker.invokeUIAsync(new RepeatableDecoratorRunner(
+							loc, lineInfoFunc, page), lineInfoFunc.getEval());
 				}
 			}
 		}
@@ -393,9 +452,10 @@ public class FigureLibrary {
 		}
 		return win;
 	}
-	
-	public void provideDefaultLineDecorations(IString extension,  IValue handleNewFile) {
-		if(handleNewFile instanceof ICallableValue){
+
+	public void provideDefaultLineDecorations(IString extension,
+			IValue handleNewFile) {
+		if (handleNewFile instanceof ICallableValue) {
 			IWorkbenchWindow win = getWorkbenchWindow();
 
 			if (win != null) {
@@ -403,26 +463,31 @@ public class FigureLibrary {
 				page.addPartListener(annotationListener);
 				if (partsProvided.containsKey(extension.getValue())) {
 					// okay, we have to remove the old provided LineDecorators
-					for (IWorkbenchPart part : partsProvided.get(extension.getValue())) {
+					for (IWorkbenchPart part : partsProvided.get(extension
+							.getValue())) {
 						annotationRunners.remove(part);
 						annotationRunnerEvaluators.remove(part);
 					}
 				}
-				partsProvided.put(extension.getValue(), new HashSet<IWorkbenchPart>());
-				defaultProviders.put(extension.getValue(), (ICallableValue)handleNewFile);
+				partsProvided.put(extension.getValue(),
+						new HashSet<IWorkbenchPart>());
+				defaultProviders.put(extension.getValue(),
+						(ICallableValue) handleNewFile);
 			}
 		}
 	}
-	
+
 	/*
-	 * This is the storage of WorkbenchPart and their associated annotation runners.
+	 * This is the storage of WorkbenchPart and their associated annotation
+	 * runners.
 	 */
 	private final static Map<IWorkbenchPart, Runnable> annotationRunners = new ConcurrentHashMap<IWorkbenchPart, Runnable>();
 	private final static Map<IWorkbenchPart, Evaluator> annotationRunnerEvaluators = new ConcurrentHashMap<IWorkbenchPart, Evaluator>();
 	private final static Map<String, Set<IWorkbenchPart>> partsProvided = new ConcurrentHashMap<String, Set<IWorkbenchPart>>();
 	private final static Map<String, ICallableValue> defaultProviders = new ConcurrentHashMap<String, ICallableValue>();
 	private final static TypeFactory TF = TypeFactory.getInstance();
-	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	private final static IValueFactory VF = ValueFactoryFactory
+			.getValueFactory();
 	private final static IPartListener annotationListener = new IPartListener() {
 		@Override
 		public void partActivated(IWorkbenchPart part) {
@@ -430,31 +495,44 @@ public class FigureLibrary {
 			if (runAgain != null) {
 				Evaluator eval = annotationRunnerEvaluators.get(part);
 				RascalInvoker.invokeUIAsync(runAgain, eval);
-			} 
-			else if (part instanceof ITextEditor) { // only try to run the callback if there wasn't another runner associated
-				IEditorInput editorInput = part.getSite().getPage().getActiveEditor().getEditorInput();
+			} else if (part instanceof ITextEditor) { // only try to run the
+														// callback if there
+														// wasn't another runner
+														// associated
+				IEditorInput editorInput = part.getSite().getPage()
+						.getActiveEditor().getEditorInput();
 				String fileName = editorInput.getName();
 				int dotPosition = fileName.lastIndexOf('.');
 				if (dotPosition != -1) {
-					String extension = fileName.substring(dotPosition).toLowerCase();
-					final ICallableValue defaultProvider = defaultProviders.get(extension);
+					String extension = fileName.substring(dotPosition)
+							.toLowerCase();
+					final ICallableValue defaultProvider = defaultProviders
+							.get(extension);
 					if (defaultProvider != null) {
 						partsProvided.get(extension).add(part);
-						final ISourceLocation fileLoc = new Resources(VF).makeFile(editorInput);
+						final ISourceLocation fileLoc = new Resources(VF)
+								.makeFile(editorInput);
 						Thread callBackThread = new Thread(new Runnable() {
 							@Override
 							public void run() {
-								Result<IValue> result ;
+								Result<IValue> result;
 								synchronized (defaultProvider.getEval()) {
-									result = defaultProvider.call(new Type[] { TF.sourceLocationType() }, new IValue[] { fileLoc });	
+									result = defaultProvider.call(
+											new Type[] { TF
+													.sourceLocationType() },
+											new IValue[] { fileLoc });
 								}
-								new FigureLibrary(VF).edit(fileLoc, result.getValue());
+								new FigureLibrary(VF).edit(fileLoc,
+										result.getValue());
 							}
 						});
-						callBackThread.start(); // execute the callback on a seperate thread to avoid slowing down the page switches
+						callBackThread.start(); // execute the callback on a
+												// seperate thread to avoid
+												// slowing down the page
+												// switches
 					}
 				}
-				
+
 			}
 		}
 
@@ -466,7 +544,7 @@ public class FigureLibrary {
 				partsProvided.get(ext).remove(part);
 			}
 		}
-		
+
 		@Override
 		public void partBroughtToTop(IWorkbenchPart part) {
 		}
@@ -479,4 +557,56 @@ public class FigureLibrary {
 		public void partOpened(IWorkbenchPart part) {
 		}
 	};
+
+	private int getMode(final ISourceLocation sloc) {
+		int mode = SWT.IMAGE_JPEG;
+		URI uri = sloc.getURI();
+		String path = uri.getPath();
+		if (path.endsWith(".png"))
+			mode = SWT.IMAGE_PNG;
+		else if (path.endsWith(".bmp"))
+			mode = SWT.IMAGE_BMP;
+		// else if (path.endsWith(".gif"))
+		// mode = SWT.IMAGE_GIF;
+		else if (path.endsWith(".ico"))
+			mode = SWT.IMAGE_ICO;
+		else if (path.endsWith(".jpg"))
+			mode = SWT.IMAGE_JPEG;
+		return mode;
+
+	}
+
+	public void renderSave(final IConstructor fig, final ISourceLocation sloc,
+			final IEvaluatorContext ctx) {
+		final Display display = PlatformUI.getWorkbench().getDisplay();
+		display.asyncExec(new Runnable() {
+			public void run() {
+				final URI uri = sloc.getURI();
+				try {
+					final OutputStream out = ctx.getResolverRegistry()
+							.getOutputStream(uri, false);
+					final Shell shell = new Shell(display);
+					int mode = getMode(sloc);
+					final IFigureApplet fpa = new FigureSWTApplet(shell, sloc
+							.getURI().toString(), fig, ctx);
+					fpa.write(out, mode);
+					fpa.dispose();
+					out.close();
+					shell.dispose();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			};
+		});
+	}
+
+	/*
+	 * public void renderSave(IConstructor fig, ISourceLocation sloc,
+	 * IEvaluatorContext ctx) {
+	 * 
+	 * // ((FigureViewer) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+	 * // .getActivePage().getActiveEditor()) // .save(values, fig, sloc, ctx);
+	 * }
+	 */
 }
