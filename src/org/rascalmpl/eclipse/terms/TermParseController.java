@@ -43,8 +43,8 @@ import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TermParseController implements IParseController {
@@ -152,7 +152,7 @@ public class TermParseController implements IParseController {
 					}
 				}
 			}
-			catch (SyntaxError e) {
+			catch (ParseError e) {
 				ISourceLocation loc = e.getLocation();
 				loc = VF.sourceLocation(this.loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(),
 						loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());

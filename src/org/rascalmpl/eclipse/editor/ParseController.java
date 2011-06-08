@@ -44,7 +44,7 @@ import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -191,7 +191,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 				}
 			}catch (FactTypeUseException e){
 				Activator.getInstance().logException("parsing rascal failed", e);
-			}catch (SyntaxError e){
+			}catch (ParseError e){
 				ISourceLocation loc = e.getLocation();
 
 				setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), e.getMessage());

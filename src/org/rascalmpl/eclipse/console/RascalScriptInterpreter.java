@@ -81,6 +81,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -159,7 +160,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			rm.endJob(true);
 		
 		}
-		catch (SyntaxError e) {
+		catch (ParseError e) {
 			try {
 				execParseError(e);
 				error = e;
@@ -397,7 +398,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 	}
 
-	private void execParseError(SyntaxError e) throws CommandExecutionException{
+	private void execParseError(ParseError e) throws CommandExecutionException{
 		if (e.getLocation().getURI().getScheme().equals("stdin")) {
 			ISourceLocation location = e.getLocation();
 			String[] commandLines = command.split("\n");
