@@ -28,10 +28,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IPartListener2;
+// import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -57,7 +56,7 @@ public class FigureViewer extends EditorPart {
 
 	private IConstructor figure;
 
-	private IPartListener2 partListener;
+	// private IPartListener2 partListener;
 
 	public FigureViewer() {
 		super();
@@ -71,7 +70,6 @@ public class FigureViewer extends EditorPart {
 	public void doSaveAs() {
 	}
 	
-
 	public void print(Printer printer) {
 		if (printer.startJob("Figure")) {
 			if (fpa!=null) fpa.print(printer);
@@ -83,7 +81,6 @@ public class FigureViewer extends EditorPart {
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
 		setSite(site);
-		// System.err.println("QQQ:"+site.getId());
 		if (input instanceof FigureEditorInput
 				|| input instanceof FileEditorInput) {
 			setInput(input);
@@ -109,10 +106,8 @@ public class FigureViewer extends EditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-
 		// final int defaultWidth = 400;
 		// final int defaultHeight = 400;
-
 		final String title;
 		sc = new ScrolledComposite(parent, SWT.BORDER | SWT.H_SCROLL
 				| SWT.V_SCROLL);
@@ -152,44 +147,41 @@ public class FigureViewer extends EditorPart {
 
 		// Make sure that the frame gets the focus when the editor is brought to
 		// the top
-		partListener = new IPartListener2() {
-
-			public void partActivated(IWorkbenchPartReference partRef) {
-			}
-
-			public void partBroughtToTop(IWorkbenchPartReference partRef) {
-			}
-
-			public void partClosed(IWorkbenchPartReference partRef) {
-			}
-
-			public void partDeactivated(IWorkbenchPartReference partRef) {
-			}
-
-			public void partHidden(IWorkbenchPartReference partRef) {
-			}
-
-			public void partVisible(IWorkbenchPartReference partRef) {
-			}
-
-			public void partOpened(IWorkbenchPartReference partRef) {
-			}
-
-			public void partInputChanged(IWorkbenchPartReference partRef) {
-			}
-		};
-
-		getSite().getPage().addPartListener(partListener);
-		
-		MyPrintAction printAction = new MyPrintAction(this);
+//		partListener = new IPartListener2() {
+//
+//			public void partActivated(IWorkbenchPartReference partRef) {
+//			}
+//
+//			public void partBroughtToTop(IWorkbenchPartReference partRef) {
+//			}
+//
+//			public void partClosed(IWorkbenchPartReference partRef) {
+//			}
+//
+//			public void partDeactivated(IWorkbenchPartReference partRef) {
+//			}
+//
+//			public void partHidden(IWorkbenchPartReference partRef) {
+//			}
+//
+//			public void partVisible(IWorkbenchPartReference partRef) {
+//			}
+//
+//			public void partOpened(IWorkbenchPartReference partRef) {
+//			}
+//
+//			public void partInputChanged(IWorkbenchPartReference partRef) {
+//			}
+//		};
+//		getSite().getPage().addPartListener(partListener);
+		final MyPrintAction printAction = new MyPrintAction(this);
 		getEditorSite().getActionBars().setGlobalActionHandler(ActionFactory.PRINT.getId(),
 		printAction); 
-
 	}
 
 	public void dispose() {
-		IWorkbenchPage page = getSite().getPage();
-		page.removePartListener(partListener);
+		// IWorkbenchPage page = getSite().getPage();
+		// page.removePartListener(partListener);
 
 		Workbench.getInstance().getEditorHistory().remove(getEditorInput());
 

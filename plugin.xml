@@ -183,10 +183,10 @@
             class="org.rascalmpl.eclipse.library.vis.FigureViewer"
             default="false"
             extensions="cxt"
-            icon="icons/lattice.gif"
             id="rascal-eclipse.Figure.lattice"
             name="Lattice Figure">
       </editor>
+       <!-- icon="icons/lattice.gif" -->
       <editor
             class="org.rascalmpl.eclipse.library.vis.FigureViewer"
             default="false"
@@ -774,13 +774,7 @@
        <activeWhen>
          <with variable="activeEditorId">
           <or>
-          <!--instanceof value="org.eclipse.ui.texteditor.AbstractTextEditor"/>-->
-            <equals value="org.rascalmpl.eclipse.box.boxviewer"/>
-            <!--<equals value="rascal-eclipse.Figure.viewer"/>
             <equals value="rascal.editor"/>
-            <equals value="rascal-eclipse.Figure.lattice"/>
-            <equals value="rascal-eclipse.Figure.spring"/>
-            <equals value="rascal-eclipse.Figure.layered"/> -->
           </or>
         </with>
       </activeWhen> 
@@ -826,7 +820,6 @@
              tooltip="Print this file">       
        </command>
     </menuContribution>
-    <!--menuContribution locationURI="menu:org.eclipse.ui.main.menu?after=File"--> 
     <menuContribution locationURI="menu:file"> 
        <command
              commandId="org.eclipse.ui.file.print2"
@@ -911,8 +904,4 @@
     </dynamic>
   </menuContribution>
 </extension>
-
-
-
-
 </plugin>
