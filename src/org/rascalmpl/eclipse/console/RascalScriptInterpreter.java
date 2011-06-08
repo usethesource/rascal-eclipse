@@ -79,7 +79,6 @@ import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.uptr.Factory;
@@ -185,7 +184,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			ISourceLocation location = e.getLocation();
 			e.printStackTrace();
 			if (location != null) {
-				setMarker(e.getMessage(), location);
+				setMarker(e.getMessage(), location.getURI(), location.getOffset(), location.getLength());
 				error = new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
 			
@@ -200,7 +199,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			command = "";
 			ISourceLocation location = e.getLocation();
 			if(location != null && !location.getURI().getScheme().equals("stdin")){
-				setMarker(e.getMessage(), location);
+				setMarker(e.getMessage(), location.getURI(), location.getOffset(), location.getLength());
 				error = new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
 		}
@@ -252,27 +251,21 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		return true;
 	}
 	
-	private void setMarker(final String message, final ISourceLocation loc){
+	private void setMarker(final String message, final URI location, final int offset, final int length){
 		// This code makes sure that if files are read or written during Rascal execution, the build
 		// infra-structure of Eclipse is not triggered
 		IWorkspaceRunnable action = new IWorkspaceRunnable(){
 			public void run(IProgressMonitor monitor) throws CoreException{
 				try{
-					if(loc == null){
-						return;
-					}
-
-					URI url = loc.getURI();
-
-					if (project != null && url.getScheme().equals("project")) {
-						lastMarked = project.getFile(url.getPath());
+					if (project != null && location.getScheme().equals("project")) {
+						lastMarked = project.getFile(location.getPath());
 
 						if (lastMarked != null) {
 							IMarker m = lastMarked.createMarker(IMarker.PROBLEM);
 
 							m.setAttribute(IMarker.TRANSIENT, true);
-							m.setAttribute(IMarker.CHAR_START, loc.getOffset());
-							m.setAttribute(IMarker.CHAR_END, loc.getOffset() + loc.getLength());
+							m.setAttribute(IMarker.CHAR_START, offset);
+							m.setAttribute(IMarker.CHAR_END, offset + length);
 							m.setAttribute(IMarker.MESSAGE, message);
 							m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 							m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
@@ -398,38 +391,36 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 	}
 
-	private void execParseError(ParseError e) throws CommandExecutionException{
-		if (e.getLocation().getURI().getScheme().equals("stdin")) {
-			ISourceLocation location = e.getLocation();
+	private void execParseError(ParseError pe) throws CommandExecutionException{
+		if (pe.getLocation().getScheme().equals("stdin")) {
 			String[] commandLines = command.split("\n");
 			int lastLine = commandLines.length;
 			int lastColumn = commandLines[lastLine - 1].length();
 
-			if (location.getEndLine() == lastLine && lastColumn <= location.getEndColumn()) { 
+			if (pe.getEndLine() + 1 == lastLine && lastColumn <= pe.getEndColumn()) { 
 				content = "";
 			} else {
 				content = "";
 				int i = 0;
-				for ( ; i < location.getEndColumn() + "rascal>".length(); i++) {
+				for ( ; i < pe.getEndColumn() + "rascal>".length(); i++) {
 
 					content += " ";
 				}
 				content += "^ ";
 				content += "parse error here";
 				if (i > 80) {
-					content += "\nparse error at column " + location.getEndColumn();
+					content += "\nparse error at column " + pe.getEndColumn();
 				}
 				command = "";
-				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
+				throw new CommandExecutionException(content, pe.getOffset(), pe.getLength());
 			}
 		}
 		else {
-			content = e.getMessage();
+			content = pe.getMessage();
 			command = "";
-			ISourceLocation location = e.getLocation();
-			e.printStackTrace();
-				setMarker(e.getMessage(), location);
-				throw new CommandExecutionException(content, location.getOffset(), location.getLength());
+			pe.printStackTrace();
+				setMarker(pe.getMessage(), pe.getLocation(), pe.getOffset(), pe.getLength());
+				throw new CommandExecutionException(content, pe.getOffset(), pe.getLength());
 		}
 	}
 

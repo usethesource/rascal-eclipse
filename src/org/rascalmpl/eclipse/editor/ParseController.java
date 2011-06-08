@@ -32,7 +32,6 @@ import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
@@ -45,7 +44,6 @@ import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -111,8 +109,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		this.path = filePath;
 		this.handler = handler;
 		this.project = project;
-		IValueFactory VF = ValueFactoryFactory.getValueFactory();
-		this.job = new ParseJob("Rascal parser", VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, path)), handler);
+		this.job = new ParseJob("Rascal parser", ProjectURIResolver.constructProjectURI(project, path), handler);
 	}
 
 	public IDocument getDocument() {
@@ -129,11 +126,15 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	
 	private class ParseJob extends Job {
 		private final IMessageHandler handler;
-		public IConstructor parseTree = null;
-		private String input;
+		private final URI uri;
 
-		public ParseJob(String name, ISourceLocation loc, IMessageHandler handler) {
+		private String input;
+		public IConstructor parseTree = null;
+
+		public ParseJob(String name, URI uri, IMessageHandler handler) {
 			super(name);
+			
+			this.uri = uri;
 			this.handler = handler;
 		}
 		
@@ -154,8 +155,6 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			try{
 				handler.clearMessages();
 				
-				URI uri = ProjectURIResolver.constructProjectURI(project, path);
-
 				// TODO: this may be a workaround for a bug that's not there anymore
 				byte[] inputBytes = input.getBytes();
 				boolean arraysMatch = true;
@@ -186,21 +185,21 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 						ISourceLocation parsedLocation = TreeAdapter.getLocation(parseTree);
 						
 						// Set the error location to where the error tree ends.
-						setParseError(parsedLocation.getLength(), 0, parsedLocation.getEndLine(), parsedLocation.getEndColumn(), parsedLocation.getEndLine(), parsedLocation.getEndColumn(), "Parse error.");
+						setParseError(Math.max(0, parsedLocation.getLength() - 1), 0, parsedLocation.getEndLine(), parsedLocation.getEndColumn(), parsedLocation.getEndLine(), parsedLocation.getEndColumn(), "Parse error.");
 					}
 				}
-			}catch (FactTypeUseException e){
-				Activator.getInstance().logException("parsing rascal failed", e);
-			}catch (ParseError e){
-				ISourceLocation loc = e.getLocation();
+			}catch(FactTypeUseException ftue){
+				Activator.getInstance().logException("parsing rascal failed", ftue);
+			}catch(ParseError pe){
+				int offset = pe.getOffset();
+				if(offset == input.length()) --offset;
 
-				setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), e.getMessage());
-			}catch(Throw e){
-				ISourceLocation loc = e.getLocation();
+				setParseError(offset, pe.getLength(), pe.getBeginLine() + 1, pe.getBeginColumn(), pe.getEndLine() + 1, pe.getEndColumn(), pe.getMessage());
+			}catch(Throw t){
+				ISourceLocation loc = t.getLocation();
 				
-				setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), e.getMessage());
-			}
-			finally {
+				setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), t.getMessage());
+			}finally{
 				rm.endJob(true);
 			}
 			

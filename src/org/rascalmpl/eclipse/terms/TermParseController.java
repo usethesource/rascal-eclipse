@@ -38,6 +38,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.NodeLocator;
+import org.rascalmpl.eclipse.editor.Token;
 import org.rascalmpl.eclipse.editor.TokenIterator;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
@@ -49,7 +50,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TermParseController implements IParseController {
 	private ISourceProject project;
-	private ISourceLocation loc;
 	private IConstructor parseTree;
 	private IPath path;
 	private Language language;
@@ -93,7 +93,7 @@ public class TermParseController implements IParseController {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Iterator getTokenIterator(IRegion region) {
+	public Iterator<Token> getTokenIterator(IRegion region) {
 		return new TokenIterator(parseTree);
 	}
 
@@ -104,8 +104,7 @@ public class TermParseController implements IParseController {
 		this.language = reg.getLanguage(path.getFileExtension());
 		this.parser = reg.getParser(this.language);
 		this.annotator = reg.getAnnotator(this.language.getName());
-		this.loc = VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, path));
-		this.job = new ParseJob(language.getName() + " parser", loc, handler);
+		this.job = new ParseJob(language.getName() + " parser", VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, path)), handler);
 	}
 
 	public IDocument getDocument() {
@@ -122,14 +121,16 @@ public class TermParseController implements IParseController {
 	
 	private class ParseJob extends Job {
 		private final IMessageHandler handler;
-		public IConstructor parseTree = null;
 		private final ISourceLocation loc;
+		
 		private String input;
+		public IConstructor parseTree = null;
 
 		public ParseJob(String name, ISourceLocation loc, IMessageHandler handler) {
 			super(name);
-			this.handler = handler;
+			
 			this.loc = loc;
+			this.handler = handler;
 		}
 		
 		public void initialize(String input) {
@@ -152,11 +153,11 @@ public class TermParseController implements IParseController {
 					}
 				}
 			}
-			catch (ParseError e) {
-				ISourceLocation loc = e.getLocation();
-				loc = VF.sourceLocation(this.loc.getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(),
-						loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
-				handler.handleSimpleMessage("parse error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
+			catch (ParseError pe){
+				int offset = pe.getOffset();
+				if(offset == input.length()) --offset;
+				
+				handler.handleSimpleMessage("parse error", offset, offset + pe.getLength(), pe.getBeginColumn(), pe.getEndColumn(), pe.getBeginLine() + 1, pe.getEndLine() + 1);
 			} 
 			catch (Throw e) {
 				IValue exc = e.getException();
