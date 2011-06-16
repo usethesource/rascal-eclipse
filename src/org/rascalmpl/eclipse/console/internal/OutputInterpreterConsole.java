@@ -96,6 +96,7 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 						
 						// Add custom stuff.
 						toolBarManager.add(new RemoveAction(OutputInterpreterConsole.this));
+						toolBarManager.add(new InterruptAction(OutputInterpreterConsole.this));
 						
 						actionBars.updateActionBars();
 						
@@ -171,10 +172,25 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 		interpreter.interrupt();
 	}
 	
+	private static class InterruptAction extends Action{
+		private final OutputInterpreterConsole console;
+		
+		public InterruptAction(OutputInterpreterConsole console){
+			super("Interrupt");
+			
+			this.console = console;
+		}
+		
+		public void run(){
+			console.interrupt();
+		}
+	}
+	
 	public void terminate(){
 		partitionerFinished();
 		
 		commandExecutor.terminate();
+		interpreter.interrupt();
 		interpreter.terminate();
 	}
 	
