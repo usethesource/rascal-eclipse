@@ -85,7 +85,7 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RascalScriptInterpreter extends Job implements IInterpreter {
-	private final static int LINE_LIMIT = 200;
+	private final static int LINE_LIMIT = 4096;
 	private ModuleReloader reloader;
 	private Evaluator eval;
 	private volatile IInterpreterConsole console;
