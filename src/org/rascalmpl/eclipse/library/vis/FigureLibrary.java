@@ -348,12 +348,8 @@ public class FigureLibrary {
 		super();
 		this.values = values;
 	}
-
-	public void render(IConstructor fig, IEvaluatorContext ctx) {
-		FigureViewer.open(values.string("Figure"), fig, ctx);
-	}
-
-	public void render(IString name, IConstructor fig, IEvaluatorContext ctx) {
+	
+	public void renderActual(IString name, IConstructor fig, IEvaluatorContext ctx) {
 		FigureViewer.open(name, fig, ctx);
 	}
 
@@ -576,7 +572,7 @@ public class FigureLibrary {
 
 	}
 
-	public void renderSave(final IConstructor fig, final ISourceLocation sloc,
+	public void renderSaveActual(final IConstructor fig, final ISourceLocation sloc,
 			final IEvaluatorContext ctx) {
 		final Display display = PlatformUI.getWorkbench().getDisplay();
 		display.asyncExec(new Runnable() {
