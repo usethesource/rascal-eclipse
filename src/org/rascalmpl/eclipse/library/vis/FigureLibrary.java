@@ -352,6 +352,14 @@ public class FigureLibrary {
 	public void renderActual(IString name, IConstructor fig, IEvaluatorContext ctx) {
 		FigureViewer.open(name, fig, ctx);
 	}
+	
+	public void render(IList fig, IEvaluatorContext ctx) {
+		FigureViewer.open(values.string("Figure"), fig, ctx);
+	}
+
+	public void render(IString name, IList fig, IEvaluatorContext ctx) {
+		FigureViewer.open(name, fig, ctx);
+	}
 
 	/*
 	 * Local declarations for annotations and markers

@@ -19,7 +19,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.printing.Printer;
@@ -54,7 +56,7 @@ public class FigureViewer extends EditorPart {
 	
 	private ScrolledComposite sc;
 
-	private IConstructor figure;
+	private IValue figure;
 
 	// private IPartListener2 partListener;
 
@@ -121,8 +123,12 @@ public class FigureViewer extends EditorPart {
 			// canvas.setBackground(FigureSWTApplet.getColor(SWT.COLOR_YELLOW));
 			// canvas.setBackgroundMode(SWT.INHERIT_NONE);
 			figure = f.getFig();
+			if (figure instanceof IConstructor)
 			fpa = new FigureSWTApplet(canvas, f.getIString().getValue(),
-					figure, f.getCtx());
+					(IConstructor) figure, f.getCtx());
+			if (figure instanceof IList)
+				fpa = new FigureSWTApplet(canvas, f.getIString().getValue(),
+						(IList) figure, f.getCtx());
 			sc.setContent(canvas);
 			title = fpa.getName();
 		} else if (getEditorInput() instanceof FileEditorInput) {
@@ -136,7 +142,7 @@ public class FigureViewer extends EditorPart {
 			BoxPrinter boxPrinter = new BoxPrinter(p);
 			figure = boxPrinter.getFigure(uri, layout);
 			Canvas canvas = new Canvas(sc, SWT.NONE);
-			fpa = new FigureSWTApplet(canvas, figure, null);
+			fpa = new FigureSWTApplet(canvas, (IConstructor) figure, null);
 			sc.setContent(canvas);
 			title = f.getName();
 		} else
@@ -192,7 +198,7 @@ public class FigureViewer extends EditorPart {
 	public void setFocus() {
 	}
 
-	public static void open(final IString name, final IConstructor fig,
+	public static void open(final IString name, final IValue fig,
 			final IEvaluatorContext ctx) {
 
 		IWorkbench wb = PlatformUI.getWorkbench();

@@ -14,6 +14,7 @@ package org.rascalmpl.eclipse.library.vis;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
@@ -21,11 +22,11 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 
 public class FigureEditorInput implements IEditorInput {
 	
-	final private IConstructor fig;  
+	final private IValue fig;  
 	final private IEvaluatorContext ctx;
 	final private IString name;
 	
-	public IConstructor getFig() {
+	public IValue getFig() {
 		return fig;
 	}	
 
@@ -33,7 +34,7 @@ public class FigureEditorInput implements IEditorInput {
 		return ctx;
 	}
 
-	public FigureEditorInput(IString name, IConstructor fig,  IEvaluatorContext ctx) {
+	public FigureEditorInput(IString name, IValue fig,  IEvaluatorContext ctx) {
 		this.fig = fig;
 		this.ctx = ctx;
 		this.name = name;
