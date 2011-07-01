@@ -21,6 +21,8 @@ public NanoPatternProfile analyse(AstNode method, list[Entity] fieldsInClass) {
 	list[str] classFieldnames = getClassFieldnames(fieldsInClass);
 	list[str] methodVariablenames = getMethodVariablenames(method);
 
+	method = removeAnonymousClassDeclaration(method);
+
 	map[str, bool] patterns = ();
 	patterns +=	(NO_PARAM			:hasNoParams(method));
 	patterns +=	(NO_RETURN			:hasNoReturn(method));
@@ -41,6 +43,12 @@ public NanoPatternProfile analyse(AstNode method, list[Entity] fieldsInClass) {
 	patterns +=	(ARRAY_WRITER		:isArrayWriter(method));
 	
 	return nanoPatternProfile(patterns);
+}
+
+private AstNode removeAnonymousClassDeclaration(AstNode method) {
+	return visit(method) {
+		case anonymousClassDeclaration(_) => anonymousClassDeclaration([]) 
+	} 
 }
 
 @doc{A Method has no params when it has an empty parameter list in the methodDeclaration}
@@ -76,18 +84,26 @@ public bool isRecursive(AstNode method) {
 	return false;
 }
 
-@doc {A Method calls a method with same name if the called method has the same name but a different signature (not recursive)}
+@doc {A Method calls a method with same name if the called method has the same name but a different signature (not recursive) or it calls its super}
 public bool callsMethodWithSameName(AstNode method) {
 	str methodname = getMethodname(method);
 	list[Entity] paramTypes = getTypesOfParameters(method);
 
-	for (/methodInvocation(expression:_,_,methodname,arguments:_) := method) {
+	for (/methodInvocation(possibleExpression:_,_,methodname,arguments:_) := method) {
+		if (some(_) := possibleExpression) {
+			return true;
+		}
+		
 		list[Entity] argumentTypes = [argument@javaType | argument <- arguments]; 
 
 		if (paramTypes != argumentTypes) {
 			return true;
-		}			
-	}		
+		}					
+	}	
+	
+	if (/superMethodInvocation(_,_,methodname,_) := method) {
+		return true;
+	}	
 	
 	return false;
 }
@@ -95,9 +111,12 @@ public bool callsMethodWithSameName(AstNode method) {
 @doc{A Method is a leaf when it doesn't make any method invocations}
 private bool isLeaf(AstNode method) {
 	bool callsMethods = /methodInvocation(_,_,_,_) := method;
-	bool callsSuperMethod = /superMethodInvocation(_,_,_,_,_) := method;
+	bool callsSuperMethod = /superMethodInvocation(_,_,_,_) := method;
 	
-	return !callsMethods && !callsSuperMethod;
+	bool callsConstructor = /constructorInvocation(_,_) := method;
+	bool callsSuperConstructor = /superConstructorInvocation(_,_,_) := method;
+	
+	return !(callsMethods || callsSuperMethod || callsConstructor || callsSuperConstructor);
 }
 
 // Object Orientation
