@@ -96,7 +96,6 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 						
 						// Add custom stuff.
 						toolBarManager.add(new RemoveAction(OutputInterpreterConsole.this));
-						toolBarManager.add(new InterruptAction(OutputInterpreterConsole.this));
 						
 						actionBars.updateActionBars();
 						
@@ -151,39 +150,13 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 	public void executeCommand(String command){
 		commandExecutor.execute(command);
 	}
-
-        /**
-         * Do not call this method unless you're absolutely sure you
-         * understand the concurrency implications. (Arnold Lankamp)
-         */	 
+	
 	public void executeCommandAndWait(String command){
 		commandExecutor.executeAndWait(command);
 	}
-
-        /**
-         * Do not call this method unless you're absolutely sure you
-         * understand the concurrency implications. (Arnold Lankamp)
-         */	 
+	
 	public void unblock(){
 		commandExecutor.unblock();
-	}
-	
-	public void interrupt() {
-		interpreter.interrupt();
-	}
-	
-	private static class InterruptAction extends Action{
-		private final OutputInterpreterConsole console;
-		
-		public InterruptAction(OutputInterpreterConsole console){
-			super("Interrupt");
-			
-			this.console = console;
-		}
-		
-		public void run(){
-			console.interrupt();
-		}
 	}
 	
 	public void terminate(){
@@ -396,27 +369,31 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 				
 				if(!running) return;
 				
-				console.consoleOutputStream.enable();
-				
-				while(commandQueue.size() > 0){
-					String command = commandQueue.remove(0);
-					try{
-						boolean completeCommand = console.interpreter.execute(command);
-						if(completeCommand){
-							console.printOutput(console.interpreter.getOutput());
+				try{
+					console.consoleOutputStream.enable();
+					
+					while(commandQueue.size() > 0){
+						if(!running) return;
+						
+						String command = commandQueue.remove(0);
+						try{
+							boolean completeCommand = console.interpreter.execute(command);
+							if(completeCommand){
+								console.printOutput(console.interpreter.getOutput());
+							}
+						}catch(CommandExecutionException ceex){
+							console.printOutput(ceex.getMessage());
+						}catch(TerminationException tex){
+							// Roll over and die.
+							console.terminate();
+							return;
+						}finally{
+							unblock();
 						}
-					}catch(CommandExecutionException ceex){
-						console.printOutput(ceex.getMessage());
-					}catch(TerminationException tex){
-						// Roll over and die.
-						console.terminate();
-						return;
-					}finally{
-						unblock();
 					}
+				}finally{
+					console.consoleOutputStream.disable();
 				}
-				
-				console.consoleOutputStream.disable();
 			}
 		}
 		
