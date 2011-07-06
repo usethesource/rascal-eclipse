@@ -14,6 +14,9 @@ package org.rascalmpl.eclipse;
 
 public interface IRascalResources {
 
+	public static final String RASCAL_PROMPT = "rascal>";
+	public static final String RASCAL_CONTINUE_PROMPT = ">>>>>>>";
+	
 	public static final String RASCAL_DEFAULT_IMAGE = "rascal_default_image";
 	public static final String RASCAL_DEFAULT_OUTLINE_ITEM = "rascal_default_outline_item";
 	public static final String RASCAL_FILE = "rascal_file";
