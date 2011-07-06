@@ -11,47 +11,16 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console.internal;
 
-import org.eclipse.swt.custom.CaretEvent;
-import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.console.TextConsoleViewer;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Point;
-import org.rascalmpl.eclipse.IRascalResources;
 
 public class InterpreterConsoleViewer extends TextConsoleViewer{
 	private final InteractiveInterpreterConsole console;
 	private final CommandHistory history;
 	
 	private InterpreterConsoleStyledText styledText;
-
-	private class PromptManager implements CaretListener {
-		private InterpreterConsoleStyledText txt;
-
-		public PromptManager(InterpreterConsoleStyledText txt) {
-			this.txt = txt;
-		}
-		
-		@Override
-		public void caretMoved(CaretEvent event) {
-			int line = txt.getLineAtOffset(event.caretOffset);
-			Point loc = txt.getLocationAtOffset(event.caretOffset);
-			
-			String lineText = txt.getLine(line);
-			
-			if (lineText.length() > 0) {
-				int endOfPromptOffset = txt.getOffsetAtLine(line) + IRascalResources.RASCAL_PROMPT.length();
-				Point lineLoc = txt.getLocationAtOffset(endOfPromptOffset);
-
-				if (lineText.startsWith(IRascalResources.RASCAL_PROMPT) && loc.x < lineLoc.x) {
-					txt.setCaretOffset(txt.getOffsetAtLine(line) + IRascalResources.RASCAL_PROMPT.length());
-				}
-			}
-		}
-	}
 	
 	public InterpreterConsoleViewer(InteractiveInterpreterConsole console, Composite parent){
 		super(parent, console);
@@ -60,7 +29,6 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 		this.history = console.getHistory();
 		
 		styledText.removeLineStyleListener(this);
-		styledText.addCaretListener(new PromptManager(styledText));
 	}
 	
 	public StyledText createTextWidget(Composite parent, int styles){
@@ -102,6 +70,9 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 					history.updateCurrent(console.getCurrentConsoleInput());
 					String nextCommand = history.getNextCommand();
 					console.historyCommand(nextCommand);
+					return;
+				case ST.LINE_START:
+					setCaretOffset(console.getInputOffset());
 					return;
 			}
 
