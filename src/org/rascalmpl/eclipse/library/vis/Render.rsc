@@ -45,6 +45,21 @@ public void java setErrorColors(list[Color] colors);
 @javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
 public void java setHighlightColors(list[Color] colors);
 
+@doc{Open a source editor (using annotations from location)}
+public void edit(loc file){
+	edit(file,info,"Here");
+}
+
+@doc{Open a source editor (using annotations from location)}
+public void edit(loc file,str msg){
+	edit(file,info,msg);
+}
+
+@doc{Open a source editor (using annotations from location)}
+public void edit(loc file,LineDecoration (int,str) decorator,str msg){
+	edit(file,[decorator(i,msg) | i <- [file.begin[0]..file.end[0]]]);
+}
+	
 @doc{Open a source editor}
 @javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
 public void java edit(loc file, list[LineDecoration] lineInfo);
