@@ -40,6 +40,7 @@ import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
@@ -79,12 +80,15 @@ import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.utils.LimitedResultOutputStream;
+import org.rascalmpl.interpreter.utils.LimitedResultOutputStream.IOLimitReachedException;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RascalScriptInterpreter extends Job implements IInterpreter {
+	
 	private final static int LINE_LIMIT = 4096;
 	private ModuleReloader reloader;
 	private Evaluator eval;
@@ -335,8 +339,18 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		if (value != null) {
 			Type type = result.getType();
 			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
-				content = "`" + limitString(TreeAdapter.yield((IConstructor) value)) + "`\n" + 
-				result.toString(LINE_LIMIT);
+				content = type.toString() + ": `" + limitString(TreeAdapter.yield((IConstructor) value)) + "`\n";
+				
+				StandardTextWriter stw = new StandardTextWriter(false);
+				LimitedResultOutputStream lros = new LimitedResultOutputStream(1000);
+				try{
+					stw.write(value, lros);
+				}catch(IOLimitReachedException iolrex){
+					// This is fine, ignore.
+				}catch(IOException ioex){
+					// This can never happen.
+				}
+				content += "Tree: " + lros.toString();
 			} else {
 				content = result.toString(LINE_LIMIT);
 			}
@@ -402,7 +416,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			} else {
 				content = "";
 				int i = 0;
-				for ( ; i < pe.getEndColumn() + "rascal>".length(); i++) {
+				for ( ; i < pe.getEndColumn() + IRascalResources.RASCAL_PROMPT.length(); i++) {
 
 					content += " ";
 				}

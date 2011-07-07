@@ -34,7 +34,7 @@ public class Activator extends PluginBase {
 		super();
 		
 		Activator.getInstance(); // Stupid ...
-		Parser.getInfo(); // Trigger the initialization of the static stuff in the Rascal parser.
+//		Parser.getInfo(); // Trigger the initialization of the static stuff in the Rascal parser.
 	}
 
 	private static class InstanceKeeper {

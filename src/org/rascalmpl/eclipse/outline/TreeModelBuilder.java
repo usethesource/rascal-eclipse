@@ -37,11 +37,9 @@ import org.rascalmpl.ast.Declaration.Rule;
 import org.rascalmpl.ast.Declaration.Tag;
 import org.rascalmpl.ast.Declaration.Variable;
 import org.rascalmpl.ast.Module.Default;
-import org.rascalmpl.ast.Prod.Action;
 import org.rascalmpl.ast.Prod.All;
 import org.rascalmpl.ast.Prod.AssociativityGroup;
 import org.rascalmpl.ast.Prod.First;
-import org.rascalmpl.ast.Prod.Follow;
 import org.rascalmpl.ast.Prod.Labeled;
 import org.rascalmpl.ast.Prod.Others;
 import org.rascalmpl.ast.Prod.Reference;
@@ -184,9 +182,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 					// do nothing
 					return x;
 				}
-				public AbstractAST visitProdAction(Action x) {
-					return x.getProd().accept(this);
-				}
 				public AbstractAST visitProdAll(All x) {
 					x.getLhs().accept(this);
 					x.getRhs().accept(this);
@@ -200,10 +195,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 				public AbstractAST visitProdFirst(First x) {
 					x.getLhs().accept(this);
 					x.getRhs().accept(this);
-					return x;
-				}
-				public AbstractAST visitProdFollow(Follow x) {
-					x.getLhs().accept(this);
 					return x;
 				}
 				public AbstractAST visitProdLabeled(Labeled x) {

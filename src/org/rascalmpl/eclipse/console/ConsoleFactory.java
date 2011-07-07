@@ -36,7 +36,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ConsoleFactory{
 	public final static String INTERACTIVE_CONSOLE_ID = InteractiveInterpreterConsole.class.getName();
-	private final static String SHELL_MODULE = "***shell***";
+	private final static String SHELL_MODULE = "$shell$";
 
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final static IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
