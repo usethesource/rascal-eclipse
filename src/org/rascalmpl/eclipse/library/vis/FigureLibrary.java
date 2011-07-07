@@ -345,7 +345,6 @@ public class FigureLibrary {
 	IValueFactory values;
 
 	public FigureLibrary(IValueFactory values) {
-		super();
 		this.values = values;
 	}
 	
