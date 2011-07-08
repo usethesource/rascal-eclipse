@@ -159,7 +159,6 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 			}
 			final ICallableValue func = (ICallableValue) menu.get("handler");
 			IHandler handler = new AbstractHandler() {
-				@Override
 				public Object execute(ExecutionEvent event) throws ExecutionException {
 					final ITextSelection selection = (ITextSelection)HandlerUtil.getActiveWorkbenchWindowChecked(event).getSelectionService().getSelection();
 					IEditorInput activeEditorInput = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
@@ -167,7 +166,6 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 					final ISourceLocation selectedLine = VF.sourceLocation(fileRef, selection.getOffset(), selection.getLength(), selection.getStartLine() + 1, selection.getEndLine() + 1, -1, -1);
 					if (selectedLine != null) {
 						RascalInvoker.invokeUIAsync(new Runnable() {
-							@Override
 							public void run() {
 								func.call(new Type[] { TF.stringType(), TF.sourceLocationType() }, new IValue[] { VF.string(selection.getText()),  selectedLine });
 							}

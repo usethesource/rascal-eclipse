@@ -63,12 +63,10 @@ public class FigureViewer extends EditorPart {
 	public FigureViewer() {
 		super();
 	}
-
-	@Override
+	
 	public void doSave(IProgressMonitor monitor) {
 	}
-
-	@Override
+	
 	public void doSaveAs() {
 	}
 	
@@ -78,8 +76,7 @@ public class FigureViewer extends EditorPart {
 			printer.endJob();
 		}
 	}
-
-	@Override
+	
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
 		setSite(site);
@@ -91,13 +88,11 @@ public class FigureViewer extends EditorPart {
 					"Input of Figure visualization is not a Figure object");
 		}
 	}
-
-	@Override
+	
 	public boolean isDirty() {
 		return false;
 	}
-
-	@Override
+	
 	public boolean isSaveAsAllowed() {
 		return false;
 	}
@@ -105,8 +100,7 @@ public class FigureViewer extends EditorPart {
 	public Shell getShell() {
 		return sc.getShell();
 	}
-
-	@Override
+	
 	public void createPartControl(Composite parent) {
 		// final int defaultWidth = 400;
 		// final int defaultHeight = 400;
@@ -193,8 +187,7 @@ public class FigureViewer extends EditorPart {
 
 		super.dispose();
 	}
-
-	@Override
+	
 	public void setFocus() {
 	}
 

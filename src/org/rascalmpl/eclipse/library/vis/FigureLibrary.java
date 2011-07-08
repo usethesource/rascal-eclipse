@@ -295,8 +295,7 @@ public class FigureLibrary {
 			super(loc, page);
 			this.lineInfo = lineInfo;
 		}
-
-		@Override
+		
 		protected IList getLineInfo() {
 			return lineInfo;
 		}
@@ -310,15 +309,13 @@ public class FigureLibrary {
 			super(loc, page);
 			this.fun = fun;
 		}
-
-		@Override
+		
 		protected IList getLineInfo() {
 			return (IList) fun.call(new Type[0], new IValue[0]).getValue();
 		}
 
 		private boolean firstTime = true;
-
-		@Override
+		
 		protected IEditorPart getEditorPart() throws PartInitException {
 			IEditorPart result = super.getEditorPart();
 			if (firstTime) {
@@ -492,7 +489,7 @@ public class FigureLibrary {
 	private final static IValueFactory VF = ValueFactoryFactory
 			.getValueFactory();
 	private final static IPartListener annotationListener = new IPartListener() {
-		@Override
+		
 		public void partActivated(IWorkbenchPart part) {
 			Runnable runAgain = annotationRunners.get(part);
 			if (runAgain != null) {
@@ -516,7 +513,6 @@ public class FigureLibrary {
 						final ISourceLocation fileLoc = new Resources(VF)
 								.makeFile(editorInput);
 						Thread callBackThread = new Thread(new Runnable() {
-							@Override
 							public void run() {
 								Result<IValue> result;
 								synchronized (defaultProvider.getEval()) {
@@ -538,8 +534,7 @@ public class FigureLibrary {
 
 			}
 		}
-
-		@Override
+		
 		public void partClosed(IWorkbenchPart part) {
 			annotationRunners.remove(part);
 			annotationRunnerEvaluators.remove(part);
@@ -547,16 +542,13 @@ public class FigureLibrary {
 				partsProvided.get(ext).remove(part);
 			}
 		}
-
-		@Override
+		
 		public void partBroughtToTop(IWorkbenchPart part) {
 		}
-
-		@Override
+		
 		public void partDeactivated(IWorkbenchPart part) {
 		}
-
-		@Override
+		
 		public void partOpened(IWorkbenchPart part) {
 		}
 	};
