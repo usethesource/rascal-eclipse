@@ -24,7 +24,6 @@ import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.osgi.framework.Bundle;
-import org.rascalmpl.parser.Parser;
 
 public class Activator extends PluginBase {
 	public static final String PLUGIN_ID = "rascal_eclipse";

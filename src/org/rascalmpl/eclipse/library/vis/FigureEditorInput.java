@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.vis;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.jface.resource.ImageDescriptor;

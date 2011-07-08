@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.rascalmpl.eclipse.library.vis;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -75,7 +74,6 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.FigureColorUtils;
 import org.rascalmpl.library.vis.FigureSWTApplet;
 import org.rascalmpl.library.vis.IFigureApplet;
@@ -592,7 +590,7 @@ public class FigureLibrary {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			};
+			}
 		});
 	}
 
