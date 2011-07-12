@@ -59,7 +59,7 @@ public class FoldingUpdater extends FolderBase {
 						IConstructor prod = TreeAdapter.getProduction(arg);
 						IValueFactory VF = ValueFactoryFactory.getValueFactory();
 						
-						if (ProductionAdapter.hasAttribute(prod, Factory.Attr_Term.make(VF, VF.node("Foldable")))) {
+						if (ProductionAdapter.hasAttribute(prod, Factory.Attr_Tag.make(VF, VF.node("Foldable")))) {
 							makeAnnotation(arg);	
 						}
 						else if (arg.getAnnotation("foldable") != null) {
