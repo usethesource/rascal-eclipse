@@ -110,7 +110,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 			RascalMonitor rascalMonitor = new RascalMonitor(monitor);
 			
 			if (tree != null) {
-				Type[] actualTypes = new Type[] { RTF.nonTerminalType(ProductionAdapter.getRhs(TreeAdapter.getProduction(tree))), TF.sourceLocationType() };
+				Type[] actualTypes = new Type[] { RTF.nonTerminalType(ProductionAdapter.getType(TreeAdapter.getProduction(tree))), TF.sourceLocationType() };
 				ISourceLocation loc = TreeAdapter.getLocation(tree);
 				IValue[] actuals = new IValue[] { tree, VF.sourceLocation(loc.getURI(), selection.x, selection.y, -1, -1, -1, -1)};
 				try {
