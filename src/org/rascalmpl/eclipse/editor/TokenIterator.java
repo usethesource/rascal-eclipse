@@ -78,7 +78,7 @@ public class TokenIterator implements Iterator<Token>{
 			
 			int offset = location;
 			
-			if(TreeAdapter.isLiteral(arg)){
+			if(TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg)){
 				if(category == null){
 					String yield = TreeAdapter.yield(arg);
 					for(byte c : yield.getBytes()) {
@@ -123,7 +123,7 @@ public class TokenIterator implements Iterator<Token>{
 			
 			int offset = location;
 			
-			if(TreeAdapter.isLiteral(arg)){
+			if(TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg)){
 				if(category == null){
 					String yield = TreeAdapter.yield(arg);
 					for(byte c : yield.getBytes()) {
