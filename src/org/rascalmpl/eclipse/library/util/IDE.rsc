@@ -34,7 +34,7 @@ anno loc node@\loc;  // a link for an outline node
 @reflect{Use the evaluator to parse editor contents and apply functions to parse trees}
 @doc{This registers an extension with a parser for Eclipse}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
-public void java registerLanguage(str name, str extension, Tree (str input, loc origin) parse);
+public java void registerLanguage(str name, str extension, Tree (str input, loc origin) parse);
 
 @doc{
   This registers a tree processor for annotating a tree with doc(s), link, message(s)
@@ -43,7 +43,7 @@ public void java registerLanguage(str name, str extension, Tree (str input, loc 
   and documentation hovers.
 }
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
-public void java registerAnnotator(str name, (&T<:Tree) (&T<:Tree input) annotator);
+public java void registerAnnotator(str name, (&T<:Tree) (&T<:Tree input) annotator);
 
 @doc{This registers an outliner function. An outliner maps a parse tree to a simpler
 tree that summarizes the contents of a file. This summary is used to generate the outline
@@ -53,31 +53,31 @@ Use the "label", "loc" and "image" annotations on each node to guide how each ou
 item is displayed, which item it links to and what image is displayed next to it.
 }
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
-public void java registerOutliner(str name, node (&T<:Tree input) outliner);
+public java void registerOutliner(str name, node (&T<:Tree input) outliner);
 
 @doc{This registers a number of contributions to the menus of the IDE}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
-public void java registerContributions(str name, set[Contribution] contributions);
+public java void registerContributions(str name, set[Contribution] contributions);
 
 @doc{Use with caution! This will clear all registered languages (for debugging purposes)}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
-public void java clearLanguages();
+public java void clearLanguages();
 
 @doc{Use with caution! This will clear a registered language (for debugging purposes)}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
-public void java clearLanguage(str name);
+public java void clearLanguage(str name);
 
 @doc{This registers a number of contributions to the menus of the a non rascal code editor
 	@name: eclipse editor id
 	@contributions: (edit is not supported), and Tree parameter of the callback will be empty)}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
-public void java registerNonRascalContributions(str name, set[Contribution] contributions);
+public java void registerNonRascalContributions(str name, set[Contribution] contributions);
 
 @doc{This will clear all non rascal IDE contributions.}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
-public void java clearNonRascalContributions();
+public java void clearNonRascalContributions();
 
 @doc{This will clear all non rascal IDE contributions for the specified editor.
 	@name: eclipse editor id}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
-public void java clearNonRascalContribution(str name);
+public java void clearNonRascalContribution(str name);
