@@ -13,9 +13,9 @@ import Message;
 @doc{Remove all message markers from a resource.}
 @javaClass{org.rascalmpl.eclipse.library.util.ResourceMarkers}
 @reflect{Uses the evaluator for URI access}
-public void java removeMessageMarkers(loc resourceLoc);
+public java void removeMessageMarkers(loc resourceLoc);
 
 @doc{Add message markers to a resource.}
 @javaClass{org.rascalmpl.eclipse.library.util.ResourceMarkers}
 @reflect{Uses the evaluator for URI access}
-public void java addMessageMarkers(set[Message] markers);
+public java void addMessageMarkers(set[Message] markers);

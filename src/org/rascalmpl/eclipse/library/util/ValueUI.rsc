@@ -15,7 +15,7 @@ import Map;
 
 @javaClass{org.rascalmpl.eclipse.library.util.ValueUI}
 @doc{Starts an editor with an indented textual representation of any value}
-public void java text(value v, int indent);
+public java void text(value v, int indent);
 
 @doc{Starts an editor with an indented textual representation of any value}
 public void text(value v) {
@@ -24,7 +24,7 @@ public void text(value v) {
 
 @javaClass{org.rascalmpl.eclipse.library.util.ValueUI}
 @doc{Starts a tree view with a node for each nested value in a value}
-public void java tree(value v);
+public java void tree(value v);
 
 @doc{Displays any value as a set of nested figures. EXPERIMENTAL!}
 public void graph(value v) {

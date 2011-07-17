@@ -35,16 +35,16 @@ public set[loc] dependencies(loc project) {
 }
 
 @javaClass{org.rascalmpl.eclipse.library.util.Resources}
-public void java closeProject(loc project);
+public java void closeProject(loc project);
 
 @javaClass{org.rascalmpl.eclipse.library.util.Resources}
-public void java openProject(loc project);
+public java void openProject(loc project);
 
 @javaClass{org.rascalmpl.eclipse.library.util.Resources}
-public loc java location(loc project);
+public java loc location(loc project);
 
 @javaClass{org.rascalmpl.eclipse.library.util.Resources}
-public set[loc] java files(loc project);
+public java set[loc] files(loc project);
 
 @javaClass{org.rascalmpl.eclipse.library.util.Resources}
-public Resource java getProject(loc project);
+public java Resource getProject(loc project);
