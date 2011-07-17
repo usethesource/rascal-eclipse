@@ -15,9 +15,9 @@ import vis::FigureSWTApplet;
 @doc{Render a figure in a tab named "Figure"}
 @reflect{Needs calling context when calling argument function}
 @javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
-public void java render(list[DrawCmd] fig);
+public java void render(list[DrawCmd] fig);
 
 @doc{Render a figure in an explicitly named tab}
 @reflect{Needs calling context when calling argument function}
 @javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
-public void java render(str name, list[DrawCmd] fig);
+public java void render(str name, list[DrawCmd] fig);
