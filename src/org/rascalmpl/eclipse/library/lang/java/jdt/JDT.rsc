@@ -90,7 +90,7 @@ anno EntityRel  Resource@calls;
 @doc{import JDT facts from a Java file}
 @javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal.JDT}
 @reflect
-public Resource java extractClass(loc file);
+public java Resource extractClass(loc file);
 
 @doc{import JDT facts from a file or an entire project}
 public Resource extractProject(loc project) {
@@ -124,7 +124,7 @@ public Resource extractFactsTransitive(loc project) {
 
 @doc{checks if a Resource is in its project's build path}
 @javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal.JDT}
-public bool java isOnBuildPath(loc file);
+public java bool isOnBuildPath(loc file);
 
 @doc{
 	Union fact maps. Union values for facts that appear in both maps (if possible)
