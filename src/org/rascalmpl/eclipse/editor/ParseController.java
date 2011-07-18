@@ -185,7 +185,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 						ISourceLocation parsedLocation = TreeAdapter.getLocation(parseTree);
 						
 						// Set the error location to where the error tree ends.
-						setParseError(Math.max(0, parsedLocation.getLength() - 1), 0, parsedLocation.getEndLine(), parsedLocation.getEndColumn(), parsedLocation.getEndLine(), parsedLocation.getEndColumn(), "Parse error.");
+						setParseError(Math.max(0, parsedLocation.getLength() - 1), 0, parsedLocation.getEndLine(), parsedLocation.getEndColumn(), parsedLocation.getEndLine(), parsedLocation.getEndColumn(), "Parse error: " + parsedLocation);
 					}
 				}
 			}catch(FactTypeUseException ftue){
@@ -194,7 +194,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 				int offset = pe.getOffset();
 				if(offset == input.length()) --offset;
 
-				setParseError(offset, pe.getLength(), pe.getBeginLine() + 1, pe.getBeginColumn(), pe.getEndLine() + 1, pe.getEndColumn(), pe.getMessage());
+				setParseError(offset, pe.getLength(), pe.getBeginLine() + 1, pe.getBeginColumn(), pe.getEndLine() + 1, pe.getEndColumn(), pe.toString());
 			}catch(Throw t){
 				ISourceLocation loc = t.getLocation();
 				
