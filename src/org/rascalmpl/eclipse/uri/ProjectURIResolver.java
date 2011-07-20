@@ -23,7 +23,9 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -71,6 +73,16 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		return project.getFile(uri.getPath());
 	}
 	
+	private IFolder resolveFolder(URI uri) throws IOException, MalformedURLException {
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getHost());
+		
+		if (project == null) {
+			throw new IOException("project " + uri.getHost() + " does not exist");
+		}
+		
+		return project.getFolder(uri.getPath());
+	}
+	
 	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
 		return new FileOutputStream(resolve(uri).getRawLocation().toOSString(), append);
 	}
@@ -90,11 +102,23 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	}
 
 	public boolean isDirectory(URI uri) {
-		return false;
+		try {
+			return resolveFolder(uri).exists();
+		} catch (MalformedURLException e) {
+			return false;
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 	public boolean isFile(URI uri) {
-		return exists(uri);
+		try {
+			return resolve(uri).exists();
+		} catch (MalformedURLException e) {
+			return false;
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 	public long lastModified(URI uri) {
@@ -108,12 +132,45 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	}
 
 	public String[] listEntries(URI uri) {
-		String [] ls = {};
-		return ls;
+		try {
+			IFolder folder = resolveFolder(uri);
+			IResource[] members = folder.members();
+			String[] result = new String[members.length];
+			
+			for (int i = 0; i < members.length; i++) {
+				result[i] = members[i].getName();
+			}
+			
+			return result;
+		} catch (CoreException e) {
+			return new String[0];
+		} catch (MalformedURLException e) {
+			return new String[0];
+		} catch (IOException e) {
+			return new String[0];
+		}
 	}
 
 	public boolean mkDirectory(URI uri) {
-		return false;
+		IFolder resolved;
+		try {
+			resolved = resolveFolder(uri);
+			
+			if (!resolved.exists()) {
+				try {
+					resolved.create(true, true, null);
+					return true;
+				} catch (CoreException e) {
+					return false;
+				}
+			}
+			
+			return false;
+		} catch (MalformedURLException e1) {
+			return false;
+		} catch (IOException e1) {
+			return false;
+		}
 	}
 
 	public URI getResourceURI(URI uri) throws IOException {
