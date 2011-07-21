@@ -92,9 +92,8 @@ public class TermParseController implements IParseController {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Iterator<Token> getTokenIterator(IRegion region) {
-		return new TokenIterator(parseTree);
+		return new TokenIterator(true, parseTree);
 	}
 
 	public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {

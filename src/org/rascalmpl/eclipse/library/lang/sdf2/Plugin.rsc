@@ -12,11 +12,11 @@ import lang::sdf2::syntax::Sdf2;
 import util::IDE;
 import ParseTree;
 
-public Module parseModule(str input, loc l) {
-  return parse(#Module, input, l);
+public start[Module] parseModule(str input, loc l) {
+  return parse(#start[Module], input, l);
 }
 
-public Module parseDef(str input, loc l) {
+public SDF parseDef(str input, loc l) {
   return parse(#SDF, input, l);
 }
 

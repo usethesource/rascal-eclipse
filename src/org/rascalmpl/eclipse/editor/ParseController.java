@@ -102,7 +102,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	}
 	
 	public Iterator<Token> getTokenIterator(IRegion region) {
-		return parseTree != null ? new TokenIterator(parseTree) : null;
+		return parseTree != null ? new TokenIterator(true, parseTree) : null;
 	}
 
 	public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {

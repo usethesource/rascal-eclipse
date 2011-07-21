@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -26,9 +27,11 @@ import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 public class TokenIterator implements Iterator<Token>{
 	private final List<Token> tokenList;
 	private final Iterator<Token> tokenIterator;
+	private boolean showAmb;
 
-	public TokenIterator(IConstructor parseTree){
+	public TokenIterator(boolean showAmb, IConstructor parseTree){
 		this.tokenList = new LinkedList<Token>();
+		this.showAmb = showAmb;
 		
 		if(parseTree != null){
 			try{
@@ -61,15 +64,34 @@ public class TokenIterator implements Iterator<Token>{
 			location = 0;
 		}
 		
-		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException{
-			// we just go into the first, it's arbitrary but at least we'll get some nice highlighting
-			TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
+		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+			if (showAmb) {
+				int offset = location;
+				ISourceLocation ambLoc = TreeAdapter.getLocation(arg);
+				int length = ambLoc != null ? ambLoc.getLength() : TreeAdapter.yield(arg).length();
+
+				location += length;
+				tokenList.add(new Token(TokenColorer.META_AMBIGUITY, offset, length));
+			}
+			else {
+				TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
+			}
 			return arg;
+			
 		}
 		
 		public IConstructor visitTreeErrorAmb(IConstructor arg) throws VisitorException{
-			// we just go into the first, it's arbitrary but at least we'll get some nice highlighting
-			TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
+			if (showAmb) {
+				int offset = location;
+				ISourceLocation ambLoc = TreeAdapter.getLocation(arg);
+				int length = ambLoc != null ? ambLoc.getLength() : TreeAdapter.yield(arg).length();
+
+				location += length;
+				tokenList.add(new Token(TokenColorer.META_AMBIGUITY, offset, length));
+			}
+			else {
+				TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
+			}
 			return arg;
 		}
 		
@@ -78,26 +100,24 @@ public class TokenIterator implements Iterator<Token>{
 			
 			int offset = location;
 			
-			if(TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg)){
-				if(category == null){
-					String yield = TreeAdapter.yield(arg);
-					for(byte c : yield.getBytes()) {
-						if(c != '-' && !Character.isJavaIdentifierPart(c)){
-							location += TreeAdapter.yield(arg).length();
-							return arg;
-						}
-					}
-					category = TokenColorer.META_KEYWORD;
-				}
+			for (IValue child : TreeAdapter.getArgs(arg)){
+				child.accept(this);
 			}
 			
-			if(category == null){
-				for(IValue child : TreeAdapter.getArgs(arg)){
-					child.accept(this);
+			if (TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg)){
+				if (category == null){
+					category = TokenColorer.META_KEYWORD;
+					
+					for (IValue child : TreeAdapter.getArgs(arg)) {
+						int c = TreeAdapter.getCharacter((IConstructor) child);
+						if (c != '-' && !Character.isJavaIdentifierPart(c)){
+							category = null;
+						}
+					}
 				}
-			}else{
-				location += TreeAdapter.yield(arg).length();
-				
+			}
+
+			if (category != null) {
 				tokenList.add(new Token(category, offset, location - offset));
 			}
 
