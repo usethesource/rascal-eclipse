@@ -72,7 +72,6 @@ public class FigureViewer extends EditorPart {
 	
 	public void print(Printer printer) {
 		if (printer.startJob("Figure")) {
-			if (fpa!=null) fpa.print(printer);
 			printer.endJob();
 		}
 	}
