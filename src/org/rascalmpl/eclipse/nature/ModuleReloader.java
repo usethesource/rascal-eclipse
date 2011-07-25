@@ -111,6 +111,8 @@ public class ModuleReloader{
 										try{
 											URI uri = new URI("project://" + proj.getName() + "/" + file.getProjectRelativePath().removeFirstSegments(1).toPortableString());
 											interpreter.moduleChanged(uri);
+											uri = new URI("project://" + proj.getName() + "/" + IRascalResources.RASCAL_SRC + "/" + file.getProjectRelativePath().removeFirstSegments(1).toPortableString());
+											interpreter.moduleChanged(uri);
 										}catch(URISyntaxException usex){
 											usex.printStackTrace(); // TODO Change to something better.
 										}

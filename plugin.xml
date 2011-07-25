@@ -239,6 +239,14 @@
                tooltip="Launch a console with a command prompt">
          </action>
          <action
+               class="org.rascalmpl.eclipse.perspective.actions.ResetProjectState"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.resetproject"
+               label="Reset Project State"
+               menubarPath="additions"
+               tooltip="Reset the state of the interpreter associated with the current project.">
+         </action>
+         <action
                class="org.rascalmpl.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.launchdebugconsole"
@@ -272,15 +280,6 @@
                   value="rascal.nature">
             </objectState>
          </visibility>
-         <!--declaration of prerequisite plugins  
-         <action
-               class="org.rascalmpl.eclipse.box.PrintAction"
-               id = "org.rascalmpl.eclipse.box.printAction"
-               label="Pretty Print"
-               icon="icons/rascal3D_2-16px.gif"
-               menubarPath="additions">
-         </action>
-         -->
          <action
                class="org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction"
                icon="icons/rascal3D_2-16px.gif"
@@ -292,6 +291,12 @@
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.launchdebugconsole"
                label="Launch Debuggable Console">
+         </action>
+          <action
+               class="org.rascalmpl.eclipse.perspective.actions.ResetProjectState"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.resetproject"
+               label="Reset Project">
          </action>
       </objectContribution>
    </extension>

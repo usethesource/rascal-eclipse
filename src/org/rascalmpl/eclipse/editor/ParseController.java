@@ -18,7 +18,6 @@ package org.rascalmpl.eclipse.editor;
 import java.net.URI;
 import java.util.Iterator;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -57,10 +56,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	private Language language;
 	private IDocument document;
 	private org.rascalmpl.eclipse.editor.ParseController.ParseJob job;
-	
-	private Evaluator getParser(IProject project) {
-		return ProjectEvaluatorFactory.getInstance().getEvaluator(project);
-	}
+	private Evaluator parser;
 	
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
 		return null;
@@ -102,7 +98,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	}
 	
 	public Iterator<Token> getTokenIterator(IRegion region) {
-		return parseTree != null ? new TokenIterator(true, parseTree) : null;
+		return parseTree != null ? new TokenIterator(false, parseTree) : null;
 	}
 
 	public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {
@@ -110,6 +106,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		this.handler = handler;
 		this.project = project;
 		this.job = new ParseJob("Rascal parser", ProjectURIResolver.constructProjectURI(project, path), handler);
+		this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(project.getRawProject());
 	}
 
 	public IDocument getDocument() {
@@ -173,7 +170,6 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 				if (lastParsedInput != null && arraysMatch) {
 					parseTree = lastParseTree;
 				} else {
-					Evaluator parser = getParser(project.getRawProject());
 					// Note: One can switch between error and no error trees here.
 					synchronized(parser){
 						parseTree = parser.parseModuleWithErrorTree(rm, input.toCharArray(), uri, null);
