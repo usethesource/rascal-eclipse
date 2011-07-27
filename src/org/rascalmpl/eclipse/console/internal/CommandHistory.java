@@ -73,6 +73,7 @@ public class CommandHistory{
 	// Later
 	public String getNextCommand(){
 		if(index == history.size() || (++index) == history.size()){
+			updated = true;
 			return "";
 		}
 		
