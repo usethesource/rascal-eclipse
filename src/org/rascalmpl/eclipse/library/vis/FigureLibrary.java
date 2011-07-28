@@ -75,8 +75,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.FigureColorUtils;
-import org.rascalmpl.library.vis.FigureSWTApplet;
-import org.rascalmpl.library.vis.IFigureApplet;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class FigureLibrary {
@@ -571,6 +569,7 @@ public class FigureLibrary {
 
 	public void renderSaveActual(final IConstructor fig, final ISourceLocation sloc,
 			final IEvaluatorContext ctx) {
+		/*
 		final Display display = PlatformUI.getWorkbench().getDisplay();
 		display.asyncExec(new Runnable() {
 			public void run() {
@@ -592,6 +591,7 @@ public class FigureLibrary {
 				}
 			}
 		});
+		*/
 	}
 
 	/*
