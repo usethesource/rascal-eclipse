@@ -23,6 +23,7 @@ import java.util.WeakHashMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.runtime.RuntimePlugin;
@@ -82,7 +83,7 @@ public class ProjectEvaluatorFactory {
 		}
 		
 		try {
-			reloaderForProject.get(project).updateModules();
+			reloaderForProject.get(project).updateModules(new NullProgressMonitor());
 		}
 		catch (StaticError e) {
 			// things may go wrong while reloading modules, simply because the modules still have parse errors in them.

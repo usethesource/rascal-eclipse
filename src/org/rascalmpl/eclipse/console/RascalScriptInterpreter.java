@@ -158,6 +158,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			synchronized(eval){
 				IConstructor tree = eval.parseCommand(rm, command, URI.create("stdin:///"));
 				rm.event("running command");
+				reloader.updateModules(monitor); 
 				execCommand(rm, tree);
 			}
 			rm.endJob(true);
@@ -227,7 +228,6 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 
 		try {
-			reloader.updateModules();
 			command += cmd;
 			
 			project.getWorkspace().getRoot().deleteMarkers(IRascalResources.ID_RASCAL_MARKER_TYPE_TEST_RESULTS, false, IResource.DEPTH_INFINITE);
@@ -430,7 +430,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			}
 		}
 		else {
-			content = pe.getMessage();
+			content = pe.toString();
 			command = "";
 			pe.printStackTrace();
 				setMarker(pe.getMessage(), pe.getLocation(), pe.getOffset(), pe.getLength());

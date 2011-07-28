@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.interpreter.Evaluator;
 
@@ -44,8 +45,8 @@ public class ModuleReloader{
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(resourceChangeListener);
 	}
 	
-	public void updateModules(){
-		moduleChangeListener.updateModules();
+	public void updateModules(IProgressMonitor monitor){
+		moduleChangeListener.updateModules(monitor);
 	}
 
 	public synchronized void destroy(){
@@ -144,7 +145,7 @@ public class ModuleReloader{
 			}
 		}
 		
-		public void updateModules() {
+		public void updateModules(IProgressMonitor monitor) {
 			synchronized (dirtyModules) {
 				HashSet<String> names = new HashSet<String>();
 				
@@ -160,7 +161,7 @@ public class ModuleReloader{
 				
 				try {
 					synchronized(eval){
-						eval.reloadModules(eval.getMonitor(), names, URI.create("console:///"));
+						eval.reloadModules(new RascalMonitor(monitor) , names, URI.create("console:///"));
 					}
 				}catch (Throwable x) {
 					// reloading modules may trigger many issues, however, these should be visible
