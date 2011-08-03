@@ -36,7 +36,9 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 
 	public OutputStream getOutputStream(URI uri, boolean append)
 			throws IOException {
-		return registry.getOutputStream(resolve(uri), append);
+		URI parent = resolve(URIResolverRegistry.getParentURI(uri));
+		parent = resolve(parent);
+		return registry.getOutputStream(URIResolverRegistry.getChildURI(parent, URIResolverRegistry.getURIName(uri)), append);
 	}
 
 	public boolean mkDirectory(URI uri) throws IOException {
