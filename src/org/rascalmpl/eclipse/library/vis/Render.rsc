@@ -36,39 +36,3 @@ public java void renderActual(str name, Figure fig);
 @javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
 public java void renderSaveActual(Figure fig, loc file);
 
-
-@doc{Set custom colors for errors}
-@javaClass{org.rascalmpl.library.vis.FigureColorUtils}
-public java void setErrorColors(list[Color] colors);
-
-@doc{Set custom colors for line highlights}
-@javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
-public java void setHighlightColors(list[Color] colors);
-
-@doc{Open a source editor (using annotations from location)}
-public void edit(loc file){
-	edit(file,info,"Here");
-}
-
-@doc{Open a source editor (using annotations from location)}
-public void edit(loc file,str msg){
-	edit(file,info,msg);
-}
-
-@doc{Open a source editor (using annotations from location)}
-public void edit(loc file,LineDecoration (int,str) decorator,str msg){
-	edit(file,[decorator(i,msg) | i <- [file.begin[0]..file.end[0]]]);
-}
-	
-@doc{Open a source editor}
-@javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
-public java void edit(loc file, list[LineDecoration] lineInfo);
-
-alias ComputedLineDecorations = list[LineDecoration] ();
-@doc{Open a source editor, but with computed line dectorations}
-@javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
-public java void edit(loc file,  ComputedLineDecorations lineInfo);
-
-@doc{Provide a closure to add line decorations for file not opened using the edit method, but of a certain extensions (such as .java)}
-@javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
-public java void provideDefaultLineDecorations(str extension,  ComputedLineDecorations (loc newFile) handleNewFile);

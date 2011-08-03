@@ -55,6 +55,7 @@ public class FigureViewer extends EditorPart {
 		fpa = new FigureExecutionEnvironment(parent, cfig, f.getCtx());
 	}
 	
+	
 	public void doSave(IProgressMonitor monitor) {}
 	
 	public void doSaveAs() {}
@@ -97,7 +98,9 @@ public class FigureViewer extends EditorPart {
 		super.dispose();
 	}
 	
-	public void setFocus() {}
+	public void setFocus() {
+		fpa.getRootApplet().setFocus();
+	}
 
 	public static void open(final IString name, final IValue fig,
 			final IEvaluatorContext ctx) {
