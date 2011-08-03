@@ -230,7 +230,12 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		try {
 			command += cmd;
 			
-			project.getWorkspace().getRoot().deleteMarkers(IRascalResources.ID_RASCAL_MARKER_TYPE_TEST_RESULTS, false, IResource.DEPTH_INFINITE);
+			if (cmd.startsWith(":test")) {
+				// this is very expensive because it triggers all kinds of build actions, so
+				// we only do it before running the :test command
+				project.getWorkspace().getRoot().deleteMarkers(IRascalResources.ID_RASCAL_MARKER_TYPE_TEST_RESULTS, false, IResource.DEPTH_INFINITE);
+			}
+			
 			error = null;
 			schedule();
 			join();

@@ -40,7 +40,10 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 	}
 
 	public boolean mkDirectory(URI uri) throws IOException {
-		return registry.mkDirectory(resolve(uri));
+		URI parent = resolve(URIResolverRegistry.getParentURI(uri));
+		parent = resolve(parent);
+		
+		return registry.mkDirectory(URIResolverRegistry.getChildURI(parent, URIResolverRegistry.getURIName(uri)));
 	}
 
 	public String scheme() {
