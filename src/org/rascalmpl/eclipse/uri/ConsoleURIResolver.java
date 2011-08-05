@@ -65,13 +65,11 @@ public class ConsoleURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	}
 
 	public String[] listEntries(URI uri) {
-		// TODO Auto-generated method stub
-		String[] ls = {};
-		return ls;
+		return new String[0];
 	}
 
-	public boolean mkDirectory(URI uri) {
-		return false;
+	public void mkDirectory(URI uri) {
+		throw new UnsupportedOperationException("Not supported by console");
 	}
 
 	public URI getResourceURI(URI uri) {

@@ -41,11 +41,11 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 		return registry.getOutputStream(URIResolverRegistry.getChildURI(parent, URIResolverRegistry.getURIName(uri)), append);
 	}
 
-	public boolean mkDirectory(URI uri) throws IOException {
+	public void mkDirectory(URI uri) throws IOException {
 		URI parent = resolve(URIResolverRegistry.getParentURI(uri));
 		parent = resolve(parent);
 		
-		return registry.mkDirectory(URIResolverRegistry.getChildURI(parent, URIResolverRegistry.getURIName(uri)));
+		registry.mkDirectory(URIResolverRegistry.getChildURI(parent, URIResolverRegistry.getURIName(uri)));
 	}
 
 	public String scheme() {

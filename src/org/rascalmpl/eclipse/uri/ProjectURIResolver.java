@@ -12,6 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.uri;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -151,26 +152,19 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		}
 	}
 
-	public boolean mkDirectory(URI uri) {
-		IFolder resolved;
-		try {
-			resolved = resolveFolder(uri);
-			
-			if (!resolved.exists()) {
-				try {
-					resolved.create(true, true, null);
-					return true;
-				} catch (CoreException e) {
-					return false;
-				}
+	public void mkDirectory(URI uri) throws IOException {
+		IFolder resolved = resolveFolder(uri);
+
+		if (!resolved.exists()) {
+			try {
+				resolved.create(true, true, null);
+				return;
+			} catch (CoreException e) {
+				throw new IOException(e.getMessage(), e);
 			}
-			
-			return false;
-		} catch (MalformedURLException e1) {
-			return false;
-		} catch (IOException e1) {
-			return false;
 		}
+
+		throw new FileNotFoundException(uri.toString());
 	}
 
 	public URI getResourceURI(URI uri) throws IOException {

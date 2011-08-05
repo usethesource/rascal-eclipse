@@ -91,8 +91,8 @@ public class BootstrapURIResolver implements IURIInputOutputResolver {
 		return new FileOutputStream(getNewFile(uri), append);
 	}
 
-	public boolean mkDirectory(URI uri) throws IOException {
-		return getNewFile(uri).mkdir();
+	public void mkDirectory(URI uri) throws IOException {
+		getNewFile(uri).mkdir();
 	}
 
 	public URI getResourceURI(URI uri) {
