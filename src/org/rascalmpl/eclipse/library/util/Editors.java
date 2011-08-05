@@ -68,7 +68,7 @@ import org.rascalmpl.eclipse.util.RascalInvoker;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.library.vis.FigureColorUtils;
+import org.rascalmpl.library.vis.util.FigureColorUtils;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Editors {
