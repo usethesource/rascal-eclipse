@@ -63,6 +63,8 @@ public class StartTutorAction implements IWorkbenchWindowActionDelegate {
 	public void run(IAction action) {
 		int port = 9000;
 		try {
+			stop();
+			
 			if (tutor == null) {
 				tutor = new RascalTutor();
 				URIResolverRegistry registry = tutor.getResolverRegistry();
