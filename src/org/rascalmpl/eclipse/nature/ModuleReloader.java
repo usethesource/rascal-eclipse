@@ -69,6 +69,8 @@ public class ModuleReloader{
 		}
 
 		public void resourceChanged(IResourceChangeEvent event) {
+			if(event.getDelta() == null)
+				return;
 			IResourceDelta[] deltas = event.getDelta().getAffectedChildren();
 
 			try {
@@ -81,7 +83,7 @@ public class ModuleReloader{
 							if (resource instanceof IFile) {
 								IPath path = resource.getLocation();
 
-								if (path != null && path.getFileExtension().equals(IRascalResources.RASCAL_EXT))  {
+								if (path != null && path.getFileExtension() != null && path.getFileExtension().equals(IRascalResources.RASCAL_EXT))  {
 									switch (delta.getKind()) {
 									case IResourceDelta.OPEN:
 										break;
