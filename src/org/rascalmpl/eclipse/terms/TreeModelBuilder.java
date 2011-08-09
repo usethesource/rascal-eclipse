@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -97,6 +98,11 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 							}
 
 							public Object visitInteger(IInteger o) throws VisitorException {
+								createSubItem(o);
+								return null;
+							}
+
+							public Object visitRational(IRational o) throws VisitorException {
 								createSubItem(o);
 								return null;
 							}
