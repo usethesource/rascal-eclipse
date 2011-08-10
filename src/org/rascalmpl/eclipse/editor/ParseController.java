@@ -42,7 +42,6 @@ import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.staticErrors.ModuleLoadError;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.uptr.Factory;
