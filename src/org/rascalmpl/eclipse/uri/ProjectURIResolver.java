@@ -52,7 +52,7 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 
 	public InputStream getInputStream(URI uri) throws IOException {
 		try {
-			return resolve(uri).getContents();
+			return resolveFile(uri).getContents();
 		} catch (CoreException e) {
 			Throwable cause = e.getCause();
 			
@@ -64,7 +64,7 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		}
 	}
 
-	private IFile resolve(URI uri) throws IOException, MalformedURLException {
+	private IFile resolveFile(URI uri) throws IOException, MalformedURLException {
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getHost());
 		
 		if (project == null) {
@@ -83,9 +83,27 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		
 		return project.getFolder(uri.getPath());
 	}
+
+	private IResource resolve(URI uri) throws IOException, MalformedURLException {
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getHost());
+		
+		if (project == null) {
+			throw new IOException("project " + uri.getHost() + " does not exist");
+		}
+		
+		if(isDirectory(uri)){
+			return project.getFolder(uri.getPath());
+		}
+		
+		if(isFile(uri)){
+			return project.getFile(uri.getPath());
+		}
+		
+		throw new IOException(uri+" refers to a resource that does not exist.");
+	}
 	
 	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
-		return new FileOutputStream(resolve(uri).getRawLocation().toOSString(), append);
+		return new FileOutputStream(resolveFile(uri).getRawLocation().toOSString(), append);
 	}
 
 	public String scheme() {
@@ -114,7 +132,7 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 
 	public boolean isFile(URI uri) {
 		try {
-			return resolve(uri).exists();
+			return resolveFile(uri).exists();
 		} catch (MalformedURLException e) {
 			return false;
 		} catch (IOException e) {
