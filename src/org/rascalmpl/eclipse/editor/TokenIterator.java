@@ -143,31 +143,24 @@ public class TokenIterator implements Iterator<Token>{
 			
 			int offset = location;
 			
-			if(TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg)){
-				if(category == null){
-					String yield = TreeAdapter.yield(arg);
-					for(byte c : yield.getBytes()) {
-						if(c != '-' && !Character.isJavaIdentifierPart(c)){
-							location += TreeAdapter.yield(arg).length();
-							return arg;
-						}
-					}
-					category = TokenColorer.META_KEYWORD;
-				}
+			for (IValue child : TreeAdapter.getArgs(arg)){
+				child.accept(this);
 			}
 			
-			if(category == null){
-				for(IValue child : (IList) arg.get("args")){
-					child.accept(this);
+			if (TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg)){
+				if (category == null){
+					category = TokenColorer.META_KEYWORD;
+					
+					for (IValue child : TreeAdapter.getArgs(arg)) {
+						int c = TreeAdapter.getCharacter((IConstructor) child);
+						if (c != '-' && !Character.isJavaIdentifierPart(c)){
+							category = null;
+						}
+					}
 				}
-				
-				// The rest (all characters, for which no highlighting is needed, but visit them anyway).
-//				for(IValue child : (IList) arg.get("rest")){
-//					child.accept(this);
-//				}
-			}else{
-				location += TreeAdapter.yield(arg).length();
-				
+			}
+
+			if (category != null) {
 				tokenList.add(new Token(category, offset, location - offset));
 			}
 
