@@ -16,13 +16,13 @@ data Resource = root(set[Resource] projects)
               | file(loc id);
 
 @javaClass{org.rascalmpl.eclipse.library.util.Resources}
-public Resource java root();
+public java Resource root();
 
 @javaClass{org.rascalmpl.eclipse.library.util.Resources}
-public set[loc] java projects();
+public java set[loc] projects();
 
 @javaClass{org.rascalmpl.eclipse.library.util.Resources}
-public set[loc] java references(loc project);
+public java set[loc] references(loc project);
 
 public set[loc] dependencies(loc project) {
   set[loc] closure = references(project);
