@@ -91,13 +91,15 @@ public class FigureViewer extends EditorPart {
 
 
 	public void dispose() {
-		fpa.dispose();
+		if(fpa != null) fpa.dispose();
 		Workbench.getInstance().getEditorHistory().remove(getEditorInput());
 		super.dispose();
 	}
 	
 	public void setFocus() {
-		fpa.getRootApplet().setFocus();
+		//if(fpa.getRootApplet() != null && !fpa.getRootApplet().isDisposed()){
+			//fpa.getRootApplet().setFocus();
+		//}
 	}
 
 	public static void open(final IString name, final IValue fig,
