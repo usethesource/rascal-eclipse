@@ -63,10 +63,11 @@ public class FigureLibrary {
 						} catch(IOException f){
 							System.out.printf("Could not save figure " + f.getMessage() + "\n");
 						} finally{
-							//shell.close();
+							shell.close();
 						}
 					}
 				});
+				
 				BoundingBox minViewSize = env.getMinViewingSize();
 				int w,h;
 				w = (int)minViewSize.getX();
@@ -78,9 +79,9 @@ public class FigureLibrary {
 					h = Math.max(h,height.intValue());
 				}
 				System.out.printf("Drawing in %d %d\n",w,h);
-				Rectangle r = shell.computeTrim(0, 0, w + 10 , h+10 );
+				Rectangle r = shell.computeTrim(0, 0, w  , h );
 				shell.setBounds(r);
-				env.setSize(w+5,h+5);
+				env.setSize(w,h);
 				shell.open();
 			}
 		});
