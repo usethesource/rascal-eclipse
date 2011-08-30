@@ -13,11 +13,20 @@
  *******************************************************************************/
 package org.rascalmpl.eclipse.library.vis;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.library.vis.swt.FigureExecutionEnvironment;
+import org.rascalmpl.library.vis.util.vector.BoundingBox;
 
 public class FigureLibrary {
 	
@@ -30,13 +39,53 @@ public class FigureLibrary {
 	public void renderActual(IString name, IConstructor fig, IEvaluatorContext ctx) {
 		FigureViewer.open(name, fig, ctx);
 	}
-	
-	public void render(IList fig, IEvaluatorContext ctx) {
-		FigureViewer.open(values.string("Figure"), fig, ctx);
-	}
 
-	public void render(IString name, IList fig, IEvaluatorContext ctx) {
-		FigureViewer.open(name, fig, ctx);
+	public void renderSaveActual(final IConstructor cfig, final ISourceLocation loc, final IEvaluatorContext ctx) {
+		renderSaveActual(cfig,null,null,loc,ctx);
 	}
+	
+	public void renderSaveActual(final IConstructor cfig, final IInteger width, final IInteger height, final ISourceLocation loc, final IEvaluatorContext ctx) {
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				
+				final Shell shell = new Shell(PlatformUI.getWorkbench().getDisplay());
+				final FigureExecutionEnvironment env = new FigureExecutionEnvironment(shell, cfig, ctx);
+				shell.getDisplay().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						try{
+							OutputStream out =  ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
+							env.writeScreenshot(out);
+							out.close();
+							
+						} catch(IOException f){
+							System.out.printf("Could not save figure " + f.getMessage() + "\n");
+						} finally{
+							//shell.close();
+						}
+					}
+				});
+				BoundingBox minViewSize = env.getMinViewingSize();
+				int w,h;
+				w = (int)minViewSize.getX();
+				h = (int)minViewSize.getY();
+				if(width != null){
+					w = Math.max(w,width.intValue());
+				}
+				if(height != null){
+					h = Math.max(h,height.intValue());
+				}
+				System.out.printf("Drawing in %d %d\n",w,h);
+				Rectangle r = shell.computeTrim(0, 0, w + 10 , h+10 );
+				shell.setBounds(r);
+				env.setSize(w+5,h+5);
+				shell.open();
+			}
+		});
+		
+	}
+	
 
 }

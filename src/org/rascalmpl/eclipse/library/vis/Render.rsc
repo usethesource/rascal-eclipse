@@ -21,8 +21,13 @@ public void render(str name,Figure fig){
 	renderActual(name,normalize(fig));
 }
 
-public void renderSave(Figure fig,loc file){
-	// renderSaveActual(normalize(fig),file);
+public void renderSave(Figure fig, loc file){
+	renderSaveActual(normalize(fig), file);
+}
+
+
+public void renderSave(Figure fig, int width, int height,loc file){
+	renderSaveActual(normalize(fig),width,height,file);
 }
 
 
@@ -31,9 +36,14 @@ public void renderSave(Figure fig,loc file){
 @javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
 public java void renderActual(str name, Figure fig);
 
-/*
+
 @doc{Render a figure and write it to file}
 @reflect{Needs calling context when calling argument function}
 @javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
 public java void renderSaveActual(Figure fig, loc file);
-*/
+
+@doc{Render a figure and write it to file}
+@reflect{Needs calling context when calling argument function}
+@javaClass{org.rascalmpl.eclipse.library.vis.FigureLibrary}
+public java void renderSaveActual(Figure fig, int width, int height, loc file);
+
