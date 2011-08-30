@@ -78,7 +78,6 @@ public class FigureLibrary {
 				if(height != null){
 					h = Math.max(h,height.intValue());
 				}
-				System.out.printf("Drawing in %d %d\n",w,h);
 				Rectangle r = shell.computeTrim(0, 0, w  , h );
 				shell.setBounds(r);
 				env.setSize(w,h);
