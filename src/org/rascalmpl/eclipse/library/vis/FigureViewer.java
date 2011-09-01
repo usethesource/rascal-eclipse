@@ -21,6 +21,7 @@ import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -29,6 +30,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.part.EditorPart;
+import org.eclipse.ui.part.EditorInputTransfer.EditorInputData;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.util.RascalInvoker;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -51,6 +53,7 @@ public class FigureViewer extends EditorPart {
 		FigureEditorInput f = (FigureEditorInput) getEditorInput();
 		IConstructor cfig = (IConstructor)f.getFig();
 		fpa = new FigureExecutionEnvironment(parent, cfig, f.getCtx());
+		this.setPartName(f.getName());
 	}
 	
 	
@@ -119,7 +122,13 @@ public class FigureViewer extends EditorPart {
 				RascalInvoker.invokeUIAsync(new Runnable() {
 					public void run() {
 						try {
-							page.openEditor(new FigureEditorInput(name, fig, ctx), editorId);
+							IEditorInput p = new FigureEditorInput(name, fig, ctx);
+							IEditorPart e = page.findEditor(p);
+							if(e != null){
+								page.closeEditor(e, false);
+							} 
+							page.openEditor(p, editorId);
+							
 						} catch (PartInitException e) {
 							Activator.getInstance().logException("failed to open Figure viewer", e);
 						}
@@ -170,7 +179,7 @@ public class FigureViewer extends EditorPart {
 			return;
 		//sc.setMinSize(fpa.getFigureWidth(), fpa.getFigureHeight());
 		//sc.pack();
-		//this.setPartName(title);
+		//
 
 		// Make sure that the frame gets the focus when the editor is brought to
 		// the top

@@ -67,5 +67,13 @@ public class FigureEditorInput implements IEditorInput {
 	public Object getAdapter(Class adapter) {
 		return null;
 	}
+	
+	@Override
+	public boolean equals(Object b){
+		if(b instanceof FigureEditorInput){
+			return ((FigureEditorInput)b).name.equals(name);
+		}
+		return false;
+	}
 
 }
