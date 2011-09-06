@@ -78,14 +78,12 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 
 			super.invokeAction(action);
 			
-			switch(action){
-				case ST.COLUMN_PREVIOUS:
-					int inputOffset = console.getInputOffset();
-					int caretOffset = getCaretOffset();
-					if(caretOffset < inputOffset){
-						setCaretOffset(inputOffset);
-					}
-					return;
+			if(action == ST.COLUMN_PREVIOUS){
+				int inputOffset = console.getInputOffset();
+				int caretOffset = getCaretOffset();
+				if(caretOffset < inputOffset){
+					setCaretOffset(inputOffset);
+				}
 			}
 		}
 		
