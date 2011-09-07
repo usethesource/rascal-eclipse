@@ -15,6 +15,7 @@ package org.rascalmpl.eclipse.library.vis;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -56,6 +57,7 @@ public class FigureLibrary {
 					@Override
 					public void run() {
 						try{
+							URI u = loc.getURI();
 							OutputStream out =  ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
 							env.writeScreenshot(out);
 							out.close();
@@ -78,7 +80,9 @@ public class FigureLibrary {
 				if(height != null){
 					h = Math.max(h,height.intValue());
 				}
-				Rectangle r = shell.computeTrim(0, 0, w  , h );
+				w += 10; // Add small margin to make sure that border lines also fit
+				h += 10;
+				Rectangle r = shell.computeTrim(0, 0, w, h);
 				shell.setBounds(r);
 				env.setSize(w,h);
 				shell.open();
