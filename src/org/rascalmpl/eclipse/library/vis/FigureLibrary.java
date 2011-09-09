@@ -86,6 +86,7 @@ public class FigureLibrary {
 				shell.setBounds(r);
 				env.setSize(w,h);
 				shell.open();
+				shell.dispose();
 			}
 		});
 		
