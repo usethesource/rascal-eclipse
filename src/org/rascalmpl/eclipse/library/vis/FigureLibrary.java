@@ -65,6 +65,7 @@ public class FigureLibrary {
 							System.out.printf("Could not save figure " + f.getMessage() + "\n");
 						} finally{
 							shell.close();
+							shell.dispose();
 						}
 					}
 				});
@@ -85,7 +86,7 @@ public class FigureLibrary {
 				shell.setBounds(r);
 				env.setSize(w,h);
 				shell.open();
-				shell.dispose();
+				//shell.dispose();
 			}
 		});
 		
