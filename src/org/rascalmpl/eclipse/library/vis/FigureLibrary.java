@@ -56,14 +56,20 @@ public class FigureLibrary {
 					
 					@Override
 					public void run() {
+						OutputStream out = null;
 						try{
-							OutputStream out =  ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
+							out =  ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
 							env.writeScreenshot(out);
-							out.close();
-							
 						} catch(IOException f){
 							System.out.printf("Could not save figure " + f.getMessage() + "\n");
 						} finally{
+							if(out != null){
+								try{
+									out.close();
+								}catch(IOException ioex){
+									// Could not close the stream.
+								}
+							}
 							shell.close();
 							shell.dispose();
 						}
