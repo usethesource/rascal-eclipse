@@ -57,7 +57,6 @@ public class FigureLibrary {
 					@Override
 					public void run() {
 						try{
-							URI u = loc.getURI();
 							OutputStream out =  ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
 							env.writeScreenshot(out);
 							out.close();
