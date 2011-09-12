@@ -149,15 +149,19 @@ public class ProjectEvaluatorFactory {
 
 					IClasspathEntry[] entries = jProject.getResolvedClasspath(true);
 					List<URL> classpath = new LinkedList<URL>();
+					String compilerClassPath = "";
 
 					for (int i = 0; i < entries.length; i++) {
 						IClasspathEntry entry = entries[i];
 						if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 							if (entry.getPath().segment(0).equals(project.getName())) {
-								classpath.add(new URL("file", "", project.getLocation() + "/" + entry.getPath().removeFirstSegments(1).toString()));
+								String file = project.getLocation() + "/" + entry.getPath().removeFirstSegments(1).toString();
+								classpath.add(new URL("file", "", file));
+								compilerClassPath += File.pathSeparator + file;
 							}
 							else {
 								classpath.add(new URL("file", "", entry.getPath().toString()));
+								compilerClassPath += entry.getPath();
 							}
 						}
 					}
@@ -168,8 +172,12 @@ public class ProjectEvaluatorFactory {
 					parser.addClassLoader(classPathLoader);
 
 					IPath binFolder = jProject.getOutputLocation();
-					URLClassLoader loader = new URLClassLoader(new URL[] {new URL("file", "",  project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString() + "/")}, classPathLoader);
+					String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
+					URLClassLoader loader = new URLClassLoader(new URL[] {new URL("file", "",  binLoc + "/")}, classPathLoader);
 					parser.addClassLoader(loader);
+					
+					// this depends on the project depending on the rascal plugin itself, and the pdb.values plugin.
+					Configuration.setRascalJavaClassPathProperty(binLoc + compilerClassPath);
 				}
 			} 
 			catch (MalformedURLException e) {
@@ -189,28 +197,6 @@ public class ProjectEvaluatorFactory {
 		
 		BootstrapURIResolver bootResolver = new BootstrapURIResolver();
 		resolverRegistry.registerInputOutput(bootResolver);
-
-		try {
-			String rascalPlugin = jarForPlugin("rascal");
-			String PDBValuesPlugin = jarForPlugin("org.eclipse.imp.pdb.values");
-
-			Configuration.setRascalJavaClassPathProperty(
-					rascalPlugin 
-					+ File.pathSeparator 
-					+ PDBValuesPlugin 
-					+ File.pathSeparator 
-					+ rascalPlugin 
-					+ File.separator + "src" 
-					+ File.pathSeparator 
-					+ rascalPlugin + File.separator + "bin" 
-					+ File.pathSeparator 
-					+ PDBValuesPlugin + File.separator + "bin" 
-//					+ (projectBinFolder != "" ? File.pathSeparator + projectBinFolder : ""));
-					);
-		} 
-		catch (IOException e) {
-			Activator.getInstance().logException("could not create classpath for parser compilation", e);
-		}
 	}
 
 	private String jarForPlugin(String pluginName) throws IOException {
