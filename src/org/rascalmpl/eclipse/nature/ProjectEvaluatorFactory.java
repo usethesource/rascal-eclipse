@@ -18,15 +18,25 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.WeakHashMap;
 
+import org.eclipse.core.internal.resources.Workspace;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.runtime.RuntimePlugin;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
@@ -132,22 +142,44 @@ public class ProjectEvaluatorFactory {
 		parser.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
 		parser.addClassLoader(getClass().getClassLoader());
 		
-		// add project's bin folder to class loaders
-		// TODO: should probably find project's output folder, instead of just
-		// using "bin"
-		String projectBinFolder = "";
-		
 		if (project != null) {
 			try {
-				IResource res = project.findMember("bin");
-				if (res != null) {
-					projectBinFolder = res.getLocation().toString();
-					URLClassLoader loader = new java.net.URLClassLoader(new URL[] {new URL("file", "",  projectBinFolder + "/")}, getClass().getClassLoader());
+				if (project.hasNature(JavaCore.NATURE_ID)) {
+					IJavaProject jProject = JavaCore.create(project);
+
+					IClasspathEntry[] entries = jProject.getResolvedClasspath(true);
+					List<URL> classpath = new LinkedList<URL>();
+
+					for (int i = 0; i < entries.length; i++) {
+						IClasspathEntry entry = entries[i];
+						if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+							if (entry.getPath().segment(0).equals(project.getName())) {
+								classpath.add(new URL("file", "", project.getLocation() + "/" + entry.getPath().removeFirstSegments(1).toString()));
+							}
+							else {
+								classpath.add(new URL("file", "", entry.getPath().toString()));
+							}
+						}
+					}
+
+					URL[] urls = new URL[classpath.size()];
+					classpath.toArray(urls);
+					URLClassLoader classPathLoader = new URLClassLoader(urls, getClass().getClassLoader());
+					parser.addClassLoader(classPathLoader);
+
+					IPath binFolder = jProject.getOutputLocation();
+					URLClassLoader loader = new URLClassLoader(new URL[] {new URL("file", "",  project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString() + "/")}, classPathLoader);
 					parser.addClassLoader(loader);
 				}
 			} 
-			catch (MalformedURLException e1) {
-				// 
+			catch (MalformedURLException e) {
+				Activator.getInstance().logException("exception while constructing classpath for evaluator", e);
+			} 
+			catch (JavaModelException e) {
+				Activator.getInstance().logException("exception while constructing classpath for evaluator", e);
+			} 
+			catch (CoreException e) {
+				Activator.getInstance().logException("exception while constructing classpath for evaluator", e);
 			}
 		}
 		
@@ -173,7 +205,8 @@ public class ProjectEvaluatorFactory {
 					+ rascalPlugin + File.separator + "bin" 
 					+ File.pathSeparator 
 					+ PDBValuesPlugin + File.separator + "bin" 
-					+ (projectBinFolder != "" ? File.pathSeparator + projectBinFolder : ""));
+//					+ (projectBinFolder != "" ? File.pathSeparator + projectBinFolder : ""));
+					);
 		} 
 		catch (IOException e) {
 			Activator.getInstance().logException("could not create classpath for parser compilation", e);
