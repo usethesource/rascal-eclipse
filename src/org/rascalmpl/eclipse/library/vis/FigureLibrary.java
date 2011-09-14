@@ -70,6 +70,7 @@ public class FigureLibrary {
 									// Could not close the stream.
 								}
 							}
+							env.dispose();
 							shell.close();
 							shell.dispose();
 						}
