@@ -169,13 +169,14 @@ public class ProjectEvaluatorFactory {
 					URL[] urls = new URL[classpath.size()];
 					classpath.toArray(urls);
 					URLClassLoader classPathLoader = new URLClassLoader(urls, getClass().getClassLoader());
-					parser.addClassLoader(classPathLoader);
-
+					
 					IPath binFolder = jProject.getOutputLocation();
 					String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
 					URLClassLoader loader = new URLClassLoader(new URL[] {new URL("file", "",  binLoc + "/")}, classPathLoader);
-					parser.addClassLoader(loader);
 					
+					parser.addClassLoader(loader);
+					parser.addClassLoader(classPathLoader);
+
 					// this depends on the project depending on the rascal plugin itself, and the pdb.values plugin.
 					Configuration.setRascalJavaClassPathProperty(binLoc + compilerClassPath);
 				}
