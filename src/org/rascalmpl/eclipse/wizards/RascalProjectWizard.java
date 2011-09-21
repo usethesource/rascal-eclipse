@@ -13,28 +13,19 @@ package org.rascalmpl.eclipse.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.pde.core.project.IBundleProjectDescription;
 import org.eclipse.pde.core.project.IBundleProjectService;
 import org.eclipse.pde.core.project.IRequiredBundleDescription;
-import org.eclipse.pde.internal.core.PDEClasspathContainer;
-import org.eclipse.pde.internal.core.PDECore;
-import org.eclipse.pde.internal.core.natures.PDE;
-import org.eclipse.pde.internal.core.project.RequiredBundleDescription;
-import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -42,11 +33,8 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 
 
-@SuppressWarnings("restriction")
 public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 
-	
-	@SuppressWarnings("restriction")
 	@Override
 	public boolean performFinish() {
 		if (!super.performFinish()) {
@@ -71,8 +59,9 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 						plugin.setSymbolicName(project.getName().replaceAll("-", "_"));
 						plugin.setNatureIds(new String[] { IRascalResources.ID_RASCAL_NATURE, JavaCore.NATURE_ID, IBundleProjectDescription.PLUGIN_NATURE});
 						plugin.setRequiredBundles(new IRequiredBundleDescription[] { 
-								new RequiredBundleDescription("org.eclipse.imp.pdb.values", null, false, false),
-								new RequiredBundleDescription("rascal", null, false, false)});
+								service.newRequiredBundle("org.eclipse.imp.pdb.values", null, false, false),
+								service.newRequiredBundle("rascal", null, false, false)
+								});
 						
 						IProjectDescription description = project.getDescription();
 						description.setBuildConfigs(new String[] { "org.eclipse.jdt.core.javabuilder", "org.eclipse.pde.ManifestBuilder", "org.eclipse.pde.SchemaBuilder" });
