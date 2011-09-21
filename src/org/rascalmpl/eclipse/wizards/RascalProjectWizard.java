@@ -85,11 +85,7 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 						System.arraycopy(oldClasspath, 0, newClasspath, 2, oldClasspath.length);
 						newClasspath[0] = JavaRuntime.getDefaultJREContainerEntry();
 						newClasspath[1] = JavaCore.newContainerEntry(new Path("org.eclipse.pde.core.requiredPlugins"));
-//						IFolder folder = project.getFolder("src");
-//						if (!folder.exists()) {
-//							folder.create(true, true, monitor);
-//						}
-//						newClasspath[2] = JavaCore.newSourceEntry(folder.getProjectRelativePath().makeAbsolute());
+						newClasspath[2] = JavaCore.newSourceEntry(project.getFolder("src").getFullPath().makeAbsolute());
 						jProject.setRawClasspath(newClasspath, monitor);
 						jProject.save(monitor, false);
 					}
