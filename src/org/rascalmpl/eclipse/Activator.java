@@ -24,24 +24,26 @@ import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 
 public class Activator extends PluginBase {
 	public static final String PLUGIN_ID = "rascal_eclipse";
 	public static final String kLanguageName = "Rascal";
+	private static Activator sInstance;
 	
 	public Activator() {
 		super();
-		
 		Activator.getInstance(); // Stupid ...
-//		Parser.getInfo(); // Trigger the initialization of the static stuff in the Rascal parser.
 	}
-
-	private static class InstanceKeeper {
-		private final static Activator sInstance = new Activator();
+	
+	@Override
+	public void start(BundleContext context) throws Exception {
+		sInstance = this;
+		super.start(context);
 	}
-
+	
 	public static Activator getInstance() {
-		return InstanceKeeper.sInstance;
+		return sInstance;
 	}
 
 	public String getID() {

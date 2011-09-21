@@ -56,7 +56,7 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 						IBundleProjectService service = context.getService(ref);
 						IBundleProjectDescription plugin = service.getDescription(project);
 						plugin.setBundleName(project.getName());
-						plugin.setSymbolicName(project.getName().replaceAll("-", "_"));
+						plugin.setSymbolicName(project.getName().replaceAll("-", "_").replaceAll("\\s", "_"));
 						plugin.setNatureIds(new String[] { IRascalResources.ID_RASCAL_NATURE, JavaCore.NATURE_ID, IBundleProjectDescription.PLUGIN_NATURE});
 						plugin.setRequiredBundles(new IRequiredBundleDescription[] { 
 								service.newRequiredBundle("org.eclipse.imp.pdb.values", null, false, false),
