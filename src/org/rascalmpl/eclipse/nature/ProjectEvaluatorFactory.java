@@ -226,7 +226,7 @@ public class ProjectEvaluatorFactory {
 					}
 					else {
 						classpath.add(new URL("file", "", entry.getPath().toString()));
-						compilerClassPath += entry.getPath();
+						compilerClassPath += File.pathSeparator + entry.getPath();
 					}
 				}
 			}
@@ -243,6 +243,7 @@ public class ProjectEvaluatorFactory {
 			parser.addClassLoader(classPathLoader);
 
 			// this depends on the project depending on the rascal plugin itself, and the pdb.values plugin.
+			System.err.println("Compiler CLASSPATH = " + compilerClassPath);
 			Configuration.setRascalJavaClassPathProperty(binLoc + compilerClassPath);
 		}
 		catch (MalformedURLException e) {
