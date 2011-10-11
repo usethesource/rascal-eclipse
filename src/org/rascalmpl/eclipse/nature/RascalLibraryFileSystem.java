@@ -40,7 +40,7 @@ import org.rascalmpl.interpreter.Evaluator;
 
 // TODO: link this stuff with the rascal search path instead
 public class RascalLibraryFileSystem extends FileSystem {
-	private static final String SCHEME = "rascal-library";
+	public static final String SCHEME = "rascal-library";
 	public static final String ECLIPSE = "eclipse";
 	public static final String RASCAL = "rascal";
 	protected Map<String, RascalLibraryFileStore> roots = new HashMap<String, RascalLibraryFileStore>();

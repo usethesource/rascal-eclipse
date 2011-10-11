@@ -320,7 +320,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			
 			@Override
 			public Result<IValue> visitShellCommandTest(final Test x) {
-				eval.setTestResultListener(new TestReporter());
+				eval.setTestResultListener(new TestReporter(eval.getResolverRegistry()));
 				x.interpret(eval);								
 				return ResultFactory.nothing();
 			}

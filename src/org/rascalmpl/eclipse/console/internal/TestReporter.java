@@ -12,6 +12,7 @@
 package org.rascalmpl.eclipse.console.internal;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,17 +25,18 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.nature.RascalLibraryFileSystem;
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class TestReporter implements ITestResultListener {
-//	private final IProgressMonitor monitor;
+	private final URIResolverRegistry registry;
 
-	public TestReporter() {
-//		this.monitor = monitor;
+	public TestReporter(URIResolverRegistry uriResolverRegistry) {
+		registry = uriResolverRegistry;
 	}
 
 	public void done() {
-//		monitor.done();
 	}
 
 	public void report(boolean successful, String test, ISourceLocation loc) {
@@ -42,23 +44,23 @@ public class TestReporter implements ITestResultListener {
 	}
 	
 	public void report(final boolean successful, String test, final ISourceLocation loc, final Throwable t) {
-//		monitor.worked(1);
 		final IFile file = getFile(loc);
 		
-		try {
-			IMarker m = file.createMarker(IRascalResources.ID_RASCAL_MARKER_TYPE_TEST_RESULTS);
-			Map<String,Object> attrs = new HashMap<String,Object>();
-			attrs.put(IMarker.TRANSIENT, true);
-			attrs.put(IMarker.CHAR_START, loc.getOffset());
-			attrs.put(IMarker.CHAR_END, loc.getOffset() + loc.getLength());
-			attrs.put(IMarker.MESSAGE, t != null ? t.getMessage() : (successful ? "succeeded" : "failed"));
-			attrs.put(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-			attrs.put(IMarker.SEVERITY, successful ? IMarker.SEVERITY_INFO : IMarker.SEVERITY_ERROR);
-			m.setAttributes(attrs);
-		} catch (CoreException e) {
-			Activator.getInstance().logException(e.getMessage(), e);
+		if (file != null) {
+			try {
+				IMarker m = file.createMarker(IRascalResources.ID_RASCAL_MARKER_TYPE_TEST_RESULTS);
+				Map<String,Object> attrs = new HashMap<String,Object>();
+				attrs.put(IMarker.TRANSIENT, true);
+				attrs.put(IMarker.CHAR_START, loc.getOffset());
+				attrs.put(IMarker.CHAR_END, loc.getOffset() + loc.getLength());
+				attrs.put(IMarker.MESSAGE, t != null ? t.getMessage() : (successful ? "succeeded" : "failed"));
+				attrs.put(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+				attrs.put(IMarker.SEVERITY, successful ? IMarker.SEVERITY_INFO : IMarker.SEVERITY_ERROR);
+				m.setAttributes(attrs);
+			} catch (CoreException e) {
+				Activator.getInstance().logException(e.getMessage(), e);
+			}
 		}
-		
 	}
 
 	public void start(int count) {
@@ -88,12 +90,30 @@ public class TestReporter implements ITestResultListener {
 			
 			Activator.getInstance().logException("file " + uri + " not found", new RuntimeException());
 		}
-		else if (scheme.equals("rascal-library")) {
+		else if (scheme.equals(RascalLibraryFileSystem.SCHEME)) {
 			IFile [] files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
 			if (files.length > 0) {
 				return files[0];
 			}
 		}
+		else if (scheme.equals("std")) {
+			try {
+				uri = new URI(RascalLibraryFileSystem.SCHEME, RascalLibraryFileSystem.RASCAL, uri.getPath(),"");
+				IFile [] files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
+				if (files.length > 0) {
+					return files[0];
+				}
+				uri = new URI(RascalLibraryFileSystem.SCHEME, RascalLibraryFileSystem.ECLIPSE, uri.getPath(), "");
+				files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
+				if (files.length > 0) {
+					return files[0];
+				}
+			} catch (URISyntaxException e) {
+				Activator.getInstance().logException(e.getMessage(), e);
+				return null;
+			}
+		}
+	
 		
 		Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
 		return null;
