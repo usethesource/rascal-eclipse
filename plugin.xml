@@ -923,4 +923,17 @@
     </dynamic>
   </menuContribution>
 </extension>
+<extension
+      point="org.eclipse.ltk.core.refactoring.renameParticipants">
+   <renameParticipant
+         class="org.rascalmpl.eclipse.refactoring.RenameParticipant"
+         id="rascal-eclipse.rename"
+         name="Rename Rascal Module">
+      <enablement>
+         <instanceof
+               value="org.eclipse.core.resources.IFile">
+         </instanceof>
+      </enablement>
+   </renameParticipant>
+</extension>
 </plugin>
