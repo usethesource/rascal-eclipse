@@ -121,7 +121,7 @@ public class StartTutorAction implements IWorkbenchWindowActionDelegate {
 			          | IWorkbenchBrowserSupport.STATUS
 			          ;
 			IWebBrowser browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(style, "RascalTutor", "Rascal Tutor", "Rascal Tutor");
-			browser.openURL(new URL("http://localhost:" + port));
+			browser.openURL(new URL("http://127.0.0.1:" + port));
 		} catch (PartInitException e) {
 			Activator.getInstance().logException("Could not start browser for tutor", e);
 		} catch (MalformedURLException e) {
