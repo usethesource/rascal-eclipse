@@ -22,7 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.WeakHashMap;
 
-import org.eclipse.core.internal.resources.Workspace;
+import javax.tools.ToolProvider;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -37,6 +38,9 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
@@ -53,6 +57,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ProjectEvaluatorFactory {
+	private static final String SPACE = " ";
 	private final WeakHashMap<IProject, Evaluator> parserForProject = new WeakHashMap<IProject, Evaluator>();
 	private final WeakHashMap<IProject, ModuleReloader> reloaderForProject = new WeakHashMap<IProject, ModuleReloader>();
 	private final PrintWriter out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
@@ -107,10 +112,38 @@ public class ProjectEvaluatorFactory {
 	 * This method creates a fresh evaluator every time you call it.
 	 */
 	public Evaluator createProjectEvaluator(IProject project) {
+		checkPreconditions();
 		GlobalEnvironment heap = new GlobalEnvironment();
 		Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, new ModuleEnvironment("***parser***", heap), heap);
 		initializeProjectEvaluator(project, parser);
 		return parser;
+	}
+
+	private void checkPreconditions() {
+		List<String> errors = new LinkedList<String>();
+		
+		if (ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString().contains(SPACE)) {
+			errors.add("Workspace location may not contain spaces in its path, please move your workspace.");
+		}
+		
+		if (System.getProperty("eclipse.home.location").contains(SPACE)) {
+			errors.add("Eclipse installation location may not contain spaces in its path, please move your eclipse installation.");
+		}
+		
+		if (ToolProvider.getSystemJavaCompiler() == null) {
+			errors.add("Rascal needs a Java Development Kit, not just a JRE. Please make sure Eclipse uses a JDK (see eclipse.ini)");
+		}
+		
+		if (!errors.isEmpty()) {
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+			StringBuilder message = new StringBuilder();
+			for (String e : errors) {
+				message.append(e + "\n");
+			}
+			MessageDialog.openError(shell, "Sorry, Rascal has some problems", message.toString());
+
+			Activator.getInstance().logException("Rascal preconditions failed", new Exception(message.toString()));
+		}
 	}
 
 	/**
