@@ -24,6 +24,7 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IHyperlink;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.OutputInterpreterConsole;
@@ -56,6 +57,7 @@ public class ConsoleFactory{
 	}
 	
 	public IRascalConsole openRunConsole(){
+		Activator.getInstance().checkRascalRuntimePreconditions();
 		GlobalEnvironment heap = new GlobalEnvironment();
 		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE, heap), heap);
 		fConsoleManager.addConsoles(new IConsole[]{console});
@@ -64,6 +66,7 @@ public class ConsoleFactory{
 	}
 	
 	public IRascalConsole openRunConsole(IProject project){
+		Activator.getInstance().checkRascalRuntimePreconditions(project);
 		GlobalEnvironment heap = new GlobalEnvironment();
 		IRascalConsole console = new InteractiveRascalConsole(project, new ModuleEnvironment(SHELL_MODULE, heap), heap);
 		fConsoleManager.addConsoles(new IConsole[]{console});

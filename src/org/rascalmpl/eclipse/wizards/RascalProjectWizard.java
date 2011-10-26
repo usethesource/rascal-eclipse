@@ -56,6 +56,11 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 						IBundleProjectService service = context.getService(ref);
 						IBundleProjectDescription plugin = service.getDescription(project);
 						plugin.setBundleName(project.getName());
+						
+						if (project.getName().contains(" ")) {
+							throw new InvocationTargetException(new Exception("Rascal project names may not contain spaces"));
+						}
+						
 						plugin.setSymbolicName(project.getName().replaceAll("-", "_").replaceAll("\\s", "_"));
 						plugin.setNatureIds(new String[] { IRascalResources.ID_RASCAL_NATURE, JavaCore.NATURE_ID, IBundleProjectDescription.PLUGIN_NATURE});
 						plugin.setRequiredBundles(new IRequiredBundleDescription[] { 

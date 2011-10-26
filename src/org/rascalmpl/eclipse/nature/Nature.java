@@ -50,6 +50,8 @@ public class Nature implements IProjectNature {
 	public void setProject(IProject project) {
 		this.project = project;
 	}
+	
+	
 
 	private void link() throws CoreException {
 		try {

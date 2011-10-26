@@ -15,18 +15,28 @@
 package org.rascalmpl.eclipse;
 
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 
+import javax.tools.ToolProvider;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.runtime.PluginBase;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 public class Activator extends PluginBase {
+	private static final String SPACE = " ";
 	public static final String PLUGIN_ID = "rascal_eclipse";
 	public static final String kLanguageName = "Rascal";
 	private static Activator sInstance;
@@ -90,6 +100,41 @@ public class Activator extends PluginBase {
 		return null;
 	}
 	
+	public void checkRascalRuntimePreconditions() {
+		checkRascalRuntimePreconditions(null);
+	}
+	
+	public void checkRascalRuntimePreconditions(IProject project) {
+		List<String> errors = new LinkedList<String>();
+	
+		if (project != null && project.getName().contains(SPACE)) {
+			errors.add("Rascal projects may not contain spaces, please change the name");
+		}
+	
+		if (ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString().contains(SPACE)) {
+			errors.add("Workspace location may not contain spaces in its path, please move your workspace.");
+		}
+		
+		if (System.getProperty("eclipse.home.location").contains(SPACE)) {
+			errors.add("Eclipse installation location may not contain spaces in its path, please move your eclipse installation.");
+		}
+		
+		if (ToolProvider.getSystemJavaCompiler() == null) {
+			errors.add("Rascal needs a Java Development Kit, not just a JRE. Please make sure Eclipse uses a JDK (see eclipse.ini)");
+		}
+		
+		if (!errors.isEmpty()) {
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+			StringBuilder message = new StringBuilder();
+			for (String e : errors) {
+				message.append(e + "\n");
+			}
+			MessageDialog.openError(shell, "Sorry, Rascal has some problems", message.toString());
+
+			Activator.getInstance().logException("Rascal preconditions failed", new Exception(message.toString()));
+		}
+	}
+	
 	public void logException(String msg, Throwable t) {
 		if (msg == null) {
 			if (t == null || t.getMessage() == null)
@@ -102,4 +147,6 @@ public class Activator extends PluginBase {
 
 		getLog().log(status);
 	}
+
+	
 }
