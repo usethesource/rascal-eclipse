@@ -615,7 +615,11 @@ public class JDTImporter extends ASTVisitor {
 		IMethodBinding mb = null;
 		if (n instanceof MethodInvocation) {
 			mb = ((MethodInvocation) n).resolveMethodBinding();
-		} else if (n instanceof ConstructorInvocation) {
+		} 
+		else if (n instanceof ClassInstanceCreation) {
+			mb = ((ClassInstanceCreation) n).resolveConstructorBinding();
+		}
+		else if (n instanceof ConstructorInvocation) {
 			mb = ((ConstructorInvocation) n).resolveConstructorBinding();
 		} else if (n instanceof SuperConstructorInvocation) {
 			mb = ((SuperConstructorInvocation) n).resolveConstructorBinding();
