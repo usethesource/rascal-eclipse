@@ -34,7 +34,6 @@ import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
@@ -169,6 +168,13 @@ public class ProjectEvaluatorFactory {
 		
 	}
 
+	/**
+	 * This code has to remain alive while there are still old-fashioned Rascal projects around that did not
+	 * get configured with the Java nature.
+	 * @deprecated
+	 * @param project
+	 * @param parser
+	 */
 	private void configureRawRascalProject(IProject project, Evaluator parser) {
 		String projectBinFolder = "";
 		
@@ -209,51 +215,80 @@ public class ProjectEvaluatorFactory {
 		}
 	}
 
-	private void configureRascalJavaPluginProject(IProject project,
-			Evaluator parser) {
+	private void collectClassPathForProject(IProject project, List<URL> classPath, List<String> compilerClassPath) {
 		try {
-			IJavaProject jProject = JavaCore.create(project);
-
-			IClasspathEntry[] entries = jProject.getResolvedClasspath(true);
-			List<URL> classpath = new LinkedList<URL>();
-			String compilerClassPath = "";
-
-			for (int i = 0; i < entries.length; i++) {
-				IClasspathEntry entry = entries[i];
-				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-					if (entry.getPath().segment(0).equals(project.getName())) {
-						String file = project.getLocation() + "/" + entry.getPath().removeFirstSegments(1).toString();
-						classpath.add(new URL("file", "", file));
-						compilerClassPath += File.pathSeparator + file;
-					}
-					else {
-						classpath.add(new URL("file", "", entry.getPath().toString()));
-						compilerClassPath += File.pathSeparator + entry.getPath();
+			if (!project.hasNature(JavaCore.NATURE_ID)) {
+				for (IProject ref : project.getReferencedProjects()) {
+					collectClassPathForProject(ref, classPath, compilerClassPath);
+				}
+			}
+			else {
+				IJavaProject jProject = JavaCore.create(project);
+				
+				IPath binFolder = jProject.getOutputLocation();
+				String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
+				compilerClassPath.add(binLoc);
+				classPath.add(new URL("file", "",  binLoc + "/"));
+				
+				IClasspathEntry[] entries = jProject.getResolvedClasspath(true);
+				
+				for (int i = 0; i < entries.length; i++) {
+					IClasspathEntry entry = entries[i];
+					switch (entry.getEntryKind()) {
+					case IClasspathEntry.CPE_LIBRARY:
+						if (entry.getPath().segment(0).equals(project.getName())) {
+							String file = project.getLocation() + "/" + entry.getPath().removeFirstSegments(1).toString();
+							URL url = new URL("file", "", file);
+							if (!classPath.contains(url)) {
+								classPath.add(url);
+								compilerClassPath.add(file);
+							}
+						}
+						else {
+							URL url = new URL("file", "", entry.getPath().toString());
+							if (!classPath.contains(url)) {
+								classPath.add(url);
+								compilerClassPath.add(entry.getPath().toString());
+							}
+						}
+						break;
+					case IClasspathEntry.CPE_PROJECT:
+						collectClassPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath, compilerClassPath);
+						break;
 					}
 				}
 			}
-
-			URL[] urls = new URL[classpath.size()];
-			classpath.toArray(urls);
-			URLClassLoader classPathLoader = new URLClassLoader(urls, getClass().getClassLoader());
-
-			IPath binFolder = jProject.getOutputLocation();
-			String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
-			URLClassLoader loader = new URLClassLoader(new URL[] {new URL("file", "",  binLoc + "/")}, classPathLoader);
-
-			parser.addClassLoader(loader);
-			parser.addClassLoader(classPathLoader);
-
-			// this depends on the project depending on the rascal plugin itself, and the pdb.values plugin.
-			System.err.println("Compiler CLASSPATH = " + compilerClassPath);
-			Configuration.setRascalJavaClassPathProperty(binLoc + compilerClassPath);
 		}
-		catch (MalformedURLException e) {
-			Activator.getInstance().logException("exception while constructing classpath for evaluator", e);
+		catch (CoreException e) {
+			Activator.getInstance().logException("failed to configure classpath", e);
 		} 
-		catch (JavaModelException e) {
-			Activator.getInstance().logException("exception while constructing classpath for evaluator", e);
+		catch (MalformedURLException e) {
+			Activator.getInstance().logException("failed to configure classpath", e);
 		}
+	}
+	
+	private void configureRascalJavaPluginProject(IProject project,
+			Evaluator parser) {
+		List<URL> classPath = new LinkedList<URL>();
+		List<String> compilerClassPath = new LinkedList<String>();
+		
+		collectClassPathForProject(project, classPath, compilerClassPath);
+
+		// this registers the run-time path:
+		System.err.println("Runtime classpath: " + classPath);
+		URL[] urls = new URL[classPath.size()];
+		classPath.toArray(urls);
+		URLClassLoader classPathLoader = new URLClassLoader(urls, getClass().getClassLoader());
+		parser.addClassLoader(classPathLoader);
+		
+		// this registers the compile-time path:
+		String ccp = "";
+		for (String elem : compilerClassPath) {
+			ccp += File.pathSeparatorChar + elem;
+		}
+		
+		System.err.println("Compiler CLASSPATH = " + ccp);
+		Configuration.setRascalJavaClassPathProperty(ccp.substring(1));
 	}
 
 	private String jarForPlugin(String pluginName) throws IOException {
