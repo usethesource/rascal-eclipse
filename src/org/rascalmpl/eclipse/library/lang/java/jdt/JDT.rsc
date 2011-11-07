@@ -31,7 +31,7 @@ public alias EntitySet = set[Entity];
 @doc{maps an entity to its modifiers}
 public alias ModifierRel = rel[Entity entity, Modifier modifier];
 
-public alias AstNodeRel = rel[Entity, AstNode];
+public alias AstNodeRel = rel[Entity method, AstNode body];
 
 @doc{contains all type declarations and uses}
 anno BindingRel Resource@types;        
