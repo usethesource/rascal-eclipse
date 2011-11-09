@@ -112,6 +112,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.WildcardType;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 @SuppressWarnings({"deprecation", "rawtypes"})
 public class JdtAstToRascalAstConverter extends ASTVisitor {
@@ -251,7 +252,11 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 			type = bindingConverter.getEntity(((TypeDeclarationStatement) node).resolveBinding());
 		} else if (node instanceof TypeParameter) {
 			type = bindingConverter.getEntity(((TypeParameter) node).resolveBinding());
-		} 
+		} else if (node instanceof EnumDeclaration) {
+			type = bindingConverter.getEntity(((EnumDeclaration) node).resolveBinding());
+		} else if (node instanceof AnnotationTypeDeclaration) {
+			type = bindingConverter.getEntity(((AnnotationTypeDeclaration) node).resolveBinding());
+		}
 		
 		return type;
 	}
@@ -270,7 +275,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	
 	private org.eclipse.imp.pdb.facts.type.Type getConstructor(String dataType, String constructorName) {
 		org.eclipse.imp.pdb.facts.type.Type type = typeStore.lookupAbstractDataType(dataType);
-
+		
 		// Make sure that the constructor name starts with a lowercase character
 		String modifiedConstructorName = constructorName.substring(0, 1).toLowerCase() + constructorName.substring(1);
 		Set<org.eclipse.imp.pdb.facts.type.Type> constructors = typeStore.lookupConstructor(type, modifiedConstructorName);

@@ -96,7 +96,7 @@ public class JDT {
 	public IConstructor extractClass(ISourceLocation loc, IEvaluatorContext eval) {
 		IFile file = getJavaIFileForLocation(loc);
 
-		Map<String,IValue> facts = new JDTImporter(eval.getCurrentEnvt().getStore()).importFacts(loc, file);
+		Map<String,IValue> facts = new JDTImporter(eval.getHeap().getModule("lang::java::jdt::JDT").getStore()).importFacts(loc, file);
 		IConstructor resource = (IConstructor) Resources.file.make(VF, loc);
 		return resource.setAnnotations(facts);
 	}

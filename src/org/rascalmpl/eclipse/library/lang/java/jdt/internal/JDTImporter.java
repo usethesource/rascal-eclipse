@@ -15,9 +15,9 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 
+import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.ADT_ASTNODE;
 import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.ADT_ENTITY;
 import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.ADT_MODIFIER;
-import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.ADT_ASTNODE;
 
 import java.util.ArrayList;
 import java.util.EmptyStackException;
