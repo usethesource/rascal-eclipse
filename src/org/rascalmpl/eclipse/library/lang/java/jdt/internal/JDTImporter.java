@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
@@ -51,6 +52,7 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -263,6 +265,10 @@ public class JDTImporter extends ASTVisitor {
 			return ((TypeDeclarationStatement) n).getDeclaration().resolveBinding();
 		} else if (n instanceof AnonymousClassDeclaration) {
 			return ((AnonymousClassDeclaration) n).resolveBinding();
+		} else if (n instanceof EnumDeclaration) {
+			return ((EnumDeclaration) n).resolveBinding();
+		} else if (n instanceof AnnotationTypeDeclaration) {
+			return ((AnnotationTypeDeclaration) n).resolveBinding();
 		}
 		return null;
 	}
@@ -293,6 +299,10 @@ public class JDTImporter extends ASTVisitor {
 			tb = ((TypeDeclarationStatement) n).resolveBinding();
 		} else if (n instanceof TypeParameter) {
 			tb = ((TypeParameter) n).resolveBinding();
+		} else if (n instanceof EnumDeclaration) {
+			tb = ((EnumDeclaration) n).resolveBinding();
+		} else if (n instanceof AnnotationTypeDeclaration) {
+			tb = ((AnnotationTypeDeclaration) n).resolveBinding();
 		}
 
 		if (tb != null) {
