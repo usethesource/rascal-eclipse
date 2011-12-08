@@ -936,4 +936,11 @@
       </enablement>
    </renameParticipant>
 </extension>
+<extension
+      point="org.eclipse.imp.runtime.foldingUpdater">
+   <foldingUpdater
+         class="org.rascalmpl.eclipse.terms.FoldingUpdater"
+         language="rascal">
+   </foldingUpdater>
+</extension>
 </plugin>

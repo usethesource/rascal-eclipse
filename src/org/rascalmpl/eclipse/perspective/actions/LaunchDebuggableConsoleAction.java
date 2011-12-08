@@ -55,6 +55,10 @@ public class LaunchDebuggableConsoleAction implements IObjectActionDelegate, IAc
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(IRascalResources.ID_RASCAL_LAUNCH_CONFIGURATION_TYPE);
 
+		if (true) {
+			throw new RuntimeException("Debugger is offline until further notice");
+		}
+		
 		// create a new configuration which will launch the debuggable console
 		ILaunchConfigurationWorkingCopy workingCopy;
 		try {

@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -60,10 +61,16 @@ public class FoldingUpdater extends FolderBase {
 						IValueFactory VF = ValueFactoryFactory.getValueFactory();
 						
 						if (ProductionAdapter.hasAttribute(prod, Factory.Attr_Tag.make(VF, VF.node("Foldable")))) {
-							makeAnnotation(arg);	
+							makeAnnotation(arg, false);	
+						}
+						else if (ProductionAdapter.hasAttribute(prod, Factory.Attr_Tag.make(VF, VF.node("Folded")))) {
+							makeAnnotation(arg, true);	
 						}
 						else if (arg.getAnnotation("foldable") != null) {
-							makeAnnotation(arg);
+							makeAnnotation(arg, false);
+						}
+						else if (arg.getAnnotation("folded") != null) {
+							makeAnnotation(arg, true);
 						}
 						
 						if (!TreeAdapter.isLexical(arg)) {
@@ -94,6 +101,16 @@ public class FoldingUpdater extends FolderBase {
 			} catch (VisitorException e) {
 				Activator.getInstance().logException(e.getMessage(), e);
 			}
+		}
+	}
+	
+	@Override
+	public void makeAnnotation(Object arg, boolean folded) {
+		IConstructor c = (IConstructor) arg;
+		ISourceLocation l = TreeAdapter.getLocation(c);
+		
+		if (l.getBeginLine() != l.getEndLine()) {
+			super.makeAnnotation(arg, folded);
 		}
 	}
 }
