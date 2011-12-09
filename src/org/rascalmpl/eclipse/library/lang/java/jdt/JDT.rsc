@@ -42,7 +42,7 @@ anno BindingRel Resource@methods;
 @doc{contains just method declarations}
 anno BindingRel Resource@methodDecls;
 
-@doc{contains all constructor declarations}
+@doc{contains all constructor declarations and uses}
 anno BindingRel Resource@constructors; 
 
 @doc{contains all field declarations and uses}

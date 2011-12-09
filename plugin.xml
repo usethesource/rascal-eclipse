@@ -271,6 +271,14 @@
                tooltip="Statically checks the contents of the current editor">
          </action>
          <action
+               class="org.rascalmpl.eclipse.perspective.actions.RunAmbiDexter"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal-eclipse.editor.context.runAmbiDexter"
+               label="Run AmbiDexter"
+               menubarPath="additions"
+               tooltip="Statically detects ambiguity in Rascal syntax definitions">
+         </action>
+         <action
                class="org.rascalmpl.eclipse.perspective.actions.TextTree"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.editor.context.texttree"
