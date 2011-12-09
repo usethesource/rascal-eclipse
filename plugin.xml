@@ -951,4 +951,13 @@
          language="rascal">
    </foldingUpdater>
 </extension>
+<extension
+      point="org.eclipse.ui.views">
+   <view
+         class="org.rascalmpl.eclipse.ambidexter.ReportView"
+         id="rascal-eclipse.ambidexter.report"
+         name="Ambiguity reports"
+         restorable="true">
+   </view>
+</extension>
 </plugin>
