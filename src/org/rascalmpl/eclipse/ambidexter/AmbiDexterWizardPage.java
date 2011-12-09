@@ -179,6 +179,8 @@ public class AmbiDexterWizardPage extends WizardPage {
 		
 		cfg.alternativeStartSymbol = startSymbol.getText();
 		cfg.precision = precision.getSelectionIndex();
+		AmbiDexterConfig.quick = true;
+		AmbiDexterConfig.verbose = false;
 		
 		if (filterCheck.getSelection()) {
 			cfg.filterMethod = DetectionMethod.NU;
