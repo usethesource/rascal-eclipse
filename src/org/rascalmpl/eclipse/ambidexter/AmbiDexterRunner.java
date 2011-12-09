@@ -20,7 +20,6 @@ public class AmbiDexterRunner {
 			Main m = new Main(monitor);
 			m.setGrammar(g);
 			m.setConfig(cfg);
-			m.printGrammar(g);
 			m.checkGrammar(g);
 		} catch (InvalidInputException e) {
 			e.printStackTrace();

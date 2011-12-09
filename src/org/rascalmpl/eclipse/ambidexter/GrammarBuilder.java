@@ -233,9 +233,32 @@ public class GrammarBuilder {
 						}
 						fr.add(ll);
 					}
-					n.followRestrictions.add(fr);
-				}
-				else if (cname.equals("delete")) { // reject
+					n.addFollowRestrictions(fr);
+				} else if (cname.equals("follow")) {
+					// Implement as inverted not-follow.
+					// This is not exactly the same, but it causes no problems for the NU test,
+					// since it remains conservative.
+					// For the derivation generation it does produce some spurious ambiguous strings.
+					FollowRestrictions fr = new FollowRestrictions();
+					IConstructor r = (IConstructor) cond.get("symbol");
+					if (r.getName().equals("char-class")) {
+						CharacterClass cc = (CharacterClass) getSymbol(r);
+						fr.add(new LinkedList<CharacterClass>(cc.invert()));
+					} else {
+						// literal
+						NonTerminal lit = (NonTerminal) getSymbol(r);
+						Production p = lit.productions.iterator().next();
+						for (int j = 0; j < p.getLength(); j++) {
+							CharacterClass last = (CharacterClass) p.getSymbolAt(j);
+							LinkedList<CharacterClass> ll = new LinkedList<CharacterClass>(last.invert());
+							for (int i = j - 1; i >= 0; i--) {
+								ll = new LinkedList<CharacterClass>((CharacterClass) p.getSymbolAt(i), ll);
+							}
+							fr.add(ll);
+						}
+					}
+					n.addFollowRestrictions(fr);
+				} else if (cname.equals("delete")) { // reject
 					Production reject = g.newProduction(n);
 					reject.reject  = true;
 					reject.addSymbol(getSymbol((IConstructor) cond.get("symbol")));
