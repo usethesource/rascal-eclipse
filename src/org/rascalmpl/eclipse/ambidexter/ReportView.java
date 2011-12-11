@@ -101,10 +101,11 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 	}
 
 	@Override
-	public void ambiguousString(final SymbolString s, final NonTerminal n, String messagePrefix) {
+	public void ambiguousString(final AmbiDexterConfig cfg, final SymbolString s, final NonTerminal n, String messagePrefix) {
 		try {
 			final IConstructor sym = (IConstructor) reader.read(VF, Factory.uptr, Factory.Symbol, new ByteArrayInputStream(n.prettyPrint().getBytes()));
 			final String ascii = toascci(s);
+			final String module = cfg.filename;
 			
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				@Override
@@ -113,6 +114,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 					item.setText(new String[] { SymbolAdapter.toString(sym), ascii});
 					item.setData("nonterminal", sym);
 					item.setData("sentence", ascii);
+					item.setData("module", module);
 				}
 			});
 		} catch (FactTypeUseException e) {
