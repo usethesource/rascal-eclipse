@@ -105,7 +105,8 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 		try {
 			final IConstructor sym = (IConstructor) reader.read(VF, Factory.uptr, Factory.Symbol, new ByteArrayInputStream(n.prettyPrint().getBytes()));
 			final String ascii = toascci(s);
-			final String module = cfg.filename;
+			final String module = getModuleName(cfg.filename);
+			final String project = getProjectName(cfg.filename);
 			
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				@Override
@@ -115,6 +116,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 					item.setData("nonterminal", sym);
 					item.setData("sentence", ascii);
 					item.setData("module", module);
+					item.setData("project", project);
 				}
 			});
 		} catch (FactTypeUseException e) {
@@ -122,6 +124,22 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 		} catch (IOException e) {
 			Activator.getInstance().logException("failed to register ambiguity", e);
 		}
+	}
+
+	private String getProjectName(String filename) {
+		int i = filename.indexOf('/');
+		if (i != -1) {
+			return filename.substring(0, i);
+		}
+		return null;
+	}
+
+	private String getModuleName(String filename) {
+		int i = filename.indexOf('/');
+		if (i != -1) {
+			return filename.substring(i+1);
+		}
+		return null;
 	}
 
 	private String toascci(SymbolString s) {

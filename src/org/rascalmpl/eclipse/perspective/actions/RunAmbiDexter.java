@@ -71,7 +71,7 @@ public class RunAmbiDexter implements IEditorActionDelegate {
 		
 		if (dialog.open() == WizardDialog.OK) {
 			AmbiDexterConfig cfg = wizard.getConfig();
-			cfg.filename = moduleName;
+			cfg.filename = project.getName() + "/" + moduleName;
 			AmbiDexterRunner.run(cfg, grammar, nestingRestr);
 		}
 	}

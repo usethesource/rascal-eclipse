@@ -13,6 +13,8 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class EditSentenceAction extends Action implements SelectionListener {
 	private String sentence;
 	private IConstructor nonterminal;
+	private String project;
+	private String module;
 
 	public EditSentenceAction() {
 		setText("Edit");
@@ -32,11 +34,10 @@ public class EditSentenceAction extends Action implements SelectionListener {
 	    if (selection != null && selection instanceof Table) {
 	    	Table table = (Table) selection;
 	    	for (TableItem item : table.getSelection()) {
-	    		String sentence = (String) item.getData("sentence");
-	    		IConstructor nonterminal = (IConstructor) item.getData("nonterminal");
-	    		System.err.println(sentence);
-	    		this.sentence = sentence;
-	    		this.nonterminal = nonterminal;
+	    	    this.sentence = (String) item.getData("sentence");
+	    		this.nonterminal = (IConstructor) item.getData("nonterminal");
+	    		this.project = (String) item.getData("project");
+	    		this.module = (String) item.getData("module");
 	    	}
 	    }
 		
@@ -45,6 +46,5 @@ public class EditSentenceAction extends Action implements SelectionListener {
 	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
 		widgetSelected(e);
-		
 	}
 }
