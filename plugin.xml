@@ -954,7 +954,9 @@
 <extension
       point="org.eclipse.ui.views">
    <view
+         allowMultiple="false"
          class="org.rascalmpl.eclipse.ambidexter.ReportView"
+         icon="icons/ambidexter-a-16.png"
          id="rascal-eclipse.ambidexter.report"
          name="Ambiguity reports"
          restorable="true">
