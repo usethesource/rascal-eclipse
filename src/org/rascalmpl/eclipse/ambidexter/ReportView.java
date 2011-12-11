@@ -70,8 +70,14 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 	    table.setHeaderVisible(true);
 
 	    IToolBarManager toolbar = getViewSite().getActionBars().getToolBarManager();
-	    EditSentenceAction edit = new EditSentenceAction();
-	    table.addSelectionListener(edit);
+	    installAction(toolbar, new EditSentenceAction());
+	    installAction(toolbar, new EditTreeAction());
+	    installAction(toolbar, new BrowseTreeAction());
+	    installAction(toolbar, new DiagnoseAction());
+	}
+
+	private void installAction(IToolBarManager toolbar, AbstractAmbidexterAction edit) {
+		table.addSelectionListener(edit);
 	    toolbar.add(edit);
 	}
 

@@ -4,15 +4,15 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.eclipse.library.util.ValueUI;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class EditSentenceAction extends AbstractAmbidexterAction {
-	public EditSentenceAction() {
-		setText("Edit");
-		setToolTipText("Open an editor for the selected sentence");
+public class DiagnoseAction extends AbstractAmbidexterAction {
+	public DiagnoseAction() {
+		setText("Diagnose");
+		setToolTipText("Experimental feature to diagnose ambiguity");
 	}
 	
 	@Override
 	public void run() {
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		new ValueUI(vf).text(vf.string(sentence), vf.integer(2));
+		new ValueUI(vf).text(getEvaluator().diagnoseAmbiguity(null, parse()), vf.integer(2));
 	}
 }
