@@ -13,8 +13,10 @@ package org.rascalmpl.eclipse.editor;
 
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.services.ISourceHyperlinkDetector;
 import org.eclipse.jface.text.IRegion;
@@ -66,6 +68,26 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 			}
 		}
 		
+		IValue docLinksMapValue = tree.getAnnotation("docLinks");
+		IConstructor subtree = TreeAdapter.locateAnnotatedTree(tree, "loc", region.getOffset());
+		if (docLinksMapValue != null && docLinksMapValue.getType().isMapType() && subtree != null) {
+			ISourceLocation loc = TreeAdapter.getLocation(subtree);
+			if (loc != null) {
+				IMap docLinksMap = (IMap)docLinksMapValue;
+				if (docLinksMap.containsKey(loc)) {
+					IValue links = docLinksMap.get(loc);
+					if (links != null && links.getType().isSetType() && links.getType().getElementType().isSourceLocationType()) {
+						IHyperlink[] a = new IHyperlink[((ISet) links).size()];
+						int i = 0;
+						for (IValue l : ((ISet) links)) {
+							a[i++] = new SourceLocationHyperlink(loc, (ISourceLocation) l);
+						}
+						return a;
+					}
+				}
+			}
+		}
+
 		return null;
 	}
 }

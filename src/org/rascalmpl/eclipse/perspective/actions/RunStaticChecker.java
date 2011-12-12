@@ -110,7 +110,7 @@ public class RunStaticChecker implements IEditorActionDelegate {
 				if (newTree != null) {
 					IConstructor treeTop = parseTree;
 					IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
-					IConstructor newTreeTop = treeTop.set("args", treeArgs).setAnnotation("loc", treeTop.getAnnotation("loc"));
+					IConstructor newTreeTop = treeTop.set("args", treeArgs).setAnnotation("loc", treeTop.getAnnotation("loc")).setAnnotation("docStrings", newTree.getAnnotation("docStrings")).setAnnotation("docLinks", newTree.getAnnotation("docLinks"));
 					parseTree = newTreeTop;
 					handler.clearMessages();
 					marker.process(parseTree, handler);

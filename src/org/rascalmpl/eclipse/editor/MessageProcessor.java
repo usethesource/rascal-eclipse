@@ -78,13 +78,13 @@ public class MessageProcessor {
 	}
 
 	private void processMarker(IConstructor marker, ISourceLocation loc, IMessageHandler handler)  {
-		int severity = IStatus.INFO;
+		int severity = IMarker.SEVERITY_INFO;
 
 		if (marker.getName().equals("error")) {
-			severity = IStatus.ERROR;
+			severity = IMarker.SEVERITY_ERROR;
 		}
 		else if (marker.getName().equals("warning")) {
-			severity = IStatus.WARNING;
+			severity = IMarker.SEVERITY_WARNING;
 		}
 
 		String msg = ((IString) marker.get(0)).getValue();

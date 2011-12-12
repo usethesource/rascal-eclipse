@@ -57,8 +57,18 @@ public class DocumentationProvider  implements IDocumentationProvider {
 					return ((IString) map.get(loc)).getValue();
 				}
 			}
+
+			IValue docStringsMapValue = top.getAnnotation("docStrings");
+			IValue loc = arg.getAnnotation("loc");
+			if (docStringsMapValue != null && docStringsMapValue.getType().isMapType() && loc != null && loc.getType().isSourceLocationType()) {
+				IMap docStringsMap = (IMap)docStringsMapValue;
+				if (docStringsMap.containsKey(loc)) { 
+					IValue docString = docStringsMap.get(loc);
+					if (docString.getType().isStringType()) return ((IString)docString).getValue();
+				}
+			}
 		}
 		
 		return null;
 	}
-}
+}	

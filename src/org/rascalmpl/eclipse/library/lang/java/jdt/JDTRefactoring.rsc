@@ -17,19 +17,19 @@ import lang::java::jdt::JDT;
 import IO;
 
 @doc{Invokes the EncapsulateField refactoring, generating public getters and setters, on the fields at the locs in the set}
-@javaClass{org.rascalmpl.eclipse.library.JDTRefactoring}
+@javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal.JDTRefactoring}
 public java rel[str,str] encapsulateFields(set[int] fieldOffsetsFromLoc, loc file);
 
 @doc{Invokes the ChangeSignature refactoring, making the method public}
-@javaClass{org.rascalmpl.eclipse.library.JDTRefactoring}
+@javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal.JDTRefactoring}
 public java rel[str,str] makeMethodsPublic(set[int] methodOffsetsFromLoc, loc file);
 
 @doc{Invokes the Code CleanUp on the given file}
-@javaClass{org.rascalmpl.eclipse.library.JDTRefactoring}
+@javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal.JDTRefactoring}
 public java rel[str,str] cleanUpSource(loc file);
 
 @doc{Invokes the Fully Qualify Type Names transformation on the given file}
-@javaClass{org.rascalmpl.eclipse.library.JDTRefactoring}
+@javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal.JDTRefactoring}
 public java str fullyQualifyTypeNames(loc file);
 
 public void fullyQualifyTypeNamesInFile(loc file) {
@@ -38,9 +38,9 @@ public void fullyQualifyTypeNamesInFile(loc file) {
 }
 
 @doc{Remove the methods at the given locs}
-@javaClass{org.rascalmpl.eclipse.library.JDTRefactoring}
+@javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal.JDTRefactoring}
 public java void removeMethods(set[int] methodOffsetsFromLoc, loc file);
 
 @doc{Unqualify names qualified using fullyQualifyTypeNames}
-@javaClass{org.rascalmpl.eclipse.library.JDTRefactoring}
+@javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal.JDTRefactoring}
 public java void unqualifyTypeNames(loc file);
