@@ -247,14 +247,6 @@
                tooltip="Reset the state of the interpreter associated with the current project.">
          </action>
          <action
-               class="org.rascalmpl.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal.launchdebugconsole"
-               label="Launch Debuggable Console"
-               menubarPath="additions"
-               tooltip="Launch a console that allows interaction via the debugging interfaces">
-         </action>
-         <action
                class="org.rascalmpl.eclipse.perspective.actions.CopyToConsole"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal-eclipse.editor.context.copyToConsole"
@@ -272,7 +264,7 @@
          </action>
          <action
                class="org.rascalmpl.eclipse.perspective.actions.RunAmbiDexter"
-               icon="icons/rascal3D_2-16px.gif"
+               icon="icons/ambidexter-a-16.png"
                id="rascal-eclipse.editor.context.runAmbiDexter"
                label="Run AmbiDexter"
                menubarPath="additions"
@@ -307,12 +299,6 @@
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.launchconsole"
                label="Launch Console">
-         </action>
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.LaunchDebuggableConsoleAction"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal.launchdebugconsole"
-               label="Launch Debuggable Console">
          </action>
           <action
                class="org.rascalmpl.eclipse.perspective.actions.ResetProjectState"
@@ -961,5 +947,12 @@
          name="Ambiguity reports"
          restorable="true">
    </view>
+</extension>
+<extension
+      point="org.eclipse.imp.runtime.editorActionContributions">
+   <editorActionContributor
+         class="org.rascalmpl.eclipse.editor.ActionsContributor"
+         language="rascal">
+   </editorActionContributor>
 </extension>
 </plugin>

@@ -22,6 +22,8 @@ public interface IRascalResources {
 	public static final String RASCAL_FILE = "rascal_file";
 	public static final String RASCAL_FILE_WARNING = "rascal_file_warning";
 	public static final String RASCAL_FILE_ERROR = "rascal_file_error";
+	public static final String AMBIDEXTER = "ambidexter";
+	public static final String COPY_TO_CONSOLE = "copy_to_console";
 
 	public static final String ID_RASCAL_DEBUG_MODEL = "rascal.debugModel";
 	public static final String ID_RASCAL_NATURE = "rascal.nature";
@@ -61,5 +63,7 @@ public interface IRascalResources {
 
 	public static final String RASCAL_EDITOR_MESSAGES = "rascal.editor.messages";
 	public static final String NATURE_ID = "rascal.nature";
+	
+
 
 }

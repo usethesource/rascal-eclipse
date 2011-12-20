@@ -71,7 +71,7 @@ public class Activator extends PluginBase {
 			"icons/"); //$NON-NLS-1$("icons/"); //$NON-NLS-1$
 
 	protected void initializeImageRegistry(ImageRegistry reg) {
-		IPath path = ICONS_PATH.append("rascal_default_image.gif");//$NON-NLS-1$
+		IPath path = ICONS_PATH.append("rascal3D_2-32px.png");//$NON-NLS-1$
 		ImageDescriptor imageDescriptor = createImageDescriptor(Platform.getBundle(PLUGIN_ID), path);
 		reg.put(IRascalResources.RASCAL_DEFAULT_IMAGE, imageDescriptor);
 
@@ -82,6 +82,14 @@ public class Activator extends PluginBase {
 		path = ICONS_PATH.append("rascal_file.gif");//$NON-NLS-1$
 		imageDescriptor = createImageDescriptor(Platform.getBundle(PLUGIN_ID), path);
 		reg.put(IRascalResources.RASCAL_FILE, imageDescriptor);
+		
+		path = ICONS_PATH.append("ambidexter-a-16.png");//$NON-NLS-1$
+		imageDescriptor = createImageDescriptor(Platform.getBundle(PLUGIN_ID), path);
+		reg.put(IRascalResources.AMBIDEXTER, imageDescriptor);
+		
+		path = ICONS_PATH.append("rascal_default_image.gif");//$NON-NLS-1$
+		imageDescriptor = createImageDescriptor(Platform.getBundle(PLUGIN_ID), path);
+		reg.put(IRascalResources.COPY_TO_CONSOLE, imageDescriptor);
 
 		path = ICONS_PATH.append("rascal_file_warning.gif");//$NON-NLS-1$
 		imageDescriptor = createImageDescriptor(Platform.getBundle(PLUGIN_ID), path);

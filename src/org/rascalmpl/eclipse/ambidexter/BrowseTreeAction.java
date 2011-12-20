@@ -13,6 +13,6 @@ public class BrowseTreeAction extends AbstractAmbidexterAction {
 	@Override
 	public void run() {
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		new ValueUI(vf).tree(parse());
+		new ValueUI(vf).tree(getTree());
 	}
 }

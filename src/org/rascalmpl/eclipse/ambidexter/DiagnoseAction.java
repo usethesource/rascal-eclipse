@@ -13,6 +13,6 @@ public class DiagnoseAction extends AbstractAmbidexterAction {
 	@Override
 	public void run() {
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		new ValueUI(vf).text(getEvaluator().diagnoseAmbiguity(null, parse()), vf.integer(2));
+		new ValueUI(vf).text(getEvaluator().diagnoseAmbiguity(null, getTree()), vf.integer(2));
 	}
 }

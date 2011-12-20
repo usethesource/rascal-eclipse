@@ -23,6 +23,7 @@ public abstract class AbstractAmbidexterAction extends Action implements Selecti
 	protected IConstructor nonterminal;
 	protected String project;
 	protected String module;
+	protected IConstructor tree;
 
 	public AbstractAmbidexterAction() {
 		super();
@@ -54,6 +55,7 @@ public abstract class AbstractAmbidexterAction extends Action implements Selecti
 	    		this.nonterminal = (IConstructor) item.getData("nonterminal");
 	    		this.project = (String) item.getData("project");
 	    		this.module = (String) item.getData("module");
+	    		this.tree = (IConstructor) item.getData("tree");
 	    	}
 	    }
 		
@@ -74,8 +76,13 @@ public abstract class AbstractAmbidexterAction extends Action implements Selecti
 		return ProjectEvaluatorFactory.getInstance().getEvaluator(project);
 	}
 	
-	protected IConstructor parse() {
+	protected IConstructor getTree() {
+		if (tree != null) {
+			return tree;
+		}
+		
 		Evaluator eval = getEvaluator();
+		eval.doImport(null, "ParseTree");
 		
 		ModuleEnvironment env = eval.getHeap().getModule(module);
 		
@@ -86,6 +93,7 @@ public abstract class AbstractAmbidexterAction extends Action implements Selecti
 		Environment old = eval.getCurrentEnvt();
 		try {
 			eval.setCurrentEnvt(env);
+			env.addImport("ParseTree", eval.getHeap().getModule("ParseTree"));
 			eval.pushEnv();
 			Type nt = RascalTypeFactory.getInstance().nonTerminalType(nonterminal);
 			IValue reified = nt.accept(new TypeReifier(eval, eval.getValueFactory())).getValue();

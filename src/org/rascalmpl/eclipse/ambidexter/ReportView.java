@@ -13,9 +13,11 @@ import nl.cwi.sen1.AmbiDexter.grammar.NonTerminal;
 import nl.cwi.sen1.AmbiDexter.grammar.SymbolString;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
@@ -29,8 +31,11 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 
 public class ReportView extends ViewPart implements IAmbiDexterMonitor {
+	public static final String ID = "rascal-eclipse.ambidexter.report";
 	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final PrintStream out = RuntimePlugin.getInstance().getConsoleStream();
 	private TableColumn nonterminals;
@@ -114,22 +119,28 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 			final String module = getModuleName(cfg.filename);
 			final String project = getProjectName(cfg.filename);
 			
-			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					TableItem item = new TableItem(table, SWT.NONE);
-					item.setText(new String[] { SymbolAdapter.toString(sym), ascii});
-					item.setData("nonterminal", sym);
-					item.setData("sentence", ascii);
-					item.setData("module", module);
-					item.setData("project", project);
-				}
-			});
+			addItem(sym, ascii, module, project, null);
 		} catch (FactTypeUseException e) {
 			Activator.getInstance().logException("failed to register ambiguity", e);
 		} catch (IOException e) {
 			Activator.getInstance().logException("failed to register ambiguity", e);
 		}
+	}
+
+	private void addItem(final IConstructor sym, final String ascii,
+			final String module, final String project, final IConstructor tree) {
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				TableItem item = new TableItem(table, SWT.NONE);
+				item.setText(new String[] { SymbolAdapter.toString(sym), ascii});
+				item.setData("nonterminal", sym);
+				item.setData("sentence", ascii);
+				item.setData("module", module);
+				item.setData("project", project);
+				item.setData("tree", tree);
+			}
+		});
 	}
 
 	private String getProjectName(String filename) {
@@ -155,5 +166,39 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 			 b.append(ch.toAscii());
 		}
 		return b.toString();
+	}
+
+	public void list(final String project, final String module, IConstructor parseTree) {
+		table.removeAll();
+		
+		try {
+			parseTree.accept(new IdentityTreeVisitor() {
+				@Override
+				public IConstructor visitTreeAppl(IConstructor arg)
+						throws VisitorException {
+					for (IValue child : TreeAdapter.getArgs(arg)) {
+						child.accept(this);
+					}
+					return arg;
+				}
+				
+				@Override
+				public IConstructor visitTreeAmb(IConstructor arg)
+						throws VisitorException {
+					IConstructor sym = null;
+					String sentence = TreeAdapter.yield(arg);
+					
+					for (IValue child : TreeAdapter.getAlternatives(arg)) {
+						sym = TreeAdapter.getType((IConstructor) child);
+						child.accept(this);
+					}
+					
+					addItem(sym, sentence, module, project, arg);
+					return arg;
+				}
+			});
+		} catch (VisitorException e) {
+			// do nothing
+		}
 	}
 }

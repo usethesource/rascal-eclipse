@@ -13,6 +13,6 @@ public class EditTreeAction extends AbstractAmbidexterAction {
 	@Override
 	public void run() {
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		new ValueUI(vf).text(parse(), vf.integer(2));
+		new ValueUI(vf).text(getTree(), vf.integer(2));
 	}
 }

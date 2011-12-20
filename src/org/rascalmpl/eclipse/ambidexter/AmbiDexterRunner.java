@@ -19,7 +19,7 @@ public class AmbiDexterRunner {
 			ReportView part = (ReportView) PlatformUI.getWorkbench()
 		    .getActiveWorkbenchWindow()
 		    .getActivePage()
-			.showView("rascal-eclipse.ambidexter.report");
+			.showView(ReportView.ID);
 			
 			part.run(g, cfg);
 		} catch (InvalidInputException e) {
