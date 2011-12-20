@@ -106,12 +106,18 @@ public class RunAmbiDexter extends Action implements IEditorActionDelegate {
 		String moduleName;
 		
 		IFolder srcFolder = project.getFolder(IRascalResources.RASCAL_SRC);
+		
 		if (srcFolder != null && srcFolder.exists()) {
 			if (srcFolder.getProjectRelativePath().isPrefixOf(file.getProjectRelativePath())) {
 				moduleName = file.getProjectRelativePath().removeFirstSegments(1).removeFileExtension().toPortableString();
-				moduleName = moduleName.replaceAll(File.pathSeparator, "::");
+				moduleName = moduleName.replaceAll(File.separator, "::").replaceAll("syntax","\\\\syntax");
 				return moduleName;
 			}
+		}
+		else {
+			moduleName = file.getProjectRelativePath().removeFileExtension().toPortableString();
+			moduleName = moduleName.replaceAll(File.separator, "::");
+			return moduleName;
 		}
 		
 		throw new ImplementationError("could not compute modulename for " + file);
