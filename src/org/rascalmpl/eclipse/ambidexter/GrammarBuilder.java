@@ -71,7 +71,6 @@ public class GrammarBuilder {
 
 		g.finish();
 		g.verify();
-		g.printSize();
 		
 		return g;
 	}
@@ -192,6 +191,10 @@ public class GrammarBuilder {
 				
 				conditionals.add(symbol);
 			}
+		} else if (name.equals("layouts")) {
+			NonTerminal n = g.getNonTerminal(symbol.toString());
+			n.layout = true;
+			s = n;
 		} else {
 			s = g.getNonTerminal(symbol.toString());
 		}
@@ -244,6 +247,7 @@ public class GrammarBuilder {
 					if (r.getName().equals("char-class")) {
 						CharacterClass cc = (CharacterClass) getSymbol(r);
 						fr.add(new LinkedList<CharacterClass>(cc.invert()));
+						fr.mustFollowLength = 1;
 					} else {
 						// literal
 						NonTerminal lit = (NonTerminal) getSymbol(r);
@@ -256,6 +260,7 @@ public class GrammarBuilder {
 							}
 							fr.add(ll);
 						}
+						fr.mustFollowLength = p.getLength();
 					}
 					n.addFollowRestrictions(fr);
 				} else if (cname.equals("delete")) { // reject

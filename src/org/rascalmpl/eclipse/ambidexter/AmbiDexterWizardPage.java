@@ -25,7 +25,7 @@ public class AmbiDexterWizardPage extends WizardPage {
 	private Combo precision;
 	private Combo startSymbol;
 	private Button unfoldLayoutCheck;
-	private Button unfoldFiniteCheck;
+	//private Button unfoldFiniteCheck;
 	private Button priorityCheck;
 	private Button followCheck;
 	private Button rejectCheck;
@@ -102,13 +102,13 @@ public class AmbiDexterWizardPage extends WizardPage {
 		precision = new Combo(generalGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
 		precision.add("LR0");
 		precision.add("SLR1");
-		precision.add("LALR1");
-		precision.add("LR1");
+		//precision.add("LALR1"); // TODO lalr1 and lr1 do not work yet with scannerless grammars
+		//precision.add("LR1");
 
 		// ============== Filtering settings ============================
 
 		unfoldLayoutCheck = createCheckBox(filterGroup, "Unfold layout and literals");
-		unfoldFiniteCheck = createCheckBox(filterGroup, "Unfold non-terminals with finite languages");
+		//unfoldFiniteCheck = createCheckBox(filterGroup, "Unfold non-terminals with finite languages");
 		priorityCheck = createCheckBox(filterGroup, "Do priority and associativity");
 		followCheck = createCheckBox(filterGroup, "Propagate follow restrictions");
 		rejectCheck = createCheckBox(filterGroup, "Do rejects");
@@ -134,7 +134,7 @@ public class AmbiDexterWizardPage extends WizardPage {
 		
 		filterCheck.setSelection(true);
 		unfoldLayoutCheck.setSelection(true);
-		unfoldFiniteCheck.setSelection(true);
+		//unfoldFiniteCheck.setSelection(true);
 		priorityCheck.setSelection(true);
 		followCheck.setSelection(true);
 		rejectCheck.setSelection(true);		
@@ -161,7 +161,7 @@ public class AmbiDexterWizardPage extends WizardPage {
 	private void setFilteringEnabled(boolean b) {
 		filterGroup.setEnabled(b);
 		unfoldLayoutCheck.setEnabled(b);
-		unfoldFiniteCheck.setEnabled(b);
+		//unfoldFiniteCheck.setEnabled(b);
 		priorityCheck.setEnabled(b);
 		followCheck.setEnabled(b);
 		rejectCheck.setEnabled(b);
@@ -187,7 +187,7 @@ public class AmbiDexterWizardPage extends WizardPage {
 			cfg.findHarmlessProductions = true;
 			cfg.filterUnmatchedDerivesReduces = true;
 			cfg.unfoldLayout = cfg.unfoldLexical = unfoldLayoutCheck.getSelection();
-			cfg.unfoldNonRecursiveTails = unfoldFiniteCheck.getSelection();
+			//cfg.unfoldNonRecursiveTails = unfoldFiniteCheck.getSelection();
 			cfg.doPriorities = priorityCheck.getSelection();
 			cfg.doFollowRestrictions = followCheck.getSelection();
 			cfg.doRejects = rejectCheck.getSelection();

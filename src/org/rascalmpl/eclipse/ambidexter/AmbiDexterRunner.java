@@ -13,7 +13,6 @@ import org.eclipse.ui.PlatformUI;
 public class AmbiDexterRunner {
 	public static void run(AmbiDexterConfig cfg, IConstructor grammar, IRelation nestingRestr) {
 		try {
-			AmbiDexterConfig.verbose = true;
 			Grammar g = new GrammarBuilder().build(grammar, nestingRestr, cfg);
 			
 			ReportView part = (ReportView) PlatformUI.getWorkbench()

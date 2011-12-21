@@ -48,6 +48,9 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 	public void run(final Grammar grammar, final AmbiDexterConfig cfg) {
 		table.removeAll();
 		
+		println("Running AmbiDexter...");
+		grammar.printSize(this);
+
 		Runnable run = new Runnable() {
 			public void run() {
 				Main m = new Main(ReportView.this);
