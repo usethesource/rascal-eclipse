@@ -115,7 +115,7 @@ public class OutputInterpreterConsole extends TextConsole implements IInterprete
 	}
 	
 	private void writeToConsole(final String line, final boolean terminateLine){
-		Display.getDefault().syncExec(new Runnable(){
+		Display.getDefault().asyncExec(new Runnable(){
 			public void run(){
 				IDocument doc = getDocument();
 				try{
