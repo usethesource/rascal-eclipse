@@ -48,7 +48,8 @@ public class ConsoleFactory{
 	private final static IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 	private final static IOConsole outputConsole = new IOConsole("Rascal output console", Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.RASCAL_DEFAULT_IMAGE));
 	
-	private final PrintWriter stderr = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
+	private final static PrintWriter stderr = new PrintWriter(outputConsole.newOutputStream());
+	// new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
 	
 	public ConsoleFactory(){
 		super();
