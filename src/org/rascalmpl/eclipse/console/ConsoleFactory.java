@@ -17,6 +17,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -76,18 +77,12 @@ public class ConsoleFactory{
 				wrappedStream.write(b);
 			}
 			else {
-				class RunWrite implements Runnable {
-					private int __b;
-					public RunWrite(int __b) {
-						this.__b = __b;
-					}
+				defaultDisplay.asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						try { wrappedStream.write(__b); } catch (IOException e) { }
+						try { wrappedStream.write(b); } catch (IOException e) { }
 					}
-					
-				}
-				defaultDisplay.asyncExec(new RunWrite(b));
+				});
 			}
 		}
 		
@@ -98,18 +93,13 @@ public class ConsoleFactory{
 				wrappedStream.write(b);
 			}
 			else {
-				class RunWriteArray implements Runnable {
-					private byte[] __b;
-					public RunWriteArray(byte[] __b) {
-						this.__b = __b.clone();
-					}
+				final byte[] __b = b.clone();
+				defaultDisplay.asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						try { wrappedStream.write(__b); } catch (IOException e) { }
 					}
-					
-				}
-				defaultDisplay.asyncExec(new RunWriteArray(b));
+				});
 			}
 		}
 		
@@ -120,22 +110,7 @@ public class ConsoleFactory{
 				wrappedStream.write(b, off, len);
 			}
 			else {
-				class RunWriteArrayOffLen implements Runnable {
-					private final byte[] __b;
-					private final int __off;
-					private final int __len;
-					public RunWriteArrayOffLen(byte[] __b, int __off, int __len) {
-						this.__b = __b.clone();
-						this.__off = __off;
-						this.__len = __len;
-					}
-					@Override
-					public void run() {
-						try { wrappedStream.write(__b, __off, __len); } catch (IOException e) { }
-					}
-					
-				}
-				defaultDisplay.asyncExec(new RunWriteArrayOffLen(b, off, len));
+				write(Arrays.copyOfRange(b, off, off+ len));
 			}
 		}
 		
