@@ -54,88 +54,15 @@ public class ConsoleFactory{
 	private final static IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 	private final static IOConsole outputConsole = new IOConsole("Rascal output console", Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.RASCAL_DEFAULT_IMAGE));
 	
-	private final static PrintWriter stderr;
-	private final static OutputStream stdout;
-	static {
+	private static PrintWriter getErrorWriter() {
 		IOConsoleOutputStream errorStream = outputConsole.newOutputStream();
 		errorStream.setColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-		stderr = new PrintWriter(new AsyncOutputStream(errorStream));
-		stdout = new AsyncOutputStream(outputConsole.newOutputStream());
+		return new PrintWriter(errorStream);
 	}
-	// new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
 	
-	static class AsyncOutputStream extends OutputStream {
-		private final OutputStream wrappedStream;
-		
-		public AsyncOutputStream(OutputStream wrappedStream) {
-			this.wrappedStream = wrappedStream;
-		}
-		@Override
-		public void write(final int b) throws IOException {
-			Display defaultDisplay = Display.getDefault();
-			if (defaultDisplay.getThread() == Thread.currentThread()) {
-				wrappedStream.write(b);
-			}
-			else {
-				defaultDisplay.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try { wrappedStream.write(b); } catch (IOException e) { }
-					}
-				});
-			}
-		}
-		
-		@Override
-		public void write(byte[] b) throws IOException {
-			Display defaultDisplay = Display.getDefault();
-			if (defaultDisplay.getThread() == Thread.currentThread()) {
-				wrappedStream.write(b);
-			}
-			else {
-				final byte[] __b = b.clone();
-				defaultDisplay.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try { wrappedStream.write(__b); } catch (IOException e) { }
-					}
-				});
-			}
-		}
-		
-		@Override
-		public void write(byte[] b, int off, int len) throws IOException {
-			Display defaultDisplay = Display.getDefault();
-			if (defaultDisplay.getThread() == Thread.currentThread()) {
-				wrappedStream.write(b, off, len);
-			}
-			else {
-				write(Arrays.copyOfRange(b, off, off+ len));
-			}
-		}
-		
-		@Override
-		public void close() throws IOException {
-			Display defaultDisplay = Display.getDefault();
-			if (defaultDisplay.getThread() == Thread.currentThread()) {
-				wrappedStream.close();
-			}
-			else {
-				defaultDisplay.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try { wrappedStream.close(); } catch (IOException e) { }
-					}
-				});
-			}
-		}
-		
-		@Override
-		public void flush() throws IOException {
-			// flush does nothing for IOConsole.
-		}
+	private static PrintWriter getStandardWriter() {
+		return new PrintWriter(outputConsole.newOutputStream());
 	}
-
 	
 	public ConsoleFactory(){
 		super();
@@ -224,14 +151,11 @@ public class ConsoleFactory{
 	}
 
 	private class InteractiveRascalConsole extends InteractiveInterpreterConsole implements IRascalConsole{	
-		@Override
-		public OutputStream getConsoleOutputStream() {
-			return new AsyncOutputStream(outputConsole.newOutputStream());// stdout;
-		}
+		
 		public InteractiveRascalConsole(ModuleEnvironment shell, GlobalEnvironment heap){
 			super(new RascalScriptInterpreter(), "Rascal", "rascal>", ">>>>>>>");
 			
-			getInterpreter().initialize(new Evaluator(vf, stderr, new PrintWriter(getConsoleOutputStream()), shell, heap));
+			getInterpreter().initialize(new Evaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap));
 			initializeConsole();
 		}
 		
@@ -243,14 +167,14 @@ public class ConsoleFactory{
 		public InteractiveRascalConsole(IProject project, ModuleEnvironment shell, GlobalEnvironment heap){
 			super(new RascalScriptInterpreter(project), "Rascal ["+project.getName()+"]", "rascal>", ">>>>>>>");
 			
-			getInterpreter().initialize(new Evaluator(vf, stderr, new PrintWriter(getConsoleOutputStream()), shell, heap));
+			getInterpreter().initialize(new Evaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap));
 			initializeConsole();
 		}
 
 		public InteractiveRascalConsole(IDebugger debugger, ModuleEnvironment shell, GlobalEnvironment heap){
 			super(new RascalScriptInterpreter(), "Rascal", "rascal>", ">>>>>>>");
 			
-			getInterpreter().initialize(new DebuggableEvaluator(vf, stderr, new PrintWriter(getConsoleOutputStream()),  shell, debugger, heap));
+			getInterpreter().initialize(new DebuggableEvaluator(vf, getErrorWriter(), getStandardWriter(),  shell, debugger, heap));
 			initializeConsole();
 		}
 		
@@ -258,7 +182,7 @@ public class ConsoleFactory{
 		public InteractiveRascalConsole(IProject project, IDebugger debugger, ModuleEnvironment shell, GlobalEnvironment heap){
 			super(new RascalScriptInterpreter(project), "Rascal ["+project.getName()+"]", "rascal>", ">>>>>>>");
 			
-			getInterpreter().initialize(new DebuggableEvaluator(vf, new PrintWriter(RuntimePlugin.getInstance().getConsoleStream()), new PrintWriter(getConsoleOutputStream()), shell, debugger, heap));
+			getInterpreter().initialize(new DebuggableEvaluator(vf, getErrorWriter(), getStandardWriter(), shell, debugger, heap));
 			initializeConsole();
 		}
 		
@@ -269,37 +193,32 @@ public class ConsoleFactory{
 
 	private class OutputRascalConsole extends OutputInterpreterConsole implements IRascalConsole{
 		
-		@Override
-		public OutputStream getConsoleOutputStream() {
-			return new AsyncOutputStream(outputConsole.newOutputStream());// stdout;
-		}
-		
 		public OutputRascalConsole(ModuleEnvironment shell, GlobalEnvironment heap){
 			super(new RascalScriptInterpreter(), "Rascal");
 			
 			initializeConsole();
-			getInterpreter().initialize(new Evaluator(vf, stderr, new PrintWriter(getConsoleOutputStream()), shell, heap));
+			getInterpreter().initialize(new Evaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap));
 		}
 
 		public OutputRascalConsole(IDebugger debugger, ModuleEnvironment shell, GlobalEnvironment heap){
 			super(new RascalScriptInterpreter(), "Rascal");
 			
 			initializeConsole();
-			getInterpreter().initialize(new DebuggableEvaluator(vf, stderr, new PrintWriter(getConsoleOutputStream()), shell, debugger, heap));
+			getInterpreter().initialize(new DebuggableEvaluator(vf, getErrorWriter(), getStandardWriter(), shell, debugger, heap));
 		}
 
 		public OutputRascalConsole(IProject project, IDebugger debugger, ModuleEnvironment shell, GlobalEnvironment heap) {
 			super(new RascalScriptInterpreter(project), "Rascal ["+project.getName()+"]");
 			
 			initializeConsole();
-			getInterpreter().initialize(new DebuggableEvaluator(vf, stderr, new PrintWriter(getConsoleOutputStream()), shell, debugger, heap));
+			getInterpreter().initialize(new DebuggableEvaluator(vf, getErrorWriter(), getStandardWriter(), shell, debugger, heap));
 		}
 
 		public OutputRascalConsole(IProject project, ModuleEnvironment shell, GlobalEnvironment heap) {
 			super(new RascalScriptInterpreter(project), "Rascal ["+project.getName()+"]");
 			
 			initializeConsole();
-			getInterpreter().initialize(new Evaluator(vf, stderr, new PrintWriter(getConsoleOutputStream()), shell, heap));
+			getInterpreter().initialize(new Evaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap));
 		}
  
 		public RascalScriptInterpreter getRascalInterpreter(){
