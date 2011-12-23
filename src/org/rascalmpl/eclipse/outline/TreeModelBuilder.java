@@ -21,22 +21,18 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.services.base.TreeModelBuilderBase;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.Import;
-import org.rascalmpl.ast.Module;
-import org.rascalmpl.ast.NullASTVisitor;
-import org.rascalmpl.ast.Prod;
-import org.rascalmpl.ast.SyntaxDefinition;
-import org.rascalmpl.ast.Toplevel;
-import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Declaration.Alias;
 import org.rascalmpl.ast.Declaration.Annotation;
 import org.rascalmpl.ast.Declaration.Data;
 import org.rascalmpl.ast.Declaration.DataAbstract;
 import org.rascalmpl.ast.Declaration.Function;
-import org.rascalmpl.ast.Declaration.Rule;
 import org.rascalmpl.ast.Declaration.Tag;
 import org.rascalmpl.ast.Declaration.Variable;
+import org.rascalmpl.ast.Import;
+import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Module.Default;
+import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.Prod;
 import org.rascalmpl.ast.Prod.All;
 import org.rascalmpl.ast.Prod.AssociativityGroup;
 import org.rascalmpl.ast.Prod.First;
@@ -44,7 +40,10 @@ import org.rascalmpl.ast.Prod.Labeled;
 import org.rascalmpl.ast.Prod.Others;
 import org.rascalmpl.ast.Prod.Reference;
 import org.rascalmpl.ast.Prod.Unlabeled;
+import org.rascalmpl.ast.SyntaxDefinition;
+import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.Toplevel.GivenVisibility;
+import org.rascalmpl.ast.Variant;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -53,7 +52,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 	public static final int CATEGORY_DATA = 2;
 	public static final int CATEGORY_ANNOTATION = 3;
 	public static final int CATEGORY_FUNCTION = 4;
-	public static final int CATEGORY_RULE = 5;
 	public static final int CATEGORY_TAG = 6;
 	public static final int CATEGORY_VARIABLE = 7;
 	public static final int CATEGORY_SYNTAX = 9;
@@ -66,7 +64,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 	private Group<Group<AbstractAST>> adts;
 	private Group<AbstractAST> annos;
 	private Group<AbstractAST> tags;
-	private Group<AbstractAST> rules;
 	private Group<AbstractAST> imports;
 	
 	private String module;
@@ -95,7 +92,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			adts = new Group<Group<AbstractAST>>("Types",loc);
 			annos = new Group<AbstractAST>("Annotations",loc);
 			tags = new Group<AbstractAST>("Tags",loc);
-			rules = new Group<AbstractAST>("Rules",loc);
 			imports = new Group<AbstractAST>("Imports", loc);
 			syntax = new Group<Group<AbstractAST>>("Syntax", loc);
 			
@@ -108,7 +104,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			addGroup(functions);
 			addGroups(adts);
 			addGroup(aliases);
-			addGroup(rules);
 			addGroup(annos);
 			addGroup(tags);
 		}
@@ -250,11 +245,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		@Override
 		public AbstractAST visitDeclarationFunction(Function x) {
 			return functions.add(x);
-		}
-		
-		@Override
-		public AbstractAST visitDeclarationRule(Rule x) {
-			return rules.add(x);
 		}
 		
 		@Override
