@@ -160,14 +160,15 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 			final ICallableValue func = (ICallableValue) menu.get("handler");
 			IHandler handler = new AbstractHandler() {
 				public Object execute(ExecutionEvent event) throws ExecutionException {
-					final ITextSelection selection = (ITextSelection)HandlerUtil.getActiveWorkbenchWindowChecked(event).getSelectionService().getSelection();
+					ITextSelection selection = (ITextSelection)HandlerUtil.getActiveWorkbenchWindowChecked(event).getSelectionService().getSelection();
 					IEditorInput activeEditorInput = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
 					URI fileRef = new Resources(VF).makeFile(activeEditorInput).getURI();
 					final ISourceLocation selectedLine = VF.sourceLocation(fileRef, selection.getOffset(), selection.getLength(), selection.getStartLine() + 1, selection.getEndLine() + 1, -1, -1);
+					final IString selectedText = VF.string(selection.getText());
 					if (selectedLine != null) {
-						RascalInvoker.invokeUIAsync(new Runnable() {
+						RascalInvoker.invokeAsync(new Runnable() {
 							public void run() {
-								func.call(new Type[] { TF.stringType(), TF.sourceLocationType() }, new IValue[] { VF.string(selection.getText()),  selectedLine });
+								func.call(new Type[] { TF.stringType(), TF.sourceLocationType() }, new IValue[] { selectedText,  selectedLine });
 							}
 						}, func.getEval());
 					}

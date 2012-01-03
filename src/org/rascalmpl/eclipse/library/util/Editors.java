@@ -300,6 +300,9 @@ public class Editors {
 		}
 		
 		protected IList getLineInfo() {
+			if (Thread.currentThread().equals(Display.getDefault().getThread())) {
+				throw new RuntimeException("The repeatable runner should not be run from inside the UI thread");
+			}
 			return (IList) fun.call(new Type[0], new IValue[0]).getValue();
 		}
 
@@ -325,6 +328,19 @@ public class Editors {
 				firstTime = false;
 			}
 			return result;
+		}
+
+		/*
+		 * Initialize the runner, this should be run on the UI thread!
+		 */
+		public void initializeRunner() {
+			if (!Thread.currentThread().equals(Display.getDefault().getThread())) {
+				throw new RuntimeException("Initialization should be run from UI thread!");
+			}
+			try {
+				super.getEditorPart();
+			} catch (PartInitException e) {
+			}
 		}
 	}
 
@@ -428,15 +444,26 @@ public class Editors {
 	 */
 	public void edit(final ISourceLocation loc, final IValue lineInfo) {
 		if (lineInfo instanceof ICallableValue) {
-			ICallableValue lineInfoFunc = (ICallableValue) lineInfo;
+			final ICallableValue lineInfoFunc = (ICallableValue) lineInfo;
 
 			IWorkbenchWindow win = getWorkbenchWindow();
 			if (win != null) {
 				IWorkbenchPage page = win.getActivePage();
 				if (page != null) {
 					page.addPartListener(annotationListener);
-					RascalInvoker.invokeUIAsync(new RepeatableDecoratorRunner(
-							loc, lineInfoFunc, page), lineInfoFunc.getEval());
+					final RepeatableDecoratorRunner runner = new RepeatableDecoratorRunner(loc, lineInfoFunc, page);
+					// we cannot schedule the runner on a non UI thread directly, we first have to run initialization
+					// on the UI thread.
+					Display.getDefault().asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							// now we are in the UI thread, we can initialize the actual runner
+							runner.initializeRunner();
+							// and only then schedule it on a non UI thread for the rascal callbacks
+							RascalInvoker.invokeAsync(runner, lineInfoFunc.getEval());
+						}
+					});
 				}
 			}
 		}
@@ -493,7 +520,7 @@ public class Editors {
 			Runnable runAgain = annotationRunners.get(part);
 			if (runAgain != null) {
 				Evaluator eval = annotationRunnerEvaluators.get(part);
-				RascalInvoker.invokeUIAsync(runAgain, eval);
+				RascalInvoker.invokeAsync(runAgain, eval);
 			} else if (part instanceof ITextEditor) { // only try to run the
 														// callback if there
 														// wasn't another runner
