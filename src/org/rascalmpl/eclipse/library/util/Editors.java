@@ -296,7 +296,18 @@ public class Editors {
 		public RepeatableDecoratorRunner(ISourceLocation loc,
 				ICallableValue fun, IWorkbenchPage page) {
 			super(loc, page);
+			if (!Thread.currentThread().equals(Display.getDefault().getThread())) {
+				throw new RuntimeException("Initialization should be run from UI thread!");
+			}
 			this.fun = fun;
+			IEditorPart result = null;
+			try {
+				 result = getEditorPart();
+			} catch (PartInitException e) {
+				throw new RuntimeException("Init failure with part?", e);
+			}
+			addRunnableToAnnotationListner(result);
+			
 		}
 		
 		protected IList getLineInfo() {
@@ -306,40 +317,20 @@ public class Editors {
 			return (IList) fun.call(new Type[0], new IValue[0]).getValue();
 		}
 
-		private boolean firstTime = true;
 		
-		protected IEditorPart getEditorPart() throws PartInitException {
-			IEditorPart result = super.getEditorPart();
-			if (firstTime) {
-				annotationRunners.put(result, this);
-				annotationRunnerEvaluators.put(result, fun.getEval());
-				String fileName = result.getEditorInput().getName();
-				int dotPosition = fileName.lastIndexOf('.');
-				if (dotPosition != -1) {
-					String extension = fileName.substring(dotPosition)
-							.toLowerCase();
-					Set<IWorkbenchPart> extensionList = partsProvided
-							.get(extension);
-					if (extensionList != null) {
-						extensionList.add(result);
-					}
-
+		private void addRunnableToAnnotationListner(IEditorPart editorPart) {
+			annotationRunners.put(editorPart, this);
+			annotationRunnerEvaluators.put(editorPart, fun.getEval());
+			String fileName = editorPart.getEditorInput().getName();
+			int dotPosition = fileName.lastIndexOf('.');
+			if (dotPosition != -1) {
+				String extension = fileName.substring(dotPosition)
+						.toLowerCase();
+				Set<IWorkbenchPart> extensionList = partsProvided
+						.get(extension);
+				if (extensionList != null) {
+					extensionList.add(editorPart);
 				}
-				firstTime = false;
-			}
-			return result;
-		}
-
-		/*
-		 * Initialize the runner, this should be run on the UI thread!
-		 */
-		public void initializeRunner() {
-			if (!Thread.currentThread().equals(Display.getDefault().getThread())) {
-				throw new RuntimeException("Initialization should be run from UI thread!");
-			}
-			try {
-				super.getEditorPart();
-			} catch (PartInitException e) {
 			}
 		}
 	}
@@ -448,20 +439,16 @@ public class Editors {
 
 			IWorkbenchWindow win = getWorkbenchWindow();
 			if (win != null) {
-				IWorkbenchPage page = win.getActivePage();
+				final IWorkbenchPage page = win.getActivePage();
 				if (page != null) {
 					page.addPartListener(annotationListener);
-					final RepeatableDecoratorRunner runner = new RepeatableDecoratorRunner(loc, lineInfoFunc, page);
-					// we cannot schedule the runner on a non UI thread directly, we first have to run initialization
-					// on the UI thread.
+					// The Decorator was to be constructed on the UI thread due to initialisation  
+					// afterwards we can run it outside the UI thread (and we should)
 					Display.getDefault().asyncExec(new Runnable() {
-						
 						@Override
 						public void run() {
-							// now we are in the UI thread, we can initialize the actual runner
-							runner.initializeRunner();
 							// and only then schedule it on a non UI thread for the rascal callbacks
-							RascalInvoker.invokeAsync(runner, lineInfoFunc.getEval());
+							RascalInvoker.invokeAsync(new RepeatableDecoratorRunner(loc, lineInfoFunc, page), lineInfoFunc.getEval());
 						}
 					});
 				}
