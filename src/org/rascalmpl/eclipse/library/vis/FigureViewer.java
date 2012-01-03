@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -119,7 +120,7 @@ public class FigureViewer extends EditorPart {
 			final IWorkbenchPage page = win.getActivePage();
 
 			if (page != null) {
-				RascalInvoker.invokeUIAsync(new Runnable() {
+				Display.getCurrent().asyncExec(new Runnable() {
 					public void run() {
 						try {
 							IEditorInput p = new FigureEditorInput(name, fig, ctx);
@@ -133,7 +134,7 @@ public class FigureViewer extends EditorPart {
 							Activator.getInstance().logException("failed to open Figure viewer", e);
 						}
 					}
-				}, ctx.getEvaluator());
+				});
 			}
 		}
 	}
