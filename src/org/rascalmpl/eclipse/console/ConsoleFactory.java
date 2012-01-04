@@ -24,14 +24,18 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IHyperlink;
+import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.OutputInterpreterConsole;
@@ -48,6 +52,7 @@ public class ConsoleFactory{
 
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final static IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
+	private final static IOConsole outputConsole = new IOConsole("Rascal output console", Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.RASCAL_DEFAULT_IMAGE));
 	
 	private static PrintWriter getErrorWriter() {
 		IOConsoleOutputStream errorStream = outputConsole.newOutputStream();
@@ -143,6 +148,7 @@ public class ConsoleFactory{
 	
 	public ConsoleFactory(){
 		super();
+		fConsoleManager.addConsoles(new IConsole[]{outputConsole});
 	}
 
 	private static class InstanceKeeper{
@@ -226,8 +232,8 @@ public class ConsoleFactory{
 	    void addHyperlink(IHyperlink hyperlink, int offset, int length) throws BadLocationException;
 	}
 
-	private class InteractiveRascalConsole extends InteractiveInterpreterConsole implements IRascalConsole{
-
+	private class InteractiveRascalConsole extends InteractiveInterpreterConsole implements IRascalConsole{	
+		
 		public InteractiveRascalConsole(ModuleEnvironment shell, GlobalEnvironment heap){
 			super(new RascalScriptInterpreter(), "Rascal", "rascal>", ">>>>>>>");
 			
