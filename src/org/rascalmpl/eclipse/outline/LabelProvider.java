@@ -19,12 +19,15 @@ import java.util.Set;
 import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.preferences.PreferenceValueParser.optParameter;
 import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.FunctionDeclaration;
+import org.rascalmpl.ast.Import;
+import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Prod;
 import org.rascalmpl.ast.Signature;
@@ -33,6 +36,7 @@ import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Declaration.Variable;
 import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class LabelProvider implements ILabelProvider, ILanguageService  {
@@ -64,6 +68,7 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 		else if (element instanceof IConstructor) {
 			return getLabelFor((IConstructor) element);
 		}
+		
 		return "***";
 	}
 	
@@ -75,38 +80,22 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 		String result;
 		
 		if (node2 instanceof Module) {
-			result = ((Module) node2).getHeader().toString();
+			result = ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) ((Module) node2).getHeader().getName()).fullName();
 		}
 		else if (node2 instanceof Prod.Labeled) {
 			Prod p = (Prod) node2;
-			List<Sym> args = p.getArgs();
-			StringBuilder b = new StringBuilder(20 + args.size() * 20);
-			
-			b.append("| " + Names.name(p.getName()) + " : ");
-			for (AbstractAST arg : args) {
-				b.append(arg.toString());
-				b.append(' ');
-			}
-			result = b.toString();
+			result = "| " + Names.name(p.getName());
 		}
 		else if (node2 instanceof Prod.Unlabeled) {
-			Prod p = (Prod) node2;
-			List<Sym> args = p.getArgs();
-			StringBuilder b = new StringBuilder(args.size() * 20);
-			b.append("| ");
-			for (AbstractAST arg : args) {
-				b.append(arg.toString());
-				b.append(' ');
-			}
-			result = b.toString();
+			result = "| ...";
 		}
 		else if (node2 instanceof Declaration.Function) {
 			Signature signature = ((Declaration.Function) node2).getFunctionDeclaration().getSignature();
-			result = Names.name(signature.getName()) + signature.getParameters().toString();
+			result = Names.name(signature.getName());
 		}
 		else if (node2 instanceof FunctionDeclaration) {
 			Signature signature = ((Declaration.Function) node2).getFunctionDeclaration().getSignature();
-			result = Names.name(signature.getName()) + signature.getParameters().toString();
+			result = Names.name(signature.getName());
 		}
 		else if (node2 instanceof org.rascalmpl.ast.Variable) {
 			org.rascalmpl.ast.Variable v = (org.rascalmpl.ast.Variable) node2;
@@ -117,20 +106,24 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 			result = Names.name(var.getName()) + ": " + var.getType();
 		}
 		else if (node2 instanceof Declaration.Data) {
-			result = ((Declaration.Data) node2).toString();
+			result = ((Default) ((Declaration.Data) node2).getUser().getName()).fullName();
 		}
 		else if (node2 instanceof Declaration.DataAbstract) {
-			result = ((Declaration.DataAbstract) node2).toString();
+			result = ((Default) ((Declaration.DataAbstract) node2).getUser().getName()).fullName();
 		}
 		else if (node2 instanceof Declaration.Alias) {
-			result = ((Declaration.Alias) node2).getUser().toString();
+			result = ((Default) ((Declaration.Alias) node2).getUser().getName()).fullName();
 		}
 		else if (node2 instanceof Variant.NAryConstructor) {
 			Variant v = (Variant) node2;
-			result = Names.name(v.getName()) + "(" + v.getArguments() + ")"; 
+			result = Names.name(v.getName()); 
+		}
+		else if (node2 instanceof ImportedModule) {
+			ImportedModule i = (ImportedModule) node2;
+			result = (((Default) i.getName()).fullName());
 		}
 		else {
-		    result = node2.toString();
+		    result = "???";
 		}
 		return result.replaceAll("\n", " ").trim();
 	}

@@ -40,6 +40,9 @@ import org.rascalmpl.ast.Prod.Labeled;
 import org.rascalmpl.ast.Prod.Others;
 import org.rascalmpl.ast.Prod.Reference;
 import org.rascalmpl.ast.Prod.Unlabeled;
+import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.ast.Sym;
+import org.rascalmpl.ast.Sym.Nonterminal;
 import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.Toplevel.GivenVisibility;
@@ -148,7 +151,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 
 		@Override
 		public AbstractAST visitModuleDefault(Default x) {
-			module = x.getHeader().toString();
+			module = ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) x.getHeader().getName()).fullName();
 			for (Toplevel t : x.getBody().getToplevels()) {
 				t.accept(this);
 			}
@@ -159,7 +162,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 				}
 				if (i.isSyntax()) {
 					SyntaxDefinition d = i.getSyntax();
-					Group<AbstractAST> nonterminal = findGroup(syntax, d.getDefined().toString());
+					Group<AbstractAST> nonterminal = findGroup(syntax, ((org.rascalmpl.ast.Nonterminal.Lexical) d.getDefined().getNonterminal()).getString());
 					
 					for (AbstractAST prod : getProductions(d.getProduction())) {
 						nonterminal.add(prod);
@@ -222,7 +225,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		
 		@Override
 		public AbstractAST visitDeclarationData(Data x) {
-			Group<AbstractAST> adt = findGroup(adts, x.getUser().toString());
+			Group<AbstractAST> adt = findGroup(adts, ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) x.getUser().getName()).fullName());
 			
 			for (Variant a : x.getVariants()) {
 				adt.add(a);
@@ -233,7 +236,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		
 		@Override
 		public AbstractAST visitDeclarationDataAbstract(DataAbstract x) {
-			findGroup(adts, x.getUser().toString());
+			findGroup(adts, ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) x.getUser().getName()).fullName());
 			return x;
 		}
 
