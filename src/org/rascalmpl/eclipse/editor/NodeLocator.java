@@ -36,7 +36,7 @@ public class NodeLocator implements ISourcePositionLocator {
 			}
 		}
 		else if (ast instanceof AbstractAST) {
-			return findNode(((AbstractAST) ast).getTree(), offset);
+			return ((AbstractAST) ast).findNode(offset);
 		}
 		else if (ast instanceof ModelTreeNode) {
 			return findNode(((ModelTreeNode) ast).getASTNode(), offset);
@@ -52,7 +52,7 @@ public class NodeLocator implements ISourcePositionLocator {
 			}
 		}
 		else if (ast instanceof AbstractAST) {
-			return findNode(((AbstractAST) ast).getTree(), startOffset);
+			return ((AbstractAST) ast).findNode(startOffset);
 		}
 		else if (ast instanceof ModelTreeNode) {
 			return findNode(((ModelTreeNode) ast).getASTNode(), startOffset);
@@ -99,7 +99,7 @@ public class NodeLocator implements ISourcePositionLocator {
 		} 
 		
 		if (node instanceof AbstractAST){
-			return getLocation(((AbstractAST) node).getTree());
+			return ((AbstractAST) node).getLocation();
 		}
 		
 		if (node instanceof ModelTreeNode){
