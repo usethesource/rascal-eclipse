@@ -61,7 +61,7 @@ public class FigureLibrary {
 							out =  ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
 							env.writeScreenshot(out);
 						} catch(IOException f){
-							System.out.printf("Could not save figure " + f.getMessage() + "\n");
+							ctx.getStdErr().printf("Could not save figure " + f.getMessage() + "\n");
 						} finally{
 							if(out != null){
 								try{
