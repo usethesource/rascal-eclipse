@@ -120,7 +120,7 @@ public class FigureViewer extends EditorPart {
 			final IWorkbenchPage page = win.getActivePage();
 
 			if (page != null) {
-				Display.getCurrent().asyncExec(new Runnable() {
+				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						try {
 							IEditorInput p = new FigureEditorInput(name, fig, ctx);
