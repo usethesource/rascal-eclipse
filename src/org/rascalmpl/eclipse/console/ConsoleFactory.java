@@ -57,12 +57,94 @@ public class ConsoleFactory{
 	private static PrintWriter getErrorWriter() {
 		IOConsoleOutputStream errorStream = outputConsole.newOutputStream();
 		errorStream.setColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-		return new PrintWriter(errorStream);
+		return new PrintWriter(new AsyncOutputStream(errorStream));
 	}
 	
 	private static PrintWriter getStandardWriter() {
-		return new PrintWriter(outputConsole.newOutputStream());
+		return new PrintWriter(new AsyncOutputStream(outputConsole.newOutputStream()));
 	}
+	
+	static class AsyncOutputStream extends OutputStream {
+		private final OutputStream wrappedStream;
+		
+		public AsyncOutputStream(OutputStream wrappedStream) {
+			this.wrappedStream = wrappedStream;
+		}
+		@Override
+		public void write(final int b) throws IOException {
+			Display defaultDisplay = Display.getDefault();
+			if (defaultDisplay.getThread() == Thread.currentThread()) {
+				wrappedStream.write(b);
+			}
+			else {
+				defaultDisplay.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try { wrappedStream.write(b); } catch (IOException e) { }
+					}
+				});
+			}
+		}
+		
+		@Override
+		public void write(byte[] b) throws IOException {
+			Display defaultDisplay = Display.getDefault();
+			if (defaultDisplay.getThread() == Thread.currentThread()) {
+				wrappedStream.write(b);
+			}
+			else {
+				final byte[] __b = b.clone();
+				defaultDisplay.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try { wrappedStream.write(__b); } catch (IOException e) { }
+					}
+				});
+			}
+		}
+		
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			if (len <= 0)
+				return;
+			Display defaultDisplay = Display.getDefault();
+			if (defaultDisplay.getThread() == Thread.currentThread()) {
+				wrappedStream.write(b, off, len);
+			}
+			else {
+				final byte[] __b = Arrays.copyOfRange(b, off, off + len);
+				defaultDisplay.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try { wrappedStream.write(__b); } catch (IOException e) { }
+					}
+				});
+			}
+		}
+		
+		@Override
+		public void close() throws IOException {
+			Display defaultDisplay = Display.getDefault();
+			if (defaultDisplay.getThread() == Thread.currentThread()) {
+				wrappedStream.close();
+			}
+			else {
+				defaultDisplay.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try { wrappedStream.close(); } catch (IOException e) { }
+					}
+				});
+			}
+		}
+		
+		@Override
+		public void flush() throws IOException {
+			// flush does nothing for IOConsole.
+		}
+	}
+	
+	
 	
 	public ConsoleFactory(){
 		super();
