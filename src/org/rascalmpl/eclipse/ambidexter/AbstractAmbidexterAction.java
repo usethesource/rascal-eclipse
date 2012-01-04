@@ -96,7 +96,7 @@ public abstract class AbstractAmbidexterAction extends Action implements Selecti
 			env.addImport("ParseTree", eval.getHeap().getModule("ParseTree"));
 			eval.pushEnv();
 			Type nt = RascalTypeFactory.getInstance().nonTerminalType(nonterminal);
-			IValue reified = nt.accept(new TypeReifier(eval, eval.getValueFactory())).getValue();
+			IValue reified = new TypeReifier(eval.getValueFactory()).typeToValue(nt, eval).getValue();
 			return (IConstructor) eval.call("parse", reified, eval.getValueFactory().string(sentence));
 		}
 		finally {

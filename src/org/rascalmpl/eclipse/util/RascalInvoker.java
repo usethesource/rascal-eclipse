@@ -32,12 +32,14 @@ public class RascalInvoker{
 	public static void invokeUIAsync(final Runnable runnable, final Evaluator evaluator){
 		if(evaluator == null) throw new IllegalArgumentException("Evaluator can't be null.");
 		
-		new Thread(new Runnable(){
-			public void run(){
-				synchronized(evaluator){
-					Display.getDefault().syncExec(runnable);
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				synchronized (evaluator) {
+					runnable.run();
 				}
 			}
-		}).start();
+		});
 	}
 }

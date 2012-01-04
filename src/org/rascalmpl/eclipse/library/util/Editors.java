@@ -296,35 +296,42 @@ public class Editors {
 		public RepeatableDecoratorRunner(ISourceLocation loc,
 				ICallableValue fun, IWorkbenchPage page) {
 			super(loc, page);
+			if (!Thread.currentThread().equals(Display.getDefault().getThread())) {
+				throw new RuntimeException("Initialization should be run from UI thread!");
+			}
 			this.fun = fun;
+			IEditorPart result = null;
+			try {
+				 result = getEditorPart();
+			} catch (PartInitException e) {
+				throw new RuntimeException("Init failure with part?", e);
+			}
+			addRunnableToAnnotationListner(result);
+			
 		}
 		
 		protected IList getLineInfo() {
+			if (Thread.currentThread().equals(Display.getDefault().getThread())) {
+				throw new RuntimeException("The repeatable runner should not be run from inside the UI thread");
+			}
 			return (IList) fun.call(new Type[0], new IValue[0]).getValue();
 		}
 
-		private boolean firstTime = true;
 		
-		protected IEditorPart getEditorPart() throws PartInitException {
-			IEditorPart result = super.getEditorPart();
-			if (firstTime) {
-				annotationRunners.put(result, this);
-				annotationRunnerEvaluators.put(result, fun.getEval());
-				String fileName = result.getEditorInput().getName();
-				int dotPosition = fileName.lastIndexOf('.');
-				if (dotPosition != -1) {
-					String extension = fileName.substring(dotPosition)
-							.toLowerCase();
-					Set<IWorkbenchPart> extensionList = partsProvided
-							.get(extension);
-					if (extensionList != null) {
-						extensionList.add(result);
-					}
-
+		private void addRunnableToAnnotationListner(IEditorPart editorPart) {
+			annotationRunners.put(editorPart, this);
+			annotationRunnerEvaluators.put(editorPart, fun.getEval());
+			String fileName = editorPart.getEditorInput().getName();
+			int dotPosition = fileName.lastIndexOf('.');
+			if (dotPosition != -1) {
+				String extension = fileName.substring(dotPosition)
+						.toLowerCase();
+				Set<IWorkbenchPart> extensionList = partsProvided
+						.get(extension);
+				if (extensionList != null) {
+					extensionList.add(editorPart);
 				}
-				firstTime = false;
 			}
-			return result;
 		}
 	}
 
@@ -428,15 +435,22 @@ public class Editors {
 	 */
 	public void edit(final ISourceLocation loc, final IValue lineInfo) {
 		if (lineInfo instanceof ICallableValue) {
-			ICallableValue lineInfoFunc = (ICallableValue) lineInfo;
+			final ICallableValue lineInfoFunc = (ICallableValue) lineInfo;
 
 			IWorkbenchWindow win = getWorkbenchWindow();
 			if (win != null) {
-				IWorkbenchPage page = win.getActivePage();
+				final IWorkbenchPage page = win.getActivePage();
 				if (page != null) {
 					page.addPartListener(annotationListener);
-					RascalInvoker.invokeUIAsync(new RepeatableDecoratorRunner(
-							loc, lineInfoFunc, page), lineInfoFunc.getEval());
+					// The Decorator was to be constructed on the UI thread due to initialisation  
+					// afterwards we can run it outside the UI thread (and we should)
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							// and only then schedule it on a non UI thread for the rascal callbacks
+							RascalInvoker.invokeAsync(new RepeatableDecoratorRunner(loc, lineInfoFunc, page), lineInfoFunc.getEval());
+						}
+					});
 				}
 			}
 		}
@@ -493,7 +507,7 @@ public class Editors {
 			Runnable runAgain = annotationRunners.get(part);
 			if (runAgain != null) {
 				Evaluator eval = annotationRunnerEvaluators.get(part);
-				RascalInvoker.invokeUIAsync(runAgain, eval);
+				RascalInvoker.invokeAsync(runAgain, eval);
 			} else if (part instanceof ITextEditor) { // only try to run the
 														// callback if there
 														// wasn't another runner

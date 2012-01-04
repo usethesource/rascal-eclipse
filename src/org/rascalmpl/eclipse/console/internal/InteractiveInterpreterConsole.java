@@ -249,7 +249,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	}
 	
 	private void writeToConsole(final String line, final boolean terminateLine){
-		Display.getDefault().syncExec(new Runnable(){
+		Display.getDefault().asyncExec(new Runnable(){
 			public void run(){
 				try{
 					IDocument doc = getDocument();
