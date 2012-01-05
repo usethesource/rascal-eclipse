@@ -97,25 +97,32 @@ public class ConcurrentCircularOutputStream extends OutputStream {
 		}
 	}
 	
+	/**
+	 * You should only call this from 1 thread!
+	 * @return
+	 */
 	public byte[] catchUpToBuffer() {
 		// we try to get current state 
 		int bufferOffset = bufferWritePointer.get();
 		int totalBytesWritten = bytesWritten.get();
 		// since the bytesWritten and the bufferOffset are changed independently from each other (no double CAS operations)
 		// we need to make sure they align
-		while (bufferOffset != bufferWritePointer.get()) {
+		while (bufferOffset != bufferWritePointer.get() || bufferOffset > bufferSize) {
 			bufferOffset = bufferWritePointer.get();
 			totalBytesWritten = bytesWritten.get();
 			// we are looking for a moment where they remain stable
 			// such that we are sure we can read x bytes back from the bufferOffset position
 		}
-		
+		if (totalBytesWritten == 0) { 
+			return new byte[0];
+		}
 		resetBytesWrittenCounter(totalBytesWritten);
 		
 		int bytesToCatchUp = Math.min(totalBytesWritten, bufferSize);
 		byte[] result = new byte[bytesToCatchUp];
 		
 		if (bufferOffset - bytesToCatchUp >= 0) {
+			//System.err.printf("buffoffset: %d bytecatch: %d\n", bufferOffset, bytesToCatchUp);
 			System.arraycopy(buffer, bufferOffset - bytesToCatchUp, result, 0, bytesToCatchUp);
 		}
 		else {
@@ -136,7 +143,7 @@ public class ConcurrentCircularOutputStream extends OutputStream {
 			// if we could not update, new bytes were already written
 			// so we have to initialize the bytesWritten counter at a different number than 0
 			oldByteWrittenCounterValue = bytesWritten.get();
-			newByteWrittenCounterValue = oldByteWrittenCounterValue - totalBytesWritten;
+			newByteWrittenCounterValue = Math.max(0, oldByteWrittenCounterValue - totalBytesWritten);
 		}
 	}
 	
