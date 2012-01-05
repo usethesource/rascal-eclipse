@@ -26,8 +26,8 @@ public class Factory implements IPerspectiveFactory {
 		IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, (float) 0.25, editorArea); 
 		folder.addView(IPageLayout.ID_RES_NAV);
 
-		IFolderLayout consoleFolder = layout.createFolder("leftBottom", IPageLayout.BOTTOM, (float) 0.25, "left");
-		consoleFolder.addView(IConsoleConstants.ID_CONSOLE_VIEW);
+//		IFolderLayout consoleFolder = layout.createFolder("leftBottom", IPageLayout.BOTTOM, (float) 0.25, "left");
+//		consoleFolder.addView(IConsoleConstants.ID_CONSOLE_VIEW);
 		
 		IFolderLayout outputfolder = layout.createFolder("bottom", IPageLayout.BOTTOM, (float) 0.75, editorArea); 
 		outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
