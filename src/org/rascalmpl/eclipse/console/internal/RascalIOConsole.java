@@ -3,17 +3,22 @@ package org.rascalmpl.eclipse.console.internal;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 
+import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleInputStream;
 import org.eclipse.ui.console.IOConsoleOutputStream;
+import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.internal.console.IOConsolePage;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
+import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.interpreter.Evaluator;
 
@@ -26,6 +31,7 @@ public class RascalIOConsole extends IOConsole implements IInterpreterConsole, I
 	private final String prompt;
 	private final String continuationPrompt;
 	private final Thread handlerThread;
+	private TextConsoleViewer viewer;
 
 	public RascalIOConsole(IInterpreter interpreter, Evaluator eval, String name, String prompt, String continuationPrompt) {
 		super(name, name, Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.RASCAL_DEFAULT_IMAGE), "UTF8", true);
@@ -49,6 +55,33 @@ public class RascalIOConsole extends IOConsole implements IInterpreterConsole, I
 	public void executeCommand(String command) {
 		
 	}
+
+	@Override
+    public IPageBookViewPage createPage(IConsoleView view) {
+        @SuppressWarnings("restriction")
+		IOConsolePage page = new IOConsolePage(this, view) {
+        	private org.eclipse.ui.console.TextConsoleViewer cached;
+        	@Override
+        	protected org.eclipse.ui.console.TextConsoleViewer createViewer(org.eclipse.swt.widgets.Composite parent) {
+        		if (cached == null) {
+        			cached = super.createViewer(parent);
+        		}
+        		return cached;
+        	};
+        };
+        this.viewer = page.getViewer();
+        getDocument().addDocumentListener(new IDocumentListener() {
+			@Override
+			public void documentChanged(DocumentEvent event) {
+				viewer.setSelectedRange(getDocument().getLength() - 1, -1);
+			}
+
+			@Override
+			public void documentAboutToBeChanged(DocumentEvent event) { }
+		});
+        
+        return page;
+    }
 
 	@Override
 	public IInterpreter getInterpreter() {
@@ -106,12 +139,22 @@ public class RascalIOConsole extends IOConsole implements IInterpreterConsole, I
 					RascalIOConsole.this.terminate();
 					break;
 				}
+				
+				if (viewer != null) {
+					viewer.setSelectedRange(getDocument().getLength() - 1, -1);
+				}
 			}
 		}
 	}
 
 	@Override
 	public RascalScriptInterpreter getRascalInterpreter() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OutputStream getConsoleOutputStream() {
 		// TODO Auto-generated method stub
 		return null;
 	}
