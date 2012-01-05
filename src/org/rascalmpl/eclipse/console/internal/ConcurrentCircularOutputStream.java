@@ -4,45 +4,29 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import quicktime.std.music.AtomicInstrument;
 
 public class ConcurrentCircularOutputStream extends OutputStream {
 	private final byte[] buffer;
 	private final int bufferSize;
-	private final AtomicInteger bufferWritePointer;
+	private final int bufferMod;
 	private final AtomicInteger bytesWritten;
 	
 	public ConcurrentCircularOutputStream(int bufferSize) {
 		assert bufferSize > 0;
+		if ((bufferSize & (bufferSize - 1)) != 0) {
+			throw new IllegalArgumentException("bufferSize must be a power of 2");
+		}
 		this.bufferSize = bufferSize;
+		this.bufferMod = bufferSize - 1;
 		buffer = new byte[this.bufferSize];
-		bufferWritePointer = new AtomicInteger(0);
 		bytesWritten = new AtomicInteger(0);
 	}
 	
 	@Override
 	public void write(int b) throws IOException {
-		int newPos = bufferWritePointer.getAndIncrement();
-		while (newPos >= bufferSize) {
-			// another write call has passed over the buffer, we have to wait 
-			// to get a fresh start in the buffer
-			Thread.yield();
-			newPos = bufferWritePointer.getAndIncrement();
-		}
-		buffer[newPos] = (byte)b;
-		bytesWritten.getAndIncrement();
-		
-		if ((newPos + 1) == bufferSize) {
-			// we have to update the pointer to the start of the buffer again 
-			int oldPos = newPos + 1;
-			while (!bufferWritePointer.compareAndSet(oldPos, 0)) {
-				newPos = bufferWritePointer.get();
-				if (newPos < oldPos) {
-					throw new RuntimeException("No interleaving!");
-				}
-				oldPos = newPos;
-			}
-		}
+		int endPos = bytesWritten.incrementAndGet();
+		int writePos =(endPos - 1) & bufferMod;
+		buffer[writePos] = (byte)b;
 	}
 
 	@Override
@@ -67,37 +51,20 @@ public class ConcurrentCircularOutputStream extends OutputStream {
 	private void writeChecked(byte[] b, int off, int len) {
 		assert len <= bufferSize;
 		
-		int startPos = bufferWritePointer.getAndAdd(len);
-		while (startPos >= bufferSize) {
-			// another write already passed over the buffer, we have to wait for a fresh shot
-			Thread.yield();
-			startPos = bufferWritePointer.getAndAdd(len);
-		}
-		
+		int endPos = bytesWritten.addAndGet(len);
+		int startPos = (endPos - len) & bufferMod;
 		
 		if (startPos + len <= bufferSize) {
 			// go ahead and write!
 			System.arraycopy(b, off, buffer, startPos, len);
-			bytesWritten.getAndAdd(len);
 		} 
 		else {
 			// we have to write over the edge of the buffer. so be smarter here!
 			int firstChunkLength = bufferSize - startPos;
 			System.arraycopy(b, off, buffer, startPos, firstChunkLength);
-			bytesWritten.getAndAdd(firstChunkLength);
 			// now we have to go back to the front of the buffer
-			int expectedValue = startPos + len;
 			int secondChunkLength = len - firstChunkLength;
-			// claim the first part of the array
-			while (!bufferWritePointer.compareAndSet(expectedValue, secondChunkLength)) {
-				int newValue = bufferWritePointer.get();
-				if (newValue < expectedValue) {
-					throw new RuntimeException("No interleaving allowed!");
-				}
-				expectedValue = newValue;
-			}
 			System.arraycopy(b, off + firstChunkLength, buffer, 0, secondChunkLength);
-			bytesWritten.getAndAdd(secondChunkLength);
 		}
 	}
 	
@@ -106,6 +73,7 @@ public class ConcurrentCircularOutputStream extends OutputStream {
 	 * @return
 	 */
 	public byte[] catchUpToBuffer() {
+		/*
 		// we try to get current state 
 		int bufferOffset = bufferWritePointer.get();
 		int totalBytesWritten = bytesWritten.get();
@@ -137,6 +105,8 @@ public class ConcurrentCircularOutputStream extends OutputStream {
 			System.arraycopy(buffer, 0, result, secondChunkLength, firstChunkLength);
 		}
 		return result;
+		*/
+		return new byte[0];
 	}
 
 	private void resetBytesWrittenCounter(int totalBytesWritten) {
