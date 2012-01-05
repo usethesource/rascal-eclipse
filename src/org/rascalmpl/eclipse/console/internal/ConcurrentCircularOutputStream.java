@@ -67,6 +67,15 @@ public class ConcurrentCircularOutputStream extends OutputStream {
 			System.arraycopy(b, off, buffer, startPos, len);
 			bytesWritten.getAndAdd(len);
 		} 
+		else if (startPos > bufferSize) {
+			// we have to start in the beginning again, first lets reset position
+			bufferWritePointer.compareAndSet(startPos + len, 0);
+			// either the pointer is back at 0, and we get another shot
+			// or someone else is changing the pointer and we can give it another try after that
+			// thread.
+			writeChecked(b, off, len);
+			return;
+		}
 		else {
 			// we have to write over the edge of the buffer. so be smarter here!
 			int firstChunkLength = bufferSize - startPos;
@@ -106,12 +115,12 @@ public class ConcurrentCircularOutputStream extends OutputStream {
 		int bytesToCatchUp = Math.min(totalBytesWritten, bufferSize);
 		byte[] result = new byte[bytesToCatchUp];
 		
-		if ((bufferOffset + 1) - bytesToCatchUp >= 0) {
-			System.arraycopy(buffer, (bufferOffset + 1) - bytesToCatchUp, result, 0, bytesToCatchUp);
+		if (bufferOffset - bytesToCatchUp >= 0) {
+			System.arraycopy(buffer, bufferOffset - bytesToCatchUp, result, 0, bytesToCatchUp);
 		}
 		else {
 			// we have to copy twice because we loop around to the end of the buffer
-			int firstChunkLength = bufferOffset + 1;// first chunk is the last part of the array!
+			int firstChunkLength = bufferOffset;// first chunk is the last part of the array!
 			int secondChunkLength = bytesToCatchUp - firstChunkLength;
 			System.arraycopy(buffer, bufferSize - secondChunkLength, result, 0, secondChunkLength);
 			System.arraycopy(buffer, 0, result, secondChunkLength, firstChunkLength);
