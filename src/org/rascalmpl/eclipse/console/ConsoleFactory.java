@@ -13,25 +13,19 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.Arrays;
+import java.io.UnsupportedEncodingException;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsole;
-import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.internal.ConcurrentCircularOutputStream;
@@ -57,21 +51,30 @@ public class ConsoleFactory{
 	private final static ConcurrentCircularOutputStream consoleStream;	
 	
 	static {
-		outputConsole = new IOConsole("Rascal output console", Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.RASCAL_DEFAULT_IMAGE));
+		outputConsole = new IOConsole("Rascal output console", null, Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.RASCAL_DEFAULT_IMAGE), "UTF8", true);
 		outputConsole.setWaterMarks(8*1024*1024 - 1, 8*1024*1024);
 		
 		consoleSyncer = new ConsoleSyncer(outputConsole.newOutputStream());
 		consoleStream = new ConcurrentCircularOutputStream(8*(1024*1024), 20, consoleSyncer);
 		consoleSyncer.initializeWithStream(consoleStream);
-		
 	}
 	
 	private static PrintWriter getErrorWriter() {
-		return new PrintWriter(consoleStream);
+		try {
+			return new PrintWriter(new OutputStreamWriter(consoleStream, "UTF8"));
+		} catch (UnsupportedEncodingException e) {
+			Activator.getInstance().logException("could not get stderr writer", e);
+			return new PrintWriter(System.err);
+		}
 	}
 	
 	private static PrintWriter getStandardWriter() {
-		return new PrintWriter(consoleStream);
+		try {
+			return new PrintWriter(new OutputStreamWriter(consoleStream, "UTF8"));
+		} catch (UnsupportedEncodingException e) {
+			Activator.getInstance().logException("could not get stdout writer", e);
+			return new PrintWriter(System.out);
+		}
 	}
 	
 	public ConsoleFactory(){
