@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console;
 
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -21,6 +22,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
@@ -28,11 +31,13 @@ import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsole;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.ambidexter.ReportView;
 import org.rascalmpl.eclipse.console.internal.ConcurrentCircularOutputStream;
 import org.rascalmpl.eclipse.console.internal.ConsoleSyncer;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.OutputInterpreterConsole;
+import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.interpreter.debug.IDebugger;
@@ -46,22 +51,24 @@ public class ConsoleFactory{
 
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final static IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
-	private final static IOConsole outputConsole;
-	private final static ConsoleSyncer consoleSyncer;
-	private final static ConcurrentCircularOutputStream consoleStream;	
 	
-	static {
-		outputConsole = new IOConsole("Rascal output console", null, Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.RASCAL_DEFAULT_IMAGE), "UTF8", true);
-		outputConsole.setWaterMarks(8*1024*1024 - 1, 8*1024*1024);
-		
-		consoleSyncer = new ConsoleSyncer(outputConsole.newOutputStream());
-		consoleStream = new ConcurrentCircularOutputStream(8*(1024*1024), 20, consoleSyncer);
-		consoleSyncer.initializeWithStream(consoleStream);
+	private static StdAndErrorViewPart getConsoleViewPart() {
+		try {
+			return (StdAndErrorViewPart) PlatformUI.getWorkbench()
+				    .getActiveWorkbenchWindow()
+				    .getActivePage()
+					.showView(StdAndErrorViewPart.ID);
+		} catch (PartInitException e) {
+			Activator.getInstance().writeErrorMsg("Could not get console part");
+			return null;
+		}
 	}
+	
 	
 	private static PrintWriter getErrorWriter() {
 		try {
-			return new PrintWriter(new OutputStreamWriter(consoleStream, "UTF8"));
+			OutputStream err = getConsoleViewPart().stdError; 
+			return new PrintWriter(new OutputStreamWriter(err, "UTF8"));
 		} catch (UnsupportedEncodingException e) {
 			Activator.getInstance().logException("could not get stderr writer", e);
 			return new PrintWriter(System.err);
@@ -70,7 +77,8 @@ public class ConsoleFactory{
 	
 	private static PrintWriter getStandardWriter() {
 		try {
-			return new PrintWriter(new OutputStreamWriter(consoleStream, "UTF8"));
+			OutputStream out = getConsoleViewPart().stdOutput; 
+			return new PrintWriter(new OutputStreamWriter(out, "UTF8"));
 		} catch (UnsupportedEncodingException e) {
 			Activator.getInstance().logException("could not get stdout writer", e);
 			return new PrintWriter(System.out);
@@ -79,7 +87,6 @@ public class ConsoleFactory{
 	
 	public ConsoleFactory(){
 		super();
-		fConsoleManager.addConsoles(new IConsole[]{outputConsole});
 	}
 
 	private static class InstanceKeeper{

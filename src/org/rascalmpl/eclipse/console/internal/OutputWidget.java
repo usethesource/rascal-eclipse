@@ -68,6 +68,10 @@ public class OutputWidget{
 		text.setText("");
 	}
 	
+	public boolean isPaused(){
+		return paused;
+	}
+	
 	
 	
 }
