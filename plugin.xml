@@ -949,6 +949,17 @@
    </view>
 </extension>
 <extension
+      point="org.eclipse.ui.views">
+   <view
+         allowMultiple="false"
+         class="org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart"
+         icon="icons/ambidexter-a-16.png"
+         id="rascal-eclipse.outputview"
+         name="Output"
+         restorable="true">
+   </view>
+</extension>
+<extension
       point="org.eclipse.imp.runtime.editorActionContributions">
    <editorActionContributor
          class="org.rascalmpl.eclipse.editor.ActionsContributor"
