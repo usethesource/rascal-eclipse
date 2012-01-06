@@ -39,8 +39,8 @@ public class StdAndErrorOuput extends Composite{
 	}
 	
 	void flipPause(){
-		stdOutView.paused = stdOutView.paused;
-		stdErrView.paused = stdErrView.paused;
+		stdOutView.paused = !stdOutView.paused;
+		stdErrView.paused = !stdErrView.paused;
 	}
 	
 	public boolean isPaused(){

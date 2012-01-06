@@ -33,7 +33,7 @@ public class StdAndErrorViewPart extends ViewPart {
 		public void run() {
 			outputWidget.flipPause();
 			if(outputWidget.isPaused()){
-				setText("Resume output");
+				setText("Resume");
 			} else {
 				setText("Pause output");
 			}
@@ -51,7 +51,7 @@ public class StdAndErrorViewPart extends ViewPart {
 		@Override
 		public void run() {
 			outputWidget.stdOutView.text.setText("");
-			outputWidget.stdErrView.paused = !outputWidget.stdErrView.paused;
+			outputWidget.stdErrView.text.setText("");
 		}
 		
 	}
