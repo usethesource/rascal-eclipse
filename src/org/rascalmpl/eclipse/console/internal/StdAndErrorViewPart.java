@@ -63,13 +63,13 @@ public class StdAndErrorViewPart extends ViewPart {
 		toolbar.add(new PauseOutputAction());
 		toolbar.add(new ClearAction());
 		
-		syncOutput = new ConsoleSyncer(new PausableOutputStream(outputWidget.stdOutView));
+		syncOutput = new ConsoleSyncer(new PausableOutputStream(outputWidget.stdOutView), "Output");
 		stdOutput = new ConcurrentCircularOutputStream(STD_OUT_BUFFER_SIZE, syncOutput);
 		syncOutput.initializeWithStream(stdOutput);
 
 		
-		syncError = new ConsoleSyncer(new PausableOutputStream(outputWidget.stdErrView));
-		stdError = new ConcurrentCircularOutputStream(STD_OUT_BUFFER_SIZE, syncError);
+		syncError = new ConsoleSyncer(new PausableOutputStream(outputWidget.stdErrView), "Error");
+		stdError = new ConcurrentCircularOutputStream(STD_ERR_BUFFER_SIZE, syncError);
 		syncError.initializeWithStream(stdError);
 		
 

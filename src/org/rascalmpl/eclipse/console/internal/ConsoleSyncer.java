@@ -12,8 +12,8 @@ public class ConsoleSyncer implements IBufferFlushNotifier {
 		private final Semaphore flushStream;
 		private final PausableOutputStream target;
 
-		public SyncThread(ConcurrentCircularOutputStream source, PausableOutputStream target, Semaphore flushStream) {
-			super("Console Sync Thread");
+		public SyncThread(ConcurrentCircularOutputStream source, PausableOutputStream target, Semaphore flushStream, String name) {
+			super("Console Sync Thread" + name);
 			this.source = source;
 			this.target = target;
 			this.flushStream = flushStream;
@@ -40,6 +40,7 @@ public class ConsoleSyncer implements IBufferFlushNotifier {
 					else {
 						flushStream.drainPermits(); // reset semaphore
 					}
+					
 				}
 			} catch (InterruptedException e) {
 				return;
@@ -50,17 +51,19 @@ public class ConsoleSyncer implements IBufferFlushNotifier {
 	private PausableOutputStream target;
 	private Semaphore flushStream;
 	private SyncThread syncer;
+	private String name;
 	
 	
-	public ConsoleSyncer(PausableOutputStream target) {
+	public ConsoleSyncer(PausableOutputStream target, String name) {
 		this.target = target;
 		syncer = null;
 		flushStream = new Semaphore(1);
+		this.name = name;
 	}
 	
 	public void initializeWithStream(ConcurrentCircularOutputStream source) {
 		if (syncer == null) {
-			syncer = new SyncThread(source, target, flushStream);
+			syncer = new SyncThread(source, target, flushStream, name);
 			syncer.start();
 		}
 	}

@@ -26,8 +26,8 @@ public class StdAndErrorOuput extends Composite{
 		setLayout(new FillLayout());
 		SashForm sashForm = new SashForm(this, SWT.VERTICAL | SWT.H_SCROLL | SWT.V_SCROLL);
 		stdOutView = new OutputWidget(sashForm,Display.getDefault().getSystemColor(SWT.COLOR_BLACK),
-				stdOutBufferSize);
-		stdErrView = new OutputWidget(sashForm,Display.getDefault().getSystemColor(SWT.COLOR_RED),stdErrBufferSize);
+				stdOutBufferSize,true);
+		stdErrView = new OutputWidget(sashForm,Display.getDefault().getSystemColor(SWT.COLOR_RED),stdErrBufferSize,false);
 	}
 
 	public void addendToStdOut(final String s){

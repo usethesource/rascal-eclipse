@@ -68,7 +68,7 @@ public class ConsoleFactory{
 	private static PrintWriter getErrorWriter() {
 		try {
 			OutputStream err = getConsoleViewPart().stdError; 
-			return new PrintWriter(new OutputStreamWriter(err, "UTF8"));
+			return new PrintWriter(new OutputStreamWriter(err, "UTF8"),true);
 		} catch (UnsupportedEncodingException e) {
 			Activator.getInstance().logException("could not get stderr writer", e);
 			return new PrintWriter(System.err);

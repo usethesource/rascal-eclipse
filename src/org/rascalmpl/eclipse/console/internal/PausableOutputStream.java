@@ -7,7 +7,6 @@ public class PausableOutputStream extends OutputStream {
 	private final OutputWidget outputWidget;
 
 	public PausableOutputStream(OutputWidget outputWidget) {
-		// TODO Auto-generated constructor stub
 		this.outputWidget = outputWidget;
 	}
 	@Override
@@ -17,7 +16,7 @@ public class PausableOutputStream extends OutputStream {
 	
 	@Override
 	public void write(byte[] b) throws IOException {
-		outputWidget.append(new String(b, "UTF8"));
+		outputWidget.append( new String(b, "UTF8"));
 	}
 	
 	@Override

@@ -17,8 +17,10 @@ public class OutputWidget{
 	Text text;
 	boolean lastNewLine;
 	int bufferSize;
+	boolean showAlways;
+	boolean isEmpty;
 	
-	public OutputWidget(Composite parent,Color c, int bufferSize) {
+	public OutputWidget(Composite parent,Color c, int bufferSize,boolean showAlways) {
 		text = new Text(parent, SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL| SWT.READ_ONLY);
 		text.setEditable(false);
 		this.bufferSize = bufferSize;
@@ -28,6 +30,11 @@ public class OutputWidget{
 		setVisibility(text.getVerticalBar());
 		lastNewLine = false;
 		paused = false;
+		this.showAlways = showAlways;
+		isEmpty = true;
+		if(!showAlways){
+			text.setVisible(false);
+		}
 	}
 
 	
@@ -45,8 +52,13 @@ public class OutputWidget{
 				} else {
 					text.append(s);
 				}
+				if(isEmpty && !showAlways){
+					text.setVisible(true);
+					text.getParent().layout();
+				}
 				setVisibility(text.getHorizontalBar());
 				setVisibility(text.getVerticalBar());
+				
 			}
 		});
 	}
@@ -65,6 +77,11 @@ public class OutputWidget{
 	
 	// NEED TO RUN FROM UI THREAD
 	void clear(){
+
+		if(!showAlways){
+			text.setVisible(false);
+			text.getParent().layout(true);
+		}
 		text.setText("");
 	}
 	
