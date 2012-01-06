@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -21,7 +20,6 @@ import java.util.Arrays;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -36,6 +34,8 @@ import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.console.internal.ConcurrentCircularOutputStream;
+import org.rascalmpl.eclipse.console.internal.ConsoleSyncer;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.OutputInterpreterConsole;
@@ -52,99 +52,27 @@ public class ConsoleFactory{
 
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final static IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
-	private final static IOConsole outputConsole = new IOConsole("Rascal output console", Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.RASCAL_DEFAULT_IMAGE));
+	private final static IOConsole outputConsole;
+	private final static ConsoleSyncer consoleSyncer;
+	private final static ConcurrentCircularOutputStream consoleStream;	
+	
+	static {
+		outputConsole = new IOConsole("Rascal output console", Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.RASCAL_DEFAULT_IMAGE));
+		outputConsole.setWaterMarks(8*1024*1024 - 1, 8*1024*1024);
+		
+		consoleSyncer = new ConsoleSyncer(outputConsole.newOutputStream());
+		consoleStream = new ConcurrentCircularOutputStream(8*(1024*1024), 20, consoleSyncer);
+		consoleSyncer.initializeWithStream(consoleStream);
+		
+	}
 	
 	private static PrintWriter getErrorWriter() {
-		IOConsoleOutputStream errorStream = outputConsole.newOutputStream();
-		errorStream.setColor(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-		return new PrintWriter(new AsyncOutputStream(errorStream));
+		return new PrintWriter(consoleStream);
 	}
 	
 	private static PrintWriter getStandardWriter() {
-		return new PrintWriter(new AsyncOutputStream(outputConsole.newOutputStream()));
+		return new PrintWriter(consoleStream);
 	}
-	
-	static class AsyncOutputStream extends OutputStream {
-		private final OutputStream wrappedStream;
-		
-		public AsyncOutputStream(OutputStream wrappedStream) {
-			this.wrappedStream = wrappedStream;
-		}
-		@Override
-		public void write(final int b) throws IOException {
-			Display defaultDisplay = Display.getDefault();
-			if (defaultDisplay.getThread() == Thread.currentThread()) {
-				wrappedStream.write(b);
-			}
-			else {
-				defaultDisplay.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try { wrappedStream.write(b); } catch (IOException e) { }
-					}
-				});
-			}
-		}
-		
-		@Override
-		public void write(byte[] b) throws IOException {
-			Display defaultDisplay = Display.getDefault();
-			if (defaultDisplay.getThread() == Thread.currentThread()) {
-				wrappedStream.write(b);
-			}
-			else {
-				final byte[] __b = b.clone();
-				defaultDisplay.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try { wrappedStream.write(__b); } catch (IOException e) { }
-					}
-				});
-			}
-		}
-		
-		@Override
-		public void write(byte[] b, int off, int len) throws IOException {
-			if (len <= 0)
-				return;
-			Display defaultDisplay = Display.getDefault();
-			if (defaultDisplay.getThread() == Thread.currentThread()) {
-				wrappedStream.write(b, off, len);
-			}
-			else {
-				final byte[] __b = Arrays.copyOfRange(b, off, off + len);
-				defaultDisplay.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try { wrappedStream.write(__b); } catch (IOException e) { }
-					}
-				});
-			}
-		}
-		
-		@Override
-		public void close() throws IOException {
-			Display defaultDisplay = Display.getDefault();
-			if (defaultDisplay.getThread() == Thread.currentThread()) {
-				wrappedStream.close();
-			}
-			else {
-				defaultDisplay.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try { wrappedStream.close(); } catch (IOException e) { }
-					}
-				});
-			}
-		}
-		
-		@Override
-		public void flush() throws IOException {
-			// flush does nothing for IOConsole.
-		}
-	}
-	
-	
 	
 	public ConsoleFactory(){
 		super();
