@@ -26,9 +26,6 @@ public class ConcurrentCircularOutputStream extends OutputStream {
 	private boolean isDirty; 
 	
 	
-	private final AtomicInteger estimatedAmountOfWriters;
-	private final AtomicInteger flushesRequested;
-	private final int flushCache;
 	private final IBufferFlushNotifier notifier;
 
 	/**
@@ -36,7 +33,7 @@ public class ConcurrentCircularOutputStream extends OutputStream {
 	 * Correct order and interleaving between write()'s are guaranteed.
 	 * @param bufferSize the size of the circular buffer, due to implementation details this size must be a power of 2!
 	 */
-	public ConcurrentCircularOutputStream(int bufferSize, int flushCache, IBufferFlushNotifier notifier) {
+	public ConcurrentCircularOutputStream(int bufferSize, IBufferFlushNotifier notifier) {
 		assert bufferSize > 0;
 		if ((bufferSize & (bufferSize - 1)) != 0) {
 			throw new IllegalArgumentException("bufferSize must be a power of 2");
@@ -48,9 +45,6 @@ public class ConcurrentCircularOutputStream extends OutputStream {
 		resultRWLock = new ReentrantReadWriteLock(true);
 		isDirty = false;
 		
-		estimatedAmountOfWriters = new AtomicInteger(0);
-		flushesRequested = new AtomicInteger(0);
-		this.flushCache = flushCache;
 		this.notifier = notifier;
 	}
 	
@@ -145,7 +139,6 @@ public class ConcurrentCircularOutputStream extends OutputStream {
 				result = new byte[0];
 			}
 			bytesWritten.set(0);
-			flushesRequested.set(0);
 			isDirty = false;
 			return result;
 		}
@@ -154,26 +147,11 @@ public class ConcurrentCircularOutputStream extends OutputStream {
 		}
 	}
 	
-	
-	public void registerNewWriter() {
-		estimatedAmountOfWriters.incrementAndGet();
-	}
-	
-	@Override
-	public void close() throws IOException {
-		estimatedAmountOfWriters.decrementAndGet();
-	}
-	
 	@Override
 	public void flush() throws IOException {
-		int flushCount = flushesRequested.incrementAndGet();
-		int amountOfWriters= estimatedAmountOfWriters.get();
 		int bufferPosition = bytesWritten.get();
 		
 		if (bufferPosition < 0 || (bufferPosition > bufferSize / 2)) {
-			notifier.signalFlush();
-		}
-		else if (flushCount > amountOfWriters && flushCount > flushCache) {
 			notifier.signalFlush();
 		}
 	}

@@ -24,7 +24,7 @@ public class ConsoleSyncer implements IBufferFlushNotifier {
 			try {
 				while (true) {
 					// either sleep for 50ms or get a signal to empty the stream earlier
-					flushStream.tryAcquire(50L, TimeUnit.MILLISECONDS);
+					flushStream.tryAcquire(250L, TimeUnit.MILLISECONDS);
 					if (!target.isPaused()) {
 						byte[] bufferContents = source.getBufferCopy();
 						flushStream.drainPermits(); // reset semaphore
