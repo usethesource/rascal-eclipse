@@ -17,6 +17,7 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
+import org.rascalmpl.eclipse.ambidexter.ReportView;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 
 public class Factory implements IPerspectiveFactory {
@@ -27,15 +28,16 @@ public class Factory implements IPerspectiveFactory {
 		IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, (float) 0.25, editorArea); 
 		folder.addView(IPageLayout.ID_RES_NAV);
 
-//		IFolderLayout consoleFolder = layout.createFolder("leftBottom", IPageLayout.BOTTOM, (float) 0.25, "left");
-//		consoleFolder.addView(IConsoleConstants.ID_CONSOLE_VIEW);
 		
-		IFolderLayout outputfolder = layout.createFolder("bottom", IPageLayout.BOTTOM, (float) 0.75, editorArea); 
-		outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
-		outputfolder.addView(IPageLayout.ID_PROGRESS_VIEW);
-		outputfolder.addView(IConsoleConstants.ID_CONSOLE_VIEW);
-		IFolderLayout outputConsole = layout.createFolder("outputConsole", IPageLayout.RIGHT, (float) 0.6, "bottom"); 
-		outputConsole.addView(StdAndErrorViewPart.ID);
+		IFolderLayout replFolder = layout.createFolder("bottom", IPageLayout.BOTTOM, (float) 0.75, editorArea); 
+		
+		replFolder.addView(IConsoleConstants.ID_CONSOLE_VIEW);
+		
+		IFolderLayout outputFolder = layout.createFolder("outputConsole", IPageLayout.RIGHT, (float) 0.6, "bottom"); 
+		outputFolder.addView(StdAndErrorViewPart.ID);
+		outputFolder.addView(IPageLayout.ID_PROGRESS_VIEW);
+		outputFolder.addView(IPageLayout.ID_PROBLEM_VIEW);
+		outputFolder.addView(ReportView.ID);
 		
 		IFolderLayout outlineFolder = layout.createFolder("outline", IPageLayout.RIGHT, (float) 0.75, editorArea);
 		outlineFolder.addView(IPageLayout.ID_OUTLINE);
