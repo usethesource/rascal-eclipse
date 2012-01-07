@@ -1,9 +1,9 @@
 package org.eclipse.imp.pdb.ui;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
@@ -68,7 +68,6 @@ public class ValueEditorInput implements IStorageEditorInput {
 		return getName();
 	}
 
-	@SuppressWarnings("unchecked")
 	public Object getAdapter(Class adapter) {
 		if (IValue.class.equals(adapter)) {
 			return value;
@@ -84,10 +83,10 @@ public class ValueEditorInput implements IStorageEditorInput {
 
 			public InputStream getContents() throws CoreException {
 				try {
-					ByteArrayOutputStream out = new ByteArrayOutputStream(10000);
+					StringWriter out = new StringWriter(10000);
 					StandardTextWriter w = new StandardTextWriter(indent, tabsize);
 					w.write(value, out);
-					return new ByteArrayInputStream(out.toByteArray());
+					return new ByteArrayInputStream(out.toString().getBytes());
 				} catch (IOException e) {
 					throw new CoreException(Status.OK_STATUS);
 				}
