@@ -953,7 +953,7 @@
    <view
          allowMultiple="false"
          class="org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart"
-         icon="icons/ambidexter-a-16.png"
+         icon="icons/rascal3D_2-16px.gif"
          id="rascal-eclipse.outputview"
          name="Output"
          restorable="true">
