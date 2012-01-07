@@ -1,8 +1,8 @@
 package org.rascalmpl.eclipse.ambidexter;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.StringReader;
 
 import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
 import nl.cwi.sen1.AmbiDexter.IAmbiDexterMonitor;
@@ -117,7 +117,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 	@Override
 	public void ambiguousString(final AmbiDexterConfig cfg, final SymbolString s, final NonTerminal n, String messagePrefix) {
 		try {
-			final IConstructor sym = (IConstructor) reader.read(VF, Factory.uptr, Factory.Symbol, new ByteArrayInputStream(n.prettyPrint().getBytes()));
+			final IConstructor sym = (IConstructor) reader.read(VF, Factory.uptr, Factory.Symbol, new StringReader(n.prettyPrint()));
 			final String ascii = toascci(s);
 			final String module = getModuleName(cfg.filename);
 			final String project = getProjectName(cfg.filename);

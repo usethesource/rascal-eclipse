@@ -80,8 +80,8 @@ import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.utils.LimitedResultOutputStream;
-import org.rascalmpl.interpreter.utils.LimitedResultOutputStream.IOLimitReachedException;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.uptr.Factory;
@@ -347,7 +347,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				content = type.toString() + ": `" + limitString(TreeAdapter.yield((IConstructor) value)) + "`\n";
 				
 				StandardTextWriter stw = new StandardTextWriter(false);
-				LimitedResultOutputStream lros = new LimitedResultOutputStream(1000);
+				LimitedResultWriter lros = new LimitedResultWriter(1000);
 				try{
 					stw.write(value, lros);
 				}catch(IOLimitReachedException iolrex){
