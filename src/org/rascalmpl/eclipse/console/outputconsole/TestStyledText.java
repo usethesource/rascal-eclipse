@@ -1,7 +1,9 @@
 package org.rascalmpl.eclipse.console.outputconsole;
 
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -12,6 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.console.MessageConsole;
 
 public class TestStyledText extends Composite {
 
@@ -21,8 +24,13 @@ public class TestStyledText extends Composite {
 	class PrintStuff implements Runnable{
 		PrintStream content;
 		
-		public PrintStuff(CircularByteArray content) {
-			this.content = new PrintStream(content);
+		public PrintStuff(CircularLines content) {
+			try {
+				this.content = new PrintStream(content, false, "UTF16");
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		@Override
@@ -30,9 +38,11 @@ public class TestStyledText extends Composite {
 			int i = 0;
 			for(int j = 0 ; ; j++){
 				try {
-					content.print("Hallo" + i + "\n");
+					content.printf("Hallo" + i + "\n");
+					content.flush();
 					i++;
-					Thread.sleep(2000);
+					System.out.printf("Done writing!" + i + "\n");
+					Thread.sleep(10);
 				} catch (InterruptedException e) {
 	
 				}
@@ -48,7 +58,7 @@ public class TestStyledText extends Composite {
 			setLayout(new FillLayout(SWT.VERTICAL));
 			t = new StyledText(this, SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL );
 			t.setEditable(false);
-			CircularByteArray content = new CircularByteArray(40);
+			CircularLines content = new CircularLines(200);
 			t.setContent(content);
 			Thread t = new Thread(new PrintStuff(content));
 			t.start();
@@ -56,7 +66,7 @@ public class TestStyledText extends Composite {
 		}
 		
 
-		public static void main(String argv[]){
+		public static void main(String argv[]) throws UnsupportedEncodingException{
 			final Display display = new Display ();
 			final Shell shell = new Shell (display, SWT.SHELL_TRIM);
 			shell.setLayout(new FillLayout ());
@@ -69,6 +79,17 @@ public class TestStyledText extends Composite {
 					display.sleep ();
 			}
 			display.dispose ();
+//			CircularLines content = new CircularLines(10);
+//			PrintStream content2 = new PrintStream(content, false, "UTF16");
+//			for(int i = 0 ; i < 15; i++){
+//				content2.print("HALLO!!!" + i + "\n");
+//				content2.flush();
+////				System.out.printf("%d\n",content.nrLines);
+//			}
+//			content2.flush();
+//			for(int i = 0 ; i < content.getLineCount()  ; i++){
+//				System.out.printf("%d: %s\n", i, content.getLine(i));
+//			}
 		}
 
 
