@@ -25,16 +25,19 @@ public class RascalMonitor implements IRascalMonitor {
 		this.monitor = monitor;
 	}
 	
+	@Override
 	public int endJob(boolean succeeded) {
 		int worked = subMon.getWorkDone();
 		subMon = subMon.endJob();
 		return worked;
 	}
 
+	@Override
 	public void event(String name) {
 		event(name, 1);
 	}
 
+	@Override
 	public void event(String name, int inc) {
 		if(subMon != null) {
 			event(inc);
@@ -44,6 +47,7 @@ public class RascalMonitor implements IRascalMonitor {
 			throw new ImplementationError("event() called before startJob()");
 	}
 
+	@Override
 	public void event(int inc) {
 		if(subMon != null)
 			subMon.event(inc);
@@ -51,14 +55,17 @@ public class RascalMonitor implements IRascalMonitor {
 			throw new ImplementationError("event() called before startJob()");
 	}
 
+	@Override
 	public void startJob(String name) {
 		startJob(name, 10, 0);
 	}
 
+	@Override
 	public void startJob(String name, int totalWork) {
 		startJob(name, totalWork, totalWork);
 	}
 
+	@Override
 	public void startJob(String name, int workShare, int totalWork) {
 		if(subMon == null)
 			subMon = new SubRascalMonitor(SubMonitor.convert(monitor), name, workShare, totalWork);
@@ -66,6 +73,7 @@ public class RascalMonitor implements IRascalMonitor {
 			subMon = subMon.startJob(name, workShare, totalWork);
 	}
 	
+	@Override
 	public void todo(int workRemaining) {
 		if(subMon != null)
 			subMon.todo(workRemaining);
@@ -73,6 +81,11 @@ public class RascalMonitor implements IRascalMonitor {
 			throw new ImplementationError("event() called before startJob()");
 	}
 	
+	@Override
+	public boolean isCanceled() {
+		return monitor.isCanceled();
+	}
+
 	private class SubRascalMonitor {
 		private final SubRascalMonitor parent;
 		private final SubMonitor monitor;
@@ -142,9 +155,6 @@ public class RascalMonitor implements IRascalMonitor {
 			return workActuallyDone;
 		}
 
-		public String getName() {
-			return name;
-		}
-
 	}
+
 }
