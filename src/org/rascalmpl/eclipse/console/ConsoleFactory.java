@@ -33,7 +33,7 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
 import org.rascalmpl.eclipse.console.internal.ConcurrentCircularOutputStream;
-import org.rascalmpl.eclipse.console.internal.ConsoleSyncer;
+import org.rascalmpl.eclipse.console.internal.TimedBufferedPipe;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.OutputInterpreterConsole;
@@ -67,8 +67,8 @@ public class ConsoleFactory{
 	
 	private static PrintWriter getErrorWriter() {
 		try {
-			OutputStream err = getConsoleViewPart().stdError; 
-			return new PrintWriter(new OutputStreamWriter(err, "UTF8"),true);
+			OutputStream err = getConsoleViewPart().getStdErr(); 
+			return new PrintWriter(new OutputStreamWriter(err, "UTF16"),true);
 		} catch (UnsupportedEncodingException e) {
 			Activator.getInstance().logException("could not get stderr writer", e);
 			return new PrintWriter(System.err);
@@ -77,8 +77,8 @@ public class ConsoleFactory{
 	
 	private static PrintWriter getStandardWriter() {
 		try {
-			OutputStream out = getConsoleViewPart().stdOutput; 
-			return new PrintWriter(new OutputStreamWriter(out, "UTF8"));
+			OutputStream out = getConsoleViewPart().getStdOut(); 
+			return new PrintWriter(new OutputStreamWriter(out, "UTF16"));
 		} catch (UnsupportedEncodingException e) {
 			Activator.getInstance().logException("could not get stdout writer", e);
 			return new PrintWriter(System.out);

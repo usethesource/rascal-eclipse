@@ -1,5 +1,8 @@
 package org.rascalmpl.eclipse.console.internal;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -11,37 +14,73 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Text;
 
-public class OutputWidget{
+public class OutputWidget implements PausableOutput{
 
-	boolean paused;
 	Text text;
 	boolean lastNewLine;
 	int bufferSize;
 	boolean showAlways;
 	boolean isEmpty;
+	int size;
+	Pausable pausable;
+	private OutputStream outputStream;
 	
-	public OutputWidget(Composite parent,Color c, int bufferSize,boolean showAlways) {
+	public OutputWidget(Composite parent,Color c, int bufferSize,boolean showAlways, Pausable pausable) {
 		text = new Text(parent, SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL| SWT.READ_ONLY);
 		text.setEditable(false);
-		this.bufferSize = bufferSize;
-		text.setTextLimit(bufferSize);
+		this.bufferSize = bufferSize * 2;
+		text.setTextLimit(this.bufferSize);
 		text.setForeground(c);
 		setVisibility(text.getHorizontalBar());
 		setVisibility(text.getVerticalBar());
 		lastNewLine = false;
-		paused = false;
+		this.pausable = pausable;
 		this.showAlways = showAlways;
 		isEmpty = true;
+		size = 0;
 		if(!showAlways){
 			text.setVisible(false);
 		}
 	}
 
 	
-	public void append(final String s){
-		Display.getDefault().asyncExec(new Runnable() {
+	void setVisibility(final ScrollBar sb){
+		boolean nessary = isScrollBarNessary(sb);
+		if(sb.isVisible() != nessary ){
+			sb.setVisible(nessary);
+		}
+	}
+	
+	boolean isScrollBarNessary(final ScrollBar sb){
+		return sb.getMaximum() != sb.getThumb();
+	}
+	
+	// NEED TO RUN FROM UI THREAD
+	void clear(){
+		if(!showAlways){
+			text.setVisible(false);
+			text.getParent().layout(true);
+		}
+		text.setText("");
+	}
+	
+	public boolean isPaused(){
+		return pausable.isPaused();
+	}
+
+
+	@Override
+	public void output(byte[] b) throws IOException {
+		final String s = new String(b,"UTF16");
+		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
+				int newSize = size + s.length();
+				if(newSize >= bufferSize){
+					text.setText(text.getText(bufferSize/2, size));
+					size = size - bufferSize/2;
+				}
+				size+=s.length();
 				if(lastNewLine){
 					text.append("\n");
 					lastNewLine = false;
@@ -62,31 +101,14 @@ public class OutputWidget{
 			}
 		});
 	}
-	
-	
-	void setVisibility(final ScrollBar sb){
-		boolean nessary = isScrollBarNessary(sb);
-		if(sb.isVisible() != nessary ){
-			sb.setVisible(nessary);
-		}
-	}
-	
-	boolean isScrollBarNessary(final ScrollBar sb){
-		return sb.getMaximum() != sb.getThumb();
-	}
-	
-	// NEED TO RUN FROM UI THREAD
-	void clear(){
 
-		if(!showAlways){
-			text.setVisible(false);
-			text.getParent().layout(true);
-		}
-		text.setText("");
+
+	public void setOutputStream(OutputStream outputStream) {
+		this.outputStream = outputStream;
 	}
 	
-	public boolean isPaused(){
-		return paused;
+	public OutputStream getOutputStream() {
+		return outputStream;
 	}
 	
 	
