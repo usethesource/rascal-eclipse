@@ -21,11 +21,59 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	public static final int STD_OUT_BUFFER_SIZE = BUFFER_SIZE; 
 	public static final int STD_ERR_BUFFER_SIZE = BUFFER_SIZE;	
 	public static final long BUFFER_FLUSH_INTERVAL = 50; // in milliseconds
-	private boolean paused;
+	private static boolean paused;
 	private OutputWidget stdOut;
 	private OutputWidget stdErr;
+
+	private static final StreamConnection outStreamConnection;
+	private static final StreamConnection errStreamConnection;
+
 	
+	private static class AlwaysPaused implements PausableOutput{
+		@Override
+		public boolean isPaused() {
+			return true;
+		}
+		@Override
+		public void output(byte[] b) throws IOException {
+			throw new Error("Cannot write to always paused outputstream!");
+		}
+		
+	}
 	
+	static {
+		outStreamConnection = connectBuffers(new AlwaysPaused(), "stdOut", STD_OUT_BUFFER_SIZE);
+		errStreamConnection = connectBuffers(new AlwaysPaused(), "stdErr", STD_ERR_BUFFER_SIZE);
+	}
+	
+	private static class StreamConnection{
+		private TimedBufferedPipe uiPipe;
+		private OutputStream stream;
+		
+		public StreamConnection(TimedBufferedPipe uiPipe, OutputStream stream) {
+			this.uiPipe = uiPipe;
+			this.stream = stream;
+		}
+		
+		public OutputStream getStream() {
+			return stream;
+		}
+		
+		public TimedBufferedPipe getUiPipe() {
+			return uiPipe;
+		}
+	}
+	
+	private static StreamConnection connectBuffers(PausableOutput pausableOutput, String alias, int bufSize){
+		TimedBufferedPipe uiPipe = new TimedBufferedPipe(BUFFER_FLUSH_INTERVAL,pausableOutput, "UI Pipe " + alias);
+		ConcurrentCircularOutputStream uiBuffer = new ConcurrentCircularOutputStream(bufSize, uiPipe);
+		uiPipe.initializeWithStream(uiBuffer);
+		
+		TimedBufferedPipe consolePipe = new TimedBufferedPipe(BUFFER_FLUSH_INTERVAL,new PausableOutputBuffer(uiBuffer, uiPipe), "Console Pipe " + alias);
+		ConcurrentCircularOutputStream consoleBuffer = new ConcurrentCircularOutputStream(bufSize, consolePipe);
+		consolePipe.initializeWithStream(consoleBuffer);
+		return new StreamConnection(uiPipe, consoleBuffer);
+	}
 	
 	public StdAndErrorViewPart() { 
 		super(); 
@@ -72,22 +120,13 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 		
 	}
 	
-	private OutputWidget makeWidget(Composite parent,String alias, Color c, int bufSize, boolean showAlways){
+	private OutputWidget makeWidget(StreamConnection connection,Composite parent,Color c, int bufSize, boolean showAlways){
 		OutputWidget widget = new OutputWidget(parent, c, bufSize, showAlways,this);
-		widget.setOutputStream(connectBuffers(widget, alias, bufSize));
+		connection.getUiPipe().setTarget(widget);
 		return widget;
 	}
 	
-	private OutputStream connectBuffers(OutputWidget widget, String alias, int bufSize){
-		TimedBufferedPipe uiPipe = new TimedBufferedPipe(BUFFER_FLUSH_INTERVAL,widget, "UI Pipe " + alias);
-		ConcurrentCircularOutputStream uiBuffer = new ConcurrentCircularOutputStream(bufSize, uiPipe);
-		uiPipe.initializeWithStream(uiBuffer);
-		
-		TimedBufferedPipe consolePipe = new TimedBufferedPipe(BUFFER_FLUSH_INTERVAL,new PausableOutputBuffer(uiBuffer, widget), "Console Pipe " + alias);
-		ConcurrentCircularOutputStream consoleBuffer = new ConcurrentCircularOutputStream(bufSize, consolePipe);
-		consolePipe.initializeWithStream(consoleBuffer);
-		return consoleBuffer;
-	}
+	
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -95,9 +134,9 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 		IToolBarManager toolbar = getViewSite().getActionBars().getToolBarManager();
 		toolbar.add(new PauseOutputAction());
 		toolbar.add(new ClearAction());
-		stdOut = makeWidget(totalWidget.getSashForm(), "stdout", Display.getCurrent().getSystemColor(SWT.COLOR_BLACK),
+		stdOut = makeWidget(outStreamConnection,totalWidget.getSashForm(), Display.getCurrent().getSystemColor(SWT.COLOR_BLACK),
 				STD_OUT_BUFFER_SIZE, true);
-		stdErr = makeWidget(totalWidget.getSashForm(), "stderr", Display.getCurrent().getSystemColor(SWT.COLOR_RED),
+		stdErr = makeWidget(errStreamConnection,totalWidget.getSashForm(), Display.getCurrent().getSystemColor(SWT.COLOR_RED),
 				STD_ERR_BUFFER_SIZE, true);
 		
 	}
@@ -127,11 +166,11 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	}
 	
 	public OutputStream getStdOut(){
-		return stdOut.getOutputStream();
+		return outStreamConnection.getStream();
 	}
 	
 	public OutputStream getStdErr(){
-		return stdErr.getOutputStream();
+		return errStreamConnection.getStream();
 	}
 
 	

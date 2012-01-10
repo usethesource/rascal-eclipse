@@ -25,7 +25,6 @@ public class OutputWidget implements PausableOutput{
 	boolean isEmpty;
 	int size;
 	Pausable pausable;
-	private OutputStream outputStream;
 	
 	public OutputWidget(Composite parent,Color c, int bufferSize,boolean showAlways, Pausable pausable) {
 		text = new StyledText(parent, SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL| SWT.READ_ONLY);
@@ -69,7 +68,7 @@ public class OutputWidget implements PausableOutput{
 	}
 	
 	public boolean isPaused(){
-		return pausable.isPaused();
+		return pausable.isPaused() || text.isDisposed();
 	}
 
 
@@ -128,15 +127,4 @@ public class OutputWidget implements PausableOutput{
 			});
 		}
 	}
-	
-	public void setOutputStream(OutputStream outputStream) {
-		this.outputStream = outputStream;
-	}
-	
-	public OutputStream getOutputStream() {
-		return outputStream;
-	}
-	
-	
-	
 }

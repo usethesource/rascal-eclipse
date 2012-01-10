@@ -5,12 +5,12 @@ import java.io.OutputStream;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public class TimedBufferedPipe implements IBufferFlushNotifier {
+public class TimedBufferedPipe implements Pausable, IBufferFlushNotifier {
 	
 	public class SyncThread extends Thread {
 		private final ConcurrentCircularOutputStream source;
 		private final Semaphore flushStream;
-		private final PausableOutput target;
+		private PausableOutput target;
 		private final long interval;
 
 		public SyncThread(long interval, ConcurrentCircularOutputStream source, PausableOutput target, Semaphore flushStream, String name) {
@@ -47,6 +47,10 @@ public class TimedBufferedPipe implements IBufferFlushNotifier {
 				return;
 			}
 		}
+
+		public void setTarget(PausableOutput target) {
+			this.target = target;
+		}
 	}
 
 	private PausableOutput target;
@@ -75,6 +79,18 @@ public class TimedBufferedPipe implements IBufferFlushNotifier {
 	@Override
 	public void signalFlush() {
 		flushStream.release();
+	}
+
+	@Override
+	public boolean isPaused() {
+		return target.isPaused();
+	}
+	
+	public void setTarget(PausableOutput target){
+		this.target = target;
+		if(syncer!=null){
+			syncer.setTarget(target);
+		}
 	}
 
 }
