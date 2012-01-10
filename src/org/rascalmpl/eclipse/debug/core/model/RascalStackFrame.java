@@ -23,6 +23,7 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 
 public class RascalStackFrame extends RascalDebugElement implements IStackFrame{
@@ -197,7 +198,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame{
 		return envt;
 	}
 
-	public List<Entry<String, OverloadedFunctionResult>> getFunctions() {
+	public List<Pair<String, OverloadedFunctionResult>> getFunctions() {
 		return envt.getFunctions();
 	}
 	
