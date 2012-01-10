@@ -19,6 +19,7 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	public static final int BUFFER_SIZE = Math.min(8*1024*1024,highestPowerOf2Below(Text.LIMIT/4)); // in bytes,text == UTF16, and we double buffer the text control
 	public static final int STD_OUT_BUFFER_SIZE = BUFFER_SIZE; 
 	public static final int STD_ERR_BUFFER_SIZE = BUFFER_SIZE;	
+	public static final long BUFFER_FLUSH_INTERVAL = 50; // in milliseconds
 	private boolean paused;
 	private OutputWidget stdOut;
 	private OutputWidget stdErr;
@@ -79,11 +80,11 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	}
 	
 	private OutputStream connectBuffers(OutputWidget widget, String alias, int bufSize){
-		TimedBufferedPipe uiPipe = new TimedBufferedPipe(widget, "UI Pipe " + alias);
+		TimedBufferedPipe uiPipe = new TimedBufferedPipe(BUFFER_FLUSH_INTERVAL,widget, "UI Pipe " + alias);
 		ConcurrentCircularOutputStream uiBuffer = new ConcurrentCircularOutputStream(bufSize, uiPipe);
 		uiPipe.initializeWithStream(uiBuffer);
 		
-		TimedBufferedPipe consolePipe = new TimedBufferedPipe(new PausableOutputBuffer(uiBuffer, widget), "Console Pipe " + alias);
+		TimedBufferedPipe consolePipe = new TimedBufferedPipe(BUFFER_FLUSH_INTERVAL,new PausableOutputBuffer(uiBuffer, widget), "Console Pipe " + alias);
 		ConcurrentCircularOutputStream consoleBuffer = new ConcurrentCircularOutputStream(bufSize, consolePipe);
 		consolePipe.initializeWithStream(consoleBuffer);
 		return consoleBuffer;

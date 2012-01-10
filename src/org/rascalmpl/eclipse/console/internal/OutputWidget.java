@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -16,7 +17,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class OutputWidget implements PausableOutput{
 
-	Text text;
+	StyledText text;
 	boolean lastNewLine;
 	int bufferSize;
 	boolean showAlways;
@@ -26,7 +27,7 @@ public class OutputWidget implements PausableOutput{
 	private OutputStream outputStream;
 	
 	public OutputWidget(Composite parent,Color c, int bufferSize,boolean showAlways, Pausable pausable) {
-		text = new Text(parent, SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL| SWT.READ_ONLY);
+		text = new StyledText(parent, SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL| SWT.READ_ONLY);
 		text.setEditable(false);
 		this.bufferSize = bufferSize * 2;
 		text.setTextLimit(this.bufferSize);
@@ -78,8 +79,11 @@ public class OutputWidget implements PausableOutput{
 			public void run() {
 				int newSize = size + s.length();
 				if(newSize >= bufferSize){
-					text.setText(text.getText(bufferSize/2, size));
-					size = size - bufferSize/2;
+					String cur = text.getText();
+					int start = cur.indexOf('\n',cur.length()/2 ) + 1;
+					cur = cur.substring(start);
+					text.setText(cur);
+					size = cur.length();
 				}
 				size+=s.length();
 				if(lastNewLine){
@@ -98,7 +102,7 @@ public class OutputWidget implements PausableOutput{
 				}
 				setVisibility(text.getHorizontalBar());
 				setVisibility(text.getVerticalBar());
-				
+				text.setTopPixel(Integer.MAX_VALUE);
 			}
 		});
 	}

@@ -11,12 +11,14 @@ public class TimedBufferedPipe implements IBufferFlushNotifier {
 		private final ConcurrentCircularOutputStream source;
 		private final Semaphore flushStream;
 		private final PausableOutput target;
+		private final long interval;
 
-		public SyncThread(ConcurrentCircularOutputStream source, PausableOutput target, Semaphore flushStream, String name) {
+		public SyncThread(long interval, ConcurrentCircularOutputStream source, PausableOutput target, Semaphore flushStream, String name) {
 			super("Console Sync Thread" + name);
 			this.source = source;
 			this.target = target;
 			this.flushStream = flushStream;
+			this.interval = interval;
 		}
 
 		@Override
@@ -24,7 +26,7 @@ public class TimedBufferedPipe implements IBufferFlushNotifier {
 			try {
 				while (true) {
 					// either sleep for 50ms or get a signal to empty the stream earlier
-					flushStream.tryAcquire(250L, TimeUnit.MILLISECONDS);
+					flushStream.tryAcquire(interval, TimeUnit.MILLISECONDS);
 					if (!target.isPaused()) {
 						byte[] bufferContents = source.getBufferCopy();
 						flushStream.drainPermits(); // reset semaphore
@@ -51,18 +53,21 @@ public class TimedBufferedPipe implements IBufferFlushNotifier {
 	private Semaphore flushStream;
 	private SyncThread syncer;
 	private String name;
+	private long interval;
 	
 	
-	public TimedBufferedPipe(PausableOutput target, String name) {
+	public TimedBufferedPipe(long interval,PausableOutput target, String name) {
 		this.target = target;
 		syncer = null;
 		flushStream = new Semaphore(1);
 		this.name = name;
+		this.interval = interval;
+		
 	}
 	
 	public void initializeWithStream(ConcurrentCircularOutputStream source) {
 		if (syncer == null) {
-			syncer = new SyncThread(source, target, flushStream, name);
+			syncer = new SyncThread(interval,source, target, flushStream, name);
 			syncer.start();
 		}
 	}
