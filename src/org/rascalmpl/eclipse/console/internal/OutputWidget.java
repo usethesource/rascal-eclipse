@@ -3,17 +3,18 @@ package org.rascalmpl.eclipse.console.internal;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.eclipse.imp.preferences.PreferenceConstants;
+import org.eclipse.imp.runtime.RuntimePlugin;
+import org.eclipse.jface.preference.PreferenceConverter;
+import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Text;
 
 public class OutputWidget implements PausableOutput{
 
@@ -28,6 +29,7 @@ public class OutputWidget implements PausableOutput{
 	
 	public OutputWidget(Composite parent,Color c, int bufferSize,boolean showAlways, Pausable pausable) {
 		text = new StyledText(parent, SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL| SWT.READ_ONLY);
+		setFont();
 		text.setEditable(false);
 		this.bufferSize = bufferSize * 2;
 		text.setTextLimit(this.bufferSize);
@@ -108,6 +110,25 @@ public class OutputWidget implements PausableOutput{
 	}
 
 
+	private void setFont(){
+		final FontRegistry fontRegistry= RuntimePlugin.getInstance().getFontRegistry();
+		final String fontDescriptor = RuntimePlugin.getInstance().getPreferenceStore().getString(PreferenceConstants.P_SOURCE_FONT);
+		
+		if (fontDescriptor != null) {
+			if (!fontRegistry.hasValueFor(fontDescriptor)) {
+				FontData[] fontData= PreferenceConverter.readFontData(fontDescriptor);
+				fontRegistry.put(fontDescriptor, fontData);
+			}
+			
+			Display.getDefault().syncExec(new Runnable(){
+				public void run(){
+					Font sourceFont= fontRegistry.get(fontDescriptor);
+					text.setFont(sourceFont);
+				}
+			});
+		}
+	}
+	
 	public void setOutputStream(OutputStream outputStream) {
 		this.outputStream = outputStream;
 	}
