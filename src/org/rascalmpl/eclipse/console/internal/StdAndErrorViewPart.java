@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -43,17 +44,15 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	class PauseOutputAction extends Action{
 		
 		public PauseOutputAction() {
+			super("",IAction.AS_RADIO_BUTTON);
 			setText("Pause output");
+			
 		}
 		
 		@Override
 		public void run() {
 			paused = !paused;
-			if(paused){
-				setText("Resume");
-			} else {
-				setText("Pause output");
-			}
+			setChecked(paused);
 		}
 		
 	}
@@ -96,7 +95,6 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 		IToolBarManager toolbar = getViewSite().getActionBars().getToolBarManager();
 		toolbar.add(new PauseOutputAction());
 		toolbar.add(new ClearAction());
-		
 		stdOut = makeWidget(totalWidget.getSashForm(), "stdout", Display.getCurrent().getSystemColor(SWT.COLOR_BLACK),
 				STD_OUT_BUFFER_SIZE, true);
 		stdErr = makeWidget(totalWidget.getSashForm(), "stderr", Display.getCurrent().getSystemColor(SWT.COLOR_RED),
