@@ -129,12 +129,12 @@ public class CircularLines extends OutputStream implements StyledTextContent{
 			List<String> result = new ArrayList<String>();
 			int start = 0;
 			for(int i = offset ; i < offset + len ; i+=2){
-				if(input[i + 1] == '\n'){
+				if(input[i] == 0 && input[i + 1] == '\n'){
 					result.add(new String(input,start,i  - start  , "UTF16"));
 					start = i + 2;
 				}
 			}
-			if( input[offset + len - 1] == '\n'){
+			if(input[offset + len - 2] == 0 && input[offset + len - 1] == '\n'){
 				result.add("");
 			} else if(start < offset + len){
 				result.add(new String(input,start,offset + len - start, "UTF16"));
