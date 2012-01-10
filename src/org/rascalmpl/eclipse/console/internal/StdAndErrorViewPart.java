@@ -25,6 +25,8 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	private OutputWidget stdOut;
 	private OutputWidget stdErr;
 
+	// since SWT likes to dispose our ViewPart under Mac OSX, we have to store the output streams and pipes
+	// because we cannot update the references in the Evaluators already running.
 	private static final StreamConnection outStreamConnection;
 	private static final StreamConnection errStreamConnection;
 
@@ -65,6 +67,30 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	}
 	
 	private static StreamConnection connectBuffers(PausableOutput pausableOutput, String alias, int bufSize){
+		// Why this complicated setup?
+		// 
+		// con: rascal console
+		// pip: buffer pipe (separate thread)
+		// buf: buffer
+		// ui: ui-thread
+		//
+		// ascii art:
+		//
+		//  con1---+               
+		//  con2-+ |
+		//       +-+---> buf1 <-- pip1 --> buf2 <-- pip2 --> ui
+		//  con3-+ |
+		//  con4---+
+		//
+		// our console buffer (buf1) is written to from different threads and evaluators
+		// pip1 reads from buf1 (which blocks the writers while reading)
+		// pip1 than writes to buf2 
+		// pip2 than reads from buf2 (blocking again) and transforms it into a string
+		// pip2 than schedules the writing of this string on the UI thread.
+		//
+		// We have this relatively complicated setup to make sure the UI thread doesn't block while
+		// the console is writing in the buffer, or the other way around.
+		
 		TimedBufferedPipe uiPipe = new TimedBufferedPipe(BUFFER_FLUSH_INTERVAL,pausableOutput, "UI Pipe " + alias);
 		ConcurrentCircularOutputStream uiBuffer = new ConcurrentCircularOutputStream(bufSize, uiPipe);
 		uiPipe.initializeWithStream(uiBuffer);
