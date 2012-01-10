@@ -62,6 +62,7 @@ public class OutputWidget implements PausableOutput{
 			text.getParent().layout(true);
 		}
 		text.setText("");
+		size = 0;
 	}
 	
 	public boolean isPaused(){
