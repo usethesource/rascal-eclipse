@@ -216,21 +216,6 @@
             id="rascal.editorpopupmenu"
             targetID="rascal.editor.contextMenu">
          <action
-               class="org.rascalmpl.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal.editor.context.ExprBreakpointAction"
-               label="Add an Expression Breakpoint"
-               menubarPath="additions">
-         </action>
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.EvaluateExpression"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal.editor.context.EvalExprtAction"
-               label="Evaluate"
-               menubarPath="additions"
-               tooltip="Evaluate the selected text in the current evaluation environment. This only works if the Rascal debugger is executing in the scope of the selected expressions.">
-         </action>
-         <action
                class="org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.launchconsole"
@@ -245,14 +230,6 @@
                label="Reset Project State"
                menubarPath="additions"
                tooltip="Reset the state of the interpreter associated with the current project.">
-         </action>
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.CopyToConsole"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal-eclipse.editor.context.copyToConsole"
-               label="Copy to console"
-               menubarPath="additions"
-               tooltip="Copy the current selection to the currently active console (if any) and execute the command">
          </action>
          <action
                class="org.rascalmpl.eclipse.perspective.actions.RunStaticChecker"
@@ -283,6 +260,14 @@
                id="rascal.editor.context.browsetree"
                label="Show Browsable Parse Tree"
                menubarPath="additions">
+         </action>
+         <action
+               class="org.rascalmpl.eclipse.perspective.actions.CopyToConsole"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal-eclipse.editor.context.copyToConsole"
+               label="Copy to console"
+               menubarPath="additions"
+               tooltip="Copy the current selection to the currently active console (if any) and execute the command">
          </action>
       </viewerContribution>
       <objectContribution
@@ -839,6 +824,27 @@
              label="My Print">           
        </command>
     </menuContribution>
+    <menuContribution
+          locationURI="popup:#CompilationUnitEditorContext">
+       <dynamic
+             class="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem"
+             id="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem.dynamic1">
+       </dynamic>
+    </menuContribution>
+    <menuContribution
+          locationURI="popup:#TextEditorContext">
+       <dynamic
+             class="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem"
+             id="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem.dynamic2">
+       </dynamic>
+    </menuContribution>
+    <menuContribution
+          locationURI="popup:#ClassFileEditorContext">
+       <dynamic
+             class="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem"
+             id="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem.dynamic3">
+       </dynamic>
+    </menuContribution>
  </extension>
  <extension
        point="org.eclipse.ui.themes">
@@ -894,29 +900,8 @@
           language="Terms">
     </editorActionContributor>
  </extension>
- <extension point="org.eclipse.ui.menus">
-  <menuContribution locationURI="popup:#CompilationUnitEditorContext">
-    <dynamic class="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem"
-             id="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem.dynamic1">
-    </dynamic>
-  </menuContribution>
-</extension>
  
-<extension point="org.eclipse.ui.menus">
-  <menuContribution locationURI="popup:#TextEditorContext">
-    <dynamic class="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem"
-             id="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem.dynamic2">
-    </dynamic>
-  </menuContribution>
-</extension>
 
-<extension point="org.eclipse.ui.menus">
-  <menuContribution locationURI="popup:#ClassFileEditorContext">
-    <dynamic class="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem"
-             id="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem.dynamic3">
-    </dynamic>
-  </menuContribution>
-</extension>
 <extension
       point="org.eclipse.ltk.core.refactoring.renameParticipants">
    <renameParticipant
