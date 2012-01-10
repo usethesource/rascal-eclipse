@@ -9,7 +9,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.swt.widgets.Menu;
 import org.rascalmpl.eclipse.perspective.actions.CopyToConsole;
 import org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction;
 import org.rascalmpl.eclipse.perspective.actions.ListAmbiguities;
@@ -42,16 +41,16 @@ public class ActionsContributor implements ILanguageActionsContributor {
 		IProject rawProject = editor.getParseController().getProject().getRawProject();
 		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(rawProject.getFullPath().append(editor.getParseController().getPath()));
 		
-		IMenuManager rascalMenu = menu.findMenuUsingPath("Rascal");
-		if (rascalMenu == null) {
-			rascalMenu = new MenuManager("Rascal");
-			menu.add(rascalMenu);
-		}
-		
-		rascalMenu.add(new LaunchConsoleAction(rawProject, file));
-		rascalMenu.add(new RunAmbiDexter(editor, rawProject, file));
-		rascalMenu.add(new ListAmbiguities(editor, rawProject, file)); 
-		rascalMenu.add(new CopyToConsole(editor));
+//		IMenuManager rascalMenu = menu.findMenuUsingPath("rascal");
+//		if (rascalMenu == null) {
+//			rascalMenu = new MenuManager("Rascal","rascal");
+//			menu.add(rascalMenu);
+//		}
+//		
+//		rascalMenu.add(new LaunchConsoleAction(rawProject, file));
+//		rascalMenu.add(new RunAmbiDexter(editor, rawProject, file));
+//		rascalMenu.add(new ListAmbiguities(editor, rawProject, file)); 
+//		rascalMenu.add(new CopyToConsole(editor));
 	}
 
 }
