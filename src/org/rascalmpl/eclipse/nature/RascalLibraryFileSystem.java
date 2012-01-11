@@ -95,6 +95,8 @@ public class RascalLibraryFileSystem extends FileSystem {
 			
 			@Override
 			public boolean equals(Object obj) {
+				if(obj == null)
+					return false;
 				if (obj.getClass() == getClass()) {
 					RascalLibraryFileStore other = (RascalLibraryFileStore) obj;
 					return file.equals(other.file);
@@ -109,6 +111,7 @@ public class RascalLibraryFileSystem extends FileSystem {
 			
 			
 	
+			@Override
 			public String[] childNames(int options, IProgressMonitor monitor)
 					throws CoreException {
 				if (file.isDirectory()) {
