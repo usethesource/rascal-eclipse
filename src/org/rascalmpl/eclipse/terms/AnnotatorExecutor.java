@@ -37,7 +37,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class AnnotatorExecutor {
 	private final MessageProcessor marker = new MessageProcessor();
 	
-	public synchronized void annotate(ICallableValue func, IConstructor parseTree, IMessageHandler handler) {
+	public synchronized IConstructor annotate(ICallableValue func, IConstructor parseTree, IMessageHandler handler) {
 		try {
 			IConstructor top = parseTree;
 			boolean start = false;
@@ -61,8 +61,8 @@ public class AnnotatorExecutor {
 					IList newArgs = TreeAdapter.getArgs(top).put(1, newTree);
 					newTree = top.set("args", newArgs).setAnnotation("loc", top.getAnnotation("loc"));
 				}
-				parseTree = newTree;
-				marker.process(parseTree, handler);
+				marker.process(newTree, handler);
+				return newTree;
 			}
 			else {
 				Activator.getInstance().logException("annotator returned null", new RuntimeException());
@@ -71,5 +71,7 @@ public class AnnotatorExecutor {
 		catch (Throwable e) {
 			Activator.getInstance().logException("annotater failed", e);
 		}
+		
+		return null;
 	}
 }

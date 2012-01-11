@@ -148,7 +148,10 @@ public class TermParseController implements IParseController {
 					parseTree = (IConstructor) parser.call(rm, new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}).getValue();
 					if (parseTree != null && annotator != null) {
 						rm.event("annotating", 5);
-						executor.annotate(annotator, parseTree, handler);
+						IConstructor newTree = executor.annotate(annotator, parseTree, handler);
+						if (newTree != null) {
+							parseTree = newTree;
+						}
 					}
 				}
 			}
