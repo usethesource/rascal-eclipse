@@ -15,13 +15,13 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console;
 
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toAmbiguous;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toInterruptedException;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toParseError;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toResult;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toStaticError;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toThrow;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toThrowable;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.ambiguousMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.interruptedExceptionMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.parseErrorMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.resultMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.staticErrorMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -171,7 +171,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				content = "";
 			}
 			else {
-				content = toParseError(command, "stdin", e);
+				content = parseErrorMessage(command, "stdin", e);
 				error = new CommandExecutionException(e.getMessage(), e.getOffset(), e.getLength());
 				command = "";
 			} 
@@ -180,15 +180,15 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			error = new TerminationException();
 		}
 		catch(InterruptException i) {
-			content =  toInterruptedException(i);
+			content =  interruptedExceptionMessage(i);
 			command = "";
 		}
 		catch (Ambiguous e) {
-			content =  toAmbiguous(e);
+			content =  ambiguousMessage(e);
 			command = "";
 		}
 		catch(StaticError e){
-			content = toStaticError(e);
+			content = staticErrorMessage(e);
 			command = "";
 			ISourceLocation location = e.getLocation();
 			if (location != null) {
@@ -199,7 +199,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			error = new CommandExecutionException(content);
 		}
 		catch(Throw e){
-			content = toThrow(e);
+			content = throwMessage(e);
 			command = "";
 			ISourceLocation location = e.getLocation();
 			if(location != null && !location.getURI().getScheme().equals("stdin")){
@@ -208,7 +208,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			}
 		}
 		catch(Throwable e){
-			content = toThrowable(e, eval.getStackTrace());
+			content = throwableMessage(e, eval.getStackTrace());
 			command = "";
 		}
 		
@@ -335,7 +335,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			result = eval.eval(monitor, stat);
 		}
 		
-		content = toResult(result);
+		content = resultMessage(result);
 		command = "";
 	}
 	
