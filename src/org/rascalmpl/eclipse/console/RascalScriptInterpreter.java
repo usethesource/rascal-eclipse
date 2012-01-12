@@ -15,6 +15,14 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console;
 
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toAmbiguous;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toInterruptedException;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toParseError;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toResult;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toStaticError;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toThrow;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.toThrowable;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,8 +48,6 @@ import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -52,8 +58,8 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.ast.Command;
-import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Command.Shell;
+import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.ShellCommand.Edit;
 import org.rascalmpl.ast.ShellCommand.History;
 import org.rascalmpl.ast.ShellCommand.Quit;
@@ -80,16 +86,11 @@ import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RascalScriptInterpreter extends Job implements IInterpreter {
-	
-	private final static int LINE_LIMIT = 4096;
 	private ModuleReloader reloader;
 	private Evaluator eval;
 	private volatile IInterpreterConsole console;
@@ -154,7 +155,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		try {
 			RascalMonitor rm = new RascalMonitor(monitor);
 			rm.startJob("executing command", 10000);
-			rm.event("parsing command");
+			rm.event("parsing command"); 
 			synchronized(eval){
 				IConstructor tree = eval.parseCommand(rm, command, URI.create("stdin:///"));
 				rm.event("running command");
@@ -165,29 +166,31 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		
 		}
 		catch (ParseError e) {
-			try {
-				execParseError(e);
+			if (e.getOffset() >= command.length()) {
 				error = e;
-			} catch (CommandExecutionException e1) {
-				error = e1;
+				content = "";
 			}
-		}
+			else {
+				content = toParseError(command, e);
+				error = new CommandExecutionException(e.getMessage(), e.getOffset(), e.getLength());
+				command = "";
+			} 
+		} 
 		catch (QuitException q){
 			error = new TerminationException();
 		}
 		catch(InterruptException i) {
-			content = i.toString();
+			content =  toInterruptedException(i);
 			command = "";
 		}
 		catch (Ambiguous e) {
-			content = e.getMessage();
+			content =  toAmbiguous(e);
 			command = "";
 		}
 		catch(StaticError e){
-			content = e.getMessage();
+			content = toStaticError(e);
 			command = "";
 			ISourceLocation location = e.getLocation();
-			e.printStackTrace();
 			if (location != null) {
 				setMarker(e.getMessage(), location.getURI(), location.getOffset(), location.getLength());
 				error = new CommandExecutionException(content, location.getOffset(), location.getLength());
@@ -196,11 +199,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			error = new CommandExecutionException(content);
 		}
 		catch(Throw e){
-			content = e.getMessage() + "\n";
-			String trace = e.getTrace();
-			if (trace != null) {
-				content += "stacktrace:\n" + trace;
-			}
+			content = toThrow(e);
 			command = "";
 			ISourceLocation location = e.getLocation();
 			if(location != null && !location.getURI().getScheme().equals("stdin")){
@@ -209,11 +208,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			}
 		}
 		catch(Throwable e){
-			content = "internal exception: " + e.toString();
-			if (eval != null) {
-				content += eval.getStackTrace();
-			}
-			e.printStackTrace();
+			content = toThrowable(e, eval.getStackTrace());
 			command = "";
 		}
 		
@@ -340,43 +335,12 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			result = eval.eval(monitor, stat);
 		}
 		
-		IValue value = result.getValue();
-		if (value != null) {
-			Type type = result.getType();
-			if (type.isAbstractDataType() && type.isSubtypeOf(Factory.Tree)) {
-				content = type.toString() + ": `" + limitString(TreeAdapter.yield((IConstructor) value)) + "`\n";
-				
-				StandardTextWriter stw = new StandardTextWriter(false);
-				LimitedResultWriter lros = new LimitedResultWriter(1000);
-				try{
-					stw.write(value, lros);
-				}catch(IOLimitReachedException iolrex){
-					// This is fine, ignore.
-				}catch(IOException ioex){
-					// This can never happen.
-				}
-				content += "Tree: " + lros.toString();
-			} else {
-				content = result.toString(LINE_LIMIT);
-			}
-		} else {
-			content = "ok";
-		}
-
-		if (eval instanceof DebuggableEvaluator) {
-			// need to notify the debugger that the command is finished
-			DebuggableEvaluator debugEval = (DebuggableEvaluator) eval;
-			debugEval.getDebugger().stopStepping();
-		}
+		content = toResult(result);
 		command = "";
 	}
 	
-	private static String limitString(String valString){
-		return (valString.length() <= 200) ? valString : valString.substring(0, 200 - 3) + "...";
-	}
-	
 	private void editCommand(Edit x){
-		String module = x.getName().toString();
+		String module = Names.fullName(x.getName());
 		
 		if (project == null) {
 			return;
@@ -410,38 +374,6 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 	}
 
-	private void execParseError(ParseError pe) throws CommandExecutionException{
-		if (pe.getLocation().getScheme().equals("stdin")) {
-			String[] commandLines = command.split("\n");
-			int lastLine = commandLines.length;
-			int lastColumn = commandLines[lastLine - 1].length();
-
-			if (pe.getEndLine() + 1 == lastLine && lastColumn <= pe.getEndColumn()) { 
-				content = "";
-			} else {
-				content = "";
-				int i = 0;
-				for ( ; i < pe.getEndColumn() + IRascalResources.RASCAL_PROMPT.length(); i++) {
-
-					content += " ";
-				}
-				content += "^ ";
-				content += "parse error here";
-				if (i > 80) {
-					content += "\nparse error at column " + pe.getEndColumn();
-				}
-				command = "";
-				throw new CommandExecutionException(content, pe.getOffset(), pe.getLength());
-			}
-		}
-		else {
-			content = pe.toString();
-			command = "";
-			pe.printStackTrace();
-				setMarker(pe.getMessage(), pe.getLocation(), pe.getOffset(), pe.getLength());
-				throw new CommandExecutionException(content, pe.getOffset(), pe.getLength());
-		}
-	}
 
 	public String getOutput(){
 		String output = content;
