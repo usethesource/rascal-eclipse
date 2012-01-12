@@ -47,7 +47,7 @@ public class ConsoleFactory{
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final static IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
 	
-	private static StdAndErrorViewPart getConsoleViewPart() {
+	public static StdAndErrorViewPart getConsoleViewPart() {
 		try {
 			return (StdAndErrorViewPart) PlatformUI.getWorkbench()
 				    .getActiveWorkbenchWindow()

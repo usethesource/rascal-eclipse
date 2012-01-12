@@ -104,8 +104,10 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			moduleFullName = moduleFullName.substring(0, moduleFullName.length()-Configuration.RASCAL_FILE_EXT.length());
 
 			//import the module and launch the main function
-			eval.doImport(null, moduleFullName);
-			eval.eval(null, "main()", URI.create("run:///"));
+			synchronized (eval) {
+				eval.doImport(null, moduleFullName);
+				eval.eval(null, "main()", URI.create("run:///"));	
+			}
 		}
 	}
 }

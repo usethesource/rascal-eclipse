@@ -12,7 +12,9 @@ package org.rascalmpl.eclipse.nature;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,9 +36,12 @@ import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
+import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.eclipse.uri.BootstrapURIResolver;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
@@ -53,10 +58,28 @@ public class ProjectEvaluatorFactory {
 	
 	private final WeakHashMap<IProject, Evaluator> parserForProject = new WeakHashMap<IProject, Evaluator>();
 	private final WeakHashMap<IProject, ModuleReloader> reloaderForProject = new WeakHashMap<IProject, ModuleReloader>();
-	private final PrintWriter out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
+	private StdAndErrorViewPart console;
+	private final PrintWriter out;
 	
 	private ProjectEvaluatorFactory() {
-      // TODO: add listeners to remove when projects are deleted or closed!
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				ProjectEvaluatorFactory.this.console = ConsoleFactory.getConsoleViewPart();	
+			}
+		});
+		
+		if (console != null) {
+			try {
+				out = new PrintWriter(new OutputStreamWriter(console.getStdOut(), "UTF16"));
+			} catch (UnsupportedEncodingException e) {
+				Activator.getInstance().logException("internal error", e);
+				throw new RuntimeException("???", e);
+			}
+		}
+		else {
+			out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
+		}
 	}
 	
 	private static class InstanceHolder {
