@@ -10,10 +10,10 @@ module util::Prompt
 
 import String;
 
-@javaClass{org.rascalmpl.eclipse.library.util.scripting.Prompt}
+@javaClass{org.rascalmpl.eclipse.library.util.Prompt}
 public java str prompt(str msg);
 
-@javaClass{org.rascalmpl.eclipse.library.util.scripting.Prompt}
+@javaClass{org.rascalmpl.eclipse.library.util.Prompt}
 public java void alert(str msg);
  
 

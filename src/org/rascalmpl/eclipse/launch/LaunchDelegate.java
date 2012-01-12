@@ -12,6 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.launch;
 
+import java.net.URI;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -25,7 +27,9 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
+import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.interpreter.Evaluator;
 
 // TODO Tidy up here.
 public class LaunchDelegate implements ILaunchConfigurationDelegate{
@@ -76,26 +80,18 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 				throw new RuntimeException("Unknown mode: "+mode);
 			}
 		}else{
-			ConsoleFactory consoleFactory = ConsoleFactory.getInstance();
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IProject project = root.findMember(path_mainModule).getProject();
 		
-			IRascalConsole console;
-
-			if (mode.equals(ILaunchManager.RUN_MODE)) {
-				// open a Rascal Console
-				console = consoleFactory.openRunOutputConsole(project);
-			} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
+			Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
+			
+			if (mode.equals(ILaunchManager.DEBUG_MODE)) {
 				//launch a debug session which opens automatically a new console
 				RascalDebugTarget target = new RascalDebugTarget(launch);
 
 				// open a Rascal Console
-				console = ConsoleFactory.getInstance().openDebuggableOutputConsole(project, target.getThread());
-				target.setConsole(console);
-
+//				target.setConsole(console);
 				launch.addDebugTarget(target);
-			}else{
-				throw new RuntimeException("Unknown mode: "+mode);
 			}
 
 			//construct the corresponding module name
@@ -108,8 +104,8 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			moduleFullName = moduleFullName.substring(0, moduleFullName.length()-Configuration.RASCAL_FILE_EXT.length());
 
 			//import the module and launch the main function
-			console.executeCommand("import "+moduleFullName+";");
-			console.executeCommand("main();");
+			eval.doImport(null, moduleFullName);
+			eval.eval(null, "main()", URI.create("run:///"));
 		}
 	}
 }

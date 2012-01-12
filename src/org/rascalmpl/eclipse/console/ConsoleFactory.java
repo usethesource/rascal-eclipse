@@ -28,15 +28,9 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IHyperlink;
-import org.eclipse.ui.console.IOConsole;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.ambidexter.ReportView;
-import org.rascalmpl.eclipse.console.internal.ConcurrentCircularOutputStream;
-import org.rascalmpl.eclipse.console.internal.TimedBufferedPipe;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.InteractiveInterpreterConsole;
-import org.rascalmpl.eclipse.console.internal.OutputInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
@@ -116,22 +110,6 @@ public class ConsoleFactory{
 		return console;
 	}
 	
-	public IRascalConsole openRunOutputConsole(){
-		GlobalEnvironment heap = new GlobalEnvironment();
-		IRascalConsole console = new OutputRascalConsole(new ModuleEnvironment(SHELL_MODULE, heap), heap);
-		fConsoleManager.addConsoles(new IConsole[]{console});
-		fConsoleManager.showConsoleView(console);
-		return console;
-	}
-	
-	public IRascalConsole openRunOutputConsole(IProject project){
-		GlobalEnvironment heap = new GlobalEnvironment();
-		IRascalConsole console = new OutputRascalConsole(project, new ModuleEnvironment(SHELL_MODULE, heap), heap);
-		fConsoleManager.addConsoles(new IConsole[]{console});
-		fConsoleManager.showConsoleView(console);
-		return console;
-	}
-
 	public IRascalConsole openDebuggableConsole(IDebugger debugger){
 		GlobalEnvironment heap = new GlobalEnvironment();
 		IRascalConsole console = new InteractiveRascalConsole(debugger, new ModuleEnvironment(SHELL_MODULE, heap), heap);
@@ -148,22 +126,6 @@ public class ConsoleFactory{
 		return console;
 	}
 
-	public IRascalConsole openDebuggableOutputConsole(IDebugger debugger){
-		GlobalEnvironment heap = new GlobalEnvironment();
-		IRascalConsole console = new OutputRascalConsole(debugger, new ModuleEnvironment(SHELL_MODULE, heap), heap);
-		fConsoleManager.addConsoles(new IConsole[]{console});
-		fConsoleManager.showConsoleView(console);
-		return console;
-	}
-	
-	public IRascalConsole openDebuggableOutputConsole(IProject project, IDebugger debugger){
-		GlobalEnvironment heap = new GlobalEnvironment();
-		IRascalConsole console = new OutputRascalConsole(project, debugger, new ModuleEnvironment(SHELL_MODULE, heap), heap);
-		fConsoleManager.addConsoles(new IConsole[]{console});
-		fConsoleManager.showConsoleView(console);
-		return console;
-	}
-	
 	public interface IRascalConsole extends IInterpreterConsole{
 		void activate(); // Eclipse thing.
 		RascalScriptInterpreter getRascalInterpreter();
@@ -212,38 +174,4 @@ public class ConsoleFactory{
 		}
 	}
 
-	private class OutputRascalConsole extends OutputInterpreterConsole implements IRascalConsole{
-		
-		public OutputRascalConsole(ModuleEnvironment shell, GlobalEnvironment heap){
-			super(new RascalScriptInterpreter(), "Rascal");
-			
-			initializeConsole();
-			getInterpreter().initialize(new Evaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap));
-		}
-
-		public OutputRascalConsole(IDebugger debugger, ModuleEnvironment shell, GlobalEnvironment heap){
-			super(new RascalScriptInterpreter(), "Rascal");
-			
-			initializeConsole();
-			getInterpreter().initialize(new DebuggableEvaluator(vf, getErrorWriter(), getStandardWriter(), shell, debugger, heap));
-		}
-
-		public OutputRascalConsole(IProject project, IDebugger debugger, ModuleEnvironment shell, GlobalEnvironment heap) {
-			super(new RascalScriptInterpreter(project), "Rascal ["+project.getName()+"]");
-			
-			initializeConsole();
-			getInterpreter().initialize(new DebuggableEvaluator(vf, getErrorWriter(), getStandardWriter(), shell, debugger, heap));
-		}
-
-		public OutputRascalConsole(IProject project, ModuleEnvironment shell, GlobalEnvironment heap) {
-			super(new RascalScriptInterpreter(project), "Rascal ["+project.getName()+"]");
-			
-			initializeConsole();
-			getInterpreter().initialize(new Evaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap));
-		}
- 
-		public RascalScriptInterpreter getRascalInterpreter(){
-			return (RascalScriptInterpreter) getInterpreter();
-		}
-	}
 }
