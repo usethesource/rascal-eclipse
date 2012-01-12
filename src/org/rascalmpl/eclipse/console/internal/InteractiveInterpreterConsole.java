@@ -303,7 +303,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	
 	protected void printOutput(String output){
 		consoleOutputStream.print();
-		writeToConsole(output, true);
+		writeToConsole(output, false);
 	}
 	
 	protected void printOutput(){
