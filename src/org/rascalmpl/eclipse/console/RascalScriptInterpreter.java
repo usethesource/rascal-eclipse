@@ -87,6 +87,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 
@@ -171,7 +172,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				content = "";
 			}
 			else {
-				content = parseErrorMessage(command, "stdin", e);
+				content = parseErrorMessage(command, "stdin", e) + "\n";
 				error = new CommandExecutionException(e.getMessage(), e.getOffset(), e.getLength());
 				command = "";
 			} 
@@ -180,15 +181,15 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			error = new TerminationException();
 		}
 		catch(InterruptException i) {
-			content =  interruptedExceptionMessage(i);
+			content =  interruptedExceptionMessage(i) + "\n";
 			command = "";
 		}
 		catch (Ambiguous e) {
-			content =  ambiguousMessage(e);
+			content =  ambiguousMessage(e) + "\n";
 			command = "";
 		}
 		catch(StaticError e){
-			content = staticErrorMessage(e);
+			content = staticErrorMessage(e) + "\n";
 			command = "";
 			ISourceLocation location = e.getLocation();
 			if (location != null) {
@@ -199,7 +200,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			error = new CommandExecutionException(content);
 		}
 		catch(Throw e){
-			content = throwMessage(e);
+			content = throwMessage(e) + "\n";
 			command = "";
 			ISourceLocation location = e.getLocation();
 			if(location != null && !location.getURI().getScheme().equals("stdin")){
@@ -208,7 +209,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			}
 		}
 		catch(Throwable e){
-			content = throwableMessage(e, eval.getStackTrace());
+			content = throwableMessage(e, eval.getStackTrace()) + "\n";
 			command = "";
 		}
 		
@@ -217,7 +218,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 
 	public synchronized boolean execute(String cmd) throws CommandExecutionException, TerminationException{
 		if(cmd.trim().length() == 0){
-			content = "cancelled";
+			content = ReadEvalPrintDialogMessages.CANCELLED + "\n";
 			command = "";
 			return true;
 		}
@@ -335,7 +336,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			result = eval.eval(monitor, stat);
 		}
 		
-		content = resultMessage(result);
+		content = resultMessage(result) + "\n";
 		command = "";
 	}
 	
