@@ -37,6 +37,7 @@ import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
+import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
@@ -158,7 +159,7 @@ public class StartTutorAction extends Job implements IWorkbenchWindowActionDeleg
 
 					for (int i = 0; i < 100; i++) {
 						try {
-							tutor.start(port);
+							tutor.start(port, new RascalMonitor(monitor));
 							break;
 						}
 						catch (BindException e) {
