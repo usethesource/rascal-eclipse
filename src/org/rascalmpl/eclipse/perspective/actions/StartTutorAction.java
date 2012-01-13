@@ -21,9 +21,14 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PartInitException;
@@ -40,9 +45,14 @@ import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 
-public class StartTutorAction implements IWorkbenchWindowActionDelegate {
+public class StartTutorAction extends Job implements IWorkbenchWindowActionDelegate {
 	private static RascalTutor tutor;
-
+	private static Object lock = new Integer(42);
+    
+	public StartTutorAction() {
+		super("Start tutor job");
+	}
+	
 	public static void stopTutor() {
 		stop();
 	}
@@ -67,71 +77,7 @@ public class StartTutorAction implements IWorkbenchWindowActionDelegate {
 	}
 
 	public void run(IAction action) {
-		int port = 9000;
-		try {
-			stop();
-			
-			if (tutor == null) {
-				tutor = new RascalTutor();
-				URIResolverRegistry registry = tutor.getResolverRegistry();
-				BundleURIResolver resolver = new BundleURIResolver(registry);
-				registry.registerInput(resolver);
-				registry.registerOutput(resolver);
-				
-				Evaluator eval = tutor.getRascalEvaluator();
-				ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(eval.getResolverRegistry(), "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
-				eval.getResolverRegistry().registerInput(eclipseResolver);
-				eval.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
-				eval.addClassLoader(getClass().getClassLoader());
-				
-				String rascalPlugin = jarForPlugin("rascal");
-				String rascalEclipsePlugin = jarForPlugin("rascal_eclipse");
-				String PDBValuesPlugin = jarForPlugin("org.eclipse.imp.pdb.values");
-
-				Configuration.setRascalJavaClassPathProperty(
-						rascalPlugin 
-						+ File.pathSeparator 
-						+ PDBValuesPlugin 
-						+ File.pathSeparator 
-						+ rascalPlugin 
-						+ File.separator + "src" 
-						+ File.pathSeparator 
-						+ rascalPlugin + File.separator + "bin" 
-						+ File.pathSeparator 
-						+ PDBValuesPlugin + File.separator + "bin"
-						+ File.pathSeparator
-						+ rascalEclipsePlugin
-						+ File.pathSeparator
-						+ rascalEclipsePlugin + File.separator + "bin"
-						);
-				
-				for (int i = 0; i < 100; i++) {
-					try {
-						tutor.start(port);
-						break;
-					}
-					catch (BindException e) {
-						port += 1;
-					}
-				}
-			}
-			
-			int style = IWorkbenchBrowserSupport.AS_EDITOR 
-					  | IWorkbenchBrowserSupport.LOCATION_BAR 
-			          | IWorkbenchBrowserSupport.STATUS
-			          ;
-			IWebBrowser browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(style, "RascalTutor", "Rascal Tutor", "Rascal Tutor");
-			browser.openURL(new URL("http://127.0.0.1:" + port));
-		} catch (PartInitException e) {
-			Activator.getInstance().logException("Could not start browser for tutor", e);
-		} catch (MalformedURLException e) {
-			Activator.getInstance().logException("Could not start browser for tutor", e);
-		}
-		catch (Exception e) {
-			Activator.getInstance().logException("Could not start tutor server", e);
-		}
-		
-		
+		schedule();
 	}
 
 	private String jarForPlugin(String pluginName) throws IOException {
@@ -166,5 +112,90 @@ public class StartTutorAction implements IWorkbenchWindowActionDelegate {
 	
 	public void selectionChanged(IAction action, ISelection selection) {
 		// do nothing
+	}
+
+	@Override
+	protected IStatus run(final IProgressMonitor monitor) {
+		synchronized (lock) {
+			int port = 9000;
+			try {
+				stop();
+
+				if (tutor == null) {
+					monitor.beginTask("Loading Tutor server", 2);
+					tutor = new RascalTutor();
+					URIResolverRegistry registry = tutor.getResolverRegistry();
+					BundleURIResolver resolver = new BundleURIResolver(registry);
+					registry.registerInput(resolver);
+					registry.registerOutput(resolver);
+
+					Evaluator eval = tutor.getRascalEvaluator();
+					ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(eval.getResolverRegistry(), "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
+					eval.getResolverRegistry().registerInput(eclipseResolver);
+					eval.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
+					eval.addClassLoader(getClass().getClassLoader());
+
+					String rascalPlugin = jarForPlugin("rascal");
+					String rascalEclipsePlugin = jarForPlugin("rascal_eclipse");
+					String PDBValuesPlugin = jarForPlugin("org.eclipse.imp.pdb.values");
+
+					Configuration.setRascalJavaClassPathProperty(
+							rascalPlugin 
+							+ File.pathSeparator 
+							+ PDBValuesPlugin 
+							+ File.pathSeparator 
+							+ rascalPlugin 
+							+ File.separator + "src" 
+							+ File.pathSeparator 
+							+ rascalPlugin + File.separator + "bin" 
+							+ File.pathSeparator 
+							+ PDBValuesPlugin + File.separator + "bin"
+							+ File.pathSeparator
+							+ rascalEclipsePlugin
+							+ File.pathSeparator
+							+ rascalEclipsePlugin + File.separator + "bin"
+							);
+
+					for (int i = 0; i < 100; i++) {
+						try {
+							tutor.start(port);
+							break;
+						}
+						catch (BindException e) {
+							port += 1;
+						}
+					}
+				}
+				
+				monitor.worked(1);
+
+				final int foundPort = port;
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							int style = IWorkbenchBrowserSupport.AS_EDITOR 
+									| IWorkbenchBrowserSupport.LOCATION_BAR 
+									| IWorkbenchBrowserSupport.STATUS
+									;
+							monitor.worked(2);
+							IWebBrowser browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(style, "RascalTutor", "Rascal Tutor", "Rascal Tutor");
+							browser.openURL(new URL("http://127.0.0.1:" + foundPort));
+							monitor.done();
+						} catch (PartInitException e) {
+							Activator.getInstance().logException("Could not start browser for tutor", e);
+						} catch (MalformedURLException e) {
+							Activator.getInstance().logException("Could not start browser for tutor", e);
+						}
+					}
+				});
+
+			} 
+			catch (Throwable e) {
+				Activator.getInstance().logException("Could not start tutor server", e);
+			}
+		}
+		
+		return Status.OK_STATUS;
 	}
 }
