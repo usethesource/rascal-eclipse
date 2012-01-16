@@ -54,7 +54,6 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 			
 			
 		}
-		
 		ref = TreeAdapter.locateAnnotatedTree(tree, "links", region.getOffset());
 		if (ref != null) {
 			IValue links = ref.getAnnotation("links");
