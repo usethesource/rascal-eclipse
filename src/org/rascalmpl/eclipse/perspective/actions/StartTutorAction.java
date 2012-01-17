@@ -51,7 +51,7 @@ public class StartTutorAction extends Job implements IWorkbenchWindowActionDeleg
 	private static Object lock = new Integer(42);
     
 	public StartTutorAction() {
-		super("Start tutor job");
+		super("Tutor");
 	}
 	
 	public static void stopTutor() {
