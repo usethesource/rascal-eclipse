@@ -117,8 +117,12 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		ProjectEvaluatorFactory.getInstance().initializeProjectEvaluator(project, eval);
 		loadCommandHistory();
 		synchronized(eval){
-			eval.doImport(null, "IO");
+			long before = System.currentTimeMillis();
+			//eval.doImport(null, "Prelude"); String mods = "Prelude";
+			eval.doImport(null, "IO");   String mods = "IO & ParseTree";
 			eval.doImport(null, "ParseTree");
+			long after = System.currentTimeMillis();
+			System.err.println("RascalScriptInterpreter: Importing " + mods + " takes " + (after - before) + " msec.");
 		}
 		this.eval = eval;
 		this.reloader = new ModuleReloader(eval);
