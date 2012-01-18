@@ -117,7 +117,7 @@ public class RunAmbiDexter extends Action implements IEditorActionDelegate {
 		}
 		else {
 			moduleName = file.getProjectRelativePath().removeFileExtension().toPortableString();
-			moduleName = moduleName.replaceAll(File.separator, "::");
+			moduleName = moduleName.replaceAll(Pattern.quote(File.separator), "::");
 			return moduleName;
 		}
 		
