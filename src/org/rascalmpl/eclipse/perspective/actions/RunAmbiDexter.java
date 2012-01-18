@@ -14,6 +14,7 @@ package org.rascalmpl.eclipse.perspective.actions;
 
 import java.io.File;
 import java.net.URI;
+import java.util.regex.Pattern;
 
 import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
 
@@ -110,7 +111,7 @@ public class RunAmbiDexter extends Action implements IEditorActionDelegate {
 		if (srcFolder != null && srcFolder.exists()) {
 			if (srcFolder.getProjectRelativePath().isPrefixOf(file.getProjectRelativePath())) {
 				moduleName = file.getProjectRelativePath().removeFirstSegments(1).removeFileExtension().toPortableString();
-				moduleName = moduleName.replaceAll(File.separator, "::").replaceAll("syntax","\\\\syntax");
+				moduleName = moduleName.replaceAll(Pattern.quote(File.separator), "::").replaceAll("syntax","\\\\syntax");
 				return moduleName;
 			}
 		}
