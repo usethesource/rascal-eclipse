@@ -145,3 +145,10 @@ Description:
 }
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public java void clearNonRascalContribution(str name);
+
+
+@doc{
+Synopsis: Create a console with a Rascal handler.
+}
+@javaClass{org.rascalmpl.eclipse.library.util.IDE}
+public java void createConsole(str name, str startText, str (str) newLineCallback);

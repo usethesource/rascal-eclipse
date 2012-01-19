@@ -16,13 +16,18 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.console.CustomConsoleRegistry;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 
 public class IDE {
+	private final IValueFactory VF;
+	private static final TypeFactory TF = TypeFactory.getInstance();
 	public IDE(IValueFactory factory) {
+		VF = factory;
 	}
 	
 	public void registerLanguage(IString name, IString extension, IValue parser, IEvaluatorContext ctx) {
@@ -69,5 +74,13 @@ public class IDE {
 	
 	public void clearLanguage(IString name) {
 		TermLanguageRegistry.getInstance().clear(name.getValue());
+	}
+	
+	public void createConsole(IString name, IString startText, IValue newLineCallback) {
+		if (newLineCallback instanceof ICallableValue) {
+			CustomConsoleRegistry.getInstance().registerConsole(name.getValue(), startText.getValue(), TF, VF, (ICallableValue)newLineCallback);
+			return;
+		}
+		Activator.getInstance().logException("could not create console for " + name, new RuntimeException());
 	}
 }
