@@ -191,11 +191,11 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 		}
 	}
 	
-	public OutputStream getStdOut(){
+	public static OutputStream getStdOut(){
 		return outStreamConnection.getStream();
 	}
 	
-	public OutputStream getStdErr(){
+	public static OutputStream getStdErr(){
 		return errStreamConnection.getStream();
 	}
 

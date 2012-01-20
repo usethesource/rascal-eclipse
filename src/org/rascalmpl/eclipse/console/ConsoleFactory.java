@@ -46,23 +46,10 @@ public class ConsoleFactory{
 
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final static IConsoleManager fConsoleManager = ConsolePlugin.getDefault().getConsoleManager();
-	
-	public static StdAndErrorViewPart getConsoleViewPart() {
-		try {
-			return (StdAndErrorViewPart) PlatformUI.getWorkbench()
-				    .getActiveWorkbenchWindow()
-				    .getActivePage()
-					.showView(StdAndErrorViewPart.ID);
-		} catch (PartInitException e) {
-			Activator.getInstance().writeErrorMsg("Could not get console part");
-			return null;
-		}
-	}
-	
-	
+
 	private static PrintWriter getErrorWriter() {
 		try {
-			OutputStream err = getConsoleViewPart().getStdErr(); 
+			OutputStream err = StdAndErrorViewPart.getStdErr(); 
 			return new PrintWriter(new OutputStreamWriter(err, "UTF16"),true);
 		} catch (UnsupportedEncodingException e) {
 			Activator.getInstance().logException("could not get stderr writer", e);
@@ -72,7 +59,7 @@ public class ConsoleFactory{
 	
 	private static PrintWriter getStandardWriter() {
 		try {
-			OutputStream out = getConsoleViewPart().getStdOut(); 
+			OutputStream out = StdAndErrorViewPart.getStdOut(); 
 			return new PrintWriter(new OutputStreamWriter(out, "UTF16"));
 		} catch (UnsupportedEncodingException e) {
 			Activator.getInstance().logException("could not get stdout writer", e);

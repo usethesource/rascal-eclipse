@@ -58,27 +58,14 @@ public class ProjectEvaluatorFactory {
 	
 	private final WeakHashMap<IProject, Evaluator> parserForProject = new WeakHashMap<IProject, Evaluator>();
 	private final WeakHashMap<IProject, ModuleReloader> reloaderForProject = new WeakHashMap<IProject, ModuleReloader>();
-	private StdAndErrorViewPart console;
 	private final PrintWriter out;
 	
 	private ProjectEvaluatorFactory() {
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				ProjectEvaluatorFactory.this.console = ConsoleFactory.getConsoleViewPart();	
-			}
-		});
-		
-		if (console != null) {
-			try {
-				out = new PrintWriter(new OutputStreamWriter(console.getStdOut(), "UTF16"));
-			} catch (UnsupportedEncodingException e) {
-				Activator.getInstance().logException("internal error", e);
-				throw new RuntimeException("???", e);
-			}
-		}
-		else {
-			out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
+		try {
+			out = new PrintWriter(new OutputStreamWriter(StdAndErrorViewPart.getStdOut(), "UTF16"));
+		} catch (UnsupportedEncodingException e) {
+			Activator.getInstance().logException("internal error", e);
+			throw new RuntimeException("???", e);
 		}
 	}
 	
