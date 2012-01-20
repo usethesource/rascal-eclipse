@@ -127,4 +127,8 @@ public class OutputWidget implements PausableOutput{
 			});
 		}
 	}
+	
+	public void dispose(){
+		text.dispose();
+	}
 }

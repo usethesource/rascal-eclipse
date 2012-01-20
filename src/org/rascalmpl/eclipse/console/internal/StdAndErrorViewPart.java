@@ -24,6 +24,7 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	private static boolean paused;
 	private OutputWidget stdOut;
 	private OutputWidget stdErr;
+	private SashCompose totalWidget;
 
 	// since SWT likes to dispose our ViewPart under Mac OSX, we have to store the output streams and pipes
 	// because we cannot update the references in the Evaluators already running.
@@ -156,7 +157,7 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		SashCompose totalWidget = new SashCompose(parent);
+		totalWidget = new SashCompose(parent);
 		IToolBarManager toolbar = getViewSite().getActionBars().getToolBarManager();
 		toolbar.add(new PauseOutputAction());
 		toolbar.add(new ClearAction());
@@ -199,5 +200,10 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 		return errStreamConnection.getStream();
 	}
 
-	
+	@Override
+	public void dispose(){
+		stdOut.dispose();
+		stdErr.dispose();
+		totalWidget.dispose();
+	}
 }
