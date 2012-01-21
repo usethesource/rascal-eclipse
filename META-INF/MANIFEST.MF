@@ -29,7 +29,6 @@ Require-Bundle: rascal;bundle-version="0.3.2",
  AmbiDexter
 Import-Package: org.eclipse.core.expressions
 Export-Package: org.rascalmpl.eclipse.nature,
-  org.rascalmpl.eclipse.box,
   org.rascalmpl.eclipse.console,
   org.rascalmpl.eclipse.editor,
   org.rascalmpl.eclipse.launch,
