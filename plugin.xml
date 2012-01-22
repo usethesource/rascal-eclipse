@@ -171,14 +171,7 @@
             id="rascal.editor"
             name="Rascal Editor">
       </editor>
-      <editor
-            class="org.rascalmpl.eclipse.box.BoxViewer"
-            default="false"
-            extensions="rsc, pico, oberon0"
-            icon="icons/rascal3D_2-16px.gif"
-            id="org.rascalmpl.eclipse.box.boxviewer"
-            name="Box Viewer">
-      </editor>
+     
       <editor
             class="org.rascalmpl.eclipse.library.vis.FigureViewer"
             default="false"
@@ -502,36 +495,7 @@
               debugModelId="rascal.debugModel">
         </modelContextBinding>
      </extension>
-  <extension
-        point="org.eclipse.ui.exportWizards">
-        <wizard
-        id="TextBoxExport"
-        name="PrettyPrint -> Text"
-        class="org.rascalmpl.eclipse.box.TextBoxExport">
-        <description>Export to formatted source file</description>
-        <selection class="org.eclipse.core.resources.IResource" /> 
-        </wizard>
-  </extension>
-  <extension
-        point="org.eclipse.ui.exportWizards">
-        <wizard
-        id="LatexBoxExport"
-        name="PrettyPrint -> Latex"
-        class="org.rascalmpl.eclipse.box.LatexBoxExport">
-        <description>Export to formatted source file</description>
-        <selection class="org.eclipse.core.resources.IResource" /> 
-        </wizard>
-  </extension>
-  <extension
-        point="org.eclipse.ui.exportWizards">
-        <wizard
-        id="HtmlBoxExport"
-        name="PrettyPrint -> Html"
-        class="org.rascalmpl.eclipse.box.HtmlBoxExport">
-        <description>Export to formatted source file</description>
-        <selection class="org.eclipse.core.resources.IResource" /> 
-        </wizard>
-  </extension>
+  
   <extension
         point="org.eclipse.ui.actionSets">
      <actionSet
@@ -737,47 +701,7 @@
      </specification>
   </extension>
  
- <extension
-       point="org.eclipse.ui.handlers">
-    <handler
-          class="org.rascalmpl.eclipse.box.PrintHandler"
-          commandId="org.eclipse.ui.file.print1">
-       <activeWhen>
-         <with
-            variable="activeMenuSelection">
-            <count
-                  value="1">
-            </count>
-         <iterate ifEmpty="false">
-            <and>
-            <instanceof
-                  value="org.eclipse.core.resources.IFile">
-            </instanceof>
-            <or>
-            <test property="org.eclipse.core.resources.extension" 
-                     value="rsc"/>
-            <test property="org.eclipse.core.resources.extension" 
-                     value="pico"/>
-             <test property="org.eclipse.core.resources.extension" 
-                     value="oberon0"/>
-            </or>
-            </and>
-         </iterate>
-        </with>
-      </activeWhen> 
-    </handler>
-    <handler
-          class="org.rascalmpl.eclipse.box.PrintHandler"
-          commandId="org.eclipse.ui.file.print2">
-       <activeWhen>
-         <with variable="activeEditorId">
-          <or>
-            <equals value="rascal.editor"/>
-          </or>
-        </with>
-      </activeWhen> 
-    </handler>
- </extension>
+ 
  <extension
        point="org.eclipse.ui.commands">
     <command
@@ -854,13 +778,7 @@
           value="Monospace-regular-6">
     </fontDefinition>
  </extension>
- <extension
-       point="org.eclipse.imp.runtime.formatter">
-    <formatter
-          class="org.rascalmpl.eclipse.box.Formatter"
-          language="Rascal">
-    </formatter>
- </extension>
+ 
  <extension
        id="rascal.markerType.testResult"
        name="Rascal Test Result"
