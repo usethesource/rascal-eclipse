@@ -23,8 +23,10 @@ import org.eclipse.ui.part.IPageBookViewPage;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 
 /**
  * A simpler implementation of a console that does not support large output to be written, just
@@ -106,11 +108,20 @@ public class RascalIOConsole extends IOConsole {
 				int append = 0;
 				try {
 					String line = input.readLine();
-					Result<IValue> result;
-					synchronized (eval) {
-						result = callback.call(new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
+					append += line.length();
+					Result<IValue> result = null;
+					try {
+						synchronized (eval) {
+							result = callback.call(new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
+						}
+					} catch (Throw e) {
+						e.printStackTrace(eval.getStdErr());
+						eval.getStdErr().printf("Callback error: " + e.getMessage() + " " + e.getTrace());
+					} catch (StaticError e) {
+						eval.getStdErr().printf("Static callback error: " + e.getMessage());
+						e.printStackTrace(eval.getStdErr());
 					}
-					if (result.getValue().getType().isStringType()) {
+					if (result != null && result.getValue().getType().isStringType()) {
 						String actualResult = ((IString)result.getValue()).getValue();
 						append = actualResult.length();
 						output.print(actualResult);
