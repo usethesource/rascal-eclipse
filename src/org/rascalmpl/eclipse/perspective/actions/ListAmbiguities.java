@@ -38,12 +38,16 @@ public class ListAmbiguities extends Action implements IEditorActionDelegate {
 	private IProject project;
 	private IFile file;
 	
+	public ListAmbiguities() {
+		setImageDescriptor(Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.AMBIDEXTER));
+		setText("List ambiguities");
+	}
+	
 	public ListAmbiguities(UniversalEditor editor, IProject project, IFile file) {
+		this();
 		this.editor = editor;
 		this.project = project;
 		this.file = file;
-		setImageDescriptor(Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.AMBIDEXTER));
-		setText("List ambiguities");
 	}
 
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {

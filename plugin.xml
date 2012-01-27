@@ -240,6 +240,14 @@
                menubarPath="additions"
                tooltip="Statically detects ambiguity in Rascal syntax definitions">
          </action>
+          <action
+               class="org.rascalmpl.eclipse.perspective.actions.ListAmbiguities"
+               icon="icons/ambidexter-a-16.png"
+               id="rascal-eclipse.editor.context.listAmbiguities"
+               label="List Ambiguities"
+               menubarPath="additions"
+               tooltip="Lists all ambiguous sub-strings of the current editor">
+         </action>
          <action
                class="org.rascalmpl.eclipse.perspective.actions.TextTree"
                icon="icons/rascal3D_2-16px.gif"
