@@ -33,8 +33,8 @@ public class OutputWidget implements PausableOutput{
 		this.bufferSize = bufferSize * 2;
 		text.setTextLimit(this.bufferSize);
 		text.setForeground(c);
-		setVisibility(text.getHorizontalBar());
-		setVisibility(text.getVerticalBar());
+//		setVisibility(text.getHorizontalBar());
+//		setVisibility(text.getVerticalBar());
 		lastNewLine = false;
 		this.pausable = pausable;
 		this.showAlways = showAlways;
@@ -101,8 +101,8 @@ public class OutputWidget implements PausableOutput{
 					text.setVisible(true);
 					text.getParent().layout();
 				}
-				setVisibility(text.getHorizontalBar());
-				setVisibility(text.getVerticalBar());
+//				setVisibility(text.getHorizontalBar());
+//				setVisibility(text.getVerticalBar());
 				text.setTopPixel(Integer.MAX_VALUE);
 			}
 		});
