@@ -59,6 +59,7 @@ public class TestReporter implements ITestResultListener {
 		for (IFile file : reports.keySet()) {
 			reportForFile(file, reports.get(file));
 		}
+		reports = null;
 	}
 	
 	private void reportForFile(final IFile file, final List<Report> list) {
