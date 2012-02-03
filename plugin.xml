@@ -217,6 +217,14 @@
                tooltip="Launch a console with a command prompt">
          </action>
          <action
+               class="org.rascalmpl.eclipse.perspective.actions.LaunchRunConsoleAction"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal.launchrunconsole"
+               label="Run main() in Console"
+               menubarPath="additions"
+               tooltip="Run main() in console followed by command prompt">
+         </action>
+         <action
                class="org.rascalmpl.eclipse.perspective.actions.ResetProjectState"
                icon="icons/rascal3D_2-16px.gif"
                id="rascal.resetproject"
@@ -754,6 +762,13 @@
        <command
              commandId="org.eclipse.ui.file.print2"
              label="My Print">           
+       </command>
+    </menuContribution>
+     <menuContribution
+        locationURI="popup:org.eclipse.ui.popup.views.ContentOutline?after=additions">
+       <command
+             commandId="org.eclipse.ui.file.print2"
+             label="Hallo">           
        </command>
     </menuContribution>
     <menuContribution
