@@ -172,9 +172,15 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 		catch (ParseError e) {
 			if (e.getLocation().getScheme().equals("stdin")) {
-				content = parseErrorMessage(command, "stdin", e) + "\n";
-				error = new CommandExecutionException(content, e.getOffset(), e.getLength());
-				command = "";
+			    if (e.getOffset() >= command.length()) {
+				  content = "";
+				  error = e;
+				}
+				else {
+				  content = parseErrorMessage(command, "stdin", e) + "\n";
+				  error = new CommandExecutionException(content, e.getOffset(), e.getLength());
+				  command = "";
+				}
 			}
 			else {
 				content = parseErrorMessage(command, "stdin", e) + "\n";
