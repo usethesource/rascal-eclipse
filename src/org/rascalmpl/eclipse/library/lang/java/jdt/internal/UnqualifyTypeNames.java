@@ -293,7 +293,7 @@ public class UnqualifyTypeNames extends ASTVisitor {
 				int offset = problems[i].getSourceStart();
 				int length = problems[i].getSourceEnd() - offset;
 				int sl = problems[i].getSourceLineNumber();
-				ISourceLocation pos = VF.sourceLocation(loc.getURI(), offset, length, sl, sl, -1, -1);
+				ISourceLocation pos = VF.sourceLocation(loc.getURI(), offset, length, sl, sl, 0, 0);
 				throw new Throw(VF.string("Error(s) in compilation unit: " + problems[i].getMessage()), pos, null);
 			}
 		}

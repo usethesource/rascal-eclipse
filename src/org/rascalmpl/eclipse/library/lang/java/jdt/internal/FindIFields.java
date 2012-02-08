@@ -73,7 +73,7 @@ public class FindIFields extends ASTVisitor {
 				int offset = problems[i].getSourceStart();
 				int length = problems[i].getSourceEnd() - offset;
 				int sl = problems[i].getSourceLineNumber();
-				ISourceLocation pos = VF.sourceLocation(loc.getURI(), offset, length, sl, sl, -1, -1);
+				ISourceLocation pos = VF.sourceLocation(loc.getURI(), offset, length, sl, sl, 0, 0);
 				throw new Throw(VF.string("Error(s) in compilation unit: " + problems[i].getMessage()), pos, null);
 			}
 		}
@@ -91,7 +91,7 @@ public class FindIFields extends ASTVisitor {
 					fieldSet.add((IField)fieldElement);
 				}
 			} catch (JavaModelException e) {
-				ISourceLocation pos = VF.sourceLocation(loc.getURI(), node.getStartPosition(), node.getLength(), -1, -1, -1, -1);
+				ISourceLocation pos = VF.sourceLocation(loc.getURI(), node.getStartPosition(), node.getLength());
 				throw new Throw(VF.string("Error during field find visit: " + e.getMessage()), pos, null);
 			}
 		}
