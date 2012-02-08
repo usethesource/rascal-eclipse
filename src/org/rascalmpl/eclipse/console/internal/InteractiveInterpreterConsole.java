@@ -739,7 +739,9 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 							console.printOutput(ceex.getMessage());
 							int errorOffset = ceex.getOffset();
 							int errorLength = ceex.getLength();
-							if(errorOffset != -1 && errorLength != -1) console.setError(completeCommandStartOffset + errorOffset, errorLength);
+							if (errorOffset != -1 && errorLength != -1) {
+								console.setError(completeCommandStartOffset + errorOffset, errorLength);
+							}
 							completeCommand = true;
 						}catch(TerminationException tex){
 							// Roll over and die.

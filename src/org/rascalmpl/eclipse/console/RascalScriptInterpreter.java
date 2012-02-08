@@ -171,15 +171,16 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		
 		}
 		catch (ParseError e) {
-			if (e.getLocation().getScheme().equals("stdin") && e.getOffset() >= command.length()) {
-				error = e;
-				content = "";
+			if (e.getLocation().getScheme().equals("stdin")) {
+				content = parseErrorMessage(command, "stdin", e) + "\n";
+				error = new CommandExecutionException(content, e.getOffset(), e.getLength());
+				command = "";
 			}
 			else {
 				content = parseErrorMessage(command, "stdin", e) + "\n";
-				error = new CommandExecutionException(e.getMessage(), e.getOffset(), e.getLength());
+				error = new CommandExecutionException(content);
 				command = "";
-			} 
+			}
 		} 
 		catch (QuitException q){
 			error = new TerminationException();
@@ -189,6 +190,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			command = "";
 		}
 		catch (Ambiguous e) {
+			Activator.getInstance().logException(e.getMessage(), e);
 			content =  ambiguousMessage(e) + "\n";
 			command = "";
 		}
@@ -196,12 +198,16 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			content = staticErrorMessage(e) + "\n";
 			command = "";
 			ISourceLocation location = e.getLocation();
-			if (location != null) {
+			if (location != null && !location.getURI().getScheme().equals("stdin")) {
 				setMarker(e.getMessage(), location.getURI(), location.getOffset(), location.getLength());
+				error = new CommandExecutionException(content);
+			}
+			else if (location != null && location.getURI().getScheme().equals("stdin")) {
 				error = new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
-			
-			error = new CommandExecutionException(content);
+			else {
+				error = new CommandExecutionException(content);
+			}
 		}
 		catch(Throw e){
 			content = throwMessage(e) + "\n";
@@ -212,7 +218,8 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				error = new CommandExecutionException(content, location.getOffset(), location.getLength());
 			}
 		}
-		catch(Throwable e){
+		catch (Throwable e){
+			Activator.getInstance().logException(e.getMessage(), e);
 			content = throwableMessage(e, eval.getStackTrace()) + "\n";
 			command = "";
 		}
