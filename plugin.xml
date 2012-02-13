@@ -241,6 +241,14 @@
                tooltip="Statically checks the contents of the current editor">
          </action>
          <action
+               class="org.rascalmpl.eclipse.perspective.actions.ReloadStaticChecker"
+               icon="icons/rascal3D_2-16px.gif"
+               id="rascal-eclipse.editor.context.reloadStaticChecker"
+               label="Reload static checker"
+               menubarPath="additions"
+               tooltip="Reloads the static checker">
+         </action>
+         <action
                class="org.rascalmpl.eclipse.perspective.actions.RunAmbiDexter"
                icon="icons/ambidexter-a-16.png"
                id="rascal-eclipse.editor.context.runAmbiDexter"
@@ -309,6 +317,12 @@
             icon="icons/rascal3D_2-16px.gif"
             id="rascal-eclipse.functionview"
             name="Rascal functions"
+            restorable="true">
+      </view>
+      <view
+            class="org.rascalmpl.eclipse.console.HistoryView"
+            id="rascal-eclipse.history-view"
+            name="History"
             restorable="true">
       </view>
    </extension>
