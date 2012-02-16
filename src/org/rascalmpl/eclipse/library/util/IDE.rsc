@@ -15,6 +15,7 @@ module util::IDE
 
 // Especially annotations defined in this module are relevant for util::IDE
 import ParseTree;
+import vis::Figure;
 
 @doc{
 Synopsis: Data type to describe contributions to the menus of the IDE.
@@ -22,10 +23,13 @@ Synopsis: Data type to describe contributions to the menus of the IDE.
 Pitfalls:
 
 This data type is not yet complete.
+
+The categories do not support changing the font name or the font size.
 }
 data Contribution 
      = popup(Menu menu)
      | menu(Menu menu)
+     | categories(map[str categoryName, Font fontStyle] styleMap)
      ;
   
 data Menu 
