@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.rascalmpl.eclipse.perspective.actions;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -28,6 +29,10 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleListener;
+import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
@@ -42,18 +47,13 @@ import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 
 public class LaunchRunConsoleAction extends Action implements
 		IObjectActionDelegate, IActionDelegate2, IEditorActionDelegate {
-	IProject project;
-	IFile file;
+	private IProject project;
+	private IFile file;
+	private final HashMap<IProject, IRascalConsole> consoleMap = new HashMap<IProject, IRascalConsole>();
+	private final IConsoleManager fConsoleManager = ConsolePlugin
+			.getDefault().getConsoleManager();
 
 	public LaunchRunConsoleAction() {
-	}
-
-	public LaunchRunConsoleAction(IProject project, IFile file) {
-		this.project = project;
-		this.file = file;
-		setImageDescriptor(Activator.getInstance().getImageRegistry()
-				.getDescriptor(IRascalResources.RASCAL_DEFAULT_IMAGE));
-		update();
 	}
 
 	public void dispose() {
@@ -71,6 +71,23 @@ public class LaunchRunConsoleAction extends Action implements
 	}
 
 	public void init(IAction action) {
+		setImageDescriptor(Activator.getInstance().getImageRegistry()
+				.getDescriptor(IRascalResources.RASCAL_DEFAULT_IMAGE));
+
+		update();
+		IConsoleListener listener = new IConsoleListener() {
+
+			@Override
+			public void consolesAdded(IConsole[] consoles) {
+			}
+
+			@Override
+			public void consolesRemoved(IConsole[] consoles) {
+				consoleMap.remove(project);
+			}
+
+		};
+		fConsoleManager.addConsoleListener(listener);
 	}
 
 	public void runWithEvent(IAction action, Event event) {
@@ -81,28 +98,34 @@ public class LaunchRunConsoleAction extends Action implements
 		run();
 	}
 
-	static public void process(IProject project, IFile file) {
-		IRascalConsole console = ConsoleFactory.getInstance().openRunConsole(
-				project);
+	private void process() {
+		IRascalConsole console;
+		if (consoleMap.get(project) == null) {
+			console = ConsoleFactory.getInstance().openRunConsole(project);
+			consoleMap.put(project, console);
+		} else
+			console = consoleMap.get(project);
 		String moduleFullName = file.getName();
 		moduleFullName = moduleFullName.substring(0, moduleFullName.length()
 				- Configuration.RASCAL_FILE_EXT.length());
 		try {
 			console.getRascalInterpreter().execute(
-					"import " + moduleFullName + ";");	
-			List<Pair<String, OverloadedFunctionResult>> functions = 
-					console.getRascalInterpreter().getEval().getCurrentEnvt().getImport(moduleFullName).getFunctions();
-			for (Pair<String, OverloadedFunctionResult> f:functions) {
+					"import " + moduleFullName + ";");
+			List<Pair<String, OverloadedFunctionResult>> functions = console
+					.getRascalInterpreter().getEval().getCurrentEnvt()
+					.getImport(moduleFullName).getFunctions();
+			for (Pair<String, OverloadedFunctionResult> f : functions) {
 				if (f.getFirst().equals("main")) {
-					for (AbstractFunction g: f.getSecond().iterable()) {
-						if (g.getArity()==0) {
+					for (AbstractFunction g : f.getSecond().iterable()) {
+						if (g.getArity() == 0) {
 							console.getRascalInterpreter().execute("main();");
-							return;					
+							return;
 						}
-					}			
+					}
 				}
-			}	
-			final String s = "Procedure \"main()\" not found in module "+moduleFullName;
+			}
+			final String s = "Procedure \"main()\" not found in module "
+					+ moduleFullName;
 			console.getRascalInterpreter().getEval().getStdErr().println(s);
 			System.err.println(s);
 		} catch (CommandExecutionException e) {
@@ -116,7 +139,7 @@ public class LaunchRunConsoleAction extends Action implements
 
 	@Override
 	public void run() {
-		process(project, file);
+		process();
 	}
 
 	public void selectionChanged(IAction action, ISelection selection) {
@@ -137,9 +160,11 @@ public class LaunchRunConsoleAction extends Action implements
 		update();
 	}
 
+	@Override
 	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
 	}
 
+	@Override
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
 		if (targetEditor != null
 				&& targetEditor.getEditorInput() instanceof FileEditorInput) {
