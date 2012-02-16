@@ -40,17 +40,18 @@ public class TokenColorer implements ITokenColorer {
 
 	public TokenColorer() {
 		super();
+		// solarized color template imported
 		map.put(NORMAL, new TextAttribute(null, null, SWT.NONE));
-		map.put(META_KEYWORD, new TextAttribute(new Color(Display.getDefault(), 123, 0, 82), null, SWT.BOLD));
-		map.put(META_VARIABLE, new TextAttribute(new Color(Display.getDefault(), 0, 0, 255), null, SWT.ITALIC));
+		map.put(META_KEYWORD, new TextAttribute(new Color(Display.getDefault(), 0x85,0x99,0x00), null, SWT.BOLD));
+		map.put(META_VARIABLE, new TextAttribute(new Color(Display.getDefault(),0x46,0x91,0x86), null, SWT.ITALIC));
 		map.put(META_AMBIGUITY,  new TextAttribute(new Color(Display.getDefault(), 186, 29, 29), null, SWT.BOLD));
-		map.put(TODO,new TextAttribute(new Color(Display.getDefault(), 123, 157, 198), null, SWT.BOLD));
-		map.put(COMMENT,new TextAttribute(new Color(Display.getDefault(), 82, 141, 115), null, SWT.ITALIC));
-		map.put(CONSTANT,new TextAttribute(new Color(Display.getDefault(), 139, 0, 139), null, SWT.NONE));
-		map.put(VARIABLE,new TextAttribute(new Color(Display.getDefault(), 144, 238, 144), null, SWT.NONE));
-		map.put(IDENTIFIER,new TextAttribute(new Color(Display.getDefault(), 255, 69, 0), null, SWT.NONE));
-		map.put(QUOTE,new TextAttribute(new Color(Display.getDefault(), 255, 69, 0), new Color(Display.getDefault(), 32,178,170), SWT.NONE));
-		map.put(TYPE,new TextAttribute(new Color(Display.getDefault(), 255, 127, 36), null, SWT.NONE));
+		map.put(TODO,new TextAttribute(new Color(Display.getDefault(), 0xd3,0x36,0x82), null, SWT.BOLD));
+		map.put(COMMENT,new TextAttribute(new Color(Display.getDefault(), 0x93,0xA1,0xA1), null, SWT.ITALIC));
+		map.put(CONSTANT,new TextAttribute(new Color(Display.getDefault(), 0x2A,0xA1,0x98), null, SWT.NONE));
+		map.put(VARIABLE,new TextAttribute(new Color(Display.getDefault(), 0x26,0x8B,0xD2), null, SWT.NONE));
+		map.put(IDENTIFIER,new TextAttribute(new Color(Display.getDefault(), 0x46,0x91,0x86/* 0x26,0x8b,0xd2*/), null, SWT.NONE));
+		map.put(QUOTE,new TextAttribute(new Color(Display.getDefault(), 0x2A,0xA1,0x98), null, SWT.NONE));
+		map.put(TYPE,new TextAttribute(new Color(Display.getDefault(), 0xA5,0x78,0x00), null, SWT.NONE));
 	} 
 
 	public IRegion calculateDamageExtent(IRegion seed, IParseController ctlr) {
