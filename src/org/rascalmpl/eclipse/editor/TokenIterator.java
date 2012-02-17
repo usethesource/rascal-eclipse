@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -96,22 +97,34 @@ public class TokenIterator implements Iterator<Token>{
 		}
 		
 		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException{
-			String category = ProductionAdapter.getCategory(TreeAdapter.getProduction(arg));
+			IValue catAnno = arg.getAnnotation("category");
+			String category = null;
+			
+			if (catAnno != null) {
+				category = ((IString) catAnno).getValue();
+			}
+			
+			if (category == null) {
+				category = ProductionAdapter.getCategory(TreeAdapter.getProduction(arg));
+			}
 			
 			int offset = location;
 			
-			for (IValue child : TreeAdapter.getArgs(arg)){
-				child.accept(this);
-			}
-			
-			if (TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg)){
-				if (category == null){
-					category = TokenColorer.META_KEYWORD;
-					
-					for (IValue child : TreeAdapter.getArgs(arg)) {
-						int c = TreeAdapter.getCharacter((IConstructor) child);
-						if (c != '-' && !Character.isJavaIdentifierPart(c)){
-							category = null;
+			if (category == null) {
+				for (IValue child : TreeAdapter.getArgs(arg)){
+					child.accept(this);
+				}
+
+
+				if (TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg)){
+					if (category == null){
+						category = TokenColorer.META_KEYWORD;
+
+						for (IValue child : TreeAdapter.getArgs(arg)) {
+							int c = TreeAdapter.getCharacter((IConstructor) child);
+							if (c != '-' && !Character.isJavaIdentifierPart(c)){
+								category = null;
+							}
 						}
 					}
 				}
