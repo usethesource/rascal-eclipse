@@ -32,12 +32,13 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.progress.IProgressService;
 import org.rascalmpl.checker.StaticChecker;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.editor.MessageProcessor;
+import org.rascalmpl.eclipse.editor.MessagesToAnnotations;
+import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.editor.ParseController;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RunStaticChecker implements IEditorActionDelegate {
-	private final MessageProcessor marker = new MessageProcessor();
+	private final MessagesToMarkers marker = new MessagesToMarkers();
 	private final StaticCheckerHelper helper = new StaticCheckerHelper();
 	
 	private UniversalEditor editor;

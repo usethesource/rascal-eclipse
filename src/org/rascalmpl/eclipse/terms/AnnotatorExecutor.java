@@ -19,7 +19,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.editor.MessageProcessor;
+import org.rascalmpl.eclipse.editor.MessagesToAnnotations;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -35,7 +35,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * API in SourceEditor.rsc
  */
 public class AnnotatorExecutor {
-	private final MessageProcessor marker = new MessageProcessor();
+	private final MessagesToAnnotations marker = new MessagesToAnnotations();
 	
 	public synchronized IConstructor annotate(ICallableValue func, IConstructor parseTree, IMessageHandler handler) {
 		try {
