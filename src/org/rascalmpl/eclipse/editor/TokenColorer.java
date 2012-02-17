@@ -104,12 +104,6 @@ public class TokenColorer implements ITokenColorer {
 			else if (fsName.equals("italic")) {
 				style |= SWT.ITALIC;
 			}
-			else if (fsName.equals("underlined")) {
-				style |= SWT.UNDERLINE_SINGLE;
-			}
-			else if (fsName.equals("squiggleUnderlined")) {
-				style |= SWT.UNDERLINE_SQUIGGLE;
-			}
 		}
 		Font font = null;
 		if (fontProperties.has("name")) {
