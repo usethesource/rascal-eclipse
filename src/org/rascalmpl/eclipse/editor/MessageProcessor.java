@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IModelListener;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -25,6 +24,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.editor.quickfix.IAnnotation;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class MessageProcessor {
@@ -78,13 +78,13 @@ public class MessageProcessor {
 	}
 
 	private void processMarker(IConstructor marker, ISourceLocation loc, IMessageHandler handler)  {
-		int severity = IMarker.SEVERITY_INFO;
+		int severity = IAnnotation.INFO;
 
 		if (marker.getName().equals("error")) {
-			severity = IMarker.SEVERITY_ERROR;
+			severity = IAnnotation.ERROR;
 		}
 		else if (marker.getName().equals("warning")) {
-			severity = IMarker.SEVERITY_WARNING;
+			severity = IAnnotation.WARNING;
 		}
 
 		String msg = ((IString) marker.get(0)).getValue();
