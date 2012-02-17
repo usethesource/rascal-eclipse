@@ -110,21 +110,19 @@ public class TokenIterator implements Iterator<Token>{
 			
 			int offset = location;
 			
-			if (category == null) {
-				for (IValue child : TreeAdapter.getArgs(arg)){
-					child.accept(this);
-				}
+			for (IValue child : TreeAdapter.getArgs(arg)){
+				child.accept(this);
+			}
 
 
-				if (TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg)){
-					if (category == null){
-						category = TokenColorer.META_KEYWORD;
+			if (TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg)){
+				if (category == null){
+					category = TokenColorer.META_KEYWORD;
 
-						for (IValue child : TreeAdapter.getArgs(arg)) {
-							int c = TreeAdapter.getCharacter((IConstructor) child);
-							if (c != '-' && !Character.isJavaIdentifierPart(c)){
-								category = null;
-							}
+					for (IValue child : TreeAdapter.getArgs(arg)) {
+						int c = TreeAdapter.getCharacter((IConstructor) child);
+						if (c != '-' && !Character.isJavaIdentifierPart(c)){
+							category = null;
 						}
 					}
 				}
