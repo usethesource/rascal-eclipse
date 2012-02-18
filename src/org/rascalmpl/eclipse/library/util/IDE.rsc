@@ -29,7 +29,7 @@ The categories do not support changing the font name or the font size.
 data Contribution 
      = popup(Menu menu)
      | menu(Menu menu)
-     | categories(map[str categoryName, Font fontStyle] styleMap)
+     | categories(map[str categoryName, FontProperties fontStyle] styleMap)
      ;
   
 data Menu 

@@ -21,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.services.ITokenColorer;
@@ -31,7 +32,11 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
+
+import com.sun.media.jai.tilecodec.RawTileEncoderFactory;
 
 public class TokenColorer implements ITokenColorer {
 	public static final String NORMAL = "Normal";
@@ -89,14 +94,16 @@ public class TokenColorer implements ITokenColorer {
 		IMap styleMap = (IMap)categories.get("styleMap");
 		for (IValue category: styleMap) {
 			String categoryName = ((IString)category).getValue();
-			TextAttribute textStyle = translate((IConstructor)styleMap.get(category));
+			TextAttribute textStyle = translate((ISet)styleMap.get(category));
 			map.put(categoryName, textStyle);
 		}
 	}
 
-	private TextAttribute translate(IConstructor fontProperties) {
+	private TextAttribute translate(ISet fontProperties) {
 		int style = SWT.NONE;
-		for (IValue fs : (ISet)fontProperties.get("style")) {
+		Color foreground = null;  
+		Color background = null;  
+		for (IValue fs : fontProperties) {
 			String fsName = ((IConstructor)fs).getName();
 			if (fsName.equals("bold")) {
 				style |= SWT.BOLD;
@@ -104,18 +111,19 @@ public class TokenColorer implements ITokenColorer {
 			else if (fsName.equals("italic")) {
 				style |= SWT.ITALIC;
 			}
+			else if (fsName.equals("foregroundColor")) {
+				int color = ((IInteger) ((IConstructor)fs).get("color")).intValue();
+				foreground = SWTFontsAndColors.getRgbColor(Display.getCurrent(), color);
+			}
+			else if (fsName.equals("backgroundColor")) {
+				int color = ((IInteger) ((IConstructor)fs).get("color")).intValue();
+				background = SWTFontsAndColors.getRgbColor(Display.getCurrent(), color);
+			}
+			else {
+				ISourceLocation unambiguousCall = null;
+				throw new Throw(fs, unambiguousCall, "Font property " + fsName + " is not supported by IMP syntax highlighting.");
+			}
 		}
-		Font font = null;
-		if (fontProperties.has("name")) {
-			String fontName = ((IString)fontProperties.get("name")).getValue();
-			Integer fontLength = ((IInteger)fontProperties.get("size")).intValue();
-			font = new Font(Display.getCurrent(), fontName,  fontLength, style);
-		}
-		Color foreground = SWTFontsAndColors.getRgbColor(Display.getCurrent(), ((IInteger)fontProperties.get("foregroundColor")).intValue());
-		Color background = null;
-		if (fontProperties.has("backgroundColor")) {
-			background = SWTFontsAndColors.getRgbColor(Display.getCurrent(), ((IInteger)fontProperties.get("backgroundColor")).intValue());
-		}
-		return new TextAttribute(foreground, background, style, font);
+		return new TextAttribute(foreground, background, style);
 	}
 }
