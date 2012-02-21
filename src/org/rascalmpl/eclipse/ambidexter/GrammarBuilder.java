@@ -221,56 +221,84 @@ public class GrammarBuilder {
 				IConstructor cond = (IConstructor) e;
 				String cname = cond.getName();
 				if (cname.equals("not-follow")) {
-					FollowRestrictions fr = new FollowRestrictions();
-					IConstructor r = (IConstructor) cond.get("symbol");
-					if (r.getName().equals("char-class")) {
-						CharacterClass cc = (CharacterClass) getSymbol(r);
-						fr.add(new LinkedList<CharacterClass>(cc));
-					} else {
-						// literal
-						NonTerminal lit = (NonTerminal) getSymbol(r);
-						Production p = lit.productions.iterator().next();
-						LinkedList<CharacterClass> ll = null;
-						for (int i = p.getLength() - 1; i >= 0; i--) {
-							ll = new LinkedList<CharacterClass>((CharacterClass) p.getSymbolAt(i), ll);
-						}
-						fr.add(ll);
-					}
+					FollowRestrictions fr = getFollowRestrictions(cond, false);
 					n.addFollowRestrictions(fr);
 				} else if (cname.equals("follow")) {
-					// Implement as inverted not-follow.
-					// This is not exactly the same, but it causes no problems for the NU test,
-					// since it remains conservative.
-					// For the derivation generation it does produce some spurious ambiguous strings.
-					FollowRestrictions fr = new FollowRestrictions();
-					IConstructor r = (IConstructor) cond.get("symbol");
-					if (r.getName().equals("char-class")) {
-						CharacterClass cc = (CharacterClass) getSymbol(r);
-						fr.add(new LinkedList<CharacterClass>(cc.invert()));
-						fr.mustFollowLength = 1;
-					} else {
-						// literal
-						NonTerminal lit = (NonTerminal) getSymbol(r);
-						Production p = lit.productions.iterator().next();
-						for (int j = 0; j < p.getLength(); j++) {
-							CharacterClass last = (CharacterClass) p.getSymbolAt(j);
-							LinkedList<CharacterClass> ll = new LinkedList<CharacterClass>(last.invert());
-							for (int i = j - 1; i >= 0; i--) {
-								ll = new LinkedList<CharacterClass>((CharacterClass) p.getSymbolAt(i), ll);
-							}
-							fr.add(ll);
-						}
-						fr.mustFollowLength = p.getLength();
-					}
+					FollowRestrictions fr = getMustFollow(cond, false);
 					n.addFollowRestrictions(fr);
 				} else if (cname.equals("delete")) { // reject
 					Production reject = g.newProduction(n);
 					reject.reject  = true;
 					reject.addSymbol(getSymbol((IConstructor) cond.get("symbol")));
 					g.addProduction(reject);
+				} else if (cname.equals("not-precede")) {
+					FollowRestrictions fr = getFollowRestrictions(cond, true);
+					n.addPrecedeRestrictions(fr);
+				} else if (cname.equals("precede")) {
+					FollowRestrictions fr = getMustFollow(cond, true);
+					n.addPrecedeRestrictions(fr);
 				}
 				// TODO add other conditions
 			}
 		}
+	}
+
+	private FollowRestrictions getMustFollow(IConstructor cond, boolean reverse) {
+		// Implement as inverted not-follow.
+		// This is not exactly the same, but it causes no problems for the NU test,
+		// since it remains conservative.
+		// For the derivation generation it does produce some spurious ambiguous strings.
+		FollowRestrictions fr = new FollowRestrictions();
+		IConstructor r = (IConstructor) cond.get("symbol");
+		if (r.getName().equals("char-class")) {
+			CharacterClass cc = (CharacterClass) getSymbol(r);
+			fr.add(new LinkedList<CharacterClass>(cc.invert()));
+			fr.mustFollowLength = 1;
+		} else {
+			// literal
+			NonTerminal lit = (NonTerminal) getSymbol(r);
+			Production p = lit.productions.iterator().next();
+			for (int j = 0; j < p.getLength(); j++) {
+				CharacterClass last = (CharacterClass) p.getSymbolAt(j);
+				LinkedList<CharacterClass> ll = new LinkedList<CharacterClass>(last.invert());
+				if (reverse) {
+					for (int i = j + 1; i < p.getLength(); i++) {
+						ll = new LinkedList<CharacterClass>((CharacterClass) p.getSymbolAt(i), ll);
+					}
+				} else {
+					for (int i = j - 1; i >= 0; i--) {
+						ll = new LinkedList<CharacterClass>((CharacterClass) p.getSymbolAt(i), ll);
+					}
+				}
+				fr.add(ll);
+			}
+			fr.mustFollowLength = p.getLength();
+		}
+		return fr;
+	}
+
+	private FollowRestrictions getFollowRestrictions(IConstructor cond, boolean reverse) {
+		FollowRestrictions fr = new FollowRestrictions();
+		IConstructor r = (IConstructor) cond.get("symbol");
+		if (r.getName().equals("char-class")) {
+			CharacterClass cc = (CharacterClass) getSymbol(r);
+			fr.add(new LinkedList<CharacterClass>(cc));
+		} else {
+			// literal
+			NonTerminal lit = (NonTerminal) getSymbol(r);
+			Production p = lit.productions.iterator().next();
+			LinkedList<CharacterClass> ll = null;
+			if (reverse) {
+				for (int i = 0; i < p.getLength(); ++i) {
+					ll = new LinkedList<CharacterClass>((CharacterClass) p.getSymbolAt(i), ll);
+				}
+			} else {
+				for (int i = p.getLength() - 1; i >= 0; i--) {
+					ll = new LinkedList<CharacterClass>((CharacterClass) p.getSymbolAt(i), ll);
+				}
+			}
+			fr.add(ll);
+		}
+		return fr;
 	}
 }
