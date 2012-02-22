@@ -102,7 +102,7 @@ public class TermParseController implements IParseController {
 		TermLanguageRegistry reg = TermLanguageRegistry.getInstance();
 		this.language = reg.getLanguage(path.getFileExtension());
 		this.parser = reg.getParser(this.language);
-		this.annotator = reg.getAnnotator(this.language.getName());
+		this.annotator = reg.getAnnotator(this.language);
 		this.job = new ParseJob(language.getName() + " parser", VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, path)), handler);
 	}
 

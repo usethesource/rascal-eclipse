@@ -32,6 +32,8 @@ data Contribution
      | menu(Menu menu)
      | categories(map[str categoryName, FontProperties fontStyle] styleMap)
      | builder(set[Message] ((&T<:Tree) tree) messages)
+     | annotator((&T<:Tree) (&T<:Tree input) annotator)
+     | outliner(node (&T<:Tree input) outliner)
      ;
   
 data Menu 
@@ -74,6 +76,7 @@ Description:
   and documentation hovers.
 }
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
+@deprecated{use an annotator contribution instead}
 public java void registerAnnotator(str name, (&T<:Tree) (&T<:Tree input) annotator);
 
 @doc{
@@ -89,6 +92,7 @@ Use the  [$IDE/label], [$IDE/loc] and [$IDE/image] annotations on each node to g
 item is displayed, which item it links to and what image is displayed next to it.
 }
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
+@deprecated{use an outliner contribution instead}
 public java void registerOutliner(str name, node (&T<:Tree input) outliner);
 
 @doc{

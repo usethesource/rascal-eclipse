@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.values.uptr.Factory;
@@ -127,7 +128,11 @@ public class TermLanguageRegistry {
 	}
 	
 	public IEvaluatorContext getEvaluator(Language lang) {
-		return evals.get(lang.getName());
+		return getEvaluator(lang.getName());
+	}
+	
+	private IEvaluatorContext getEvaluator(String lang) {
+		return evals.get(lang);
 	}
 	
 	public ICallableValue getParser(Language lang) {
@@ -138,18 +143,43 @@ public class TermLanguageRegistry {
 	}
 	
 	public ICallableValue getOutliner(Language lang) {
-		return outliners.get(lang.getName());
+		ICallableValue outliner = outliners.get(lang.getName());
+		
+		if (outliner != null) {
+			return outliner;
+		}
+		
+		ISet outliners = getContributions(lang, "outliner");
+
+		if (outliners.size() > 1) {
+			Activator.getInstance().logException("ignoring multiple outliners! for " + lang, new UnsupportedOperationException());
+		}
+		
+		if (outliners.size() > 0) {
+			IConstructor tree = (IConstructor) outliners.iterator().next();
+			return (ICallableValue) tree.get("outliner");
+		}
+		
+		return null;
 	}
 	
 	public ISet getContributions(Language lang) {
-		return contributions.get(lang.getName());
+		return getContributions(lang.getName());
+	}
+	
+	private ISet getContributions(String lang) {
+		return contributions.get(lang);
 	}
 	
 	public ISet getBuilders(Language lang) {
 		return getContributions(lang, "builder");
 	}
-	
+
 	private ISet getContributions(Language lang, String cons) {
+		return getContributions(lang.getName(), cons);
+	}
+	
+	private ISet getContributions(String lang, String cons) {
 		IValueFactory vf = getEvaluator(lang).getValueFactory();
 			
 		ISetWriter result = vf.setWriter(); 
@@ -168,9 +198,24 @@ public class TermLanguageRegistry {
 	}
 	
 	
-	public ICallableValue getAnnotator(String name) {
-		return analyses.get(name);
+	public ICallableValue getAnnotator(Language lang) {
+		ICallableValue annotator = analyses.get(lang.getName());
+		
+		if (annotator != null) {
+			return annotator;
+		}
+		
+		ISet annotators = getContributions(lang, "annotator");
+
+		if (annotators.size() > 1) {
+			Activator.getInstance().logException("ignoring multiple annotator! for " + lang, new UnsupportedOperationException());
+		}
+		
+		if (annotators.size() > 0) {
+			IConstructor tree = (IConstructor) annotators.iterator().next();
+			return (ICallableValue) tree.get("annotator");
+		}
+		
+		return null;
 	}
-
-
 }
