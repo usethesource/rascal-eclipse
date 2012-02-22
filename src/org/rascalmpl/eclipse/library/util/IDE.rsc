@@ -16,6 +16,7 @@ module util::IDE
 // Especially annotations defined in this module are relevant for util::IDE
 import ParseTree;
 import vis::Figure;
+extend Message;
 
 @doc{
 Synopsis: Data type to describe contributions to the menus of the IDE.
@@ -30,6 +31,7 @@ data Contribution
      = popup(Menu menu)
      | menu(Menu menu)
      | categories(map[str categoryName, FontProperties fontStyle] styleMap)
+     | builder(set[Message] ((&T<:Tree) tree) messages)
      ;
   
 data Menu 

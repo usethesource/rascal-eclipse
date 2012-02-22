@@ -31,6 +31,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.terms.TermNature;
 
 
 public class RascalProjectWizard extends BasicNewProjectResourceWizard {
@@ -62,7 +63,7 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 						}
 						
 						plugin.setSymbolicName(project.getName().replaceAll("-", "_").replaceAll("\\s", "_"));
-						plugin.setNatureIds(new String[] { IRascalResources.ID_RASCAL_NATURE, JavaCore.NATURE_ID, IBundleProjectDescription.PLUGIN_NATURE});
+						plugin.setNatureIds(new String[] { IRascalResources.ID_RASCAL_NATURE, JavaCore.NATURE_ID, IBundleProjectDescription.PLUGIN_NATURE, TermNature.NATURE_ID});
 						plugin.setRequiredBundles(new IRequiredBundleDescription[] { 
 								service.newRequiredBundle("org.eclipse.imp.pdb.values", null, false, false),
 								service.newRequiredBundle("rascal", null, false, false)
@@ -71,7 +72,9 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 						IProjectDescription description = project.getDescription();
 						description.setBuildConfigs(new String[] { "org.eclipse.jdt.core.javabuilder", "org.eclipse.pde.ManifestBuilder", "org.eclipse.pde.SchemaBuilder" });
 						project.setDescription(description, monitor);
+						System.err.println("creating project");
 						plugin.apply(monitor);
+						System.err.println("project created, now adding Java nature");
 
 						IJavaProject jProject = JavaCore.create(project);
 						IClasspathEntry[] oldClasspath = jProject.getRawClasspath();
@@ -82,6 +85,7 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 						newClasspath[2] = JavaCore.newSourceEntry(project.getFolder("src").getFullPath().makeAbsolute());
 						jProject.setRawClasspath(newClasspath, monitor);
 						jProject.save(monitor, false);
+						System.err.println("Java nature added");
 					}
 					finally {
 						context.ungetService(ref);

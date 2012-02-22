@@ -20,7 +20,10 @@ import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.values.uptr.Factory;
@@ -140,6 +143,24 @@ public class TermLanguageRegistry {
 	
 	public ISet getContributions(Language lang) {
 		return contributions.get(lang.getName());
+	}
+	
+	public ISet getBuilders(Language lang) {
+		return getContributions(lang, "builder");
+	}
+	
+	private ISet getContributions(Language lang, String cons) {
+		IValueFactory vf = getEvaluator(lang).getValueFactory();
+			
+		ISetWriter result = vf.setWriter(); 
+		for (IValue contribution: getContributions(lang)) {
+			IConstructor tree = (IConstructor) contribution;
+			if (tree.getName().equals(cons)) {
+				result.insert(tree);
+			}
+		}
+		
+		return result.done();
 	}
 
 	public ISet getNonRascalContributions(String editorId) {

@@ -906,4 +906,38 @@
          language="rascal">
    </editorActionContributor>
 </extension>
+<extension
+      id="term_builder"
+      name="term_builder"
+      point="org.eclipse.core.resources.builders">
+   <builder>
+      <run
+            class="org.rascalmpl.eclipse.terms.Builder">
+      </run>
+   </builder>
+</extension>
+<extension
+      id="term_markers"
+      name="term_markers"
+      point="org.eclipse.core.resources.markers">
+   <super
+         type="org.eclipse.core.resources.problemmarker">
+   </super>
+   <persistent
+         value="true">
+   </persistent>
+</extension>
+<extension
+      id="term_nature"
+      name="term_nature"
+      point="org.eclipse.core.resources.natures">
+   <runtime>
+      <run
+            class="org.rascalmpl.eclipse.terms.TermNature">
+      </run>
+   </runtime>
+   <builder
+         id="term_builder">
+   </builder>
+</extension>
 </plugin>

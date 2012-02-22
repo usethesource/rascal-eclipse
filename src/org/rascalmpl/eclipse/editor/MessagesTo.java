@@ -42,25 +42,10 @@ public class MessagesTo {
 			}
 			
 			anno = tree.getAnnotation("messages");
+			
 			if (anno != null && anno.getType().isSetType()) {
-				Type elemType = anno.getType().getElementType();
-				
-				if (elemType.isAbstractDataType() && elemType.getName().equals("Message")) {
-					
-					for (IValue messagev : ((ISet) anno)) {
-						IConstructor message = (IConstructor)messagev;
-						ISourceLocation loc = (ISourceLocation) message.get(1);
-						ISourceLocation treeLoc = (ISourceLocation) tree.getAnnotation("loc");
-						if (loc == null) {
-							loc = treeLoc;
-						}
-						if (loc.getURI().getPath().equals(treeLoc.getURI().getPath()))
-							processMessage(message, loc, handler);
-					}
-				}
-				
-				// we do not recurse if we found messages
-				return;
+				process((ISourceLocation) tree.getAnnotation("loc"),  (ISet) anno, handler);
+				return; // we do not recurse if we found messages (for efficiency)
 			}
 			
 			for (IValue child : TreeAdapter.getArgs(tree)) {
@@ -70,6 +55,21 @@ public class MessagesTo {
 		else if (TreeAdapter.isAmb(tree) || TreeAdapter.isErrorAmb(tree)) {
 			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
 				processMarkers((IConstructor) alt, handler);
+			}
+		}
+	}
+
+	public void process(ISourceLocation treeLoc, ISet set, IMessageHandler handler) {
+		Type elemType = set.getType().getElementType();
+
+		if (elemType.isAbstractDataType() && elemType.getName().equals("Message")) {
+
+			for (IValue messagev : ((ISet) set)) {
+				IConstructor message = (IConstructor)messagev;
+				ISourceLocation loc = (ISourceLocation) message.get(1);
+				
+				if (loc.getURI().getPath().equals(treeLoc.getURI().getPath()))
+					processMessage(message, loc, handler);
 			}
 		}
 	}
