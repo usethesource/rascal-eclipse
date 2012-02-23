@@ -8,6 +8,6 @@ public class RascalPreferences {
   private static IPreferencesService service = Activator.getInstance().getPreferencesService();
 
   public static boolean isStaticCheckerEnabled() {
-	  return service.getBooleanPreference(enableStaticChecker);
+	  return service.getBooleanPreference(IPreferencesService.INSTANCE_LEVEL, enableStaticChecker);
   }
 }
