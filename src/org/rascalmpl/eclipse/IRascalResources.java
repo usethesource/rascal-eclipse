@@ -23,11 +23,13 @@ public interface IRascalResources {
 	public static final String COPY_TO_CONSOLE = "copy_to_console";
 
 	public static final String ID_RASCAL_DEBUG_MODEL = "rascal.debugModel";
-	public static final String ID_RASCAL_NATURE = "rascal.nature";
-
+	public static final String ID_RASCAL_NATURE = "rascal_eclipse.rascal_nature";
+	public static final String ID_RASCAL_BUILDER = "rascal_eclipse.rascal_builder";
+	
 	public static final String RASCAL_SRC = "src";
 	public static final String RASCAL_EXT = "rsc";
 
+	public static final String ID_RASCAL_MARKER = "rascal_eclipse.rascal_markers";
 	public static final String ID_RASCAL_MARKER_TYPE_TEST_RESULTS = "rascal.markerType.testResult";
 	public static final String ID_RASCAL_MARKER_TYPE_FOCUS = "rascal.focusMarker";
 	
