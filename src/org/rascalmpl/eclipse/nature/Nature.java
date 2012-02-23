@@ -16,20 +16,28 @@ import java.net.URISyntaxException;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.imp.builder.ProjectNatureBase;
+import org.eclipse.imp.runtime.IPluginLog;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 
-
-public class Nature implements IProjectNature {
+public class Nature extends ProjectNatureBase implements IRascalResources {
 	private IProject project;
 
-	public static String getNatureId() {
-		return "rascal.nature";
+	@Override
+	public String getNatureID() {
+		return "rascal_eclipse.nature";
+	}
+	
+	@Override
+	public String getBuilderID() {
+		return "rascal_eclipse.rascal_builder";
 	}
 	
 	public void configure() throws CoreException {
+		super.configure();
+		
 		IFolder folder = project.getFolder(IRascalResources.RASCAL_SRC);
 		
 		if (!folder.exists()) {
@@ -38,20 +46,6 @@ public class Nature implements IProjectNature {
 		
 		link();
 	}
-
-	public void deconfigure() throws CoreException {
-
-	}
-
-	public IProject getProject() {
-		return project;
-	}
-
-	public void setProject(IProject project) {
-		this.project = project;
-	}
-	
-	
 
 	private void link() throws CoreException {
 		try {
@@ -70,4 +64,12 @@ public class Nature implements IProjectNature {
 			Activator.getInstance().logException("error during linking of libraries", e);
 		}
 	}
+
+	@Override
+	public IPluginLog getLog() {
+		return Activator.getInstance();
+	}
+
+	@Override
+	protected void refreshPrefs() { }
 }

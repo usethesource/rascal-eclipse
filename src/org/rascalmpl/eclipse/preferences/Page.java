@@ -2,6 +2,7 @@ package org.rascalmpl.eclipse.preferences;
 
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.InstancePreferencesTab;
+import org.eclipse.imp.preferences.PreferencesInitializer;
 import org.eclipse.imp.preferences.PreferencesTab;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
 import org.eclipse.imp.preferences.fields.BooleanFieldEditor;
@@ -32,5 +33,10 @@ public class Page extends TabbedPreferencesPage {
 		Tab tab = new Tab();
 		tab.createTabContents(page, tabFolder);
 		return new PreferencesTab[] {tab};
+	}
+	
+	@Override
+	public PreferencesInitializer getPreferenceInitializer() {
+		return new Initializer();
 	}
 }

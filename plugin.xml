@@ -40,7 +40,7 @@
       </factory>
    </extension>
    <extension
-         id="rascal.nature"
+         id="rascal_nature"
          name="Rascal Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
@@ -48,6 +48,9 @@
                class="org.rascalmpl.eclipse.nature.Nature">
          </run>
       </runtime>
+      <builder
+            id="rascal_builder">
+      </builder>
    </extension>
    <extension
          point="org.eclipse.core.filesystem.filesystems">
@@ -293,7 +296,7 @@
          <visibility>
             <objectState
                   name="projectNature"
-                  value="rascal.nature">
+                  value="rascal_nature">
             </objectState>
          </visibility>
          <action
@@ -422,7 +425,7 @@
       <image
             icon="icons/rascal3D_2-32px.png"
             id="rascal.nature.image"
-            natureId="rascal.nature">
+            natureId="rascal_nature">
       </image>
    </extension>
    <extension
@@ -953,5 +956,26 @@
    <initializer
          class="org.rascalmpl.eclipse.preferences.Initializer">
    </initializer>
+</extension>
+<extension
+      id="rascal_builder"
+      name="rascal_builder"
+      point="org.eclipse.core.resources.builders">
+   <builder>
+      <run
+            class="org.rascalmpl.eclipse.nature.Builder">
+      </run>
+   </builder>
+</extension>
+<extension
+      id="rascal_markers"
+      name="rascal_markers"
+      point="org.eclipse.core.resources.markers">
+   <super
+         type="org.eclipse.core.resources.problemmarker">
+   </super>
+   <persistent
+         value="true">
+   </persistent>
 </extension>
 </plugin>
