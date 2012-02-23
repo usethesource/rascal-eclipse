@@ -940,4 +940,18 @@
          id="term_builder">
    </builder>
 </extension>
+<extension
+      point="org.eclipse.ui.preferencePages">
+   <page
+         class="org.rascalmpl.eclipse.preferences.Page"
+         id="rascal-eclipse.preferencePage"
+         name="Rascal">
+   </page>
+</extension>
+<extension
+      point="org.eclipse.core.runtime.preferences">
+   <initializer
+         class="org.rascalmpl.eclipse.preferences.Initializer">
+   </initializer>
+</extension>
 </plugin>
