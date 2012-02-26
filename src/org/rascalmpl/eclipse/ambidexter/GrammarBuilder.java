@@ -33,7 +33,7 @@ public class GrammarBuilder {
 
 	private Grammar g;
 	private Set<IConstructor> conditionals = new HashSet<IConstructor>();
-	
+		
 	public void getSymbolNames(IConstructor grammar, List<String> startSymbols, List<String> otherSymbols) {
 		IMap rules = (IMap) grammar.get("rules");
 		Iterator<Entry<IValue, IValue>> i = rules.entryIterator();
@@ -237,8 +237,11 @@ public class GrammarBuilder {
 				} else if (cname.equals("precede")) {
 					FollowRestrictions fr = getMustFollow(cond, true);
 					n.addPrecedeRestrictions(fr);
+				} else if (cname.equals("begin-of-line")) {
+					n.addPrecedeRestrictions(getNewLineMustFollow());
+				} else if (cname.equals("end-of-line")) {
+					n.addFollowRestrictions(getNewLineMustFollow());
 				}
-				// TODO add other conditions
 			}
 		}
 	}
@@ -300,5 +303,16 @@ public class GrammarBuilder {
 			fr.add(ll);
 		}
 		return fr;
+	}
+	
+	private FollowRestrictions getNewLineMustFollow() {
+		FollowRestrictions newLineMustFollow = new FollowRestrictions();
+		CharacterClass nl = new CharacterClass(6, 0);
+		nl.add(10, 10);
+		nl.add(13, 13);
+		nl.add(Grammar.EOF, Grammar.EOF);
+		newLineMustFollow.add(new LinkedList<CharacterClass>(nl.invert()));
+		newLineMustFollow.mustFollowLength = 1;
+		return newLineMustFollow;
 	}
 }
