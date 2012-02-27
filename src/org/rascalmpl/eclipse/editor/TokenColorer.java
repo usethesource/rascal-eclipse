@@ -14,7 +14,6 @@ package org.rascalmpl.eclipse.editor;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -29,14 +28,10 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
-
-import com.sun.media.jai.tilecodec.RawTileEncoderFactory;
 
 public class TokenColorer implements ITokenColorer {
 	public static final String NORMAL = "Normal";
