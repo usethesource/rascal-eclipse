@@ -88,7 +88,7 @@ public class RunAmbiDexter extends Action implements IEditorActionDelegate {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					monitor.beginTask("Retreiving Rascal Grammar", 4);
+					monitor.beginTask("Retrieving Rascal Grammar", 4);
 					Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
 					monitor.worked(1);
 					final String moduleName = getModuleName(project, file);
