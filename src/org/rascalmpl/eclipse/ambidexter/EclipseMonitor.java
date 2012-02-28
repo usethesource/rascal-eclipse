@@ -9,6 +9,9 @@ import nl.cwi.sen1.AmbiDexter.grammar.SymbolString;
 
 public class EclipseMonitor implements IAmbiDexterMonitor {
 
+	public EclipseMonitor() {
+	}
+	
 	@Override
 	public void println() {
 		RuntimePlugin.getInstance().getConsoleStream().println();
@@ -32,6 +35,21 @@ public class EclipseMonitor implements IAmbiDexterMonitor {
 	@Override
 	public void ambiguousString(AmbiDexterConfig cfg, SymbolString s, NonTerminal n, String messagePrefix) {
 		println(messagePrefix + "Ambiguity found for " + n.prettyPrint() + ": " + s.prettyPrint());
+	}
+	
+	@Override
+	public void setTaskName(String name, int work) {
+		// ignore
+	}
+
+	@Override
+	public void worked(int work) {
+		// ignore
+	}
+	
+	@Override
+	public boolean canceling() {
+		return false;
 	}
 
 }

@@ -12,6 +12,10 @@ import nl.cwi.sen1.AmbiDexter.grammar.Grammar;
 import nl.cwi.sen1.AmbiDexter.grammar.NonTerminal;
 import nl.cwi.sen1.AmbiDexter.grammar.SymbolString;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -42,8 +46,13 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 	private TableColumn sentences;
 	private Table table;
 	private final StandardTextReader reader = new StandardTextReader();
+	private volatile boolean canceling;
+	private AmbiDexterJob job;
 	
-	public ReportView() { super(); }
+	public ReportView() {
+		super();
+		job = new AmbiDexterJob("AmbiDexter");
+	}
 	
 	public void run(final Grammar grammar, final AmbiDexterConfig cfg) {
 		table.removeAll();
@@ -51,19 +60,9 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 		println("Running AmbiDexter...");
 		grammar.printSize(this);
 
-		Runnable run = new Runnable() {
-			public void run() {
-				Main m = new Main(ReportView.this);
-				m.setGrammar(grammar);
-				m.setConfig(cfg);
-				m.printGrammar(grammar);
-				m.checkGrammar(grammar);
-			};
-		};
-
-		Thread thread = new Thread(run);
-		thread.setName("Ambidexter Fred");
-		thread.start();
+		canceling = false;		
+		job.init(grammar, cfg);
+		job.schedule();
 	}
 
 	@Override
@@ -203,5 +202,59 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 		} catch (VisitorException e) {
 			// do nothing
 		}
+	}
+	
+	@Override
+	public void setTaskName(String name, int work) {
+		IProgressMonitor m = job.monitor;
+		if (m != null) {
+			m.beginTask(name, work);
+		}
+	}
+
+	@Override
+	public void worked(int work) {
+		IProgressMonitor m = job.monitor;
+		if (m != null) {
+			m.worked(work);
+		}
+	}
+
+	@Override
+	public boolean canceling() {
+		return canceling;
+	}
+
+	private class AmbiDexterJob extends Job {
+	
+		private Main main;
+		volatile IProgressMonitor monitor;
+	
+		public AmbiDexterJob(String name) {
+			super(name);
+		}
+	
+		public void init(Grammar grammar, AmbiDexterConfig config) {
+			main = new Main(ReportView.this);
+			main.setGrammar(grammar);
+			main.setConfig(config);
+		}
+	
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			this.monitor = monitor;
+			
+			//main.printGrammar();
+			main.checkGrammar();
+			
+			monitor.done();
+			this.monitor = null;
+			return Status.OK_STATUS;
+		}
+		
+		@Override
+		protected void canceling() {
+			ReportView.this.canceling = true;
+		}		
 	}
 }

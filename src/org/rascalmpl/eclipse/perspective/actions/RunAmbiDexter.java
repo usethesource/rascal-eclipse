@@ -21,7 +21,11 @@ import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
@@ -29,6 +33,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.rascalmpl.eclipse.Activator;
@@ -74,21 +79,51 @@ public class RunAmbiDexter extends Action implements IEditorActionDelegate {
 			editor.doSave(new NullProgressMonitor());
 		}
 		
-		// TODO create job for getting grammar
+		class GrammarJob extends Job {
+			
+			public GrammarJob() {
+				super("Preparing AmbiDexter");
+			}
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					monitor.beginTask("Retreiving Rascal Grammar", 4);
+					Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
+					monitor.worked(1);
+					final String moduleName = getModuleName(project, file);
+					monitor.worked(1);
+					final IConstructor grammar = getGrammar(eval, moduleName);
+					monitor.worked(1);
+					final IRelation nestingRestr = eval.getNestingRestrictions(eval.getMonitor(), grammar);				
+					monitor.worked(1);
+					monitor.done();
+					
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							AmbiDexterWizard wizard = new AmbiDexterWizard(moduleName, grammar);
+							WizardDialog dialog = new WizardDialog(editor.getSite().getShell(), wizard);
+
+							if (dialog.open() == WizardDialog.OK) {
+								AmbiDexterConfig cfg = wizard.getConfig();
+								cfg.filename = project.getName() + "/" + moduleName;
+								AmbiDexterRunner.run(cfg, grammar, nestingRestr);
+							}
+						}
+					});
+					
+					return Status.OK_STATUS;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return Status.CANCEL_STATUS;
+			}
+		};
 		
-		Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
-		String moduleName = getModuleName(project, file);
-		IConstructor grammar = getGrammar(eval, moduleName);
-		IRelation nestingRestr = eval.getNestingRestrictions(eval.getMonitor(), grammar);
-		
-		AmbiDexterWizard wizard = new AmbiDexterWizard(moduleName, grammar);
-		WizardDialog dialog = new WizardDialog(editor.getSite().getShell(), wizard);
-		
-		if (dialog.open() == WizardDialog.OK) {
-			AmbiDexterConfig cfg = wizard.getConfig();
-			cfg.filename = project.getName() + "/" + moduleName;
-			AmbiDexterRunner.run(cfg, grammar, nestingRestr);
-		}
+		GrammarJob j = new GrammarJob();
+		j.setUser(true);
+		j.schedule();
 	}
 	
 	public void run(IAction action) {
@@ -97,13 +132,13 @@ public class RunAmbiDexter extends Action implements IEditorActionDelegate {
 		run();
 	}
 
-	private IConstructor getGrammar(Evaluator eval, String moduleName) {
+	private static IConstructor getGrammar(Evaluator eval, String moduleName) {
 		eval.doImport(eval.getMonitor(), moduleName);
 		IConstructor grammar = eval.getExpandedGrammar(eval.getMonitor(), URI.create("rascal://" + moduleName));
 		return grammar;
 	}
 
-	private String getModuleName(IProject project, IFile file) {
+	private static String getModuleName(IProject project, IFile file) {
 		String moduleName;
 		
 		IFolder srcFolder = project.getFolder(IRascalResources.RASCAL_SRC);
