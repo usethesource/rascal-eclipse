@@ -23,10 +23,27 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Declaration;
+import org.rascalmpl.ast.Declaration.Alias;
+import org.rascalmpl.ast.Declaration.Annotation;
+import org.rascalmpl.ast.Declaration.Data;
+import org.rascalmpl.ast.Declaration.DataAbstract;
+import org.rascalmpl.ast.Declaration.Function;
 import org.rascalmpl.ast.Declaration.Variable;
+import org.rascalmpl.ast.FunctionDeclaration.Abstract;
+import org.rascalmpl.ast.FunctionDeclaration.Conditional;
+import org.rascalmpl.ast.FunctionDeclaration.Expression;
+import org.rascalmpl.ast.ImportedModule.Actuals;
+import org.rascalmpl.ast.ImportedModule.ActualsRenaming;
+import org.rascalmpl.ast.ImportedModule.Renamings;
+import org.rascalmpl.ast.Prod.Labeled;
+import org.rascalmpl.ast.Prod.Unlabeled;
+import org.rascalmpl.ast.Variable.Initialized;
+import org.rascalmpl.ast.Variable.UnInitialized;
+import org.rascalmpl.ast.Variant.NAryConstructor;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.Module;
+import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Prod;
 import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Variant;
@@ -72,55 +89,122 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 		return group.getName() + " (" + group.size() + ")";
 	}
 
-	private String getLabelFor(AbstractAST node2) {
-		String result;
+	private String getLabelFor(AbstractAST ast) {
+		String result =  ast.accept(new NullASTVisitor<String>() {
+			@Override
+			public String visitModuleDefault(org.rascalmpl.ast.Module.Default x) {
+				return Names.fullName(x.getHeader().getName());
+			}
+			
+			@Override
+			public String visitProdLabeled(Labeled x) {
+				return "| " + Names.name(x.getName());
+			}
+			
+			@Override
+			public String visitProdUnlabeled(Unlabeled x) {
+				return "| ...";
+			}
+			
+			@Override
+			public String visitDeclarationFunction(Function x) {
+				return x.getFunctionDeclaration().accept(this);
+			}
+			
+			@Override
+			public String visitFunctionDeclarationDefault(
+					org.rascalmpl.ast.FunctionDeclaration.Default x) {
+				return visitAnyFunctionDeclaration(x);
+			}
+			
+			private String visitAnyFunctionDeclaration(FunctionDeclaration x) {
+				return Names.name(x.getSignature().getName());
+			}
+			
+			@Override
+			public String visitFunctionDeclarationAbstract(Abstract x) {
+				return visitAnyFunctionDeclaration(x);
+			}
+			
+			@Override
+			public String visitFunctionDeclarationConditional(Conditional x) {
+				return visitAnyFunctionDeclaration(x);
+			}
+			
+			@Override
+			public String visitFunctionDeclarationExpression(Expression x) {
+				return visitAnyFunctionDeclaration(x);
+			}
+			
+			@Override
+			public String visitVariableInitialized(Initialized x) {
+				return visitAnyVariable(x);
+			}
+			
+			@Override
+			public String visitVariableUnInitialized(UnInitialized x) {
+				return visitAnyVariable(x);
+			}
+			
+			private String visitAnyVariable(org.rascalmpl.ast.Variable x) {
+				return Names.name(x.getName());
+			}
+			
+			@Override
+			public String visitDeclarationAnnotation(Annotation x) {
+				return Names.name(x.getName());
+			}
+			
+			@Override
+			public String visitDeclarationData(Data x) {
+				return Names.fullName(x.getUser().getName());
+			}
+			
+			@Override
+			public String visitDeclarationDataAbstract(DataAbstract x) {
+				return Names.fullName(x.getUser().getName());
+			}
+			
+			@Override
+			public String visitDeclarationAlias(Alias x) {
+				return Names.fullName(x.getUser().getName());
+			}
+			
+			@Override
+			public String visitVariantNAryConstructor(NAryConstructor x) {
+				return Names.name(x.getName());
+			}
+			
+			@Override
+			public String visitImportedModuleDefault(
+					org.rascalmpl.ast.ImportedModule.Default x) {
+				return visitAnyImportedModule(x);
+			}
+
+			@Override
+			public String visitImportedModuleActuals(Actuals x) {
+				return visitAnyImportedModule(x);
+			}
+			
+			@Override
+			public String visitImportedModuleActualsRenaming(ActualsRenaming x) {
+				return visitAnyImportedModule(x);
+			}
+			
+			@Override
+			public String visitImportedModuleRenamings(Renamings x) {
+				return visitAnyImportedModule(x);
+			}
+			
+			private String visitAnyImportedModule(org.rascalmpl.ast.ImportedModule x) {
+				return Names.fullName(x.getName());
+			}
+		});
 		
-		if (node2 instanceof Module) {
-			result = ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) ((Module) node2).getHeader().getName()).fullName();
+		if (result == null) {
+			result = "???";
 		}
-		else if (node2 instanceof Prod.Labeled) {
-			Prod p = (Prod) node2;
-			result = "| " + Names.name(p.getName());
-		}
-		else if (node2 instanceof Prod.Unlabeled) {
-			result = "| ...";
-		}
-		else if (node2 instanceof Declaration.Function) {
-			Signature signature = ((Declaration.Function) node2).getFunctionDeclaration().getSignature();
-			result = Names.name(signature.getName());
-		}
-		else if (node2 instanceof FunctionDeclaration) {
-			Signature signature = ((Declaration.Function) node2).getFunctionDeclaration().getSignature();
-			result = Names.name(signature.getName());
-		}
-		else if (node2 instanceof org.rascalmpl.ast.Variable) {
-			org.rascalmpl.ast.Variable v = (org.rascalmpl.ast.Variable) node2;
-			result = Names.name(v.getName());
-		}
-		else if (node2 instanceof Declaration.Variable) {
-			Declaration.Variable var = (Variable) node2;
-			result = Names.name(var.getName()) + ": " + var.getType();
-		}
-		else if (node2 instanceof Declaration.Data) {
-			result = ((Default) ((Declaration.Data) node2).getUser().getName()).fullName();
-		}
-		else if (node2 instanceof Declaration.DataAbstract) {
-			result = ((Default) ((Declaration.DataAbstract) node2).getUser().getName()).fullName();
-		}
-		else if (node2 instanceof Declaration.Alias) {
-			result = ((Default) ((Declaration.Alias) node2).getUser().getName()).fullName();
-		}
-		else if (node2 instanceof Variant.NAryConstructor) {
-			Variant v = (Variant) node2;
-			result = Names.name(v.getName()); 
-		}
-		else if (node2 instanceof ImportedModule) {
-			ImportedModule i = (ImportedModule) node2;
-			result = (((Default) i.getName()).fullName());
-		}
-		else {
-		    result = "???";
-		}
+		
 		return result.replaceAll("\n", " ").trim();
 	}
 
