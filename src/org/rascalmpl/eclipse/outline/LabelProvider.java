@@ -13,27 +13,23 @@
 package org.rascalmpl.eclipse.outline;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.preferences.PreferenceValueParser.optParameter;
 import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Declaration;
+import org.rascalmpl.ast.Declaration.Variable;
 import org.rascalmpl.ast.FunctionDeclaration;
-import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Prod;
 import org.rascalmpl.ast.Signature;
-import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Variant;
-import org.rascalmpl.ast.Declaration.Variable;
 import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
@@ -73,7 +69,7 @@ public class LabelProvider implements ILabelProvider, ILanguageService  {
 	}
 	
 	private String getLabelFor(Group<?> group) {
-		return group.getName();
+		return group.getName() + " (" + group.size() + ")";
 	}
 
 	private String getLabelFor(AbstractAST node2) {

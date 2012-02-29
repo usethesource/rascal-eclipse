@@ -40,14 +40,12 @@ import org.rascalmpl.ast.Prod.Labeled;
 import org.rascalmpl.ast.Prod.Others;
 import org.rascalmpl.ast.Prod.Reference;
 import org.rascalmpl.ast.Prod.Unlabeled;
-import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.ast.Sym;
-import org.rascalmpl.ast.Sym.Nonterminal;
 import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.ast.Toplevel.GivenVisibility;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.semantics.dynamic.FunctionDeclaration;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class TreeModelBuilder extends TreeModelBuilderBase {
@@ -60,7 +58,8 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 	public static final int CATEGORY_SYNTAX = 9;
 	
 	
-	private Group<AbstractAST> functions;
+	private Group<Group<AbstractAST>> functions;
+	private Group<Group<AbstractAST>> tests;
 	private Group<Group<AbstractAST>> syntax;
 	private Group<AbstractAST> variables;
 	private Group<AbstractAST> aliases;
@@ -89,7 +88,8 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 
 			loc = mod.getLocation();
 
-			functions = new Group<AbstractAST>("Functions", loc);
+			functions = new Group<Group<AbstractAST>>("Functions", loc);
+			tests = new Group<Group<AbstractAST>>("Tests", loc);
 			variables = new Group<AbstractAST>("Variables",loc);
 			aliases = new Group<AbstractAST>("Aliases",loc);
 			adts = new Group<Group<AbstractAST>>("Types",loc);
@@ -104,7 +104,8 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			addGroups(syntax);
 			addGroup(imports);
 			addGroup(variables);
-			addGroup(functions);
+			addGroups(functions);
+			addGroups(tests);
 			addGroups(adts);
 			addGroup(aliases);
 			addGroup(annos);
@@ -247,7 +248,18 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		
 		@Override
 		public AbstractAST visitDeclarationFunction(Function x) {
-			return functions.add(x);
+			loc = x.getLocation();
+			
+			if (FunctionDeclaration.hasTestModifier(x.getFunctionDeclaration())) {
+				Group<AbstractAST> gr = findGroup(tests, ((org.rascalmpl.semantics.dynamic.Name.Lexical) x.getFunctionDeclaration().getSignature().getName()).getString());
+				gr.add(x);
+			}
+			else {
+				Group<AbstractAST> gr = findGroup(functions, ((org.rascalmpl.semantics.dynamic.Name.Lexical) x.getFunctionDeclaration().getSignature().getName()).getString());
+				gr.add(x);
+			}
+			
+			return x;
 		}
 		
 		@Override
@@ -272,6 +284,10 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 		public Group(String name, ISourceLocation loc) {
 			this.name = name;
 			this.loc = loc;
+		}
+		
+		public int size() {
+			return contents.size();
 		}
 		
 		public String getName() {
