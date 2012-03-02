@@ -558,7 +558,7 @@
  <extension point="org.eclipse.core.resources.markers"
             id="rascal.markerType.queryResult"
             name="Rascal Marker">
-            <super type="org.eclipse.core.resources.problemmarker"/>
+            <super type="rascal_eclipse.rascal_markers"/>
             <persistent value="true"/>
  </extension>
 
@@ -566,29 +566,29 @@
        point="org.eclipse.ui.editors.annotationTypes">
        
      <type
-          markerType="org.eclipse.core.resources.problemmarker"
+          markerType="rascal_eclipse.rascal_markers"
           name="rascal.highlight0"
           markerSeverity="0">
     </type>
     
     <type
-          markerType="org.eclipse.core.resources.problemmarker"
+          markerType="rascal_eclipse.rascal_markers"
           name="rascal.highlight1"
           markerSeverity="0">
     </type>
 
     <type
-          markerType="org.eclipse.core.resources.problemmarker"
+          markerType="rascal_eclipse.rascal_markers"
           name="rascal.highlight2"
           markerSeverity="0">
     </type>
     <type
-          markerType="org.eclipse.core.resources.problemmarker"
+          markerType="rascal_eclipse.rascal_markers"
           name="rascal.highlight3"
           markerSeverity="0">
     </type>
      <type
-          markerType="org.eclipse.core.resources.problemmarker"
+          markerType="rascal_eclipse.rascal_markers"
           name="rascal.highlight4"
           markerSeverity="0">
     </type>
@@ -827,7 +827,7 @@
           value="true">
     </persistent>
     <super
-          type="org.eclipse.core.resources.problemmarker">
+          type="rascal_eclipse.rascal_markers">
     </super>
  </extension>
  <extension
@@ -924,7 +924,7 @@
       name="term_markers"
       point="org.eclipse.core.resources.markers">
    <super
-         type="org.eclipse.core.resources.problemmarker">
+         type="rascal_eclipse.rascal_markers">
    </super>
    <persistent
          value="true">

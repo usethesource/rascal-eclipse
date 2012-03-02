@@ -283,7 +283,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 						lastMarked = project.getFile(location.getPath());
 
 						if (lastMarked != null) {
-							IMarker m = lastMarked.createMarker(IMarker.PROBLEM);
+							IMarker m = lastMarked.createMarker(IRascalResources.ID_RASCAL_MARKER);
 
 							m.setAttribute(IMarker.TRANSIENT, true);
 							m.setAttribute(IMarker.CHAR_START, offset);
@@ -385,7 +385,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 	private void clearErrorMarker() {
 		if (lastMarked != null) {
 			try {
-				lastMarked.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+				lastMarked.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, false, IResource.DEPTH_ZERO);
 			} catch (CoreException e) {
 				Activator.getInstance().logException("marker", e);
 			}

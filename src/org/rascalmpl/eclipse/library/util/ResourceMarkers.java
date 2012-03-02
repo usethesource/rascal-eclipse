@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.library.lang.java.jdt.internal.JDT;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -37,7 +38,7 @@ public class ResourceMarkers {
 	public void removeMessageMarkers(ISourceLocation loc, IEvaluatorContext ctx) {
 		IFile file = jdt.getIFileForLocation(loc);
 		try {
-			file.deleteMarkers(IMarker.PROBLEM, false, IResource.DEPTH_ZERO);
+			file.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, false, IResource.DEPTH_ZERO);
 		} catch (CoreException ce) {
 			throw RuntimeExceptionFactory.javaException("Failed to remove markers: " + ce.getMessage(), null, ce.getStackTrace().toString());
 		}
@@ -89,7 +90,7 @@ public class ResourceMarkers {
 		                severity
 		        };
 
-		        IMarker m = file.createMarker(IMarker.PROBLEM);
+		        IMarker m = file.createMarker(IRascalResources.ID_RASCAL_MARKER);
 		        m.setAttributes(attributeNames, values);
 			} catch (CoreException ce) {
 				throw RuntimeExceptionFactory.javaException("Failed to add markers: " + ce.getMessage(), null, ce.getStackTrace().toString());
