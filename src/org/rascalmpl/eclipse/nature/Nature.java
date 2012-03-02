@@ -27,7 +27,7 @@ public class Nature extends ProjectNatureBase implements IRascalResources {
 
 	@Override
 	public String getNatureID() {
-		return "rascal_eclipse.nature";
+		return "rascal_eclipse.rascal_nature";
 	}
 	
 	@Override

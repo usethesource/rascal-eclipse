@@ -41,7 +41,7 @@
    </extension>
    <extension
          id="rascal_nature"
-         name="Rascal Nature"
+         name="rascal_nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
@@ -424,7 +424,7 @@
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
             icon="icons/rascal3D_2-32px.png"
-            id="rascal.nature.image"
+            id="rascal_nature.image"
             natureId="rascal_nature">
       </image>
    </extension>

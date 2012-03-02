@@ -12,8 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.ui.views;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map.Entry;
 
 import org.eclipse.debug.ui.AbstractDebugView;
@@ -35,8 +33,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.rascalmpl.eclipse.debug.core.model.RascalStackFrame;
-import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
+import org.rascalmpl.interpreter.result.OverloadedFunction;
 
 
 
@@ -80,17 +77,13 @@ public class FunctionView extends AbstractDebugView implements ISelectionListene
 		@SuppressWarnings("unchecked")
 		public String getColumnText(Object element, int columnIndex) {
 			String result = "";
-			Entry<String, OverloadedFunctionResult> entry = (Entry<String, OverloadedFunctionResult>) element;
+			Entry<String, OverloadedFunction> entry = (Entry<String, OverloadedFunction>) element;
 			switch (columnIndex) {
 			case 0:  // NAME
 				result = entry.getKey();
 				break;
 			case 1 : // LAMBDA HEADERS
-				List<String> l = new ArrayList<String>();
-				for (AbstractFunction lambda: entry.getValue().iterable()) {
-					l.add(lambda.getHeader());
-				}
-				result = l.toString();
+				result = entry.toString();
 				break;
 			default :
 				break; 	

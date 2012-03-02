@@ -14,7 +14,6 @@ package org.rascalmpl.eclipse.debug.core.model;
 
 import java.util.List;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IRegisterGroup;
@@ -24,7 +23,7 @@ import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.Pair;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
+import org.rascalmpl.interpreter.result.AbstractFunction;
 
 public class RascalStackFrame extends RascalDebugElement implements IStackFrame{
 
@@ -198,7 +197,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame{
 		return envt;
 	}
 
-	public List<Pair<String, OverloadedFunctionResult>> getFunctions() {
+	public List<Pair<String, List<AbstractFunction>>> getFunctions() {
 		return envt.getFunctions();
 	}
 	

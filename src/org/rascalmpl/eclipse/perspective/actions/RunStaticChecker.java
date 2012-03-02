@@ -13,6 +13,7 @@
 package org.rascalmpl.eclipse.perspective.actions;
 
 import java.lang.reflect.InvocationTargetException;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -32,9 +33,10 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.progress.IProgressService;
 import org.rascalmpl.checker.StaticChecker;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.editor.MessagesToAnnotations;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.editor.ParseController;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RunStaticChecker implements IEditorActionDelegate {
@@ -101,7 +103,15 @@ public class RunStaticChecker implements IEditorActionDelegate {
 			} else {
 				Activator.getInstance().logException("static checker could not be created", new RuntimeException());
 			}
-		} catch (Throwable e) {
+		}
+		catch (StaticError e) {
+			Activator.getInstance().logException(e.getLocation() + e.getMessage(), e);
+		}
+		catch (Throw e) {
+			Activator.getInstance().logException(e.getException().toString(), e);
+			System.err.println(e.getMessage() + "\n" + e.getTrace());
+		}
+		catch (Throwable e) {
 			Activator.getInstance().logException("static checker failed", e);
 		}
 		

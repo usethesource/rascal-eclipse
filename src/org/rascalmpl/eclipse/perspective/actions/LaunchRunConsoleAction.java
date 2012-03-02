@@ -43,7 +43,6 @@ import org.rascalmpl.eclipse.console.internal.TerminationException;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.OverloadedFunctionResult;
 
 public class LaunchRunConsoleAction extends Action implements
 		IObjectActionDelegate, IActionDelegate2, IEditorActionDelegate {
@@ -111,12 +110,12 @@ public class LaunchRunConsoleAction extends Action implements
 		try {
 			console.getRascalInterpreter().execute(
 					"import " + moduleFullName + ";");
-			List<Pair<String, OverloadedFunctionResult>> functions = console
+			List<Pair<String, List<AbstractFunction>>> functions = console
 					.getRascalInterpreter().getEval().getCurrentEnvt()
 					.getImport(moduleFullName).getFunctions();
-			for (Pair<String, OverloadedFunctionResult> f : functions) {
+			for (Pair<String, List<AbstractFunction>> f : functions) {
 				if (f.getFirst().equals("main")) {
-					for (AbstractFunction g : f.getSecond().iterable()) {
+					for (AbstractFunction g : f.getSecond()) {
 						if (g.getArity() == 0) {
 							console.getRascalInterpreter().execute("main();");
 							return;
