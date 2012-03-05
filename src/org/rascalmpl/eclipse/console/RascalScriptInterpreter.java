@@ -154,7 +154,8 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		consoleStreamPipe.initializeWithStream(fasterStream);
 		try {
 			// create buffer loop
-			this.consoleStdErr = new PrintWriter(new OutputStreamWriter(fasterStream, "UTF16"),true);
+			//this.consoleStdErr = new PrintWriter(new OutputStreamWriter(fasterStream, "UTF16"),true);
+			this.consoleStdErr = null; // perhaps errors do not need to show up in the main console!
 			this.consoleStdOut = new PrintWriter(new OutputStreamWriter(fasterStream, "UTF16"),false);
 		} catch (UnsupportedEncodingException e) {
 			Activator.getInstance().logException("could not get stderr/stdout writer", e);
