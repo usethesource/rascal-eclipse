@@ -139,7 +139,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 
 	private void updateConsoleStream(IInterpreterConsole console) {
 		final OutputStream target = console.getConsoleOutputStream();
-		consoleStreamPipe = new TimedBufferedPipe(100, new PausableOutput() {
+		consoleStreamPipe = new TimedBufferedPipe(50, new PausableOutput() {
 			@Override
 			public boolean isPaused() {
 				return false;
@@ -150,7 +150,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				target.write(b);
 			}
 		}, "Rascal console output syncer ["+ this.project.getName() +"]");
-		ConcurrentCircularOutputStream fasterStream = new ConcurrentCircularOutputStream(1 << 12, consoleStreamPipe);
+		ConcurrentCircularOutputStream fasterStream = new ConcurrentCircularOutputStream(4*1024*1024, consoleStreamPipe);
 		consoleStreamPipe.initializeWithStream(fasterStream);
 		try {
 			// create buffer loop
