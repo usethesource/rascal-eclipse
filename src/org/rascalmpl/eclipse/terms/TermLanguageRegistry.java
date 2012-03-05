@@ -24,9 +24,11 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -168,7 +170,10 @@ public class TermLanguageRegistry {
 	}
 	
 	private ISet getContributions(String lang) {
-		return contributions.get(lang);
+		if (contributions.containsKey(lang))
+			return contributions.get(lang);
+		else
+			return ValueFactoryFactory.getValueFactory().set(TypeFactory.getInstance().voidType());
 	}
 	
 	public ISet getBuilders(Language lang) {
