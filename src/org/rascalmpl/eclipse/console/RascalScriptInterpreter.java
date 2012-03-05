@@ -30,6 +30,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
@@ -68,10 +71,13 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.internal.CommandExecutionException;
 import org.rascalmpl.eclipse.console.internal.CommandHistory;
+import org.rascalmpl.eclipse.console.internal.ConcurrentCircularOutputStream;
 import org.rascalmpl.eclipse.console.internal.IInterpreter;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
+import org.rascalmpl.eclipse.console.internal.PausableOutput;
 import org.rascalmpl.eclipse.console.internal.TerminationException;
 import org.rascalmpl.eclipse.console.internal.TestReporter;
+import org.rascalmpl.eclipse.console.internal.TimedBufferedPipe;
 import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
@@ -100,6 +106,9 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 	private IFile lastMarked;
 	private IProject project;
 	private Throwable error = null;
+	private PrintWriter consoleStdOut;
+	private PrintWriter consoleStdErr;
+	private TimedBufferedPipe consoleStreamPipe;
 
 	public RascalScriptInterpreter(IProject project){
 		super("Rascal");
@@ -128,8 +137,33 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		this.reloader = new ModuleReloader(eval);
 	}
 
+	private void updateConsoleStream(IInterpreterConsole console) {
+		final OutputStream target = console.getConsoleOutputStream();
+		consoleStreamPipe = new TimedBufferedPipe(100, new PausableOutput() {
+			@Override
+			public boolean isPaused() {
+				return false;
+			}
+
+			@Override
+			public void output(byte[] b) throws IOException {
+				target.write(b);
+			}
+		}, "Rascal console output syncer ["+ this.project.getName() +"]");
+		ConcurrentCircularOutputStream fasterStream = new ConcurrentCircularOutputStream(1 << 12, consoleStreamPipe);
+		consoleStreamPipe.initializeWithStream(fasterStream);
+		try {
+			// create buffer loop
+			this.consoleStdErr = new PrintWriter(new OutputStreamWriter(fasterStream, "UTF16"),true);
+			this.consoleStdOut = new PrintWriter(new OutputStreamWriter(fasterStream, "UTF16"),false);
+		} catch (UnsupportedEncodingException e) {
+			Activator.getInstance().logException("could not get stderr/stdout writer", e);
+		}
+	}
+	
 	public void setConsole(IInterpreterConsole console){
 		this.console = console;
+		updateConsoleStream(console);
 	}
 
 	public void storeHistory(CommandHistory history){
@@ -153,6 +187,18 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		// Make the memory leak less severe (Eclipse is broken, I can't help it).
 		eval = null;
 		reloader = null;
+		if (consoleStdErr != null) {
+			consoleStdErr.close();
+			consoleStdErr = null;
+		}
+		if (consoleStdOut != null) {
+			consoleStdOut.close();
+			consoleStdOut = null;
+		}
+		if (consoleStreamPipe != null) {
+			consoleStreamPipe.terminate();
+			consoleStreamPipe = null;
+		}
 	}
 	
 	@Override
@@ -162,10 +208,13 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			rm.startJob("executing command", 10000);
 			rm.event("parsing command"); 
 			synchronized(eval){
+				eval.overrideDefaultWriters(consoleStdOut, consoleStdErr);
 				IConstructor tree = eval.parseCommand(rm, command, URI.create("stdin:///"));
 				rm.event("running command");
 				reloader.updateModules(monitor); 
 				execCommand(rm, tree);
+				consoleStreamPipe.signalAndWaitForFlush(500); // try to get the most out of the console
+				eval.revertToDefaultWriters();
 			}
 			rm.endJob(true);
 		

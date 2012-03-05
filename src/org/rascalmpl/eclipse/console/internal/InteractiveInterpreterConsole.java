@@ -15,6 +15,8 @@ package org.rascalmpl.eclipse.console.internal;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.spi.CharsetProvider;
 import java.util.Vector;
 
 import org.eclipse.imp.preferences.PreferenceConstants;
@@ -470,7 +472,6 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				System.arraycopy(buffer, 0, newBuffer, 0, currentSize);
 				buffer = newBuffer;
 			}
-			
 			System.arraycopy(bytes, offset, buffer, index, length);
 			index += length;
 			print();
@@ -499,10 +500,10 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		
 		public synchronized void print(){
 			if(index != 0){
-				byte[] collectedData = new byte[index];
-				System.arraycopy(buffer, 0, collectedData, 0, index);
-				
-				console.writeToConsole(new String(collectedData), false);
+				try {
+					console.writeToConsole(new String(buffer, 0, index, "UTF16"), false);
+				} catch (UnsupportedEncodingException e) {
+				}
 				
 				reset();
 			}

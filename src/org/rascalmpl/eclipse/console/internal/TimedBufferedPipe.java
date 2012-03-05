@@ -37,13 +37,16 @@ public class TimedBufferedPipe implements Pausable, IBufferFlushNotifier {
 								System.err.println("Couldn't send stuff to the actuall console");
 							}
 						}
+						streamFlushed.release();
 					} 
 					else {
 						flushStream.drainPermits(); // reset semaphore
+						streamFlushed.release();
 					}
 					
 				}
 			} catch (InterruptedException e) {
+				this.target = null;
 				return;
 			}
 		}
@@ -54,6 +57,7 @@ public class TimedBufferedPipe implements Pausable, IBufferFlushNotifier {
 	}
 
 	private PausableOutput target;
+	private Semaphore streamFlushed;
 	private Semaphore flushStream;
 	private SyncThread syncer;
 	private String name;
@@ -64,6 +68,7 @@ public class TimedBufferedPipe implements Pausable, IBufferFlushNotifier {
 		this.target = target;
 		syncer = null;
 		flushStream = new Semaphore(1);
+		streamFlushed = new Semaphore(8);
 		this.name = name;
 		this.interval = interval;
 		
@@ -91,6 +96,21 @@ public class TimedBufferedPipe implements Pausable, IBufferFlushNotifier {
 		if(syncer!=null){
 			syncer.setTarget(target);
 		}
+	}
+
+	public boolean signalAndWaitForFlush(int waitFor) {
+		streamFlushed.drainPermits();
+		flushStream.release();
+		try {
+			return streamFlushed.tryAcquire(waitFor, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			return false;
+		}
+	}
+
+	public void terminate() {
+		this.syncer.interrupt();
+		this.syncer = null;
 	}
 
 }
