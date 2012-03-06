@@ -37,7 +37,7 @@ public class Nature extends ProjectNatureBase implements IRascalResources {
 	
 	public void configure() throws CoreException {
 		super.configure();
-		
+		project = super.getProject();
 		IFolder folder = project.getFolder(IRascalResources.RASCAL_SRC);
 		
 		if (!folder.exists()) {

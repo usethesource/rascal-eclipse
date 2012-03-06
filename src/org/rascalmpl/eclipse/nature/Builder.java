@@ -18,6 +18,7 @@ public class Builder extends BuilderBase {
 
 	@Override
 	protected boolean isSourceFile(IFile file) {
+		if (file==null || file.getFileExtension()==null) return false;
 		if (file.getFileExtension().equals(IRascalResources.RASCAL_EXT)) {
 			return file.getProjectRelativePath().segment(0).equals(IRascalResources.RASCAL_SRC);
 		}
