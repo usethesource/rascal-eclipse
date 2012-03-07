@@ -31,7 +31,6 @@ import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public class ListAmbiguities extends Action implements IEditorActionDelegate {
 	private UniversalEditor editor;
@@ -105,6 +104,8 @@ public class ListAmbiguities extends Action implements IEditorActionDelegate {
 			}
 		}
 		
-		throw new ImplementationError("could not compute modulename for " + file);
+		moduleName = file.getProjectRelativePath().removeFileExtension().toPortableString();
+		moduleName = moduleName.replaceAll(File.pathSeparator, "::");
+		return moduleName;
 	}
 }

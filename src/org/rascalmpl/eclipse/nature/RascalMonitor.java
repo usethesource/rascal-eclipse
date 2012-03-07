@@ -43,8 +43,9 @@ public class RascalMonitor implements IRascalMonitor {
 			event(inc);
 			subMon.setName(name);
 		}
-		else
+		else {
 			throw new ImplementationError("event() called before startJob()");
+		}
 	}
 
 	@Override

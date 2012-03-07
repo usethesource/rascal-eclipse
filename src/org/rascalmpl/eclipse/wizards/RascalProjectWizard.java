@@ -12,20 +12,20 @@
 package org.rascalmpl.eclipse.wizards;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jdt.launching.environments.ExecutionEnvironmentDescription;
-import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
-import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.pde.core.project.IBundleProjectDescription;
 import org.eclipse.pde.core.project.IBundleProjectService;
@@ -67,32 +67,8 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 							throw new InvocationTargetException(new Exception("Rascal project names may not contain spaces"));
 						}
 						
-						plugin.setSymbolicName(project.getName().replaceAll("-", "_").replaceAll("\\s", "_"));
-						plugin.setNatureIds(new String[] { IRascalResources.ID_RASCAL_NATURE, JavaCore.NATURE_ID, IBundleProjectDescription.PLUGIN_NATURE, TermNature.NATURE_ID});
-						plugin.setRequiredBundles(new IRequiredBundleDescription[] { 
-								service.newRequiredBundle("org.eclipse.imp.pdb.values", null, false, false),
-								service.newRequiredBundle("rascal", null, false, false)
-								});
-						plugin.setBundleVersion(Version.parseVersion("1.0.0"));
-						plugin.setExecutionEnvironments(new String[] { "JavaSE-1.6"}); // TODO: Is this a constant defined somewhere?
-
-						IProjectDescription description = project.getDescription();
-						description.setBuildConfigs(new String[] { "org.eclipse.jdt.core.javabuilder", "org.eclipse.pde.ManifestBuilder", "org.eclipse.pde.SchemaBuilder" });
-						project.setDescription(description, monitor);
-						System.err.println("creating project");
-						plugin.apply(monitor);
-						System.err.println("project created, now adding Java nature");
-
-						IJavaProject jProject = JavaCore.create(project);
-						IClasspathEntry[] oldClasspath = jProject.getRawClasspath();
-						IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length + 2];
-						System.arraycopy(oldClasspath, 0, newClasspath, 2, oldClasspath.length);
-						newClasspath[0] = JavaRuntime.getDefaultJREContainerEntry();
-						newClasspath[1] = JavaCore.newContainerEntry(new Path("org.eclipse.pde.core.requiredPlugins"));
-						newClasspath[2] = JavaCore.newSourceEntry(project.getFolder("src").getFullPath().makeAbsolute());
-						jProject.setRawClasspath(newClasspath, monitor);
-						jProject.save(monitor, false);
-						System.err.println("Java nature added");
+						initializeProjectAsRascalProject(project, monitor, service, plugin);
+						initializeProjectAsJavaProject(project);
 					}
 					finally {
 						context.ungetService(ref);
@@ -101,6 +77,51 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 					Activator.getInstance().logException("could not initialize Rascal project", e);
 					throw new InterruptedException();
 				}
+			}
+
+			private void initializeProjectAsRascalProject(
+					final IProject project, IProgressMonitor monitor,
+					IBundleProjectService service,
+					IBundleProjectDescription plugin) throws CoreException {
+				plugin.setSymbolicName(project.getName().replaceAll("-", "_").replaceAll("\\s", "_"));
+				plugin.setNatureIds(new String[] { IRascalResources.ID_RASCAL_NATURE, JavaCore.NATURE_ID, IBundleProjectDescription.PLUGIN_NATURE, TermNature.NATURE_ID});
+				plugin.setRequiredBundles(new IRequiredBundleDescription[] { 
+						service.newRequiredBundle("org.eclipse.imp.pdb.values", null, false, false),
+						service.newRequiredBundle("rascal", null, false, false)
+						});
+				plugin.setBundleVersion(Version.parseVersion("1.0.0"));
+				plugin.setExecutionEnvironments(new String[] { "JavaSE-1.6"}); // TODO: Is this a constant defined somewhere?
+
+				IProjectDescription description = project.getDescription();
+				description.setBuildConfigs(new String[] { "org.eclipse.jdt.core.javabuilder", "org.eclipse.pde.ManifestBuilder", "org.eclipse.pde.SchemaBuilder" });
+				project.setDescription(description, monitor);
+				plugin.apply(monitor);
+			}
+
+			/**
+			 * This is a asynchronous job just because it triggers a Java rebuild (or something) that is really 
+			 * expensive.
+			 */
+			private void initializeProjectAsJavaProject(final IProject project) {
+				new Job("Initializing Java/Rascal Project " + project.getName()) {
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						try {
+							IJavaProject jProject = JavaCore.create(project);
+							IClasspathEntry[] oldClasspath = jProject.getRawClasspath();
+							IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length + 2];
+							System.arraycopy(oldClasspath, 0, newClasspath, 2, oldClasspath.length);
+							newClasspath[0] = JavaRuntime.getDefaultJREContainerEntry();
+							newClasspath[1] = JavaCore.newContainerEntry(new Path("org.eclipse.pde.core.requiredPlugins"));
+							newClasspath[2] = JavaCore.newSourceEntry(project.getFolder("src").getFullPath().makeAbsolute());
+							jProject.setRawClasspath(newClasspath, monitor);
+							return Status.OK_STATUS;
+						} catch (JavaModelException e) {
+							Activator.getInstance().logException("failed to initialize Rascal project with Java nature: " + project.getName(), e);
+							return Status.OK_STATUS;
+						} 
+					}
+				}.schedule();
 			}
 		};
 
