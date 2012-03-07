@@ -13,6 +13,7 @@ package org.rascalmpl.eclipse.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
@@ -115,8 +116,22 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 							newClasspath[1] = JavaCore.newContainerEntry(new Path("org.eclipse.pde.core.requiredPlugins"));
 							newClasspath[2] = JavaCore.newSourceEntry(project.getFolder("src").getFullPath().makeAbsolute());
 							jProject.setRawClasspath(newClasspath, monitor);
+
+							IFile cpFile = project.getFile(".classpath");
+							if (cpFile.exists())
+								cpFile.setHidden(true);
+							IFile pFile = project.getFile(".project");
+							if (pFile.exists())
+								pFile.setHidden(true);
+							IFile bpFile = project.getFile("build.properties");
+							if (bpFile.exists())
+								bpFile.setHidden(true);
+							
 							return Status.OK_STATUS;
 						} catch (JavaModelException e) {
+							Activator.getInstance().logException("failed to initialize Rascal project with Java nature: " + project.getName(), e);
+							return Status.OK_STATUS;
+						} catch (CoreException e) {
 							Activator.getInstance().logException("failed to initialize Rascal project with Java nature: " + project.getName(), e);
 							return Status.OK_STATUS;
 						} 
