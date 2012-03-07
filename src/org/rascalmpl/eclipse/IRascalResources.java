@@ -61,7 +61,6 @@ public interface IRascalResources {
 	public static final String ID_RASCAL_EDITOR = "rascal.editor";
 
 	public static final String RASCAL_EDITOR_MESSAGES = "rascal.editor.messages";
-	public static final String NATURE_ID = "rascal.nature";
 	
 
 

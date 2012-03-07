@@ -15,7 +15,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.runtime.IPluginLog;
@@ -23,8 +22,6 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 
 public class Nature extends ProjectNatureBase implements IRascalResources {
-	private IProject project;
-
 	@Override
 	public String getNatureID() {
 		return "rascal_eclipse.rascal_nature";
@@ -37,8 +34,7 @@ public class Nature extends ProjectNatureBase implements IRascalResources {
 	
 	public void configure() throws CoreException {
 		super.configure();
-		project = super.getProject();
-		IFolder folder = project.getFolder(IRascalResources.RASCAL_SRC);
+		IFolder folder = this.getProject().getFolder(IRascalResources.RASCAL_SRC);
 		
 		if (!folder.exists()) {
 			folder.create(false, false, null);
@@ -49,13 +45,13 @@ public class Nature extends ProjectNatureBase implements IRascalResources {
 
 	private void link() throws CoreException {
 		try {
-			IFolder lib = project.getFolder("std");
+			IFolder lib = this.getProject().getFolder("std");
 			
 			if (!lib.exists()) {
 				lib.createLink(new URI("rascal-library", RascalLibraryFileSystem.RASCAL, "", null), 0, null);
 			}
 
-			lib = project.getFolder("eclipse");
+			lib = this.getProject().getFolder("eclipse");
 			
 			if (!lib.exists()) {
 				lib.createLink(new URI("rascal-library", RascalLibraryFileSystem.ECLIPSE, "", null), 0, null);

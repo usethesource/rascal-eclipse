@@ -12,6 +12,7 @@
 package org.rascalmpl.eclipse.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -22,6 +23,9 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.environments.ExecutionEnvironmentDescription;
+import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
+import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.pde.core.project.IBundleProjectDescription;
 import org.eclipse.pde.core.project.IBundleProjectService;
@@ -29,6 +33,7 @@ import org.eclipse.pde.core.project.IRequiredBundleDescription;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.Version;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.terms.TermNature;
@@ -68,7 +73,9 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 								service.newRequiredBundle("org.eclipse.imp.pdb.values", null, false, false),
 								service.newRequiredBundle("rascal", null, false, false)
 								});
-						
+						plugin.setBundleVersion(Version.parseVersion("1.0.0"));
+						plugin.setExecutionEnvironments(new String[] { "JavaSE-1.6"}); // TODO: Is this a constant defined somewhere?
+
 						IProjectDescription description = project.getDescription();
 						description.setBuildConfigs(new String[] { "org.eclipse.jdt.core.javabuilder", "org.eclipse.pde.ManifestBuilder", "org.eclipse.pde.SchemaBuilder" });
 						project.setDescription(description, monitor);
