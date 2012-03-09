@@ -40,6 +40,7 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.NodeLocator;
 import org.rascalmpl.eclipse.editor.Token;
 import org.rascalmpl.eclipse.editor.TokenIterator;
+import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -57,6 +58,7 @@ public class TermParseController implements IParseController {
 	private IDocument document;
 	private ICallableValue annotator;
 	private ParseJob job;
+	private ModuleReloader reloader;
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory(); 
 	private final static AnnotatorExecutor executor = new AnnotatorExecutor();
 	
@@ -103,7 +105,8 @@ public class TermParseController implements IParseController {
 		this.language = reg.getLanguage(path.getFileExtension());
 		this.parser = reg.getParser(this.language);
 		this.annotator = reg.getAnnotator(this.language);
-		this.job = new ParseJob(language.getName() + " parser", VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, path)), handler);
+		this.reloader = reg.getReloader(this.language);
+		this.job = new ParseJob(language.getName() + " parser", VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, path)), handler, reloader);
 	}
 
 	public IDocument getDocument() {
@@ -121,15 +124,17 @@ public class TermParseController implements IParseController {
 	private class ParseJob extends Job {
 		private final IMessageHandler handler;
 		private final ISourceLocation loc;
+		private final ModuleReloader reloader;
 		
 		private String input;
 		public IConstructor parseTree = null;
 
-		public ParseJob(String name, ISourceLocation loc, IMessageHandler handler) {
+		public ParseJob(String name, ISourceLocation loc, IMessageHandler handler, ModuleReloader reloader) {
 			super(name);
 			
 			this.loc = loc;
 			this.handler = handler;
+			this.reloader = reloader;
 		}
 		
 		public void initialize(String input) {
@@ -146,6 +151,7 @@ public class TermParseController implements IParseController {
 				TypeFactory TF = TypeFactory.getInstance();
 				if (parser != null) {
 					synchronized (parser.getEval()) {
+						reloader.updateModules(monitor);
 						parseTree = (IConstructor) parser.call(rm, new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}).getValue();
 					}
 					if (parseTree != null && annotator != null) {
