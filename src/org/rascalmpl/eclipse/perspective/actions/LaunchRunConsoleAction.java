@@ -14,7 +14,6 @@
 package org.rascalmpl.eclipse.perspective.actions;
 
 import java.util.HashMap;
-import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -38,19 +37,18 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
-import org.rascalmpl.eclipse.console.internal.CommandExecutionException;
-import org.rascalmpl.eclipse.console.internal.TerminationException;
+import org.rascalmpl.eclipse.util.RascalInterpreter;
 import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.env.Pair;
-import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.Evaluator;
+
 
 public class LaunchRunConsoleAction extends Action implements
 		IObjectActionDelegate, IActionDelegate2, IEditorActionDelegate {
 	private IProject project;
 	private IFile file;
 	private final HashMap<IProject, IRascalConsole> consoleMap = new HashMap<IProject, IRascalConsole>();
-	private final IConsoleManager fConsoleManager = ConsolePlugin
-			.getDefault().getConsoleManager();
+	private final IConsoleManager fConsoleManager = ConsolePlugin.getDefault()
+			.getConsoleManager();
 
 	public LaunchRunConsoleAction() {
 	}
@@ -97,6 +95,7 @@ public class LaunchRunConsoleAction extends Action implements
 		run();
 	}
 
+
 	private void process() {
 		IRascalConsole console;
 		if (consoleMap.get(project) == null) {
@@ -107,33 +106,17 @@ public class LaunchRunConsoleAction extends Action implements
 		String moduleFullName = file.getName();
 		moduleFullName = moduleFullName.substring(0, moduleFullName.length()
 				- Configuration.RASCAL_FILE_EXT.length());
-		try {
-			console.getRascalInterpreter().execute(
-					"import " + moduleFullName + ";");
-			List<Pair<String, List<AbstractFunction>>> functions = console
-					.getRascalInterpreter().getEval().getCurrentEnvt()
-					.getImport(moduleFullName).getFunctions();
-			for (Pair<String, List<AbstractFunction>> f : functions) {
-				if (f.getFirst().equals("main")) {
-					for (AbstractFunction g : f.getSecond()) {
-						if (g.getArity() == 0) {
-							console.getRascalInterpreter().execute("main();");
-							return;
-						}
-					}
-				}
-			}
+		RascalInterpreter ev = new RascalInterpreter(project);
+		Evaluator evaluator = console.getRascalInterpreter().getEval();
+		if (!ev.isVoidInModule(moduleFullName, "main")) {
 			final String s = "Procedure \"main()\" not found in module "
 					+ moduleFullName;
-			console.getRascalInterpreter().getEval().getStdErr().println(s);
+			evaluator.getStdErr().println(s);
 			System.err.println(s);
-		} catch (CommandExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TerminationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return;
 		}
+		ev.eval("import " + moduleFullName + ";");
+		ev.eval("main();");
 	}
 
 	@Override
