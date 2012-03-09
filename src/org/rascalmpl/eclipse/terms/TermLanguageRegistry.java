@@ -26,7 +26,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -41,7 +40,6 @@ public class TermLanguageRegistry {
 	private final Map<String, ICallableValue> outliners = new HashMap<String,ICallableValue>();
 	private final Map<String, ISet> contributions = new HashMap<String, ISet>();
 	private final Map<String, ISet> nonRascalContributions = new ConcurrentHashMap<String, ISet>();
-	private final Map<String, ModuleReloader> reloaders = new HashMap<String, ModuleReloader>();
 
 	static private class InstanceKeeper {
 		public static TermLanguageRegistry sInstance = new TermLanguageRegistry();
@@ -74,10 +72,6 @@ public class TermLanguageRegistry {
 		languages.remove(value);
 		evals.remove(value);
 		parsers.remove(value);
-		ModuleReloader old = reloaders.remove(value);
-		if (old != null) {
-			old.destroy();
-		}
 		analyses.remove(value);
 		outliners.remove(value);
 		contributions.remove(value);
@@ -92,10 +86,6 @@ public class TermLanguageRegistry {
 		languages.put(extension, l);
 		evals.put(name, ctx);
 		parsers.put(name, parser);
-		ModuleReloader old = reloaders.put(name,  new ModuleReloader(ctx.getEvaluator()));
-		if (old != null) {
-			old.destroy();
-		}
 		LanguageRegistry.registerLanguage(l);
 	}
 	
@@ -232,12 +222,5 @@ public class TermLanguageRegistry {
 		}
 		
 		return null;
-	}
-
-	public ModuleReloader getReloader(Language lang) {
-		if (lang == null) {
-			return null;
-		}
-		return  reloaders.get(lang.getName());
 	}
 }
