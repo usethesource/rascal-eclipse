@@ -44,15 +44,11 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ParseController implements IParseController, IMessageHandlerProvider {
 	private IMessageHandler handler;
 	private ISourceProject project;
 	private IConstructor parseTree;
-	private IConstructor lastParseTree = null;
-	private byte[] lastParsedInput = null;
 	private IPath path;
 	private Language language;
 	private IDocument document;
@@ -123,7 +119,6 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	}
 	
 	private class ParseJob extends Job {
-		private final IMessageHandler handler;
 		private final URI uri;
 
 		private String input;
@@ -133,7 +128,6 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			super(name);
 			
 			this.uri = uri;
-			this.handler = handler;
 		}
 		
 		public void initialize(String input) {
@@ -150,59 +144,34 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 				return null;
 			}
 			
-			try{
-				handler.clearMessages();
-				
-				// TODO: this may be a workaround for a bug that's not there anymore
-				byte[] inputBytes = input.getBytes();
-				boolean arraysMatch = true;
-				if (lastParsedInput != null) { 
-					if(inputBytes.length != lastParsedInput.length) {
-						arraysMatch = false;
-					} else {
-						for (int n = 0; n < inputBytes.length; ++n)
-							if (inputBytes[n] != lastParsedInput[n]) {
-								arraysMatch = false;
-								break;
-							}
-					}
+			try {
+				synchronized (parser) {
+					parseTree = parser.parseModule(rm, input.toCharArray(), uri, null);
 				}
 				
-				if (lastParsedInput != null && arraysMatch) {
-					parseTree = lastParseTree;
-				} else {
-					// Note: One can switch between error and no error trees here.
-					synchronized(parser){
-//						parseTree = parser.parseModuleWithErrorTree(rm, input.toCharArray(), uri, null);
-						parseTree = parser.parseModule(rm, input.toCharArray(), uri, null);
-					}
-					lastParseTree = parseTree;
-					
-					if(parseTree.getConstructorType() == Factory.Tree_Error){
-						ISourceLocation parsedLocation = TreeAdapter.getLocation(parseTree);
-						
-						// Set the error location to where the error tree ends.
-						setParseError(Math.max(0, parsedLocation.getLength() - 1), 0, parsedLocation.getEndLine(), parsedLocation.getEndColumn(), parsedLocation.getEndLine(), parsedLocation.getEndColumn(), "Parse error: " + parsedLocation);
-					}
-				}
-			}catch(FactTypeUseException ftue){
+			}
+			catch (FactTypeUseException ftue) {
 				Activator.getInstance().logException("parsing rascal failed", ftue);
-			}catch(ParseError pe){
+			}
+			catch (ParseError pe){
 				int offset = pe.getOffset();
 				if(offset == input.length()) {
 					--offset;
 				}
 
 				setParseError(offset, pe.getLength(), pe.getBeginLine() + 1, pe.getBeginColumn(), pe.getEndLine() + 1, pe.getEndColumn(), pe.toString());
-			} catch (StaticError e) {
+			}
+			catch (StaticError e) {
 				ISourceLocation loc = e.getLocation();
 				
 				setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), e.getMessage());
-			}catch(Throw t){
+			}
+			catch (Throw t) {
 				ISourceLocation loc = t.getLocation();
 				
 				setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), t.getMessage());
-			}finally{
+			}
+			finally {
 				rm.endJob(true);
 			}
 			
@@ -226,7 +195,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	
 	private void setParseError(int offset, int length, int beginLine, int beginColumn, int endLine, int endColumn, String message){
 		if(offset >= 0){
-			handler.handleSimpleMessage(message, offset, offset + length, beginColumn, endColumn, beginLine, endLine);
+			handler.handleSimpleMessage(message, offset, offset + length, beginColumn, endColumn + 1, beginLine, endLine);
 		}else{
 			handler.handleSimpleMessage(message, 0, 0, 0, 0, 1, 1);
 		}
