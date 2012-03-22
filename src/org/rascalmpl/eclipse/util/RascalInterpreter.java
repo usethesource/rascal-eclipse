@@ -30,6 +30,10 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.JavaToRascal;
 
 
+/**
+ * @author bertl
+ *
+ */
 public class RascalInterpreter extends JavaToRascal {
 	
 	
@@ -122,23 +126,61 @@ public class RascalInterpreter extends JavaToRascal {
 	}
 
 
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.JavaToRascal#call(java.lang.String, org.eclipse.imp.pdb.facts.IValue[])
+	 */
 	@Override
-	public IValue call(String name, IValue... args) {
+	public Object call(String name, Object... args) {
 		return super.call(name, args);
 	}
-
-
+	
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.JavaToRascal#eval(java.lang.String)
+	 */
 	@Override
-	public String eval(String command, String location) {
-		return super.eval(command, location);
-	}
-
-
-	@Override
-	public String eval(String command) {
+	public Object eval(String command) {
 		return super.eval(command);
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.JavaToRascal#intValue(java.lang.String)
+	 */
+	@Override
+	public int intValue(String command) {
+		return super.intValue(command);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.JavaToRascal#boolValue(java.lang.String)
+	 */
+	@Override
+	public boolean boolValue(String command) {
+		return super.boolValue(command);
+	}
 
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.JavaToRascal#stringValue(java.lang.String)
+	 */
+	@Override
+	public String stringValue(String command) {
+		return super.stringValue(command);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.JavaToRascal#listValue(java.lang.String)
+	 */
+	@Override
+	public Object[] listValue(String command) {
+		return super.listValue(command);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.JavaToRascal#voidValue(java.lang.String)
+	 */
+	@Override
+	public void voidValue(String command) {
+		super.voidValue(command);
+	}
 
 	@Override
 	public boolean isVoidInModule(String moduleName, String procedureName) {
@@ -173,9 +215,9 @@ public class RascalInterpreter extends JavaToRascal {
 		// IProject project =
 		// ResourcesPlugin.getWorkspace().getRoot().getProject("aap");
 		final RascalInterpreter jr = new RascalInterpreter(project);
-		System.out.println(jr.eval("import List;"));
-		System.out.println(jr.eval("\"<2+3>\";"));
-		System.out.println(jr.eval("\"aap:<size([2,3])>\";"));
+		System.out.println(jr.stringValue("import List;"));
+		System.out.println(jr.stringValue("\"<2+3>\";"));
+		System.out.println(jr.stringValue("\"aap:<size([2,3])>\";"));
 		final IInteger d1 = vf.integer(1), d2 = vf.integer(2);
 		final IList l = vf.list(d1, d2);
 		System.out.println(jr.call("size", l));
