@@ -16,7 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -100,12 +99,14 @@ public class TokenIterator implements Iterator<Token>{
 			IValue catAnno = arg.getAnnotation("category");
 			String category = null;
 			
+			
 			if (catAnno != null) {
 				category = ((IString) catAnno).getValue();
 			}
 			
-			if (category == null) {
-				category = ProductionAdapter.getCategory(TreeAdapter.getProduction(arg));
+			IConstructor prod = TreeAdapter.getProduction(arg);
+			if (category == null && ProductionAdapter.isDefault(prod)) {
+				category = ProductionAdapter.getCategory(prod);
 			}
 			
 			int offset = location;
@@ -114,8 +115,7 @@ public class TokenIterator implements Iterator<Token>{
 				child.accept(this);
 			}
 
-
-			if (TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg)){
+			if (ProductionAdapter.isDefault(prod) && (TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg))) {
 				if (category == null){
 					category = TokenColorer.META_KEYWORD;
 
@@ -127,7 +127,11 @@ public class TokenIterator implements Iterator<Token>{
 					}
 				}
 			}
-
+			
+			if (ProductionAdapter.isSkipped(prod)) {
+				category = TokenColorer.META_SKIPPED;
+			}
+			
 			if (category != null) {
 				tokenList.add(new Token(category, offset, location - offset));
 			}

@@ -45,6 +45,7 @@ public class TokenColorer implements ITokenColorer {
 	public static final String META_AMBIGUITY = "MetaAmbiguity";
 	public static final String META_VARIABLE = "MetaVariable";
 	public static final String META_KEYWORD = "MetaKeyword";
+	public static final String META_SKIPPED = "MetaSkipped";
 	private Boolean firstUse = true;
 
 	private final Map<String,TextAttribute> map = new HashMap<String,TextAttribute>();
@@ -55,6 +56,7 @@ public class TokenColorer implements ITokenColorer {
 		map.put(META_KEYWORD, new TextAttribute(new Color(Display.getDefault(), 123, 0, 82), null, SWT.BOLD));
 		map.put(META_VARIABLE, new TextAttribute(new Color(Display.getDefault(), 0x29,0x5F,0x94), null, SWT.ITALIC));
 		map.put(META_AMBIGUITY,  new TextAttribute(new Color(Display.getDefault(), 186, 29, 29), null, SWT.BOLD));
+		map.put(META_SKIPPED,  new TextAttribute(null, new Color(Display.getDefault(), 82, 141, 115), SWT.ITALIC));
 		map.put(TODO,new TextAttribute(new Color(Display.getDefault(), 123, 157, 198), null, SWT.BOLD));
 		map.put(COMMENT,new TextAttribute(new Color(Display.getDefault(), 82, 141, 115), null, SWT.ITALIC));
 		map.put(CONSTANT,new TextAttribute(new Color(Display.getDefault(), 139, 0, 139), null, SWT.NONE));

@@ -52,7 +52,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	private IPath path;
 	private Language language;
 	private IDocument document;
-	private org.rascalmpl.eclipse.editor.ParseController.ParseJob job;
+	private ParseJob job;
 	private Evaluator parser;
 	
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
