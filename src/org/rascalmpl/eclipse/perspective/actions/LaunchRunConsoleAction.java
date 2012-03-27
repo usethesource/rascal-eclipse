@@ -115,8 +115,8 @@ public class LaunchRunConsoleAction extends Action implements
 			System.err.println(s);
 			return;
 		}
-		ev.eval("import " + moduleFullName + ";");
-		ev.eval("main();");
+		ev.stringValue("import " + moduleFullName + ";");
+		ev.stringValue("main();");
 	}
 
 	@Override
