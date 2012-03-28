@@ -26,7 +26,8 @@ Require-Bundle: rascal;bundle-version="0.3.2",
  org.eclipse.ltk.core.refactoring,
  org.eclipse.pde.core,
  org.eclipse.jdt.launching,
- AmbiDexter
+ AmbiDexter,
+ org.eclipse.ui.views;bundle-version="3.6.0"
 Import-Package: org.eclipse.core.expressions
 Export-Package: org.rascalmpl.eclipse.nature,
   org.rascalmpl.eclipse.console,
