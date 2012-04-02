@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -58,6 +59,16 @@ public class ActionContributor implements ILanguageActionsContributor {
 			this.sync = synchronous;
 		}
 		
+		public Runner(boolean checked, boolean synchronous, String label, UniversalEditor editor, RascalAction job) {
+			super(label, Action.AS_CHECK_BOX);
+			setChecked(checked);
+			
+			this.editor = editor;
+			this.job = job;
+			this.sync = synchronous;
+		}
+		
+
 		public void run() {
 			Point selection = editor.getSelection();
 			job.init(editor);
@@ -157,7 +168,9 @@ public class ActionContributor implements ILanguageActionsContributor {
 	private void contribute(IMenuManager menuManager, final UniversalEditor editor, IConstructor menu) {
 		String label = ((IString) menu.get("label")).getValue();
 		
-		if (menu.getName().equals("action") || menu.getName().equals("edit")) {
+		if (menu.getName().equals("action") || 
+				menu.getName().equals("toggle") ||
+				menu.getName().equals("edit")) {
 			contributeAction(menuManager, editor, menu, label);
 		}
 		else if (menu.getName().equals("group")) {
@@ -174,12 +187,26 @@ public class ActionContributor implements ILanguageActionsContributor {
 			}
 		}
 	}
+	
+	private boolean getState(ICallableValue func) {
+		Type[] actualTypes = new Type[] { };
+		IValue[] actuals = new IValue[] { };
+		synchronized(func.getEval()){
+			return ((IBool) func.call(actualTypes, actuals).getValue()).getValue();
+		}
+		
+	}
 
+	
 	private void contributeAction(IMenuManager menuManager,
 			final UniversalEditor editor, IConstructor menu, String label) {
 		if (menu.has("action")) {
 			final ICallableValue func = (ICallableValue) menu.get("action");
 			menuManager.add(new Runner(false, label, editor, new RascalAction(label, func)));
+		}
+		else if (menu.has("state")) { // toggle
+			final ICallableValue func = (ICallableValue) menu.get("action");
+			menuManager.add(new Runner(getState((ICallableValue) menu.get("state")), true, label, editor, new RascalAction(label, func)));
 		}
 		else if (menu.has("edit")) {
 			final ICallableValue func = (ICallableValue) menu.get("edit");

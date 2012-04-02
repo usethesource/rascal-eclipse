@@ -39,6 +39,7 @@ data Contribution
 data Menu 
      = action(str label, void (Tree tree, loc selection) action)
      | action(str label, void (str selection, loc selection) handler) // for non rascal menu's
+     | toggle(str label, bool() state, void(Tree tree, loc selection) action)
      | edit(str label, str (Tree tree, loc selection) edit)
      | group(str label, list[Menu] members)
      | menu(str label, list[Menu] members)
