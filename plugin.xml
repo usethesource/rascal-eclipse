@@ -174,31 +174,6 @@
             id="rascal.editor"
             name="Rascal Editor">
       </editor>
-     
-      <editor
-            class="org.rascalmpl.eclipse.library.vis.FigureViewer"
-            default="false"
-            extensions="cxt"
-            id="rascal-eclipse.Figure.lattice"
-            name="Lattice Figure">
-      </editor>
-       <!-- icon="icons/lattice.gif" -->
-      <editor
-            class="org.rascalmpl.eclipse.library.vis.FigureViewer"
-            default="false"
-            extensions="cxt"
-            icon="icons/spring.png"
-            id="rascal-eclipse.Figure.spring"
-            name="Spring Figure">
-      </editor>
-      <editor
-            class="org.rascalmpl.eclipse.library.vis.FigureViewer"
-            default="false"
-            extensions="cxt"
-            icon="icons/layered.gif"
-            id="rascal-eclipse.Figure.layered"
-            name="Layered Figure">
-      </editor>
       <editor
             class="org.rascalmpl.eclipse.library.vis.FigureViewer"
             default="false"
@@ -218,14 +193,6 @@
                label="Launch Console"
                menubarPath="additions"
                tooltip="Launch a console with a command prompt">
-         </action>
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.LaunchRunConsoleAction"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal.launchrunconsole"
-               label="Run main() in Console"
-               menubarPath="additions"
-               tooltip="Run main() in console followed by command prompt">
          </action>
          <action
                class="org.rascalmpl.eclipse.perspective.actions.ResetProjectState"
@@ -733,61 +700,8 @@
            verticalRulerPreferenceValue="true">
      </specification>
   </extension>
- 
- 
- <extension
-       point="org.eclipse.ui.commands">
-    <command
-          id="org.eclipse.ui.file.print1"
-          name="print1">
-    </command>
-    <command
-          id="org.eclipse.ui.file.print2"
-          name="print2">
-    </command>
- </extension>
- <!--extension point="org.eclipse.core.expressions.definitions">
-      <definition id="rascal.file">
-            <adapt type="org.eclipse.core.resources.IFile">
-               <test property="org.eclipse.core.resources.name" 
-                     value="*.rsc"/>           
-            </adapt>
-      </definition>
-      <definition
-            id="expression.onlyOneItemSelected">
-         <with
-               variable="activeMenuSelection">
-            <count
-                  value="1">
-            </count>
-         </with>
-      </definition>
-   </extension-->
  <extension
        point="org.eclipse.ui.menus">
-    <menuContribution
-          allPopups="false"
-          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
-       <command
-             commandId="org.eclipse.ui.file.print1"
-             label="Pretty Print"
-             style="push"
-             tooltip="Print this file">       
-       </command>
-    </menuContribution>
-    <menuContribution locationURI="menu:file"> 
-       <command
-             commandId="org.eclipse.ui.file.print2"
-             label="My Print">           
-       </command>
-    </menuContribution>
-     <menuContribution
-        locationURI="popup:org.eclipse.ui.popup.views.ContentOutline?after=additions">
-       <command
-             commandId="org.eclipse.ui.file.print2"
-             label="Hallo">           
-       </command>
-    </menuContribution>
     <menuContribution
           locationURI="popup:#CompilationUnitEditorContext">
        <dynamic
@@ -818,7 +732,6 @@
           value="Monospace-regular-6">
     </fontDefinition>
  </extension>
- 
  <extension
        id="rascal.markerType.testResult"
        name="Rascal Test Result"
