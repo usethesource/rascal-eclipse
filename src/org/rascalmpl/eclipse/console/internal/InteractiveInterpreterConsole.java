@@ -304,12 +304,10 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	}
 	
 	protected void printOutput(String output){
-		consoleOutputStream.print();
 		writeToConsole(output, false);
 	}
 	
 	protected void printOutput(){
-		consoleOutputStream.print();
 	}
 	
 	protected void setError(final int offset, final int length){
@@ -432,10 +430,6 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	}
 	
 	protected static class ConsoleOutputStream extends OutputStream{
-		private final static int DEFAULT_SIZE = 64;
-		
-		private byte[] buffer;
-		private int index;
 		
 		private final InteractiveInterpreterConsole console;
 		
@@ -451,8 +445,6 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			enabled = false;
 			
 			this.backup = RuntimePlugin.getInstance().getConsoleStream();
-			
-			reset();
 		}
 		
 		public synchronized void write(byte[] bytes, int offset, int length) throws IOException {
@@ -460,21 +452,12 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				backup.write(bytes,offset,length);
 				return;
 			}
-			
-			int currentSize = buffer.length;
-			if(index + length >= currentSize){
-				int newSize = currentSize;
-				do{
-					newSize <<= 1;
-				}while(newSize < (index + length));
-				
-				byte[] newBuffer = new byte[newSize << 1];
-				System.arraycopy(buffer, 0, newBuffer, 0, currentSize);
-				buffer = newBuffer;
+			if (length > 0) {
+				try {
+					console.writeToConsole(new String(bytes, offset, length, "UTF16"), false);
+				} catch (UnsupportedEncodingException e) {
+				}
 			}
-			System.arraycopy(bytes, offset, buffer, index, length);
-			index += length;
-			print();
 		}
 		
 		public synchronized void write(int arg) throws IOException{
@@ -484,29 +467,10 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			}
 			
 			if(arg == '\n' || arg == '\r'){ // If we encounter a new-line, print the content of the buffer.
-				print();
 				return;
 			}
+			console.writeToConsole(new String(new byte[] {(byte)arg}), false);
 			
-			int currentSize = buffer.length;
-			if(index == currentSize){
-				byte[] newData = new byte[currentSize << 1];
-				System.arraycopy(buffer, 0, newData, 0, currentSize);
-				buffer = newData;
-			}
-			
-			buffer[index++] = (byte) arg;
-		}
-		
-		public synchronized void print(){
-			if(index != 0){
-				try {
-					console.writeToConsole(new String(buffer, 0, index, "UTF16"), false);
-				} catch (UnsupportedEncodingException e) {
-				}
-				
-				reset();
-			}
 		}
 		
 		public synchronized void enable(){
@@ -515,11 +479,6 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		
 		public synchronized void disable(){
 			enabled = false;
-		}
-		
-		private void reset(){
-			buffer = new byte[DEFAULT_SIZE];
-			index = 0;
 		}
 	}
 	
