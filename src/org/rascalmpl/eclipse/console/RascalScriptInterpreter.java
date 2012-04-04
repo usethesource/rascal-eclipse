@@ -204,82 +204,81 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 	
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		try {
-			RascalMonitor rm = new RascalMonitor(monitor);
-			rm.startJob("executing command", 10000);
-			rm.event("parsing command"); 
-			synchronized(eval){
+		RascalMonitor rm = new RascalMonitor(monitor);
+		rm.startJob("executing command", 10000);
+		rm.event("parsing command");
+		synchronized (eval) {
+			try {
 				eval.overrideDefaultWriters(consoleStdOut, consoleStdErr);
-				IConstructor tree = eval.parseCommand(rm, command, URI.create("stdin:///"));
+				IConstructor tree = eval.parseCommand(rm, command,
+						URI.create("stdin:///"));
 				rm.event("running command");
-				reloader.updateModules(monitor); 
+				reloader.updateModules(monitor);
 				execCommand(rm, tree);
+			}
+			catch (ParseError e) {
+				if (e.getLocation().getScheme().equals("stdin")) {
+					if (e.getOffset() >= command.length()) {
+						content = "";
+						error = e;
+					} else {
+						content = parseErrorMessage(command, "stdin", e) + "\n";
+						error = new CommandExecutionException(content,
+								e.getOffset(), e.getLength());
+						command = "";
+					}
+				} else {
+					content = parseErrorMessage(command, "stdin", e) + "\n";
+					error = new CommandExecutionException(content);
+					command = "";
+				}
+			} catch (QuitException q) {
+				error = new TerminationException();
+			} catch (InterruptException i) {
+				content = interruptedExceptionMessage(i) + "\n";
+				command = "";
+			} catch (Ambiguous e) {
+				Activator.getInstance().logException(e.getMessage(), e);
+				content = ambiguousMessage(e) + "\n";
+				command = "";
+			} catch (StaticError e) {
+				content = staticErrorMessage(e) + "\n";
+				command = "";
+				ISourceLocation location = e.getLocation();
+				if (location != null
+						&& !location.getURI().getScheme().equals("stdin")) {
+					setMarker(e.getMessage(), location.getURI(),
+							location.getOffset(), location.getLength());
+					error = new CommandExecutionException(content);
+				} else if (location != null
+						&& location.getURI().getScheme().equals("stdin")) {
+					error = new CommandExecutionException(content,
+							location.getOffset(), location.getLength());
+				} else {
+					error = new CommandExecutionException(content);
+				}
+			} catch (Throw e) {
+				content = throwMessage(e) + "\n";
+				command = "";
+				ISourceLocation location = e.getLocation();
+				if (location != null
+						&& !location.getURI().getScheme().equals("stdin")) {
+					setMarker(e.getMessage(), location.getURI(),
+							location.getOffset(), location.getLength());
+					error = new CommandExecutionException(content,
+							location.getOffset(), location.getLength());
+				}
+			} catch (Throwable e) {
+				Activator.getInstance().logException(e.getMessage(), e);
+				content = throwableMessage(e, eval.getStackTrace()) + "\n";
+				command = "";
+			}
+			finally {
 				consoleStreamPipe.signalAndWaitForFlush(500); // try to get the most out of the console
 				eval.revertToDefaultWriters();
 			}
-			rm.endJob(true);
-		
 		}
-		catch (ParseError e) {
-			if (e.getLocation().getScheme().equals("stdin")) {
-			    if (e.getOffset() >= command.length()) {
-				  content = "";
-				  error = e;
-				}
-				else {
-				  content = parseErrorMessage(command, "stdin", e) + "\n";
-				  error = new CommandExecutionException(content, e.getOffset(), e.getLength());
-				  command = "";
-				}
-			}
-			else {
-				content = parseErrorMessage(command, "stdin", e) + "\n";
-				error = new CommandExecutionException(content);
-				command = "";
-			}
-		} 
-		catch (QuitException q){
-			error = new TerminationException();
-		}
-		catch(InterruptException i) {
-			content =  interruptedExceptionMessage(i) + "\n";
-			command = "";
-		}
-		catch (Ambiguous e) {
-			Activator.getInstance().logException(e.getMessage(), e);
-			content =  ambiguousMessage(e) + "\n";
-			command = "";
-		}
-		catch(StaticError e){
-			content = staticErrorMessage(e) + "\n";
-			command = "";
-			ISourceLocation location = e.getLocation();
-			if (location != null && !location.getURI().getScheme().equals("stdin")) {
-				setMarker(e.getMessage(), location.getURI(), location.getOffset(), location.getLength());
-				error = new CommandExecutionException(content);
-			}
-			else if (location != null && location.getURI().getScheme().equals("stdin")) {
-				error = new CommandExecutionException(content, location.getOffset(), location.getLength());
-			}
-			else {
-				error = new CommandExecutionException(content);
-			}
-		}
-		catch(Throw e){
-			content = throwMessage(e) + "\n";
-			command = "";
-			ISourceLocation location = e.getLocation();
-			if(location != null && !location.getURI().getScheme().equals("stdin")){
-				setMarker(e.getMessage(), location.getURI(), location.getOffset(), location.getLength());
-				error = new CommandExecutionException(content, location.getOffset(), location.getLength());
-			}
-		}
-		catch (Throwable e){
-			Activator.getInstance().logException(e.getMessage(), e);
-			content = throwableMessage(e, eval.getStackTrace()) + "\n";
-			command = "";
-		}
-		
+		rm.endJob(true);
 		return Status.OK_STATUS;
 	}
 
