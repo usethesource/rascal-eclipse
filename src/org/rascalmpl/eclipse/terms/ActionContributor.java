@@ -200,13 +200,13 @@ public class ActionContributor implements ILanguageActionsContributor {
 	
 	private void contributeAction(IMenuManager menuManager,
 			final UniversalEditor editor, IConstructor menu, String label) {
-		if (menu.has("action")) {
-			final ICallableValue func = (ICallableValue) menu.get("action");
-			menuManager.add(new Runner(false, label, editor, new RascalAction(label, func)));
-		}
-		else if (menu.has("state")) { // toggle
+		if (menu.has("state")) { // toggle, order of evaluation is important as state also has action
 			final ICallableValue func = (ICallableValue) menu.get("action");
 			menuManager.add(new Runner(getState((ICallableValue) menu.get("state")), true, label, editor, new RascalAction(label, func)));
+		}
+		else if (menu.has("action")) {
+			final ICallableValue func = (ICallableValue) menu.get("action");
+			menuManager.add(new Runner(false, label, editor, new RascalAction(label, func)));
 		}
 		else if (menu.has("edit")) {
 			final ICallableValue func = (ICallableValue) menu.get("edit");
