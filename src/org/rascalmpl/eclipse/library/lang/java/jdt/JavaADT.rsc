@@ -76,7 +76,7 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| expressionStatement(AstNode expression)
 				| forStatement(list[AstNode] initializers, Option[AstNode] optionalBooleanExpression, list[AstNode] updaters, AstNode body)
 				| ifStatement(AstNode booleanExpression, AstNode thenStatement, Option[AstNode] elseStatement)
-				| labeledStatement(str label, AstNode body)
+				| labeledStatement(str name, AstNode body)
 				| returnStatement(Option[AstNode] optionalExpression)
 				| switchStatement(AstNode expression, list[AstNode] statements)
 				| switchCase(bool isDefault, Option[AstNode] optionalExpression)
