@@ -147,16 +147,6 @@ public class RascalInterpreter extends JavaToRascal {
 		return super.getEvaluator();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.rascalmpl.interpreter.JavaToRascal#call(java.lang.String,
-	 * org.eclipse.imp.pdb.facts.IValue[])
-	 */
-	@Override
-	public Object call(String name, Object... args) {
-		return super.call(name, args);
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -219,13 +209,13 @@ public class RascalInterpreter extends JavaToRascal {
 	}
 
 	@Override
-	public boolean isVoidInModule(String moduleName, String procedureName) {
-		return super.isVoidInModule(moduleName, procedureName);
+	public boolean isProcedureInModule(String moduleName, String procedureName, String procedureResultType, int arity) {
+		return super.isProcedureInModule(moduleName, procedureName, procedureResultType, arity);
 	}
 
 	@Override
-	public boolean isStringInModule(String moduleName, String procedureName) {
-		return super.isStringInModule(moduleName, procedureName);
+	public boolean isVariableInModule(String moduleName, String variableName, String variableType) {
+		return super.isVariableInModule(moduleName, variableName, variableType);
 	}
 
 	static public String rascalBasename(IFile file) {
