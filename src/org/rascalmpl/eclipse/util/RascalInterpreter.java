@@ -14,19 +14,19 @@ import java.io.PrintWriter;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorPart;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
-import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Variable;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
-import org.rascalmpl.eclipse.outline.TreeModelBuilder;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.JavaToRascal;
@@ -34,105 +34,30 @@ import org.rascalmpl.interpreter.JavaToRascal;
 public class RascalInterpreter extends JavaToRascal {
 
 	/**
-	 * Inspects if abstractAST is an initialized variable.
+	 * Inspects if selection is an initialized variable.
 	 * 
-	 * @param abstractAST
+	 * @param selection
 	 * @return the name of that variable (null otherwise)
 	 */
-	static public String getEvaluableVariableName(Object abstractAST) {
-		return getEvaluableVariableName(abstractAST, null);
-	}
-
-	/**
-	 * Inspects if abstractAST is an initialized variable to which assigned is a
-	 * term whose header is equal to headerSymbol.
-	 * 
-	 * @param abstractAST
-	 * @param headerSymbol
-	 * @return the name of that variable (null otherwise)
-	 */
-	static public String getEvaluableVariableName(Object abstractAST,
-			String headerSymbol) {
-		if (abstractAST == null || !(abstractAST instanceof AbstractAST))
-			return null;
-		if (abstractAST instanceof Variable
-				&& ((Variable) abstractAST).isInitialized()
-				&& ((Variable) abstractAST).hasName()
-				&& ((Variable) abstractAST).getName() instanceof Name.Lexical) {
-			if (headerSymbol != null) {
-				Expression initial = (((Variable.Initialized) abstractAST))
-						.getInitial();
-				if (!(initial instanceof Expression.CallOrTree))
-					return null;
-				Expression.CallOrTree e = (Expression.CallOrTree) initial;
-				Expression expression = e.getExpression();
-				if (!(expression instanceof Expression.QualifiedName))
-					return null;
-				Expression.QualifiedName qn = (Expression.QualifiedName) expression;
-				QualifiedName qualifiedName = qn.getQualifiedName();
-				if (qualifiedName.getNames().size() != 1)
-					return null;
-				Name name = qualifiedName.getNames().get(0);
-				if (!(name instanceof Name.Lexical))
-					return null;
-				if (((Name.Lexical) name).getString().equals(headerSymbol))
-					return ((Name.Lexical) (((Variable) abstractAST).getName()))
-							.getString();
-				return null;
+	static public String getEvaluableVariableSelection(ISelection selection) {
+		if (selection != null & selection instanceof IStructuredSelection) {
+			IStructuredSelection strucSelection = (IStructuredSelection) selection;
+			Object element = strucSelection.getFirstElement();
+			if (element instanceof ModelTreeNode) {
+				ModelTreeNode m = (ModelTreeNode) element;
+				final String s = getEvaluableVariableName(m.getASTNode());
+				return s;
 			}
-			return ((Name.Lexical) (((Variable) abstractAST).getName()))
-					.getString();
-		}
-		return null;
-	}
-	
-	
-
-	/**
-	 * Inspects if abstractAST is an imported module.
-	 * 
-	 * @param abstractAST
-	 * @return the name of that module (null otherwise)
-	 */
-	static public String getImportName(Object abstractAST) {
-		if (abstractAST == null || !(abstractAST instanceof AbstractAST))
-			return null;
-		if (abstractAST instanceof ImportedModule
-				&& ((ImportedModule) abstractAST).hasName()) {
-			QualifiedName name = ((ImportedModule) abstractAST).getName();
-			StringBuffer b = new StringBuffer();
-			for (Name h : name.getNames()) {
-				if (h instanceof Name.Lexical) {
-					b.append("::");
-					b.append(((Name.Lexical) h).getString());
-				}
-			}
-			return b.substring(2);
 		}
 		return null;
 	}
 
-	/**
-	 * Inspects if abstractAST is an imported (outline) group.
-	 * 
-	 * @param abstractAST
-	 * @return the name of that group (null otherwise)
-	 */
-	@SuppressWarnings("rawtypes")
-	static public String getGroupName(Object abstractAST) {
-		if (abstractAST == null)
-			return null;
-		if (abstractAST instanceof TreeModelBuilder.Group)
-			return ((TreeModelBuilder.Group) abstractAST).getName();
-		return null;
-	}
-	
 	/**
 	 * Inspects if activeEditor belongs to a language.
 	 * 
 	 * @param activeEditor
-	 * @return the name of the language belonging to activeEditor 
-	 * (null otherwise)
+	 * @return the name of the language belonging to activeEditor (null
+	 *         otherwise)
 	 */
 	static public String getLanguage(IEditorPart activeEditor) {
 		if (activeEditor instanceof UniversalEditor) {
@@ -146,7 +71,6 @@ public class RascalInterpreter extends JavaToRascal {
 	public Evaluator getEvaluator() {
 		return super.getEvaluator();
 	}
-
 
 	/*
 	 * (non-Javadoc)
@@ -209,12 +133,15 @@ public class RascalInterpreter extends JavaToRascal {
 	}
 
 	@Override
-	public boolean isProcedureInModule(String moduleName, String procedureName, String procedureResultType, int arity) {
-		return super.isProcedureInModule(moduleName, procedureName, procedureResultType, arity);
+	public boolean isProcedureInModule(String moduleName, String procedureName,
+			String procedureResultType, int arity) {
+		return super.isProcedureInModule(moduleName, procedureName,
+				procedureResultType, arity);
 	}
 
 	@Override
-	public boolean isVariableInModule(String moduleName, String variableName, String variableType) {
+	public boolean isVariableInModule(String moduleName, String variableName,
+			String... variableType) {
 		return super.isVariableInModule(moduleName, variableName, variableType);
 	}
 
@@ -237,8 +164,6 @@ public class RascalInterpreter extends JavaToRascal {
 				project));
 	}
 
-	
-
 	/* An example of use: */
 
 	public static void test(IProject project) {
@@ -252,4 +177,95 @@ public class RascalInterpreter extends JavaToRascal {
 		final IList l = vf.list(d1, d2);
 		System.out.println(jr.call("size", l));
 	}
+	/**
+	 * Inspects if abstractAST is an initialized variable.
+	 * 
+	 * @param abstractAST
+	 * @return the name of that variable (null otherwise)
+	 */
+	static private String getEvaluableVariableName(Object abstractAST) {
+		return getEvaluableVariableName(abstractAST, null);
+	}
+
+	/**
+	 * Inspects if abstractAST is an initialized variable to which assigned is a
+	 * term whose header is equal to headerSymbol.
+	 * 
+	 * @param abstractAST
+	 * @param headerSymbol
+	 * @return the name of that variable (null otherwise)
+	 */
+	static private String getEvaluableVariableName(Object abstractAST,
+			String headerSymbol) {
+		if (abstractAST == null || !(abstractAST instanceof AbstractAST))
+			return null;
+		if (abstractAST instanceof Variable
+				&& ((Variable) abstractAST).isInitialized()
+				&& ((Variable) abstractAST).hasName()
+				&& ((Variable) abstractAST).getName() instanceof Name.Lexical) {
+			if (headerSymbol != null) {
+				Expression initial = (((Variable.Initialized) abstractAST))
+						.getInitial();
+				if (!(initial instanceof Expression.CallOrTree))
+					return null;
+				Expression.CallOrTree e = (Expression.CallOrTree) initial;
+				Expression expression = e.getExpression();
+				if (!(expression instanceof Expression.QualifiedName))
+					return null;
+				Expression.QualifiedName qn = (Expression.QualifiedName) expression;
+				QualifiedName qualifiedName = qn.getQualifiedName();
+				if (qualifiedName.getNames().size() != 1)
+					return null;
+				Name name = qualifiedName.getNames().get(0);
+				if (!(name instanceof Name.Lexical))
+					return null;
+				if (((Name.Lexical) name).getString().equals(headerSymbol))
+					return ((Name.Lexical) (((Variable) abstractAST).getName()))
+							.getString();
+				return null;
+			}
+			return ((Name.Lexical) (((Variable) abstractAST).getName()))
+					.getString();
+		}
+		return null;
+	}
+	
+	/**
+	 * Inspects if abstractAST is an imported module.
+	 * 
+	 * @param abstractAST
+	 * @return the name of that module (null otherwise)
+	 */
+//	static private String getImportName(Object abstractAST) {
+//		if (abstractAST == null || !(abstractAST instanceof AbstractAST))
+//			return null;
+//		if (abstractAST instanceof ImportedModule
+//				&& ((ImportedModule) abstractAST).hasName()) {
+//			QualifiedName name = ((ImportedModule) abstractAST).getName();
+//			StringBuffer b = new StringBuffer();
+//			for (Name h : name.getNames()) {
+//				if (h instanceof Name.Lexical) {
+//					b.append("::");
+//					b.append(((Name.Lexical) h).getString());
+//				}
+//			}
+//			return b.substring(2);
+//		}
+//		return null;
+//	}
+	
+	/**
+	 * Inspects if abstractAST is an imported (outline) group.
+	 * 
+	 * @param abstractAST
+	 * @return the name of that group (null otherwise)
+	 */
+//	@SuppressWarnings("rawtypes")
+//	static private String getGroupName(Object abstractAST) {
+//		if (abstractAST == null)
+//			return null;
+//		if (abstractAST instanceof TreeModelBuilder.Group)
+//			return ((TreeModelBuilder.Group) abstractAST).getName();
+//		return null;
+//	}
 }
