@@ -127,6 +127,7 @@ public class JDTImporter extends ASTVisitor {
 	private IRelationWriter methodBodies;
 
 	private final TypeStore typeStore;
+	private CompilationUnit compilationUnit;
 
 	public JDTImporter(final TypeStore typeStore) {
 		super();
@@ -193,9 +194,9 @@ public class JDTImporter extends ASTVisitor {
 		parser.setResolveBindings(true);
 		parser.setSource(icu);
 
-		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+		compilationUnit = (CompilationUnit) parser.createAST(null);
 
-		IProblem[] problems = cu.getProblems();
+		IProblem[] problems = compilationUnit.getProblems();
 		for (i = 0; i < problems.length; i++) {
 			if (problems[i].isError()) {
 				int offset = problems[i].getSourceStart();
@@ -206,7 +207,7 @@ public class JDTImporter extends ASTVisitor {
 			}
 		}
 
-		cu.accept(this);
+		compilationUnit.accept(this);
 	}
 
 	public void preVisit(ASTNode n) {
@@ -662,7 +663,13 @@ public class JDTImporter extends ASTVisitor {
 
 	private void addBinding(IRelationWriter rw, ASTNode n, IValue entity) {
 		ISourceLocation fileLoc = new Resources(VF).makeFile(file);
-		ISourceLocation loc = VF.sourceLocation(fileLoc.getURI(), n.getStartPosition(), n.getLength());
+		int start = n.getStartPosition();
+		int end = start + n.getLength() - 1;
+		int lineNumber = compilationUnit.getLineNumber(start);
+		int columnNumber = compilationUnit.getColumnNumber(start);
+		int endLineNumber = compilationUnit.getLineNumber(end);
+		int endColumnNumber = compilationUnit.getColumnNumber(end);
+		ISourceLocation loc = VF.sourceLocation(fileLoc.getURI(), start, n.getLength(), lineNumber, endLineNumber, columnNumber, endColumnNumber);
 		rw.insert(VF.tuple(loc, entity));
 	}
 }
