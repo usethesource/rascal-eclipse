@@ -13,7 +13,7 @@ import lang::java::jdt::Java;
 @doc{Returns the type of the AstNode if it can be resolved}
 anno Entity AstNode@javaType; 
 
-data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstNode] typeDeclarations)
+data AstNode	= compilationUnit(Option[AstNode] package, list[AstNode] imports, list[AstNode] typeDeclarations)
 				
 				// Declarations
 				| anonymousClassDeclaration(list[AstNode] bodyDeclarations)
@@ -49,8 +49,8 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| infixExpression(str operator, AstNode leftSide, AstNode rightSide, list[AstNode] extendedOperands)
 				| instanceofExpression(AstNode leftSide, AstNode rightSide)
 				| methodInvocation(Option[AstNode] optionalExpression, list[AstNode] genericTypes, str name, list[AstNode] typedArguments)
-				| superMethodInvocation(Option[str] optionalQualifier, list[AstNode] genericTypes, str name, list[AstNode] typedArguments)
-				| qualifiedName(str qualifiedName)
+				| superMethodInvocation(Option[AstNode] optionalQualifier, list[AstNode] genericTypes, str name, list[AstNode] typedArguments)
+				| qualifiedName(AstNode qualifier, str name)
 				| simpleName(str simpleName)
 				| nullLiteral()
 				| numberLiteral(str number)
@@ -58,8 +58,8 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				| postfixExpression(AstNode operand, str operator)
 				| prefixExpression(AstNode operand, str operator)
 				| stringLiteral(str stringValue)
-				| superFieldAccess(Option[str] optionalQualifier, str name)
-				| thisExpression(Option[str] optionalQualifierString)
+				| superFieldAccess(Option[AstNode] optionalQualifier, str name)
+				| thisExpression(Option[AstNode] optionalQualifier)
 				| typeLiteral(AstNode \type)
 				| variableDeclarationExpression(list[Modifier] modifiers, AstNode \type, list[AstNode] fragments)
 						
@@ -91,10 +91,10 @@ data AstNode	= compilationUnit(AstNode package, list[AstNode] imports, list[AstN
 				// Types
 				| arrayType(AstNode \typeOfArray)
 				| parameterizedType(AstNode \typeOfParam, list[AstNode] genericTypes)
-				| qualifiedType(str qualifier, str name)
+				| qualifiedType(AstNode qualifier, str name)
 				| primitiveType(str primitive)
 				| simpleType(str name)
-				| wildcardType(Option[AstNode] wildcardType, Option[str] bound)
+				| wildcardType(Option[AstNode] bound, Option[str] lowerOrUpper)
 																			
 				// Comments 
 				| blockComment()

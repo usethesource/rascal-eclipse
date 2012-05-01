@@ -112,7 +112,6 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.WildcardType;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 @SuppressWarnings({"deprecation", "rawtypes"})
 public class JdtAstToRascalAstConverter extends ASTVisitor {
@@ -131,9 +130,17 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		this.typeStore = typeStore;
 		this.bindingConverter = bindingConverter;
 	}
+	
+	protected JdtAstToRascalAstConverter getInstance() {
+		return new JdtAstToRascalAstConverter(values, typeStore, bindingConverter);
+	}
 
 	public IValue getValue() {
-		return ownValue;
+		return this.ownValue;
+	}
+
+	public void setAnnotation(String annoName, IValue annoValue) {
+		this.ownValue = (this.ownValue != null) ? ((IConstructor) this.ownValue).setAnnotation(annoName, annoValue) : null;
 	}
 
 	private IValueList parseModifiers(int modifiers) {
@@ -212,7 +219,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 
 	private IValue visitChild(ASTNode node) {
-		JdtAstToRascalAstConverter newConverter = new JdtAstToRascalAstConverter(values, typeStore, bindingConverter);
+		JdtAstToRascalAstConverter newConverter = getInstance();
 		node.accept(newConverter);
 
 		return newConverter.getValue();
@@ -247,7 +254,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		} else if (node instanceof AnonymousClassDeclaration) {
 			type = bindingConverter.getEntity(((AnonymousClassDeclaration) node).resolveBinding());
 		} else if (node instanceof Expression) {
-			type = bindingConverter.getEntity(((Expression) node).resolveTypeBinding());
+			type = (((Expression) node).resolveTypeBinding() != null) ? bindingConverter.getEntity(((Expression) node).resolveTypeBinding()) : null;
 		} else if (node instanceof TypeDeclarationStatement) {
 			type = bindingConverter.getEntity(((TypeDeclarationStatement) node).resolveBinding());
 		} else if (node instanceof TypeParameter) {
@@ -474,7 +481,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 			typeDeclarations.add(visitChild(d));
 		}
 
-		ownValue = constructRascalNode(node, packageOfUnit, imports.asList(), typeDeclarations.asList());
+		ownValue = constructRascalNode(node, optional(packageOfUnit), imports.asList(), typeDeclarations.asList());
 		return false;
 	}
 
@@ -943,14 +950,15 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 
 	public boolean visit(QualifiedName node) {
-		IValue name = values.string(node.getFullyQualifiedName());
-		ownValue = constructRascalNode(node, name);
+		IValue qualifier = visitChild(node.getQualifier());
+		IValue name = values.string((node.getName().getFullyQualifiedName()));
+		ownValue = constructRascalNode(node, qualifier, name);
 		return false;
 	}
 
 	public boolean visit(QualifiedType node) {
 		IValue qualifier = visitChild(node.getQualifier());
-		IValue name = visitChild(node.getName());
+		IValue name = values.string((node.getName().getFullyQualifiedName()));
 
 		ownValue = constructRascalNode(node, qualifier, name);
 		return false;
@@ -1041,8 +1049,8 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 
 	public boolean visit(SuperFieldAccess node) {
-		IValue qualifier = node.getQualifier() == null ? null : values.string(node.getQualifier().getFullyQualifiedName());
-		IValue name = visitChild(node.getName());
+		IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
+		IValue name = values.string((node.getName().getFullyQualifiedName()));
 
 		ownValue = constructRascalNode(node, optional(qualifier), name);
 		return false;
@@ -1113,7 +1121,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 
 	public boolean visit(ThisExpression node) {
-		IValue qualifier = node.getQualifier() == null ? null : values.string(node.getQualifier().getFullyQualifiedName());
+		IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
 
 		ownValue = constructRascalNode(node, optional(qualifier));
 		return false;
