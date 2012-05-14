@@ -17,7 +17,6 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
@@ -25,9 +24,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.progress.IProgressService;
-import org.rascalmpl.checker.StaticChecker;
-import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.editor.ParseController;
 
 public class ReloadStaticChecker implements IEditorActionDelegate {
 	private final StaticCheckerHelper helper = new StaticCheckerHelper();

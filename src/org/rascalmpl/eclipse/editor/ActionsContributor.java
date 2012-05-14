@@ -8,11 +8,6 @@ import org.eclipse.imp.services.ILanguageActionsContributor;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.MenuManager;
-import org.rascalmpl.eclipse.perspective.actions.CopyToConsole;
-import org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction;
-import org.rascalmpl.eclipse.perspective.actions.ListAmbiguities;
-import org.rascalmpl.eclipse.perspective.actions.RunAmbiDexter;
 
 public class ActionsContributor implements ILanguageActionsContributor {
 

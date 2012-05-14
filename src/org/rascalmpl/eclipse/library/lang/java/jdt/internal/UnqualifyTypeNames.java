@@ -277,7 +277,6 @@ public class UnqualifyTypeNames extends ASTVisitor {
 		visitCompilationUnit();
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void visitCompilationUnit() {
 		ICompilationUnit icu = JavaCore.createCompilationUnitFrom(file);
 		

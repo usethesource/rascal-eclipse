@@ -15,8 +15,6 @@ package org.rascalmpl.eclipse.library.vis;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;

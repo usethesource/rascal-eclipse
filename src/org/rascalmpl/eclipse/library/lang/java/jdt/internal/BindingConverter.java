@@ -150,7 +150,6 @@ public class BindingConverter extends ASTVisitor {
 		return createEntity(getIds(binding, possibleParent));
 	}
 	
-	@SuppressWarnings("unchecked")
 	public List<IValue> getModifiers(List list) {
 		List<IValue> result = new ArrayList<IValue>();
 		for (Object element : list) {

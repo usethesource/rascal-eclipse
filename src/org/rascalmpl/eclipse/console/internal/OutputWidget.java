@@ -1,8 +1,6 @@
 package org.rascalmpl.eclipse.console.internal;
 
 import java.io.IOException;
-import java.io.OutputStream;
-
 import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.preference.PreferenceConverter;

@@ -31,9 +31,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.part.EditorPart;
-import org.eclipse.ui.part.EditorInputTransfer.EditorInputData;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.util.RascalInvoker;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.swt.FigureExecutionEnvironment;
 
