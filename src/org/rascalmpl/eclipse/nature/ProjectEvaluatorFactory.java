@@ -148,15 +148,18 @@ public class ProjectEvaluatorFactory {
 		
 		if (project != null) {
 			try {
-				if (project.exists(new Path(IRascalResources.RASCAL_SRC))) {
-					parser.addRascalSearchPath(new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
-				}
-				else {
-					parser.addRascalSearchPath(new URI("project://" + project.getName() + "/"));
+				addProjectToSearchPath(project, parser);
+				
+				IProject[] projects = project.getReferencedProjects();
+				for (IProject ref : projects) {
+					addProjectToSearchPath(ref, parser);
 				}
 			} 
 			catch (URISyntaxException usex) {
-				throw new RuntimeException(usex);
+				Activator.getInstance().logException("could not construct search path", usex);
+			} 
+			catch (CoreException e) {
+				Activator.getInstance().logException("could not construct search path", e);
 			}
 			
 			try {
@@ -172,6 +175,16 @@ public class ProjectEvaluatorFactory {
 			}
 		}
 		
+	}
+
+	private void addProjectToSearchPath(IProject project, Evaluator parser)
+			throws URISyntaxException {
+		if (project.exists(new Path(IRascalResources.RASCAL_SRC))) {
+			parser.addRascalSearchPath(new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+		}
+		else {
+			parser.addRascalSearchPath(new URI("project://" + project.getName() + "/"));
+		}
 	}
 
 	/**
