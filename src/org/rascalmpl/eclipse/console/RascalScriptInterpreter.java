@@ -330,8 +330,14 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				try{
 					if (project != null && location.getScheme().equals("project")) {
 						lastMarked = project.getFile(location.getPath());
+						
+						if (!lastMarked.exists()) {
+							for (IProject ref : project.getReferencedProjects()) {
+								lastMarked = ref.getFile(location.getPath());
+							}
+						}
 
-						if (lastMarked != null) {
+						if (lastMarked != null && lastMarked.exists()) {
 							IMarker m = lastMarked.createMarker(IRascalResources.ID_RASCAL_MARKER);
 
 							m.setAttribute(IMarker.TRANSIENT, true);
