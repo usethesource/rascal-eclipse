@@ -210,3 +210,12 @@ public tuple[rel[&T1, &T2] found, rel[loc, &T2] notfound] matchLocations(rel[&T1
 
   return <found, notfound>;
 }
+
+@doc{Creates AST from a file}
+@javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal.JDT}
+@reflect
+public java AstNode createAstFromFile(loc file);
+
+@doc{Creates ASTs from a project}
+public set[AstNode] createAstsFromProject(loc project) 
+	= { createAstFromFile(f) | /file(loc f) <- getProject(project), f.extension == "java" && isOnBuildPath(f) };

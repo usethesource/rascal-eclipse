@@ -12,6 +12,7 @@ import lang::java::jdt::Java;
 
 @doc{Returns the type of the AstNode if it can be resolved}
 anno Entity AstNode@javaType; 
+anno map[str, Entity] AstNode@bindings;
 
 data AstNode	= compilationUnit(Option[AstNode] package, list[AstNode] imports, list[AstNode] typeDeclarations)
 				
@@ -94,6 +95,7 @@ data AstNode	= compilationUnit(Option[AstNode] package, list[AstNode] imports, l
 				| qualifiedType(AstNode qualifier, str name)
 				| primitiveType(str primitive)
 				| simpleType(str name)
+				| unionType(list[AstNode] types)
 				| wildcardType(Option[AstNode] bound, Option[str] lowerOrUpper)
 																			
 				// Comments 

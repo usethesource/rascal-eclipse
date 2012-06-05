@@ -57,6 +57,7 @@ public class Java {
 	public static final Type CONS_TYPE_PARAMETER = TF.constructor(store, ADT_ID, "typeParameter", TF.stringType(), "name");
 	public static final Type CONS_WILDCARD = TF.constructor(store, ADT_ID, "wildcard");
 	public static final Type CONS_WILDCARD_BOUND = TF.constructor(store, ADT_ID, "wildcard", ADT_BOUND, "bound");
+	public static final Type CONS_CAPTURE = TF.constructor(store, ADT_ID, "captureof", ADT_ENTITY, "wildCard");
 
 	public static final Type CONS_BYTE = TF.constructor(store, ADT_PRIMITIVETYPE, "byte");
 	public static final Type CONS_SHORT = TF.constructor(store, ADT_PRIMITIVETYPE, "short");

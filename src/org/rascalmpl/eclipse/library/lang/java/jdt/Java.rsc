@@ -46,6 +46,7 @@ data Id = package(str name)
         | typeParameter(str name)
         | wildcard()
         | wildcard(Bound bound)
+        | captureof(Entity wildCard)
 ;
 
 @doc{the root of Java's type hierarchy}

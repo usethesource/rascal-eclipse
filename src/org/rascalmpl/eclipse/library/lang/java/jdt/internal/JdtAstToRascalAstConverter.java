@@ -10,108 +10,21 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 
+import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.ADT_ENTITY;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.Annotation;
-import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
-import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
-import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
-import org.eclipse.jdt.core.dom.ArrayAccess;
-import org.eclipse.jdt.core.dom.ArrayCreation;
-import org.eclipse.jdt.core.dom.ArrayInitializer;
-import org.eclipse.jdt.core.dom.ArrayType;
-import org.eclipse.jdt.core.dom.AssertStatement;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.BlockComment;
-import org.eclipse.jdt.core.dom.BodyDeclaration;
-import org.eclipse.jdt.core.dom.BooleanLiteral;
-import org.eclipse.jdt.core.dom.BreakStatement;
-import org.eclipse.jdt.core.dom.CastExpression;
-import org.eclipse.jdt.core.dom.CatchClause;
-import org.eclipse.jdt.core.dom.CharacterLiteral;
-import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ConditionalExpression;
-import org.eclipse.jdt.core.dom.ConstructorInvocation;
-import org.eclipse.jdt.core.dom.ContinueStatement;
-import org.eclipse.jdt.core.dom.DoStatement;
-import org.eclipse.jdt.core.dom.EmptyStatement;
-import org.eclipse.jdt.core.dom.EnhancedForStatement;
-import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
-import org.eclipse.jdt.core.dom.EnumDeclaration;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.FieldAccess;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.ForStatement;
-import org.eclipse.jdt.core.dom.IfStatement;
-import org.eclipse.jdt.core.dom.ImportDeclaration;
-import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.Initializer;
-import org.eclipse.jdt.core.dom.InstanceofExpression;
-import org.eclipse.jdt.core.dom.Javadoc;
-import org.eclipse.jdt.core.dom.LabeledStatement;
-import org.eclipse.jdt.core.dom.LineComment;
-import org.eclipse.jdt.core.dom.MarkerAnnotation;
-import org.eclipse.jdt.core.dom.MemberRef;
-import org.eclipse.jdt.core.dom.MemberValuePair;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.MethodRef;
-import org.eclipse.jdt.core.dom.MethodRefParameter;
-import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
-import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.NormalAnnotation;
-import org.eclipse.jdt.core.dom.NullLiteral;
-import org.eclipse.jdt.core.dom.NumberLiteral;
-import org.eclipse.jdt.core.dom.PackageDeclaration;
-import org.eclipse.jdt.core.dom.ParameterizedType;
-import org.eclipse.jdt.core.dom.ParenthesizedExpression;
-import org.eclipse.jdt.core.dom.PostfixExpression;
-import org.eclipse.jdt.core.dom.PrefixExpression;
-import org.eclipse.jdt.core.dom.PrimitiveType;
-import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.QualifiedType;
-import org.eclipse.jdt.core.dom.ReturnStatement;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.StringLiteral;
-import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
-import org.eclipse.jdt.core.dom.SuperFieldAccess;
-import org.eclipse.jdt.core.dom.SuperMethodInvocation;
-import org.eclipse.jdt.core.dom.SwitchCase;
-import org.eclipse.jdt.core.dom.SwitchStatement;
-import org.eclipse.jdt.core.dom.SynchronizedStatement;
-import org.eclipse.jdt.core.dom.TagElement;
-import org.eclipse.jdt.core.dom.TextElement;
-import org.eclipse.jdt.core.dom.ThisExpression;
-import org.eclipse.jdt.core.dom.ThrowStatement;
-import org.eclipse.jdt.core.dom.TryStatement;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
-import org.eclipse.jdt.core.dom.TypeLiteral;
-import org.eclipse.jdt.core.dom.TypeParameter;
-import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.WhileStatement;
-import org.eclipse.jdt.core.dom.WildcardType;
 
 @SuppressWarnings({"deprecation", "rawtypes"})
 public class JdtAstToRascalAstConverter extends ASTVisitor {
@@ -125,14 +38,45 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	private final TypeStore typeStore;
 	private final BindingConverter bindingConverter;	
 	
+	/* 
+	 * Type binding resolution
+	 */
+	private final BindingsImporter bindingsImporter;
+	private IValue javaType;
+	
+	/*
+	 * Richer binding information of a Java node
+	 */
+	public static final String ANNOTATION_JAVA_METHOD_BINDING = "methodBinding";
+	public static final String ANNOTATION_JAVA_PACKAGE_BINDING = "packageBinding";
+	public static final String ANNOTATION_JAVA_TYPE_BINDING = "typeBinding";
+	public static final String ANNOTATION_JAVA_VARIABLE_BINDING = "variableBinding";
+	public static final String ANNOTATION_JAVA_BINDINGS = "bindings";
+	
+	private IMap bindings;
+	
+	
 	public JdtAstToRascalAstConverter(final IValueFactory values, final TypeStore typeStore, final BindingConverter bindingConverter) {
 		this.values = values;
 		this.typeStore = typeStore;
 		this.bindingConverter = bindingConverter;
+		
+		this.bindingsImporter = new BindingsImporter(this.bindingConverter, this.values);
+	}
+	
+	public JdtAstToRascalAstConverter(final IValueFactory values, final TypeStore typeStore, final BindingConverter bindingConverter, BindingsImporter bindingsImporter) {
+		this.values = values;
+		this.typeStore = typeStore;
+		this.bindingConverter = bindingConverter;
+		
+		this.bindingsImporter = bindingsImporter;
 	}
 	
 	protected JdtAstToRascalAstConverter getInstance() {
-		return new JdtAstToRascalAstConverter(values, typeStore, bindingConverter);
+		/* 
+		 * Create an instance and passes the bindingsResolver object to it
+		 */
+		return new JdtAstToRascalAstConverter(values, typeStore, bindingConverter, bindingsImporter);
 	}
 
 	public IValue getValue() {
@@ -230,8 +174,10 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 
 	private IValue constructRascalNode(ASTNode node, IValue... children) {
-		IValue rascalValue = constructRascalNode(DATATYPE_RASCAL_AST_NODE, getNodeName(node), children);
-		
+		IValue rascalValue = constructRascalNode(DATATYPE_RASCAL_AST_NODE, getNodeName(node), children);	
+		/*
+		 *  Does not proper deal with possible initializers
+		 *  
 		if (rascalValue instanceof IConstructor) {
 			IValue type = resolveType(node);
 
@@ -240,10 +186,10 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 				rascalValue = rascalNode.setAnnotation(ANNOTATION_JAVA_TYPE, type);
 			}			
 		}
-		
+		*/
 		return rascalValue;
 	}
-	
+	/*
 	private IValue resolveType(ASTNode node) {
 		IValue type = null;
 		
@@ -267,7 +213,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		
 		return type;
 	}
-
+	*/
 	private IValue constructRascalNode(String dataType, String constructorName, IValue... children) {
 		org.eclipse.imp.pdb.facts.type.Type constructor = getConstructor(dataType, constructorName);
 		
@@ -289,6 +235,22 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		
 		// There should be only one constructor. 
 		return constructors.iterator().next();
+	}
+	
+	/*
+	 * 'preVisit' and 'postVisit' manage (scope) stacks of a bindings importer in a proper order
+	 * and resolve java bindings for a node if any
+	 */
+	public void preVisit(ASTNode node) {
+		bindingsImporter.resolveBindings(node);
+		this.javaType = bindingsImporter.getTypeBinding();
+		this.bindings = bindingsImporter.getBindings();
+		bindingsImporter.manageStacks(node, true);
+	}
+	public void postVisit(ASTNode node) {
+		if(this.javaType != null) setAnnotation(ANNOTATION_JAVA_TYPE, this.javaType);
+		setAnnotation(ANNOTATION_JAVA_BINDINGS, this.bindings);
+		bindingsImporter.manageStacks(node, false);
 	}
 	
 	public boolean visit(AnnotationTypeDeclaration node) {
@@ -1233,6 +1195,17 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		ownValue = constructRascalNode(node, name, extendsList.asList());
 		return false;
 	}
+	
+	public boolean visit(UnionType node) {
+		IValueList typesValues = new IValueList(values);
+		for(Iterator types = node.types().iterator(); types.hasNext();) {
+			Type type = (Type) types.next();
+			typesValues.add(visitChild(type));
+		}
+		
+		ownValue = constructRascalNode(node, typesValues.asList());
+		return false;
+	}
 
 	public boolean visit(VariableDeclarationExpression node) {
 
@@ -1314,6 +1287,53 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 
 		ownValue = constructRascalNode(node, optional(type), optional(bound));
 		return false;
+	}
+	
+	/*
+	 *  Inner class to resolve various java bindings
+	 *  An object manages scope stacks and imports possible bindings
+	 */
+	static public class BindingsImporter extends BindingsResolver {
+		
+		private IValue javaType;
+		private IMapWriter bindings;
+		
+		private TypeFactory ftypes = TypeFactory.getInstance();
+		private final IValueFactory values;
+		private final BindingConverter bindingConverter;
+		
+		public BindingsImporter(final BindingConverter bindingConverter, final IValueFactory values) {
+			super(bindingConverter);
+			this.values = values;
+			this.bindingConverter = bindingConverter;
+		}
+		
+		public IValue getTypeBinding() {
+			return this.javaType;
+		}
+		
+		public IMap getBindings() {
+		 return this.bindings.done();	
+		}
+		
+		public void resolveBindings(ASTNode node) {
+			this.javaType = null;
+			this.bindings = this.values.mapWriter(this.ftypes.stringType(), ADT_ENTITY);
+			super.resolveBindings(node);
+		}
+		public void importBinding(IMethodBinding binding) {
+			this.bindings.put(this.values.string(ANNOTATION_JAVA_METHOD_BINDING), this.bindingConverter.getEntity(binding));
+		}
+		public void importBinding(IPackageBinding binding) {
+			this.bindings.put(this.values.string(ANNOTATION_JAVA_PACKAGE_BINDING), this.bindingConverter.getEntity(binding));
+		}
+		public void importBinding(ITypeBinding binding, Initializer initializer) {
+			this.javaType = this.bindingConverter.getEntity(binding, initializer);
+			this.bindings.put(this.values.string(ANNOTATION_JAVA_TYPE_BINDING), this.javaType);
+		}
+		public void importBinding(IVariableBinding binding, Initializer initializer) {
+			this.bindings.put(this.values.string(ANNOTATION_JAVA_VARIABLE_BINDING), this.bindingConverter.getEntity(binding, initializer));
+		}
 	}
 
 }

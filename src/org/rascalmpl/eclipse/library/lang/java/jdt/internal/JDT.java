@@ -29,8 +29,13 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.rascalmpl.eclipse.library.util.Resources;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -124,5 +129,41 @@ public class JDT {
 		if (!file.getFileExtension().equals("java"))
 			throw new Throw(VF.string("Location is not a Java file: " + loc), (ISourceLocation) null, null);
 		return file;
+	}
+	/*
+	 * Creates Rascal ASTs for Java source files
+	 */
+	public IValue createAstFromFile(ISourceLocation loc, IEvaluatorContext eval) {
+		CompilationUnit cu = this.getCompilationUnit(loc);
+		JdtAstToRascalAstConverter converter = new JdtAstToRascalAstConverter(VF, 
+												   eval.getHeap().getModule("lang::java::jdt::JDT").getStore(), 
+												   new BindingConverter());
+		cu.accept(converter);
+		return converter.getValue();
+	}
+	
+	private CompilationUnit getCompilationUnit(ISourceLocation loc) {
+		IFile file = new JDT(VF).getJavaIFileForLocation(loc);
+		ICompilationUnit icu = JavaCore.createCompilationUnitFrom(file);
+		
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setResolveBindings(true);
+		parser.setSource(icu);
+
+		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+		
+		int i;
+		IProblem[] problems = cu.getProblems();
+		for (i = 0; i < problems.length; i++) {
+			if (problems[i].isError()) {
+				int offset = problems[i].getSourceStart();
+				int length = problems[i].getSourceEnd() - offset;
+				int sl = problems[i].getSourceLineNumber();
+				ISourceLocation pos = VF.sourceLocation(loc.getURI(), offset, length, sl, sl, 0, 0);
+				throw new Throw(VF.string("Error(s) in compilation unit: " + problems[i].getMessage()), pos, null);
+			}
+		}
+		
+		return cu;
 	}
 }

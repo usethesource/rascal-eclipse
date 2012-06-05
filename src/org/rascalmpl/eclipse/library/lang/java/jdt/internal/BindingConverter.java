@@ -19,6 +19,7 @@ import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.ADT_ID;
 import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.CONS_ABSTRACT;
 import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.CONS_ANONYMOUS_CLASS;
 import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.CONS_ARRAY;
+import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.CONS_CAPTURE;
 import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.CONS_CLASS;
 import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.CONS_CONSTRUCTOR;
 import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.CONS_DEPRECATED;
@@ -309,6 +310,42 @@ public class BindingConverter extends ASTVisitor {
 				prefix = getIds(declaringMethod);
 			} else {
 				ITypeBinding declaringClass = tb.getDeclaringClass();
+				/*
+				 *  Parameterized types and raw types are handled as a special case
+				 */
+				if(tb.isParameterizedType() || tb.isRawType()) {
+					if(tb.isLocal()) {
+						// if parameterized type is of a recorded local generic type, 
+						// then prefix is shared with a recorded local generic type
+						IList recordedLocalGenericType = idStore.get(tb.getTypeDeclaration().getKey());
+						if(recordedLocalGenericType != null) {
+							prefix = recordedLocalGenericType.sublist(0, recordedLocalGenericType.length() - 1);
+						}
+					} else if(declaringClass != null) {
+						prefix = getIds(declaringClass);
+					} else if(pb != null) {
+						prefix = getIds(pb);
+					}	
+				} else {
+					if (declaringClass != null && possibleParent == null) {
+						// for innerclasses within initializers, getDeclaringClass()
+						// returns the parent class of the initializer :-(
+						prefix = getIds(declaringClass);
+					} else {
+						/*
+						 *  The initializer is taken as a parent only if the type is local,
+						 *  this check is required for uses of non-local types within initializers 
+						 */
+						if (possibleParent != null && tb.isLocal()) {
+							prefix = getIds(possibleParent, null);	
+						} else if (declaringClass != null) {
+							prefix = getIds(declaringClass);
+						} else if (pb != null) {
+							prefix = getIds(pb);
+						}
+					}
+				}
+				/*
 				if (declaringClass != null && possibleParent == null) {
 					// for innerclasses within initializers, getDeclaringClass()
 					// returns the parent class of the initializer :-(
@@ -322,6 +359,7 @@ public class BindingConverter extends ASTVisitor {
 						}
 					}
 				}
+				*/
 			}
 		}
 
@@ -330,13 +368,21 @@ public class BindingConverter extends ASTVisitor {
 
 			if (tb.isClass()) {
 				if (tb.isGenericType()) {
+					/*
+					 *  The assignment below ensures type parameters, 
+					 *  required, e.g., in case of static imports of generic types
+					 */
+					tb = tb.getTypeDeclaration();
 					IValue params = importTypeBindings(tb.getTypeParameters());
 					lw.append(VF.constructor(CONS_GENERIC_CLASS, VF.string(tb
 							.getName()), params));
 				} else if (tb.isParameterizedType()) {
 					IValue params = importTypeBindings(tb.getTypeArguments());
-					lw.append(VF.constructor(CONS_GENERIC_CLASS, VF.string(tb
-							.getName()), params));
+					lw.append(VF.constructor(CONS_GENERIC_CLASS, VF
+							/*
+							 *  Type arguments are not part of a name
+							 */
+							.string(tb.getErasure().getName()), params));
 				} else if (tb.isAnonymous()) {
 					lw.append(VF.constructor(CONS_ANONYMOUS_CLASS, VF
 							.integer(anonymousClassCounter++)));
@@ -346,13 +392,21 @@ public class BindingConverter extends ASTVisitor {
 				}
 			} else if (tb.isInterface()) {
 				if (tb.isGenericType()) {
+					/*
+					 *  The assignment below ensures type parameters, 
+					 *  required, e.g., in case of static imports of generic types
+					 */ 
+					tb = tb.getTypeDeclaration();
 					IValue params = importTypeBindings(tb.getTypeParameters());
 					lw.append(VF.constructor(CONS_GENERIC_INTERFACE, VF
 							.string(tb.getName()), params));
 				} else if (tb.isParameterizedType()) {
 					IValue params = importTypeBindings(tb.getTypeArguments());
 					lw.append(VF.constructor(CONS_GENERIC_INTERFACE, VF
-							.string(tb.getName()), params));
+							/*
+							 *  Type arguments are not part of a name
+							 */
+							.string(tb.getErasure().getName()), params));
 				} else { // regular interface
 					lw.append(VF.constructor(CONS_INTERFACE, VF.string(tb
 							.getName())));
@@ -399,8 +453,10 @@ public class BindingConverter extends ASTVisitor {
 			} else
 
 			if (tb.isCapture()) {
-				// tb.getWildcard();
-				// TBD
+				/*
+				 * Captures have declaring classes and no declaring methods
+				 */
+				lw.append(VF.constructor(CONS_CAPTURE, getEntity(tb.getWildcard())));
 			} else {
 				// TBD: unkown type?
 			}
@@ -476,7 +532,11 @@ public class BindingConverter extends ASTVisitor {
 				// local variable in initializer
 				if (possibleParent != null) {
 					// initializer should be in cache already
-					prefix = getIds(possibleParent, null);
+					/* 
+					 * The field length of an array type has no declaring class
+					 */
+					if(!vb.isField()) 
+						prefix = getIds(possibleParent, null);
 				} else {
 					// let prefix remain empty
 					System.err.println("dangling var " + vb.getName());
