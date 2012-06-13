@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.launch;
 
@@ -27,11 +28,9 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
-import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 
-// TODO Tidy up here.
 public class LaunchDelegate implements ILaunchConfigurationDelegate{
 
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
@@ -42,59 +41,71 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 		// (corresponds to a console launched from the contextual menu of a project)
 		String path_project = configuration.getAttribute(IRascalResources.ATTR_RASCAL_PROJECT, (String) null);
 
-		if(path_mainModule == null){
-			ConsoleFactory consoleFactory = ConsoleFactory.getInstance();
-
-			IRascalConsole console;
-
-			if (mode.equals(ILaunchManager.RUN_MODE)) {
-
-				if (path_project == null) {
-					// open a Rascal Console
-					console = consoleFactory.openRunConsole();
-				} else {
-					// open a Rascal Console associated to the given project
-					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-					IProject project = root.getProject(path_project);
-					if (project != null) {
-						console = consoleFactory.openRunConsole(project);
-					} 
-				}
-			} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
-				RascalDebugTarget target = new RascalDebugTarget(launch);
-				if (path_project == null) {
-					// open a Rascal Console
-					console = ConsoleFactory.getInstance().openDebuggableConsole(target.getThread());
-					target.setConsole(console);
-				} else {
-					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-					IProject project = root.getProject(path_project);
-					if (project != null) {
-						// open a Rascal Console associated to the given project
-						console = consoleFactory.openDebuggableConsole(project, target.getThread());
-						target.setConsole(console);
-					} 
-				}
-				launch.addDebugTarget(target);
-			}else{
-				throw new RuntimeException("Unknown mode: "+mode);
-			}
-		}else{
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IProject project = root.findMember(path_mainModule).getProject();
 		
-			Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
+		/* 
+		 * Retrieving and an associated, if present.
+		 */
+		IProject associatedProject = null;
+		
+		if(path_mainModule != null) {
 			
-			if (mode.equals(ILaunchManager.DEBUG_MODE)) {
-				//launch a debug session which opens automatically a new console
-				RascalDebugTarget target = new RascalDebugTarget(launch);
-
-				// open a Rascal Console
-//				target.setConsole(console);
-				launch.addDebugTarget(target);
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			associatedProject = root.findMember(path_mainModule).getProject();			
+		
+		} else if (path_project != null) {
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			associatedProject = root.getProject(path_project);
+		
+		}
+		
+		assert associatedProject == null || associatedProject != null;
+		
+		
+		/*
+		 * Launching console in either run or debug configuration
+		 */
+		ConsoleFactory consoleFactory = ConsoleFactory.getInstance();
+		IRascalConsole console = null;
+		
+		if (mode.equals(ILaunchManager.RUN_MODE)) {
+	
+			if (associatedProject != null) {
+				console = consoleFactory.openRunConsole(associatedProject);
+			} else {
+				console = consoleFactory.openRunConsole();				
 			}
+			
+		} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
+			
+			// create a new debug session
+			RascalDebugTarget debugTarget = new RascalDebugTarget(launch);
 
-			//construct the corresponding module name
+			if (associatedProject != null) {
+				console = consoleFactory.openDebuggableConsole(associatedProject, debugTarget.getThread());
+			} else {
+				console = consoleFactory.openDebuggableConsole(debugTarget.getThread());				
+			}			
+			
+			debugTarget.setConsole(console);
+			launch.addDebugTarget(debugTarget);
+			
+		} else {
+			throw new RuntimeException("Unknown or unsupported launch mode: " + mode);
+		}
+		
+		assert console != null;
+		
+		
+		/* 
+		 * If a main module is present, import it in the console  evaluator and launch its main() function.
+		 * 
+		 * TODO: Peform import and main() call asynchronously.
+		 * TODO: Make the performed statements plus output visible in the console and its command history.
+		 */
+		if(path_mainModule != null) {
+			
+			// construct the corresponding module name
 			int index = path_mainModule.indexOf('/', 1);
 			String moduleFullName = path_mainModule.substring(index+1);
 			if(moduleFullName.startsWith("src/")) {
@@ -103,11 +114,15 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			moduleFullName = moduleFullName.replaceAll("/", "::");
 			moduleFullName = moduleFullName.substring(0, moduleFullName.length()-Configuration.RASCAL_FILE_EXT.length());
 
-			//import the module and launch the main function
-			synchronized (eval) {
-				eval.doImport(null, moduleFullName);
-				eval.eval(null, "main()", URI.create("run:///"));	
-			}
+			// import the main module and launch the main function			
+			Evaluator consoleEvaluator = console.getRascalInterpreter().getEval();
+			synchronized (consoleEvaluator) {
+				consoleEvaluator.doImport(null, moduleFullName);
+				consoleEvaluator.eval(null, "main()", URI.create("run:///"));
+			}			
+		
 		}
+			
 	}
+	
 }
