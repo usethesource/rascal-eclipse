@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,17 +9,16 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 import org.rascalmpl.interpreter.result.Result;
 
-public class RascalVariableValue implements IValue {
+public class RascalVariableValue extends RascalDebugElement implements IValue {
 	
 	/* do not print more than MAX_VALUE_STRING characters */
 	private final static int MAX_VALUE_STRING = 100;
@@ -27,16 +26,24 @@ public class RascalVariableValue implements IValue {
 	private RascalDebugTarget target;
 	private Result<org.eclipse.imp.pdb.facts.IValue> value;
 
+	// TODO: replace target by stack frame
 	public RascalVariableValue(RascalDebugTarget target,
 			Result<org.eclipse.imp.pdb.facts.IValue> value) {
+		super(target);
 		this.value = value;
 		this.target = target;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IValue#getReferenceTypeName()
+	 */
 	public String getReferenceTypeName() throws DebugException {
 		return value.getType().toString();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IValue#getValueString()
+	 */
 	public String getValueString() throws DebugException {
 		if (value.getValue() == null) return "";
 		String s = value.getValue().toString();
@@ -47,37 +54,41 @@ public class RascalVariableValue implements IValue {
 		return s;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IValue#getVariables()
+	 */
 	public IVariable[] getVariables() throws DebugException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IValue#hasVariables()
+	 */
 	public boolean hasVariables() throws DebugException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IValue#isAllocated()
+	 */
 	public boolean isAllocated() throws DebugException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	public IDebugTarget getDebugTarget() {
-		return target;
-	}
-
-	public ILaunch getLaunch() {
-		return target.getLaunch();
-	}
-
-	public String getModelIdentifier() {
-		return target.getModelIdentifier();
-	}
-
+	/* (non-Javadoc)
+	 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
+	 */
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		return target.getAdapter(adapter);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() {
 		return value.getValue().toString();	
 	}

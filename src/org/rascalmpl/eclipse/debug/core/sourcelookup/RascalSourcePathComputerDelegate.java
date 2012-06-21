@@ -25,7 +25,7 @@ import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
 import org.eclipse.debug.core.sourcelookup.containers.ProjectSourceContainer;
 import org.rascalmpl.eclipse.IRascalResources;
 
-public class RascalSourcePathComputerDelegate implements ISourcePathComputerDelegate{
+public class RascalSourcePathComputerDelegate implements ISourcePathComputerDelegate {
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.internal.core.sourcelookup.ISourcePathComputerDelegate#computeSourceContainers(org.eclipse.debug.core.ILaunchConfiguration, org.eclipse.core.runtime.IProgressMonitor)
@@ -69,4 +69,5 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 		/* default case */
 		return new ISourceContainer[]{};
 	}
+	
 }

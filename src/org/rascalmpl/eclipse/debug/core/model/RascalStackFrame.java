@@ -30,7 +30,10 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 
 public class RascalStackFrame extends RascalDebugElement implements IStackFrame {
 
-	private final RascalThread fThread;
+	/**
+	 * The thread that created this stack frame. 
+	 */
+	private final RascalThread thread;
 	
 	/**
 	 * Environment corresponding to the current scope.
@@ -38,14 +41,14 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	private final Environment environment;
 	
 	/**
-	 * Location of the call.
+	 * Location information w.r.t. current execution point within this stack frame.
 	 */
 	private final ISourceLocation location; 
 
 	public RascalStackFrame(RascalThread thread, Environment environment, ISourceLocation location) {
 		super(thread.getDebugTarget());
 		
-		this.fThread = thread;
+		this.thread = thread;
 		this.environment = environment;
 		this.location = location;
 	}
@@ -102,7 +105,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 * @see org.eclipse.debug.core.model.IStackFrame#getThread()
 	 */
 	public IThread getThread() {
-		return fThread;
+		return thread;
 	}
 
 	/* (non-Javadoc)
@@ -247,14 +250,30 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 		getThread().terminate();
 	}
 
-	public String getSourceName() {
-		if(environment.getRoot() == null) return null;
-		
-		return environment.getRoot().getName().replaceAll("::", "/")+".rsc";
+	/**
+	 * Returns if there is a supported source location associated with this stack frame.
+	 * Currently only files of schema type <em>project://</em>are considered to be
+	 * valid source locations.
+	 * 
+	 * @return <code>true</code> if there exists a source file name, otherwise <code>false</code>
+	 */	
+	public boolean hasSourceName() {
+		if (location == null) {
+			return false;
+		} else {
+			return location.getURI().getScheme().equals("project");
+		}
 	}
-
-	public Environment getEnvironment() {
-		return environment;
+	
+	/**
+	 * Returns the source file name associated with this stack frame.
+	 * 
+	 * @return the source file name associated, if existent
+	 * @see #hasSourceName()
+	 */	
+	public String getSourceName() {
+		assert hasSourceName();	
+		return location.getURI().getPath();
 	}
 
 	/**
@@ -291,6 +310,10 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 		return false;
 	}
 
+	public Environment getEnvironment() {
+		return environment;
+	}	
+	
 	private ISourceLocation getLocation() {
 		return location;
 	}

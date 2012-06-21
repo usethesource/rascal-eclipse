@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
@@ -30,7 +31,10 @@ import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 
 
 /**
- *  Debug Target
+ *  Rascal Debug Target
+ *  
+ *  DISCUSS Currently the debug model describes an Rascal program as a single <em>thread</em> and leaves out the abstraction of a <em>process</em>. 
+ *	DISCUSS Should a debug target by any means be associated with a console or just with an interpreter? 
  */
 public class RascalDebugTarget extends RascalDebugElement implements IDebugTarget, IBreakpointManagerListener {
 
@@ -63,21 +67,34 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		this.breakpointManagerEnablementChanged(true);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IDebugTarget#getProcess()
+	 */	
+	public IProcess getProcess() {
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IDebugTarget#getThreads()
+	 */	
 	public IThread[] getThreads() throws DebugException {
 		return fThreads;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IDebugTarget#hasThreads()
 	 */
 	public boolean hasThreads() throws DebugException {
 		return true;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IDebugTarget#getName()
 	 */
 	public String getName() throws DebugException {
-		return "Main Thread";
+		return "Rascal";
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IDebugTarget#supportsBreakpoint(org.eclipse.debug.core.model.IBreakpoint)
 	 */
@@ -90,17 +107,18 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 */
 	public IDebugTarget getDebugTarget() {
 		return this;
-	}
+	}	
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IDebugElement#getLaunch()
 	 */
 	public ILaunch getLaunch() {
 		return fLaunch;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ITerminate#canTerminate()
 	 */
-
 	public boolean canTerminate() {
 		return !isTerminated();
 	}
@@ -111,12 +129,13 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	public boolean isTerminated() {
 		return getThread().isTerminated();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ITerminate#terminate()
 	 */
 	public void terminate() throws DebugException {
 		getThread().terminate();
-		fireTerminateEvent();
+		fireTerminateEvent(); // FIXME pull out event handling
 	}
 
 	/* (non-Javadoc)
@@ -125,18 +144,21 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	public boolean canResume() {
 		return !isTerminated() && isSuspended();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ISuspendResume#canSuspend()
 	 */
 	public boolean canSuspend() {
 		return !isTerminated() && !isSuspended();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ISuspendResume#isSuspended()
 	 */
 	public boolean isSuspended() {
 		return !isTerminated() && getThread().isSuspended();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ISuspendResume#resume()
 	 */
@@ -157,12 +179,13 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 */
 	public void breakpointManagerEnablementChanged(boolean enabled) {
 		IBreakpoint[] breakpoints = getBreakpointManager().getBreakpoints(getModelIdentifier());
-		for (int i = 0; i < breakpoints.length; i++) {
+		
+		for(IBreakpoint breakpoint : breakpoints) {
 			if (enabled) {
-				breakpointAdded(breakpoints[i]);
+				breakpointAdded(breakpoint);
 			} else {
-				breakpointRemoved(breakpoints[i], null);
-			}
+				breakpointRemoved(breakpoint, null);
+			}			
 		}
 	}	
 
@@ -196,29 +219,43 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IDisconnect#canDisconnect()
+	 * 
+	 * Feature <em>disconnect</em> is not supported currently.
 	 */
 	public boolean canDisconnect() {
 		return false;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IDisconnect#disconnect()
+	 *
+	 * Feature <em>disconnect</em> is not supported currently.
 	 */
 	public void disconnect() throws DebugException {
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IDisconnect#isDisconnected()
+	 *
+	 * Feature <em>disconnect</em> is not supported currently.
 	 */
 	public boolean isDisconnected() {
 		return false;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IMemoryBlockRetrieval#supportsStorageRetrieval()
+	 * 
+	 * Feature <em>memory block retrieval</em> is not supported currently.
 	 */
 	public boolean supportsStorageRetrieval() {
 		return false;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IMemoryBlockRetrieval#getMemoryBlock(long, long)
+	 *
+	 * Feature <em>memory block retrieval</em> is not supported currently.
 	 */
 	public IMemoryBlock getMemoryBlock(long startAddress, long length) throws DebugException {
 		return null;
@@ -231,14 +268,10 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @return this debug target's single thread, or <code>null</code>
 	 * if terminated
 	 */
-	public RascalThread getThread() {
+	public synchronized RascalThread getThread() {
 		return fThread;
 	}
 	
-	public IProcess getProcess() {
-		return null;
-	}
-
 	public void breakpointChanged(IBreakpoint breakpoint, IMarkerDelta delta) {
 		if (supportsBreakpoint(breakpoint)) {
 			try {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
@@ -22,7 +23,6 @@ public class RascalImportedModule extends RascalDebugElement implements IVariabl
 	// name & stack frame
 	private String moduleName;
 	private RascalStackFrame frame;
-
 
 	/**
 	 * Constructs a variable contained in the given stack frame
@@ -51,18 +51,21 @@ public class RascalImportedModule extends RascalDebugElement implements IVariabl
 	public String getName() throws DebugException {
 		return moduleName;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IVariable#getReferenceTypeName()
 	 */
 	public String getReferenceTypeName() throws DebugException {
 		return null;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IVariable#hasValueChanged()
 	 */
 	public boolean hasValueChanged() throws DebugException {
 		return false;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValueModification#setValue(java.lang.String)
 	 */
@@ -76,18 +79,21 @@ public class RascalImportedModule extends RascalDebugElement implements IVariabl
 	public void setValue(IValue value) throws DebugException {
 		//TODO
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValueModification#supportsValueModification()
 	 */
 	public boolean supportsValueModification() {
 		return false;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValueModification#verifyValue(java.lang.String)
 	 */
 	public boolean verifyValue(String expression) throws DebugException {
 		return false;
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValueModification#verifyValue(org.eclipse.debug.core.model.IValue)
 	 */

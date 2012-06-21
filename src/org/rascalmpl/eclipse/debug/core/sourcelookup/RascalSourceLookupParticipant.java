@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
@@ -21,13 +22,20 @@ import org.rascalmpl.eclipse.debug.core.model.RascalStackFrame;
  * rascal stack frame into a source file name 
  */
 public class RascalSourceLookupParticipant extends AbstractSourceLookupParticipant {
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.internal.core.sourcelookup.ISourceLookupParticipant#getSourceName(java.lang.Object)
 	 */
 	public String getSourceName(Object object) throws CoreException {
+		
 		if (object instanceof RascalStackFrame) {
-			return ((RascalStackFrame)object).getSourceName();
+			
+			RascalStackFrame stackFrame = (RascalStackFrame)object;
+			if (stackFrame.hasSourceName()) { return stackFrame.getSourceName(); }
 		}
+		
 		return null;
+	
 	}
+	
 }
