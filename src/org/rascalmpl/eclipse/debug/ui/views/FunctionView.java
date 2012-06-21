@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.ui.views;
 
@@ -48,7 +49,6 @@ public class FunctionView extends AbstractDebugView implements ISelectionListene
 			"Headers"
 	};
 
-
 	/**
 	 * InnerClass that acts as a proxy for the FunctionList
 	 * providing content for the Table. It implements the FunctionListViewer 
@@ -63,13 +63,12 @@ public class FunctionView extends AbstractDebugView implements ISelectionListene
 
 		// Return the functions as an array of Objects
 		public Object[] getElements(Object parent) {
-			return frame.getFunctions().toArray();
+			return frame.getFunctions().entrySet().toArray();
 		}
 
 	}
 
 	class FunctionLabelProvider extends LabelProvider implements ITableLabelProvider {
-
 
 		/**
 		 * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object, int)

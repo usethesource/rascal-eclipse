@@ -41,7 +41,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @param name variable name
 	 */
 	public RascalVariable(RascalStackFrame frame, String name) {
-		this(frame, name, frame.getEnvt());
+		this(frame, name, frame.getEnvironment());
 	}
 
 	/**

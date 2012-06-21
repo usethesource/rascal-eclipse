@@ -41,7 +41,7 @@ public class RascalImportedModule extends RascalDebugElement implements IVariabl
 	 * @see org.eclipse.debug.core.model.IVariable#getValue()
 	 */
 	public IValue getValue() throws DebugException {
-		ModuleEnvironment value = frame.getEnvt().getImport(moduleName);
+		ModuleEnvironment value = frame.getEnvironment().getImport(moduleName);
 		return new RascalImportedModuleValue(frame, this.getRascalDebugTarget(), value);
 	}
 

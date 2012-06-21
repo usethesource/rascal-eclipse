@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,11 +9,14 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
 import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IRegisterGroup;
@@ -25,54 +28,91 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 
-public class RascalStackFrame extends RascalDebugElement implements IStackFrame{
+public class RascalStackFrame extends RascalDebugElement implements IStackFrame {
 
-	private Environment envt; // Environment corresponding to the current scope
-	private ISourceLocation loc; // Location of the call
+	private final RascalThread fThread;
+	
+	/**
+	 * Environment corresponding to the current scope.
+	 */
+	private final Environment environment;
+	
+	/**
+	 * Location of the call.
+	 */
+	private final ISourceLocation location; 
 
-	public RascalStackFrame(RascalDebugTarget target, Environment envt, ISourceLocation loc) {
-		super(target);
-		this.envt = envt;
-		this.loc = loc;
+	public RascalStackFrame(RascalThread thread, Environment environment, ISourceLocation location) {
+		super(thread.getDebugTarget());
+		
+		this.fThread = thread;
+		this.environment = environment;
+		this.location = location;
 	}
-
-
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStackFrame#getCharEnd()
+	 */
 	public int getCharEnd() throws DebugException {
-		if(loc == null) return 0;
-		
-		return loc.getOffset()+loc.getLength();
+		if (location == null) {
+			return -1;
+		} else {
+			return location.getOffset() + location.getLength();
+		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStackFrame#getCharStart()
+	 */
 	public int getCharStart() throws DebugException {
-		if(loc == null)return 0;
-		
-		return loc.getOffset();
+		if (location == null) {
+			return -1;
+		} else {
+			return location.getOffset();
+		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStackFrame#getLineNumber()
+	 */
 	public int getLineNumber() throws DebugException {
-		if(loc == null) return 0;
-		
-		return loc.getBeginLine();
+		if (location == null) {
+			return -1;
+		} else {
+			return location.getBeginLine();
+		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStackFrame#getName()
+	 */
 	public String getName() throws DebugException {
 		//TODO: return the name of the current module
-		return envt.getName();
+		return environment.getName();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStackFrame#getRegisterGroups()
+	 */
 	public IRegisterGroup[] getRegisterGroups() throws DebugException {
-		return null;
+		return new IRegisterGroup[] {};
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStackFrame#getThread()
+	 */
 	public IThread getThread() {
-		return getRascalDebugTarget().getThread();
+		return fThread;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStackFrame#getVariables()
+	 */
 	public IVariable[] getVariables() throws DebugException {
 		//manage the list of variables local to the current module
-		Set<String> vars = envt.getVariables().keySet();
+		Set<String> vars = environment.getVariables().keySet();
 		//manage the list of imported modules
-		Set<String> modules = envt.getImports();
+		Set<String> modules = environment.getImports();
 
 		IVariable[] ivars = new IVariable[vars.size()+modules.size()];
 		int i = 0;
@@ -87,13 +127,19 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame{
 		return ivars;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStackFrame#hasRegisterGroups()
+	 */
 	public boolean hasRegisterGroups() throws DebugException {
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStackFrame#hasVariables()
+	 */
 	public boolean hasVariables() throws DebugException {
 		// TODO Auto-generated method stub
-		return ! envt.getVariables().isEmpty();
+		return ! environment.getVariables().isEmpty();
 	}
 
 	/* (non-Javadoc)
@@ -102,84 +148,99 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame{
 	public boolean canStepInto() {
 		return getThread().canStepInto();
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IStep#canStepOver()
 	 */
+
 	public boolean canStepOver() {
 		return getThread().canStepOver();
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IStep#canStepReturn()
 	 */
 	public boolean canStepReturn() {
 		return getThread().canStepReturn();
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IStep#isStepping()
 	 */
 	public boolean isStepping() {
 		return getThread().isStepping();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IStep#stepInto()
 	 */
 	public void stepInto() throws DebugException {
 		getThread().stepInto();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IStep#stepOver()
 	 */
 	public void stepOver() throws DebugException {
 		getThread().stepOver();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IStep#stepReturn()
 	 */
 	public void stepReturn() throws DebugException {
 		getThread().stepReturn();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ISuspendResume#canResume()
 	 */
 	public boolean canResume() {
 		return getThread().canResume();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ISuspendResume#canSuspend()
 	 */
 	public boolean canSuspend() {
 		return getThread().canSuspend();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ISuspendResume#isSuspended()
 	 */
 	public boolean isSuspended() {
 		return getThread().isSuspended();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ISuspendResume#resume()
 	 */
 	public void resume() throws DebugException {
 		getThread().resume();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ISuspendResume#suspend()
 	 */
 	public void suspend() throws DebugException {
 		getThread().suspend();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ITerminate#canTerminate()
 	 */
 	public boolean canTerminate() {
 		return getThread().canTerminate();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ITerminate#isTerminated()
 	 */
 	public boolean isTerminated() {
 		return getThread().isTerminated();
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ITerminate#terminate()
 	 */
@@ -188,17 +249,31 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame{
 	}
 
 	public String getSourceName() {
-		if(envt.getRoot() == null) return null;
+		if(environment.getRoot() == null) return null;
 		
-		return envt.getRoot().getName().replaceAll("::", "/")+".rsc";
+		return environment.getRoot().getName().replaceAll("::", "/")+".rsc";
 	}
 
-	public Environment getEnvt() {
-		return envt;
+	public Environment getEnvironment() {
+		return environment;
 	}
 
-	public List<Pair<String, List<AbstractFunction>>> getFunctions() {
-		return envt.getFunctions();
+	/**
+	 * Transforms the function list from
+	 * {@link org.rascalmpl.interpreter.env.Environment#getFunctions()} to a
+	 * {@link java.util.Map}.
+	 * 
+	 * @return function map utilizing native Collections API
+	 */
+	public SortedMap<String, List<AbstractFunction>> getFunctions() {
+		SortedMap<String, List<AbstractFunction>> functionMap = 
+					new TreeMap<String, List<AbstractFunction>>(); 
+		
+		for (Pair<String, List<AbstractFunction>>  functionPair : environment.getFunctions()) {
+			functionMap.put(functionPair.getFirst(), functionPair.getSecond());
+		}
+		
+		return functionMap;
 	}
 	
 	/* (non-Javadoc)
@@ -211,15 +286,14 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame{
 			RascalStackFrame sf = (RascalStackFrame)obj;
 			return sf.getThread().equals(getThread()) && 
 			    sf.getSourceName() == null ? getSourceName() == null : sf.getSourceName().equals(getSourceName()) &&
-				sf.getEnvt().equals(getEnvt()) &&
+				sf.getEnvironment().equals(getEnvironment()) &&
 				sf.getLocation().equals(getLocation());
 		}
 		return false;
 	}
 
-
 	private ISourceLocation getLocation() {
-		return loc;
+		return location;
 	}
 
 }

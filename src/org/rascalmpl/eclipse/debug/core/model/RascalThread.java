@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
@@ -32,6 +33,9 @@ import org.rascalmpl.interpreter.debug.DebugSuspendMode;
 import org.rascalmpl.interpreter.debug.IDebugger;
 import org.rascalmpl.interpreter.env.Environment;
 
+/**
+ * A Rascal thread. Rascal programs are currently modelled single threaded.
+ */
 public class RascalThread extends RascalDebugElement implements IThread, IDebugger {
 
 	private boolean fStepping = false;
@@ -43,6 +47,20 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		super(target);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IThread#getName()
+	 */
+	public String getName() throws DebugException {
+		return "Rascal Thread";
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IThread#getPriority()
+	 */
+	public int getPriority() throws DebugException {
+		return 0;
+	}	
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IThread#getBreakpoints()
 	 */
@@ -58,8 +76,9 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 					RascalLineBreakpoint b = (RascalLineBreakpoint) bp;
 					try{
 						if(b.isEnabled()){
-							//only compare the relative paths from src folders
-							String bp_path = b.getResource().getProjectRelativePath().toString().replaceFirst(IRascalResources.RASCAL_SRC, "");
+							//only compare the relative paths inclusive the src folders
+//							String bp_path = b.getResource().getProjectRelativePath().toString().replaceFirst(IRascalResources.RASCAL_SRC, "");
+							String bp_path = "/" + b.getResource().getProjectRelativePath().toString();
 							String loc_path = loc.getURI().getPath();
 							if (bp_path.equals(loc_path)) {
 								// special case for expression breakpoints
@@ -81,14 +100,6 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		return false;
 	}
 
-	public String getName() throws DebugException {
-		return "Rascal";
-	}
-
-	public int getPriority() throws DebugException {
-		return 0;
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IThread#getStackFrames()
 	 */
@@ -100,9 +111,9 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 			IStackFrame[] theFrames = new IStackFrame[size];
 			// for the top, use the current AST location
 			ISourceLocation currentLoc = eval.getCurrentAST().getLocation();
-			theFrames[0] = new RascalStackFrame(getRascalDebugTarget(), callStack.get(size-1), currentLoc);
+			theFrames[0] = new RascalStackFrame(this, callStack.get(size-1), currentLoc);
 			for (int i = 1; i < size; i++) {
-				theFrames[i] = new RascalStackFrame(getRascalDebugTarget(),callStack.get(size-i-1), callStack.get(size-i).getCallerLocation());
+				theFrames[i] = new RascalStackFrame(this, callStack.get(size-i-1), callStack.get(size-i).getCallerLocation());
 			}
 			return theFrames;
 		}
