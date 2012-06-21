@@ -138,7 +138,6 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 * @see org.eclipse.debug.core.model.IStackFrame#hasVariables()
 	 */
 	public boolean hasVariables() throws DebugException {
-		// TODO Auto-generated method stub
 		return ! environment.getVariables().isEmpty();
 	}
 

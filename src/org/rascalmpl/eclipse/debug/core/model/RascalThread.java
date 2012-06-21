@@ -68,38 +68,6 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		return 	getBreakpointManager().getBreakpoints(IRascalResources.ID_RASCAL_DEBUG_MODEL);
 	}
 
-	public boolean hasEnabledBreakpoint(ISourceLocation loc){
-		IBreakpoint[] breakpoints = getBreakpointManager().getBreakpoints(IRascalResources.ID_RASCAL_DEBUG_MODEL);
-		synchronized(breakpoints){ 
-			for(IBreakpoint bp: breakpoints){
-				if(bp instanceof RascalLineBreakpoint){
-					RascalLineBreakpoint b = (RascalLineBreakpoint) bp;
-					try{
-						if(b.isEnabled()){
-							//only compare the relative paths inclusive the src folders
-//							String bp_path = b.getResource().getProjectRelativePath().toString().replaceFirst(IRascalResources.RASCAL_SRC, "");
-							String bp_path = "/" + b.getResource().getProjectRelativePath().toString();
-							String loc_path = loc.getURI().getPath();
-							if (bp_path.equals(loc_path)) {
-								// special case for expression breakpoints
-								if(b instanceof RascalExpressionBreakpoint){
-									if(b.getCharStart() <= loc.getOffset() && loc.getOffset()+loc.getLength() <= b.getCharEnd()){
-										return true;
-									}
-								}else if(b.getCharStart() == loc.getOffset()){
-									return true;
-								}
-							}
-						}
-					}catch(CoreException e){
-						throw new RuntimeException(e);
-					}
-				}
-			}
-		}
-		return false;
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IThread#getStackFrames()
 	 */
@@ -138,35 +106,135 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		return isSuspended();
 	}
 
-
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.ISuspendResume#canResume()
+	 */
 	public boolean canResume() {
 		return isSuspended();
 	}
 
-
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.ISuspendResume#canSuspend()
+	 */
 	public boolean canSuspend() {
 		return !isSuspended() && !isTerminated();
 	}
 
-
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.ISuspendResume#isSuspended()
+	 */
 	public boolean isSuspended() {
 		return (fSuspended || fSuspendedByBreakpoint) && !isTerminated();
 	}
 
-	public boolean isSuspendedByBreakpoint() {
-		return fSuspendedByBreakpoint && !isTerminated();
-	}
-
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.ISuspendResume#resume()
+	 */
 	public void resume() throws DebugException {
 		fStepping =  false;
 		resumed(DebugEvent.CLIENT_REQUEST);	
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.ISuspendResume#suspend()
+	 */
 	public void suspend() {
 		getRascalDebugTarget().getEvaluator().suspendRequest();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStep#canStepInto()
+	 */
+	public boolean canStepInto() {
+		return !isTerminated() && isSuspended();
+	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStep#canStepOver()
+	 */
+	public boolean canStepOver() {
+		return !isTerminated() && isSuspended();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStep#canStepReturn()
+	 */
+	public boolean canStepReturn() {
+		return false;
+	}	
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStep#isStepping()
+	 */
+	public boolean isStepping() {
+		return fStepping;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStep#stepInto()
+	 */
+	public void stepInto() throws DebugException {
+		fStepping = true;
+		getRascalDebugTarget().getEvaluator().setStepMode(DebugStepMode.STEP_INTO);
+		resumed(DebugEvent.STEP_INTO);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStep#stepOver()
+	 */
+	public void stepOver() throws DebugException {
+		fStepping = true;
+		getRascalDebugTarget().getEvaluator().setStepMode(DebugStepMode.STEP_OVER);
+		resumed(DebugEvent.STEP_OVER);
+	}
+		
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.IStep#stepReturn()
+	 */
+	public void stepReturn() throws DebugException {
+		/** 
+		 * not used, see {@link #canStepReturn()} 
+		 * */
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.ITerminate#canTerminate()
+	 */
+	public boolean canTerminate(){
+		return !isTerminated();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.ITerminate#isTerminated()
+	 */
+	public boolean isTerminated(){
+		return fTerminated;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.ITerminate#terminate()
+	 */
+	public synchronized void terminate() throws DebugException{
+		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
+		rascalDebugTarget.getConsole().terminate();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.debug.IDebugger#destroy()
+	 */
+	public synchronized void destroy() {
+		fTerminated = true;
+		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
+		notify();
+		fireTerminateEvent();
+		// for refreshing the icons associated to the debug target
+		rascalDebugTarget.fireTerminateEvent();
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.debug.IDebugger#notifySuspend(org.rascalmpl.interpreter.debug.DebugSuspendMode)
+	 */
 	public synchronized void notifySuspend(DebugSuspendMode mode) throws QuitException {
 		fSuspended = true;
 
@@ -197,43 +265,58 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 			if(isTerminated()) throw new QuitException();
 		}
-	}
-
-
-	public boolean canStepInto() {
-		return !isTerminated() && isSuspended();
-	}
-
-
-	public boolean canStepOver() {
-		return !isTerminated() && isSuspended();
-	}
-
-
-	public boolean canStepReturn() {
-		return false;
-	}
-
-
-	public boolean isStepping() {
-		return fStepping;
-	}
-
+	}	
+	
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.debug.IDebugger#stopStepping()
+	 */
 	public void stopStepping() {
 		try {
 			resume();
 		} catch (DebugException e) {
 			throw new RuntimeException(e);
 		}
+	}	
+	
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.debug.IDebugger#hasEnabledBreakpoint(org.eclipse.imp.pdb.facts.ISourceLocation)
+	 */
+	public boolean hasEnabledBreakpoint(ISourceLocation loc){
+		IBreakpoint[] breakpoints = getBreakpointManager().getBreakpoints(IRascalResources.ID_RASCAL_DEBUG_MODEL);
+		synchronized(breakpoints){ 
+			for(IBreakpoint bp: breakpoints){
+				if(bp instanceof RascalLineBreakpoint){
+					RascalLineBreakpoint b = (RascalLineBreakpoint) bp;
+					try{
+						if(b.isEnabled()){
+							//only compare the relative paths inclusive the src folders
+//							String bp_path = b.getResource().getProjectRelativePath().toString().replaceFirst(IRascalResources.RASCAL_SRC, "");
+							String bp_path = "/" + b.getResource().getProjectRelativePath().toString();
+							String loc_path = loc.getURI().getPath();
+							if (bp_path.equals(loc_path)) {
+								// special case for expression breakpoints
+								if(b instanceof RascalExpressionBreakpoint){
+									if(b.getCharStart() <= loc.getOffset() && loc.getOffset()+loc.getLength() <= b.getCharEnd()){
+										return true;
+									}
+								}else if(b.getCharStart() == loc.getOffset()){
+									return true;
+								}
+							}
+						}
+					}catch(CoreException e){
+						throw new RuntimeException(e);
+					}
+				}
+			}
+		}
+		return false;
 	}
-
-
-	public void stepInto() throws DebugException {
-		fStepping = true;
-		getRascalDebugTarget().getEvaluator().setStepMode(DebugStepMode.STEP_INTO);
-		resumed(DebugEvent.STEP_INTO);
-	}
-
+		
+	public boolean isSuspendedByBreakpoint() {
+		return fSuspendedByBreakpoint && !isTerminated();
+	}	
+	
 	public synchronized void resumed(int detail)  {
 		// clear the thread state
 		fSuspended = false;
@@ -245,38 +328,5 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		getRascalDebugTarget().fireResumeEvent(detail);
 		this.notify();
 	}
-
-	public void stepOver() throws DebugException {
-		fStepping = true;
-		getRascalDebugTarget().getEvaluator().setStepMode(DebugStepMode.STEP_OVER);
-		resumed(DebugEvent.STEP_OVER);
-	}
-
-	public void stepReturn() throws DebugException {
-		//TODO: not implemented
-	}
-
-	public boolean canTerminate(){
-		return !isTerminated();
-	}
-
-	public boolean isTerminated(){
-		return fTerminated;
-	}
-
-	public synchronized void destroy() {
-		fTerminated = true;
-		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
-		notify();
-		fireTerminateEvent();
-		// for refreshing the icons associated to the debug target
-		rascalDebugTarget.fireTerminateEvent();
-
-	}
-
-	public synchronized void terminate() throws DebugException{
-		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
-		rascalDebugTarget.getConsole().terminate();
-	}
-
+	
 }
