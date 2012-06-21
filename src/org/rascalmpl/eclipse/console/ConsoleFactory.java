@@ -140,7 +140,7 @@ public class ConsoleFactory{
 		}
 
 		public InteractiveRascalConsole(IDebugger debugger, ModuleEnvironment shell, GlobalEnvironment heap){
-			super(new RascalScriptInterpreter(), "Rascal", ReadEvalPrintDialogMessages.PROMPT, ReadEvalPrintDialogMessages.CONTINUE_PROMPT);
+			super(new RascalScriptInterpreter(), "Rascal [DEBUG]", ReadEvalPrintDialogMessages.PROMPT, ReadEvalPrintDialogMessages.CONTINUE_PROMPT);
 			
 			getInterpreter().initialize(new DebuggableEvaluator(vf, getErrorWriter(), getStandardWriter(),  shell, debugger, heap));
 			initializeConsole();
@@ -148,7 +148,7 @@ public class ConsoleFactory{
 		
 		
 		public InteractiveRascalConsole(IProject project, IDebugger debugger, ModuleEnvironment shell, GlobalEnvironment heap){
-			super(new RascalScriptInterpreter(project), "Rascal ["+project.getName()+"]", ReadEvalPrintDialogMessages.PROMPT, ReadEvalPrintDialogMessages.CONTINUE_PROMPT);
+			super(new RascalScriptInterpreter(project), "Rascal [DEBUG, "+project.getName()+"]", ReadEvalPrintDialogMessages.PROMPT, ReadEvalPrintDialogMessages.CONTINUE_PROMPT);
 			
 			getInterpreter().initialize(new DebuggableEvaluator(vf, getErrorWriter(), getStandardWriter(), shell, debugger, heap));
 			initializeConsole();
