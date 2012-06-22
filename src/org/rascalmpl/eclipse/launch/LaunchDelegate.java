@@ -102,14 +102,18 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 		 * 
 		 * TODO: Peform import and main() call asynchronously.
 		 * TODO: Make the performed statements plus output visible in the console and its command history.
+		 * TODO: Give feedback in case main() call was not successful.
 		 */
 		if(path_mainModule != null) {
 			
+			// FIXME: centralize URI schema <-> module / file name conversion.
 			// construct the corresponding module name
 			int index = path_mainModule.indexOf('/', 1);
 			String moduleFullName = path_mainModule.substring(index+1);
 			if(moduleFullName.startsWith("src/")) {
 				moduleFullName = moduleFullName.replaceFirst("src/", "");		
+			} else if(moduleFullName.startsWith("std/")) {
+				moduleFullName = moduleFullName.replaceFirst("std/", "");
 			}
 			moduleFullName = moduleFullName.replaceAll("/", "::");
 			moduleFullName = moduleFullName.substring(0, moduleFullName.length()-Configuration.RASCAL_FILE_EXT.length());
@@ -118,7 +122,10 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			Evaluator consoleEvaluator = console.getRascalInterpreter().getEval();
 			synchronized (consoleEvaluator) {
 				consoleEvaluator.doImport(null, moduleFullName);
-				consoleEvaluator.eval(null, "main()", URI.create("run:///"));
+				
+				try {
+					consoleEvaluator.eval(null, "main()", URI.create("run:///"));
+				} catch (Exception e) { /* Currenty ignored. */ }
 			}			
 		
 		}

@@ -252,8 +252,8 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 
 	/**
 	 * Returns if there is a supported source location associated with this stack frame.
-	 * Currently only files of schema type <em>project://</em>are considered to be
-	 * valid source locations.
+	 * Currently only files of schema type <em>project://</em> or <em>std://</em> are 
+	 * considered to be valid source locations.
 	 * 
 	 * @return <code>true</code> if there exists a source file name, otherwise <code>false</code>
 	 */	
@@ -261,7 +261,8 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 		if (location == null) {
 			return false;
 		} else {
-			return location.getURI().getScheme().equals("project");
+			return location.getURI().getScheme().equals("project")
+				|| location.getURI().getScheme().equals("std");
 		}
 	}
 	
@@ -270,10 +271,22 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 * 
 	 * @return the source file name associated, if existent
 	 * @see #hasSourceName()
-	 */	
+	 */
 	public String getSourceName() {
-		assert hasSourceName();	
-		return location.getURI().getPath();
+		assert hasSourceName();
+		
+		String result = null;
+		String uriSchema = location.getURI().getScheme();
+		String uriPath   = location.getURI().getPath();
+		
+		if (uriSchema.equals("project")) {
+			result = uriPath;	
+		} else if (uriSchema.equals("std")) {
+			result = "/" + uriSchema + uriPath;
+		}
+		
+		assert result != null;
+		return result;
 	}
 
 	/**

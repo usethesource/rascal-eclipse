@@ -289,10 +289,15 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 					RascalLineBreakpoint b = (RascalLineBreakpoint) bp;
 					try{
 						if(b.isEnabled()){
-							//only compare the relative paths inclusive the src folders
-//							String bp_path = b.getResource().getProjectRelativePath().toString().replaceFirst(IRascalResources.RASCAL_SRC, "");
+							// FIXME: centralize URI schema <-> module / file name conversion.
+							// only compare the relative paths inclusive the src folders							
 							String bp_path = "/" + b.getResource().getProjectRelativePath().toString();
 							String loc_path = loc.getURI().getPath();
+							
+							if (loc.getURI().getScheme().equals("std")) {
+								loc_path = "/std" + loc_path;
+							}
+							
 							if (bp_path.equals(loc_path)) {
 								// special case for expression breakpoints
 								if(b instanceof RascalExpressionBreakpoint){
