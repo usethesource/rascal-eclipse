@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse;
 
@@ -25,9 +26,21 @@ public interface IRascalResources {
 	public static final String ID_RASCAL_DEBUG_MODEL = "rascal.debugModel";
 	public static final String ID_RASCAL_NATURE = "rascal_eclipse.rascal_nature";
 	public static final String ID_RASCAL_BUILDER = "rascal_eclipse.rascal_builder";
-	
+
+	/**
+	 * Source folder name within an Eclipse project.
+	 */
 	public static final String RASCAL_SRC = "src";
+	
+	/**
+	 * Rascal source file name extension.
+	 */	
 	public static final String RASCAL_EXT = "rsc";
+		
+	/**
+	 * Standard library folder name within an Eclipse project.
+	 */
+	public static final String RASCAL_STD = "std";
 
 	public static final String ID_RASCAL_MARKER = "rascal_eclipse.rascal_markers";
 	public static final String ID_RASCAL_MARKER_TYPE_TEST_RESULTS = "rascal.markerType.testResult";

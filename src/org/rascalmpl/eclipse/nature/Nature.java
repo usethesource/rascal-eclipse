@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.nature;
 
@@ -46,7 +47,7 @@ public class Nature extends ProjectNatureBase implements IRascalResources {
 
 	private void link() throws CoreException {
 		try {
-			IFolder lib = this.getProject().getFolder("std");
+			IFolder lib = this.getProject().getFolder(IRascalResources.RASCAL_STD);
 			
 			if (!lib.exists()) {
 				lib.createLink(new URI("rascal-library", RascalLibraryFileSystem.RASCAL, "", null), IResource.BACKGROUND_REFRESH, null);

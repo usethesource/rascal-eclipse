@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
@@ -65,7 +66,7 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 			 * (2) then all the project and all referenced projects are searched recursively.
 			 */
 			ISourceContainer[] sourceContainers = new ISourceContainer[] {
-				new FolderSourceContainer(associatedProject.getFolder("std"), true),
+				new FolderSourceContainer(associatedProject.getFolder(IRascalResources.RASCAL_STD), true),
 				new ProjectSourceContainer(associatedProject, true)
 			};
 		
