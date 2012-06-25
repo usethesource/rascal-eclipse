@@ -12,16 +12,15 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
+import org.eclipse.debug.core.sourcelookup.containers.FolderSourceContainer;
 import org.eclipse.debug.core.sourcelookup.containers.ProjectSourceContainer;
 import org.rascalmpl.eclipse.IRascalResources;
 
@@ -32,42 +31,52 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 	 */
 	public ISourceContainer[] computeSourceContainers(ILaunchConfiguration configuration, IProgressMonitor monitor) throws CoreException {
 
-		String mainModule = configuration.getAttribute(IRascalResources.ATTR_RASCAL_PROGRAM, (String)null);
-		String mainProject = configuration.getAttribute(IRascalResources.ATTR_RASCAL_PROJECT, (String)null);
+		String path_mainModule = configuration.getAttribute(IRascalResources.ATTR_RASCAL_PROGRAM, (String)null);
+		String path_project = configuration.getAttribute(IRascalResources.ATTR_RASCAL_PROJECT, (String)null);
 
-		LinkedList<ISourceContainer> sourceContainers = new  LinkedList<ISourceContainer>();
-
-		if (mainProject != null) {
-			//when a project is specified, lookup in the project and its referenced projects
-			LinkedList<IProject> projects = new LinkedList<IProject>();
-			projects.add(ResourcesPlugin.getWorkspace().getRoot().getProject(mainProject));
-
-			while (! projects.isEmpty()) {
-				IProject project = projects.removeFirst();
-				sourceContainers.add(new ProjectSourceContainer(project, false));
-				projects.addAll(Arrays.asList(project.getDescription().getReferencedProjects()));
-			}
-			return sourceContainers.toArray(new ISourceContainer[]{});
-		}	
-
-		if (mainModule != null) {
-			//when a specific file is specified, lookup in its corresponding project (+ referenced projects)
-			//when a project is specified, lookup in the project and its referenced projects
-			LinkedList<IProject> projects = new LinkedList<IProject>();
-			projects.add(ResourcesPlugin.getWorkspace().getRoot().findMember(mainModule).getProject());
-
-			while (! projects.isEmpty()) {
-				IProject project = projects.removeFirst();
-				sourceContainers.add(new ProjectSourceContainer(project, false));
-				projects.addAll(Arrays.asList(project.getDescription().getReferencedProjects()));
-			}
-			return sourceContainers.toArray(new ISourceContainer[]{});
-			}
+		/* 
+		 * Retrieving and an associated, if present.
+		 */
+		IProject associatedProject = null;
 		
-		//TODO: we need to find a way to also add standard library's modules
+		if(path_mainModule != null) {
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			associatedProject = root.findMember(path_mainModule).getProject();			
 		
-		/* default case */
-		return new ISourceContainer[]{};
+		} else if (path_project != null) {
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			associatedProject = root.getProject(path_project);
+		
+		}
+		
+		assert associatedProject == null || associatedProject != null;		
+
+	
+		/*
+		 * Calculating the final set of source containers.
+		 */
+		if (associatedProject != null) {
+			
+			/*
+			 * Order matters here:
+			 * (1) the standard library is searched first;
+			 * (2) then all the project and all referenced projects are searched recursively.
+			 */
+			ISourceContainer[] sourceContainers = new ISourceContainer[] {
+				new FolderSourceContainer(associatedProject.getFolder("std"), true),
+				new ProjectSourceContainer(associatedProject, true)
+			};
+		
+			return sourceContainers;
+		
+		} else {
+			
+			/* default case */
+			return new ISourceContainer[]{};			
+		
+		}
 	}
 	
 }

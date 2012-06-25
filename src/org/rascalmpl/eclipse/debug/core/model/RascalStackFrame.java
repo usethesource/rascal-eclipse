@@ -274,19 +274,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 */
 	public String getSourceName() {
 		assert hasSourceName();
-		
-		String result = null;
-		String uriSchema = location.getURI().getScheme();
-		String uriPath   = location.getURI().getPath();
-		
-		if (uriSchema.equals("project")) {
-			result = uriPath;	
-		} else if (uriSchema.equals("std")) {
-			result = "/" + uriSchema + uriPath;
-		}
-		
-		assert result != null;
-		return result;
+		return location.getURI().getPath();
 	}
 
 	/**
