@@ -13,21 +13,29 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
+import java.net.URI;
+
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.IBreakpointManagerListener;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
+import org.rascalmpl.eclipse.debug.uri.NoneURITransformer;
+import org.rascalmpl.eclipse.debug.uri.StandardLibraryToProjectURITransformer;
+import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
 import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 
 /**
@@ -49,6 +57,11 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	private final RascalThread fThread;
 
 	/**
+	 * Registry that tracks URI schema types that are supported in the debugging process.
+	 */
+	private final URIResolverRegistry debuggableURIResolverRegistry;
+	
+	/**
 	 * Constructs a new debug target in the given launch for the 
 	 * associated Rascal console.
 	 * 
@@ -65,6 +78,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		breakpointManager.addBreakpointManagerListener(this);
 		// to restore the persistent breakpoints
 		this.breakpointManagerEnablementChanged(true);
+		this.debuggableURIResolverRegistry = createDebuggableURIResolverRegistry();
 	}
 
 	/* (non-Javadoc)
@@ -283,6 +297,40 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 			} catch (CoreException e) {
 			}
 		}
+	}
+	
+	/**
+	 * A registry that keeps track of resource schema types that are supported in the debugging process.
+	 * The registry furthermore transforms different resource URIs to the "project://" schema.
+	 * 
+	 * @return registry that transforms resource {@link URI} instances.
+	 * @see {@link StandardLibraryToProjectURITransformer}, {@link NoneURITransformer}
+	 */
+	private URIResolverRegistry createDebuggableURIResolverRegistry() {
+		URIResolverRegistry resolverRegistry = new URIResolverRegistry();
+		
+		ILaunchConfiguration configuration = 
+				getDebugTarget().getLaunch().getLaunchConfiguration();
+		
+		LaunchConfigurationPropertyCache configurationUtility = 
+				new LaunchConfigurationPropertyCache(configuration);
+			
+		String projectName = 
+				configurationUtility.getAssociatedProject().getName();
+		
+		String libraryFolderName = IRascalResources.RASCAL_STD;
+		
+		resolverRegistry.registerOutput(new StandardLibraryToProjectURITransformer(projectName, libraryFolderName));
+		resolverRegistry.registerOutput(new NoneURITransformer("project"));
+		
+		return resolverRegistry;
+	}
+	
+	/* (non-Javadoc)
+	 * @see createDebuggableURIResolverRegistry()
+	 */
+	public URIResolverRegistry getDebuggableURIResolverRegistry() {
+		return debuggableURIResolverRegistry;
 	}
 	
 	public void setConsole(IRascalConsole console){

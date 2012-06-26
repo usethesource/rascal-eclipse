@@ -13,9 +13,9 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
+import java.net.URI;
 import java.util.Stack;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IBreakpoint;
@@ -26,6 +26,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
+import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.debug.DebugStepMode;
@@ -282,23 +283,24 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	 * @see org.rascalmpl.interpreter.debug.IDebugger#hasEnabledBreakpoint(org.eclipse.imp.pdb.facts.ISourceLocation)
 	 */
 	public boolean hasEnabledBreakpoint(ISourceLocation loc){
-		IBreakpoint[] breakpoints = getBreakpointManager().getBreakpoints(IRascalResources.ID_RASCAL_DEBUG_MODEL);
+		IBreakpoint[] breakpoints = getBreakpoints();
 		synchronized(breakpoints){ 
 			for(IBreakpoint bp: breakpoints){
 				if(bp instanceof RascalLineBreakpoint){
 					RascalLineBreakpoint b = (RascalLineBreakpoint) bp;
 					try{
 						if(b.isEnabled()){
-							// FIXME: centralize URI schema <-> module / file name conversion.
-							// only compare the relative paths inclusive the src folders							
-							String bp_path = "/" + b.getResource().getProjectRelativePath().toString();
-							String loc_path = loc.getURI().getPath();
+							/*
+							 * Location information of the breakpoint (in format
+							 * {@link IPath}) and location information of the
+							 * source location (in format {@link
+							 * ISourceLocation}) are both transformed to {@link
+							 * URI} instances of schmema type "project".
+							 */
+							URI uriBreakPointLocation = ProjectURIResolver.constructNonEncodedProjectURI(b.getResource().getFullPath());
+							URI uriSourceLocation     = getRascalDebugTarget().getDebuggableURIResolverRegistry().getResourceURI(loc.getURI());
 							
-							if (loc.getURI().getScheme().equals("std")) {
-								loc_path = "/std" + loc_path;
-							}
-							
-							if (bp_path.equals(loc_path)) {
+							if (uriBreakPointLocation.equals(uriSourceLocation)) {
 								// special case for expression breakpoints
 								if(b instanceof RascalExpressionBreakpoint){
 									if(b.getCharStart() <= loc.getOffset() && loc.getOffset()+loc.getLength() <= b.getCharEnd()){
@@ -309,7 +311,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 								}
 							}
 						}
-					}catch(CoreException e){
+					}catch(Exception e){
 						throw new RuntimeException(e);
 					}
 				}

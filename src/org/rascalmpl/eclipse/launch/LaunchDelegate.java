@@ -15,16 +15,12 @@ package org.rascalmpl.eclipse.launch;
 
 import java.net.URI;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
-import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
@@ -34,33 +30,7 @@ import org.rascalmpl.interpreter.Evaluator;
 public class LaunchDelegate implements ILaunchConfigurationDelegate{
 
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
-		// find if there is a rascal file associated to this configuration
-		String path_mainModule = configuration.getAttribute(IRascalResources.ATTR_RASCAL_PROGRAM, (String) null);
-
-		// find if there is a rascal project associated to this configuration
-		// (corresponds to a console launched from the contextual menu of a project)
-		String path_project = configuration.getAttribute(IRascalResources.ATTR_RASCAL_PROJECT, (String) null);
-
-		
-		/* 
-		 * Retrieving and an associated, if present.
-		 */
-		IProject associatedProject = null;
-		
-		if(path_mainModule != null) {
-			
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			associatedProject = root.findMember(path_mainModule).getProject();			
-		
-		} else if (path_project != null) {
-			
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			associatedProject = root.getProject(path_project);
-		
-		}
-		
-		assert associatedProject == null || associatedProject != null;
-		
+		LaunchConfigurationPropertyCache configurationUtility = new LaunchConfigurationPropertyCache(configuration);
 		
 		/*
 		 * Launching console in either run or debug configuration
@@ -70,8 +40,8 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 		
 		if (mode.equals(ILaunchManager.RUN_MODE)) {
 	
-			if (associatedProject != null) {
-				console = consoleFactory.openRunConsole(associatedProject);
+			if (configurationUtility.hasAssociatedProject()) {
+				console = consoleFactory.openRunConsole(configurationUtility.getAssociatedProject());
 			} else {
 				console = consoleFactory.openRunConsole();				
 			}
@@ -81,8 +51,8 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			// create a new debug session
 			RascalDebugTarget debugTarget = new RascalDebugTarget(launch);
 
-			if (associatedProject != null) {
-				console = consoleFactory.openDebuggableConsole(associatedProject, debugTarget.getThread());
+			if (configurationUtility.hasAssociatedProject()) {
+				console = consoleFactory.openDebuggableConsole(configurationUtility.getAssociatedProject(), debugTarget.getThread());
 			} else {
 				console = consoleFactory.openDebuggableConsole(debugTarget.getThread());				
 			}			
@@ -104,12 +74,12 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 		 * TODO: Make the performed statements plus output visible in the console and its command history.
 		 * TODO: Give feedback in case main() call was not successful.
 		 */
-		if(path_mainModule != null) {
+		if(configurationUtility.hasPathOfMainModule()) {
 			
 			// FIXME: centralize URI schema <-> module / file name conversion.
 			// construct the corresponding module name
-			int index = path_mainModule.indexOf('/', 1);
-			String moduleFullName = path_mainModule.substring(index+1);
+			int index = configurationUtility.getPathOfMainModule().indexOf('/', 1);
+			String moduleFullName = configurationUtility.getPathOfMainModule().substring(index+1);
 			if(moduleFullName.startsWith("src/")) {
 				moduleFullName = moduleFullName.replaceFirst("src/", "");		
 			} else if(moduleFullName.startsWith("std/")) {

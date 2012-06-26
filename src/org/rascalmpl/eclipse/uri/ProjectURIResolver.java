@@ -50,6 +50,26 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		}
 	}
 
+	public static URI constructNonEncodedProjectURI(ISourceProject project, IPath path){
+		return constructNonEncodedProjectURI(project.getName(), path);
+	}
+	
+	public static URI constructNonEncodedProjectURI(String project, IPath path){
+		try{
+			// making sure that spaces in 'path' are properly escaped
+			return new URI("project://"+project+"/"+path.toOSString());
+		}catch(URISyntaxException usex){
+			throw new BadURIException(usex);
+		}
+	}
+	
+	public static URI constructNonEncodedProjectURI(IPath workspaceAbsolutePath){
+		String projectName        = workspaceAbsolutePath.segment(0);
+		IPath projectAbsolutePath = workspaceAbsolutePath.removeFirstSegments(1);
+		
+		return constructNonEncodedProjectURI(projectName, projectAbsolutePath);
+	}		
+	
 	public InputStream getInputStream(URI uri) throws IOException {
 		try {
 			return resolveFile(uri).getContents();

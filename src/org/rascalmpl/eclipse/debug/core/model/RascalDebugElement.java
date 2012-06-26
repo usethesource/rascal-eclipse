@@ -18,7 +18,7 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.rascalmpl.eclipse.IRascalResources;
 
 /**
- * Common function for  debug elements.
+ * Common function for debug elements.
  */
 public class RascalDebugElement extends DebugElement {
 
