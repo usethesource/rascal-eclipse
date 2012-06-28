@@ -13,9 +13,11 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Stack;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IBreakpoint;
@@ -311,7 +313,9 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 								}
 							}
 						}
-					}catch(Exception e){
+					}catch(IOException e) {
+						/* ignore; schema does not supported breakpoints */
+					}catch(CoreException e){
 						throw new RuntimeException(e);
 					}
 				}
