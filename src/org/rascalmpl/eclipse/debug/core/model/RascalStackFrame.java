@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
@@ -27,6 +29,8 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.UnsupportedSchemeException;
 
 public class RascalStackFrame extends RascalDebugElement implements IStackFrame {
 
@@ -252,18 +256,32 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 
 	/**
 	 * Returns if there is a supported source location associated with this stack frame.
-	 * Currently only files of schema type <em>project://</em> or <em>std://</em> are 
-	 * considered to be valid source locations.
 	 * 
 	 * @return <code>true</code> if there exists a source file name, otherwise <code>false</code>
+	 * @see URIResolverRegistry#getResourceURI(java.net.URI)
 	 */	
 	public boolean hasSourceName() {
-		if (location == null) {
-			return false;
-		} else {
-			return location.getURI().getScheme().equals("project")
-				|| location.getURI().getScheme().equals("std");
+		boolean result = false;
+			
+		if (location != null) {
+			try {
+				getRascalDebugTarget()
+						.getDebuggableURIResolverRegistry()
+						.getResourceURI(location.getURI());
+			
+				result = true;
+
+			} catch (UnsupportedSchemeException e) {
+				/* in case the the schema is not supported for source lookup */
+				result = false;
+			
+			} catch (IOException e) {
+				/* should not be thrown */
+				throw new RuntimeException(e);
+			}
 		}
+		
+		return result;		
 	}
 	
 	/**
@@ -274,7 +292,17 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 */
 	public String getSourceName() {
 		assert hasSourceName();
-		return location.getURI().getPath();
+
+		try {
+			URI resolvedURI = getRascalDebugTarget()
+					.getDebuggableURIResolverRegistry().getResourceURI(
+							location.getURI());
+		
+			return resolvedURI.getPath();
+		
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
@@ -304,7 +332,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 		if (obj instanceof RascalStackFrame) {
 			RascalStackFrame sf = (RascalStackFrame)obj;
 			return sf.getThread().equals(getThread()) && 
-			    sf.getSourceName() == null ? getSourceName() == null : sf.getSourceName().equals(getSourceName()) &&
+			    sf.hasSourceName() == false ? hasSourceName() == false : (hasSourceName() && sf.getSourceName().equals(getSourceName())) &&
 				sf.getEnvironment().equals(getEnvironment()) &&
 				sf.getLocation().equals(getLocation());
 		}
