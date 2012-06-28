@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.console.internal;
 
@@ -16,7 +17,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Queue;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.imp.runtime.RuntimePlugin;
@@ -68,6 +71,17 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	
 	private int inputOffset;
 	private String currentContent;
+
+	/**
+	 * Queue for commands that are invoked through {@link #executeCommand(String)}.
+	 * 
+	 * Purpose of the queue is:
+	 * <ul>
+	 * 	<li>to collect commands that were issued before the console was initialized</li>
+	 * 	<li>avoiding race conditions due to consecutive document updates</li>
+	 * </ul>
+	 */
+	private final Queue<Runnable> delayedDocumentUpdateQueue = new ConcurrentLinkedQueue<Runnable>();
 	
 	public InteractiveInterpreterConsole(IInterpreter interpreter, String name, String prompt, String continuationPrompt){
 		super(name, CONSOLE_TYPE, null, false);
@@ -125,7 +139,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				}while(page == null);
 				
 				disableEditing();
-				emitPrompt();
+				emitPrompt();	
 				enableEditing();
 				
 				Display.getDefault().asyncExec(new Runnable(){
@@ -150,7 +164,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 						commandExecutorThread.start();
 
 					}
-				});
+				});			
 			}
 		}.start();
 	}
@@ -285,6 +299,19 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				IDocument doc = getDocument();
 				inputOffset = doc.getLength(); // Update the input offset; note however that this is not the proper place to do this (just the most convenient).
 				currentContent = doc.get();
+
+				/*
+				 * Execute next document update (i.e. that was queued from
+				 * {@link InteractiveInterpreterConsole#executeCommand(String)}
+				 * if present.
+				 * 
+				 * Here as well it's the most convinient and non-invasive place
+				 * to perform this action, because the console only reacts to
+				 * user-generated document update events when it's active {@see
+				 * ConsoleDocumentListener#documentChanged(DocumentEvent)}.
+				 */
+				Runnable update = delayedDocumentUpdateQueue.poll();
+				if (update != null) update.run();
 			}
 		});
 	}
@@ -331,8 +358,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		}else{
 			cmd = command.concat(COMMAND_TERMINATOR);
 		}
-		
-		Display.getDefault().syncExec(new Runnable(){
+
+		delayedDocumentUpdateQueue.add(new Runnable(){
 			public void run(){
 				IDocument doc = getDocument();
 				try{

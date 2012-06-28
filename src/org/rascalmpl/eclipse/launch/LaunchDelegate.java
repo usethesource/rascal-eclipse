@@ -23,7 +23,6 @@ import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.Evaluator;
 
 public class LaunchDelegate implements ILaunchConfigurationDelegate{
 
@@ -66,10 +65,7 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 		
 		
 		/* 
-		 * If a main module is present, import it in the console  evaluator and launch its main() function.
-		 * 
-		 * TODO: Peform module import call asynchronously.
-		 * TODO: Make the performed statements plus output visible in the console and its command history.
+		 * If a main module is present, import it and launch its main() function.
 		 */
 		if(configurationUtility.hasPathOfMainModule()) {
 			
@@ -85,14 +81,8 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			moduleFullName = moduleFullName.replaceAll("/", "::");
 			moduleFullName = moduleFullName.substring(0, moduleFullName.length()-Configuration.RASCAL_FILE_EXT.length());
 
-			// import the main module and launch the main function			
-			Evaluator consoleEvaluator = console.getRascalInterpreter().getEval();
-			synchronized (consoleEvaluator) {
-				consoleEvaluator.doImport(null, moduleFullName);
-			}			
-
 			console.activate();
-//			console.executeCommand("import " + moduleFullName + ";");
+			console.executeCommand("import " + moduleFullName + ";");
 			console.executeCommand("main();");
 			
 		}
