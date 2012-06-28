@@ -13,8 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.launch;
 
-import java.net.URI;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
@@ -70,9 +68,8 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 		/* 
 		 * If a main module is present, import it in the console  evaluator and launch its main() function.
 		 * 
-		 * TODO: Peform import and main() call asynchronously.
+		 * TODO: Peform module import call asynchronously.
 		 * TODO: Make the performed statements plus output visible in the console and its command history.
-		 * TODO: Give feedback in case main() call was not successful.
 		 */
 		if(configurationUtility.hasPathOfMainModule()) {
 			
@@ -92,12 +89,12 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			Evaluator consoleEvaluator = console.getRascalInterpreter().getEval();
 			synchronized (consoleEvaluator) {
 				consoleEvaluator.doImport(null, moduleFullName);
-				
-				try {
-					consoleEvaluator.eval(null, "main()", URI.create("run:///"));
-				} catch (Exception e) { /* Currenty ignored. */ }
 			}			
-		
+
+			console.activate();
+//			console.executeCommand("import " + moduleFullName + ";");
+			console.executeCommand("main();");
+			
 		}
 			
 	}
