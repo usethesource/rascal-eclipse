@@ -274,8 +274,13 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				command = "";
 			}
 			finally {
-				consoleStreamPipe.signalAndWaitForFlush(500); // try to get the most out of the console
-				eval.revertToDefaultWriters();
+				/* References might be <code>null</code> when #terminate() was called beforehand */ 
+				try {
+					consoleStreamPipe.signalAndWaitForFlush(500); // try to get the most out of the console
+					eval.revertToDefaultWriters();
+				} catch (NullPointerException e) {
+					Activator.getInstance().logException(e.getMessage(), e);
+				}
 			}
 		}
 		rm.endJob(true);
