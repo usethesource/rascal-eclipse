@@ -81,7 +81,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	 * 	<li>avoiding race conditions due to consecutive document updates</li>
 	 * </ul>
 	 */
-	private final Queue<Runnable> delayedDocumentUpdateQueue = new ConcurrentLinkedQueue<Runnable>();
+	private final Queue<String> delayedCommandQueue = new ConcurrentLinkedQueue<String>();
 	
 	public InteractiveInterpreterConsole(IInterpreter interpreter, String name, String prompt, String continuationPrompt){
 		super(name, CONSOLE_TYPE, null, false);
@@ -310,8 +310,16 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				 * user-generated document update events when it's active {@see
 				 * ConsoleDocumentListener#documentChanged(DocumentEvent)}.
 				 */
-				Runnable update = delayedDocumentUpdateQueue.poll();
-				if (update != null) update.run();
+				String command = delayedCommandQueue.poll();
+				if (command != null) {
+					try{
+						doc.replace(inputOffset, doc.getLength() - inputOffset, command);
+					}catch(BadLocationException blex){
+						// Ignore, can't happen.
+					}
+					
+					moveCaretTo(doc.getLength());
+				}
 			}
 		});
 	}
@@ -359,18 +367,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			cmd = command.concat(COMMAND_TERMINATOR);
 		}
 
-		delayedDocumentUpdateQueue.add(new Runnable(){
-			public void run(){
-				IDocument doc = getDocument();
-				try{
-					doc.replace(inputOffset, doc.getLength() - inputOffset, cmd);
-				}catch(BadLocationException blex){
-					// Ignore, can't happen.
-				}
-				
-				moveCaretTo(doc.getLength());
-			}
-		});
+		delayedCommandQueue.add(cmd);
 	}
 	
 	public int getInputOffset(){
