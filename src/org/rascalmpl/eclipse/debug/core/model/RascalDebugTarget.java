@@ -149,7 +149,6 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 */
 	public void terminate() throws DebugException {
 		getThread().terminate();
-		fireTerminateEvent(); // FIXME pull out event handling
 	}
 
 	/* (non-Javadoc)
