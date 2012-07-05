@@ -22,7 +22,7 @@ import org.eclipse.ui.internal.console.IOConsolePage;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
@@ -100,7 +100,7 @@ public class RascalIOConsole extends IOConsole {
 
 		@Override
 		public void run() {
-			final Evaluator eval = callback.getEval();
+			final IEvaluator<Result<IValue>> eval = callback.getEval();
 			output.print(startText);
 			output.flush();
 			

@@ -65,7 +65,7 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.util.RascalInvoker;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
@@ -451,7 +451,7 @@ public class Editors {
 	 * runners.
 	 */
 	private final static Map<IWorkbenchPart, Runnable> annotationRunners = new ConcurrentHashMap<IWorkbenchPart, Runnable>();
-	private final static Map<IWorkbenchPart, Evaluator> annotationRunnerEvaluators = new ConcurrentHashMap<IWorkbenchPart, Evaluator>();
+	private final static Map<IWorkbenchPart, IEvaluator<Result<IValue>>> annotationRunnerEvaluators = new ConcurrentHashMap<IWorkbenchPart, IEvaluator<Result<IValue>>>();
 	private final static Map<String, Set<IWorkbenchPart>> partsProvided = new ConcurrentHashMap<String, Set<IWorkbenchPart>>();
 	private final static Map<String, ICallableValue> defaultProviders = new ConcurrentHashMap<String, ICallableValue>();
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -462,7 +462,7 @@ public class Editors {
 		public void partActivated(IWorkbenchPart part) {
 			Runnable runAgain = annotationRunners.get(part);
 			if (runAgain != null) {
-				Evaluator eval = annotationRunnerEvaluators.get(part);
+				IEvaluator<Result<IValue>> eval = annotationRunnerEvaluators.get(part);
 				RascalInvoker.invokeAsync(runAgain, eval);
 			} else if (part instanceof ITextEditor) { 
 				// only try to run the callback if there wasn't another runner associated

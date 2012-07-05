@@ -1,7 +1,9 @@
 package org.rascalmpl.eclipse.util;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.widgets.Display;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.result.Result;
 
 public class RascalInvoker{
 	
@@ -9,7 +11,7 @@ public class RascalInvoker{
 		super();
 	}
 	
-	public static void invokeSync(Runnable runnable, Evaluator evaluator){
+	public static void invokeSync(Runnable runnable, final IEvaluator<Result<IValue>> evaluator){
 		if(evaluator == null) throw new IllegalArgumentException("Evaluator can't be null.");
 		
 		synchronized(evaluator){
@@ -17,7 +19,7 @@ public class RascalInvoker{
 		}
 	}
 	
-	public static void invokeAsync(final Runnable runnable, final Evaluator evaluator){
+	public static void invokeAsync(final Runnable runnable, final IEvaluator<Result<IValue>> evaluator){
 		if(evaluator == null) throw new IllegalArgumentException("Evaluator can't be null.");
 		
 		new Thread(new Runnable(){
@@ -29,7 +31,7 @@ public class RascalInvoker{
 		}).start();
 	}
 	
-	public static void invokeUIAsync(final Runnable runnable, final Evaluator evaluator){
+	public static void invokeUIAsync(final Runnable runnable, final IEvaluator<Result<IValue>> evaluator){
 		if(evaluator == null) throw new IllegalArgumentException("Evaluator can't be null.");
 		
 		Display.getDefault().asyncExec(new Runnable() {
