@@ -42,7 +42,15 @@ public class TestReporter implements ITestResultListener {
 		public boolean successful;
 		public String test;
 		public ISourceLocation loc;
+		public String message;
 		public Throwable exception;
+		
+		public Report(boolean successful, String test, ISourceLocation loc, String message) {
+			this.successful = successful;
+			this.test = test;
+			this.loc = loc;
+			this.message = message;
+		}
 		
 		public Report(boolean successful, String test, ISourceLocation loc, Throwable exception) {
 			this.successful = successful;
@@ -87,10 +95,19 @@ public class TestReporter implements ITestResultListener {
 		}
 	}
 
-		
-
 	public void report(boolean successful, String test, ISourceLocation loc) {
-		report(successful, test, loc, null);
+		report(successful, test, loc, (Throwable) null);
+	}
+	
+	public void report(boolean successful, String test, ISourceLocation loc, String message) {
+		final IFile file = getFile(loc);
+		
+		List<Report> forFile = reports.get(file);
+		if (forFile == null) {
+			forFile = new ArrayList<Report>(1);
+			reports.put(file, forFile);
+		}
+		forFile.add(new Report(successful, test, loc, message));
 	}
 	
 	public void report(boolean successful, String test, ISourceLocation loc, Throwable t) {
@@ -102,8 +119,6 @@ public class TestReporter implements ITestResultListener {
 			reports.put(file, forFile);
 		}
 		forFile.add(new Report(successful, test, loc, t));
-		
-		
 	}
 
 	public void start(int count) {
