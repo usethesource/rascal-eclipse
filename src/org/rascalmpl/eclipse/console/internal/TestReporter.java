@@ -52,17 +52,12 @@ public class TestReporter implements ITestResultListener {
 			this.message = message;
 		}
 		
-		public Report(boolean successful, String test, ISourceLocation loc, Throwable exception) {
-			this.successful = successful;
-			this.test = test;
-			this.loc = loc;
-			this.exception = exception;
-		}
 	}
 
 	public TestReporter(URIResolverRegistry uriResolverRegistry) {
 	}
 
+	@Override
 	public void done() {
 		for (IFile file : reports.keySet()) {
 			reportForFile(file, reports.get(file));
@@ -80,7 +75,7 @@ public class TestReporter implements ITestResultListener {
 					attrs.put(IMarker.TRANSIENT, true);
 					attrs.put(IMarker.CHAR_START, r.loc.getOffset());
 					attrs.put(IMarker.CHAR_END, r.loc.getOffset() + r.loc.getLength());
-					attrs.put(IMarker.MESSAGE, r.exception != null ? r.exception.getMessage() : (r.successful ? "succeeded" : "failed"));
+					attrs.put(IMarker.MESSAGE, r.message);
 					attrs.put(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 					attrs.put(IMarker.SEVERITY, r.successful ? IMarker.SEVERITY_INFO : IMarker.SEVERITY_ERROR);
 					m.setAttributes(attrs);
@@ -95,10 +90,7 @@ public class TestReporter implements ITestResultListener {
 		}
 	}
 
-	public void report(boolean successful, String test, ISourceLocation loc) {
-		report(successful, test, loc, (Throwable) null);
-	}
-	
+	@Override
 	public void report(boolean successful, String test, ISourceLocation loc, String message) {
 		final IFile file = getFile(loc);
 		
@@ -110,17 +102,8 @@ public class TestReporter implements ITestResultListener {
 		forFile.add(new Report(successful, test, loc, message));
 	}
 	
-	public void report(boolean successful, String test, ISourceLocation loc, Throwable t) {
-		final IFile file = getFile(loc);
-		
-		List<Report> forFile = reports.get(file);
-		if (forFile == null) {
-			forFile = new ArrayList<Report>(1);
-			reports.put(file, forFile);
-		}
-		forFile.add(new Report(successful, test, loc, t));
-	}
 
+	@Override
 	public void start(int count) {
 		reports = new HashMap<IFile,List<Report>>();
 	}
