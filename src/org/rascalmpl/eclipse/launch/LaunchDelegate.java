@@ -23,6 +23,8 @@ import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.interpreter.debug.DebugHandler;
+import org.rascalmpl.interpreter.debug.IDebugHandler;
 
 public class LaunchDelegate implements ILaunchConfigurationDelegate{
 
@@ -45,13 +47,16 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			
 		} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
 			
+			// create a new internal debug handler	
+			IDebugHandler debugHandler = new DebugHandler();
+			
 			// create a new debug session
-			RascalDebugTarget debugTarget = new RascalDebugTarget(launch);
-
+			RascalDebugTarget debugTarget = new RascalDebugTarget(launch, debugHandler);
+			
 			if (configurationUtility.hasAssociatedProject()) {
-				console = consoleFactory.openDebuggableConsole(configurationUtility.getAssociatedProject(), debugTarget.getThread());
+				console = consoleFactory.openDebuggableConsole(configurationUtility.getAssociatedProject(), debugHandler);
 			} else {
-				console = consoleFactory.openDebuggableConsole(debugTarget.getThread());				
+				console = consoleFactory.openDebuggableConsole(debugHandler);				
 			}			
 			
 			debugTarget.setConsole(console);

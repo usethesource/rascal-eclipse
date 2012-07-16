@@ -83,12 +83,12 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -109,17 +109,20 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 	private PrintWriter consoleStdOut;
 	private PrintWriter consoleStdErr;
 	private TimedBufferedPipe consoleStreamPipe;
-
-	public RascalScriptInterpreter(IProject project){
+	private AbstractInterpreterEventTrigger eventTrigger;
+	
+	public RascalScriptInterpreter(AbstractInterpreterEventTrigger eventTrigger, IProject project){
 		super("Rascal");
+		
+		this.eventTrigger = eventTrigger;
 		
 		this.project = project;
 
 		this.command = "";
 	}
 	
-	public RascalScriptInterpreter(){
-		this(null);
+	public RascalScriptInterpreter(AbstractInterpreterEventTrigger eventTrigger){
+		this(eventTrigger, null);
 	}
 
 	public void initialize(Evaluator eval){
@@ -135,6 +138,8 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 		this.eval = eval;
 		this.reloader = new ModuleReloader(eval);
+	
+		getEventTrigger().fireCreationEvent();
 	}
 
 	private void updateConsoleStream(IInterpreterConsole console) {
@@ -183,7 +188,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		reloader.destroy();
 		
 		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
-		if (eval instanceof DebuggableEvaluator) ((DebuggableEvaluator) eval).getDebugger().destroy();
+		getEventTrigger().fireTerminateEvent();
 		
 		// Make the memory leak less severe (Eclipse is broken, I can't help it).
 		eval = null;
@@ -544,5 +549,12 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		return eval.getStackTrace();
 	}
 
+	public AbstractInterpreterEventTrigger getEventTrigger() {
+		return eventTrigger;
+	}
+
+	public void setEventTrigger(AbstractInterpreterEventTrigger eventTrigger) {
+		this.eventTrigger = eventTrigger;
+	}
 	
 }

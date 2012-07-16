@@ -14,18 +14,9 @@
 package org.rascalmpl.eclipse.debug.core.model;
 
 import java.net.URI;
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.IBreakpointManagerListener;
@@ -36,32 +27,35 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
+import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint;
 import org.rascalmpl.eclipse.debug.uri.NoneURITransformer;
 import org.rascalmpl.eclipse.debug.uri.StandardLibraryToProjectURITransformer;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
-import org.rascalmpl.interpreter.debug.DebugResumeMode;
-import org.rascalmpl.interpreter.debug.DebugStepMode;
+import org.rascalmpl.interpreter.IInterpreterEventListener;
+import org.rascalmpl.interpreter.InterpreterEvent;
 import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.interpreter.debug.IDebugMessage;
+import org.rascalmpl.interpreter.debug.IDebugSupport;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 
 /**
  *  Rascal Debug Target
  */
-public class RascalDebugTarget extends RascalDebugElement implements IDebugTarget, IBreakpointManagerListener, IRascalDebugEventListener {
+public class RascalDebugTarget extends RascalDebugElement implements IDebugTarget, IBreakpointManagerListener, IInterpreterEventListener {
 
 	// associated Rascal console
 	private volatile IRascalConsole console;
-
+	
 	// containing launch object
 	private final ILaunch fLaunch;
 
+	// associated debug support interface
+	private final IDebugSupport fDebugSupport;
+	
 	// terminated state
 	private boolean fTerminated = false;	
 	
@@ -69,51 +63,12 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	private IThread[] fThreads;
 	private RascalThread fThread;
 
-	// event dispatch job
-	private EventDispatchJob fEventDispatch;	
-	// event listeners
-	private List<IRascalDebugEventListener> fEventListeners = new CopyOnWriteArrayList<IRascalDebugEventListener>();	
-	
-	// TODO: modifier set to public to not have to add a queuing method. Remove public modifier
-	// and do proper VM / debugger communication.
-	public final BlockingQueue<DebugEvent> fRuntimeEvents = new LinkedBlockingQueue<DebugEvent>();
-	
 	/**
 	 * Registry that tracks URI schema types that are supported in the debugging process.
 	 */
 	private final URIResolverRegistry debuggableURIResolverRegistry;
 
-	/**
-	 * Listens to events from the runtime and fires corresponding 
-	 * debug events.
-	 */
-	class EventDispatchJob extends Job {
-		
-		public EventDispatchJob() {
-			super("Rascal Event Dispatch");
-			setSystem(true);
-		}
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
-		 */
-		protected IStatus run(IProgressMonitor monitor) {
-			DebugEvent event = null;
-			while (!isTerminated()) {
-				try {
-					event = fRuntimeEvents.take();
-
-					for (IRascalDebugEventListener listener : fEventListeners) {
-						listener.onRascalDebugEvent(event);
-					}
-				} catch (InterruptedException e) {
-					terminated();
-				}
-			}
-			return Status.OK_STATUS;
-		}
-		
-	}	
 	
 	/**
 	 * Constructs a new debug target in the given launch for the 
@@ -122,17 +77,16 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @param console Rascal console
 	 * @exception CoreException if unable to connect to host
 	 */
-	public RascalDebugTarget(ILaunch launch) throws CoreException {
+	public RascalDebugTarget(ILaunch launch, IDebugSupport debugSupport) throws CoreException {
 		super(null);
+
+		fDebugSupport = debugSupport;
+		addEventListener(this);
+		
 		fLaunch = launch;
 		fThread = new RascalThread(this);
 		fThreads = new IThread[]{fThread};
 
-		fEventDispatch = new EventDispatchJob();
-		fEventDispatch.schedule();
-		
-		addEventListener(this);
-		
 		IBreakpointManager breakpointManager = getBreakpointManager();
 		breakpointManager.addBreakpointListener(this);
 		breakpointManager.addBreakpointManagerListener(this);
@@ -200,7 +154,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @see org.eclipse.debug.core.model.ITerminate#isTerminated()
 	 */
 	public boolean isTerminated() {
-		return fTerminated || getThread().isTerminated();
+		return fTerminated;
 	}
 	
 	/* (non-Javadoc)
@@ -417,12 +371,12 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		// TODO: deposit message at runtime
 	}
 	
-	/* (non-Javadoc)
-	 * Currently simulates a blocking sequential communication with the interpreter.
-	 * But instead of the interpreter generating the resume events, it's done here.
-	 */
-	@Deprecated
-	public void sendSuspendRequest(int request) throws DebugException {
+//	/* (non-Javadoc)
+//	 * Currently simulates a blocking sequential communication with the interpreter.
+//	 * But instead of the interpreter generating the resume events, it's done here.
+//	 */
+//	@Deprecated
+//	public void sendSuspendRequest(int request) throws DebugException {
 //		switch (request) {
 //		
 //		case DebugEvent.STEP_INTO:
@@ -444,47 +398,47 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 //			throw new DebugException(
 //					new Status(Status.ERROR, "unknownId", "Unsupported request to the interpreter."));
 //		}
-	}	
+//	}	
 	
-	/* (non-Javadoc)
-	 * Currently simulates a blocking sequential communication with the interpreter.
-	 * But instead of the interpreter generating the resume events, it's done here.
-	 */
-	@Deprecated
-	public void sendResumeRequest() throws DebugException {
+//	/* (non-Javadoc)
+//	 * Currently simulates a blocking sequential communication with the interpreter.
+//	 * But instead of the interpreter generating the resume events, it's done here.
+//	 */
+//	@Deprecated
+//	public void sendResumeRequest() throws DebugException {
 //		getRascalDebugTarget().getEvaluator().setStepMode(DebugStepMode.NO_STEP);
 //		getRascalDebugTarget().getThread().notifyResume(DebugResumeMode.CLIENT_REQUEST);
-	}
+//	}
 	
-	/* (non-Javadoc)
-	 * Currently simulates a blocking sequential communication with the interpreter.
-	 */
-	@Deprecated
-	public void sendTerminationRequest() throws DebugException {
-		getRascalDebugTarget().getConsole().terminate();
-	}
+//	/* (non-Javadoc)
+//	 * Currently simulates a blocking sequential communication with the interpreter.
+//	 */
+//	@Deprecated
+//	public void sendTerminationRequest() throws DebugException {
+//		getRascalDebugTarget().getConsole().terminate();
+//	}
 	
-	@Deprecated
-	public void sendRequestBreakpointSet(ISourceLocation sourceLocation) throws CoreException {
-		/* 
-		 * Evaluator might be <code>null</code> when when it is not finished
-		 * with initialisation. In this case the breakpoint has to be installed
-		 * deferred after a starting event.
-		 */
-		if (getEvaluator() != null)
-			getEvaluator().addBreakpoint(sourceLocation);
-	}
-	
-	@Deprecated
-	public void sendRequestBreakpointClear(ISourceLocation sourceLocation) throws CoreException {
-		/* 
-		 * Evaluator might be <code>null</code> when when it is not finished
-		 * with initialisation. In this case the breakpoint has to be installed
-		 * deferred after a starting event.
-		 */
-		if (getEvaluator() != null)
-			getEvaluator().removeBreakpoint(sourceLocation);
-	}
+//	@Deprecated
+//	public void sendRequestBreakpointSet(ISourceLocation sourceLocation) throws CoreException {
+//		/* 
+//		 * Evaluator might be <code>null</code> when when it is not finished
+//		 * with initialisation. In this case the breakpoint has to be installed
+//		 * deferred after a starting event.
+//		 */
+//		if (getEvaluator() != null)
+//			getEvaluator().addBreakpoint(sourceLocation);
+//	}
+//	
+//	@Deprecated
+//	public void sendRequestBreakpointClear(ISourceLocation sourceLocation) throws CoreException {
+//		/* 
+//		 * Evaluator might be <code>null</code> when when it is not finished
+//		 * with initialisation. In this case the breakpoint has to be installed
+//		 * deferred after a starting event.
+//		 */
+//		if (getEvaluator() != null)
+//			getEvaluator().removeBreakpoint(sourceLocation);
+//	}
 	
 	
 	/**
@@ -494,10 +448,8 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 *  
 	 * @param listener event listener
 	 */
-	public void addEventListener(IRascalDebugEventListener listener) {
-		if (!fEventListeners.contains(listener)) {
-			fEventListeners.add(listener);
-		}
+	public void addEventListener(IInterpreterEventListener listener) {
+		fDebugSupport.addInterpreterEventListener(listener);
 	}
 	
 	/**
@@ -506,8 +458,8 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 *  
 	 * @param listener event listener
 	 */
-	public void removeEventListener(IRascalDebugEventListener listener) {
-		fEventListeners.remove(listener);
+	public void removeEventListener(IInterpreterEventListener listener) {
+		fDebugSupport.removeInterpreterEventListener(listener);
 	}
 	
 	/**
@@ -549,14 +501,14 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	}
 
 	@Override
-	public void onRascalDebugEvent(DebugEvent event) {
+	public void handleInterpreterEvent(InterpreterEvent event) {
 		switch (event.getKind()) {
 		
-		case DebugEvent.CREATE:
+		case CREATE:
 			started();
 			break;
 
-		case DebugEvent.TERMINATE:
+		case TERMINATE:
 			terminated();
 			break;
 

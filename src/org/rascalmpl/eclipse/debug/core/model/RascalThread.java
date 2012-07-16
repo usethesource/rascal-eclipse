@@ -23,9 +23,8 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.debug.DebugResumeMode;
-import org.rascalmpl.interpreter.debug.IDebugMessage;
-import org.rascalmpl.interpreter.debug.IDebugger;
+import org.rascalmpl.interpreter.IInterpreterEventListener;
+import org.rascalmpl.interpreter.InterpreterEvent;
 import org.rascalmpl.interpreter.env.Environment;
 
 import static org.rascalmpl.interpreter.debug.DebugMessageFactory.*;
@@ -33,7 +32,7 @@ import static org.rascalmpl.interpreter.debug.DebugMessageFactory.*;
 /**
  * A Rascal thread. Rascal programs are currently modelled single threaded.
  */
-public class RascalThread extends RascalDebugElement implements IThread, IDebugger, IRascalDebugEventListener {
+public class RascalThread extends RascalDebugElement implements IThread, IInterpreterEventListener {
 
 	/**
 	 * Breakpoint this thread is suspended at or <code>null</code>
@@ -47,11 +46,9 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	private boolean fStepping = false;
 	
 	/**
-	 * Wether this thread is suspended
+	 * Whether this thread is suspended
 	 */
 	private boolean fSuspended = false;
-	
-	private volatile boolean fTerminated = false;
 	
 	public RascalThread(IDebugTarget target) {
 		super(target);
@@ -145,14 +142,14 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	 * @see org.eclipse.debug.core.model.ISuspendResume#resume()
 	 */
 	public void resume() throws DebugException {
-		sendMessage(requestResumption());
+		sendRequest(requestResumption());
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ISuspendResume#suspend()
 	 */
 	public void suspend() throws DebugException {
-		sendMessage(requestSuspension());
+		sendRequest(requestSuspension());
 	}
 
 	/* (non-Javadoc)
@@ -187,14 +184,14 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	 * @see org.eclipse.debug.core.model.IStep#stepInto()
 	 */
 	public void stepInto() throws DebugException {
-		sendMessage(requestStepInto());
+		sendRequest(requestStepInto());
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IStep#stepOver()
 	 */
 	public void stepOver() throws DebugException {
-		sendMessage(requestStepOver());
+		sendRequest(requestStepOver());
 	}
 		
 	/* (non-Javadoc)
@@ -217,106 +214,43 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	 * @see org.eclipse.debug.core.model.ITerminate#isTerminated()
 	 */
 	public boolean isTerminated(){
-		return fTerminated;
+		return getDebugTarget().isTerminated();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.ITerminate#terminate()
 	 */
 	public synchronized void terminate() throws DebugException{
-		sendMessage(requestTermination());
+		sendRequest(requestTermination());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.rascalmpl.interpreter.debug.IDebugger#destroy()
-	 */
-	@Deprecated
-	@Override
-	public synchronized void destroy() {
-		fTerminated = true;
-		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
-		notify();
-		fireTerminateEvent();
-		// for refreshing the icons associated to the debug target
-		rascalDebugTarget.fireTerminateEvent();
+//	/* (non-Javadoc)
+//	 * @see org.rascalmpl.interpreter.debug.IDebugger#destroy()
+//	 */
+//	@Deprecated
+//	@Override
+//	public synchronized void destroy() {
+//		fTerminated = true;
+//		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
+//		notify();
+//		fireTerminateEvent();
+//		// for refreshing the icons associated to the debug target
+//		rascalDebugTarget.fireTerminateEvent();
+//		
+//	}	
 		
-	}	
-	
-	/* (non-Javadoc)
-	 * @see org.rascalmpl.interpreter.debug.IDebugger#sendMessage(org.rascalmpl.interpreter.debug.IDebugMessage)
-	 */
-	@Override
-	public void sendMessage(IDebugMessage message) {
-		DebugEvent event = null;
-		
-		switch (message.getSubject()) {
-
-		case START:
-			event = new DebugEvent(getRascalDebugTarget(), DebugEvent.CREATE);
-			break;
-			
-		case TERMINATION:
-			event = new DebugEvent(getRascalDebugTarget(), DebugEvent.TERMINATE);
-			break;
-		
-		case SUSPENSION:
-			switch (message.getDetail()) {
-			case BREAKPOINT:
-				event = new DebugEvent(getRascalDebugTarget(), DebugEvent.SUSPEND, DebugEvent.BREAKPOINT);
-				event.setData(message.getPayload());
-				break;
-			
-			case CLIENT_REQUEST:
-				event = new DebugEvent(getRascalDebugTarget(), DebugEvent.SUSPEND, DebugEvent.CLIENT_REQUEST);
-				break;
-
-			case STEP_END:
-				event = new DebugEvent(getRascalDebugTarget(), DebugEvent.SUSPEND, DebugEvent.STEP_END);
-				break;
-
-			default:
-				new UnsupportedOperationException("Suspension mode not supported.");
-			}
-			break;
-
-		case RESUMPTION:
-			switch (message.getDetail()) {
-			case STEP_INTO:
-				event = new DebugEvent(getRascalDebugTarget(), DebugEvent.RESUME, DebugEvent.STEP_INTO);
-				break;
-
-			case STEP_OVER:
-				event = new DebugEvent(getRascalDebugTarget(), DebugEvent.RESUME, DebugEvent.STEP_OVER);
-				break;
-				
-			case CLIENT_REQUEST:
-				event = new DebugEvent(getRascalDebugTarget(), DebugEvent.RESUME, DebugEvent.CLIENT_REQUEST);
-				break;
-
-			default:
-				new UnsupportedOperationException("Continuation mode not supported.");
-			}
-			break;		
-		}
-		
-		if (event != null) {
-			// TODO: remove simulation of remote events
-			getRascalDebugTarget().fRuntimeEvents.add(event);
-		}		
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.rascalmpl.interpreter.debug.IDebugger#stopStepping()
-	 */
-	@Deprecated
-	@Override
-	public void stopStepping() {
-		try {
-			resume();
-		} catch (DebugException e) {
-			throw new RuntimeException(e);
-		}
-	}		
+//	/* (non-Javadoc)
+//	 * @see org.rascalmpl.interpreter.debug.IDebugger#stopStepping()
+//	 */
+//	@Deprecated
+//	@Override
+//	public void stopStepping() {
+//		try {
+//			resume();
+//		} catch (DebugException e) {
+//			throw new RuntimeException(e);
+//		}
+//	}		
 	
 	/**
 	 * Sets whether this thread is stepping
@@ -377,21 +311,27 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	}
 
 	@Override
-	public void onRascalDebugEvent(DebugEvent event) {
+	public void handleInterpreterEvent(InterpreterEvent event) {
 		// clear previous state
 		fBreakpoint = null;
 		setStepping(false);
 		
 		switch (event.getKind()) {
 	
-			case DebugEvent.SUSPEND:	
+			case SUSPEND:	
+				setSuspended(true);
 		
 				switch (event.getDetail()) {
-				case DebugEvent.BREAKPOINT:
-				case DebugEvent.CLIENT_REQUEST:
-				case DebugEvent.STEP_END:
-					setSuspended(true);
-					fireSuspendEvent(event.getDetail());
+				case BREAKPOINT:
+					fireSuspendEvent(DebugEvent.BREAKPOINT);
+					break;
+
+				case CLIENT_REQUEST:
+					fireSuspendEvent(DebugEvent.CLIENT_REQUEST);
+					break;
+				
+				case STEP_END:
+					fireSuspendEvent(DebugEvent.STEP_END);
 					break;
 			
 				default:
@@ -400,23 +340,23 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 				
 				break;
 			
-		case DebugEvent.RESUME:
+		case RESUME:
 			setSuspended(false);
 			
 			switch (event.getDetail()) {
-			case DebugEvent.STEP_INTO:
+			case STEP_INTO:
 				setStepping(true);
-				resumed(event.getDetail());
+				resumed(DebugEvent.STEP_INTO);
 				break;
 
-			case DebugEvent.STEP_OVER:
+			case STEP_OVER:
 				setStepping(true);
-				resumed(event.getDetail());
+				resumed(DebugEvent.STEP_OVER);
 				break;
 				
-			case DebugEvent.CLIENT_REQUEST:
+			case CLIENT_REQUEST:
 				setStepping(false);
-				resumed(event.getDetail());
+				resumed(DebugEvent.CLIENT_REQUEST);
 				break;
 
 			default:

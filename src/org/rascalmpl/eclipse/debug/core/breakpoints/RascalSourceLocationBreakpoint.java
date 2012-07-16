@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IThread;
@@ -33,17 +32,20 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.debug.core.model.IRascalDebugEventListener;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.debug.core.model.RascalThread;
+import org.rascalmpl.interpreter.IInterpreterEventListener;
+import org.rascalmpl.interpreter.InterpreterEvent;
 import org.rascalmpl.values.ValueFactoryFactory;
+
+import static org.rascalmpl.interpreter.debug.DebugMessageFactory.*;
 
 /**
  * A generalized Rascal source location breakpoint.
  * 
  * TODO: create an own RascalLineBreakpoint class inheriting from this class.
  */
-public class RascalSourceLocationBreakpoint extends LineBreakpoint implements IRascalDebugEventListener {
+public class RascalSourceLocationBreakpoint extends LineBreakpoint implements IInterpreterEventListener {
 	
 	/**
 	 * Type of the marker.
@@ -199,8 +201,8 @@ public class RascalSourceLocationBreakpoint extends LineBreakpoint implements IR
      * @throws CoreException if request creation fails
      */
     protected void createRequest(RascalDebugTarget target) throws CoreException {
-    	target.sendRequestBreakpointSet(getSourceLocation());
-	}
+    	target.sendRequest(requestSetBreakpoint(getSourceLocation()));
+    }
     
     /**
      * Removes this breakpoint's event request from the target. Subclasses
@@ -210,7 +212,7 @@ public class RascalSourceLocationBreakpoint extends LineBreakpoint implements IR
      * @throws CoreException if clearing the request fails
      */
     protected void clearRequest(RascalDebugTarget target) throws CoreException {
-    	target.sendRequestBreakpointClear(getSourceLocation());
+    	target.sendRequest(requestDeleteBreakpoint(getSourceLocation()));
     }    
     
     /**
@@ -289,7 +291,7 @@ public class RascalSourceLocationBreakpoint extends LineBreakpoint implements IR
      * 
      * @param event breakpoint event
      */
-    private void handleHit(DebugEvent event) {
+    private void handleHit(InterpreterEvent event) {
 		ISourceLocation hitLocation = (ISourceLocation) event.getData();
 
 		if (hitLocation.equals(getSourceLocation())) {
@@ -298,11 +300,11 @@ public class RascalSourceLocationBreakpoint extends LineBreakpoint implements IR
     }
     
 	@Override
-	public final void onRascalDebugEvent(DebugEvent event) {
-		if (event.getKind() == DebugEvent.SUSPEND
-				&& event.getDetail() == DebugEvent.BREAKPOINT) {
+	public void handleInterpreterEvent(InterpreterEvent event) {
+		if (event.getKind() == InterpreterEvent.Kind.SUSPEND
+				&& event.getDetail() == InterpreterEvent.Detail.BREAKPOINT) {
 			handleHit(event);
-		}
+		}		
 	}
 
 }
