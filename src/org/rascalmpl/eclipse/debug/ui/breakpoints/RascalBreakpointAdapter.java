@@ -15,17 +15,37 @@ package org.rascalmpl.eclipse.debug.ui.breakpoints;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTargetExtension;
 import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.visitors.NullVisitor;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
+import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint;
+import org.rascalmpl.eclipse.uri.ProjectURIResolver;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
+import java.net.URI;
 
 /**
  * Adapter to create line breakpoints in Rascal files.
@@ -62,9 +82,25 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 					}
 				}
 			}
-			// create line breakpoint (doc line numbers start at 0)
-			RascalLineBreakpoint lineBreakpoint = new RascalLineBreakpoint((UniversalEditor) textEditor, resource, lineNumber + 1);
-			DebugPlugin.getDefault().getBreakpointManager().addBreakpoint(lineBreakpoint);
+			
+			/*
+			 * Find a source location associated with a line number.			
+			 */
+			IConstructor parseTree = (IConstructor) ((UniversalEditor) textEditor).getParseController().getCurrentAst();
+			ISourceLocation closestSourceLocation = calculateClosestLocation(parseTree, lineNumber + 1);
+			
+			if (closestSourceLocation == null) {
+
+				IStatus message = new Status(IStatus.INFO, Activator.PLUGIN_ID, "Breakpoint not created, no AST associated to line.");
+				Activator.getInstance().getLog().log(message);
+			
+			} else {		
+				ISourceLocation normalizedSourceLocation = normalizeSourceLocation(resource, closestSourceLocation);			
+				
+				// create line breakpoint
+				RascalSourceLocationBreakpoint lineBreakpoint = new RascalSourceLocationBreakpoint(resource, normalizedSourceLocation);
+				DebugPlugin.getDefault().getBreakpointManager().addBreakpoint(lineBreakpoint);
+			}
 		}
 	}
 	
@@ -87,7 +123,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 				}
 			}
 		}
-		return null;	
+		return null;
 	}
 	
 	/* (non-Javadoc)
@@ -138,4 +174,114 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 	public void toggleWatchpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
 	}
 
+	/*
+	 * TODO: Should this functionality move to the runtime, to e.g. query the
+	 * closest source location associated with a line number?
+	 */
+	private static ISourceLocation calculateClosestLocation(final IConstructor parseTree, final int lineNumber){
+		class OffsetFinder extends NullVisitor<IValue>{
+	
+			private ISourceLocation location = null;
+			
+			public ISourceLocation getSourceLocation() {
+				return location;
+			}
+			
+			public IValue visitConstructor(IConstructor o) throws VisitorException{
+				IValue locationAnnotation = o.getAnnotation(Factory.Location);
+				if(locationAnnotation != null){
+					ISourceLocation sourceLocation = ((ISourceLocation) locationAnnotation);
+					if(sourceLocation.getBeginLine() == lineNumber){
+						String sortName = TreeAdapter.getSortName(o);
+						if(sortName.equals("Statement") || sortName.equals("Expression")){
+							location = sourceLocation;
+							throw new VisitorException("Stop");
+						}
+					}
+				}
+				
+				for(IValue child : o){
+					child.accept(this);
+				}
+				
+				return null;
+			}
+			
+			public IValue visitNode(INode o) throws VisitorException{
+				for(IValue child : o){
+					child.accept(this);
+				}
+				
+				return null;
+			}
+			
+			public IValue visitList(IList o) throws VisitorException{
+				for(IValue v : o){
+					v.accept(this);
+				}
+				return null;
+			}
+			
+			public IValue visitSet(ISet o) throws VisitorException{
+				for(IValue v : o){
+					v.accept(this);
+				}
+				return null;
+			}
+			
+			public IValue visitRelation(IRelation o) throws VisitorException{
+				for(IValue v : o){
+					v.accept(this);
+				}
+				return null;
+			}
+			
+			public IValue visitMap(IMap o) throws VisitorException{
+				for(IValue v : o){
+					v.accept(this);
+				}
+				return null;
+			}
+		}
+		
+		OffsetFinder of = new OffsetFinder();
+		try{
+			parseTree.accept(of);
+		}catch(VisitorException vex){
+			// Ignore.
+		}
+		
+		return of.getSourceLocation();
+	}
+
+	private static ISourceLocation normalizeSourceLocation(IResource resource, ISourceLocation sourceLocation) { 
+		URI uriBreakPointLocation = ProjectURIResolver.constructNonEncodedProjectURI(resource.getFullPath());
+		return updateSourceLocation(sourceLocation, uriBreakPointLocation);
+	}
+	
+	/**
+     * Create a copy of a source location, but replace the URI.
+     * 
+     * @param uri         exact uri where the source is located.
+     * @return a value representing a source location, with type SourceLocationType
+     */
+    private static ISourceLocation updateSourceLocation(ISourceLocation location, URI uri) {
+    	IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
+    	ISourceLocation result = null;
+    	
+    	if (location.hasLineColumn()) {
+        	result = valueFactory.sourceLocation(uri, 
+					location.getOffset(), location.getLength(), 
+					location.getBeginLine(), location.getEndLine(), 
+					location.getBeginColumn(),location.getEndColumn());
+    	} else if (location.hasOffsetLength()) {
+        	result = valueFactory.sourceLocation(uri, 
+        			location.getOffset(), location.getLength()); 
+    	} else {
+    		result = valueFactory.sourceLocation(uri);
+    	}
+    	
+    	return result;
+    }
+    
 }

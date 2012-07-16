@@ -26,7 +26,7 @@ import org.eclipse.jface.text.ITextSelection;
  * 
  * TODO: check if this kind of breakpoint is used at all.
  */
-public class RascalExpressionBreakpoint extends RascalLineBreakpoint {
+public class RascalExpressionBreakpoint extends RascalSourceLocationBreakpoint {
 	
 	private ITextSelection selection;
 
@@ -44,7 +44,7 @@ public class RascalExpressionBreakpoint extends RascalLineBreakpoint {
 		this.selection = selection;
 		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
-				IMarker marker = resource.createMarker("rascal.markerType.lineBreakpoint");
+				IMarker marker = resource.createMarker("rascal.markerType.sourceLocationBreakpoint");
 				setMarker(marker);
 				marker.setAttribute(IBreakpoint.ENABLED, Boolean.TRUE);
 				marker.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine()+1);

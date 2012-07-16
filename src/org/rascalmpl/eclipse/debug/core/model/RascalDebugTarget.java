@@ -40,7 +40,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
-import org.rascalmpl.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
+import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint;
 import org.rascalmpl.eclipse.debug.uri.NoneURITransformer;
 import org.rascalmpl.eclipse.debug.uri.StandardLibraryToProjectURITransformer;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
@@ -171,7 +171,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @see org.eclipse.debug.core.model.IDebugTarget#supportsBreakpoint(org.eclipse.debug.core.model.IBreakpoint)
 	 */
 	public boolean supportsBreakpoint(IBreakpoint breakpoint) {
-		return breakpoint instanceof RascalLineBreakpoint;
+		return breakpoint instanceof RascalSourceLocationBreakpoint;
 	}
 
 	/* (non-Javadoc)
@@ -267,7 +267,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		if (supportsBreakpoint(breakpoint)) {
 			try {
 				if ((breakpoint.isEnabled() && getBreakpointManager().isEnabled()) || !breakpoint.isRegistered()) {
-					RascalLineBreakpoint rascalBreakpoint = (RascalLineBreakpoint)breakpoint;
+					RascalSourceLocationBreakpoint rascalBreakpoint = (RascalSourceLocationBreakpoint)breakpoint;
 					rascalBreakpoint.install(this);
 				}
 			} catch (CoreException e) {
@@ -281,7 +281,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
 		if (supportsBreakpoint(breakpoint)) {
 			try {
-				RascalLineBreakpoint rascalBreakpoint = (RascalLineBreakpoint)breakpoint;
+				RascalSourceLocationBreakpoint rascalBreakpoint = (RascalSourceLocationBreakpoint)breakpoint;
 				rascalBreakpoint.remove(this);
 			} catch (CoreException e) {
 			}

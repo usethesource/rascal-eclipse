@@ -8,8 +8,8 @@
          point="org.eclipse.core.variables.valueVariables">
    </extension>
    <extension
-         id="rascal.markerType.lineBreakpoint"
-         name="Rascal Line Breakpoint"
+         id="rascal.markerType.sourceLocationBreakpoint"
+         name="Rascal Source Location Breakpoint"
          point="org.eclipse.core.resources.markers">
       <super
             type="org.eclipse.debug.core.lineBreakpointMarker">
@@ -409,10 +409,10 @@
    <extension
          point="org.eclipse.debug.core.breakpoints">
       <breakpoint
-            class="org.rascalmpl.eclipse.debug.core.breakpoints.RascalLineBreakpoint"
-            id="rascal.linebreakpoint"
-            markerType="rascal.markerType.lineBreakpoint"
-            name="Rascal LineBreakpoint">
+            class="org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint"
+            id="rascal.sourceLocationBreakpoint"
+            markerType="rascal.markerType.sourceLocationBreakpoint"
+            name="Rascal Source Location Breakpoint">
       </breakpoint>
       <breakpoint
             class="org.rascalmpl.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint"
