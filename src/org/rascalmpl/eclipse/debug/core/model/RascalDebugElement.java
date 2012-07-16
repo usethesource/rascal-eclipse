@@ -57,7 +57,7 @@ public class RascalDebugElement extends DebugElement {
         return DebugPlugin.getDefault().getBreakpointManager();
     }	
     
-	public void sendSuspendRequest(int request) throws DebugException {
+    public void sendSuspendRequest(int request) throws DebugException {
 		getRascalDebugTarget().sendSuspendRequest(request);
 	}
 
@@ -68,4 +68,5 @@ public class RascalDebugElement extends DebugElement {
 	public void sendTerminationRequest() throws DebugException {	
 		getRascalDebugTarget().sendTerminationRequest();
 	}
+
 }

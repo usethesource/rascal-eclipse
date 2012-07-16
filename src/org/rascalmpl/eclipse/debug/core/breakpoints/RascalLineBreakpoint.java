@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,10 +9,10 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.breakpoints;
 
-import java.io.IOException;
 import java.net.URI;
 
 import org.eclipse.core.resources.IMarker;
@@ -20,6 +20,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IBreakpoint;
@@ -34,6 +36,7 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.visitors.NullVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.eclipse.IRascalResources;
@@ -41,6 +44,7 @@ import org.rascalmpl.eclipse.debug.core.model.IRascalDebugEventListener;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.debug.core.model.RascalThread;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -54,10 +58,16 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
 
 	protected IResource resource;
 	
+	protected ISourceLocation sourceLocation;
+	
 	public IResource getResource() {
 		return resource;
 	}
 
+	public ISourceLocation getSourceLocation() {
+		return sourceLocation;
+	}	
+	
 	/**
 	 * Default constructor is required for the breakpoint manager
 	 * to re-create persisted breakpoints. After instantiating a breakpoint,
@@ -88,8 +98,14 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
 	 */
 	public RascalLineBreakpoint(final UniversalEditor editor, final IResource resource, final int lineNumber) throws CoreException {
 		this.resource = resource;
+
+		ISourceLocation closestSourceLocation = calculateClosestLocation(editor, lineNumber);
 		
-		final ISourceLocation location = calculateClosestLocation(editor, lineNumber);
+		if (closestSourceLocation == null) {
+			throw new CoreException(new Status(IStatus.WARNING, "unknownId", "Breakpoint not created, not AST at line."));
+		} else {
+			this.sourceLocation = normalizeSourceLocation(closestSourceLocation);
+		}
 		
 		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -97,9 +113,9 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
 				setMarker(marker);
 				marker.setAttribute(IBreakpoint.ENABLED, Boolean.TRUE);
 				marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-				int offset = location.getOffset();
+				int offset = sourceLocation.getOffset();
 				marker.setAttribute(IMarker.CHAR_START, offset);
-				marker.setAttribute(IMarker.CHAR_END, offset + location.getLength());
+				marker.setAttribute(IMarker.CHAR_END, offset + sourceLocation.getLength());
 				marker.setAttribute(IBreakpoint.ID, getModelIdentifier());
 				marker.setAttribute(IMarker.MESSAGE, "Line Breakpoint: " + resource.getName() + " [line: " + lineNumber + "]");
 			}
@@ -124,30 +140,52 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
 	}
     
     /**
-     * Installs this breakpoint in the given interpretor.
+     * Installs this breakpoint in the given interpreter.
      * 
-     * @param target Rascal interpretor
+     * @param target Rascal interpreter
      * @throws CoreException if installation fails
      */
     public void install(RascalDebugTarget target) throws CoreException {
        	fTarget = target;
     	target.addEventListener(this);
-    	// TODO: tell the runtime to add this breakpoint
+    	createRequest(target);
     }
     
     /**
-     * Removes this breakpoint from the given interpretor.
+     * Removes this breakpoint from the given interpreter.
      * Removes this breakpoint as an event listener and clears
-     * the request for the interpretor.
+     * the request for the interpreter.
      * 
-     * @param target Rascal interpretor
+     * @param target Rascal interpreter
      * @throws CoreException if removal fails
      */
     public void remove(RascalDebugTarget target) throws CoreException {
-    	// TODO: tell the runtime to remove this breakpoint
+    	clearRequest(target);
     	target.removeEventListener(this);
     	fTarget = null;
     }
+
+    /**
+     * Create the breakpoint specific request in the target. Subclasses
+     * should override.
+     * 
+     * @param target Rascal interpreter
+     * @throws CoreException if request creation fails
+     */
+    protected void createRequest(RascalDebugTarget target) throws CoreException {
+    	target.sendRequestBreakpointSet(sourceLocation);
+	}
+    
+    /**
+     * Removes this breakpoint's event request from the target. Subclasses
+     * should override.
+     * 
+     * @param target Rascal interpreter
+     * @throws CoreException if clearing the request fails
+     */
+    protected void clearRequest(RascalDebugTarget target) throws CoreException {
+    	target.sendRequestBreakpointClear(sourceLocation);
+    }    
     
     /**
      * Returns the target this breakpoint is installed in or <code>null</code>.
@@ -161,7 +199,12 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
 	private static ISourceLocation calculateClosestLocation(UniversalEditor editor, final int lineNumber){
 		IConstructor parseTree = (IConstructor) editor.getParseController().getCurrentAst();
 		class OffsetFinder extends NullVisitor<IValue>{
-			public ISourceLocation location = null;
+	
+			private ISourceLocation location = null;
+			
+			public ISourceLocation getSourceLocation() {
+				return location;
+			}
 			
 			public IValue visitConstructor(IConstructor o) throws VisitorException{
 				IValue locationAnnotation = o.getAnnotation(Factory.Location);
@@ -227,13 +270,28 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
 			// Ignore.
 		}
 		
-		return of.location;
+		return of.getSourceLocation();
 	}
 
+
+	private ISourceLocation normalizeSourceLocation(ISourceLocation sourceLocation) { 
+		URI uriBreakPointLocation = ProjectURIResolver.constructNonEncodedProjectURI(getResource().getFullPath());    	
+
+    	IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
+    	return valueFactory.sourceLocation(uriBreakPointLocation, 
+    			sourceLocation.getOffset(), 
+    			sourceLocation.getLength(), 
+    			sourceLocation.getBeginLine(), 
+    			sourceLocation.getEndLine(), 
+    			sourceLocation.getBeginColumn(),
+    			sourceLocation.getEndColumn());
+    }			
+	
+
     /**
-     * Notify's the PDA interprettor that this breakpoint has been hit.
+     * Notify's the Rascal interpreter that this breakpoint has been hit.
      */
-    protected final void notifyThread() {
+    private final void notifyThread() {
     	if (fTarget != null) {
 			try {
 				IThread[] threads = fTarget.getThreads();
@@ -251,30 +309,14 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
      * 
      * @param event breakpoint event
      */
-    protected void handleHit(DebugEvent event) {
-		ISourceLocation location = (ISourceLocation) event.getData();
-				
-		try {
-			/*
-			 * Location information of the breakpoint (in format
-			 * {@link IPath}) and location information of the
-			 * source location (in format {@link
-			 * ISourceLocation}) are both transformed to {@link
-			 * URI} instances of schmema type "project".
-			 */
-			URI uriBreakPointLocation = ProjectURIResolver.constructNonEncodedProjectURI(getResource().getFullPath());
-			URI uriSourceLocation     = getDebugTarget().getDebuggableURIResolverRegistry().getResourceURI(location.getURI());
-			
-			if (uriBreakPointLocation.equals(uriSourceLocation)
-					&& getCharStart() == location.getOffset()) {
-				notifyThread();
-			}
-		} catch(IOException e) {
-			/* ignore; schema does not supported breakpoints */
-		} catch(CoreException e) {
+    private void handleHit(DebugEvent event) {
+		ISourceLocation hitLocation = (ISourceLocation) event.getData();
+
+		if (hitLocation.equals(sourceLocation)) {
+			notifyThread();
 		}
     }
-		
+    
 	@Override
 	public final void onRascalDebugEvent(DebugEvent event) {
 		if (event.getKind() == DebugEvent.SUSPEND

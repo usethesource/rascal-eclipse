@@ -36,6 +36,7 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
@@ -67,7 +68,9 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	private IThread[] fThreads;
 	private RascalThread fThread;
 
-	// listeners
+	// event dispatch job
+	private EventDispatchJob fEventDispatch;	
+	// event listeners
 	private List<IRascalDebugEventListener> fEventListeners = new CopyOnWriteArrayList<IRascalDebugEventListener>();	
 	
 	// TODO: modifier set to public to not have to add a queuing method. Remove public modifier
@@ -95,7 +98,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		 */
 		protected IStatus run(IProgressMonitor monitor) {
 			DebugEvent event = null;
-			while (!isTerminated() && event != null) {
+			while (!isTerminated()) {
 				try {
 					event = fRuntimeEvents.take();
 
@@ -123,14 +126,16 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		fLaunch = launch;
 		fThread = new RascalThread(this);
 		fThreads = new IThread[]{fThread};
+
+		fEventDispatch = new EventDispatchJob();
+		fEventDispatch.schedule();
 		
 		addEventListener(this);
 		
 		IBreakpointManager breakpointManager = getBreakpointManager();
 		breakpointManager.addBreakpointListener(this);
 		breakpointManager.addBreakpointManagerListener(this);
-		// to restore the persistent breakpoints
-		this.breakpointManagerEnablementChanged(true);
+
 		this.debuggableURIResolverRegistry = createDebuggableURIResolverRegistry();
 	}
 
@@ -405,9 +410,10 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	}
 	
 	/* (non-Javadoc)
-	 * Currently simulates a blocking sequential communication with the interpretor.
+	 * Currently simulates a blocking sequential communication with the interpreter.
 	 * But instead of the interpreter generating the resume events, it's done here.
 	 */
+	@Deprecated
 	public void sendSuspendRequest(int request) throws DebugException {
 		switch (request) {
 		
@@ -433,23 +439,49 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	}	
 	
 	/* (non-Javadoc)
-	 * Currently simulates a blocking sequential communication with the interpretor.
+	 * Currently simulates a blocking sequential communication with the interpreter.
 	 * But instead of the interpreter generating the resume events, it's done here.
 	 */
+	@Deprecated
 	public void sendResumeRequest() throws DebugException {
+		getRascalDebugTarget().getEvaluator().setStepMode(DebugStepMode.NO_STEP);
 		getRascalDebugTarget().getThread().notifyResume(DebugResumeMode.CLIENT_REQUEST);
 	}
 	
 	/* (non-Javadoc)
-	 * Currently simulates a blocking sequential communication with the interpretor.
+	 * Currently simulates a blocking sequential communication with the interpreter.
 	 */
+	@Deprecated
 	public void sendTerminationRequest() throws DebugException {
 		getRascalDebugTarget().getConsole().terminate();
 	}
 	
+	@Deprecated
+	public void sendRequestBreakpointSet(ISourceLocation sourceLocation) throws CoreException {
+		/* 
+		 * Evaluator might be <code>null</code> when when it is not finished
+		 * with initialisation. In this case the breakpoint has to be installed
+		 * deferred after a starting event.
+		 */
+		if (getEvaluator() != null)
+			getEvaluator().addBreakpoint(sourceLocation);
+	}
+	
+	@Deprecated
+	public void sendRequestBreakpointClear(ISourceLocation sourceLocation) throws CoreException {
+		/* 
+		 * Evaluator might be <code>null</code> when when it is not finished
+		 * with initialisation. In this case the breakpoint has to be installed
+		 * deferred after a starting event.
+		 */
+		if (getEvaluator() != null)
+			getEvaluator().removeBreakpoint(sourceLocation);
+	}
+	
+	
 	/**
 	 * Registers the given event listener. The listener will be notified of
-	 * events in the program being interpretted. Has no effect if the listener
+	 * events in the program being interpreted. Has no effect if the listener
 	 * is already registered.
 	 *  
 	 * @param listener event listener
@@ -471,6 +503,30 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	}
 	
 	/**
+	 * Notification we have connected to the VM and it has started.
+	 * Resume the VM.
+	 */
+	private void started() {
+		fireCreationEvent();
+		installDeferredBreakpoints();
+		try {
+			resume();
+		} catch (DebugException e) {
+		}
+	}
+	
+	/**
+	 * Install breakpoints that are already registered with the breakpoint
+	 * manager.
+	 */
+	private void installDeferredBreakpoints() {
+		IBreakpoint[] breakpoints = getBreakpointManager().getBreakpoints(getModelIdentifier());
+		for (IBreakpoint bp : breakpoints) {
+			breakpointAdded(bp);
+		}
+	}
+	
+	/**
 	 * Called when this debug target terminates.
 	 */
 	private synchronized void terminated() {
@@ -486,8 +542,17 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 
 	@Override
 	public void onRascalDebugEvent(DebugEvent event) {
-		// TODO Auto-generated method stub
+		switch (event.getKind()) {
 		
+		case DebugEvent.CREATE:
+			started();
+			break;
+
+		case DebugEvent.TERMINATE:
+			terminated();
+			break;
+
+		}
 	}
 	
 }

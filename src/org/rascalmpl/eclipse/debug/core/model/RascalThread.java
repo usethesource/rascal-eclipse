@@ -13,11 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
-import java.io.IOException;
-import java.net.URI;
 import java.util.Stack;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IBreakpoint;
@@ -25,10 +22,6 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
-import org.rascalmpl.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
-import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.debug.DebugResumeMode;
@@ -57,10 +50,8 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	 */
 	private boolean fSuspended = false;
 	
-	
 	private volatile boolean fTerminated = false;
-	private boolean fSuspendedByBreakpoint = false;
-
+	
 	public RascalThread(IDebugTarget target) {
 		super(target);
 		getRascalDebugTarget().addEventListener(this);
@@ -146,7 +137,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	 * @see org.eclipse.debug.core.model.ISuspendResume#isSuspended()
 	 */
 	public boolean isSuspended() {
-		return (fSuspended || fSuspendedByBreakpoint) && !isTerminated();
+		return fSuspended && !isTerminated();
 	}
 
 	/* (non-Javadoc)
@@ -238,6 +229,8 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.interpreter.debug.IDebugger#destroy()
 	 */
+	@Deprecated
+	@Override
 	public synchronized void destroy() {
 		fTerminated = true;
 		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
@@ -251,122 +244,82 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.interpreter.debug.IDebugger#notifySuspend(org.rascalmpl.interpreter.debug.DebugSuspendMode)
 	 */
+	@Deprecated
+	@Override
 	public synchronized void notifySuspend(DebugSuspendMode mode) throws QuitException {
-		setSuspended(true);
+		DebugEvent event = null;
 
 		switch (mode) {
-		case BREAKPOINT:
-			fSuspendedByBreakpoint = true;
-			fireSuspendEvent(DebugEvent.BREAKPOINT);
-			break;
 
 		case CLIENT_REQUEST:
-			fireSuspendEvent(DebugEvent.CLIENT_REQUEST);
+			event = new DebugEvent(getRascalDebugTarget(), DebugEvent.SUSPEND, DebugEvent.CLIENT_REQUEST);
 			break;
 
 		case STEP_END:
-			fireSuspendEvent(DebugEvent.STEP_END);
+			event = new DebugEvent(getRascalDebugTarget(), DebugEvent.SUSPEND, DebugEvent.STEP_END);
 			break;
 
 		default:
 			new UnsupportedOperationException("Suspension mode not supported.");
 		}
 
-		while (isSuspended()) {
-			try {
-				this.wait();
-			} catch (InterruptedException e) {
-				// Ignore
-			}
-
-			if(isTerminated()) throw new QuitException();
+		if (event != null) {
+			// TODO: remove simulation of remote events
+			getRascalDebugTarget().fRuntimeEvents.add(event);
 		}
+	
 	}	
 	
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.interpreter.debug.IDebugger#notifyResume(org.rascalmpl.interpreter.debug.DebugResumeMode)
 	 */
+	@Deprecated
 	@Override
 	public void notifyResume(DebugResumeMode mode) {
-		setSuspended(false);
+		DebugEvent event = null;
 		
 		switch (mode) {
 		case STEP_INTO:
-			setStepping(true);
-			resumed(DebugEvent.STEP_INTO);
+			event = new DebugEvent(getRascalDebugTarget(), DebugEvent.RESUME, DebugEvent.STEP_INTO);
 			break;
 
 		case STEP_OVER:
-			setStepping(true);
-			resumed(DebugEvent.STEP_OVER);
+			event = new DebugEvent(getRascalDebugTarget(), DebugEvent.RESUME, DebugEvent.STEP_OVER);
 			break;
 			
 		case CLIENT_REQUEST:
-			setStepping(false);
-			resumed(DebugEvent.CLIENT_REQUEST);
+			event = new DebugEvent(getRascalDebugTarget(), DebugEvent.RESUME, DebugEvent.CLIENT_REQUEST);
 			break;
 
 		default:
 			new UnsupportedOperationException("Continuation mode not supported.");
 		}
 		
+		if (event != null) {
+			// TODO: remove simulation of remote events
+			getRascalDebugTarget().fRuntimeEvents.add(event);
+		}
+		
 	}	
 	
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.debug.IDebugger#notifyBreakpointHit(org.eclipse.imp.pdb.facts.ISourceLocation)
+	 */
+	@Deprecated
 	@Override
-	public void notifyBreakpointHit(ISourceLocation sourceLocation) {		
-		DebugEvent event = new DebugEvent(null, DebugEvent.SUSPEND, DebugEvent.BREAKPOINT);
+	public void notifyBreakpointHit(ISourceLocation sourceLocation) {
+		DebugEvent event = new DebugEvent(getRascalDebugTarget(), DebugEvent.SUSPEND, DebugEvent.BREAKPOINT);
 		event.setData(sourceLocation);
 	
-		// TODO remove this line ...
+		// TODO: remove simulation of remote events
 		getRascalDebugTarget().fRuntimeEvents.add(event);
 	}
-		
-	/* (non-Javadoc)
-	 * @see org.rascalmpl.interpreter.debug.IDebugger#hasEnabledBreakpoint(org.eclipse.imp.pdb.facts.ISourceLocation)
-	 */
-	public boolean hasEnabledBreakpoint(ISourceLocation loc){
-		IBreakpoint[] breakpoints = getBreakpointManager().getBreakpoints(IRascalResources.ID_RASCAL_DEBUG_MODEL);
-		synchronized(breakpoints){ 
-			for(IBreakpoint bp: breakpoints){
-				if(bp instanceof RascalLineBreakpoint){
-					RascalLineBreakpoint b = (RascalLineBreakpoint) bp;
-					try{
-						if(b.isEnabled()){
-							/*
-							 * Location information of the breakpoint (in format
-							 * {@link IPath}) and location information of the
-							 * source location (in format {@link
-							 * ISourceLocation}) are both transformed to {@link
-							 * URI} instances of schmema type "project".
-							 */
-							URI uriBreakPointLocation = ProjectURIResolver.constructNonEncodedProjectURI(b.getResource().getFullPath());
-							URI uriSourceLocation     = getRascalDebugTarget().getDebuggableURIResolverRegistry().getResourceURI(loc.getURI());
-							
-							if (uriBreakPointLocation.equals(uriSourceLocation)) {
-								// special case for expression breakpoints
-								if(b instanceof RascalExpressionBreakpoint){
-									if(b.getCharStart() <= loc.getOffset() && loc.getOffset()+loc.getLength() <= b.getCharEnd()){
-										return true;
-									}
-								}else if(b.getCharStart() == loc.getOffset()){
-									return true;
-								}
-							}
-						}
-					}catch(IOException e) {
-						/* ignore; schema does not supported breakpoints */
-					}catch(CoreException e){
-						throw new RuntimeException(e);
-					}
-				}
-			}
-		}
-		return false;
-	}
-	
+			
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.interpreter.debug.IDebugger#stopStepping()
 	 */
+	@Deprecated
+	@Override
 	public void stopStepping() {
 		try {
 			resume();
@@ -412,9 +365,15 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		fireSuspendEvent(detail);
 	}	
 	
+	/**
+	 * Indicates if the reason for suspending this thread
+	 * is a breakpoint hit. 
+	 * 
+	 * @return suspension caused by breakpoint
+	 */
 	public boolean isSuspendedByBreakpoint() {
-		return fSuspendedByBreakpoint && !isTerminated();
-	}	
+		return fBreakpoint != null && isSuspended();
+	}
 
 	/**
 	 * Notification the target has resumed for the given reason.
@@ -424,16 +383,59 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	 * @param detail reason for the resume
 	 */	
 	public synchronized void resumed(int detail)  {
-		// clean up state
-		fSuspendedByBreakpoint = false;
-
 		fireResumeEvent(detail);
-		this.notify();
 	}
 
 	@Override
 	public void onRascalDebugEvent(DebugEvent event) {
-		// TODO: to implement
+		// clear previous state
+		fBreakpoint = null;
+		setStepping(false);
+		
+		switch (event.getKind()) {
+	
+			case DebugEvent.SUSPEND:	
+		
+				switch (event.getDetail()) {
+				case DebugEvent.BREAKPOINT:
+				case DebugEvent.CLIENT_REQUEST:
+				case DebugEvent.STEP_END:
+					setSuspended(true);
+					fireSuspendEvent(event.getDetail());
+					break;
+			
+				default:
+					new UnsupportedOperationException("Suspension mode not supported.");
+				}
+				
+				break;
+			
+		case DebugEvent.RESUME:
+			setSuspended(false);
+			
+			switch (event.getDetail()) {
+			case DebugEvent.STEP_INTO:
+				setStepping(true);
+				resumed(event.getDetail());
+				break;
+
+			case DebugEvent.STEP_OVER:
+				setStepping(true);
+				resumed(event.getDetail());
+				break;
+				
+			case DebugEvent.CLIENT_REQUEST:
+				setStepping(false);
+				resumed(event.getDetail());
+				break;
+
+			default:
+				new UnsupportedOperationException("Continuation mode not supported.");
+			}
+			
+			break;
+			
+		}
 	}
 
 }
