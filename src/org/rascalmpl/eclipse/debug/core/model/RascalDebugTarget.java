@@ -47,6 +47,7 @@ import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
 import org.rascalmpl.interpreter.debug.DebugResumeMode;
 import org.rascalmpl.interpreter.debug.DebugStepMode;
 import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
+import org.rascalmpl.interpreter.debug.IDebugMessage;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 
@@ -407,6 +408,13 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 
 	public RascalScriptInterpreter getInterpreter() {
 		return console != null ? console.getRascalInterpreter() : null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.eclipse.debug.core.model.RascalDebugElement#sendRequest(org.rascalmpl.interpreter.debug.IDebugMessage)
+	 */
+	public void sendRequest(IDebugMessage message) {
+		// TODO: deposit message at runtime
 	}
 	
 	/* (non-Javadoc)

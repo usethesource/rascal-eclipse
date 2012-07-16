@@ -17,6 +17,7 @@ import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.model.DebugElement;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.interpreter.debug.IDebugMessage;
 
 /**
  * Common function for debug elements.
@@ -57,14 +58,26 @@ public class RascalDebugElement extends DebugElement {
         return DebugPlugin.getDefault().getBreakpointManager();
     }	
     
+    /**
+     * Sends an asynchronous request to the debugger.
+     * 
+     * @param message containing request
+     */
+    public void sendRequest(IDebugMessage message) {
+    	getRascalDebugTarget().sendRequest(message);
+    }
+    
+    @Deprecated
     public void sendSuspendRequest(int request) throws DebugException {
 		getRascalDebugTarget().sendSuspendRequest(request);
 	}
 
+    @Deprecated
 	public void sendResumeRequest() throws DebugException {
 		getRascalDebugTarget().sendResumeRequest();
 	}
 	
+    @Deprecated
 	public void sendTerminationRequest() throws DebugException {	
 		getRascalDebugTarget().sendTerminationRequest();
 	}
