@@ -24,7 +24,6 @@ import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.debug.DebugHandler;
-import org.rascalmpl.interpreter.debug.IDebugHandler;
 
 public class LaunchDelegate implements ILaunchConfigurationDelegate{
 
@@ -48,7 +47,7 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 		} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
 			
 			// create a new internal debug handler	
-			IDebugHandler debugHandler = new DebugHandler();
+			DebugHandler debugHandler = new DebugHandler();
 			
 			// create a new debug session
 			RascalDebugTarget debugTarget = new RascalDebugTarget(launch, debugHandler);
@@ -58,6 +57,15 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			} else {
 				console = consoleFactory.openDebuggableConsole(debugHandler);				
 			}			
+			
+			// add termination action to debugging handler
+			final IRascalConsole finalConsole = console;
+			debugHandler.setTerminateAction(new Runnable() {
+				@Override
+				public void run() {
+					finalConsole.terminate();
+				}
+			});
 			
 			debugTarget.setConsole(console);
 			launch.addDebugTarget(debugTarget);

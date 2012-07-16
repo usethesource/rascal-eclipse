@@ -93,6 +93,8 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 
 		this.debuggableURIResolverRegistry = createDebuggableURIResolverRegistry();
 	}
+	
+	
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IDebugTarget#getProcess()
@@ -370,15 +372,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	public void sendRequest(IDebugMessage message) {
 		fDebugSupport.processMessage(message);
 	}
-		
-//	/* (non-Javadoc)
-//	 * Currently simulates a blocking sequential communication with the interpreter.
-//	 */
-//	@Deprecated
-//	public void sendTerminationRequest() throws DebugException {
-//		getRascalDebugTarget().getConsole().terminate();
-//	}
-		
+			
 	/**
 	 * Registers the given event listener. The listener will be notified of
 	 * events in the program being interpreted. Has no effect if the listener
