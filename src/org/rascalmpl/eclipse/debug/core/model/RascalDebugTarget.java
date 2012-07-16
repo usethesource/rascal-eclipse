@@ -370,46 +370,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	public void sendRequest(IDebugMessage message) {
 		fDebugSupport.processMessage(message);
 	}
-	
-//	/* (non-Javadoc)
-//	 * Currently simulates a blocking sequential communication with the interpreter.
-//	 * But instead of the interpreter generating the resume events, it's done here.
-//	 */
-//	@Deprecated
-//	public void sendSuspendRequest(int request) throws DebugException {
-//		switch (request) {
-//		
-//		case DebugEvent.STEP_INTO:
-//			getRascalDebugTarget().getEvaluator().setStepMode(DebugStepMode.STEP_INTO);
-//			getRascalDebugTarget().getThread().notifyResume(DebugResumeMode.STEP_INTO);
-//			break;
-//
-//		case DebugEvent.STEP_OVER:
-//			getRascalDebugTarget().getEvaluator().setStepMode(DebugStepMode.STEP_OVER);
-//			getRascalDebugTarget().getThread().notifyResume(DebugResumeMode.STEP_OVER);
-//			break;
-//		
-//		case DebugEvent.CLIENT_REQUEST:
-//			getRascalDebugTarget().getEvaluator().suspendRequest();
-//			getRascalDebugTarget().getThread().notifyResume(DebugResumeMode.CLIENT_REQUEST);
-//			break;
-//				
-//		default:
-//			throw new DebugException(
-//					new Status(Status.ERROR, "unknownId", "Unsupported request to the interpreter."));
-//		}
-//	}	
-	
-//	/* (non-Javadoc)
-//	 * Currently simulates a blocking sequential communication with the interpreter.
-//	 * But instead of the interpreter generating the resume events, it's done here.
-//	 */
-//	@Deprecated
-//	public void sendResumeRequest() throws DebugException {
-//		getRascalDebugTarget().getEvaluator().setStepMode(DebugStepMode.NO_STEP);
-//		getRascalDebugTarget().getThread().notifyResume(DebugResumeMode.CLIENT_REQUEST);
-//	}
-	
+		
 //	/* (non-Javadoc)
 //	 * Currently simulates a blocking sequential communication with the interpreter.
 //	 */
@@ -417,30 +378,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 //	public void sendTerminationRequest() throws DebugException {
 //		getRascalDebugTarget().getConsole().terminate();
 //	}
-	
-//	@Deprecated
-//	public void sendRequestBreakpointSet(ISourceLocation sourceLocation) throws CoreException {
-//		/* 
-//		 * Evaluator might be <code>null</code> when when it is not finished
-//		 * with initialisation. In this case the breakpoint has to be installed
-//		 * deferred after a starting event.
-//		 */
-//		if (getEvaluator() != null)
-//			getEvaluator().addBreakpoint(sourceLocation);
-//	}
-//	
-//	@Deprecated
-//	public void sendRequestBreakpointClear(ISourceLocation sourceLocation) throws CoreException {
-//		/* 
-//		 * Evaluator might be <code>null</code> when when it is not finished
-//		 * with initialisation. In this case the breakpoint has to be installed
-//		 * deferred after a starting event.
-//		 */
-//		if (getEvaluator() != null)
-//			getEvaluator().removeBreakpoint(sourceLocation);
-//	}
-	
-	
+		
 	/**
 	 * Registers the given event listener. The listener will be notified of
 	 * events in the program being interpreted. Has no effect if the listener
