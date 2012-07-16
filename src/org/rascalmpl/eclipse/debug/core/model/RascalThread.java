@@ -39,8 +39,14 @@ import org.rascalmpl.interpreter.env.Environment;
 /**
  * A Rascal thread. Rascal programs are currently modelled single threaded.
  */
-public class RascalThread extends RascalDebugElement implements IThread, IDebugger {
+public class RascalThread extends RascalDebugElement implements IThread, IDebugger, IRascalDebugEventListener {
 
+	/**
+	 * Breakpoint this thread is suspended at or <code>null</code>
+	 * if none.
+	 */
+	private IBreakpoint fBreakpoint;
+	
 	/**
 	 * Whether this thread is stepping
 	 */
@@ -57,6 +63,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 	public RascalThread(IDebugTarget target) {
 		super(target);
+		getRascalDebugTarget().addEventListener(this);
 	}
 
 	/* (non-Javadoc)
@@ -71,13 +78,16 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	 */
 	public int getPriority() throws DebugException {
 		return 0;
-	}	
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IThread#getBreakpoints()
 	 */
 	public IBreakpoint[] getBreakpoints() {
-		return 	getBreakpointManager().getBreakpoints(IRascalResources.ID_RASCAL_DEBUG_MODEL);
+		if (fBreakpoint == null) {
+			return new IBreakpoint[0];
+		}
+		return new IBreakpoint[]{fBreakpoint};
 	}
 
 	/* (non-Javadoc)
@@ -302,22 +312,20 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		
 	}	
 	
-	/* (non-Javadoc)
-	 * @see org.rascalmpl.interpreter.debug.IDebugger#stopStepping()
-	 */
-	public void stopStepping() {
-		try {
-			resume();
-		} catch (DebugException e) {
-			throw new RuntimeException(e);
-		}
-	}	
+	@Override
+	public void notifyBreakpointHit(ISourceLocation sourceLocation) {		
+		DebugEvent event = new DebugEvent(null, DebugEvent.SUSPEND, DebugEvent.BREAKPOINT);
+		event.setData(sourceLocation);
 	
+		// TODO remove this line ...
+		getRascalDebugTarget().fRuntimeEvents.add(event);
+	}
+		
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.interpreter.debug.IDebugger#hasEnabledBreakpoint(org.eclipse.imp.pdb.facts.ISourceLocation)
 	 */
 	public boolean hasEnabledBreakpoint(ISourceLocation loc){
-		IBreakpoint[] breakpoints = getBreakpoints();
+		IBreakpoint[] breakpoints = getBreakpointManager().getBreakpoints(IRascalResources.ID_RASCAL_DEBUG_MODEL);
 		synchronized(breakpoints){ 
 			for(IBreakpoint bp: breakpoints){
 				if(bp instanceof RascalLineBreakpoint){
@@ -355,7 +363,18 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		}
 		return false;
 	}
-		
+	
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.debug.IDebugger#stopStepping()
+	 */
+	public void stopStepping() {
+		try {
+			resume();
+		} catch (DebugException e) {
+			throw new RuntimeException(e);
+		}
+	}		
+	
 	/**
 	 * Sets whether this thread is stepping
 	 * 
@@ -372,6 +391,25 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 	 */
 	private void setSuspended(boolean suspended) {
 		fSuspended = suspended;
+	}	
+	
+	/**
+	 * Notifies this thread it has been suspended by the given breakpoint.
+	 * 
+	 * @param breakpoint breakpoint
+	 */
+	public void suspendedBy(IBreakpoint breakpoint) {
+		fBreakpoint = breakpoint;
+		suspended(DebugEvent.BREAKPOINT);
+	}	
+	
+	/**
+	 * Notification the target has suspended for the given reason
+	 * 
+	 * @param detail reason for the suspend
+	 */
+	private void suspended(int detail) {
+		fireSuspendEvent(detail);
 	}	
 	
 	public boolean isSuspendedByBreakpoint() {
@@ -391,6 +429,11 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 
 		fireResumeEvent(detail);
 		this.notify();
+	}
+
+	@Override
+	public void onRascalDebugEvent(DebugEvent event) {
+		// TODO: to implement
 	}
 
 }

@@ -14,10 +14,17 @@
 package org.rascalmpl.eclipse.debug.core.model;
 
 import java.net.URI;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.IBreakpointManager;
@@ -45,7 +52,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 /**
  *  Rascal Debug Target
  */
-public class RascalDebugTarget extends RascalDebugElement implements IDebugTarget, IBreakpointManagerListener {
+public class RascalDebugTarget extends RascalDebugElement implements IDebugTarget, IBreakpointManagerListener, IRascalDebugEventListener {
 
 	// associated Rascal console
 	private volatile IRascalConsole console;
@@ -53,14 +60,56 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	// containing launch object
 	private final ILaunch fLaunch;
 
+	// terminated state
+	private boolean fTerminated = false;	
+	
 	// threads
-	private final IThread[] fThreads;
-	private final RascalThread fThread;
+	private IThread[] fThreads;
+	private RascalThread fThread;
 
+	// listeners
+	private List<IRascalDebugEventListener> fEventListeners = new CopyOnWriteArrayList<IRascalDebugEventListener>();	
+	
+	// TODO: modifier set to public to not have to add a queuing method. Remove public modifier
+	// and do proper VM / debugger communication.
+	public final BlockingQueue<DebugEvent> fRuntimeEvents = new LinkedBlockingQueue<DebugEvent>();
+	
 	/**
 	 * Registry that tracks URI schema types that are supported in the debugging process.
 	 */
 	private final URIResolverRegistry debuggableURIResolverRegistry;
+
+	/**
+	 * Listens to events from the runtime and fires corresponding 
+	 * debug events.
+	 */
+	class EventDispatchJob extends Job {
+		
+		public EventDispatchJob() {
+			super("Rascal Event Dispatch");
+			setSystem(true);
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
+		 */
+		protected IStatus run(IProgressMonitor monitor) {
+			DebugEvent event = null;
+			while (!isTerminated() && event != null) {
+				try {
+					event = fRuntimeEvents.take();
+
+					for (IRascalDebugEventListener listener : fEventListeners) {
+						listener.onRascalDebugEvent(event);
+					}
+				} catch (InterruptedException e) {
+					terminated();
+				}
+			}
+			return Status.OK_STATUS;
+		}
+		
+	}	
 	
 	/**
 	 * Constructs a new debug target in the given launch for the 
@@ -74,6 +123,9 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		fLaunch = launch;
 		fThread = new RascalThread(this);
 		fThreads = new IThread[]{fThread};
+		
+		addEventListener(this);
+		
 		IBreakpointManager breakpointManager = getBreakpointManager();
 		breakpointManager.addBreakpointListener(this);
 		breakpointManager.addBreakpointManagerListener(this);
@@ -142,7 +194,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @see org.eclipse.debug.core.model.ITerminate#isTerminated()
 	 */
 	public boolean isTerminated() {
-		return getThread().isTerminated();
+		return fTerminated || getThread().isTerminated();
 	}
 	
 	/* (non-Javadoc)
@@ -393,6 +445,49 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 */
 	public void sendTerminationRequest() throws DebugException {
 		getRascalDebugTarget().getConsole().terminate();
+	}
+	
+	/**
+	 * Registers the given event listener. The listener will be notified of
+	 * events in the program being interpretted. Has no effect if the listener
+	 * is already registered.
+	 *  
+	 * @param listener event listener
+	 */
+	public void addEventListener(IRascalDebugEventListener listener) {
+		if (!fEventListeners.contains(listener)) {
+			fEventListeners.add(listener);
+		}
+	}
+	
+	/**
+	 * Deregisters the given event listener. Has no effect if the listener is
+	 * not currently registered.
+	 *  
+	 * @param listener event listener
+	 */
+	public void removeEventListener(IRascalDebugEventListener listener) {
+		fEventListeners.remove(listener);
+	}
+	
+	/**
+	 * Called when this debug target terminates.
+	 */
+	private synchronized void terminated() {
+		fTerminated = true;
+		fThread = null;
+		fThreads = new IThread[0];
+		IBreakpointManager breakpointManager = getBreakpointManager();
+        breakpointManager.removeBreakpointListener(this);
+		breakpointManager.removeBreakpointManagerListener(this);
+		fireTerminateEvent();
+		removeEventListener(this);
+	}
+
+	@Override
+	public void onRascalDebugEvent(DebugEvent event) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
