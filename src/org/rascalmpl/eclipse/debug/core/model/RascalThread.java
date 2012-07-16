@@ -240,38 +240,6 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		// for refreshing the icons associated to the debug target
 		rascalDebugTarget.fireTerminateEvent();
 		
-	}
-
-	/* (non-Javadoc)
-	 * @see org.rascalmpl.interpreter.debug.IDebugger#notifyResume(org.rascalmpl.interpreter.debug.DebugResumeMode)
-	 */
-	@Deprecated
-	@Override
-	public void notifyResume(DebugResumeMode mode) {
-		DebugEvent event = null;
-		
-		switch (mode) {
-		case STEP_INTO:
-			event = new DebugEvent(getRascalDebugTarget(), DebugEvent.RESUME, DebugEvent.STEP_INTO);
-			break;
-
-		case STEP_OVER:
-			event = new DebugEvent(getRascalDebugTarget(), DebugEvent.RESUME, DebugEvent.STEP_OVER);
-			break;
-			
-		case CLIENT_REQUEST:
-			event = new DebugEvent(getRascalDebugTarget(), DebugEvent.RESUME, DebugEvent.CLIENT_REQUEST);
-			break;
-
-		default:
-			new UnsupportedOperationException("Continuation mode not supported.");
-		}
-		
-		if (event != null) {
-			// TODO: remove simulation of remote events
-			getRascalDebugTarget().fRuntimeEvents.add(event);
-		}
-		
 	}	
 	
 	/* (non-Javadoc)
