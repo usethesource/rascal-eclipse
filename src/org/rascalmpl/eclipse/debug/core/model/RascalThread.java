@@ -26,6 +26,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.debug.DebugResumeMode;
 import org.rascalmpl.interpreter.debug.DebugSuspendMode;
+import org.rascalmpl.interpreter.debug.IDebugMessage;
 import org.rascalmpl.interpreter.debug.IDebugger;
 import org.rascalmpl.interpreter.env.Environment;
 
@@ -314,7 +315,16 @@ public class RascalThread extends RascalDebugElement implements IThread, IDebugg
 		// TODO: remove simulation of remote events
 		getRascalDebugTarget().fRuntimeEvents.add(event);
 	}
-			
+
+	/* (non-Javadoc)
+	 * @see org.rascalmpl.interpreter.debug.IDebugger#sendMessage(org.rascalmpl.interpreter.debug.IDebugMessage)
+	 */
+	@Override
+	public void sendMessage(IDebugMessage message) {
+		// TODO Auto-generated method stub
+		
+	}	
+	
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.interpreter.debug.IDebugger#stopStepping()
 	 */
