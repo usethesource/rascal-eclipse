@@ -25,6 +25,7 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint;
 
+@SuppressWarnings("unused")
 public class RascalExpressionBreakpointAdapter extends AbstractHandler implements IEditorActionDelegate {
 
 	private ITextSelection fSelection;
@@ -39,19 +40,19 @@ public class RascalExpressionBreakpointAdapter extends AbstractHandler implement
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
 	public void run(IAction action) {
-		if (fSelection == null) {
-			return;
-		}
-		if (editor != null) {
-			IResource resource = (IResource) editor.getEditorInput().getAdapter(IResource.class);
-			//create the breakpoint and add it to the breakpoint manager
-			try {
-			RascalExpressionBreakpoint breakpoint = new RascalExpressionBreakpoint(resource, fSelection);
-			DebugPlugin.getDefault().getBreakpointManager().addBreakpoint(breakpoint);
-			} catch (CoreException e) {
-				// TODO: handle exception
-			}
-		}
+//		if (fSelection == null) {
+//			return;
+//		}
+//		if (editor != null) {
+//			IResource resource = (IResource) editor.getEditorInput().getAdapter(IResource.class);
+//			//create the breakpoint and add it to the breakpoint manager
+//			try {
+//			RascalExpressionBreakpoint breakpoint = new RascalExpressionBreakpoint(resource, fSelection);
+//			DebugPlugin.getDefault().getBreakpointManager().addBreakpoint(breakpoint);
+//			} catch (CoreException e) {
+//				// TODO: handle exception
+//			}
+//		}
 	}
 
 	/*
