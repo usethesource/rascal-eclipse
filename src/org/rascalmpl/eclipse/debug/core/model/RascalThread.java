@@ -338,8 +338,12 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 			break;
 			
 		case IDLE:
-			// only property update; no event triggering necessary
-			setSuspended(false);
+			/*
+			 * sending a request of resumption to the runtime cleans the state,
+			 * if it the last operation before IDLE was a step over or step
+			 * into.
+			 */
+			sendRequest(requestResumption());
 			break;
 			
 		}
