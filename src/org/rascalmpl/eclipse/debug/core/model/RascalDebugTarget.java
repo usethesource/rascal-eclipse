@@ -17,6 +17,8 @@ import java.net.URI;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.IBreakpointManagerListener;
@@ -34,15 +36,14 @@ import org.rascalmpl.eclipse.debug.core.breakpoints.RascalLineBreakpoint;
 import org.rascalmpl.eclipse.debug.uri.NoneURITransformer;
 import org.rascalmpl.eclipse.debug.uri.StandardLibraryToProjectURITransformer;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
+import org.rascalmpl.interpreter.debug.DebugResumeMode;
+import org.rascalmpl.interpreter.debug.DebugStepMode;
 import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 
 /**
  *  Rascal Debug Target
- *  
- *  DISCUSS Currently the debug model describes an Rascal program as a single <em>thread</em> and leaves out the abstraction of a <em>process</em>. 
- *	DISCUSS Should a debug target by any means be associated with a console or just with an interpreter? 
  */
 public class RascalDebugTarget extends RascalDebugElement implements IDebugTarget, IBreakpointManagerListener {
 
@@ -285,6 +286,9 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		return fThread;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.IBreakpointListener#breakpointChanged(org.eclipse.debug.core.model.IBreakpoint, org.eclipse.core.resources.IMarkerDelta)
+	 */
 	public void breakpointChanged(IBreakpoint breakpoint, IMarkerDelta delta) {
 		if (supportsBreakpoint(breakpoint)) {
 			try {
@@ -296,7 +300,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 			} catch (CoreException e) {
 			}
 		}
-	}
+	}	
 	
 	/**
 	 * A registry that keeps track of resource schema types that are supported in the debugging process.
@@ -346,6 +350,49 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 
 	public RascalScriptInterpreter getInterpreter() {
 		return console.getRascalInterpreter();
+	}
+	
+	/* (non-Javadoc)
+	 * Currently simulates a blocking sequential communication with the interpretor.
+	 * But instead of the interpreter generating the resume events, it's done here.
+	 */
+	public void sendSuspendRequest(int request) throws DebugException {
+		switch (request) {
+		
+		case DebugEvent.STEP_INTO:
+			getRascalDebugTarget().getEvaluator().setStepMode(DebugStepMode.STEP_INTO);
+			getRascalDebugTarget().getThread().notifyResume(DebugResumeMode.STEP_INTO);
+			break;
+
+		case DebugEvent.STEP_OVER:
+			getRascalDebugTarget().getEvaluator().setStepMode(DebugStepMode.STEP_OVER);
+			getRascalDebugTarget().getThread().notifyResume(DebugResumeMode.STEP_OVER);
+			break;
+		
+		case DebugEvent.CLIENT_REQUEST:
+			getRascalDebugTarget().getEvaluator().suspendRequest();
+			getRascalDebugTarget().getThread().notifyResume(DebugResumeMode.CLIENT_REQUEST);
+			break;
+				
+		default:
+			throw new DebugException(
+					new Status(Status.ERROR, "unknownId", "Unsupported request to the interpreter."));
+		}
+	}	
+	
+	/* (non-Javadoc)
+	 * Currently simulates a blocking sequential communication with the interpretor.
+	 * But instead of the interpreter generating the resume events, it's done here.
+	 */
+	public void sendResumeRequest() throws DebugException {
+		getRascalDebugTarget().getThread().notifyResume(DebugResumeMode.CLIENT_REQUEST);
+	}
+	
+	/* (non-Javadoc)
+	 * Currently simulates a blocking sequential communication with the interpretor.
+	 */
+	public void sendTerminationRequest() throws DebugException {
+		getRascalDebugTarget().getConsole().terminate();
 	}
 	
 }
