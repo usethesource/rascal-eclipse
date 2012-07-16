@@ -14,10 +14,12 @@
 package org.rascalmpl.eclipse.debug.core.breakpoints;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -49,24 +51,40 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
- * Rascal line breakpoint
+ * A Rascal line breakpoint.
+ * 
+ * TODO: remove ISourceLocation utility functions.
+ * TODO: make a line breakpoint to a more general source location breakpoint
  */
 public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebugEventListener {
 	
+	/**
+	 * Type of the marker.
+	 * 
+	 * @see IMarker#getType() 
+	 */
+	protected static final String MARKER_TYPE = "rascal.markerType.lineBreakpoint";
+	
+	/*
+	 * Custom marker attribute that stores a serialized source location.
+	 * 
+	 * @see IMarker#setAttribute(String, Object)
+	 * @see ISourceLocation
+	 */
+	protected static final String MARKER_ATTRIBUTE_BEGIN_LINE 	= IMarker.LINE_NUMBER;	
+	protected static final String MARKER_ATTRIBUTE_END_LINE 	= "lineNumberEnd";
+	protected static final String MARKER_ATTRIBUTE_BEGIN_COLUMN = "beginColumn";	
+	protected static final String MARKER_ATTRIBUTE_END_COLUMN 	= "endColumn";
+	protected static final String MARKER_ATTRIBUTE_URI 			= "uri";
+	
 	// target currently installed in
-	protected RascalDebugTarget fTarget;
+	private RascalDebugTarget fTarget;
 
-	protected IResource resource;
+	// resource associated with the marker
+	private IResource resource;
 	
-	protected ISourceLocation sourceLocation;
-	
-	public IResource getResource() {
-		return resource;
-	}
-
-	public ISourceLocation getSourceLocation() {
-		return sourceLocation;
-	}	
+	// location information used to display marker and detect breakpoint hit
+	private ISourceLocation sourceLocation;	
 	
 	/**
 	 * Default constructor is required for the breakpoint manager
@@ -77,14 +95,7 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
 	public RascalLineBreakpoint() {
 		super();
 	}
-	
-	@Override
-	public void setMarker(IMarker marker) throws CoreException {
-		super.setMarker(marker);
-		//restore the resource for persisted breakpoints
-		resource = marker.getResource();
-	}
-	
+		
 	/**
 	 * Constructs a line breakpoint on the given resource at the given
 	 * line number. The line number is 1-based (i.e. the first line of a
@@ -97,27 +108,49 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
 	 * @throws CoreException if unable to create the breakpoint
 	 */
 	public RascalLineBreakpoint(final UniversalEditor editor, final IResource resource, final int lineNumber) throws CoreException {
-		this.resource = resource;
 
-		ISourceLocation closestSourceLocation = calculateClosestLocation(editor, lineNumber);
+		final ISourceLocation closestSourceLocation = calculateClosestLocation(editor, lineNumber);
 		
-		if (closestSourceLocation == null) {
-			throw new CoreException(new Status(IStatus.WARNING, "unknownId", "Breakpoint not created, not AST at line."));
-		} else {
-			this.sourceLocation = normalizeSourceLocation(closestSourceLocation);
-		}
+		if (closestSourceLocation == null)
+			throw new CoreException(new Status(IStatus.WARNING, "unknownId", "Breakpoint not created, no AST associated to line."));
+			
+		final ISourceLocation normalizedSourceLocation = normalizeSourceLocation(resource, closestSourceLocation);
+
+		// initialize attributes
+		this.resource = resource;
+		this.sourceLocation = normalizedSourceLocation;
+		
+		Assert.isTrue(getSourceLocation().hasOffsetLength());
+		Assert.isTrue(getSourceLocation().hasLineColumn());
 		
 		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
-				IMarker marker = resource.createMarker("rascal.markerType.lineBreakpoint");
-				setMarker(marker);
-				marker.setAttribute(IBreakpoint.ENABLED, Boolean.TRUE);
-				marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-				int offset = sourceLocation.getOffset();
-				marker.setAttribute(IMarker.CHAR_START, offset);
-				marker.setAttribute(IMarker.CHAR_END, offset + sourceLocation.getLength());
+				IMarker marker = resource.createMarker(MARKER_TYPE);
+
+				// standard attributes
 				marker.setAttribute(IBreakpoint.ID, getModelIdentifier());
+				marker.setAttribute(IBreakpoint.ENABLED, Boolean.TRUE);
 				marker.setAttribute(IMarker.MESSAGE, "Line Breakpoint: " + resource.getName() + " [line: " + lineNumber + "]");
+				
+				if (sourceLocation.hasOffsetLength()) {
+					int charStart = sourceLocation.getOffset();
+					int charEnd   = sourceLocation.getLength() + charStart;
+										
+					marker.setAttribute(IMarker.CHAR_START, charStart);
+					marker.setAttribute(IMarker.CHAR_END, charEnd);
+				}
+
+				// custom attributes			
+				if (sourceLocation.hasLineColumn()) {
+					marker.setAttribute(MARKER_ATTRIBUTE_BEGIN_LINE, sourceLocation.getBeginLine());
+					marker.setAttribute(MARKER_ATTRIBUTE_END_LINE, sourceLocation.getEndLine());
+					marker.setAttribute(MARKER_ATTRIBUTE_BEGIN_COLUMN, sourceLocation.getBeginColumn());
+					marker.setAttribute(MARKER_ATTRIBUTE_END_COLUMN, sourceLocation.getEndColumn());
+				}
+				
+				marker.setAttribute(MARKER_ATTRIBUTE_URI, sourceLocation.getURI().toString());
+				
+				setMarker(marker);
 			}
 		};
 		run(getMarkerRule(resource), runnable);
@@ -130,6 +163,18 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
 		return IRascalResources.ID_RASCAL_DEBUG_MODEL;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.core.model.Breakpoint#setMarker(org.eclipse.core.resources.IMarker)
+	 */
+	@Override
+	public void setMarker(IMarker marker) throws CoreException {
+		super.setMarker(marker);
+		
+		// restore attributes for persisted breakpoints
+		resource = marker.getResource();
+		sourceLocation = markerToSourceLocation(marker);
+	}
+		
 	/**
 	 * Returns whether this breakpoint is a run-to-line breakpoint
 	 * 
@@ -173,7 +218,7 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
      * @throws CoreException if request creation fails
      */
     protected void createRequest(RascalDebugTarget target) throws CoreException {
-    	target.sendRequestBreakpointSet(sourceLocation);
+    	target.sendRequestBreakpointSet(getSourceLocation());
 	}
     
     /**
@@ -184,7 +229,7 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
      * @throws CoreException if clearing the request fails
      */
     protected void clearRequest(RascalDebugTarget target) throws CoreException {
-    	target.sendRequestBreakpointClear(sourceLocation);
+    	target.sendRequestBreakpointClear(getSourceLocation());
     }    
     
     /**
@@ -195,6 +240,24 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
     protected RascalDebugTarget getDebugTarget() {
     	return fTarget;
     }
+
+    /**
+     * Returns the resource that is configured or <code>null</code>.
+     * 
+     * @return the resource that is configured or <code>null</code>.
+     */
+	protected IResource getResource() {
+		return resource;
+	}
+	
+    /**
+     * Returns the source location that is configured or <code>null</code>.
+     * 
+     * @return the source location that is configured or <code>null</code>.
+     */
+	protected ISourceLocation getSourceLocation() {
+		return sourceLocation;
+	}
     
 	private static ISourceLocation calculateClosestLocation(UniversalEditor editor, final int lineNumber){
 		IConstructor parseTree = (IConstructor) editor.getParseController().getCurrentAst();
@@ -274,20 +337,66 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
 	}
 
 
-	private ISourceLocation normalizeSourceLocation(ISourceLocation sourceLocation) { 
-		URI uriBreakPointLocation = ProjectURIResolver.constructNonEncodedProjectURI(getResource().getFullPath());    	
-
-    	IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
-    	return valueFactory.sourceLocation(uriBreakPointLocation, 
-    			sourceLocation.getOffset(), 
-    			sourceLocation.getLength(), 
-    			sourceLocation.getBeginLine(), 
-    			sourceLocation.getEndLine(), 
-    			sourceLocation.getBeginColumn(),
-    			sourceLocation.getEndColumn());
-    }			
+	private static ISourceLocation normalizeSourceLocation(IResource resource, ISourceLocation sourceLocation) { 
+		URI uriBreakPointLocation = ProjectURIResolver.constructNonEncodedProjectURI(resource.getFullPath());
+		return updateSourceLocation(sourceLocation, uriBreakPointLocation);
+	}
 	
+	private static ISourceLocation markerToSourceLocation(IMarker marker) throws CoreException {
+		IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
+		ISourceLocation result = null;
+		
+		// hasOffsetLength()
+		int offset = (Integer) marker.getAttribute(IMarker.CHAR_START);
+		int length = (Integer) marker.getAttribute(IMarker.CHAR_END) - offset;
 
+		// hasLineColumn()
+		int beginLine = (Integer) marker.getAttribute(MARKER_ATTRIBUTE_BEGIN_LINE);
+		int endLine   = (Integer) marker.getAttribute(MARKER_ATTRIBUTE_END_LINE);
+		int beginCol  = (Integer) marker.getAttribute(MARKER_ATTRIBUTE_BEGIN_COLUMN);
+		int endCol    = (Integer) marker.getAttribute(MARKER_ATTRIBUTE_END_COLUMN);
+
+		String uriString = (String) marker.getAttribute(MARKER_ATTRIBUTE_URI);
+
+		try {
+			result = valueFactory.sourceLocation(new URI(uriString), offset, length, beginLine, endLine, beginCol, endCol);
+		} catch (URISyntaxException e) {
+			throw new CoreException(
+					new Status(
+							IStatus.ERROR,
+							"unknownId",
+							"Persisted URI string of the marker's source location is invalid.",
+							e));
+		}
+	
+		return result;
+	}
+	
+	/**
+     * Create a copy of a source location, but replace the URI.
+     * 
+     * @param uri         exact uri where the source is located.
+     * @return a value representing a source location, with type SourceLocationType
+     */
+    private static ISourceLocation updateSourceLocation(ISourceLocation location, URI uri) {
+    	IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
+    	ISourceLocation result = null;
+    	
+    	if (location.hasLineColumn()) {
+        	result = valueFactory.sourceLocation(uri, 
+					location.getOffset(), location.getLength(), 
+					location.getBeginLine(), location.getEndLine(), 
+					location.getBeginColumn(),location.getEndColumn());
+    	} else if (location.hasOffsetLength()) {
+        	result = valueFactory.sourceLocation(uri, 
+        			location.getOffset(), location.getLength()); 
+    	} else {
+    		result = valueFactory.sourceLocation(uri);
+    	}
+    	
+    	return result;
+    }
+    
     /**
      * Notify's the Rascal interpreter that this breakpoint has been hit.
      */
@@ -312,7 +421,7 @@ public class RascalLineBreakpoint extends LineBreakpoint implements IRascalDebug
     private void handleHit(DebugEvent event) {
 		ISourceLocation hitLocation = (ISourceLocation) event.getData();
 
-		if (hitLocation.equals(sourceLocation)) {
+		if (hitLocation.equals(getSourceLocation())) {
 			notifyThread();
 		}
     }
