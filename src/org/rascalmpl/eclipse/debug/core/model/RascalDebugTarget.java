@@ -402,11 +402,11 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	}
 
 	public DebuggableEvaluator getEvaluator() {
-		return (DebuggableEvaluator) getInterpreter().getEval();
+		return getInterpreter() != null ? (DebuggableEvaluator) getInterpreter().getEval() : null;
 	}
 
 	public RascalScriptInterpreter getInterpreter() {
-		return console.getRascalInterpreter();
+		return console != null ? console.getRascalInterpreter() : null;
 	}
 	
 	/* (non-Javadoc)
