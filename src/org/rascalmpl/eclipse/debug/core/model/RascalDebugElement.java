@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
-import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.model.DebugElement;
@@ -67,19 +66,4 @@ public class RascalDebugElement extends DebugElement {
     	getRascalDebugTarget().sendRequest(message);
     }
     
-    @Deprecated
-    public void sendSuspendRequest(int request) throws DebugException {
-		getRascalDebugTarget().sendSuspendRequest(request);
-	}
-
-    @Deprecated
-	public void sendResumeRequest() throws DebugException {
-		getRascalDebugTarget().sendResumeRequest();
-	}
-	
-    @Deprecated
-	public void sendTerminationRequest() throws DebugException {	
-		getRascalDebugTarget().sendTerminationRequest();
-	}
-
 }
