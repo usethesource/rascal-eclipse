@@ -224,34 +224,6 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 		sendRequest(requestTermination());
 	}
 
-//	/* (non-Javadoc)
-//	 * @see org.rascalmpl.interpreter.debug.IDebugger#destroy()
-//	 */
-//	@Deprecated
-//	@Override
-//	public synchronized void destroy() {
-//		fTerminated = true;
-//		RascalDebugTarget rascalDebugTarget = getRascalDebugTarget();
-//		notify();
-//		fireTerminateEvent();
-//		// for refreshing the icons associated to the debug target
-//		rascalDebugTarget.fireTerminateEvent();
-//		
-//	}	
-		
-//	/* (non-Javadoc)
-//	 * @see org.rascalmpl.interpreter.debug.IDebugger#stopStepping()
-//	 */
-//	@Deprecated
-//	@Override
-//	public void stopStepping() {
-//		try {
-//			resume();
-//		} catch (DebugException e) {
-//			throw new RuntimeException(e);
-//		}
-//	}		
-	
 	/**
 	 * Sets whether this thread is stepping
 	 * 
@@ -363,6 +335,11 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 				new UnsupportedOperationException("Continuation mode not supported.");
 			}
 			
+			break;
+			
+		case IDLE:
+			// only property update; no event triggering necessary
+			setSuspended(false);
 			break;
 			
 		}

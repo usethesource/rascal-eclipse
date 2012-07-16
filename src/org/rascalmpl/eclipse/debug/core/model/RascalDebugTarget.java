@@ -368,7 +368,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @see org.rascalmpl.eclipse.debug.core.model.RascalDebugElement#sendRequest(org.rascalmpl.interpreter.debug.IDebugMessage)
 	 */
 	public void sendRequest(IDebugMessage message) {
-		// TODO: deposit message at runtime
+		fDebugSupport.processMessage(message);
 	}
 	
 //	/* (non-Javadoc)
