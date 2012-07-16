@@ -40,11 +40,13 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint;
+import org.rascalmpl.eclipse.debug.uri.ProjectURIToStandardLibraryTransformer;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
+import java.io.IOException;
 import java.net.URI;
 
 /**
@@ -255,7 +257,20 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 	}
 
 	private static ISourceLocation normalizeSourceLocation(IResource resource, ISourceLocation sourceLocation) { 
+		// 1) create a non-encoded "project" schema URI
 		URI uriBreakPointLocation = ProjectURIResolver.constructNonEncodedProjectURI(resource.getFullPath());
+		
+		// 2) transform the "project" schema URI to a "std" schema URI (if necessary)
+		try {
+			uriBreakPointLocation = new ProjectURIToStandardLibraryTransformer(IRascalResources.RASCAL_STD)
+					.getResourceURI(uriBreakPointLocation);
+		} catch (IOException e) {
+			/* not supposed to happen */
+			IStatus message = new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Conversion of URI schema 'project' to 'std' failed.");
+			Activator.getInstance().getLog().log(message);			
+		}
+		
+		// 3) update the URI in the source location instance
 		return updateSourceLocation(sourceLocation, uriBreakPointLocation);
 	}
 	
