@@ -32,6 +32,13 @@ public interface IInterpreterConsole extends IConsole{
 	OutputStream getConsoleOutputStream();
 	
 	/**
+	 * Returns if the console was terminated by {@link #terminate()}.  
+	 * 
+	 * @return termination status
+	 */
+	boolean isTerminated();
+	
+	/**
 	 * Terminates this console and it's associated interpreter.
 	 */
 	void terminate();

@@ -23,6 +23,8 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.static
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
 
+import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newNullEventTrigger;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -111,18 +113,18 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 	private TimedBufferedPipe consoleStreamPipe;
 	private AbstractInterpreterEventTrigger eventTrigger;
 	
-	public RascalScriptInterpreter(AbstractInterpreterEventTrigger eventTrigger, IProject project){
+	public RascalScriptInterpreter(IProject project){
 		super("Rascal");
 		
-		this.eventTrigger = eventTrigger;
+		this.eventTrigger = newNullEventTrigger();
 		
 		this.project = project;
 
 		this.command = "";
 	}
 	
-	public RascalScriptInterpreter(AbstractInterpreterEventTrigger eventTrigger){
-		this(eventTrigger, null);
+	public RascalScriptInterpreter(){
+		this(null);
 	}
 
 	public void initialize(Evaluator eval){

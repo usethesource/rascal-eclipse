@@ -15,15 +15,21 @@ package org.rascalmpl.eclipse.launch;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.debug.core.DebugEvent;
+import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
+import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.debug.core.model.IStreamsProxy;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.debug.DebugHandler;
+import org.rascalmpl.interpreter.IInterpreterEventListener;
+import org.rascalmpl.interpreter.InterpreterEvent;
 
 public class LaunchDelegate implements ILaunchConfigurationDelegate{
 
@@ -43,32 +49,47 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			} else {
 				console = consoleFactory.openRunConsole();				
 			}
+
+			// create a new run session
+			IProcess runProcess = new RascalConsoleProcess(launch, console);			
+			launch.addProcess(runProcess);
+		
+			/*
+			 * TODO: Sending of an additional creation event here instead of in
+			 * runtime. Hidden chicken / egg problem: The runtime sends the
+			 * event before the debug model registers with a listener. But the
+			 * the event trigger that takes subscriptions from the debug model
+			 * still has to be created.
+			 * See {@link RascalScriptInterpreter#initialize(Evaluator)}.
+			 * 
+			 * TODO: Use publish/subscribe infrastructure?!
+			 */			
+			console.getEventTrigger().fireCreationEvent();
 			
 		} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
 			
-			// create a new internal debug handler	
-			DebugHandler debugHandler = new DebugHandler();
+			if (configurationUtility.hasAssociatedProject()) {
+				console = consoleFactory.openDebuggableConsole(configurationUtility.getAssociatedProject());
+			} else {
+				console = consoleFactory.openDebuggableConsole();				
+			}
 			
 			// create a new debug session
-			RascalDebugTarget debugTarget = new RascalDebugTarget(launch, debugHandler);
-			
-			if (configurationUtility.hasAssociatedProject()) {
-				console = consoleFactory.openDebuggableConsole(configurationUtility.getAssociatedProject(), debugHandler);
-			} else {
-				console = consoleFactory.openDebuggableConsole(debugHandler);				
-			}			
-			
-			// add termination action to debugging handler
-			final IRascalConsole finalConsole = console;
-			debugHandler.setTerminateAction(new Runnable() {
-				@Override
-				public void run() {
-					finalConsole.terminate();
-				}
-			});
-			
+			RascalDebugTarget debugTarget = new RascalDebugTarget(launch, console.getDebugHandler());
 			debugTarget.setConsole(console);
 			launch.addDebugTarget(debugTarget);
+
+			/*
+			 * TODO: Sending of an additional creation event here instead of in
+			 * runtime. Hidden chicken / egg problem: The runtime sends the
+			 * event before the debug model registers with a listener. But the
+			 * the event trigger that takes subscriptions from the debug model
+			 * still has to be created.
+			 * See {@link RascalScriptInterpreter#initialize(Evaluator)}.
+			 * 
+			 * TODO: Use publish/subscribe infrastructure?!
+			 */
+			console.getEventTrigger().fireCreationEvent();
 			
 		} else {
 			throw new RuntimeException("Unknown or unsupported launch mode: " + mode);
@@ -99,7 +120,114 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			console.executeCommand("main();");
 			
 		}
+		
+	}
+	
+	protected class RascalConsoleProcess implements IProcess, IInterpreterEventListener {
+		
+		private final ILaunch launch;
+		
+		private final IRascalConsole console;
+		
+		public RascalConsoleProcess(ILaunch launch, IRascalConsole console) {
+			this.launch = launch;
+			this.console = console;
 			
+			console.getEventTrigger().addInterpreterEventListener(this);
+		}
+		
+		@Override
+		public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+			return null;
+		}
+
+		@Override
+		public boolean canTerminate() {
+			return !console.isTerminated();
+		}
+
+		@Override
+		public boolean isTerminated() {
+			return console.isTerminated();
+		}
+
+		@Override
+		public void terminate() throws DebugException {
+			console.terminate();
+		}
+
+		@Override
+		public String getLabel() {
+			return "Rascal Console Process";
+		}
+
+		@Override
+		public ILaunch getLaunch() {
+			return launch;
+		}
+
+		@Override
+		public IStreamsProxy getStreamsProxy() {
+			return null;
+		}
+
+		@Override
+		public void setAttribute(String key, String value) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public String getAttribute(String key) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public int getExitValue() throws DebugException {
+			return 0;
+		}
+
+		/**
+		 * Fires a creation event.
+		 */
+		protected void fireCreationEvent() {
+			fireEvent(new DebugEvent(this, DebugEvent.CREATE));
+		}
+
+		/**
+		 * Fires the given debug event.
+		 * 
+		 * @param event debug event to fire
+		 */
+		protected void fireEvent(DebugEvent event) {
+			DebugPlugin manager= DebugPlugin.getDefault();
+			if (manager != null) {
+				manager.fireDebugEventSet(new DebugEvent[]{event});
+			}
+		}
+
+		/**
+		 * Fires a terminate event.
+		 */
+		protected void fireTerminateEvent() {
+			fireEvent(new DebugEvent(this, DebugEvent.TERMINATE));
+		}		
+		
+		@Override
+		public void handleInterpreterEvent(InterpreterEvent event) {
+			switch (event.getKind()) {
+			
+			case CREATE:
+				fireCreationEvent();
+				break;
+
+			case TERMINATE:
+				fireTerminateEvent();
+				console.getEventTrigger().removeInterpreterEventListener(this);
+				break;
+
+			}
+		}		
+		
 	}
 	
 }

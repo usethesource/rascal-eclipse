@@ -71,6 +71,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	
 	private int inputOffset;
 	private String currentContent;
+	
+	private volatile boolean terminated;
 
 	/**
 	 * Queue for commands that are invoked through {@link #executeCommand(String)}.
@@ -225,13 +227,28 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		}
 	}
 	
+	@Override
+	public boolean isTerminated() {
+		return terminated;
+	}	
+	
+	@Override
 	public void terminate(){
-		partitionerFinished();
-		documentListener.deregisterListener();
+		boolean wasTerminated;
 		
-		commandExecutor.terminate();
-		interpreter.interrupt();
-		interpreter.terminate();
+		synchronized (this) {
+			wasTerminated = terminated;
+			terminated = true;
+		}
+		
+		if (!wasTerminated) {
+			partitionerFinished();
+			documentListener.deregisterListener();
+			
+			commandExecutor.terminate();
+			interpreter.interrupt();
+			interpreter.terminate();
+		}
 	}
 	
 	public void printTrace() {
@@ -753,4 +770,5 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			lock.wakeUp();
 		}
 	}
+
 }
