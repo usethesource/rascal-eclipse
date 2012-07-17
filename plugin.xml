@@ -459,7 +459,6 @@
                <with variable="selection">
                   <count value="1"/>
                   <iterate>
-                     <instanceof value="org.eclipse.core.resources.IFile"/>
                      <test
                            value="*.rsc"
                            property="org.eclipse.debug.ui.matchesPattern"/>
