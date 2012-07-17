@@ -260,12 +260,6 @@
       <objectContribution
             id="rascal.project"
             objectClass="org.eclipse.core.resources.IResource">
-         <visibility>
-            <objectState
-                  name="projectNature"
-                  value="rascal_nature">
-            </objectState>
-         </visibility>
          <action
                class="org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction"
                icon="icons/rascal3D_2-16px.gif"
