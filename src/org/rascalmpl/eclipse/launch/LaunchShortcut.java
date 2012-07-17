@@ -13,6 +13,8 @@ package org.rascalmpl.eclipse.launch;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
@@ -23,6 +25,7 @@ import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorPart;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 
 /**
@@ -52,7 +55,10 @@ public class LaunchShortcut implements ILaunchShortcut {
                 }
             }
         } catch (CoreException e) {
-            return;
+			IStatus message = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
+			Activator.getInstance().getLog().log(message);
+        	
+        	return;
         }
         
         try {
@@ -62,6 +68,8 @@ public class LaunchShortcut implements ILaunchShortcut {
             ILaunchConfiguration configuration = workingCopy.doSave();
             DebugUITools.launch(configuration, mode);
         } catch (CoreException e1) {
+			IStatus message = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e1.getMessage(), e1);
+			Activator.getInstance().getLog().log(message);
         }
     }
 
