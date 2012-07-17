@@ -30,6 +30,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.model.ISourceProject;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.uri.BadURIException;
@@ -122,8 +123,18 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		throw new IOException(uri+" refers to a resource that does not exist.");
 	}
 	
-	public OutputStream getOutputStream(URI uri, boolean append) throws IOException {
-		return new FileOutputStream(resolveFile(uri).getRawLocation().toOSString(), append);
+	public OutputStream getOutputStream(final URI uri, boolean append) throws IOException {
+		return new FileOutputStream(resolveFile(uri).getRawLocation().toOSString(), append) {
+			@Override
+			public void close() throws IOException {
+				super.close();
+				try {
+					resolveFile(uri).refreshLocal(0, new NullProgressMonitor());
+				} catch (CoreException e) {
+					Activator.getInstance().logException("could not refresh " + uri, e);
+				}
+			}
+		};
 	}
 
 	public String scheme() {
