@@ -275,7 +275,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				}
 			} catch (Throwable e) {
 				Activator.getInstance().logException(e.getMessage(), e);
-				content = throwableMessage(e, eval.getStackTrace()) + "\n";
+				content += throwableMessage(e, eval.getStackTrace()) + "\n";
 				command = "";
 			}
 			finally {
