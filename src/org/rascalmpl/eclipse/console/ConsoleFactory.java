@@ -103,6 +103,7 @@ public class ConsoleFactory{
 	}
 	
 	public IRascalConsole openDebuggableConsole(){
+		Activator.getInstance().checkRascalRuntimePreconditions();
 		GlobalEnvironment heap = new GlobalEnvironment();
 		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE, heap), heap, "Rascal [DEBUG]", true);
 		fConsoleManager.addConsoles(new IConsole[]{console});
@@ -111,6 +112,7 @@ public class ConsoleFactory{
 	}		
 	
 	public IRascalConsole openDebuggableConsole(IProject project){
+		Activator.getInstance().checkRascalRuntimePreconditions(project);
 		GlobalEnvironment heap = new GlobalEnvironment();
 		IRascalConsole console = new InteractiveRascalConsole(project, new ModuleEnvironment(SHELL_MODULE, heap), heap, "Rascal [DEBUG, "+project.getName()+"]", true);
 		fConsoleManager.addConsoles(new IConsole[]{console});
