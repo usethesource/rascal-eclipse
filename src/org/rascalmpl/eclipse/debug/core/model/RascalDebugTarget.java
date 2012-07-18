@@ -36,6 +36,7 @@ import org.rascalmpl.eclipse.debug.uri.StandardLibraryToProjectURITransformer;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
+import org.rascalmpl.interpreter.IInterpreterEventTrigger;
 import org.rascalmpl.interpreter.InterpreterEvent;
 import org.rascalmpl.interpreter.debug.IDebugMessage;
 import org.rascalmpl.interpreter.debug.IDebugSupport;
@@ -53,6 +54,10 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	// containing launch object
 	private final ILaunch fLaunch;
 
+	// associated interpreter event trigger to receive 
+	// notifications from the runtime
+	private IInterpreterEventTrigger fInterpreterEventTrigger;
+	
 	// associated debug support interface
 	private final IDebugSupport fDebugSupport;
 	
@@ -68,7 +73,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 */
 	private final URIResolverRegistry debuggableURIResolverRegistry;
 
-
+	
 	
 	/**
 	 * Constructs a new debug target in the given launch for the 
@@ -77,9 +82,10 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @param console Rascal console
 	 * @exception CoreException if unable to connect to host
 	 */
-	public RascalDebugTarget(ILaunch launch, IDebugSupport debugSupport) throws CoreException {
+	public RascalDebugTarget(ILaunch launch, IInterpreterEventTrigger eventTrigger, IDebugSupport debugSupport) throws CoreException {
 		super(null);
 
+		fInterpreterEventTrigger = eventTrigger;
 		fDebugSupport = debugSupport;
 		addEventListener(this);
 		
@@ -381,7 +387,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @param listener event listener
 	 */
 	public void addEventListener(IInterpreterEventListener listener) {
-		fDebugSupport.addInterpreterEventListener(listener);
+		fInterpreterEventTrigger.addInterpreterEventListener(listener);
 	}
 	
 	/**
@@ -391,7 +397,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @param listener event listener
 	 */
 	public void removeEventListener(IInterpreterEventListener listener) {
-		fDebugSupport.removeInterpreterEventListener(listener);
+		fInterpreterEventTrigger.removeInterpreterEventListener(listener);
 	}
 	
 	/**

@@ -29,6 +29,7 @@ import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
+import org.rascalmpl.interpreter.IInterpreterEventTrigger;
 import org.rascalmpl.interpreter.InterpreterEvent;
 
 public class LaunchDelegate implements ILaunchConfigurationDelegate{
@@ -51,7 +52,7 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			}
 
 			// create a new run session
-			IProcess runProcess = new RascalConsoleProcess(launch, console);			
+			IProcess runProcess = new RascalConsoleProcess(launch, console.getEventTrigger(), console);			
 			launch.addProcess(runProcess);
 		
 			/*
@@ -75,7 +76,8 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			}
 			
 			// create a new debug session
-			RascalDebugTarget debugTarget = new RascalDebugTarget(launch, console.getDebugHandler());
+			RascalDebugTarget debugTarget = new RascalDebugTarget(launch,
+					console.getEventTrigger(), console.getDebugHandler());
 			debugTarget.setConsole(console);
 			launch.addDebugTarget(debugTarget);
 
@@ -127,13 +129,16 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 		
 		private final ILaunch launch;
 		
+		private final IInterpreterEventTrigger eventTrigger;
+		
 		private final IRascalConsole console;
 		
-		public RascalConsoleProcess(ILaunch launch, IRascalConsole console) {
+		public RascalConsoleProcess(ILaunch launch, IInterpreterEventTrigger eventTrigger, IRascalConsole console) {
 			this.launch = launch;
+			this.eventTrigger = eventTrigger;
 			this.console = console;
 			
-			console.getEventTrigger().addInterpreterEventListener(this);
+			this.eventTrigger.addInterpreterEventListener(this);
 		}
 		
 		@Override
@@ -222,7 +227,7 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 
 			case TERMINATE:
 				fireTerminateEvent();
-				console.getEventTrigger().removeInterpreterEventListener(this);
+				this.eventTrigger.removeInterpreterEventListener(this);
 				break;
 
 			}
