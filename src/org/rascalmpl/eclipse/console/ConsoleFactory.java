@@ -29,6 +29,7 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IHyperlink;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.console.internal.IInterpreter;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
@@ -86,7 +87,7 @@ public class ConsoleFactory{
 	public IRascalConsole openRunConsole(){
 		Activator.getInstance().checkRascalRuntimePreconditions();
 		GlobalEnvironment heap = new GlobalEnvironment();
-		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE, heap), heap);
+		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE, heap), heap, "Rascal", false);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
@@ -95,7 +96,7 @@ public class ConsoleFactory{
 	public IRascalConsole openRunConsole(IProject project){
 		Activator.getInstance().checkRascalRuntimePreconditions(project);
 		GlobalEnvironment heap = new GlobalEnvironment();
-		IRascalConsole console = new InteractiveRascalConsole(project, new ModuleEnvironment(SHELL_MODULE, heap), heap);
+		IRascalConsole console = new InteractiveRascalConsole(project, new ModuleEnvironment(SHELL_MODULE, heap), heap, "Rascal ["+project.getName()+"]", false);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
@@ -103,15 +104,15 @@ public class ConsoleFactory{
 	
 	public IRascalConsole openDebuggableConsole(){
 		GlobalEnvironment heap = new GlobalEnvironment();
-		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE, heap), heap, true);
+		IRascalConsole console = new InteractiveRascalConsole(new ModuleEnvironment(SHELL_MODULE, heap), heap, "Rascal [DEBUG]", true);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
-	}
+	}		
 	
 	public IRascalConsole openDebuggableConsole(IProject project){
 		GlobalEnvironment heap = new GlobalEnvironment();
-		IRascalConsole console = new InteractiveRascalConsole(project, new ModuleEnvironment(SHELL_MODULE, heap), heap, true);
+		IRascalConsole console = new InteractiveRascalConsole(project, new ModuleEnvironment(SHELL_MODULE, heap), heap, "Rascal [DEBUG, "+project.getName()+"]", true);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
@@ -132,19 +133,14 @@ public class ConsoleFactory{
 		
 		private final DebugHandler debugHandler;
 		
-		// TODO: unify all four constructors		
-		public InteractiveRascalConsole(ModuleEnvironment shell, GlobalEnvironment heap){
-			super(new RascalScriptInterpreter(), "Rascal", ReadEvalPrintDialogMessages.PROMPT, ReadEvalPrintDialogMessages.CONTINUE_PROMPT);
-			
-			this.debugHandler = null;
-			
-			getRascalInterpreter().setEventTrigger(eventTrigger);
-			
-			Evaluator evaluator = new Evaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap);
-			evaluator.setEventTrigger(eventTrigger);
-			
-			getInterpreter().initialize(evaluator);
-			initializeConsole();
+		@Deprecated
+		public InteractiveRascalConsole(ModuleEnvironment shell, GlobalEnvironment heap, String consoleTitle, boolean isDebug){
+			this(new RascalScriptInterpreter(), shell, heap, consoleTitle, isDebug);
+		}
+
+		@Deprecated
+		public InteractiveRascalConsole(IProject project, ModuleEnvironment shell, GlobalEnvironment heap, String consoleTitle, boolean isDebug){
+			this(new RascalScriptInterpreter(project), shell, heap, consoleTitle, isDebug);
 		}
 		
 		/* 
@@ -152,68 +148,34 @@ public class ConsoleFactory{
 		 * used to initialize the path with modules accessible 
 		 * from the selected project and all its referenced projects
 		 * */
-		// TODO: unify all four constructors		
-		public InteractiveRascalConsole(IProject project, ModuleEnvironment shell, GlobalEnvironment heap){
-			super(new RascalScriptInterpreter(project), "Rascal ["+project.getName()+"]", ReadEvalPrintDialogMessages.PROMPT, ReadEvalPrintDialogMessages.CONTINUE_PROMPT);
-			
-			this.debugHandler = null;
+		public InteractiveRascalConsole(IInterpreter interpreter, ModuleEnvironment shell, GlobalEnvironment heap, String consoleTitle, boolean isDebug){
+			super(interpreter, consoleTitle, ReadEvalPrintDialogMessages.PROMPT, ReadEvalPrintDialogMessages.CONTINUE_PROMPT);
 			
 			getRascalInterpreter().setEventTrigger(eventTrigger);
 			
 			Evaluator evaluator = new Evaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap);
 			evaluator.setEventTrigger(eventTrigger);
+
+			if (isDebug) {
+				this.debugHandler = new DebugHandler();
+				this.debugHandler.setEventTrigger(eventTrigger);
+				// add termination action to debugging handler
+				this.debugHandler.setTerminateAction(new Runnable() {
+					@Override
+					public void run() {
+						terminate();
+					}
+				});			
+
+				// attach the debugging handler to the evaluator
+				evaluator.addSuspendTriggerListener(debugHandler);			
+			} else {
+				this.debugHandler = null;
+			}			
 			
 			getInterpreter().initialize(evaluator);
 			initializeConsole();
-		}
-
-		// TODO: unify all four constructors
-		public InteractiveRascalConsole(ModuleEnvironment shell, GlobalEnvironment heap, boolean debugDummy){
-			super(new RascalScriptInterpreter(), "Rascal [DEBUG]", ReadEvalPrintDialogMessages.PROMPT, ReadEvalPrintDialogMessages.CONTINUE_PROMPT);
-
-			this.debugHandler = new DebugHandler();
-			this.debugHandler.setEventTrigger(eventTrigger);
-			// add termination action to debugging handler
-			this.debugHandler.setTerminateAction(new Runnable() {
-				@Override
-				public void run() {
-					terminate();
-				}
-			});			
-
-			getRascalInterpreter().setEventTrigger(eventTrigger);
-			
-			Evaluator evaluator = new Evaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap);
-			evaluator.setEventTrigger(eventTrigger);
-			evaluator.addSuspendTriggerListener(debugHandler);
-						
-			getInterpreter().initialize(evaluator);
-			initializeConsole();
-		}
-		
-		// TODO: unify all four constructors
-		public InteractiveRascalConsole(IProject project, ModuleEnvironment shell, GlobalEnvironment heap, boolean debugDummy){
-			super(new RascalScriptInterpreter(project), "Rascal [DEBUG, "+project.getName()+"]", ReadEvalPrintDialogMessages.PROMPT, ReadEvalPrintDialogMessages.CONTINUE_PROMPT);
-			
-			this.debugHandler = new DebugHandler();
-			this.debugHandler.setEventTrigger(eventTrigger);
-			// add termination action to debugging handler
-			this.debugHandler.setTerminateAction(new Runnable() {
-				@Override
-				public void run() {
-					terminate();
-				}
-			});			
-
-			getRascalInterpreter().setEventTrigger(eventTrigger);			
-			
-			Evaluator evaluator = new Evaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap);
-			evaluator.setEventTrigger(eventTrigger);
-			evaluator.addSuspendTriggerListener(debugHandler);
-			
-			getInterpreter().initialize(evaluator);
-			initializeConsole();
-		}
+		}		
 		
 		@Override
 		public RascalScriptInterpreter getRascalInterpreter(){
