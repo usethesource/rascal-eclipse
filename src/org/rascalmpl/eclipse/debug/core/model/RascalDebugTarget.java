@@ -34,9 +34,9 @@ import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoi
 import org.rascalmpl.eclipse.debug.uri.NoneURITransformer;
 import org.rascalmpl.eclipse.debug.uri.StandardLibraryToProjectURITransformer;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.InterpreterEvent;
-import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.interpreter.debug.IDebugMessage;
 import org.rascalmpl.interpreter.debug.IDebugSupport;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -358,8 +358,8 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		return console;
 	}
 
-	public DebuggableEvaluator getEvaluator() {
-		return getInterpreter() != null ? (DebuggableEvaluator) getInterpreter().getEval() : null;
+	public IEvaluator<?> getEvaluator() {
+		return getInterpreter() != null ? getInterpreter().getEval() : null;
 	}
 
 	public RascalScriptInterpreter getInterpreter() {

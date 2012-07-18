@@ -36,7 +36,6 @@ import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.debug.DebugHandler;
-import org.rascalmpl.interpreter.debug.DebuggableEvaluator;
 import org.rascalmpl.interpreter.debug.IDebugHandler;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -184,7 +183,7 @@ public class ConsoleFactory{
 
 			getRascalInterpreter().setEventTrigger(eventTrigger);
 			
-			DebuggableEvaluator evaluator = new DebuggableEvaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap);
+			Evaluator evaluator = new Evaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap);
 			evaluator.setEventTrigger(eventTrigger);
 			evaluator.addSuspendTriggerListener(debugHandler);
 						
@@ -208,7 +207,7 @@ public class ConsoleFactory{
 
 			getRascalInterpreter().setEventTrigger(eventTrigger);			
 			
-			DebuggableEvaluator evaluator = new DebuggableEvaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap);
+			Evaluator evaluator = new Evaluator(vf, getErrorWriter(), getStandardWriter(), shell, heap);
 			evaluator.setEventTrigger(eventTrigger);
 			evaluator.addSuspendTriggerListener(debugHandler);
 			

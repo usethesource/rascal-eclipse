@@ -19,7 +19,7 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -95,7 +95,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IValueModification#setValue(java.lang.String)
 	 */
 	public void setValue(String expression) throws DebugException {
-		Evaluator eval = getRascalDebugTarget().getEvaluator();
+		IEvaluator<?> eval = getRascalDebugTarget().getEvaluator();
 		synchronized(eval){
 			//evaluate
 			value = eval.eval(null, expression, URI.create("debug:///"));

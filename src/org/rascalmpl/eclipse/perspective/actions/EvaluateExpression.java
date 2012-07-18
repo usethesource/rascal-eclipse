@@ -37,7 +37,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugElement;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 
 
@@ -131,7 +131,7 @@ public class EvaluateExpression extends AbstractHandler implements IEditorAction
 		}
 
 		//evaluate
-		Evaluator eval = target.getEvaluator();
+		IEvaluator<?> eval = target.getEvaluator();
 		synchronized(eval){
 			Result<org.eclipse.imp.pdb.facts.IValue> value = eval.eval(null, expr, URI.create("debug:///"));
 	
