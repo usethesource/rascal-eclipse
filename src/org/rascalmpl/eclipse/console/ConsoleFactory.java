@@ -45,7 +45,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.*;
 
-public class ConsoleFactory{
+public final class ConsoleFactory{
 	public final static String INTERACTIVE_CONSOLE_ID = InteractiveInterpreterConsole.class.getName();
 	private final static String SHELL_MODULE = "$shell$";
 
