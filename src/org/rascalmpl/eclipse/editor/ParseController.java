@@ -20,6 +20,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -104,6 +105,9 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 
 	@Override
 	public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {
+		Assert.isTrue(filePath.isAbsolute() && project == null
+				|| !filePath.isAbsolute() && project != null);
+		
 		this.path = filePath;
 		this.handler = handler;
 		this.project = project;
@@ -169,7 +173,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			RascalMonitor rm = new RascalMonitor(monitor);
 			rm.startJob("parsing", 500);
 			parseTree = null;
-			if (input == null || path == null) {
+			if (input == null || path == null || (path != null && !path.isAbsolute() && project == null)) {
 				// may happen when project is deleted before Eclipse was started
 				return null;
 			}
