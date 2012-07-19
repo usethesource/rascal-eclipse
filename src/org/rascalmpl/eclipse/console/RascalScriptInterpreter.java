@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.console;
 
@@ -146,6 +147,14 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 
 	private void updateConsoleStream(IInterpreterConsole console) {
 		final OutputStream target = console.getConsoleOutputStream();
+		
+		StringBuffer consoleStreamPipeName = new StringBuffer("Rascal console output syncer");
+		if (this.project != null) { 
+			consoleStreamPipeName.append(" [");
+			consoleStreamPipeName.append(this.project.getName());
+			consoleStreamPipeName.append("]");
+		}
+		
 		consoleStreamPipe = new TimedBufferedPipe(50, new PausableOutput() {
 			@Override
 			public boolean isPaused() {
@@ -156,7 +165,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			public void output(byte[] b) throws IOException {
 				target.write(b);
 			}
-		}, "Rascal console output syncer ["+ this.project.getName() +"]");
+		}, consoleStreamPipeName.toString());
 		ConcurrentCircularOutputStream fasterStream = new ConcurrentCircularOutputStream(4*1024*1024, consoleStreamPipe);
 		consoleStreamPipe.initializeWithStream(fasterStream);
 		try {

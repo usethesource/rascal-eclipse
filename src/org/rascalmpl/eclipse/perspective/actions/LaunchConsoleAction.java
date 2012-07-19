@@ -71,15 +71,16 @@ public class LaunchConsoleAction extends Action implements IObjectActionDelegate
 	@Override
 	public void run() {
 		/*
-		 * TODO: Currently only launching consoles for projects files is
-		 * supported, because the console implementation and other parts of the
+		 * NOTE: The console implementation and other parts of the
 		 * Rascal Eclipse UI are implemented to depend on project specific
-		 * information. This has to be resolved in order to also allow launching
+		 * information. This has to be resolved in order to safely allow launching
 		 * consoles for files outside projects (e.g. a Rascal file opened with
 		 * "File -> Open File ...").
 		 */
 		if (project != null) {
 			ConsoleFactory.getInstance().openRunConsole(project);
+		} else {
+			ConsoleFactory.getInstance().openRunConsole();			
 		}
 	}
 
