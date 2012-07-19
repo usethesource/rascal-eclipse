@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.perspective.actions;
 
@@ -69,7 +70,17 @@ public class LaunchConsoleAction extends Action implements IObjectActionDelegate
 	
 	@Override
 	public void run() {
-		ConsoleFactory.getInstance().openRunConsole(project);
+		/*
+		 * TODO: Currently only launching consoles for projects files is
+		 * supported, because the console implementation and other parts of the
+		 * Rascal Eclipse UI are implemented to depend on project specific
+		 * information. This has to be resolved in order to also allow launching
+		 * consoles for files outside projects (e.g. a Rascal file opened with
+		 * "File -> Open File ...").
+		 */
+		if (project != null) {
+			ConsoleFactory.getInstance().openRunConsole(project);
+		}
 	}
 
 	public void selectionChanged(IAction action, ISelection selection) {
