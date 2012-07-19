@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,10 +12,12 @@
  *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IPath;
@@ -44,6 +46,8 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.uri.BadURIException;
+import org.rascalmpl.uri.FileURIResolver;
 
 public class ParseController implements IParseController, IMessageHandlerProvider {
 	private IMessageHandler handler;
@@ -98,14 +102,40 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		return parseTree != null ? new TokenIterator(false, parseTree) : null;
 	}
 
+	@Override
 	public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {
 		this.path = filePath;
 		this.handler = handler;
 		this.project = project;
-		this.job = new ParseJob("Rascal parser", ProjectURIResolver.constructProjectURI(project, path), handler);
-		this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(project.getRawProject());
+
+		URI location = null;
+		
+		if (project != null) {
+			location = ProjectURIResolver.constructProjectURI(project, path);
+			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(project.getRawProject());
+		} else {
+			location = constructFileURI(path.toOSString());
+			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(null);
+		}
+
+		this.job = new ParseJob("Rascal parser", location, handler);
 	}
 
+	/**
+	 * Utility function to create a URI from an absolute path.
+	 * TODO: create URI builder or move to {@link FileURIResolver}.
+	 * 
+	 * @param path a platform-dependent string representation of this path
+	 * @return a file schema URI
+	 */
+	private static URI constructFileURI(String path) {
+		try{
+			return new URI("file", null, path, null);
+		}catch(URISyntaxException usex){
+			throw new BadURIException(usex);
+		}
+	}	
+	
 	public IDocument getDocument() {
 		return document;
 	}
@@ -139,7 +169,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			RascalMonitor rm = new RascalMonitor(monitor);
 			rm.startJob("parsing", 500);
 			parseTree = null;
-			if (input == null || project == null || path == null) {
+			if (input == null || path == null) {
 				// may happen when project is deleted before Eclipse was started
 				return null;
 			}
