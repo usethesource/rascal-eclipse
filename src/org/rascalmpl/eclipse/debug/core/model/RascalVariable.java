@@ -13,13 +13,9 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
-import java.net.URI;
-
-import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
-import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 
@@ -30,7 +26,10 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 
 	// name & corresponding environment
 	private String name;
+	
+	@SuppressWarnings("unused")
 	private Environment environment;
+	
 	private Result<org.eclipse.imp.pdb.facts.IValue> value;
 
 	/**
@@ -95,16 +94,22 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IValueModification#setValue(java.lang.String)
 	 */
 	public void setValue(String expression) throws DebugException {
-		IEvaluator<?> eval = getRascalDebugTarget().getEvaluator();
-		synchronized(eval){
-			//evaluate
-			value = eval.eval(null, expression, URI.create("debug:///"));
-	
-			//store the result in its environment
-			environment.storeVariable(name, value);
-	
-			fireChangeEvent(DebugEvent.CONTENT);
-		}
+		/*
+		 * 2012-07-19: Disabling value modification, because it leads to a
+		 * deadlock. No evaluator lock can be aquired here in the UI thread,
+		 * because it's already locked at the moment of suspension.
+		 */
+		
+//		IEvaluator<?> eval = getRascalDebugTarget().getEvaluator();
+//		synchronized(eval){
+//			//evaluate
+//			value = eval.eval(null, expression, URI.create("debug:///"));
+//	
+//			//store the result in its environment
+//			environment.storeVariable(name, value);
+//	
+//			fireChangeEvent(DebugEvent.CONTENT);
+//		}
 	}
 
 	/* (non-Javadoc)
@@ -118,7 +123,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IValueModification#supportsValueModification()
 	 */
 	public boolean supportsValueModification() {
-		return true;
+		return false;
 	}
 
 	/* (non-Javadoc)
@@ -134,9 +139,5 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	public boolean verifyValue(IValue value) throws DebugException {
 		return false;
 	}
-
-//	public boolean isRelation() {
-//		return value.getType().isRelationType() && value.getType().getArity() == 2;
-//	}
 		
 }

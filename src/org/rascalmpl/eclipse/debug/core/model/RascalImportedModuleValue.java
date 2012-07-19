@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.eclipse.debug.core.DebugException;
@@ -27,7 +28,6 @@ public class RascalImportedModuleValue extends RascalDebugElement implements IVa
 	private ModuleEnvironment module;
 	private RascalStackFrame frame;
 
-	// TODO: replace target by stack frame
 	public RascalImportedModuleValue(RascalStackFrame frame, RascalDebugTarget target,
 			ModuleEnvironment value) {
 		super(frame.getDebugTarget());
@@ -55,13 +55,14 @@ public class RascalImportedModuleValue extends RascalDebugElement implements IVa
 	 */
 	public IVariable[] getVariables() throws DebugException {
 		Map<String, Result<org.eclipse.imp.pdb.facts.IValue>> vars = module.getVariables();
-		IVariable[] varmodels = new RascalVariable[vars.size()];
-		int i = 0;
+		
+		ArrayList<RascalVariable> variables = new ArrayList<RascalVariable>(vars.size());
+		
 		for (String var: vars.keySet()) {
-			varmodels[i] = new RascalVariable(frame, var, module);
-			i++;
-		}
-		return varmodels;
+			variables.add(new RascalVariable(frame, var, module));
+		}		
+		
+		return variables.toArray(new IVariable[] {});
 	}
 
 	/* (non-Javadoc)

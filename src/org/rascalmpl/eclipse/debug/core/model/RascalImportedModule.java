@@ -77,7 +77,7 @@ public class RascalImportedModule extends RascalDebugElement implements IVariabl
 	 * @see org.eclipse.debug.core.model.IValueModification#setValue(org.eclipse.debug.core.model.IValue)
 	 */
 	public void setValue(IValue value) throws DebugException {
-		//TODO
+		// not available
 	}
 	
 	/* (non-Javadoc)

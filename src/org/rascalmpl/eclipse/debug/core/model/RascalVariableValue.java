@@ -26,7 +26,6 @@ public class RascalVariableValue extends RascalDebugElement implements IValue {
 	private RascalDebugTarget target;
 	private Result<org.eclipse.imp.pdb.facts.IValue> value;
 
-	// TODO: replace target by stack frame
 	public RascalVariableValue(RascalDebugTarget target,
 			Result<org.eclipse.imp.pdb.facts.IValue> value) {
 		super(target);
@@ -58,7 +57,6 @@ public class RascalVariableValue extends RascalDebugElement implements IValue {
 	 * @see org.eclipse.debug.core.model.IValue#getVariables()
 	 */
 	public IVariable[] getVariables() throws DebugException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -66,7 +64,6 @@ public class RascalVariableValue extends RascalDebugElement implements IValue {
 	 * @see org.eclipse.debug.core.model.IValue#hasVariables()
 	 */
 	public boolean hasVariables() throws DebugException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -74,7 +71,6 @@ public class RascalVariableValue extends RascalDebugElement implements IValue {
 	 * @see org.eclipse.debug.core.model.IValue#isAllocated()
 	 */
 	public boolean isAllocated() throws DebugException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
