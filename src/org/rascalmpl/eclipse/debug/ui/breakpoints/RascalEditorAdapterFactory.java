@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.ui.breakpoints;
 
@@ -20,6 +21,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 public class RascalEditorAdapterFactory implements IAdapterFactory {
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (adaptableObject instanceof UniversalEditor) {
 			ITextEditor editorPart = (ITextEditor) adaptableObject;
@@ -36,6 +38,7 @@ public class RascalEditorAdapterFactory implements IAdapterFactory {
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Class[] getAdapterList() {
 		return new Class[]{IToggleBreakpointsTarget.class};
 	}
