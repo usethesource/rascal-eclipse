@@ -19,17 +19,6 @@
       </persistent>
    </extension>
    <extension
-         id="rascal.markerType.expressionBreakpoint"
-         name="Expression Breakpoint"
-         point="org.eclipse.core.resources.markers">
-      <persistent
-            value="true">
-      </persistent>
-      <super
-            type="org.eclipse.debug.core.lineBreakpointMarker">
-      </super>
-   </extension>
-   <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
             adaptableType="org.rascalmpl.eclipse.editor.RascalEditor"
@@ -329,11 +318,6 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="org.rascalmpl.eclipse.debug.ui.breakpoints.RascalExpressionBreakpointAdapter"
-            id="rascal-eclipse.AddExprBreakpoint"
-            name="Add Expression Breakpoint">
-      </command>
-      <command
             defaultHandler="org.rascalmpl.eclipse.perspective.actions.EvaluateExpression"
             id="rascal-eclipse.EvalExpression"
             name="Evaluate Expression">
@@ -407,12 +391,6 @@
             id="rascal.sourceLocationBreakpoint"
             markerType="rascal.markerType.sourceLocationBreakpoint"
             name="Rascal Source Location Breakpoint">
-      </breakpoint>
-      <breakpoint
-            class="org.rascalmpl.eclipse.debug.core.breakpoints.RascalExpressionBreakpoint"
-            id="rascal-eclipse.exprbreakpoint"
-            markerType="rascal.markerType.expressionBreakpoint"
-            name="Expression Breakpoint">
       </breakpoint>
    </extension>
    <extension
