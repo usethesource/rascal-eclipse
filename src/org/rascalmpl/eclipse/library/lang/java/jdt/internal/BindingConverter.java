@@ -363,104 +363,8 @@ public class BindingConverter extends ASTVisitor {
 			}
 		}
 
-		if (pb != null) {
-			// class, interface or enum
-
-			if (tb.isClass()) {
-				if (tb.isGenericType()) {
-					/*
-					 *  The assignment below ensures type parameters, 
-					 *  required, e.g., in case of static imports of generic types
-					 */
-					tb = tb.getTypeDeclaration();
-					IValue params = importTypeBindings(tb.getTypeParameters());
-					lw.append(VF.constructor(CONS_GENERIC_CLASS, VF.string(tb
-							.getName()), params));
-				} else if (tb.isParameterizedType()) {
-					IValue params = importTypeBindings(tb.getTypeArguments());
-					lw.append(VF.constructor(CONS_GENERIC_CLASS, VF
-							/*
-							 *  Type arguments are not part of a name
-							 */
-							.string(tb.getErasure().getName()), params));
-				} else if (tb.isAnonymous()) {
-					lw.append(VF.constructor(CONS_ANONYMOUS_CLASS, VF
-							.integer(anonymousClassCounter++)));
-				} else { // regular class
-					lw.append(VF.constructor(CONS_CLASS, VF
-							.string(tb.getName())));
-				}
-			} else if (tb.isInterface()) {
-				if (tb.isGenericType()) {
-					/*
-					 *  The assignment below ensures type parameters, 
-					 *  required, e.g., in case of static imports of generic types
-					 */ 
-					tb = tb.getTypeDeclaration();
-					IValue params = importTypeBindings(tb.getTypeParameters());
-					lw.append(VF.constructor(CONS_GENERIC_INTERFACE, VF
-							.string(tb.getName()), params));
-				} else if (tb.isParameterizedType()) {
-					IValue params = importTypeBindings(tb.getTypeArguments());
-					lw.append(VF.constructor(CONS_GENERIC_INTERFACE, VF
-							/*
-							 *  Type arguments are not part of a name
-							 */
-							.string(tb.getErasure().getName()), params));
-				} else { // regular interface
-					lw.append(VF.constructor(CONS_INTERFACE, VF.string(tb
-							.getName())));
-				}
-			} else if (tb.isEnum()) {
-				// TBD tb.getName() can be "", when it should refer to the enum
-				// constant name
-
-				lw.append(VF.constructor(CONS_ENUM, VF.string(tb.getName())));
-			} else {
-				// TBD: unknown type?
-			}
-		} else {
-			// primitive type, array type, null type, type variable, wildcard
-			// type or capture binding
-
-			if (tb.isArray()) {
-				IValue arrayType = createEntity(getIds(tb.getElementType()));
-				lw.append(VF.constructor(CONS_ARRAY, arrayType));
-			} else
-
-			if (tb.isPrimitive() || tb.isNullType()) {
-				IValue pt = primitiveTypes.get(tb.getName());
-				if (pt != null) {
-					lw.append(VF.constructor(CONS_PRIMITIVE, pt));
-				} // TBD: else ?
-			} else
-
-			if (tb.isTypeVariable()) {
-				lw.append(VF.constructor(CONS_TYPE_PARAMETER, VF.string(tb
-						.getName())));
-			} else
-
-			if (tb.isWildcardType()) {
-				ITypeBinding bound = tb.getBound();
-				if (bound == null) {
-					lw.append(VF.constructor(CONS_WILDCARD));
-				} else {
-					IValue bnd = VF.constructor(
-							tb.isUpperbound() ? CONS_EXTENDS : CONS_SUPER,
-							createEntity(getIds(bound)));
-					lw.append(VF.constructor(CONS_WILDCARD_BOUND, bnd));
-				}
-			} else
-
-			if (tb.isCapture()) {
-				/*
-				 * Captures have declaring classes and no declaring methods
-				 */
-				lw.append(VF.constructor(CONS_CAPTURE, getEntity(tb.getWildcard())));
-			} else {
-				// TBD: unkown type?
-			}
-		}
+		IValue id = getId(tb);
+		if(id != null) lw.append(id);
 
 		return prefix.concat(lw.done());
 	}
@@ -490,18 +394,7 @@ public class BindingConverter extends ASTVisitor {
 		IList prefix = getIds(mb.getDeclaringClass());
 		IListWriter lw = VF.listWriter(ADT_ID);
 
-		IList params = importTypeBindings(mb.getParameterTypes());
-		IValue returnType = createEntity(getIds(mb.getReturnType()));
-
-		// TBD: mb.isVarargs() ?
-		// TBD: check generic and parameterized?
-
-		if (mb.isConstructor()) {
-			lw.append(VF.constructor(CONS_CONSTRUCTOR, params));
-		} else {
-			lw.append(VF.constructor(CONS_METHOD, VF.string(mb.getName()),
-					params, returnType));
-		}
+		lw.append(getId(mb));
 
 		return prefix.concat(lw.done());
 	}
@@ -544,20 +437,7 @@ public class BindingConverter extends ASTVisitor {
 			}
 		}
 
-		if (vb.isEnumConstant()) {
-			lw.append(VF.constructor(CONS_ENUM_CONSTANT, VF
-					.string(vb.getName())));
-		} else if (vb.isField()) {
-			// fields also include enum constants,
-			// so they should be handled first
-			lw.append(VF.constructor(CONS_FIELD, VF.string(vb.getName())));
-		} else if (vb.isParameter()) {
-			lw.append(VF.constructor(CONS_PARAMETER, VF.string(vb.getName())));
-		} else {
-			// local variable
-			lw.append(VF.constructor(CONS_VARIABLE, VF.string(vb.getName()), VF
-					.integer(vb.getVariableId())));
-		}
+		lw.append(getId(vb));
 
 		return prefix.concat(lw.done());
 	}
@@ -576,6 +456,125 @@ public class BindingConverter extends ASTVisitor {
 		}
 
 		return l;
+	}
+	
+	public IValue getId(IMethodBinding mb) {
+		IList params = importTypeBindings(mb.getParameterTypes());
+		IValue returnType = createEntity(getIds(mb.getReturnType()));
+
+		// TBD: mb.isVarargs() ?
+		// TBD: check generic and parameterized?
+		
+		if (mb.isConstructor()) {
+				return VF.constructor(CONS_CONSTRUCTOR, params);
+		} else {
+				return VF.constructor(CONS_METHOD, VF.string(mb.getName()), params, returnType);
+		}
+	}
+	
+	public IValue getId(ITypeBinding tb) {
+		if (tb.getPackage() != null) {
+			// class, interface or enum
+
+			if (tb.isClass()) {
+				if (tb.isGenericType()) {
+					/*
+					 *  The assignment below ensures type parameters, 
+					 *  required, e.g., in case of static imports of generic types
+					 */
+					tb = tb.getTypeDeclaration();
+					IValue params = importTypeBindings(tb.getTypeParameters());
+					return VF.constructor(CONS_GENERIC_CLASS, VF.string(tb.getName()), params);
+				} else if (tb.isParameterizedType()) {
+					IValue params = importTypeBindings(tb.getTypeArguments());
+					return VF.constructor(CONS_GENERIC_CLASS, VF
+							/*
+							 *  Type arguments are not part of a name
+							 */
+							.string(tb.getErasure().getName()), params);
+				} else if (tb.isAnonymous()) {
+					return VF.constructor(CONS_ANONYMOUS_CLASS, VF.integer(anonymousClassCounter++));
+				} else { // regular class
+					return VF.constructor(CONS_CLASS, VF.string(tb.getName()));
+				}
+			} else if (tb.isInterface()) {
+				if (tb.isGenericType()) {
+					/*
+					 *  The assignment below ensures type parameters, 
+					 *  required, e.g., in case of static imports of generic types
+					 */ 
+					tb = tb.getTypeDeclaration();
+					IValue params = importTypeBindings(tb.getTypeParameters());
+					return VF.constructor(CONS_GENERIC_INTERFACE, VF.string(tb.getName()), params);
+				} else if (tb.isParameterizedType()) {
+					IValue params = importTypeBindings(tb.getTypeArguments());
+					return VF.constructor(CONS_GENERIC_INTERFACE, VF
+							/*
+							 *  Type arguments are not part of a name
+							 */
+							.string(tb.getErasure().getName()), params);
+				} else { // regular interface
+					return VF.constructor(CONS_INTERFACE, VF.string(tb.getName()));
+				}
+			} else if (tb.isEnum()) {
+				// TBD tb.getName() can be "", when it should refer to the enum
+				// constant name
+
+				return VF.constructor(CONS_ENUM, VF.string(tb.getName()));
+			} else {
+				// TBD: unknown type?
+				return null;
+			}
+		} else {
+			// primitive type, array type, null type, type variable, wildcard
+			// type or capture binding
+
+			if (tb.isArray()) {
+				IValue arrayType = createEntity(getIds(tb.getElementType()));
+				return VF.constructor(CONS_ARRAY, arrayType);
+			} else if (tb.isPrimitive() || tb.isNullType()) {
+				IValue pt = primitiveTypes.get(tb.getName());
+				if (pt != null) {
+					return VF.constructor(CONS_PRIMITIVE, pt);
+				} // TBD: else ?
+				return null;
+			} else if (tb.isTypeVariable()) {
+				return VF.constructor(CONS_TYPE_PARAMETER, VF.string(tb.getName()));
+			} else if (tb.isWildcardType()) {
+				ITypeBinding bound = tb.getBound();
+				if (bound == null) {
+					return VF.constructor(CONS_WILDCARD);
+				} else {
+					IValue bnd = VF.constructor(
+							tb.isUpperbound() ? CONS_EXTENDS : CONS_SUPER,
+							createEntity(getIds(bound)));
+					return VF.constructor(CONS_WILDCARD_BOUND, bnd);
+				}
+			} else if (tb.isCapture()) {
+				/*
+				 * Captures have declaring classes and no declaring methods
+				 */
+				return VF.constructor(CONS_CAPTURE, getEntity(tb.getWildcard()));
+			} else {
+				// TBD: unkown type?
+				return null;
+			}
+		}
+	}
+	
+	public IValue getId(IVariableBinding vb) {
+		if (vb.isEnumConstant()) {
+			return VF.constructor(CONS_ENUM_CONSTANT, VF.string(vb.getName()));
+		} else if (vb.isField()) {
+			// fields also include enum constants,
+			// so they should be handled first
+			return VF.constructor(CONS_FIELD, VF.string(vb.getName()));
+		} else if (vb.isParameter()) {
+			return VF.constructor(CONS_PARAMETER, VF.string(vb.getName()));
+		} else {
+			// local variable
+			return VF.constructor(CONS_VARIABLE, VF.string(vb.getName()), VF.integer(vb.getVariableId()));
+		}
 	}
 
 }

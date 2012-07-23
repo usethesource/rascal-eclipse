@@ -64,7 +64,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		this.bindingsImporter = new BindingsImporter(this.bindingConverter, this.values);
 	}
 	
-	public JdtAstToRascalAstConverter(final IValueFactory values, final TypeStore typeStore, final BindingConverter bindingConverter, BindingsImporter bindingsImporter) {
+	public JdtAstToRascalAstConverter(final IValueFactory values, final TypeStore typeStore, final BindingConverter bindingConverter, final BindingsImporter bindingsImporter) {
 		this.values = values;
 		this.typeStore = typeStore;
 		this.bindingConverter = bindingConverter;
@@ -72,7 +72,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		this.bindingsImporter = bindingsImporter;
 	}
 	
-	protected JdtAstToRascalAstConverter getInstance() {
+	public JdtAstToRascalAstConverter getInstance() {
 		/* 
 		 * Create an instance and passes the bindingsResolver object to it
 		 */
