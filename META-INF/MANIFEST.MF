@@ -8,7 +8,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: rascal-eclipse.jar,
  .,
  src
-Require-Bundle: rascal;bundle-version="0.3.2",
+Require-Bundle: rascal,
  org.eclipse.core.runtime,
  org.eclipse.debug.ui,
  org.eclipse.imp.pdb.ui;bundle-version="0.2.4",
