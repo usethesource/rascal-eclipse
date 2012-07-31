@@ -116,15 +116,17 @@ public class Activator extends PluginBase {
 		List<String> errors = new LinkedList<String>();
 	
 		if (project != null && project.getName().contains(SPACE)) {
-			errors.add("Rascal projects may not contain spaces.\n\tPlease change the name");
+			errors.add("Rascal projects may not contain spaces: ["+project.getName()+"]\n\tPlease change the name");
 		}
 	
-		if (ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString().contains(SPACE)) {
-			errors.add("Workspace location may not contain spaces in its path.\n\tPlease move your workspace.");
+		String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
+		if (workspace.contains(SPACE)) {
+			errors.add("Workspace location may not contain spaces in its path: ["+workspace+"]\n\tPlease move your workspace.");
 		}
 		
-		if (System.getProperty("eclipse.home.location").contains(SPACE)) {
-			errors.add("Eclipse installation location may not contain spaces in its path.\n\tPlease move your eclipse installation.");
+		String home = System.getProperty("eclipse.home.location");
+		if (home.contains(SPACE)) {
+			errors.add("Eclipse installation location may not contain spaces in its path: [" + home + "]\n\tPlease move your eclipse installation.");
 		}
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
