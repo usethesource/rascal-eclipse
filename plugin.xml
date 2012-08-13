@@ -862,4 +862,13 @@
          value="true">
    </persistent>
 </extension>
+<extension
+      id="rascal_proposer"
+      name="rascal_proposer"
+      point="org.eclipse.imp.runtime.contentProposer">
+   <proposer
+         class="org.rascalmpl.eclipse.editor.proposer.ContentProposer"
+         language="Rascal">
+   </proposer>
+</extension>
 </plugin>
