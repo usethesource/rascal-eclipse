@@ -90,7 +90,7 @@ public class FoldingUpdater extends FolderBase {
 		IConstructor c = (IConstructor) arg;
 		ISourceLocation l = TreeAdapter.getLocation(c);
 		
-		if (l.getBeginLine() != l.getEndLine()) {
+		if (l != null && l.getBeginLine() != l.getEndLine()) {
 			super.makeAnnotation(arg, folded);
 		}
 	}

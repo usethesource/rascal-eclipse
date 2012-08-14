@@ -31,7 +31,7 @@ public class NodeLocator implements ISourcePositionLocator {
 	public Object findNode(Object ast, int offset) {
 		if (ast instanceof IConstructor) {
 			IConstructor cons = (IConstructor) ast;
-			if (cons.getType() == Factory.Tree) {
+			if (cons.getType() == Factory.Tree && TreeAdapter.getLocation(cons) != null) {
 				return TreeAdapter.locateLexical((IConstructor) ast, offset);
 			}
 		}
