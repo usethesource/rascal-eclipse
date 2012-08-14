@@ -38,14 +38,7 @@ public class FoldingUpdater extends FolderBase {
 		if (ast instanceof IConstructor) {
 			try {
 				((IConstructor) ast).accept(new TreeVisitor() {
-					@Override
 					public IConstructor visitTreeCycle(IConstructor arg)
-							throws VisitorException {
-						return null;
-					}
-					
-					@Override
-					public IConstructor visitTreeErrorCycle(IConstructor arg)
 							throws VisitorException {
 						return null;
 					}
@@ -83,18 +76,6 @@ public class FoldingUpdater extends FolderBase {
 					}
 					
 					public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
-						return null;
-					}
-					
-					public IConstructor visitTreeErrorAmb(IConstructor arg) throws VisitorException {
-						return null;
-					}
-					
-					public IConstructor visitTreeError(IConstructor arg) throws VisitorException{
-						return null;
-					}
-					
-					public IConstructor visitTreeExpected(IConstructor arg) throws VisitorException{
 						return null;
 					}
 				});

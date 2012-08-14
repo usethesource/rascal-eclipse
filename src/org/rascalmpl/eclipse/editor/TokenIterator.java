@@ -148,42 +148,5 @@ public class TokenIterator implements Iterator<Token>{
 		public IConstructor visitTreeCycle(IConstructor arg) throws VisitorException{
 			return arg;
 		}
-		
-		public IConstructor visitTreeErrorCycle(IConstructor arg) throws VisitorException{
-			return arg;
-		}
-		
-		public IConstructor visitTreeError(IConstructor arg) throws VisitorException{
-			String category = ProductionAdapter.getCategory(TreeAdapter.getProduction(arg));
-			
-			int offset = location;
-			
-			for (IValue child : TreeAdapter.getArgs(arg)){
-				child.accept(this);
-			}
-			
-			if (TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg)){
-				if (category == null){
-					category = TokenColorer.META_KEYWORD;
-					
-					for (IValue child : TreeAdapter.getArgs(arg)) {
-						int c = TreeAdapter.getCharacter((IConstructor) child);
-						if (c != '-' && !Character.isJavaIdentifierPart(c)){
-							category = null;
-						}
-					}
-				}
-			}
-
-			if (category != null) {
-				tokenList.add(new Token(category, offset, location - offset));
-			}
-
-			return arg;
-		}
-		
-		public IConstructor visitTreeExpected(IConstructor arg) throws VisitorException{
-			return arg;
-		}
 	}
 }
