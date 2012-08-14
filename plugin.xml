@@ -871,4 +871,13 @@
          language="Rascal">
    </proposer>
 </extension>
+<extension
+      id="terms_proposer"
+      name="terms_proposer"
+      point="org.eclipse.imp.runtime.contentProposer">
+   <proposer
+         class="org.rascalmpl.eclipse.terms.TermContentProposer"
+         language="Terms">
+   </proposer>
+</extension>
 </plugin>
