@@ -80,21 +80,6 @@ public class TokenIterator implements Iterator<Token>{
 			
 		}
 		
-		public IConstructor visitTreeErrorAmb(IConstructor arg) throws VisitorException{
-			if (showAmb) {
-				int offset = location;
-				ISourceLocation ambLoc = TreeAdapter.getLocation(arg);
-				int length = ambLoc != null ? ambLoc.getLength() : TreeAdapter.yield(arg).length();
-
-				location += length;
-				tokenList.add(new Token(TokenColorer.META_AMBIGUITY, offset, length));
-			}
-			else {
-				TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
-			}
-			return arg;
-		}
-		
 		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException{
 			IValue catAnno = arg.getAnnotation("category");
 			String category = null;
