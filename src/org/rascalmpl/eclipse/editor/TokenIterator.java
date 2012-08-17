@@ -11,8 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -30,7 +30,7 @@ public class TokenIterator implements Iterator<Token>{
 	private boolean showAmb;
 
 	public TokenIterator(boolean showAmb, IConstructor parseTree){
-		this.tokenList = new LinkedList<Token>();
+		this.tokenList = new ArrayList<Token>(1000);
 		this.showAmb = showAmb;
 		
 		if(parseTree != null){
@@ -84,7 +84,6 @@ public class TokenIterator implements Iterator<Token>{
 			IValue catAnno = arg.getAnnotation("category");
 			String category = null;
 			
-			
 			if (catAnno != null) {
 				category = ((IString) catAnno).getValue();
 			}
@@ -109,6 +108,10 @@ public class TokenIterator implements Iterator<Token>{
 						if (c != '-' && !Character.isJavaIdentifierPart(c)){
 							category = null;
 						}
+					}
+					
+					if (category == null) {
+						category = TokenColorer.NORMAL;
 					}
 				}
 			}
