@@ -93,6 +93,19 @@ public class TokenIterator implements Iterator<Token>{
 				category = ProductionAdapter.getCategory(prod);
 			}
 			
+			if (ProductionAdapter.isSkipped(prod)) {
+				category = TokenColorer.META_SKIPPED;
+			}
+			
+			// short cut, if we have source locations and a category we found a long token
+			ISourceLocation loc = TreeAdapter.getLocation(arg);
+			if (category != null && loc != null) {
+				tokenList.add(new Token(category, location, loc.getLength()));
+				location += loc.getLength();
+				return arg;
+			}
+			
+			// now we go down in the tree to find more tokens
 			int offset = location;
 			
 			for (IValue child : TreeAdapter.getArgs(arg)){
@@ -114,10 +127,6 @@ public class TokenIterator implements Iterator<Token>{
 						category = TokenColorer.NORMAL;
 					}
 				}
-			}
-			
-			if (ProductionAdapter.isSkipped(prod)) {
-				category = TokenColorer.META_SKIPPED;
 			}
 			
 			if (category != null) {
