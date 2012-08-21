@@ -7,7 +7,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public class Scope implements ISymbol {
 	private final ISymbol scopeSymbol;
-	private final List<ISymbol> symbols;
+	private final List<ISymbol> childSymbols;
 	private final ISourceLocation location;
 	private String label;
 
@@ -19,14 +19,14 @@ public class Scope implements ISymbol {
 		this.scopeSymbol = scopeSymbol;
 		this.location = scopeSymbol.getLocation();
 		label = scopeSymbol.getName();
-		symbols = new ArrayList<ISymbol>();
+		childSymbols = new ArrayList<ISymbol>();
 	}
 
 	public Scope(ISymbol scopeSymbol, ISourceLocation location) {
 		this.scopeSymbol = scopeSymbol;
 		this.label = scopeSymbol != null ? scopeSymbol.getName() : "";
 		this.location = location;
-		symbols = new ArrayList<ISymbol>();
+		childSymbols = new ArrayList<ISymbol>();
 	}
 
 	@Override
@@ -36,13 +36,13 @@ public class Scope implements ISymbol {
 
 	public void addSymbol(ISymbol symbol) {
 		if (symbol != null) {
-			symbols.add(symbol);
+			childSymbols.add(symbol);
 		}
 	}
 
 	public void addSymbols(java.util.List<ISymbol> symbols) {
 		if (symbols != null) {
-			this.symbols.addAll(symbols);
+			this.childSymbols.addAll(symbols);
 		}
 	}
 
@@ -65,7 +65,7 @@ public class Scope implements ISymbol {
 	}
 
 	public List<ISymbol> getSymbols() {
-		return symbols;
+		return childSymbols;
 	}
 
 	public String getType() {
@@ -79,7 +79,26 @@ public class Scope implements ISymbol {
 
 	@Override
 	public String toString() {
-		return scopeSymbol != null ? "Scope@" + scopeSymbol.getType() + "." + scopeSymbol.getName() : "Scope@?";
+		//scope(SymbolTree scopeSymbol, list[SymbolTree] children)
+		//scope(list[SymbolTree] children)
+		
+		String childListString = "";			
+		
+		if (childSymbols.size() > 0) {
+			for (ISymbol child : childSymbols) {
+				if (!childListString.isEmpty()) childListString += ", ";
+				childListString += child.toString();
+			}
+			childListString = "[" + childListString + "]";
+		}
+		
+		if (childListString.isEmpty()) childListString = "[]";
+		
+		if (scopeSymbol != null) {
+			return String.format("scope(%s, %s)", scopeSymbol.toString(), childListString);
+		}
+		
+		return String.format("scope(%s)", childListString);
 	}
 
 	@Override

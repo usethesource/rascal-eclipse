@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.editor.proposer;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
@@ -93,6 +94,26 @@ public class Symbol implements ISymbol {
 
 	@Override
 	public String toString() {
-		return "Symbol@" + type + "." + name;
+		// symbol(str name, str symbolType)
+		// symbol(str name, str symbolType, map[str, str] attributes)
+		
+		//TODO: Serialize location. Find way to add multiple annotations.
+		
+		String labelAnnotation = label.isEmpty() ? "" : "[@label=\"" + label + "\"]";
+		
+		if (attributes.size() > 0) {
+			Set<String> attributeKeys = attributes.keySet();
+			String attributeMapString = "";	
+			for (String key : attributeKeys) {
+				if (!attributeMapString.isEmpty()) attributeMapString += ", ";
+				attributeMapString += String.format("\"%s\" : \"%s\"", key, attributes.get(key)); 
+			}
+			
+			attributeMapString = "(" + attributeMapString + ")";
+			
+			return String.format("symbol(\"%s\", \"%s\", %s)%s", name, type, attributeMapString, labelAnnotation);
+		}
+		
+		return String.format("symbol(\"%s\", \"%s\")%s", name, type, labelAnnotation);
 	}
 }
