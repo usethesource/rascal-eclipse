@@ -76,6 +76,15 @@ public list[CompletionProposal] createProposalsFromLabels(SymbolTree tree) {
 	return proposals;
 }
 
+@doc {Create proposals from a list of symbols using their label annotations.}
+public list[CompletionProposal] createProposalsFromLabels(list[SymbolTree] tree) {
+	list[CompletionProposal] proposals = [];
+	for (SymbolTree symbol <- tree) {
+		proposals += createProposalsFromLabels(symbol);
+	}
+	return proposals;
+}
+
 @doc{Create proposals from the names of symbols within a symboltree. The proposal text will simply be the name of the symbol.}
 public list[CompletionProposal] createProposalsFromNames(SymbolTree tree) {
 	list[CompletionProposal] proposals = [];
