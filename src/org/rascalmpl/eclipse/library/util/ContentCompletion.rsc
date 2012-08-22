@@ -12,6 +12,7 @@ import String;
 import vis::Figure;
 import vis::Render;
 import List;
+import ParseTree;
 
 public str numeric 		= "0123456789";
 public str alphabetLow 	= "abcdefghijklmnopqrstuvwxyz";
@@ -95,6 +96,15 @@ public list[CompletionProposal] createDefaultProposals(SymbolTree tree) {
 	return proposals;
 }
 
+@doc{Create proposals in the form of "Name - SymbolType" as their proposal text.}
+public list[CompletionProposal] createDefaultProposals(list[SymbolTree] symbols) {
+	list[CompletionProposal] proposals = [];
+	for (SymbolTree symbol <- symbols) {
+		proposals += createDefaultProposals(symbol);
+	}
+	return proposals;
+}
+
 @doc{Removes the scopesymbol from a scope and replaces it with an anonymous scope.}
 public SymbolTree excludeScopeSymbol(scope(_, children)) = scope(children);
 
@@ -154,26 +164,106 @@ public SymbolTree filterScopeByPosition(SymbolTree tree, int offset) {
 	}
 }
 
+@doc {
+Synopsis: Filter a symboltree based on a type filter.
+
+Description:
+The symboltree will be filtered on type. An empty list of types will return the whole tree as-is.
+Scopes with scopesymbols will be excluded along with their children, even if those children are supposed to be included.
+}
+public SymbolTree filterScopeByType(scop : scope(SymbolTree scopeSymbol, _), list[str] types) {
+	if (isEmpty(types)) return scop;
+	
+	switch(scopeSymbol) {
+		case symbol(_, str symbolType): if (symbolType in types) {
+			scop.children = filterSymbolsByType(scop.children, types);
+			return scop;
+		}
+		case symbol(_, str symbolType, _): if (symbolType in types) {
+			scop.children = filterSymbolsByType(scop.children, types);
+			return scop;
+		}
+	}	
+	
+	return scope([]);
+}
+
+@doc {Filter anonymous scopes based on type. The children will be filtered.}
+public SymbolTree filterScopeByType(scop : scope(list[SymbolTree] children), list[str] types) {
+	if (isEmpty(types)) return scop;
+	
+	scop.children = filterSymbolsByType(scop.children, types);
+	return scop;
+}
+
+@doc {Filter a list of symbols based on type. Scopes will be filtered using filterScopeByType.}
+public list[SymbolTree] filterSymbolsByType(list[SymbolTree] symbols, list[str] types) {	
+	if (isEmpty(types)) return symbols;
+	
+	list[SymbolTree] filteredSymbols = [];
+	for (SymbolTree symbol <- symbols) {
+		switch(symbol) {
+			case symbol(_, str symbolType): if (symbolType in types) filteredSymbols += symbol;
+			case symbol(_, str symbolType, _): if (symbolType in types) filteredSymbols += symbol;
+			case scop : scope(_): filteredSymbols += filterScopeByType(scop, types);
+			case scop : scope(_,_): filteredSymbols += filterScopeByType(scop, types);
+			default: filteredSymbols += symbol;
+		}
+	}	
+	return filteredSymbols;
+}
+
+@doc {Traverses a symboltree and flattens it into a list, removing all scopes.}
+public list[SymbolTree] flattenTree(SymbolTree tree) {
+	list[SymbolTree] symbols = [];
+	
+	switch(tree) {
+		case s : symbol(_, _): symbols += s;
+		case s : symbol(_, _, _): symbols += s;
+		case s : scope(list[SymbolTree] children): {
+			for (SymbolTree sym <- children) {
+				symbols += flattenTree(sym);
+			}
+		}
+		case s : scope(SymbolTree scopeSymbol, list[SymbolTree] children): {
+			symbols += flattenTree(scopeSymbol);
+			for (SymbolTree sym <- children) {
+				symbols += flattenTree(sym);
+			}
+		}
+	}
+	
+	return symbols;
+}
+
 @doc {Check whether a symbol is within a given offset. Requires the @location annotation to be set.}
 public bool isWithin(SymbolTree symbol, int offset) {
+	return isWithin(symbol@location, offset);
+}
+
+@doc {Check whether a parsetree node is within a given offset.}
+public bool isWithin(Tree treeNode, int offset) {	
+	return isWithin(treeNode@\loc, offset);
+}
+
+@doc {Check whether a given offset is within a location's range}
+public bool isWithin(loc location, int offset) {
 	if (offset < 0) return false;
-		
-	loc location = symbol@location;
 	int begin = location.offset;
-	int end = location.offset + location.length;	
+	int end = begin + location.length;	
 	return begin <= offset && end > offset;
 }
 
 @doc {Visualizes a given SymbolTree}
 public void visualizeTree(SymbolTree symtree) {
-	render("Symbol Tree", createTreeVis(symtree));
+	render("Symbol Tree", createTreeFig(symtree));
 }
 
 @doc {Creates a renderable Figure of the given SymbolTree.}
-public Figure createTreeVis(SymbolTree symtree) {
+public Figure createTreeFig(SymbolTree symtree) {
 	switch(symtree) {
-		case scope(list[SymbolTree] children): return tree(box(text("Anonymous Scope")), [createTreeVis(sym) | sym <- children], std(gap(20)));
-		case scope(SymbolTree scopeSym, list[SymbolTree] children): return tree(createTreeVis(scopeSym), [createTreeVis(sym) | sym <- children], std(gap(20)));
+		case scope(list[SymbolTree] children): return tree(box(text("Anonymous Scope")), [createTreeFig(sym) | sym <- children], std(gap(20)));
+		case scope(SymbolTree scopeSym, list[SymbolTree] children): return tree(createTreeFig(scopeSym), [createTreeFig(sym) | sym <- children], std(gap(20)));
 		case symbol(str name, str \type, _): return box(text("<name> (<\type>)"));
 		case symbol(str name, str \type): return box(text("<name> (<\type>)"));
 		default: return box();
