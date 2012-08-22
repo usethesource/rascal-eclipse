@@ -58,7 +58,7 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	public static URI constructNonEncodedProjectURI(String project, IPath path){
 		try{
 			// making sure that spaces in 'path' are properly escaped
-			return new URI("project://"+project+"/"+path.toOSString());
+			return new URI("project://"+project+"/"+path.toString());
 		}catch(URISyntaxException usex){
 			throw new BadURIException(usex);
 		}
