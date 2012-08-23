@@ -13,11 +13,9 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.perspective.actions;
 
-import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -74,6 +72,7 @@ public class RunStaticChecker implements IEditorActionDelegate {
 		else {
 			file = workspaceRoot.getFile(path);
 		}
+		
 		
 		final IMessageHandler handler = new MarkerCreator(file);
 		
