@@ -13,14 +13,18 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.perspective.actions;
 
+import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.builder.MarkerCreator;
 import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -60,7 +64,16 @@ public class RunStaticChecker implements IEditorActionDelegate {
 
 	public void run(IAction action) {
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-		IFile file = workspaceRoot.getFile(editor.getParseController().getPath());
+		IPath path = editor.getParseController().getPath();
+		ISourceProject project = editor.getParseController().getProject();
+		IFile file;
+		
+		if (project != null) {
+			file = project.getRawProject().getFile(path);
+		}
+		else {
+			file = workspaceRoot.getFile(path);
+		}
 		
 		final IMessageHandler handler = new MarkerCreator(file);
 		
