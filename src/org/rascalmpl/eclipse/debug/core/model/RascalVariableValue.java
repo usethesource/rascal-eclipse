@@ -20,7 +20,7 @@ import org.rascalmpl.interpreter.result.Result;
 public class RascalVariableValue extends RascalValue implements IValue {
 	private Result<org.eclipse.imp.pdb.facts.IValue> value;
 
-	public RascalVariableValue(RascalDebugTarget target, String name,
+	public RascalVariableValue(RascalStackFrame target, String name,
 			Result<org.eclipse.imp.pdb.facts.IValue> value) {
 		super(target, name, value.getValue());
 		this.value = value;

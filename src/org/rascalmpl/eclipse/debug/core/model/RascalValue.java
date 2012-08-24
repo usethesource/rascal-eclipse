@@ -31,17 +31,17 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 
-public class RascalValue extends RascalDebugElement implements IValue, IVariable {
+public class RascalValue extends RascalDebugElement implements IValue {
 	
 	/* do not print more than MAX_VALUE_STRING characters */
 	private final static int MAX_VALUE_STRING = 1000;
-	private final RascalDebugTarget target;
+	private final RascalStackFrame target;
 	private final org.eclipse.imp.pdb.facts.IValue value;
 
 	private final String name;
 
-	public RascalValue(RascalDebugTarget target, String name, org.eclipse.imp.pdb.facts.IValue value) {
-		super(target);
+	public RascalValue(RascalStackFrame target, String name, org.eclipse.imp.pdb.facts.IValue value) {
+		super(target.getRascalDebugTarget());
 		this.name = name;
 		this.value = value;
 		this.target = target;
@@ -50,7 +50,8 @@ public class RascalValue extends RascalDebugElement implements IValue, IVariable
 	@Override
 	public boolean equals(Object arg0) {
 		if (arg0 instanceof RascalValue) {
-			return value.equals(((RascalValue) arg0).value);
+			RascalValue val = (RascalValue) arg0;
+			return value.equals(val.value) && name.equals(val.name);
 		}
 		return false;
 	}
@@ -112,7 +113,7 @@ public class RascalValue extends RascalDebugElement implements IValue, IVariable
 				IList list = (IList) value;
 				IVariable[] result = new IVariable[list.length()];
 				for (int i = 0; i < list.length(); i++) {
-					result[i] = new RascalValue(target, "[" + i + "]", list.get(i));
+					result[i] = new RascalVariable(target, "[" + i + "]", list.get(i));
 				}
 				return result;
 			}
@@ -123,7 +124,7 @@ public class RascalValue extends RascalDebugElement implements IValue, IVariable
 				IVariable[] result = new IVariable[map.size()];
 				int i = 0;
 				for (org.eclipse.imp.pdb.facts.IValue key : map) {
-					result[i++] = new RascalValue(target, key.toString(), map.get(key));
+					result[i++] = new RascalVariable(target, key.toString(), map.get(key));
 				}
 				return result;
 			}
@@ -149,7 +150,7 @@ public class RascalValue extends RascalDebugElement implements IValue, IVariable
 				IVariable[] result = new IVariable[set.size()];
 				int i = 0;
 				for (org.eclipse.imp.pdb.facts.IValue elem : set) {
-					result[i++] = new RascalValue(target, "[" + i + "]", elem);
+					result[i++] = new RascalVariable(target, "[" + i + "]", elem);
 				}
 				return result;
 			}
@@ -169,7 +170,7 @@ public class RascalValue extends RascalDebugElement implements IValue, IVariable
 				INode node = (INode) value;
 				IVariable[] result = new IVariable[node.arity()];
 				for (int i = 0; i < result.length; i++) {
-					result[i] = new RascalValue(target, "[" + i + "]", node.get(i));
+					result[i] = new RascalVariable(target, "[" + i + "]", node.get(i));
 				}
 				return result;
 			}
@@ -179,7 +180,7 @@ public class RascalValue extends RascalDebugElement implements IValue, IVariable
 				IConstructor node = (IConstructor) value;
 				IVariable[] result = new IVariable[node.arity()];
 				for (int i = 0; i < result.length; i++) {
-					result[i] = new RascalValue(target, type.hasFieldNames() ? type.getFieldName(i) : "" + i, node.get(i));
+					result[i] = new RascalVariable(target, type.hasFieldNames() ? type.getFieldName(i) : "" + i, node.get(i));
 				}
 				return result;
 			}
@@ -194,7 +195,7 @@ public class RascalValue extends RascalDebugElement implements IValue, IVariable
 				ITuple node = (ITuple) value;
 				IVariable[] result = new IVariable[node.arity()];
 				for (int i = 0; i < result.length; i++) {
-					result[i] = new RascalValue(target, type.hasFieldNames() ? type.getFieldName(i) : "[" + i + "]", node.get(i));
+					result[i] = new RascalVariable(target, type.hasFieldNames() ? type.getFieldName(i) : "[" + i + "]", node.get(i));
 				}
 				return result;
 			}
@@ -264,40 +265,4 @@ public class RascalValue extends RascalDebugElement implements IValue, IVariable
 	public IValue getValue() {
 		return this;
 	}
-
-	@Override
-	public void setValue(String expression) throws DebugException {
-		// not implemented
-	}
-
-	@Override
-	public void setValue(IValue value) throws DebugException {
-		// not implemented
-	}
-
-	@Override
-	public boolean supportsValueModification() {
-		return false;
-	}
-
-	@Override
-	public boolean verifyValue(String expression) throws DebugException {
-		return false;
-	}
-
-	@Override
-	public boolean verifyValue(IValue value) throws DebugException {
-		return false;
-	}
-
-	@Override
-	public String getName() throws DebugException {
-		return name;
-	}
-
-	@Override
-	public boolean hasValueChanged() throws DebugException {
-		return false;
-	}
-
 }

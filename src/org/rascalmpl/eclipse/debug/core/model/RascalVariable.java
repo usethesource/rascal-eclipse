@@ -16,57 +16,43 @@ package org.rascalmpl.eclipse.debug.core.model;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.result.Result;
 
 /**
  *  Model for the local variable of a module. 
  */
 public class RascalVariable extends RascalDebugElement implements IVariable {
-
-	// name & corresponding environment
-	private String name;
+	private final String name;
 	
-	@SuppressWarnings("unused")
-	private Environment environment;
-	
-	private Result<org.eclipse.imp.pdb.facts.IValue> value;
+	private final org.eclipse.imp.pdb.facts.IValue value;
 
-	/**
-	 * Constructs a variable contained in the given stack frame
-	 * with the given name.
-	 * 
-	 * @param frame owning stack frame
-	 * @param name variable name
-	 */
-	public RascalVariable(RascalStackFrame frame, String name) {
-		this(frame, name, frame.getEnvironment());
+	private final RascalStackFrame frame;
+
+	@Override
+	public boolean equals(Object arg0) {
+		if (arg0 instanceof RascalVariable) {
+			RascalVariable var = (RascalVariable) arg0;
+			return name.equals(var.name);
+		}
+		return false;
 	}
-
-//	/**
-//	 * Constructs a variable contained in the given stack frame
-//	 * with the given name and the given imported module.
-//	 * 
-//	 * @param frame owning stack frame
-//	 * @param name variable name
-//	 * @param module imported module
-//	 */
-//	public RascalVariable(RascalStackFrame frame, ModuleEnvironment module) {
-//		this(frame, module.getName(), module);
-//	}
-
-	protected RascalVariable(RascalStackFrame frame, String name, Environment envt) {
+	
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+	
+	protected RascalVariable(RascalStackFrame frame, String name, org.eclipse.imp.pdb.facts.IValue value) {
 		super(frame.getRascalDebugTarget());
 		this.name = name;
-		this.environment = envt;
-		this.value = envt.getVariable(name);
+		this.frame = frame;
+		this.value = value;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IVariable#getValue()
 	 */
 	public IValue getValue() throws DebugException {
-		return new RascalVariableValue(this.getRascalDebugTarget(), name, value);
+		return new RascalValue(frame, name, value);
 	}
 
 	/* (non-Javadoc)

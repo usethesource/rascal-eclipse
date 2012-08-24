@@ -36,6 +36,15 @@ public class RascalImportedModule extends RascalDebugElement implements IVariabl
 		this.frame = frame;
 		this.moduleName = name;
 	}
+	
+	@Override
+	public boolean equals(Object arg0) {
+		if (arg0 instanceof RascalImportedModule) {
+			RascalImportedModule other = (RascalImportedModule) arg0;
+			return moduleName.equals(other.moduleName);
+		}
+		return false;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IVariable#getValue()
