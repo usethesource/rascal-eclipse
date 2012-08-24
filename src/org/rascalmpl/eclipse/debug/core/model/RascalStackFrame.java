@@ -123,10 +123,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 
 		IVariable[] ivars = new IVariable[vars.size()+modules.size()];
 		int i = 0;
-		for (String m : modules) {
-			ivars[i] = new RascalImportedModule(this, m);
-			i++;
-		}
+
 		for (String v : vars) {
 			ivars[i] = new RascalVariable(this, v);
 			i++;
