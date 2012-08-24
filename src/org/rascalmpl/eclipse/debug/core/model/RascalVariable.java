@@ -66,7 +66,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IVariable#getValue()
 	 */
 	public IValue getValue() throws DebugException {
-		return new RascalVariableValue(this.getRascalDebugTarget(), value);
+		return new RascalVariableValue(this.getRascalDebugTarget(), name, value);
 	}
 
 	/* (non-Javadoc)
