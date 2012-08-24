@@ -13,15 +13,21 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 
 public class RascalVariableValue extends RascalDebugElement implements IValue {
 	
 	/* do not print more than MAX_VALUE_STRING characters */
-	private final static int MAX_VALUE_STRING = 100;
+	private final static int MAX_VALUE_STRING = 1000;
 
 	private RascalDebugTarget target;
 	private Result<org.eclipse.imp.pdb.facts.IValue> value;
@@ -44,13 +50,20 @@ public class RascalVariableValue extends RascalDebugElement implements IValue {
 	 * @see org.eclipse.debug.core.model.IValue#getValueString()
 	 */
 	public String getValueString() throws DebugException {
-		if (value.getValue() == null) return "";
-		String s = value.getValue().toString();
-		if (s.length() > MAX_VALUE_STRING) {
-			return s.substring(0,MAX_VALUE_STRING)+"...";
+		if (value.getValue() == null) {
+			return "";
 		}
 		
-		return s;
+		Writer w = new LimitedResultWriter(MAX_VALUE_STRING);
+		try {
+			new StandardTextWriter(true, 2).write(value.getValue(), w);
+			return w.toString();
+		} catch (IOLimitReachedException e) {
+			return w.toString();
+		}
+		catch (IOException e) {
+			return "error during serialization...";
+		} 
 	}
 
 	/* (non-Javadoc)
