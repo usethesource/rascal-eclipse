@@ -30,6 +30,10 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RascalValue extends RascalDebugElement implements IValue {
 	
@@ -76,6 +80,14 @@ public class RascalValue extends RascalDebugElement implements IValue {
 			return "";
 		}
 		
+		if (value.getType().isSubtypeOf(Factory.Tree)) {
+			return getTreeValueString();
+		}
+		
+		return getNormalValueString(); 
+	}
+
+	private String getNormalValueString() {
 		Writer w = new LimitedResultWriter(MAX_VALUE_STRING);
 		try {
 			new StandardTextWriter(true, 2).write(value, w);
@@ -85,7 +97,30 @@ public class RascalValue extends RascalDebugElement implements IValue {
 		}
 		catch (IOException e) {
 			return "error during serialization...";
-		} 
+		}
+	}
+
+	private String getTreeValueString() {
+		StringBuilder b = new StringBuilder();
+		
+		IConstructor type = TreeAdapter.getType((IConstructor) value);
+		
+		b.append(SymbolAdapter.toString(type));
+		
+		String cons = TreeAdapter.getConstructorName((IConstructor) value);
+		if (cons != null) {
+			b.append(' ');
+			b.append(cons);
+		}
+
+		b.append(':');
+		b.append('`');
+		b.append(TreeAdapter.yield((IConstructor) value, MAX_VALUE_STRING));
+		b.append('`');
+		b.append("\n");
+		
+		b.append(getNormalValueString());
+		return b.toString();
 	}
 
 	/* (non-Javadoc)
@@ -177,12 +212,60 @@ public class RascalValue extends RascalDebugElement implements IValue {
 
 			@Override
 			public IVariable[] visitConstructor(Type type) {
+				if (type.isSubtypeOf(Factory.Tree)) {
+					return visitTree();
+				}
+				
 				IConstructor node = (IConstructor) value;
 				IVariable[] result = new IVariable[node.arity()];
 				for (int i = 0; i < result.length; i++) {
 					result[i] = new RascalVariable(target, type.hasFieldNames() ? type.getFieldName(i) : "" + i, node.get(i));
 				}
 				return result;
+			}
+
+			private IVariable[] visitTree() {
+				IConstructor tree = (IConstructor) value;
+
+				if (TreeAdapter.isList(tree)) {
+					IList elems = TreeAdapter.getListASTArgs(tree);
+					IVariable[] vars = new IVariable[elems.length()];
+					int i = 0;
+					for (org.eclipse.imp.pdb.facts.IValue elem : elems) {
+						vars[i++] = new RascalVariable(target, "elem " + i, elem);
+					}
+					
+					return vars;
+				}
+				
+				if (TreeAdapter.isAppl(tree)) {
+					IConstructor prod = TreeAdapter.getProduction(tree);
+					boolean isLex = ProductionAdapter.isLexical(prod);
+					IList astSymbols = isLex ? ProductionAdapter.getSymbols(prod) : ProductionAdapter.getASTSymbols(prod);
+					IList args = isLex ? TreeAdapter.getArgs(tree) : TreeAdapter.getASTArgs(tree);
+					IVariable[] vars = new IVariable[args.length()];
+					
+					for (int i = 0; i < vars.length; i++) {
+						IConstructor sym = (IConstructor) astSymbols.get(i);
+						String label = SymbolAdapter.isLabel(sym) ? SymbolAdapter.getLabelName(sym) : ("arg " + i);
+						vars[i] = new RascalVariable(target, label, args.get(i));
+					}
+					
+					return vars;
+				}
+				
+				if (TreeAdapter.isAmb(tree)) {
+					ISet alts = TreeAdapter.getAlternatives(tree);
+					IVariable[] vars = new IVariable[alts.size()];
+					int i = 0;
+					for (org.eclipse.imp.pdb.facts.IValue elem : alts) {
+						vars[i++] = new RascalVariable(target, "alt " + i, elem);
+					}
+					
+					return vars;
+				}
+				
+				return new IVariable[0];
 			}
 
 			@Override
