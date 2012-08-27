@@ -36,7 +36,7 @@ public class ActionsContributor implements ILanguageActionsContributor {
 	@Override
 	public void contributeToEditorMenu(UniversalEditor editor,
 			IMenuManager menuManager) {
-		menuManager.add(new LaunchConsoleAction(editor.getParseController().getProject()));
+//		menuManager.add(new LaunchConsoleAction(editor.getParseController().getProject()));
 		menuManager.add(new ResetProjectState(editor));
 		menuManager.add(new RunStaticChecker(editor));
 		menuManager.add(new ReloadStaticChecker(editor));
