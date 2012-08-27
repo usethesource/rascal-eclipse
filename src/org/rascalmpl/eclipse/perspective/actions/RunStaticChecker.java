@@ -15,22 +15,14 @@ package org.rascalmpl.eclipse.perspective.actions;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.builder.MarkerCreator;
 import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.IEditorActionDelegate;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.progress.IProgressService;
@@ -42,38 +34,16 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class RunStaticChecker implements IEditorActionDelegate {
+public class RunStaticChecker extends AbstractEditorAction {
 	private final MessagesToMarkers marker = new MessagesToMarkers();
 	private final StaticCheckerHelper helper = new StaticCheckerHelper();
 	
-	private UniversalEditor editor;
-	
-	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-		if (targetEditor instanceof UniversalEditor) {
-			this.editor = (UniversalEditor) targetEditor;
-		}
-		else {
-			this.editor = null;
-		}
-	}
-	
-	public void selectionChanged(IAction action, ISelection selection) {
+	public RunStaticChecker(UniversalEditor editor) {
+		super(editor, "Run static checker");
 	}
 
-	public void run(IAction action) {
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-		IPath path = editor.getParseController().getPath();
-		ISourceProject project = editor.getParseController().getProject();
-		IFile file;
-		
-		if (project != null) {
-			file = project.getRawProject().getFile(path);
-		}
-		else {
-			file = workspaceRoot.getFile(path);
-		}
-		
-		
+	@Override
+	public void run() {
 		final IMessageHandler handler = new MarkerCreator(file);
 		
 		if (editor != null) {
@@ -88,11 +58,9 @@ public class RunStaticChecker implements IEditorActionDelegate {
 			try {
 				ips.run(true, true, wmo);
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Activator.getInstance().logException("??", e);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Activator.getInstance().logException("??", e);
 			}
 		}
 	}

@@ -21,14 +21,30 @@ import org.eclipse.imp.services.ILanguageActionsContributor;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.rascalmpl.eclipse.perspective.actions.BrowseTree;
+import org.rascalmpl.eclipse.perspective.actions.CopyToConsole;
+import org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction;
+import org.rascalmpl.eclipse.perspective.actions.ListAmbiguities;
+import org.rascalmpl.eclipse.perspective.actions.ReloadStaticChecker;
+import org.rascalmpl.eclipse.perspective.actions.ResetProjectState;
+import org.rascalmpl.eclipse.perspective.actions.RunAmbiDexter;
+import org.rascalmpl.eclipse.perspective.actions.RunStaticChecker;
+import org.rascalmpl.eclipse.perspective.actions.TextTree;
 
 public class ActionsContributor implements ILanguageActionsContributor {
 
 	@Override
 	public void contributeToEditorMenu(UniversalEditor editor,
 			IMenuManager menuManager) {
-		// TODO Auto-generated method stub
-
+		menuManager.add(new LaunchConsoleAction(editor));
+		menuManager.add(new ResetProjectState(editor));
+		menuManager.add(new RunStaticChecker(editor));
+		menuManager.add(new ReloadStaticChecker(editor));
+		menuManager.add(new RunAmbiDexter(editor));
+		menuManager.add(new ListAmbiguities(editor));
+		menuManager.add(new TextTree(editor));
+		menuManager.add(new BrowseTree(editor));
+		menuManager.add(new CopyToConsole(editor));
 	}
 
 	@Override

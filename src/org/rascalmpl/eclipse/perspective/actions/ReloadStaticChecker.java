@@ -17,32 +17,20 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.IEditorActionDelegate;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.progress.IProgressService;
+import org.rascalmpl.eclipse.Activator;
 
-public class ReloadStaticChecker implements IEditorActionDelegate {
+public class ReloadStaticChecker extends AbstractEditorAction {
 	private final StaticCheckerHelper helper = new StaticCheckerHelper();
 	
-	private UniversalEditor editor;
-	
-	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-		if (targetEditor instanceof UniversalEditor) {
-			this.editor = (UniversalEditor) targetEditor;
-		}
-		else {
-			this.editor = null;
-		}
-	}
-	
-	public void selectionChanged(IAction action, ISelection selection) {
+	public ReloadStaticChecker(UniversalEditor editor) {
+		super(editor, "Reload static checker");
 	}
 
-	public void run(IAction action) {
+	@Override
+	public void run() {
 		WorkspaceModifyOperation wmo = new WorkspaceModifyOperation(ResourcesPlugin.getWorkspace().getRoot()) {
 			public void execute(IProgressMonitor monitor) {
 				helper.reloadChecker(editor.getParseController().getProject());
@@ -52,11 +40,9 @@ public class ReloadStaticChecker implements IEditorActionDelegate {
 		try {
 			ips.run(true, true, wmo);
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.getInstance().logException("??", e);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.getInstance().logException("??", e);
 		}
 	}
 }

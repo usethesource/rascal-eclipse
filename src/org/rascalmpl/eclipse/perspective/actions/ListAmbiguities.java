@@ -21,46 +21,20 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.runtime.RuntimePlugin;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.IEditorActionDelegate;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
 
-public class ListAmbiguities extends Action implements IEditorActionDelegate {
-	private UniversalEditor editor;
-	private IProject project;
-	private IFile file;
-	
-	public ListAmbiguities() {
+public class ListAmbiguities extends AbstractEditorAction {
+	public ListAmbiguities(UniversalEditor editor) {
+		super(editor, "List ambiguities");
 		setImageDescriptor(Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.AMBIDEXTER));
-		setText("List ambiguities");
 	}
 	
-	public ListAmbiguities(UniversalEditor editor, IProject project, IFile file) {
-		this();
-		this.editor = editor;
-		this.project = project;
-		this.file = file;
-	}
-
-	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-		if (targetEditor instanceof UniversalEditor) {
-			this.editor = (UniversalEditor) targetEditor;
-		}
-		else {
-			this.editor = null;
-		}
-	}
-	
-	public void selectionChanged(IAction action, ISelection selection) {
-	}
-
+	@Override
 	public void run() {
 		if (editor != null && editor.isDirty()) {
 			editor.doSave(new NullProgressMonitor());

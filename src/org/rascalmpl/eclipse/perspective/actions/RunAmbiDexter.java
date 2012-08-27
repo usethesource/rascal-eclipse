@@ -29,13 +29,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IEditorActionDelegate;
-import org.eclipse.ui.IEditorPart;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.ambidexter.AmbiDexterRunner;
@@ -44,35 +40,13 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 
-public class RunAmbiDexter extends Action implements IEditorActionDelegate {
-	private UniversalEditor editor;
-	private IProject project;
-	private IFile file;
+public class RunAmbiDexter extends AbstractEditorAction {
 	
-	public RunAmbiDexter() { 
+	public RunAmbiDexter(UniversalEditor editor) {
+		super(editor, "Run AmbiDexter");
 		setImageDescriptor(Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.AMBIDEXTER));
-		setText("AmbiDexter");
 	}
 	
-	public RunAmbiDexter(UniversalEditor editor, IProject project, IFile file) {
-		this();
-		this.editor = editor;
-		this.project = project;
-		this.file = file;
-	}
-	
-	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
-		if (targetEditor instanceof UniversalEditor) {
-			this.editor = (UniversalEditor) targetEditor;
-		}
-		else {
-			this.editor = null;
-		}
-	}
-	
-	public void selectionChanged(IAction action, ISelection selection) {
-	}
-
 	@Override
 	public void run() {
 		if (editor.isDirty()) {

@@ -4,8 +4,9 @@ import java.util.HashMap;
 
 import org.eclipse.core.resources.IMarker;
 
-public class MessagesToMarkers extends MessagesTo{
+public class MessagesToMarkers extends MessagesTo {
 
+	@SuppressWarnings("serial")
 	static final HashMap<String,Integer> severities = new HashMap<String,Integer>(){{
 	    put("info",   IMarker.SEVERITY_INFO);
 	    put("warning", IMarker.SEVERITY_WARNING);

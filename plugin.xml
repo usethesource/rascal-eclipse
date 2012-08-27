@@ -21,7 +21,7 @@
    <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
-            adaptableType="org.rascalmpl.eclipse.editor.RascalEditor"
+            adaptableType="org.eclipse.imp.editor.UniversalEditor"
             class="org.rascalmpl.eclipse.debug.ui.breakpoints.RascalEditorAdapterFactory">
          <adapter
                type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget">
@@ -38,7 +38,7 @@
          </run>
       </runtime>
       <builder
-            id="rascal_builder">
+            id="rascal_eclipse.rascal_builder">
       </builder>
    </extension>
    <extension
@@ -155,15 +155,6 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="org.rascalmpl.eclipse.editor.RascalEditor"
-            default="true"
-            extensions="rsc"
-            filenames="*.rsc"
-            icon="icons/rascal3D_2-16px.gif"
-            id="rascal.editor"
-            name="Rascal Editor">
-      </editor>
-      <editor
             class="org.rascalmpl.eclipse.library.vis.FigureViewer"
             default="false"
             id="rascal-eclipse.Figure.viewer"
@@ -172,80 +163,7 @@
    </extension>
    <extension
          point="org.eclipse.ui.popupMenus">
-      <viewerContribution
-            id="rascal.editorpopupmenu"
-            targetID="rascal.editor.contextMenu">
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal.launchconsole"
-               label="Launch Console"
-               menubarPath="additions"
-               tooltip="Launch a console with a command prompt">
-         </action>
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.ResetProjectState"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal.resetproject"
-               label="Reset Project State"
-               menubarPath="additions"
-               tooltip="Reset the state of the interpreter associated with the current project.">
-         </action>
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.RunStaticChecker"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal-eclipse.editor.context.runStaticChecker"
-               label="Run static checker"
-               menubarPath="additions"
-               tooltip="Statically checks the contents of the current editor">
-         </action>
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.ReloadStaticChecker"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal-eclipse.editor.context.reloadStaticChecker"
-               label="Reload static checker"
-               menubarPath="additions"
-               tooltip="Reloads the static checker">
-         </action>
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.RunAmbiDexter"
-               icon="icons/ambidexter-a-16.png"
-               id="rascal-eclipse.editor.context.runAmbiDexter"
-               label="Run AmbiDexter"
-               menubarPath="additions"
-               tooltip="Statically detects ambiguity in Rascal syntax definitions">
-         </action>
-          <action
-               class="org.rascalmpl.eclipse.perspective.actions.ListAmbiguities"
-               icon="icons/ambidexter-a-16.png"
-               id="rascal-eclipse.editor.context.listAmbiguities"
-               label="List Ambiguities"
-               menubarPath="additions"
-               tooltip="Lists all ambiguous sub-strings of the current editor">
-         </action>
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.TextTree"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal.editor.context.texttree"
-               label="Show Textual Parse Tree"
-               menubarPath="additions">
-         </action>
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.BrowseTree"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal.editor.context.browsetree"
-               label="Show Browsable Parse Tree"
-               menubarPath="additions">
-         </action>
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.CopyToConsole"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal-eclipse.editor.context.copyToConsole"
-               label="Copy to console"
-               menubarPath="additions"
-               tooltip="Copy the current selection to the currently active console (if any) and execute the command">
-         </action>
-      </viewerContribution>
+      
       <objectContribution
             id="rascal.project"
             objectClass="org.eclipse.core.resources.IResource">
@@ -264,22 +182,6 @@
       </objectContribution>
    </extension>
    <extension
-         point="org.eclipse.ui.views">
-      <view
-            class="org.rascalmpl.eclipse.debug.ui.views.FunctionView"
-            icon="icons/rascal3D_2-16px.gif"
-            id="rascal-eclipse.functionview"
-            name="Rascal functions"
-            restorable="true">
-      </view>
-      <view
-            class="org.rascalmpl.eclipse.console.HistoryView"
-            id="rascal-eclipse.history-view"
-            name="History"
-            restorable="true">
-      </view>
-   </extension>
-   <extension
          point="org.eclipse.ui.contexts">
       <context
             description="Debugging Rascal Programs"
@@ -289,39 +191,7 @@
       </context>
    </extension>
    <extension
-         id="rascal.editorContribution"
-         name="rascalEditorContribution"
-         point="org.eclipse.ui.editorActions">
-      <editorContribution
-            id="rascal.editorContribution"
-            targetID="rascal.editor">
-         <action
-               actionID="RulerDoubleClick"
-               class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
-               id="rascal.doubleClickBreakpointAction"
-               label="Double click breakpoint action"
-               style="push">
-         </action>
-      </editorContribution>
-   </extension>
-   <extension
-         id="rascal.bindings"
-         name="Rascal key bindings"
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="rascal-eclipse.EvalExpression"
-            contextId="rascal.debugging"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+E">
-      </key>
-   </extension>
-   <extension
          point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="org.rascalmpl.eclipse.perspective.actions.EvaluateExpression"
-            id="rascal-eclipse.EvalExpression"
-            name="Evaluate Expression">
-      </command>
       <command
             defaultHandler="org.rascalmpl.eclipse.perspective.actions.CopyToConsole"
             description="Copy current selection to active console"
@@ -354,23 +224,11 @@
       </wizard>
    </extension>
    <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="org.eclipse.debug.ui.DebugPerspective">
-         <view
-               id="rascal-eclipse.functionview"
-               relationship="right"
-               relative="org.eclipse.debug.ui.VariableView"
-               visible="false">
-         </view>
-      </perspectiveExtension>
-   </extension>
-   <extension
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
             icon="icons/rascal3D_2-32px.png"
             id="rascal_nature.image"
-            natureId="rascal_nature">
+            natureId="rascal_eclipse.rascal_nature">
       </image>
    </extension>
    <extension
@@ -824,7 +682,7 @@
       </run>
    </runtime>
    <builder
-         id="term_builder">
+         id="rascal_eclipse.term_builder">
    </builder>
 </extension>
 <extension

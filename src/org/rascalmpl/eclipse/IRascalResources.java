@@ -71,7 +71,6 @@ public interface IRascalResources {
 	 * (value <code>rascal.launchType</code>)
 	 */
 	public static final String ID_RASCAL_LAUNCH_CONFIGURATION_TYPE = "rascal.launchType";
-	public static final String ID_RASCAL_EDITOR = "rascal.editor";
 
 	public static final String RASCAL_EDITOR_MESSAGES = "rascal.editor.messages";
 	
