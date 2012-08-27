@@ -162,26 +162,6 @@
       </editor>
    </extension>
    <extension
-         point="org.eclipse.ui.popupMenus">
-      
-      <objectContribution
-            id="rascal.project"
-            objectClass="org.eclipse.core.resources.IResource">
-         <action
-               class="org.rascalmpl.eclipse.perspective.actions.LaunchConsoleAction"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal.launchconsole"
-               label="Launch Console">
-         </action>
-          <action
-               class="org.rascalmpl.eclipse.perspective.actions.ResetProjectState"
-               icon="icons/rascal3D_2-16px.gif"
-               id="rascal.resetproject"
-               label="Reset Project">
-         </action>
-      </objectContribution>
-   </extension>
-   <extension
          point="org.eclipse.ui.contexts">
       <context
             description="Debugging Rascal Programs"
@@ -189,15 +169,6 @@
             name="Debugging Rascal Programs"
             parentId="org.eclipse.debug.ui.debugging">
       </context>
-   </extension>
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="org.rascalmpl.eclipse.perspective.actions.CopyToConsole"
-            description="Copy current selection to active console"
-            id="rascal-eclipse.copyToConsole"
-            name="Copy to console">
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">

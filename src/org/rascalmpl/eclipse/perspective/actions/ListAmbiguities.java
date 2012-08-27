@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.runtime.RuntimePlugin;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
@@ -60,12 +59,6 @@ public class ListAmbiguities extends AbstractEditorAction {
 		}
 	}
 	
-	public void run(IAction action) {
-		project = editor.getParseController().getProject().getRawProject();
-		file = project.getFile(editor.getParseController().getPath());
-		run();
-	}
-
 	private String getModuleName(IProject project, IFile file) {
 		String moduleName;
 		

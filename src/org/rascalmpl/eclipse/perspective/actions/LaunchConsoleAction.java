@@ -13,13 +13,20 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.perspective.actions;
 
-import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.model.ISourceProject;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 
-public class LaunchConsoleAction extends AbstractEditorAction {
-
-	public LaunchConsoleAction(UniversalEditor editor) {
-		super(editor, "Launch Console");
+public class LaunchConsoleAction extends AbstractProjectAction {
+	
+	/**
+	 * This is called by the framework for the menu on a project explorer
+	 */
+	public LaunchConsoleAction() {
+		super(null, "Launch Console");
+	}
+	
+	public LaunchConsoleAction(ISourceProject src) {
+		super(src, "Launch Console");
 	}
 	
 	@Override

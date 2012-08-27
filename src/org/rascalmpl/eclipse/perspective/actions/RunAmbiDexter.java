@@ -29,7 +29,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.eclipse.Activator;
@@ -100,12 +99,6 @@ public class RunAmbiDexter extends AbstractEditorAction {
 		j.schedule();
 	}
 	
-	public void run(IAction action) {
-		project = editor.getParseController().getProject().getRawProject();
-		file = project.getFile(editor.getParseController().getPath());
-		run();
-	}
-
 	private static IConstructor getGrammar(Evaluator eval, String moduleName) {
 		eval.doImport(eval.getMonitor(), moduleName);
 		IConstructor grammar = eval.getExpandedGrammar(eval.getMonitor(), URI.create("rascal://" + moduleName));
