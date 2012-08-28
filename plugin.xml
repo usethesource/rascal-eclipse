@@ -261,18 +261,6 @@
             class="org.rascalmpl.eclipse.launch.LaunchShortcut"
             modes="run, debug"
             id="rascal.launchShortcut">
-         <contextualLaunch>
-            <enablement>
-               <with variable="selection">
-                  <count value="1"/>
-                  <iterate>
-                     <test
-                           value="*.rsc"
-                           property="org.eclipse.debug.ui.matchesPattern"/>
-                  </iterate>
-               </with>
-            </enablement>
-         </contextualLaunch>
       </shortcut>
    </extension>
      <extension

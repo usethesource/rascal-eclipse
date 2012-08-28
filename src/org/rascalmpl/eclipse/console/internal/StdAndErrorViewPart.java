@@ -165,7 +165,6 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 				STD_OUT_BUFFER_SIZE, true);
 		stdErr = makeWidget(errStreamConnection,totalWidget.getSashForm(), Display.getCurrent().getSystemColor(SWT.COLOR_RED),
 				STD_ERR_BUFFER_SIZE, true);
-		
 	}
 	
 

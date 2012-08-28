@@ -50,8 +50,16 @@ public class StartTutorAction extends Job implements IWorkbenchWindowActionDeleg
 	private static RascalTutor tutor;
 	private static Object lock = new Integer(42);
     
-	public StartTutorAction() {
+	private static final class InstanceHolder {
+		public static StartTutorAction sInstance = new StartTutorAction();
+	}
+	
+	private StartTutorAction() {
 		super("Tutor");
+	}
+	
+	public static StartTutorAction getInstance() {
+		return InstanceHolder.sInstance;
 	}
 	
 	public static void stopTutor() {
@@ -178,6 +186,8 @@ public class StartTutorAction extends Job implements IWorkbenchWindowActionDeleg
 							int style = IWorkbenchBrowserSupport.AS_EDITOR 
 									| IWorkbenchBrowserSupport.LOCATION_BAR 
 									| IWorkbenchBrowserSupport.STATUS
+									| IWorkbenchBrowserSupport.NAVIGATION_BAR
+									| IWorkbenchBrowserSupport.PERSISTENT
 									;
 							monitor.worked(2);
 							IWebBrowser browser = PlatformUI.getWorkbench().getBrowserSupport().createBrowser(style, "RascalTutor", "Rascal Tutor", "Rascal Tutor");
