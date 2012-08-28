@@ -284,25 +284,7 @@
         </modelContextBinding>
      </extension>
   
-  <extension
-        point="org.eclipse.ui.actionSets">
-     <actionSet
-           id="rascal_eclipse.rascalActionSet"
-           label="Rascal Action Set"
-           visible="true">
-        <menu
-              id="Rascal"
-              label="Rascal">
-        </menu>
-        <action
-              class="org.rascalmpl.eclipse.perspective.actions.StartTutorAction"
-              id="Tutor"
-              label="Start &amp;Tutor"
-              menubarPath="rascal/rascalGroup"
-              tooltip="Start Rascal Tutor">
-        </action>
-     </actionSet>
-  </extension>
+  
   <extension
         point="org.eclipse.imp.runtime.languageRegistrar">
         <languageRegistrar   

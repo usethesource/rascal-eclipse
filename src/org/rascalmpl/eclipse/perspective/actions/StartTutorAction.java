@@ -37,7 +37,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
@@ -67,6 +66,7 @@ public class StartTutorAction extends Job implements IWorkbenchWindowActionDeleg
 	
 	private StartTutorAction() {
 		super("Tutor");
+		setUser(true);
 	}
 	
 	public static StartTutorAction getInstance() {
