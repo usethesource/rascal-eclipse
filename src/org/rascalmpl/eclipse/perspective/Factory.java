@@ -38,7 +38,7 @@ public class Factory implements IPerspectiveFactory {
 		String editorArea = layout.getEditorArea();
 
 		IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, (float) 0.25, editorArea); 
-		folder.addView(IPageLayout.ID_RES_NAV);
+		folder.addView(JavaUI.ID_PACKAGES);
 
 		IFolderLayout replFolder = layout.createFolder("bottom", IPageLayout.BOTTOM, (float) 0.75, editorArea); 
 		
@@ -47,7 +47,6 @@ public class Factory implements IPerspectiveFactory {
 		replFolder.addView(IPageLayout.ID_PROBLEM_VIEW);
 		replFolder.addView(StdAndErrorViewPart.ID);
 		
-//		ConsoleFactory.getInstance().openDebuggableConsole();
 		StartTutorAction.getInstance().schedule();
 		launchConsole();
 		
