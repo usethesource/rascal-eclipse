@@ -73,10 +73,7 @@ public class RascalSourceLocationBreakpoint extends LineBreakpoint implements II
 
 	// resource associated with the marker
 	private IResource resource;
-	
-	// location information used to display marker and detect breakpoint hit
-	private ISourceLocation sourceLocation;	
-	
+
 	/**
 	 * Default constructor is required for the breakpoint manager
 	 * to re-create persisted breakpoints. After instantiating a breakpoint,
@@ -107,7 +104,6 @@ public class RascalSourceLocationBreakpoint extends LineBreakpoint implements II
 		
 		// initialize attributes
 		this.resource = resource;
-		this.sourceLocation = sourceLocation;
 		
 		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -155,7 +151,6 @@ public class RascalSourceLocationBreakpoint extends LineBreakpoint implements II
 		
 		// restore attributes for persisted breakpoints
 		resource = marker.getResource();
-		sourceLocation = markerToSourceLocation(marker);
 	}
 		
 	/**
@@ -235,11 +230,17 @@ public class RascalSourceLocationBreakpoint extends LineBreakpoint implements II
 	
     /**
      * Returns the source location that is configured or <code>null</code>.
+     * The source location is reconstructed from the display {@link IMarker} 
+     * and used to detect if a breakpoint was hit.
      * 
      * @return the source location that is configured or <code>null</code>.
      */
 	protected ISourceLocation getSourceLocation() {
-		return sourceLocation;
+		try {
+			return markerToSourceLocation(getMarker());
+		} catch (CoreException e) {
+			return null;
+		}
 	}
     	
 	private static ISourceLocation markerToSourceLocation(IMarker marker) throws CoreException {
