@@ -149,6 +149,10 @@ public class Activator extends PluginBase {
 		}
 	}
 	
+	public static void log(String msg, Throwable t) {
+		getInstance().logException(msg, t);
+	}
+	
 	public void logException(String msg, Throwable t) {
 		if (msg == null) {
 			if (t == null || t.getMessage() == null)

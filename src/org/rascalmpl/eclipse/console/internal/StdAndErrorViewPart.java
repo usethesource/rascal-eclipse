@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
+import org.rascalmpl.eclipse.perspective.Factory;
 
 public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	public static final String ID = "rascal-eclipse.outputview";
@@ -165,6 +166,10 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 				STD_OUT_BUFFER_SIZE, true);
 		stdErr = makeWidget(errStreamConnection,totalWidget.getSashForm(), Display.getCurrent().getSystemColor(SWT.COLOR_RED),
 				STD_ERR_BUFFER_SIZE, true);
+		
+		// TODO: find a better place for this!
+		Factory.launchConsole();
+		Factory.launchTutor();
 	}
 	
 

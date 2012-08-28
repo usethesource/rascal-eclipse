@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfigurationType;
@@ -26,6 +27,7 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
+import org.eclipse.ui.texteditor.ISchedulingRuleProvider;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
@@ -47,7 +49,7 @@ public class Factory implements IPerspectiveFactory {
 		replFolder.addView(IPageLayout.ID_PROBLEM_VIEW);
 		replFolder.addView(StdAndErrorViewPart.ID);
 		
-		StartTutorAction.getInstance().schedule();
+		launchTutor();
 		launchConsole();
 		
 		IFolderLayout outlineFolder = layout.createFolder("outline", IPageLayout.RIGHT, (float) 0.75, editorArea);
@@ -72,7 +74,7 @@ public class Factory implements IPerspectiveFactory {
 		layout.addNewWizardShortcut("rascal_eclipse.wizards.NewRascalFile");
 	}
 	
-	void launchConsole() {
+	public static void launchConsole() {
 		Job job = new Job("Launching console") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -88,10 +90,14 @@ public class Factory implements IPerspectiveFactory {
 				
 				return Status.OK_STATUS;
 			}
-			
 		};
+		
 		job.setUser(true);
 		job.schedule();
+	}
+	
+	public static void launchTutor() {
+		StartTutorAction.getInstance().schedule();
 	}
 
 }
