@@ -16,6 +16,7 @@ package org.rascalmpl.eclipse.debug.core.model;
 import java.net.URI;
 
 import org.eclipse.core.resources.IMarkerDelta;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.IBreakpointManager;
@@ -338,8 +339,8 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		LaunchConfigurationPropertyCache configurationUtility = 
 				new LaunchConfigurationPropertyCache(configuration);
 			
-		String projectName = 
-				configurationUtility.getAssociatedProject().getName();
+		IProject associatedProject = configurationUtility.getAssociatedProject();
+		String projectName = associatedProject != null ? associatedProject.getName() : null;
 		
 		String libraryFolderName = IRascalResources.RASCAL_STD;
 		

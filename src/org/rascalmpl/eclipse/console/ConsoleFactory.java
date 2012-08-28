@@ -21,6 +21,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationType;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -28,7 +33,9 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IHyperlink;
+import org.eclipse.ui.internal.Workbench;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.internal.IInterpreter;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.InteractiveInterpreterConsole;
@@ -102,6 +109,7 @@ public final class ConsoleFactory{
 	}
 	
 	public IRascalConsole openDebuggableConsole(){
+		
 		Activator.getInstance().checkRascalRuntimePreconditions();
 		GlobalEnvironment heap = new GlobalEnvironment();
 		IRascalConsole console = new InteractiveRascalConsole(new RascalScriptInterpreter(), new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap, "Rascal console (no project associated) [DEBUG]", true);

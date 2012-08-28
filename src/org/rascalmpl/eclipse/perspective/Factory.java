@@ -12,11 +12,22 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.perspective;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchConfigurationType;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
+import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
@@ -37,8 +48,9 @@ public class Factory implements IPerspectiveFactory {
 		replFolder.addView(IPageLayout.ID_PROBLEM_VIEW);
 		replFolder.addView(StdAndErrorViewPart.ID);
 		
-		ConsoleFactory.getInstance().openDebuggableConsole();
+//		ConsoleFactory.getInstance().openDebuggableConsole();
 		StartTutorAction.getInstance().schedule();
+		launchConsole();
 		
 		IFolderLayout outlineFolder = layout.createFolder("outline", IPageLayout.RIGHT, (float) 0.75, editorArea);
 		outlineFolder.addView(IPageLayout.ID_OUTLINE);
@@ -60,6 +72,27 @@ public class Factory implements IPerspectiveFactory {
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");
 		layout.addNewWizardShortcut("rascal-eclipse.projectwizard");
 		layout.addNewWizardShortcut("rascal_eclipse.wizards.NewRascalFile");
+	}
+	
+	void launchConsole() {
+		Job job = new Job("Launching console") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+					ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(IRascalResources.LAUNCHTYPE);
+					ILaunchConfigurationWorkingCopy launch = type.newInstance(null, "Default Rascal Console");
+					launch.launch(ILaunchManager.DEBUG_MODE, monitor);
+				} catch (CoreException e) {
+					Activator.getInstance().logException("could not start console", e);
+				}
+				
+				return Status.OK_STATUS;
+			}
+			
+		};
+		job.setUser(true);
+		job.schedule();
 	}
 
 }
