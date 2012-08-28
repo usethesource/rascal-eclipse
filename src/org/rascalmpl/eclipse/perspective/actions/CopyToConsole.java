@@ -15,7 +15,6 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
 
@@ -23,7 +22,6 @@ public class CopyToConsole extends AbstractEditorAction {
 	
 	public CopyToConsole(UniversalEditor editor) {
 		super(editor, "Copy to console");
-		setImageDescriptor(Activator.getInstance().getImageRegistry().getDescriptor(IRascalResources.COPY_TO_CONSOLE));
 	}
 
 	@Override

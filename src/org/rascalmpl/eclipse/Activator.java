@@ -52,6 +52,10 @@ public class Activator extends PluginBase {
 		super.start(context);
 	}
 	
+	public static ImageDescriptor getRascalImage() {
+		return getInstance().getImageRegistry().getDescriptor(IRascalResources.RASCAL_DEFAULT_IMAGE);
+	}
+	
 	public static Activator getInstance() {
 		return sInstance;
 	}

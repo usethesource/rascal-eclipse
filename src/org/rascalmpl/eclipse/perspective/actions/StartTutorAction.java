@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
@@ -36,6 +37,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
@@ -50,6 +52,15 @@ public class StartTutorAction extends Job implements IWorkbenchWindowActionDeleg
 	private static RascalTutor tutor;
 	private static Object lock = new Integer(42);
     
+	public IAction getAction() {
+		return new Action("Tutor", Activator.getRascalImage()) {
+			@Override
+			public void run() {
+				StartTutorAction.getInstance().schedule();
+			}
+		};
+	}
+	
 	private static final class InstanceHolder {
 		public static StartTutorAction sInstance = new StartTutorAction();
 	}

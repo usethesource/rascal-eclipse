@@ -35,9 +35,7 @@ public class Factory implements IPerspectiveFactory {
 		replFolder.addView(IConsoleConstants.ID_CONSOLE_VIEW);
 		replFolder.addView(IPageLayout.ID_PROGRESS_VIEW);
 		replFolder.addView(IPageLayout.ID_PROBLEM_VIEW);
-		
-		IFolderLayout outputFolder = layout.createFolder("outputConsole", IPageLayout.RIGHT, (float) 0.6, "bottom"); 
-		outputFolder.addView(StdAndErrorViewPart.ID);
+		replFolder.addView(StdAndErrorViewPart.ID);
 		
 		ConsoleFactory.getInstance().openDebuggableConsole();
 		StartTutorAction.getInstance().schedule();
