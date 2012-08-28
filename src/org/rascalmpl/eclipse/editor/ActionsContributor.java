@@ -34,17 +34,19 @@ public class ActionsContributor implements ILanguageActionsContributor {
 	@Override
 	public void contributeToEditorMenu(UniversalEditor editor,
 			IMenuManager menuManager) {
-		MenuManager devel = new SubMenu(menuManager, "Developers");
-		devel.add(new ResetProjectState(editor));
+		menuManager.add(StartTutorAction.getInstance().getAction());
+		menuManager.add(new CopyToConsole(editor));
+		
 		MenuManager exp = new SubMenu(menuManager, "Experimental");
-		exp.add(new RunStaticChecker(editor));
-		exp.add(new ReloadStaticChecker(editor));
 		exp.add(new RunAmbiDexter(editor));
 		exp.add(new ListAmbiguities(editor));
+		exp.add(new RunStaticChecker(editor));
+		exp.add(new ReloadStaticChecker(editor));
+		
+		MenuManager devel = new SubMenu(menuManager, "Developers");
+		devel.add(new ResetProjectState(editor));
 		devel.add(new TextTree(editor));
 		devel.add(new BrowseTree(editor));
-		menuManager.add(new CopyToConsole(editor));
-		menuManager.add(StartTutorAction.getInstance().getAction());
 	}
 
 	@Override
