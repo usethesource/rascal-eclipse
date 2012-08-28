@@ -29,7 +29,6 @@ import org.eclipse.ui.console.IConsoleConstants;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
-import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.eclipse.perspective.actions.StartTutorAction;
 
@@ -82,6 +81,7 @@ public class Factory implements IPerspectiveFactory {
 					ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 					ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(IRascalResources.LAUNCHTYPE);
 					ILaunchConfigurationWorkingCopy launch = type.newInstance(null, "Default Rascal Console");
+					launch.setAttribute("loadPrelude", true);
 					launch.launch(ILaunchManager.DEBUG_MODE, monitor);
 				} catch (CoreException e) {
 					Activator.getInstance().logException("could not start console", e);

@@ -71,9 +71,12 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			
 			if (configurationUtility.hasAssociatedProject()) {
 				console = consoleFactory.openDebuggableConsole(configurationUtility.getAssociatedProject());
+				
 			} else {
 				console = consoleFactory.openDebuggableConsole();				
 			}
+			
+			
 			
 			// create a new debug session
 			RascalDebugTarget debugTarget = new RascalDebugTarget(launch,
@@ -91,6 +94,9 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			 * 
 			 * TODO: Use publish/subscribe infrastructure?!
 			 */
+			if (launch.getLaunchConfiguration().getAttribute("loadPrelude", false)) {
+				console.executeCommand("import Prelude;");
+			}
 			console.getEventTrigger().fireCreationEvent();
 			
 		} else {
