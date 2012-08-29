@@ -71,25 +71,5 @@ public class Factory implements IPerspectiveFactory {
 		layout.addNewWizardShortcut("rascal_eclipse.wizards.NewRascalFile");
 	}
 	
-	public static void launchConsole() {
-		Job job = new UIJob("Launching console") {
-			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
-				try {
-					ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-					ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(IRascalResources.LAUNCHTYPE);
-					ILaunchConfigurationWorkingCopy launch = type.newInstance(null, "Default Rascal Console");
-					launch.setAttribute("loadPrelude", true);
-					launch.launch(ILaunchManager.DEBUG_MODE, monitor);
-				} catch (CoreException e) {
-					Activator.getInstance().logException("could not start console", e);
-				}
-				
-				return Status.OK_STATUS;
-			}
-		};
-		
-		job.setUser(true);
-		job.schedule();
-	}
+	
 }
