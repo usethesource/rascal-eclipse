@@ -52,6 +52,11 @@ public class Tutor extends ViewPart {
 		browser.setFocus();
 	}
 	
+	@Override
+	public void dispose() {
+		stop();
+	}
+	
 	private void stop() {
 		if (tutor != null) {
 			try {
