@@ -21,18 +21,11 @@ import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.eclipse.core.runtime.Plugin;
-import org.eclipse.core.runtime.preferences.ConfigurationScope;
-import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.preference.PreferenceConverter;
-import org.eclipse.jface.resource.FontDescriptor;
-import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
@@ -44,8 +37,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
@@ -312,25 +303,12 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				currentContent = doc.get();
 
 				/*
-				 * Execute next document update (i.e. that was queued from
-				 * {@link InteractiveInterpreterConsole#executeCommand(String)}
-				 * if present.
-				 * 
 				 * Here as well it's the most convinient and non-invasive place
 				 * to perform this action, because the console only reacts to
 				 * user-generated document update events when it's active {@see
 				 * ConsoleDocumentListener#documentChanged(DocumentEvent)}.
 				 */
-				String command = delayedCommandQueue.poll();
-				if (command != null) {
-					try{
-						doc.replace(inputOffset, doc.getLength() - inputOffset, command);
-					}catch(BadLocationException blex){
-						// Ignore, can't happen.
-					}
-					
-					moveCaretTo(doc.getLength());
-				}
+				consumeNextQueuedCommand();
 			}
 		});
 	}
@@ -370,15 +348,56 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		return consoleOutputStream;
 	}
 	
-	public void executeCommand(String command){
-		final String cmd;
-		if(command.endsWith(COMMAND_TERMINATOR)){
-			cmd = command;
-		}else{
-			cmd = command.concat(COMMAND_TERMINATOR);
-		}
+	public void executeCommand(String cmd){
 
+		/*
+		 * Removing a) preceding white space and b) empty lines,
+		 * and c) lines that only contain white space.
+		 *  
+		 * Using inline modifier "(?m)" to enable multiline mode.
+		 */
+		cmd = cmd.replaceAll("(?m)^\\s+", "");
+		
+		/*
+		 * Adding command terminator to ensure execution.
+		 */
+		if(!cmd.endsWith(COMMAND_TERMINATOR)) {
+			cmd = cmd.concat(COMMAND_TERMINATOR);
+		}
+	
 		delayedCommandQueue.add(cmd);
+
+		Display.getDefault().asyncExec(new Runnable(){
+			public void run() {
+				
+				/*
+				 * Execute queued command directly iff console is idle. Otherwise
+				 * it will be executed upon next {@link #enableEditing()}.
+				 */
+				if (page.getViewer().isEditable()) { consumeNextQueuedCommand(); }
+			}
+		});
+	
+	}
+
+	/*
+	 * Execute next document update (i.e. that was queued from
+	 * {@link InteractiveInterpreterConsole#executeCommand(String)}
+	 * if present.
+	 */
+	protected void consumeNextQueuedCommand() {
+		IDocument doc = getDocument();
+		
+		String command = delayedCommandQueue.poll();
+		if (command != null) {
+			try{
+				doc.replace(inputOffset, doc.getLength() - inputOffset, command);
+			}catch(BadLocationException blex){
+				// Ignore, can't happen.
+			}
+			
+			moveCaretTo(doc.getLength());
+		}
 	}
 	
 	public int getInputOffset(){

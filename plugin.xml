@@ -678,4 +678,11 @@
          value="true">
    </persistent>
 </extension>
+<extension
+      point="org.eclipse.ui.editors.markerUpdaters">
+   <updater
+         class="org.rascalmpl.eclipse.debug.core.breakpoints.SourceLocationMarkerUpdater"
+         id="sourceLocationMarkerUpdater">
+   </updater>
+</extension>
 </plugin>
