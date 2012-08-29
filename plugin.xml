@@ -596,7 +596,7 @@
    <view
          allowMultiple="false"
          class="org.rascalmpl.eclipse.perspective.views.Tutor"
-         icon="icons/rascal3D_2-16px.gif"
+         icon="icons/rascal-tutor-small.png"
          id="rascal-eclipse.tutorBrowser"
          name="Tutor"
          restorable="true">
