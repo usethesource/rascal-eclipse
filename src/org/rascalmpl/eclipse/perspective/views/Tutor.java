@@ -1,6 +1,5 @@
 package org.rascalmpl.eclipse.perspective.views;
 
-import java.awt.Label;
 import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
@@ -17,7 +16,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.internal.UIPlugin;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.rascalmpl.eclipse.Activator;
@@ -42,8 +40,7 @@ public class Tutor extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		browser = new Browser(parent, SWT.NONE);
-		browser.setText("<html><h1>The Rascal tutor is now loading</h1></html>");
-		browser.refresh();
+		browser.setText("<html><body><h1>The Rascal tutor is now loading</h1></body></html>");
 		new StarterJob().schedule();
 	}
 

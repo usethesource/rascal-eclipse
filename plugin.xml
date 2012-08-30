@@ -57,7 +57,9 @@
             description="Source analysis and manipulation language"
             extensions="rsc"
             icon="icons/rascal3D_2-32px.gif"
-            language="Rascal">
+            language="Rascal"
+            natureID="rascal_nature"
+            url="http://www.rascal-mpl.org">
       </language>
    </extension>
    <extension
