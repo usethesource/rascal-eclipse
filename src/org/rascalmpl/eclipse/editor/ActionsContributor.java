@@ -25,6 +25,7 @@ import org.rascalmpl.eclipse.perspective.actions.ReloadStaticChecker;
 import org.rascalmpl.eclipse.perspective.actions.ResetProjectState;
 import org.rascalmpl.eclipse.perspective.actions.RunAmbiDexter;
 import org.rascalmpl.eclipse.perspective.actions.RunStaticChecker;
+import org.rascalmpl.eclipse.perspective.actions.StartConsole;
 import org.rascalmpl.eclipse.perspective.actions.SubMenu;
 import org.rascalmpl.eclipse.perspective.actions.TextTree;
 
@@ -33,8 +34,9 @@ public class ActionsContributor implements ILanguageActionsContributor {
 	@Override
 	public void contributeToEditorMenu(UniversalEditor editor,
 			IMenuManager menuManager) {
+		menuManager.add(new StartConsole(editor));
 		menuManager.add(new CopyToConsole(editor));
-		
+		 
 		MenuManager exp = new SubMenu(menuManager, "Experimental");
 		exp.add(new RunAmbiDexter(editor));
 		exp.add(new ListAmbiguities(editor));

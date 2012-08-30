@@ -1,8 +1,10 @@
 	package org.rascalmpl.eclipse.perspective.actions;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -15,16 +17,27 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 
-public class StartConsole implements IWorkbenchWindowActionDelegate, IObjectActionDelegate, IViewActionDelegate {
-	private IProject selectedProject;
+public class StartConsole extends AbstractEditorAction implements IWorkbenchWindowActionDelegate, IObjectActionDelegate, IViewActionDelegate {
+	public StartConsole() {
+		super(null, "Start Console");
+	}
+	
+	public StartConsole(UniversalEditor editor) {
+		super(editor, "Start Console");
+	}
 
 	@Override
 	public void run(IAction action) {
-		if (selectedProject == null) {
+		run();
+	}
+	
+	@Override
+	public void run() {
+		if (project == null) {
 			ConsoleFactory.getInstance().openRunConsole();
 		}
 		else {
-			ConsoleFactory.getInstance().launchConsole(selectedProject, ILaunchManager.DEBUG_MODE);
+			ConsoleFactory.getInstance().launchConsole(project, ILaunchManager.DEBUG_MODE);
 		}
 	}
 
@@ -36,13 +49,13 @@ public class StartConsole implements IWorkbenchWindowActionDelegate, IObjectActi
 			Object elem = ssel.getFirstElement();
 			if (elem instanceof IResource) {
 				IResource resource = (IResource) elem;
-				selectedProject = resource.getProject();
+				project = resource.getProject();
 			}
 			else if (elem instanceof IProject) {
-				selectedProject = (IProject) elem;
+				project = (IProject) elem;
 			}
 			else if (elem instanceof IJavaProject) {
-				selectedProject = ((IJavaProject) elem).getProject();
+				project = ((IJavaProject) elem).getProject();
 			}
 		}
 	}
@@ -57,6 +70,15 @@ public class StartConsole implements IWorkbenchWindowActionDelegate, IObjectActi
 
 	@Override
 	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
+		if (targetPart instanceof UniversalEditor) {
+			UniversalEditor editor = (UniversalEditor) targetPart;
+			IFile file = initFile(editor, editor.getParseController().getProject());
+			
+			if (file != null) {
+				project = file.getProject();
+				this.file = file;
+			}
+		}
 	}
 
 	@Override

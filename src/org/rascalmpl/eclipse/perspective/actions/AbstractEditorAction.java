@@ -8,15 +8,20 @@ import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.model.ISourceProject;
 
 public abstract class AbstractEditorAction extends AbstractProjectFileAction {
-	protected final UniversalEditor editor;
+	protected UniversalEditor editor;
 
 	public AbstractEditorAction(UniversalEditor editor, String label) {
-		super(editor.getParseController().getProject(), initFile(editor, editor.getParseController().getProject()), label);
+		super(editor != null ? editor.getParseController().getProject() : null, initFile(editor, editor != null ? editor.getParseController().getProject() : null), label);
 		this.editor = editor;
 	}
 
-	private static IFile initFile(UniversalEditor editor, ISourceProject project) {
+	protected static IFile initFile(UniversalEditor editor, ISourceProject project) {
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		
+		if (editor == null) {
+			return null;
+		}
+		
 		IPath path = editor.getParseController().getPath();
 		
 		if (project != null) {

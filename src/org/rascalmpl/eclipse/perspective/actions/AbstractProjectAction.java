@@ -5,8 +5,8 @@ import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.jface.action.Action;
 import org.rascalmpl.eclipse.Activator;
 
-public abstract class AbstractProjectAction extends Action {
-	protected final IProject project;
+public abstract class AbstractProjectAction extends Action  {
+	protected IProject project;
 
 	public AbstractProjectAction(ISourceProject src, String label) {
 		super(label, Activator.getRascalImage());

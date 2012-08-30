@@ -4,7 +4,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.imp.model.ISourceProject;
 
 public abstract class AbstractProjectFileAction extends AbstractProjectAction {
-	protected final IFile file;
+	protected IFile file;
 
 	public AbstractProjectFileAction(ISourceProject src, IFile file, String label) {
 		super(src, label);
