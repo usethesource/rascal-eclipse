@@ -134,7 +134,6 @@ public final class ConsoleFactory{
 	}
 	
 	public IRascalConsole openDebuggableConsole(){
-		
 		Activator.getInstance().checkRascalRuntimePreconditions();
 		GlobalEnvironment heap = new GlobalEnvironment();
 		IRascalConsole console = new InteractiveRascalConsole(new RascalScriptInterpreter(), new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap, "Rascal console (no project associated) [DEBUG]", true);

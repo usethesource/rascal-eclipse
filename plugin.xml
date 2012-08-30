@@ -687,4 +687,49 @@
          id="sourceLocationMarkerUpdater">
    </updater>
 </extension>
+    <extension point = "org.eclipse.ui.actionSets">
+        <actionSet
+            id="rascal-eclipse.console"
+            label="Rascal Console"
+      visible="true"
+      description="Start a Rascal console">
+      <menu
+            id="rascal-eclipse.menu"
+            label="Rascal">
+    <separator name="consoles"/>
+      </menu>
+      <action
+            class="org.rascalmpl.eclipse.perspective.actions.StartConsole"
+            icon="icons/rascal3D_2-16px.gif"
+            id="StartConsoleAction"
+            label="Start Console"
+            menubarPath="rascal-eclipse.menu/consoles"
+            toolbarPath="Normal"
+            tooltip="Press to start a Rascal console"/>
+      <action
+            class="org.rascalmpl.eclipse.perspective.actions.ShowTutor"
+            icon="icons/rascal-tutor-small.png"
+            id="StartConsoleAction"
+            label="Show Tutor"
+            menubarPath="rascal-eclipse.menu/consoles"
+            toolbarPath="Normal"
+            tooltip="Press to show the Rascal tutor">
+      </action>
+        </actionSet>
+    </extension>
+    <extension point="org.eclipse.ui.popupMenus"> 
+   <viewerContribution
+         id="rascal-eclipse.packageExplorer"
+         targetID="org.eclipse.jdt.ui.PackageExplorer"> 
+   <action
+         class="org.rascalmpl.eclipse.perspective.actions.StartConsole"
+         enablesFor="?"
+         icon="icons/rascal3D_2-16px.gif"
+         id="rascal-eclipse.packageExplorer.console"
+         label="Rascal Console"
+         menubarPath="additions"
+         tooltip="Start a Rascal consol">
+      </action>
+   </viewerContribution> 
+</extension>
 </plugin>
