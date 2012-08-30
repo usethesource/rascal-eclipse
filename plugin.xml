@@ -585,15 +585,20 @@
          name="Ambiguity reports"
          restorable="true">
    </view>
-</extension>
-<extension
-      point="org.eclipse.ui.views">
    <view
          allowMultiple="false"
          class="org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart"
          icon="icons/rascal3D_2-16px.gif"
          id="rascal-eclipse.outputview"
          name="Output"
+         restorable="true">
+   </view>
+   <view
+         allowMultiple="false"
+         class="org.rascalmpl.eclipse.perspective.views.Tutor"
+         icon="icons/rascal-tutor-small.png"
+         id="rascal-eclipse.tutorBrowser"
+         name="Tutor"
          restorable="true">
    </view>
 </extension>

@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
+import org.rascalmpl.eclipse.perspective.Factory;
 
 public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	public static final String ID = "rascal-eclipse.outputview";

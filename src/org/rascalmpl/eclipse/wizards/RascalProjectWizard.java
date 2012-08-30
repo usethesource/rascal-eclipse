@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -37,6 +38,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.terms.TermNature;
 
 
@@ -70,6 +72,7 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 						
 						initializeProjectAsRascalProject(project, monitor, service, plugin);
 						initializeProjectAsJavaProject(project);
+						ConsoleFactory.getInstance().launchConsole(project, ILaunchManager.DEBUG_MODE);
 					}
 					finally {
 						context.ungetService(ref);

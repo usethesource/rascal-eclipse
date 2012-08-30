@@ -14,6 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console;
 
+import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newInterpreterEventTrigger;
+
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -22,9 +24,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jface.text.BadLocationException;
@@ -33,7 +39,7 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IHyperlink;
-import org.eclipse.ui.internal.Workbench;
+import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.internal.IInterpreter;
@@ -49,8 +55,6 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.values.ValueFactoryFactory;
-
-import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.*;
 
 public final class ConsoleFactory{
 	public final static String INTERACTIVE_CONSOLE_ID = InteractiveInterpreterConsole.class.getName();
@@ -88,6 +92,27 @@ public final class ConsoleFactory{
 
 	public static ConsoleFactory getInstance(){
 		return InstanceKeeper.instance;
+	}
+	
+	public void launchConsole(final IProject project, final String mode) {
+		Job job = new UIJob("Launching console") {
+			@Override
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+				try {
+					ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+					ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(IRascalResources.LAUNCHTYPE);
+					ILaunchConfigurationWorkingCopy launch = type.newInstance(null, "Rascal Project Console Launch");
+					launch.setAttribute(IRascalResources.ATTR_RASCAL_PROJECT, project.getName());
+					launch.launch(mode, monitor);
+				} catch (CoreException e) {
+					Activator.getInstance().logException("could not start console", e);
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		
+		job.setUser(true);
+		job.schedule();
 	}
 	
 	public IRascalConsole openRunConsole(){

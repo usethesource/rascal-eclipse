@@ -94,9 +94,6 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			 * 
 			 * TODO: Use publish/subscribe infrastructure?!
 			 */
-			if (launch.getLaunchConfiguration().getAttribute("loadPrelude", false)) {
-				console.executeCommand("import Prelude;");
-			}
 			console.getEventTrigger().fireCreationEvent();
 			
 		} else {

@@ -18,8 +18,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
-import org.rascalmpl.eclipse.perspective.actions.StartTutorAction;
-import org.rascalmpl.eclipse.perspective.actions.SubMenu;
 import org.rascalmpl.eclipse.perspective.actions.BrowseTree;
 import org.rascalmpl.eclipse.perspective.actions.CopyToConsole;
 import org.rascalmpl.eclipse.perspective.actions.ListAmbiguities;
@@ -27,6 +25,7 @@ import org.rascalmpl.eclipse.perspective.actions.ReloadStaticChecker;
 import org.rascalmpl.eclipse.perspective.actions.ResetProjectState;
 import org.rascalmpl.eclipse.perspective.actions.RunAmbiDexter;
 import org.rascalmpl.eclipse.perspective.actions.RunStaticChecker;
+import org.rascalmpl.eclipse.perspective.actions.SubMenu;
 import org.rascalmpl.eclipse.perspective.actions.TextTree;
 
 public class ActionsContributor implements ILanguageActionsContributor {
@@ -34,17 +33,18 @@ public class ActionsContributor implements ILanguageActionsContributor {
 	@Override
 	public void contributeToEditorMenu(UniversalEditor editor,
 			IMenuManager menuManager) {
-		MenuManager devel = new SubMenu(menuManager, "Developers");
-		devel.add(new ResetProjectState(editor));
+		menuManager.add(new CopyToConsole(editor));
+		
 		MenuManager exp = new SubMenu(menuManager, "Experimental");
-		exp.add(new RunStaticChecker(editor));
-		exp.add(new ReloadStaticChecker(editor));
 		exp.add(new RunAmbiDexter(editor));
 		exp.add(new ListAmbiguities(editor));
+		exp.add(new RunStaticChecker(editor));
+		exp.add(new ReloadStaticChecker(editor));
+		
+		MenuManager devel = new SubMenu(menuManager, "Developers");
+		devel.add(new ResetProjectState(editor));
 		devel.add(new TextTree(editor));
 		devel.add(new BrowseTree(editor));
-		menuManager.add(new CopyToConsole(editor));
-		menuManager.add(StartTutorAction.getInstance().getAction());
 	}
 
 	@Override
