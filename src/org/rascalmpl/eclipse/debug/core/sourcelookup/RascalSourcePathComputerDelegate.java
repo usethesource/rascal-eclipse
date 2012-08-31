@@ -13,12 +13,17 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
+import java.net.URI;
+
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
+import org.eclipse.debug.core.sourcelookup.containers.DirectorySourceContainer;
 import org.eclipse.debug.core.sourcelookup.containers.ProjectSourceContainer;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
 
@@ -38,11 +43,13 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 			
 			IProject associatedProject = configurationUtility.getAssociatedProject();
 			
-			/*
-			 * Project and all referenced projects are searched recursively.
-			 */
+			IFileStore libraryStore = EFS.getStore(URI.create("rascal-library://rascal/"));
+			IFileStore eclipseLibraryStore = EFS.getStore(URI.create("rascal-library://eclipse/"));
+			
 			ISourceContainer[] sourceContainers = new ISourceContainer[] {
-				new ProjectSourceContainer(associatedProject, true)
+				new ProjectSourceContainer(associatedProject, true),
+				new DirectorySourceContainer(libraryStore.toLocalFile(EFS.NONE, monitor), true),
+				new DirectorySourceContainer(eclipseLibraryStore.toLocalFile(EFS.NONE, monitor), true),
 			};
 		
 			return sourceContainers;
