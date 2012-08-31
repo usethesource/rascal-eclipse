@@ -56,7 +56,12 @@ public class RascalLibraryFileSystem extends FileSystem {
 			return null;
 		}
 		
-		return roots.get(uri.getHost());
+		if (uri.getPath() != null && uri.getPath().length() > 0) {
+			return roots.get(uri.getHost()).getChild(uri.getPath());
+		}
+		else {
+			return roots.get(uri.getHost());
+		}
 	}
 	
 	private void addRoot(String name, Class<?> root, String loc) {

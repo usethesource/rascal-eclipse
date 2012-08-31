@@ -85,7 +85,7 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		}
 	}
 
-	private IFile resolveFile(URI uri) throws IOException, MalformedURLException {
+	public IFile resolveFile(URI uri) throws IOException, MalformedURLException {
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getHost());
 		
 		if (project == null) {

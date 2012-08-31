@@ -16,6 +16,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console;
 
+import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newNullEventTrigger;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.ambiguousMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.interruptedExceptionMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.parseErrorMessage;
@@ -23,8 +24,6 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.result
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.staticErrorMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
-
-import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newNullEventTrigger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -54,7 +53,6 @@ import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -62,7 +60,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Command.Shell;
 import org.rascalmpl.ast.NullASTVisitor;
@@ -84,9 +83,10 @@ import org.rascalmpl.eclipse.console.internal.TimedBufferedPipe;
 import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
+import org.rascalmpl.eclipse.util.ResourcesToModules;
+import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
-import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -433,29 +433,32 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		command = "";
 	}
 	
-	private void editCommand(Edit x){
-		String module = Names.fullName(x.getName());
+	private void editCommand(final Edit x){
 		
-		if (project == null) {
-			return;
-			
-		}
-		final IFile file = project.getFile(IRascalResources.RASCAL_SRC + "/" + module.replaceAll("::","/") + "." + IRascalResources.RASCAL_EXT);
-
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
+		UIJob job = new UIJob("start editor") {
+			@Override
+			public IStatus runInUIThread(IProgressMonitor monitor) {
 				try {
+					String module = Names.fullName(x.getName());
+					URI uri = ResourcesToModules.uriFromModule(eval.getRascalResolver(), module);
 					IWorkbench wb = PlatformUI.getWorkbench();
 					IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-					if (win == null) return;
 					final IWorkbenchPage page = win.getActivePage();
-					if (page == null) return;
-					page.openEditor(new FileEditorInput(file), UniversalEditor.EDITOR_ID);
+					IDE.openEditor(page, uri, UniversalEditor.EDITOR_ID, true);
 				} catch (PartInitException e) {
-					Activator.getInstance().logException("edit", e);
+					Activator.log("edit", e);
+				} catch (NullPointerException e) {
+					// The above code could easily throw null pointer exceptions at every
+					// turn, so instead of checking 5 times for null, we catch it here and
+					// ignore it.
+					eval.getStdErr().print("Could not open " + x.getName());
 				}
+				
+				return Status.OK_STATUS;
 			}
-		});
+		};
+		
+		job.schedule();
 	}
 
 	private void clearErrorMarker() {
