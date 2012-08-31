@@ -79,6 +79,7 @@ public class MoveParticipant extends
 					m.addChild(new InsertEdit(index, newModuleName));
 					change.setEdit(m);
 				}
+				
 
 				return change;
 			}
