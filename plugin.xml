@@ -56,7 +56,7 @@
       <language
             description="Source analysis and manipulation language"
             extensions="rsc"
-            icon="icons/rascal3D_2-32px.gif"
+            icon="icons/rascal3D_2-16px.gif"
             language="Rascal"
             natureID="rascal_nature"
             url="http://www.rascal-mpl.org">
@@ -179,7 +179,7 @@
             class="org.rascalmpl.eclipse.wizards.RascalProjectWizard"
             descriptionImage="icons/rascal3D_2-16px.gif"
             finalPerspective="rascal.perspective"
-            icon="icons/rascal3D_2-32px.png"
+            icon="icons/rascal3D_2-16px.gif"
             id="rascal-eclipse.projectwizard"
             name="Rascal Project"
             project="true">
@@ -191,7 +191,7 @@
       <wizard
             category="rascal_eclipse"
             class="org.rascalmpl.eclipse.wizards.NewRascalFile"
-            icon="icons/rascal3D_2-32px.png"
+            icon="icons/rascal3D_2-16px.gif"
             id="rascal_eclipse.wizards.NewRascalFile"
             name="Rascal File">
       </wizard>
@@ -199,7 +199,7 @@
    <extension
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
-            icon="icons/rascal3D_2-32px.png"
+            icon="icons/rascal3D_2-16px.gif"
             id="rascal_nature.image"
             natureId="rascal_eclipse.rascal_nature">
       </image>
@@ -732,4 +732,13 @@
       </action>
    </viewerContribution> 
 </extension>
+    <extension
+          point="org.eclipse.ltk.core.refactoring.moveParticipants">
+       <moveParticipant
+             class="org.rascalmpl.eclipse.refactoring.MoveParticipant"
+             id="rascal-eclipse.moveParticipant"
+             name="Rascal move participant">
+          <enablement></enablement>
+       </moveParticipant>
+    </extension>
 </plugin>
