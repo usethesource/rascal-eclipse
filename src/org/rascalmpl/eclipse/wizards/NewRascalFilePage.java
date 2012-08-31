@@ -15,6 +15,9 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -116,11 +119,22 @@ public class NewRascalFilePage extends WizardPage {
 			Object obj = ssel.getFirstElement();
 			if (obj instanceof IResource) {
 				IContainer container;
-				if (obj instanceof IContainer)
+				if (obj instanceof IContainer) {
 					container = (IContainer) obj;
-				else
+				}
+				else {
 					container = ((IResource) obj).getParent();
+				}
 				containerText.setText(container.getFullPath().toString());
+			}
+			else if (obj instanceof IJavaProject) {
+				containerText.setText(((IJavaProject) obj).getProject().getFullPath().toString());
+			}
+			else if (obj instanceof IPackageFragmentRoot) {
+				containerText.setText(((IPackageFragmentRoot) obj).getPath().toString());
+			}
+			else if (obj instanceof IPackageFragment) {
+				containerText.setText(((IPackageFragment) obj).getPath().toString());
 			}
 		}
 		fileText.setText("");
