@@ -66,9 +66,14 @@ public class Builder extends BuilderBase {
 		InputStream contents = null;
 		String input = null;
 		IMessageHandler handler = new MarkerCreator(file, MARKER_ID);
+		Language lang = registry.getLanguage(file.getFileExtension());
+		ISet builders = registry.getBuilders(lang);
+		
+		if (builders == null || builders.size() == 0) {
+			return;
+		}
 		
 		try {
-			Language lang = registry.getLanguage(file.getFileExtension());
 			ICallableValue parser = registry.getParser(lang);
 			RascalMonitor rmonitor = new RascalMonitor(monitor);
 			IValueFactory VF = parser.getEval().getValueFactory();
@@ -85,7 +90,8 @@ public class Builder extends BuilderBase {
 			ISetWriter messages = VF.setWriter();
 			Type type = RascalTypeFactory.getInstance().nonTerminalType(tree);
 			
-			for (IValue elem : registry.getBuilders(lang)) {
+			
+			for (IValue elem : builders) {
 				IConstructor container = (IConstructor) elem;
 				ICallableValue builder = (ICallableValue) container.get("messages");
 				
