@@ -15,6 +15,8 @@ package org.rascalmpl.eclipse.outline;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -27,30 +29,43 @@ import org.rascalmpl.ast.Declaration.Annotation;
 import org.rascalmpl.ast.Declaration.Data;
 import org.rascalmpl.ast.Declaration.DataAbstract;
 import org.rascalmpl.ast.Declaration.Function;
+import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionDeclaration.Abstract;
 import org.rascalmpl.ast.FunctionDeclaration.Conditional;
 import org.rascalmpl.ast.FunctionDeclaration.Expression;
 import org.rascalmpl.ast.ImportedModule.Actuals;
 import org.rascalmpl.ast.ImportedModule.ActualsRenaming;
 import org.rascalmpl.ast.ImportedModule.Renamings;
+import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Prod.Labeled;
 import org.rascalmpl.ast.Prod.Unlabeled;
 import org.rascalmpl.ast.Variable.Initialized;
 import org.rascalmpl.ast.Variable.UnInitialized;
 import org.rascalmpl.ast.Variant.NAryConstructor;
-import org.rascalmpl.ast.FunctionDeclaration;
-import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class LabelProvider implements ILabelProvider, ILanguageService  {
 	private Set<ILabelProviderListener> fListeners = new HashSet<ILabelProviderListener>();
-
+	private Image cachedImage;
+	
 	public Image getImage(Object element) {
+		if (element instanceof IFile || element instanceof IProject) {
+			return getRascalImage();
+		}
+		
 		return null;
 	}
 	
+	private synchronized Image getRascalImage() {
+		if (cachedImage == null) {
+			cachedImage = Activator.getRascalImage().createImage();
+		}
+		return cachedImage;
+	}
+
 	public String getText(Object element) {
 		if (element instanceof ModelTreeNode) {
 			ModelTreeNode node = (ModelTreeNode) element;
