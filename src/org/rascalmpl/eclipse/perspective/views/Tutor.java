@@ -24,7 +24,7 @@ import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.library.experiments.RascalTutor.RascalTutor;
+import org.rascalmpl.tutor.RascalTutor;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
 
