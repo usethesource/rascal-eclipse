@@ -31,7 +31,7 @@ public class TokenIterator implements Iterator<Token>{
 
 	public TokenIterator(boolean showAmb, IConstructor parseTree){
 		this.tokenList = new ArrayList<Token>(1000);
-		this.showAmb = showAmb;
+		this.showAmb = false;
 		
 		if(parseTree != null){
 			try{
@@ -108,6 +108,10 @@ public class TokenIterator implements Iterator<Token>{
 				child.accept(this);
 			}
 
+			if (ProductionAdapter.isSkipped(prod)) {
+				category = TokenColorer.META_SKIPPED;
+			}
+			
 			if (ProductionAdapter.isDefault(prod) && (TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg))) {
 				if (category == null){
 					category = TokenColorer.META_KEYWORD;
