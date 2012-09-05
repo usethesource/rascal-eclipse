@@ -52,7 +52,7 @@ public class MessagesTo {
 				processMarkers((IConstructor) child, handler);
 			}
 		}
-		else if (TreeAdapter.isAmb(tree) || TreeAdapter.isErrorAmb(tree)) {
+		else if (TreeAdapter.isAmb(tree)) {
 			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
 				processMarkers((IConstructor) alt, handler);
 			}

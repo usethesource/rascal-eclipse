@@ -93,10 +93,6 @@ public class TokenIterator implements Iterator<Token>{
 				category = ProductionAdapter.getCategory(prod);
 			}
 			
-			if (ProductionAdapter.isSkipped(prod)) {
-				category = TokenColorer.META_SKIPPED;
-			}
-			
 			// short cut, if we have source locations and a category we found a long token
 			ISourceLocation loc = TreeAdapter.getLocation(arg);
 			if (category != null && loc != null) {
