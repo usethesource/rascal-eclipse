@@ -474,6 +474,8 @@ public class JDTImporter extends ASTVisitor {
 
 	private void addMethodBody(MethodDeclaration method, IMethodBinding methodBinding) {
 		JdtAstToRascalAstConverter converter = new JdtAstToRascalAstConverter(VF, typeStore, bindingCache);
+		converter.set(compilationUnit);
+		converter.set(loc);
 		method.accept(converter);
 
 		ITuple relation = VF.tuple(bindingCache.getEntity(methodBinding), converter.getValue());
