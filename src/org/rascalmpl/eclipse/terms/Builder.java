@@ -26,10 +26,12 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
@@ -68,13 +70,14 @@ public class Builder extends BuilderBase {
 		IMessageHandler handler = new MarkerCreator(file, MARKER_ID);
 		Language lang = registry.getLanguage(file.getFileExtension());
 		ISet builders = registry.getBuilders(lang);
-		
+		IEvaluatorContext evalForErrors = null;
 		if (builders == null || builders.size() == 0) {
 			return;
 		}
 		
 		try {
 			ICallableValue parser = registry.getParser(lang);
+			evalForErrors = parser.getEval();
 			RascalMonitor rmonitor = new RascalMonitor(monitor);
 			IValueFactory VF = parser.getEval().getValueFactory();
 			ISourceProject project = ModelFactory.open(file.getProject());
@@ -102,7 +105,9 @@ public class Builder extends BuilderBase {
 						result = (ISet) builder.call(rmonitor, new Type[] { type }, new IValue[] { tree }).getValue();
 					}
 					catch (MatchFailed e) {
-						Activator.getInstance().logException("builder function can not handle tree of type:" + type, e);
+						builder.getEval().getStdErr().write("builder function can not handle tree of type:" + type + "\n");
+						builder.getEval().getStdErr().write(e.toString() + "\n");
+						builder.getEval().getStdErr().flush();
 					}
 				}
 				
@@ -133,13 +138,24 @@ public class Builder extends BuilderBase {
 					ISourceLocation loc = (ISourceLocation) ((IConstructor) e.getException()).get(0);
 					handler.handleSimpleMessage("builder error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 				}
+				else if (evalForErrors != null) {
+					evalForErrors.getStdErr().write(ReadEvalPrintDialogMessages.throwMessage(e) + "\n");
+					evalForErrors.getStdErr().flush();
+				}
 				else {
 					Activator.getInstance().logException(e.getMessage(), e);
 				}
 			}
 		}
 		catch (IOException e) {
-			Activator.getInstance().logException("could not read file in builder: " + file, e);
+			String error = "could not read file in builder: " + file;
+			if (evalForErrors != null) {
+				evalForErrors.getStdErr().write(error + "\n");
+				evalForErrors.getStdErr().write(e.toString() + "\n");
+				evalForErrors.getStdErr().flush();
+			}
+			else 
+				Activator.getInstance().logException("could not read file in builder: " + file, e);
 			return;
 		}
 		catch (Throwable e) {
