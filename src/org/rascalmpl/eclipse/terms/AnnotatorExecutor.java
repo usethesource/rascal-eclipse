@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.terms;
  
+import java.io.PrintWriter;
+
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -20,8 +22,12 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.MessagesToAnnotations;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -66,6 +72,17 @@ public class AnnotatorExecutor {
 			}
 			else {
 				Activator.getInstance().logException("annotator returned null", new RuntimeException());
+			}
+		}
+		catch (RuntimeException e) {
+			if (e instanceof ParseError || e instanceof StaticError || e instanceof Throw) {
+				PrintWriter stdErr = func.getEval().getStdErr();
+				stdErr.write("Annotator failed\n");
+				stdErr.write(ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(e));
+				stdErr.flush();
+			}
+			else {
+				Activator.getInstance().logException("annotater failed", e);
 			}
 		}
 		catch (Throwable e) {
