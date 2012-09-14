@@ -19,6 +19,7 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -37,6 +38,11 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	private final IValueFactory values;
 	private final TypeStore typeStore;
 	private final BindingConverter bindingConverter;	
+	
+	public static final String ANNOTATION_SOURCE_LOCATION = "location";
+	private CompilationUnit compilUnit;
+	private ISourceLocation loc;
+
 	
 	/* 
 	 * Type binding resolution
@@ -76,7 +82,18 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		/* 
 		 * Create an instance and passes the bindingsResolver object to it
 		 */
-		return new JdtAstToRascalAstConverter(values, typeStore, bindingConverter, bindingsImporter);
+		JdtAstToRascalAstConverter converter = new JdtAstToRascalAstConverter(values, typeStore, bindingConverter, bindingsImporter);
+		converter.set(compilUnit);
+		converter.set(loc);
+		return converter;
+	}
+	
+	public void set(CompilationUnit compilUnit) {
+		this.compilUnit = compilUnit;
+	}
+	
+	public void set(ISourceLocation loc) {
+		this.loc = loc;
 	}
 
 	public IValue getValue() {
@@ -248,8 +265,17 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		bindingsImporter.manageStacks(node, true);
 	}
 	public void postVisit(ASTNode node) {
-		if(this.javaType != null) setAnnotation(ANNOTATION_JAVA_TYPE, this.javaType);
+		if(this.javaType != null) 
+			setAnnotation(ANNOTATION_JAVA_TYPE, this.javaType);
 		setAnnotation(ANNOTATION_JAVA_BINDINGS, this.bindings);
+		int start = node.getStartPosition();
+		int end = start + node.getLength() - 1;
+		if(compilUnit != null && loc != null) 
+			setAnnotation(ANNOTATION_SOURCE_LOCATION, values.sourceLocation(loc.getURI(), 
+																			start, node.getLength(), 
+																			compilUnit.getLineNumber(start), compilUnit.getLineNumber(end), 
+																			compilUnit.getColumnNumber(start), compilUnit.getColumnNumber(end)));
+		else System.err.println("The location annotation can not be added to the node");
 		bindingsImporter.manageStacks(node, false);
 	}
 	

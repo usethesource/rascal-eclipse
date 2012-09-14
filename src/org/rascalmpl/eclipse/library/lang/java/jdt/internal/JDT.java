@@ -134,10 +134,13 @@ public class JDT {
 	 * Creates Rascal ASTs for Java source files
 	 */
 	public IValue createAstFromFile(ISourceLocation loc, IEvaluatorContext eval) {
+		getIFileForLocation(loc);
 		CompilationUnit cu = this.getCompilationUnit(loc);
 		JdtAstToRascalAstConverter converter = new JdtAstToRascalAstConverter(VF, 
 												   eval.getHeap().getModule("lang::java::jdt::JDT").getStore(), 
 												   new BindingConverter());
+		converter.set(cu);
+		converter.set(loc);
 		cu.accept(converter);
 		return converter.getValue();
 	}

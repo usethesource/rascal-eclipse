@@ -12,7 +12,12 @@ import lang::java::jdt::Java;
 
 @doc{Returns the type of the AstNode if it can be resolved}
 anno Entity AstNode@javaType; 
+
+@doc{All the bindings that can be resolved for a node}
 anno map[str, Entity] AstNode@bindings;
+
+@doc{Each node is linked to the location in a source}
+anno loc AstNode@location;
 
 data AstNode	= compilationUnit(Option[AstNode] package, list[AstNode] imports, list[AstNode] typeDeclarations)
 				
