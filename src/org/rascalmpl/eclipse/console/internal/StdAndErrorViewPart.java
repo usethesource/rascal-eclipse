@@ -2,7 +2,9 @@ package org.rascalmpl.eclipse.console.internal;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 
+import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -14,7 +16,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
-import org.rascalmpl.eclipse.perspective.Factory;
 
 public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	public static final String ID = "rascal-eclipse.outputview";
@@ -33,21 +34,25 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	private static final StreamConnection errStreamConnection;
 
 	
-	private static class AlwaysPaused implements PausableOutput{
+	private static class BackupIMPOutput implements PausableOutput{
+		private PrintStream backupOutput;
+		public BackupIMPOutput() {
+			backupOutput = RuntimePlugin.getInstance().getConsoleStream();
+		}
 		@Override
 		public boolean isPaused() {
-			return true;
+			return false;
 		}
 		@Override
 		public void output(byte[] b) throws IOException {
-			throw new Error("Cannot write to always paused outputstream!");
+			backupOutput.print(new String(b, "UTF16"));
 		}
 		
 	}
 	
 	static {
-		outStreamConnection = connectBuffers(new AlwaysPaused(), "stdOut", STD_OUT_BUFFER_SIZE);
-		errStreamConnection = connectBuffers(new AlwaysPaused(), "stdErr", STD_ERR_BUFFER_SIZE);
+		outStreamConnection = connectBuffers(new BackupIMPOutput(), "stdOut", STD_OUT_BUFFER_SIZE);
+		errStreamConnection = connectBuffers(new BackupIMPOutput(), "stdErr", STD_ERR_BUFFER_SIZE);
 	}
 	
 	private static class StreamConnection{
