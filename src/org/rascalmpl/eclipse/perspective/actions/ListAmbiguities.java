@@ -12,11 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.perspective.actions;
 
-import java.io.File;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -26,6 +21,7 @@ import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
+import org.rascalmpl.eclipse.util.ResourcesToModules;
 
 public class ListAmbiguities extends AbstractEditorAction {
 	public ListAmbiguities(UniversalEditor editor) {
@@ -41,7 +37,7 @@ public class ListAmbiguities extends AbstractEditorAction {
 		
 		// TODO create job for getting grammar
 		
-		String moduleName = getModuleName(project, file);
+		String moduleName = ResourcesToModules.moduleFromFile(file);
 		
 		try {
 			ReportView part = (ReportView) PlatformUI.getWorkbench()
@@ -59,20 +55,5 @@ public class ListAmbiguities extends AbstractEditorAction {
 		}
 	}
 	
-	private String getModuleName(IProject project, IFile file) {
-		String moduleName;
-		
-		IFolder srcFolder = project.getFolder(IRascalResources.RASCAL_SRC);
-		if (srcFolder != null && srcFolder.exists()) {
-			if (srcFolder.getProjectRelativePath().isPrefixOf(file.getProjectRelativePath())) {
-				moduleName = file.getProjectRelativePath().removeFirstSegments(1).removeFileExtension().toPortableString();
-				moduleName = moduleName.replaceAll(File.pathSeparator, "::");
-				return moduleName;
-			}
-		}
-		
-		moduleName = file.getProjectRelativePath().removeFileExtension().toPortableString();
-		moduleName = moduleName.replaceAll(File.pathSeparator, "::");
-		return moduleName;
-	}
+	
 }

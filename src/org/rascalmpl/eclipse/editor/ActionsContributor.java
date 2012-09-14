@@ -20,11 +20,13 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.rascalmpl.eclipse.perspective.actions.BrowseTree;
 import org.rascalmpl.eclipse.perspective.actions.CopyToConsole;
+import org.rascalmpl.eclipse.perspective.actions.ImportInConsole;
 import org.rascalmpl.eclipse.perspective.actions.ListAmbiguities;
 import org.rascalmpl.eclipse.perspective.actions.ReloadStaticChecker;
 import org.rascalmpl.eclipse.perspective.actions.ResetProjectState;
 import org.rascalmpl.eclipse.perspective.actions.RunAmbiDexter;
 import org.rascalmpl.eclipse.perspective.actions.RunStaticChecker;
+import org.rascalmpl.eclipse.perspective.actions.RunTests;
 import org.rascalmpl.eclipse.perspective.actions.StartConsole;
 import org.rascalmpl.eclipse.perspective.actions.SubMenu;
 import org.rascalmpl.eclipse.perspective.actions.TextTree;
@@ -36,8 +38,10 @@ public class ActionsContributor implements ILanguageActionsContributor {
 			IMenuManager menuManager) {
 		menuManager.add(new StartConsole(editor));
 		menuManager.add(new CopyToConsole(editor));
+		menuManager.add(new ImportInConsole(editor));
 		 
 		MenuManager exp = new SubMenu(menuManager, "Experimental");
+		exp.add(new RunTests(editor));
 		exp.add(new RunAmbiDexter(editor));
 		exp.add(new ListAmbiguities(editor));
 		exp.add(new RunStaticChecker(editor));

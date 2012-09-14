@@ -12,15 +12,10 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.perspective.actions;
 
-import java.io.File;
 import java.net.URI;
-import java.util.regex.Pattern;
 
 import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -36,8 +31,8 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.ambidexter.AmbiDexterRunner;
 import org.rascalmpl.eclipse.ambidexter.AmbiDexterWizard;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
+import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public class RunAmbiDexter extends AbstractEditorAction {
 	
@@ -64,7 +59,7 @@ public class RunAmbiDexter extends AbstractEditorAction {
 					monitor.beginTask("Retrieving Rascal Grammar", 4);
 					Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
 					monitor.worked(1);
-					final String moduleName = getModuleName(project, file);
+					final String moduleName = ResourcesToModules.moduleFromFile(file);
 					monitor.worked(1);
 					final IConstructor grammar = getGrammar(eval, moduleName);
 					monitor.worked(1);
@@ -103,26 +98,5 @@ public class RunAmbiDexter extends AbstractEditorAction {
 		eval.doImport(eval.getMonitor(), moduleName);
 		IConstructor grammar = eval.getExpandedGrammar(eval.getMonitor(), URI.create("rascal://" + moduleName));
 		return grammar;
-	}
-
-	private static String getModuleName(IProject project, IFile file) {
-		String moduleName;
-		
-		IFolder srcFolder = project.getFolder(IRascalResources.RASCAL_SRC);
-		
-		if (srcFolder != null && srcFolder.exists()) {
-			if (srcFolder.getProjectRelativePath().isPrefixOf(file.getProjectRelativePath())) {
-				moduleName = file.getProjectRelativePath().removeFirstSegments(1).removeFileExtension().toPortableString();
-				moduleName = moduleName.replaceAll(Pattern.quote(File.separator), "::").replaceAll("syntax","\\\\syntax");
-				return moduleName;
-			}
-		}
-		else {
-			moduleName = file.getProjectRelativePath().removeFileExtension().toPortableString();
-			moduleName = moduleName.replaceAll(Pattern.quote(File.separator), "::");
-			return moduleName;
-		}
-		
-		throw new ImplementationError("could not compute modulename for " + file);
 	}
 }

@@ -75,6 +75,8 @@ public interface IRascalResources {
 	public static final String RASCAL_EDITOR_MESSAGES = "rascal.editor.messages";
 	
 	public static final String LAUNCHTYPE = "rascal.launchType";
+	public static final String STD_LIB = "std";
+	public static final String ECLIPSE_LIB = "eclipse";
 	
 
 

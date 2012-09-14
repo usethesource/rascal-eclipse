@@ -16,15 +16,25 @@ public class ResourcesToModules {
 	public static String moduleFromFile(IFile file) {
 		IProject proj = file.getProject();
 		if (proj != null && proj.exists()) {
-			IFolder srcFolder = proj.getFolder(IRascalResources.RASCAL_SRC);
-			if (srcFolder != null && srcFolder.exists()) {
-				if (srcFolder.getProjectRelativePath().isPrefixOf(file.getProjectRelativePath())) {
-					String name = file.getProjectRelativePath().removeFirstSegments(1).removeFileExtension().toPortableString();
-					return name.replaceAll("/", "::");
+			for (String root : new String[] { IRascalResources.RASCAL_SRC, IRascalResources.STD_LIB, IRascalResources.ECLIPSE_LIB }) {
+				String mod = moduleForRoot(file, proj.getFolder(root));
+				if (mod != null) {
+					return mod;
 				}
 			}
 		}
 
+		return null;
+	}
+
+	private static String moduleForRoot(IFile file, IFolder stdFolder) {
+		if (stdFolder != null && stdFolder.exists()) {
+			if (stdFolder.getProjectRelativePath().isPrefixOf(file.getProjectRelativePath())) {
+				String name = file.getProjectRelativePath().removeFirstSegments(1).removeFileExtension().toPortableString();
+				return name.replaceAll("/", "::");
+			}
+		}
+		
 		return null;
 	}
 	
