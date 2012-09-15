@@ -33,7 +33,7 @@ public class Tutor extends ViewPart {
 	
 	private Browser browser;
     private RascalTutor tutor;
-	private Object lock = new Integer(42);
+	private Object lock = new Object();
     
 	public Tutor() { }
 
