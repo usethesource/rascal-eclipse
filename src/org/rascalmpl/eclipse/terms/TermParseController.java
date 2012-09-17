@@ -13,8 +13,10 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.terms;
 
+import java.net.URI;
 import java.util.Iterator;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -46,6 +48,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TermParseController implements IParseController {
@@ -96,16 +99,30 @@ public class TermParseController implements IParseController {
 		return new TokenIterator(true, parseTree);
 	}
 
+	@Override
 	public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {
+		Assert.isTrue(filePath.isAbsolute() && project == null
+				|| !filePath.isAbsolute() && project != null);
+
 		this.path = filePath;
 		this.project = project;
+
 		TermLanguageRegistry reg = TermLanguageRegistry.getInstance();
 		this.language = reg.getLanguage(path.getFileExtension());
 		this.parser = reg.getParser(this.language);
 		this.annotator = reg.getAnnotator(this.language);
-		this.job = new ParseJob(language.getName() + " parser", VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, path)), handler);
-	}
 
+		URI location = null;
+
+		if (project != null) {
+			location = ProjectURIResolver.constructProjectURI(project, path);
+		} else {
+			location = FileURIResolver.constructFileURI(path.toOSString());
+		}
+
+		this.job = new ParseJob(language.getName() + " parser", VF.sourceLocation(location), handler);
+	}
+	
 	public IDocument getDocument() {
 		return document;
 	}

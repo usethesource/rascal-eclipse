@@ -17,7 +17,6 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.Assert;
@@ -47,7 +46,6 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.FileURIResolver;
 
 public class ParseController implements IParseController, IMessageHandlerProvider {
@@ -118,27 +116,12 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			location = ProjectURIResolver.constructProjectURI(project, path);
 			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(project.getRawProject());
 		} else {
-			location = constructFileURI(path.toOSString());
+			location = FileURIResolver.constructFileURI(path.toOSString());
 			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(null);
 		}
 
 		this.job = new ParseJob("Rascal parser", location, handler);
 	}
-
-	/**
-	 * Utility function to create a URI from an absolute path.
-	 * TODO: create URI builder or move to {@link FileURIResolver}.
-	 * 
-	 * @param path a platform-dependent string representation of this path
-	 * @return a file schema URI
-	 */
-	private static URI constructFileURI(String path) {
-		try{
-			return new URI("file", null, path, null);
-		}catch(URISyntaxException usex){
-			throw new BadURIException(usex);
-		}
-	}	
 	
 	public IDocument getDocument() {
 		return document;
