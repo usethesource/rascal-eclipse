@@ -21,6 +21,7 @@ import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
@@ -68,6 +69,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	private int inputOffset;
 	private String currentContent;
 	
+	private volatile boolean promptInitialized;
 	private volatile boolean terminated;
 
 	/**
@@ -127,6 +129,16 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				
 				disableEditing();
 				emitPrompt();	
+
+				/**
+				 * <code>promptInitialized</code> is set after
+				 * <code>page</code> was initialized and the console is ready
+				 * for input (i.e. the prompt was printed). This are the
+				 * preconditions that commands from the
+				 * <code>delayedCommandQueue</code> might be processed.
+				 */
+				promptInitialized = true;
+				
 				enableEditing();
 				
 				Display.getDefault().asyncExec(new Runnable(){
@@ -303,7 +315,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				currentContent = doc.get();
 
 				/*
-				 * Here as well it's the most convinient and non-invasive place
+				 * Here as well it's the most convenient and non-invasive place
 				 * to perform this action, because the console only reacts to
 				 * user-generated document update events when it's active {@see
 				 * ConsoleDocumentListener#documentChanged(DocumentEvent)}.
@@ -374,7 +386,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				 * Execute queued command directly iff console is idle. Otherwise
 				 * it will be executed upon next {@link #enableEditing()}.
 				 */
-				if (page.getViewer().isEditable()) { consumeNextQueuedCommand(); }
+				if (promptInitialized && page.getViewer().isEditable()) { consumeNextQueuedCommand(); }
 			}
 		});
 	
@@ -386,6 +398,10 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	 * if present.
 	 */
 	protected void consumeNextQueuedCommand() {
+		Assert.isNotNull(page);
+		Assert.isTrue(page.getViewer().isEditable());
+		Assert.isTrue(promptInitialized);
+		
 		IDocument doc = getDocument();
 		
 		String command = delayedCommandQueue.poll();
