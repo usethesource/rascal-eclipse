@@ -34,25 +34,19 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	private static final StreamConnection errStreamConnection;
 
 	
-	private static class BackupIMPOutput implements PausableOutput{
-		private PrintStream backupOutput;
-		public BackupIMPOutput() {
-			backupOutput = RuntimePlugin.getInstance().getConsoleStream();
-		}
+	private static class AlwaysPaused implements PausableOutput{
 		@Override
 		public boolean isPaused() {
-			return false;
+			return true;
 		}
 		@Override
 		public void output(byte[] b) throws IOException {
-			backupOutput.print(new String(b, "UTF16"));
 		}
-		
 	}
 	
 	static {
-		outStreamConnection = connectBuffers(new BackupIMPOutput(), "stdOut", STD_OUT_BUFFER_SIZE);
-		errStreamConnection = connectBuffers(new BackupIMPOutput(), "stdErr", STD_ERR_BUFFER_SIZE);
+		outStreamConnection = connectBuffers(new AlwaysPaused(), "stdOut", STD_OUT_BUFFER_SIZE);
+		errStreamConnection = connectBuffers(new AlwaysPaused(), "stdErr", STD_ERR_BUFFER_SIZE);
 	}
 	
 	private static class StreamConnection{
@@ -207,6 +201,9 @@ public class StdAndErrorViewPart extends ViewPart implements Pausable {
 
 	@Override
 	public void dispose(){
+		// temporary pause the console output, until a new console is available again
+		outStreamConnection.getUiPipe().setTarget(new AlwaysPaused());
+		errStreamConnection.getUiPipe().setTarget(new AlwaysPaused());
 		stdOut.dispose();
 		stdErr.dispose();
 		totalWidget.dispose();
