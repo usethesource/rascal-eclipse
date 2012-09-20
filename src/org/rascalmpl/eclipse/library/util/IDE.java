@@ -17,7 +17,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.CustomConsoleRegistry;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -35,20 +34,11 @@ public class IDE {
 	}
 	
 	public void registerAnnotator(IString name, IValue function) {
-		if (function instanceof ICallableValue) {
-			TermLanguageRegistry.getInstance().registerAnnotator(name.getValue(), (ICallableValue) function);
-			return;
-		}
-		Activator.getInstance().logException("could not register analysis for " + name, new RuntimeException());
+		TermLanguageRegistry.getInstance().registerAnnotator(name.getValue(), (ICallableValue) function);
 	}
 	
 	public void registerOutliner(IString name, IValue builder) {
-		if (builder instanceof ICallableValue) {
-			TermLanguageRegistry.getInstance().registerOutliner(name.getValue(), (ICallableValue) builder);
-		}
-		else {
-			Activator.getInstance().logException("could not register tree model builder for " + name, new RuntimeException());
-		}
+		TermLanguageRegistry.getInstance().registerOutliner(name.getValue(), (ICallableValue) builder);
 	}
 	
 	public void registerContributions(IString name, ISet contributions) {
@@ -77,10 +67,6 @@ public class IDE {
 	}
 	
 	public void createConsole(IString name, IString startText, IValue newLineCallback) {
-		if (newLineCallback instanceof ICallableValue) {
-			CustomConsoleRegistry.getInstance().registerConsole(name.getValue(), startText.getValue(), TF, VF, (ICallableValue)newLineCallback);
-			return;
-		}
-		Activator.getInstance().logException("could not create console for " + name, new RuntimeException());
+		CustomConsoleRegistry.getInstance().registerConsole(name.getValue(), startText.getValue(), TF, VF, (ICallableValue)newLineCallback);
 	}
 }
