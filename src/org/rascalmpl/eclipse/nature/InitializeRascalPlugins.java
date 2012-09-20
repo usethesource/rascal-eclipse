@@ -62,9 +62,8 @@ public class InitializeRascalPlugins implements ILanguageRegistrar {
 		}
 		catch (RuntimeException e) {
 			if (eval != null && (e instanceof ParseError || e instanceof StaticError || e instanceof Throw)) {
-				eval.getStdErr().write("Could not run Plugin.rsc main of " + project.getName()+"\n");
-				eval.getStdErr().write(ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(e));
-				eval.getStdErr().flush();
+				eval.getStdErr().println("Could not run Plugin.rsc main of " + project.getName());
+				eval.getStdErr().println(ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(e));
 			}
 			else {
 				Activator.getInstance().logException("could not run Plugin.rsc main of " + project.getName(), e);
