@@ -56,10 +56,12 @@ public class ProjectEvaluatorFactory {
 	private final WeakHashMap<IProject, Evaluator> parserForProject = new WeakHashMap<IProject, Evaluator>();
 	private final WeakHashMap<IProject, ModuleReloader> reloaderForProject = new WeakHashMap<IProject, ModuleReloader>();
 	private final PrintWriter out;
+	private final PrintWriter err;
 	
 	private ProjectEvaluatorFactory() {
 		try {
 			out = new PrintWriter(new OutputStreamWriter(StdAndErrorViewPart.getStdOut(), "UTF16"));
+			err = new PrintWriter(new OutputStreamWriter(StdAndErrorViewPart.getStdErr(), "UTF16"), true);
 		} catch (UnsupportedEncodingException e) {
 			Activator.getInstance().logException("internal error", e);
 			throw new RuntimeException("???", e);
@@ -114,7 +116,7 @@ public class ProjectEvaluatorFactory {
 	public Evaluator createProjectEvaluator(IProject project) {
 		Activator.getInstance().checkRascalRuntimePreconditions(project);
 		GlobalEnvironment heap = new GlobalEnvironment();
-		Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), out, out, new ModuleEnvironment("***parser***", heap), heap);
+		Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, new ModuleEnvironment("***parser***", heap), heap);
 		initializeProjectEvaluator(project, parser);
 		return parser;
 	}
