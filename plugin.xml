@@ -709,7 +709,7 @@
       <action
             class="org.rascalmpl.eclipse.perspective.actions.ShowTutor"
             icon="icons/rascal-tutor-small.png"
-            id="StartConsoleAction"
+            id="StartTutorAction"
             label="Show Tutor"
             menubarPath="rascal-eclipse.menu/consoles"
             toolbarPath="Normal"
