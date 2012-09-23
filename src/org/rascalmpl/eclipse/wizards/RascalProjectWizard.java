@@ -67,7 +67,7 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 						plugin.setBundleName(project.getName());
 						
 						if (project.getName().contains(" ")) {
-							throw new InvocationTargetException(new Exception("Rascal project names may not contain spaces"));
+							//throw new InvocationTargetException(new Exception("Rascal project names may not contain spaces"));
 						}
 						
 						initializeProjectAsRascalProject(project, monitor, service, plugin);
