@@ -113,13 +113,13 @@ public class TestReporter implements ITestResultListener {
 		String scheme = uri.getScheme();
 		
 		if (scheme.equals("project")) {
-			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getHost());
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 			
 			if (project != null) {
 				return project.getFile(uri.getPath());
 			}
 			
-			Activator.getInstance().logException("project " + uri.getHost() + " does not exist", new RuntimeException());
+			Activator.getInstance().logException("project " + uri.getAuthority() + " does not exist", new RuntimeException());
 		}
 		else if (scheme.equals("file")) {
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();

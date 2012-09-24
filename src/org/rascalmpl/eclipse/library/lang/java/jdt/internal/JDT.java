@@ -82,7 +82,7 @@ public class JDT {
 			throw new Throw(VF.string("URI is not a valid path"), (ISourceLocation) null, null);
 		}		
 
-		IProject p = getProject(uri.getHost());
+		IProject p = getProject(uri.getAuthority());
 		if (!p.exists(new Path(path))) {
 			throw new Throw(VF.string("Path does not exist: " + path), (ISourceLocation) null, null);
 		}

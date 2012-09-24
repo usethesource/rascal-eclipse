@@ -69,7 +69,7 @@ public class Resources {
 	}
 	
 	public  ISet references(ISourceLocation loc) {
-		IProject project = getIProject(loc.getURI().getHost());
+		IProject project = getIProject(loc.getURI().getAuthority());
 		ISetWriter w = VF.setWriter(TF.sourceLocationType());
 		
 		try {
@@ -85,7 +85,7 @@ public class Resources {
 	}
 	
 	public void openProject(ISourceLocation name) {
-		IProject project = getIProject(name.getURI().getHost());
+		IProject project = getIProject(name.getURI().getAuthority());
 		try {
 			project.open(new NullProgressMonitor());
 		} catch (CoreException e) {
@@ -112,7 +112,7 @@ public class Resources {
 	}
 	
 	public  ISourceLocation location(ISourceLocation name) {
-		IProject project = getIProject(name.getURI().getHost());
+		IProject project = getIProject(name.getURI().getAuthority());
 		String path = name.getURI().getPath();
 		
 		if (path != null && path.length() != 0) {
@@ -192,7 +192,7 @@ public class Resources {
 	}
 	
 	public  IConstructor getProject(ISourceLocation projectName) {
-		IProject p = getIProject(projectName.getURI().getHost());
+		IProject p = getIProject(projectName.getURI().getAuthority());
 		ISet contents = getProjectContents(p);
 		return (IConstructor) project.make(VF, projectName, contents);
 	}
