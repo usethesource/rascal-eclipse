@@ -30,7 +30,7 @@ public class StaticCheckerHelper {
 
 		if (sourceProject != null) {
 			try{
-				checker.addRascalSearchPath(new URI("project://" + sourceProject.getName() + "/" + IRascalResources.RASCAL_SRC));
+				checker.addRascalSearchPath(new URI("project", sourceProject.getName(),"/" + IRascalResources.RASCAL_SRC, null, null));
 			}catch(URISyntaxException usex){
 				throw new RuntimeException(usex);
 			}
