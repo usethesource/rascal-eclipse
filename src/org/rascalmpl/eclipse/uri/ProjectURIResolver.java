@@ -28,6 +28,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -41,13 +42,9 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	
 	public static URI constructProjectURI(ISourceProject project, IPath path){
 		try{
-			// making sure that spaces in 'path' are properly escaped
-			return new URI("project://"+project.getName()+"/"+URLEncoder.encode(path.toOSString(),"UTF8"));
+			return new URI("project", project.getName(), "/" + path.toString(), null, null);
 		}catch(URISyntaxException usex){
 			throw new BadURIException(usex);
-		} catch (UnsupportedEncodingException e) {
-			Activator.getInstance().logException(e.getMessage(), e);
-			return null;
 		}
 	}
 
@@ -58,7 +55,7 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	public static URI constructNonEncodedProjectURI(String project, IPath path){
 		try{
 			// making sure that spaces in 'path' are properly escaped
-			return new URI("project://"+project+"/"+path.toString());
+			return new URI("project", project, "/" + path.toString(), null, null);
 		}catch(URISyntaxException usex){
 			throw new BadURIException(usex);
 		}
@@ -86,30 +83,30 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	}
 
 	public IFile resolveFile(URI uri) throws IOException, MalformedURLException {
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getHost());
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		
 		if (project == null) {
-			throw new IOException("project " + uri.getHost() + " does not exist");
+			throw new IOException("project " + uri.getAuthority() + " does not exist");
 		}
 		
 		return project.getFile(uri.getPath());
 	}
 	
 	private IFolder resolveFolder(URI uri) throws IOException, MalformedURLException {
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getHost());
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		
 		if (project == null) {
-			throw new IOException("project " + uri.getHost() + " does not exist");
+			throw new IOException("project " + uri.getAuthority() + " does not exist");
 		}
 		
 		return project.getFolder(uri.getPath());
 	}
 
 	private IResource resolve(URI uri) throws IOException, MalformedURLException {
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getHost());
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		
 		if (project == null) {
-			throw new IOException("project " + uri.getHost() + " does not exist");
+			throw new IOException("project " + uri.getAuthority() + " does not exist");
 		}
 		
 		if(isDirectory(uri)){
@@ -148,7 +145,10 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 			return false;
 		} catch (IOException e) {
 			return false;
+		} catch (AssertionFailedException e) {
+			return false;
 		}
+	
 	}
 
 	public boolean isDirectory(URI uri) {

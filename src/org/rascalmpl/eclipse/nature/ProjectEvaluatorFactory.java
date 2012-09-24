@@ -182,10 +182,10 @@ public class ProjectEvaluatorFactory {
 	private void addProjectToSearchPath(IProject project, Evaluator parser)
 			throws URISyntaxException {
 		if (project.exists(new Path(IRascalResources.RASCAL_SRC))) {
-			parser.addRascalSearchPath(new URI("project://" + project.getName() + "/" + IRascalResources.RASCAL_SRC));
+			parser.addRascalSearchPath(new URI("project", project.getName(), "/" + IRascalResources.RASCAL_SRC, null, null));
 		}
 		else {
-			parser.addRascalSearchPath(new URI("project://" + project.getName() + "/"));
+			parser.addRascalSearchPath(new URI("project", project.getName(), "/", null, null));
 		}
 	}
 
