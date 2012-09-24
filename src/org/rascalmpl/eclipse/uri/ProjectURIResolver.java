@@ -41,31 +41,21 @@ import org.rascalmpl.uri.IURIOutputStreamResolver;
 public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputStreamResolver {
 	
 	public static URI constructProjectURI(ISourceProject project, IPath path){
-		try{
-			return new URI("project", project.getName(), "/" + path.toString(), null, null);
-		}catch(URISyntaxException usex){
-			throw new BadURIException(usex);
-		}
+		return constructProjectURI(project.getName(), path);
 	}
 
-	public static URI constructNonEncodedProjectURI(ISourceProject project, IPath path){
-		return constructNonEncodedProjectURI(project.getName(), path);
-	}
-	
-	public static URI constructNonEncodedProjectURI(String project, IPath path){
+	private static URI constructProjectURI(String project, IPath path){
 		try{
-			// making sure that spaces in 'path' are properly escaped
 			return new URI("project", project, "/" + path.toString(), null, null);
 		}catch(URISyntaxException usex){
 			throw new BadURIException(usex);
 		}
 	}
 	
-	public static URI constructNonEncodedProjectURI(IPath workspaceAbsolutePath){
+	public static URI constructProjectURI(IPath workspaceAbsolutePath){
 		String projectName        = workspaceAbsolutePath.segment(0);
 		IPath projectAbsolutePath = workspaceAbsolutePath.removeFirstSegments(1);
-		
-		return constructNonEncodedProjectURI(projectName, projectAbsolutePath);
+		return constructProjectURI(projectName, projectAbsolutePath);
 	}		
 	
 	public InputStream getInputStream(URI uri) throws IOException {
