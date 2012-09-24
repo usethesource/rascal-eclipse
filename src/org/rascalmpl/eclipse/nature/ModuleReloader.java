@@ -112,9 +112,9 @@ public class ModuleReloader{
 								if (srcFolder != null && srcFolder.exists()) {
 									if (srcFolder.getProjectRelativePath().isPrefixOf(file.getProjectRelativePath())) {
 										try{
-											URI uri = new URI("project://" + proj.getName() + "/" + file.getProjectRelativePath().removeFirstSegments(1).toPortableString());
+											URI uri = new URI("project", proj.getName(), "/" + file.getProjectRelativePath().removeFirstSegments(1).toString(), null, null);
 											interpreter.moduleChanged(uri);
-											uri = new URI("project://" + proj.getName() + "/" + IRascalResources.RASCAL_SRC + "/" + file.getProjectRelativePath().removeFirstSegments(1).toPortableString());
+											uri = new URI("project", proj.getName(), "/" + IRascalResources.RASCAL_SRC + "/" + file.getProjectRelativePath().removeFirstSegments(1).toString(), null, null);
 											interpreter.moduleChanged(uri);
 										}catch(URISyntaxException usex){
 											usex.printStackTrace(); // TODO Change to something better.
