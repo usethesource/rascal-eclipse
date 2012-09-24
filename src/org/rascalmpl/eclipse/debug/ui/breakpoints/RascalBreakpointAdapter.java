@@ -44,6 +44,7 @@ import org.rascalmpl.eclipse.debug.uri.ProjectURIToStandardLibraryTransformer;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 import java.io.IOException;
@@ -93,7 +94,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 			
 			if (closestSourceLocation == null) {
 
-				IStatus message = new Status(IStatus.INFO, Activator.PLUGIN_ID, "Breakpoint not created, no AST associated to line.");
+				IStatus message = new Status(IStatus.INFO, Activator.PLUGIN_ID, "Breakpoint not created, no 'breakable' annotation associated to parse tree of line.");
 				Activator.getInstance().getLog().log(message);
 			
 			} else {		
@@ -178,11 +179,13 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 
 	/*
 	 * TODO: Should this functionality move to the runtime, to e.g. query the
-	 * closest source location associated with a line number?
+	 * closest (i.e. first) source location of a 'breakable' parse tree node associated with a line number?
 	 */
 	private static ISourceLocation calculateClosestLocation(final IConstructor parseTree, final int lineNumber){
 		class OffsetFinder extends NullVisitor<IValue>{
 	
+			private IValueFactory VF = ValueFactoryFactory.getValueFactory(); 
+			
 			private ISourceLocation location = null;
 			
 			public ISourceLocation getSourceLocation() {
@@ -194,8 +197,8 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 				if(locationAnnotation != null){
 					ISourceLocation sourceLocation = ((ISourceLocation) locationAnnotation);
 					if(sourceLocation.getBeginLine() == lineNumber){
-						String sortName = TreeAdapter.getSortName(o);
-						if(sortName.equals("Statement") || sortName.equals("Expression")){
+						ISet attributes = ProductionAdapter.getAttributes(TreeAdapter.getProduction(o));
+						if (attributes != null && attributes.contains(VF.constructor(Factory.Attr_Tag, VF.node("breakable")))) {
 							location = sourceLocation;
 							throw new VisitorException("Stop");
 						}
