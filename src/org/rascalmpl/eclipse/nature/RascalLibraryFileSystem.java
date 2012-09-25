@@ -36,6 +36,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.Evaluator;
 
 // TODO: link this stuff with the rascal search path instead
@@ -123,7 +125,7 @@ public class RascalLibraryFileSystem extends FileSystem {
 					List<String> list = new LinkedList<String>();
 					
 					for (File f : file.listFiles()) {
-						if (f.isDirectory() || f.getName().endsWith(".rsc")) {
+						if (f.isDirectory() || shouldShow(f)) {
 							list.add(f.getName());
 						}
 					}
@@ -132,6 +134,21 @@ public class RascalLibraryFileSystem extends FileSystem {
 				}
 				
 				return EMPTY_STRING_ARRAY;
+			}
+
+			private boolean shouldShow(File f) {
+				if (f.getName().endsWith("." + IRascalResources.RASCAL_EXT)) {
+					return true;
+				}
+				
+				String path = f.getPath();
+				int i = path.lastIndexOf('.');
+				if (i != -1 && i != path.length() - 1) {
+					String ext = path.substring(i+1);
+					return TermLanguageRegistry.getInstance().getLanguage(ext) != null;
+				}
+				
+				return false;
 			}
 	
 			@Override
