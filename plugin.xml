@@ -284,13 +284,6 @@
             id="rascal.debugModel"/>
    </extension>
      <extension
-           point="org.eclipse.debug.ui.contextViewBindings">
-        <contextViewBinding
-              contextId="rascal.debugging"
-              viewId="rascal-eclipse.functionview">
-        </contextViewBinding>
-     </extension>
-     <extension
            point="org.eclipse.debug.ui.debugModelContextBindings">
         <modelContextBinding
               contextId="rascal.debugging"
