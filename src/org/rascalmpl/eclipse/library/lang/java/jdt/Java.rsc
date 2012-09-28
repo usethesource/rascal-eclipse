@@ -14,7 +14,7 @@
 module lang::java::jdt::Java
 
 import List;
-import Number;
+import util::Math;
 import Node;
 import Exception;
 
