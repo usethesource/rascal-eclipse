@@ -119,20 +119,6 @@ public class Activator extends PluginBase {
 	public void checkRascalRuntimePreconditions(IProject project) {
 		List<String> errors = new LinkedList<String>();
 	
-		if (project != null && project.getName().contains(SPACE)) {
-			//errors.add("Rascal projects may not contain spaces: ["+project.getName()+"]\n\tPlease change the name");
-		}
-	
-		String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
-		if (workspace.contains(SPACE)) {
-			errors.add("Workspace location may not contain spaces in its path: ["+workspace+"]\n\tPlease move your workspace.");
-		}
-		
-		String home = System.getProperty("eclipse.home.location");
-		if (home.contains(SPACE)) {
-			errors.add("Eclipse installation location may not contain spaces in its path: [" + home + "]\n\tPlease move your eclipse installation.");
-		}
-		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
 			errors.add("Rascal needs a Java Development Kit (JDK), not just a Java Run-time Environment (JRE).\n\tPlease make sure Eclipse uses a JDK.");
 		}
