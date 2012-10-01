@@ -13,6 +13,9 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.ui.breakpoints;
 
+import java.io.IOException;
+import java.net.URI;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -46,9 +49,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
-
-import java.io.IOException;
-import java.net.URI;
 
 /**
  * Adapter to create line breakpoints in Rascal files.
@@ -90,6 +90,8 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 			 * Find a source location associated with a line number.			
 			 */
 			IConstructor parseTree = (IConstructor) ((UniversalEditor) textEditor).getParseController().getCurrentAst();
+			parseTree = org.rascalmpl.interpreter.debug.DebugUpdater.pushDownAttributes(parseTree);		
+			
 			ISourceLocation closestSourceLocation = calculateClosestLocation(parseTree, lineNumber + 1);
 			
 			if (closestSourceLocation == null) {
