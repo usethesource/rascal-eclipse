@@ -16,6 +16,7 @@ module util::IDE
 // Especially annotations defined in this module are relevant for util::IDE
 import ParseTree;
 import vis::Figure;
+import util::ContentCompletion;
 extend Message;
 
 @doc{
@@ -34,6 +35,7 @@ data Contribution
      | builder(set[Message] ((&T<:Tree) tree) messages)
      | annotator((&T<:Tree) (&T<:Tree input) annotator)
      | outliner(node (&T<:Tree input) outliner)
+     | proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int requestOffset) proposer, str legalPrefixChars)
      ;
   
 data Menu 
