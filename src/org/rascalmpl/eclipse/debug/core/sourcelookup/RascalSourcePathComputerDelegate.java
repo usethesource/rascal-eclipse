@@ -26,6 +26,7 @@ import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
 import org.eclipse.debug.core.sourcelookup.containers.DirectorySourceContainer;
 import org.eclipse.debug.core.sourcelookup.containers.ProjectSourceContainer;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
+import org.rascalmpl.uri.URIUtil;
 
 public class RascalSourcePathComputerDelegate implements ISourcePathComputerDelegate {
 
@@ -43,8 +44,8 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 			
 			IProject associatedProject = configurationUtility.getAssociatedProject();
 			
-			IFileStore libraryStore = EFS.getStore(URI.create("rascal-library://rascal/"));
-			IFileStore eclipseLibraryStore = EFS.getStore(URI.create("rascal-library://eclipse/"));
+			IFileStore libraryStore = EFS.getStore(URIUtil.assumeCorrect("rascal-library","rascal",""));
+			IFileStore eclipseLibraryStore = EFS.getStore(URIUtil.assumeCorrect("rascal-library", "eclipse", ""));
 			
 			ISourceContainer[] sourceContainers = new ISourceContainer[] {
 				new ProjectSourceContainer(associatedProject, true),

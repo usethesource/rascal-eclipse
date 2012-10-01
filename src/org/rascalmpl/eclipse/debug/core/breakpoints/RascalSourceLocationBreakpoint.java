@@ -36,6 +36,7 @@ import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.debug.core.model.RascalThread;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.InterpreterEvent;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import static org.rascalmpl.interpreter.debug.DebugMessageFactory.*;
@@ -260,7 +261,7 @@ public class RascalSourceLocationBreakpoint extends LineBreakpoint implements II
 		String uriString = (String) marker.getAttribute(MARKER_ATTRIBUTE_URI);
 
 		try {
-			result = valueFactory.sourceLocation(new URI(uriString), offset, length, beginLine, endLine, beginCol, endCol);
+			result = valueFactory.sourceLocation(URIUtil.createFromEncoded(uriString), offset, length, beginLine, endLine, beginCol, endCol);
 		} catch (URISyntaxException e) {
 			IStatus message = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
 					"Persisted URI string of the marker's source location is invalid.", e);

@@ -120,7 +120,7 @@ public class Activator extends PluginBase {
 		List<String> errors = new LinkedList<String>();
 	
 		if (project != null && project.getName().contains(SPACE)) {
-			errors.add("Rascal projects may not contain spaces: ["+project.getName()+"]\n\tPlease change the name");
+			//errors.add("Rascal projects may not contain spaces: ["+project.getName()+"]\n\tPlease change the name");
 		}
 	
 		String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();

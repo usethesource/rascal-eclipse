@@ -39,6 +39,7 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.uri.URIUtil;
 
 // TODO: link this stuff with the rascal search path instead
 public class RascalLibraryFileSystem extends FileSystem {
@@ -76,8 +77,7 @@ public class RascalLibraryFileSystem extends FileSystem {
 			}
 			
 			URL fileURL = FileLocator.toFileURL(resource);
-		    // this constructor will not parse or escape spaces (workaround for Eclipse bug)
-			URI fileURI = new URI(fileURL.getProtocol(), fileURL.getHost(), fileURL.getPath(), fileURL.getQuery());
+			URI fileURI = URIUtil.create(fileURL.getProtocol(), fileURL.getHost(), fileURL.getPath(), fileURL.getQuery(), null);
 			roots.put(name, new RascalLibraryFileStore(fileURI));
 		} catch (URISyntaxException e) {
 			Activator.getInstance().logException("linking library failed", e);

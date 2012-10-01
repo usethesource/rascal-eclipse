@@ -99,6 +99,7 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.uri.URIUtil;
 
 public class RascalScriptInterpreter extends Job implements IInterpreter {
 	private ModuleReloader reloader;
@@ -226,8 +227,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		synchronized (eval) {
 			try {
 				eval.overrideDefaultWriters(consoleStdOut, consoleStdErr);
-				IConstructor tree = eval.parseCommand(rm, command,
-						URI.create("stdin:///"));
+				IConstructor tree = eval.parseCommand(rm, command, URIUtil.rootScheme("stdin"));
 				rm.event("running command");
 				reloader.updateModules(monitor);
 				execCommand(rm, tree);

@@ -41,6 +41,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
+import org.rascalmpl.uri.URIUtil;
 
 public class SourceLocationHyperlink implements IHyperlink {
 	private final ISourceLocation from;
@@ -121,13 +122,13 @@ public class SourceLocationHyperlink implements IHyperlink {
 						String scheme = uri.getScheme();
 						
 						if (scheme.equals("project")) {
-							IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getHost());
+							IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 							
 							if (project != null) {
 								return new FileEditorInput(project.getFile(uri.getPath()));
 							}
 							
-							Activator.getInstance().logException("project " + uri.getHost() + " does not exist", new RuntimeException());
+							Activator.getInstance().logException("project " + uri.getAuthority() + " does not exist", new RuntimeException());
 						}
 						else if (scheme.equals("file")) {
 							IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -149,7 +150,7 @@ public class SourceLocationHyperlink implements IHyperlink {
 							// TODO: this design is wrong, we should rethink the way we want
 							// to tie the Rascal schemes into Eclipse.
 							try {
-								uri = new URI(uri.toString().replaceFirst("std:///", "rascal-library://rascal/"));
+								uri = URIUtil.createFromEncoded(uri.toString().replaceFirst("std:///", "rascal-library://rascal/"));
 								return getEditorInput(uri);
 							} catch (URISyntaxException e) {
 								// Do nothing, fall through and return null

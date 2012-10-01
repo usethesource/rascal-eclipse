@@ -34,6 +34,7 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.nature.RascalLibraryFileSystem;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 
 public class TestReporter implements ITestResultListener {
 	private Map<IFile,List<Report>> reports;
@@ -113,13 +114,13 @@ public class TestReporter implements ITestResultListener {
 		String scheme = uri.getScheme();
 		
 		if (scheme.equals("project")) {
-			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getHost());
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 			
 			if (project != null) {
 				return project.getFile(uri.getPath());
 			}
 			
-			Activator.getInstance().logException("project " + uri.getHost() + " does not exist", new RuntimeException());
+			Activator.getInstance().logException("project " + uri.getAuthority() + " does not exist", new RuntimeException());
 		}
 		else if (scheme.equals("file")) {
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -139,12 +140,12 @@ public class TestReporter implements ITestResultListener {
 		}
 		else if (scheme.equals("std")) {
 			try {
-				uri = new URI(RascalLibraryFileSystem.SCHEME, RascalLibraryFileSystem.RASCAL, uri.getPath(),"");
+				uri = URIUtil.create(RascalLibraryFileSystem.SCHEME, RascalLibraryFileSystem.RASCAL, uri.getPath());
 				IFile [] files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
 				if (files.length > 0) {
 					return files[0];
 				}
-				uri = new URI(RascalLibraryFileSystem.SCHEME, RascalLibraryFileSystem.ECLIPSE, uri.getPath(), "");
+				uri = URIUtil.create(RascalLibraryFileSystem.SCHEME, RascalLibraryFileSystem.ECLIPSE, uri.getPath());
 				files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
 				if (files.length > 0) {
 					return files[0];

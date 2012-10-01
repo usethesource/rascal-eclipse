@@ -27,6 +27,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.tutor.RascalTutor;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 
 public class Tutor extends ViewPart {
 	public static final String ID = "rascal-eclipse.tutorBrowser";
@@ -88,7 +89,7 @@ public class Tutor extends ViewPart {
 						Evaluator eval = tutor.getRascalEvaluator();
 						ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(eval.getResolverRegistry(), "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
 						eval.getResolverRegistry().registerInput(eclipseResolver);
-						eval.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
+						eval.addRascalSearchPath(URIUtil.rootScheme(eclipseResolver.scheme()));
 						eval.addClassLoader(getClass().getClassLoader());
 
 						String rascalPlugin = jarForPlugin("rascal");

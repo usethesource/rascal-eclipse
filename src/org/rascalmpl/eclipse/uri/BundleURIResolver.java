@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 
 public class BundleURIResolver implements IURIOutputStreamResolver,
 		IURIInputStreamResolver {
@@ -36,16 +37,16 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 
 	public OutputStream getOutputStream(URI uri, boolean append)
 			throws IOException {
-		URI parent = resolve(URIResolverRegistry.getParentURI(uri));
+		URI parent = resolve(URIUtil.getParentURI(uri));
 		parent = resolve(parent);
-		return registry.getOutputStream(URIResolverRegistry.getChildURI(parent, URIResolverRegistry.getURIName(uri)), append);
+		return registry.getOutputStream(URIUtil.getChildURI(parent, URIUtil.getURIName(uri)), append);
 	}
 
 	public void mkDirectory(URI uri) throws IOException {
-		URI parent = resolve(URIResolverRegistry.getParentURI(uri));
+		URI parent = resolve(URIUtil.getParentURI(uri));
 		parent = resolve(parent);
 		
-		registry.mkDirectory(URIResolverRegistry.getChildURI(parent, URIResolverRegistry.getURIName(uri)));
+		registry.mkDirectory(URIUtil.getChildURI(parent, URIUtil.getURIName(uri)));
 	}
 
 	public String scheme() {
@@ -99,6 +100,11 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 
 	public String[] listEntries(URI uri) throws IOException {
 		return registry.listEntries(resolve(uri));
+	}
+
+	@Override
+	public boolean supportsHost() {
+		return false;
 	}
 
 }

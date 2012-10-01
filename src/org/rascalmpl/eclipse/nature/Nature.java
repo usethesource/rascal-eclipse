@@ -22,6 +22,7 @@ import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.runtime.IPluginLog;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.uri.URIUtil;
 
 public class Nature extends ProjectNatureBase implements IRascalResources {
 	@Override
@@ -50,13 +51,13 @@ public class Nature extends ProjectNatureBase implements IRascalResources {
 			IFolder lib = this.getProject().getFolder(IRascalResources.RASCAL_STD);
 			
 			if (!lib.exists()) {
-				lib.createLink(new URI("rascal-library", RascalLibraryFileSystem.RASCAL, "", null), IResource.BACKGROUND_REFRESH, null);
+				lib.createLink(URIUtil.create("rascal-library", RascalLibraryFileSystem.RASCAL, ""), IResource.BACKGROUND_REFRESH, null);
 			}
 
 			lib = this.getProject().getFolder("eclipse");
 			
 			if (!lib.exists()) {
-				lib.createLink(new URI("rascal-library", RascalLibraryFileSystem.ECLIPSE, "", null), IResource.BACKGROUND_REFRESH, null);
+				lib.createLink(URIUtil.create("rascal-library", RascalLibraryFileSystem.ECLIPSE, ""), IResource.BACKGROUND_REFRESH, null);
 			}
 		} catch (URISyntaxException e) {
 			Activator.getInstance().logException("error during linking of libraries", e);

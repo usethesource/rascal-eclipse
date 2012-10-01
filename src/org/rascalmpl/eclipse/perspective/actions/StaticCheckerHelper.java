@@ -21,6 +21,7 @@ import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 
 public class StaticCheckerHelper {
 	private static HashMap<ISourceProject, StaticChecker> checkerMap = new HashMap<ISourceProject, StaticChecker>();
@@ -30,7 +31,7 @@ public class StaticCheckerHelper {
 
 		if (sourceProject != null) {
 			try{
-				checker.addRascalSearchPath(new URI("project://" + sourceProject.getName() + "/" + IRascalResources.RASCAL_SRC));
+				checker.addRascalSearchPath(URIUtil.create("project", sourceProject.getName(),"/" + IRascalResources.RASCAL_SRC));
 			}catch(URISyntaxException usex){
 				throw new RuntimeException(usex);
 			}
@@ -43,7 +44,7 @@ public class StaticCheckerHelper {
 		
 		ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(resolverRegistry, "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
 		resolverRegistry.registerInput(eclipseResolver);
-		checker.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
+		checker.addRascalSearchPath(URIUtil.rootScheme(eclipseResolver.scheme()));
 		checker.addClassLoader(getClass().getClassLoader());
 		
 		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);

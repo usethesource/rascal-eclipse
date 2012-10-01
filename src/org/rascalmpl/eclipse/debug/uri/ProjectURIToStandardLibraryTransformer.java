@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.eclipse.core.runtime.IPath;
+import org.rascalmpl.uri.URIUtil;
 
 /**
  * Transforms an {@link URI} of schema type "project" to "std" iff the URI links
@@ -47,8 +48,7 @@ public class ProjectURIToStandardLibraryTransformer extends AbstractSchemaURITra
 		String prefix = IPath.SEPARATOR + linkedStandardLibraryFolderName;
 		
 		if (uri.getPath().startsWith(prefix)) {		
-			String uriString = "std://" + uri.getPath().substring(prefix.length());
-			return URI.create(uriString);
+			return URIUtil.assumeCorrect("std", "", uri.getPath().substring(prefix.length()));
 		} else {
 			return uri;
 		}

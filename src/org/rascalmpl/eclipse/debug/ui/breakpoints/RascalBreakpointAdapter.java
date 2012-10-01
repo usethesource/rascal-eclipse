@@ -258,7 +258,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 
 	private static ISourceLocation normalizeSourceLocation(IResource resource, ISourceLocation sourceLocation) { 
 		// 1) create a non-encoded "project" schema URI
-		URI uriBreakPointLocation = ProjectURIResolver.constructNonEncodedProjectURI(resource.getFullPath());
+		URI uriBreakPointLocation = ProjectURIResolver.constructProjectURI(resource.getFullPath());
 		
 		// 2) transform the "project" schema URI to a "std" schema URI (if necessary)
 		try {
