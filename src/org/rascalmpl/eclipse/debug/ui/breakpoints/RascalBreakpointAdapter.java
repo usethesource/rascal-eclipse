@@ -15,6 +15,7 @@ package org.rascalmpl.eclipse.debug.ui.breakpoints;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -47,8 +48,6 @@ import org.rascalmpl.eclipse.debug.uri.ProjectURIToStandardLibraryTransformer;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
  * Adapter to create line breakpoints in Rascal files.
@@ -180,8 +179,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 	}
 
 	/*
-	 * TODO: Should this functionality move to the runtime, to e.g. query the
-	 * closest (i.e. first) source location of a 'breakable' parse tree node associated with a line number?
+	 * Query the closest (i.e. first) source location of a 'breakable' parse tree node associated with a line number?
 	 */
 	private static ISourceLocation calculateClosestLocation(final IConstructor parseTree, final int lineNumber){
 		class OffsetFinder extends NullVisitor<IValue>{
@@ -196,11 +194,16 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 			
 			public IValue visitConstructor(IConstructor o) throws VisitorException{
 				IValue locationAnnotation = o.getAnnotation(Factory.Location);
+				
 				if(locationAnnotation != null){
 					ISourceLocation sourceLocation = ((ISourceLocation) locationAnnotation);
+					
 					if(sourceLocation.getBeginLine() == lineNumber){
-						ISet attributes = ProductionAdapter.getAttributes(TreeAdapter.getProduction(o));
-						if (attributes != null && attributes.contains(VF.constructor(Factory.Attr_Tag, VF.node("breakable")))) {
+						Map<String, IValue> annotations = o.getAnnotations();
+						
+						if (annotations != null 
+								&& annotations.containsKey("breakable")
+								&& annotations.get("breakable").equals(VF.bool(true))) {
 							location = sourceLocation;
 							throw new VisitorException("Stop");
 						}
