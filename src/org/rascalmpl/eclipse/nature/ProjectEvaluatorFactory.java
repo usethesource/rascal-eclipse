@@ -49,6 +49,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ProjectEvaluatorFactory {
@@ -145,7 +146,7 @@ public class ProjectEvaluatorFactory {
 		ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(resolverRegistry, "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
 		resolverRegistry.registerInput(eclipseResolver);
 		
-		parser.addRascalSearchPath(URI.create(eclipseResolver.scheme() + ":///"));
+		parser.addRascalSearchPath(URIUtil.rootScheme(eclipseResolver.scheme()));
 		parser.addClassLoader(getClass().getClassLoader());
 		
 		if (project != null) {
@@ -182,10 +183,10 @@ public class ProjectEvaluatorFactory {
 	private void addProjectToSearchPath(IProject project, Evaluator parser)
 			throws URISyntaxException {
 		if (project.exists(new Path(IRascalResources.RASCAL_SRC))) {
-			parser.addRascalSearchPath(new URI("project", project.getName(), "/" + IRascalResources.RASCAL_SRC, null, null));
+			parser.addRascalSearchPath(URIUtil.create("project", project.getName(), "/" + IRascalResources.RASCAL_SRC));
 		}
 		else {
-			parser.addRascalSearchPath(new URI("project", project.getName(), "/", null, null));
+			parser.addRascalSearchPath(URIUtil.create("project", project.getName(), "/"));
 		}
 	}
 

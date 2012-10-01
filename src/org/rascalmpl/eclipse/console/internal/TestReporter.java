@@ -34,6 +34,7 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.nature.RascalLibraryFileSystem;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 
 public class TestReporter implements ITestResultListener {
 	private Map<IFile,List<Report>> reports;
@@ -139,12 +140,12 @@ public class TestReporter implements ITestResultListener {
 		}
 		else if (scheme.equals("std")) {
 			try {
-				uri = new URI(RascalLibraryFileSystem.SCHEME, RascalLibraryFileSystem.RASCAL, uri.getPath(),"");
+				uri = URIUtil.create(RascalLibraryFileSystem.SCHEME, RascalLibraryFileSystem.RASCAL, uri.getPath());
 				IFile [] files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
 				if (files.length > 0) {
 					return files[0];
 				}
-				uri = new URI(RascalLibraryFileSystem.SCHEME, RascalLibraryFileSystem.ECLIPSE, uri.getPath(), "");
+				uri = URIUtil.create(RascalLibraryFileSystem.SCHEME, RascalLibraryFileSystem.ECLIPSE, uri.getPath());
 				files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
 				if (files.length > 0) {
 					return files[0];

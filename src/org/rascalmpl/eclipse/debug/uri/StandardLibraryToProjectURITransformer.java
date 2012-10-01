@@ -14,6 +14,8 @@ package org.rascalmpl.eclipse.debug.uri;
 import java.io.IOException;
 import java.net.URI;
 
+import org.rascalmpl.uri.URIUtil;
+
 /**
  * Transforms an {@link URI} of schema type "std" to "project". Transformations
  * are performed on the basis that the standard library folder is linked as a
@@ -42,9 +44,7 @@ public class StandardLibraryToProjectURITransformer extends AbstractSchemaURITra
 	 */
 	@Override
 	public URI getResourceURI(URI uri) throws IOException {
-		String uriString = "project://" + projectName + "/"
-				+ linkedStandardLibraryFolderName + uri.getPath();
-		return URI.create(uriString);
+		return URIUtil.assumeCorrect("project", projectName, "/" + linkedStandardLibraryFolderName + uri.getPath());
 	}
 
 }

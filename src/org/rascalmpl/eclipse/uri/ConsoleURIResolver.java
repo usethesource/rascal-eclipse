@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
+import org.rascalmpl.uri.URIUtil;
 
 public class ConsoleURIResolver implements IURIInputStreamResolver, IURIOutputStreamResolver{
 	
@@ -73,7 +74,7 @@ public class ConsoleURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	}
 
 	public URI getResourceURI(URI uri) {
-		return URI.create("file://-");
+		return URIUtil.invalidURI();
 	}
 
 	@Override

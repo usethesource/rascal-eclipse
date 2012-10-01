@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.uri.URIUtil;
 
 public class ModuleReloader{
 	private final RascalModuleChangeListener moduleChangeListener;
@@ -112,9 +113,9 @@ public class ModuleReloader{
 								if (srcFolder != null && srcFolder.exists()) {
 									if (srcFolder.getProjectRelativePath().isPrefixOf(file.getProjectRelativePath())) {
 										try{
-											URI uri = new URI("project", proj.getName(), "/" + file.getProjectRelativePath().removeFirstSegments(1).toString(), null, null);
+											URI uri = URIUtil.create("project", proj.getName(), "/" + file.getProjectRelativePath().removeFirstSegments(1).toString());
 											interpreter.moduleChanged(uri);
-											uri = new URI("project", proj.getName(), "/" + IRascalResources.RASCAL_SRC + "/" + file.getProjectRelativePath().removeFirstSegments(1).toString(), null, null);
+											uri = URIUtil.create("project", proj.getName(), "/" + IRascalResources.RASCAL_SRC + "/" + file.getProjectRelativePath().removeFirstSegments(1).toString());
 											interpreter.moduleChanged(uri);
 										}catch(URISyntaxException usex){
 											usex.printStackTrace(); // TODO Change to something better.
@@ -163,7 +164,7 @@ public class ModuleReloader{
 				
 				try {
 					synchronized(eval){
-						eval.reloadModules(new RascalMonitor(monitor) , names, URI.create("console:///"));
+						eval.reloadModules(new RascalMonitor(monitor) , names, URIUtil.rootScheme("console"));
 					}
 				}catch (Throwable x) {
 					// reloading modules may trigger many issues, however, these should be visible

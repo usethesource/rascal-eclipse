@@ -41,6 +41,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
+import org.rascalmpl.uri.URIUtil;
 
 public class SourceLocationHyperlink implements IHyperlink {
 	private final ISourceLocation from;
@@ -149,7 +150,7 @@ public class SourceLocationHyperlink implements IHyperlink {
 							// TODO: this design is wrong, we should rethink the way we want
 							// to tie the Rascal schemes into Eclipse.
 							try {
-								uri = new URI(uri.toString().replaceFirst("std:///", "rascal-library://rascal/"));
+								uri = URIUtil.createFromEncoded(uri.toString().replaceFirst("std:///", "rascal-library://rascal/"));
 								return getEditorInput(uri);
 							} catch (URISyntaxException e) {
 								// Do nothing, fall through and return null

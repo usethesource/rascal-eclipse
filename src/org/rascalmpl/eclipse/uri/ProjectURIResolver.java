@@ -37,6 +37,7 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
+import org.rascalmpl.uri.URIUtil;
 
 public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputStreamResolver {
 	
@@ -46,7 +47,7 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 
 	private static URI constructProjectURI(String project, IPath path){
 		try{
-			return new URI("project", project, "/" + path.toString(), null, null);
+			return URIUtil.create("project", project, "/" + path.toString());
 		}catch(URISyntaxException usex){
 			throw new BadURIException(usex);
 		}

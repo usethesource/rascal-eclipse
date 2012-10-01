@@ -41,6 +41,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIUtil;
 
 public class Resources {
 	private final IValueFactory VF;
@@ -104,7 +105,7 @@ public class Resources {
 
 	public  ISourceLocation makeProject(IProject r) {
 		try {
-			return VF.sourceLocation(new URI("project", r.getName(), "", null));
+			return VF.sourceLocation(URIUtil.create("project", r.getName(), ""));
 		} catch (URISyntaxException e) {
 			// won't happen
 			throw RuntimeExceptionFactory.malformedURI("project://" + r.getName(), null, null);
@@ -153,9 +154,9 @@ public class Resources {
 		String path = resource.getProjectRelativePath().toString();
 		path = path.startsWith("/") ? path : "/" + path;
 		try {
-			return VF.sourceLocation(new URI("project", resource.getProject().getName(), path.replaceAll(" ", "%20"), null));
+			return VF.sourceLocation(URIUtil.create("project", resource.getProject().getName(), path));
 		} catch (URISyntaxException e) {
-			throw RuntimeExceptionFactory.malformedURI("project://" + resource.getProject().getName() + path.replaceAll(" ", "%20"), null, null);
+			throw RuntimeExceptionFactory.malformedURI("project: " + resource.getProject().getName() +" path: "+ path, null, null);
 		}
 	}
 	
@@ -174,9 +175,9 @@ public class Resources {
 		String path = folder.getProjectRelativePath().toString();
 		path = path.startsWith("/") ? path : "/" + path;
 		try {
-			return VF.sourceLocation(new URI("project", folder.getProject().getName(), path.replaceAll(" ", "%20"), null));
+			return VF.sourceLocation(URIUtil.create("project", folder.getProject().getName(), path));
 		} catch (URISyntaxException e) {
-			throw RuntimeExceptionFactory.malformedURI("project://" + folder.getProject().getName() + path.replaceAll(" ", "%20"), null, null);
+			throw RuntimeExceptionFactory.malformedURI("project: " + folder.getProject().getName() + " path: " + path, null, null);
 		}
 	}
 	
