@@ -100,4 +100,9 @@ public class BootstrapURIResolver implements IURIInputOutputResolver {
 		return null;
 	}
 
+	@Override
+	public boolean supportsHost() {
+		return false;
+	}
+
 }

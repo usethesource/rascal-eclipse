@@ -76,4 +76,9 @@ public class ConsoleURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		return URI.create("file://-");
 	}
 
+	@Override
+	public boolean supportsHost() {
+		return false;
+	}
+
 }

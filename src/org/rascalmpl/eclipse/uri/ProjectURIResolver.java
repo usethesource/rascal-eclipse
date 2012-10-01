@@ -213,4 +213,9 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 			return null;
 		}
 	}
+
+	@Override
+	public boolean supportsHost() {
+		return false;
+	}
 }

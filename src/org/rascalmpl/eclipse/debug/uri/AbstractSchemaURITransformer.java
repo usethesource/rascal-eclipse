@@ -40,4 +40,7 @@ public abstract class AbstractSchemaURITransformer implements IURIOutputStreamRe
 		throw new UnsupportedOperationException("Not supported by URI transformer.");
 	}
 
+	public boolean supportsHost() {
+		return false;
+	}
 }

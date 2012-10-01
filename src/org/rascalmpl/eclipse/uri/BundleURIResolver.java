@@ -101,4 +101,9 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 		return registry.listEntries(resolve(uri));
 	}
 
+	@Override
+	public boolean supportsHost() {
+		return false;
+	}
+
 }
