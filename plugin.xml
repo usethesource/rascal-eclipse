@@ -734,4 +734,22 @@
           <enablement></enablement>
        </moveParticipant>
     </extension>
+    <extension
+          id="rascal_proposer"
+          name="rascal_proposer"
+          point="org.eclipse.imp.runtime.contentProposer">
+       <proposer
+             class="org.rascalmpl.eclipse.editor.proposer.ContentProposer"
+             language="Rascal">
+       </proposer>
+    </extension>
+    <extension
+          id="terms_proposer"
+          name="terms_proposer"
+          point="org.eclipse.imp.runtime.contentProposer">
+       <proposer
+             class="org.rascalmpl.eclipse.terms.TermContentProposer"
+             language="Terms">
+       </proposer>
+    </extension>
 </plugin>
