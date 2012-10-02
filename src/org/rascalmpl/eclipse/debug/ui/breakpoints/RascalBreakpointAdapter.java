@@ -13,6 +13,10 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.ui.breakpoints;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -21,7 +25,6 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTargetExtension;
-import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -33,6 +36,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.visitors.NullVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import org.eclipse.imp.services.IASTFindReplaceTarget;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchPart;
@@ -42,17 +46,25 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint;
 import org.rascalmpl.eclipse.debug.uri.ProjectURIToStandardLibraryTransformer;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
+import org.rascalmpl.interpreter.debug.DebugUpdater;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
-import org.rascalmpl.values.uptr.TreeAdapter;
-
-import java.io.IOException;
-import java.net.URI;
 
 /**
  * Adapter to create line breakpoints in Rascal files.
  */
 public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtension {
+	
+	/**
+	 * AST enriched with debugging annotations.
+	 * 
+	 * @param editor the current IMP editor
+	 * @return debugging enriched AST
+	 */
+	private IConstructor getAST(IASTFindReplaceTarget editor) {
+		final IConstructor currentAST = (IConstructor) editor.getParseController().getCurrentAst();		
+		return DebugUpdater.pushDownAttributes(currentAST);
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.ui.actions.IToggleBreakpointsTarget#canToggleLineBreakpoints(org.eclipse.ui.IWorkbenchPart, org.eclipse.jface.viewers.ISelection)
@@ -88,12 +100,12 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 			/*
 			 * Find a source location associated with a line number.			
 			 */
-			IConstructor parseTree = (IConstructor) ((UniversalEditor) textEditor).getParseController().getCurrentAst();
-			ISourceLocation closestSourceLocation = calculateClosestLocation(parseTree, lineNumber + 1);
+			IASTFindReplaceTarget astAwareEditor = (IASTFindReplaceTarget) textEditor;
+			ISourceLocation closestSourceLocation = calculateClosestLocation(getAST(astAwareEditor), lineNumber + 1);
 			
 			if (closestSourceLocation == null) {
 
-				IStatus message = new Status(IStatus.INFO, Activator.PLUGIN_ID, "Breakpoint not created, no AST associated to line.");
+				IStatus message = new Status(IStatus.INFO, Activator.PLUGIN_ID, "Breakpoint not created, no 'breakable' annotation associated to parse tree of line.");
 				Activator.getInstance().getLog().log(message);
 			
 			} else {		
@@ -177,12 +189,13 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 	}
 
 	/*
-	 * TODO: Should this functionality move to the runtime, to e.g. query the
-	 * closest source location associated with a line number?
+	 * Query the closest (i.e. first) source location of a 'breakable' parse tree node associated with a line number?
 	 */
 	private static ISourceLocation calculateClosestLocation(final IConstructor parseTree, final int lineNumber){
 		class OffsetFinder extends NullVisitor<IValue>{
 	
+			private IValueFactory VF = ValueFactoryFactory.getValueFactory(); 
+			
 			private ISourceLocation location = null;
 			
 			public ISourceLocation getSourceLocation() {
@@ -191,11 +204,16 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 			
 			public IValue visitConstructor(IConstructor o) throws VisitorException{
 				IValue locationAnnotation = o.getAnnotation(Factory.Location);
+				
 				if(locationAnnotation != null){
 					ISourceLocation sourceLocation = ((ISourceLocation) locationAnnotation);
+					
 					if(sourceLocation.getBeginLine() == lineNumber){
-						String sortName = TreeAdapter.getSortName(o);
-						if(sortName.equals("Statement") || sortName.equals("Expression")){
+						Map<String, IValue> annotations = o.getAnnotations();
+						
+						if (annotations != null 
+								&& annotations.containsKey("breakable")
+								&& annotations.get("breakable").equals(VF.bool(true))) {
 							location = sourceLocation;
 							throw new VisitorException("Stop");
 						}
