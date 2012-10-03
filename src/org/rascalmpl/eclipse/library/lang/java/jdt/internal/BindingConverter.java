@@ -11,6 +11,7 @@
  *   * Bas Basten - Bas.Basten@cwi.nl (CWI)
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 

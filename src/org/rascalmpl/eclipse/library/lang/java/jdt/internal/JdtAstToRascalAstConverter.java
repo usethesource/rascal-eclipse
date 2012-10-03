@@ -7,6 +7,7 @@
  *
  * Contributors:
  *   * Jouke Stoel - Jouke.Stoel@cwi.nl (CWI)
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 

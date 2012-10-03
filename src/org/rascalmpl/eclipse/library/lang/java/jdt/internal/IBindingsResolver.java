@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl (CWI)
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 

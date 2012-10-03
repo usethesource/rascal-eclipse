@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl (CWI)
+ *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 
@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
@@ -62,6 +63,7 @@ public abstract class BindingsResolver implements IBindingsResolver {
 		else if(node instanceof AnonymousClassDeclaration) resolveBindings((AnonymousClassDeclaration) node);
 		else if(node instanceof EnumConstantDeclaration) resolveBindings((EnumConstantDeclaration) node);
 		else if(node instanceof Expression) resolveBindings((Expression) node);
+		else if(node instanceof FieldDeclaration) resolveBindings((FieldDeclaration) node);
 		else if(node instanceof ImportDeclaration) resolveBindings((ImportDeclaration) node);
 		else if(node instanceof MemberRef) resolveBindings((MemberRef) node);
 		else if(node instanceof MethodDeclaration) resolveBindings((MethodDeclaration) node);
@@ -143,6 +145,7 @@ public abstract class BindingsResolver implements IBindingsResolver {
 	
 	public void resolveBindings(MethodDeclaration node) {
 		importBinding(node.resolveBinding());
+		importBinding(node.resolveBinding().getReturnType());
 	}
 	
 	public void resolveBindings(MethodRef node) { /* Java doc */ }
@@ -169,6 +172,10 @@ public abstract class BindingsResolver implements IBindingsResolver {
 	
 	public void resolveBindings(TypeParameter node) {
 		importBinding(node.resolveBinding());
+	}
+	
+	public void resolveBindings(FieldDeclaration node) {
+		importBinding(node.getType().resolveBinding());
 	}
 	
 	public void resolveBindings(VariableDeclaration node) {
