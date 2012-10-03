@@ -23,17 +23,17 @@ data AstNode	= compilationUnit(Option[AstNode] package, list[AstNode] imports, l
 				
 				// Declarations
 				| anonymousClassDeclaration(list[AstNode] bodyDeclarations)
-				| annotationTypeDeclaration(list[Modifier] modifiers, str name, list[AstNode] bodyDeclarations)
-				| annotationTypeMemberDeclaration(list[Modifier] modifiers, AstNode typeArgument, str name, Option[AstNode] defaultBlock)
-				| enumDeclaration(list[Modifier] modifiers, str name, list[AstNode] implements, list[AstNode] enumConstants, list[AstNode] bodyDeclarations)
-				| enumConstantDeclaration(list[Modifier] modifiers, str name, list[AstNode] arguments, Option[AstNode] anonymousClassDeclaration)
-				| typeDeclaration(list[Modifier] modifiers, str objectType, str name, list[AstNode] genericTypes, Option[AstNode] extends, list[AstNode] implements, list[AstNode] bodyDeclarations)
-				| fieldDeclaration(list[Modifier] modifiers, AstNode \type, list[AstNode] fragments)
-				| initializer(list[Modifier] modifiers, AstNode body)
-				| methodDeclaration(list[Modifier] modifiers, list[AstNode] genericTypes, Option[AstNode] returnType, str name, list[AstNode] parameters, list[AstNode] possibleExceptions, Option[AstNode] implementation)
+				| annotationTypeDeclaration(list[Modifier] modifiers, list[AstNode] annotations, str name, list[AstNode] bodyDeclarations)
+				| annotationTypeMemberDeclaration(list[Modifier] modifiers, list[AstNode] annotations, AstNode typeArgument, str name, Option[AstNode] defaultBlock)
+				| enumDeclaration(list[Modifier] modifiers, list[AstNode] annotations, str name, list[AstNode] implements, list[AstNode] enumConstants, list[AstNode] bodyDeclarations)
+				| enumConstantDeclaration(list[Modifier] modifiers, list[AstNode] annotations, str name, list[AstNode] arguments, Option[AstNode] anonymousClassDeclaration)
+				| typeDeclaration(list[Modifier] modifiers, list[AstNode] annotations, str objectType, str name, list[AstNode] genericTypes, Option[AstNode] extends, list[AstNode] implements, list[AstNode] bodyDeclarations)
+				| fieldDeclaration(list[Modifier] modifiers, list[AstNode] annotations, AstNode \type, list[AstNode] fragments)
+				| initializer(list[Modifier] modifiers, list[AstNode] annotations, AstNode body)
+				| methodDeclaration(list[Modifier] modifiers, list[AstNode] annotations, list[AstNode] genericTypes, Option[AstNode] returnType, str name, list[AstNode] parameters, list[AstNode] possibleExceptions, Option[AstNode] implementation)
 				| importDeclaration(str name, bool staticImport, bool onDemand)
 				| packageDeclaration(str name, list[AstNode] annotations)
-				| singleVariableDeclaration(str name, list[Modifier] modifiers, AstNode \type, Option[AstNode] initializer, bool isVarargs)
+				| singleVariableDeclaration(str name, list[Modifier] modifiers, list[AstNode] annotations, AstNode \type, Option[AstNode] initializer, bool isVarargs)
 				| variableDeclarationFragment(str name, Option[AstNode] initializer)
 				| typeParameter(str name, list[AstNode] extendsList)
 
@@ -67,7 +67,7 @@ data AstNode	= compilationUnit(Option[AstNode] package, list[AstNode] imports, l
 				| superFieldAccess(Option[AstNode] optionalQualifier, str name)
 				| thisExpression(Option[AstNode] optionalQualifier)
 				| typeLiteral(AstNode \type)
-				| variableDeclarationExpression(list[Modifier] modifiers, AstNode \type, list[AstNode] fragments)
+				| variableDeclarationExpression(list[Modifier] modifiers, list[AstNode] annotations, AstNode \type, list[AstNode] fragments)
 						
 				// Statements
 				| assertStatement(AstNode expression, Option[AstNode] message)
@@ -91,14 +91,14 @@ data AstNode	= compilationUnit(Option[AstNode] package, list[AstNode] imports, l
 				| tryStatement(AstNode body, list[AstNode] catchClauses, Option[AstNode] \finally)										
 				| catchClause(AstNode exception, AstNode body)
 				| typeDeclarationStatement(AstNode typeDeclaration)
-				| variableDeclarationStatement(list[Modifier] modifiers, AstNode \type, list[AstNode] fragments)
+				| variableDeclarationStatement(list[Modifier] modifiers, list[AstNode] annotations, AstNode \type, list[AstNode] fragments)
 				| whileStatement(AstNode expression, AstNode body)
 							
 				// Types
 				| arrayType(AstNode \typeOfArray)
 				| parameterizedType(AstNode \typeOfParam, list[AstNode] genericTypes)
 				| qualifiedType(AstNode qualifier, str name)
-				| primitiveType(str primitive)
+				| primitiveType(PrimitiveType primitive)
 				| simpleType(str name)
 				| unionType(list[AstNode] types)
 				| wildcardType(Option[AstNode] bound, Option[str] lowerOrUpper)

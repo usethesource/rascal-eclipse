@@ -102,7 +102,9 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 
 	public void setAnnotation(String annoName, IValue annoValue) {
-		this.ownValue = (this.ownValue != null) ? ((IConstructor) this.ownValue).setAnnotation(annoName, annoValue) : null;
+		if(this.ownValue.getType().declaresAnnotation(typeStore, annoName)) {
+			this.ownValue = (this.ownValue != null) ? ((IConstructor) this.ownValue).setAnnotation(annoName, annoValue) : null;
+		}
 	}
 
 	private IValueList parseModifiers(int modifiers) {
@@ -141,28 +143,36 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		if (Modifier.isTransient(modifiers)) {
 			modifierList.add(Java.CONS_TRANSIENT.make(values));
 		}
-
+		
 		return modifierList;
 	}
 
-	private IValueList parseModifiers(List ext) {
+	private java.util.Map.Entry<IValueList, IValueList> parseExtendedModifiers(List ext) {
 		IValueList modifierList = new IValueList(values);
+		IValueList annotationsList = new IValueList(values);
 
 		for (Iterator it = ext.iterator(); it.hasNext();) {
 			ASTNode p = (ASTNode) it.next();
-			modifierList.add(visitChild(p));
+			if(p instanceof IExtendedModifier) {
+				IValue val = visitChild(p);
+				if(((IExtendedModifier) p).isModifier()) {
+					modifierList.add(val);
+				} else if(((IExtendedModifier) p).isAnnotation()) {
+					annotationsList.add(val);
+				}
+			}
 		}
-
-		return modifierList;
+		return new java.util.AbstractMap.SimpleEntry<IValueList, IValueList>(modifierList, annotationsList);
 	}
 
-	private IValueList parseModifiers(BodyDeclaration node) {
+	private java.util.Map.Entry<IValueList, IValueList> parseExtendedModifiers(BodyDeclaration node) {
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			return parseModifiers(node.getModifiers());
+			return new java.util.AbstractMap.SimpleEntry<IValueList, IValueList>(parseModifiers(node.getModifiers()), new IValueList(values));
 		} else {
-			return parseModifiers(node.modifiers());
+			return parseExtendedModifiers(node.modifiers());
 		}
 	}
+
 	
 	private IValue optional(IValue value) {
 		if (value == null) {
@@ -233,27 +243,28 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 	*/
 	private IValue constructRascalNode(String dataType, String constructorName, IValue... children) {
-		org.eclipse.imp.pdb.facts.type.Type constructor = getConstructor(dataType, constructorName);
-		
-		return constructor.make(values, children);
-	}	
-
-	private IValue constructRascalNode(String dataType, String constructorName) {
-		org.eclipse.imp.pdb.facts.type.Type constructor = getConstructor(dataType, constructorName);
-		
-		return constructor.make(values);
-	}
-	
-	private org.eclipse.imp.pdb.facts.type.Type getConstructor(String dataType, String constructorName) {
-		org.eclipse.imp.pdb.facts.type.Type type = typeStore.lookupAbstractDataType(dataType);
-		
 		// Make sure that the constructor name starts with a lowercase character
 		String modifiedConstructorName = constructorName.substring(0, 1).toLowerCase() + constructorName.substring(1);
-		Set<org.eclipse.imp.pdb.facts.type.Type> constructors = typeStore.lookupConstructor(type, modifiedConstructorName);
-		
-		// There should be only one constructor. 
-		return constructors.iterator().next();
-	}
+		org.eclipse.imp.pdb.facts.type.Type type = typeStore.lookupAbstractDataType(dataType);
+		return type.make(values, typeStore, modifiedConstructorName, children);
+	}	
+
+//	private IValue constructRascalNode(String dataType, String constructorName) {
+//		org.eclipse.imp.pdb.facts.type.Type constructor = getConstructor(dataType, constructorName);
+//		
+//		return constructor.make(values);
+//	}
+//	
+//	private org.eclipse.imp.pdb.facts.type.Type getConstructor(String dataType, String constructorName) {
+//		org.eclipse.imp.pdb.facts.type.Type type = typeStore.lookupAbstractDataType(dataType);
+//		
+//		// Make sure that the constructor name starts with a lowercase character
+//		String modifiedConstructorName = constructorName.substring(0, 1).toLowerCase() + constructorName.substring(1);
+//		Set<org.eclipse.imp.pdb.facts.type.Type> constructors = typeStore.lookupConstructor(type, modifiedConstructorName);
+//		
+//		// There should be only one constructor. 
+//		return constructors.iterator().next();
+//	}
 	
 	/*
 	 * 'preVisit' and 'postVisit' manage (scope) stacks of a bindings importer in a proper order
@@ -281,7 +292,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 	
 	public boolean visit(AnnotationTypeDeclaration node) {
-		IValueList modifiers = parseModifiers(node.modifiers());
+		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node.modifiers());
 		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 		
 		IValueList bodyDeclarations = new IValueList(values);
@@ -290,17 +301,19 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 			bodyDeclarations.add(visitChild(d));
 		}
 
-		ownValue = constructRascalNode(node, modifiers.asList(), name, bodyDeclarations.asList());
+		ownValue = constructRascalNode(node, extendedModifiers.getKey().asList(), extendedModifiers.getValue().asList(), 
+										name, bodyDeclarations.asList());
 		return false;
 	}
 
 	public boolean visit(AnnotationTypeMemberDeclaration node) {
-		IValueList modifiers = parseModifiers(node.modifiers());
+		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node.modifiers());
 		IValue typeArgument = visitChild(node.getType());
 		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 		IValue defaultBlock = node.getDefault() == null ? null : visitChild(node.getDefault());
 
-		ownValue = constructRascalNode(node, modifiers.asList(), typeArgument, name, optional(defaultBlock));
+		ownValue = constructRascalNode(node, extendedModifiers.getKey().asList(), extendedModifiers.getValue().asList(), 
+										typeArgument, name, optional(defaultBlock));
 		return false;
 	}
 
@@ -534,7 +547,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 
 	public boolean visit(EnumConstantDeclaration node) {
-		IValueList modifiers = parseModifiers(node.modifiers());
+		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node.modifiers());
 		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 
 		IValueList arguments = new IValueList(values);
@@ -547,12 +560,13 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 
 		IValue anonymousClassDeclaration = node.getAnonymousClassDeclaration() == null ? null : visitChild(node.getAnonymousClassDeclaration());
 		
-		ownValue = constructRascalNode(node, modifiers.asList(), name, arguments.asList(), optional(anonymousClassDeclaration));
+		ownValue = constructRascalNode(node, extendedModifiers.getKey().asList(), extendedModifiers.getValue().asList(), 
+										name, arguments.asList(), optional(anonymousClassDeclaration));
 		return false;
 	}
 
 	public boolean visit(EnumDeclaration node) {
-		IValueList modifiers = parseModifiers(node.modifiers());
+		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node.modifiers());
 		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 
 		IValueList implementedInterfaces = new IValueList(values);
@@ -577,7 +591,8 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 			}
 		}
 
-		ownValue = constructRascalNode(node, modifiers.asList(), name, implementedInterfaces.asList(), enumConstants.asList(), bodyDeclarations.asList());
+		ownValue = constructRascalNode(node, extendedModifiers.getKey().asList(), extendedModifiers.getValue().asList(), 
+										name, implementedInterfaces.asList(), enumConstants.asList(), bodyDeclarations.asList());
 		return false;
 	}
 
@@ -596,7 +611,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 
 	public boolean visit(FieldDeclaration node) {
-		IValueList modifiers = parseModifiers(node);
+		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node);
 		IValue type = visitChild(node.getType());
 
 		IValueList fragments = new IValueList(values);
@@ -605,7 +620,8 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 			fragments.add(visitChild(f));
 		}
 
-		ownValue = constructRascalNode(node, modifiers.asList(), type, fragments.asList());
+		ownValue = constructRascalNode(node, extendedModifiers.getKey().asList(), extendedModifiers.getValue().asList(), 
+										type, fragments.asList());
 		return false;
 	}
 
@@ -670,10 +686,10 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 
 	public boolean visit(Initializer node) {
-		IValueList modifier = parseModifiers(node);
+		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node);
 		IValue body = visitChild(node.getBody());
 
-		ownValue = constructRascalNode(node, modifier.asList(), body);
+		ownValue = constructRascalNode(node, extendedModifiers.getKey().asList(), extendedModifiers.getValue().asList(), body);
 		return false;
 	}
 
@@ -722,8 +738,8 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 
 	public boolean visit(MethodDeclaration node) {
-		IValueList modifiers = parseModifiers(node);
-
+		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node);
+		
 		IValueList genericTypes = new IValueList(values);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeParameters().isEmpty()) {
@@ -771,7 +787,8 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 
 		IValue body = node.getBody() == null ? null : visitChild(node.getBody()); 
 
-		ownValue = constructRascalNode(node, modifiers.asList(), genericTypes.asList(), optional(returnType), name, parameters.asList(), possibleExceptions.asList(), optional(body));
+		ownValue = constructRascalNode(node, extendedModifiers.getKey().asList(), extendedModifiers.getValue().asList(), 
+									genericTypes.asList(), optional(returnType), name, parameters.asList(), possibleExceptions.asList(), optional(body));
 		return false;
 	}
 
@@ -982,11 +999,12 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	public boolean visit(SingleVariableDeclaration node) {
 		IValue name = values.string(node.getName().getFullyQualifiedName());
 
-		IValueList modifiers;
+		java.util.Map.Entry<IValueList, IValueList> extendedModifiers;
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			modifiers = parseModifiers(node.getModifiers());
+			extendedModifiers = new java.util.AbstractMap.SimpleEntry<IValueList, IValueList>(parseModifiers(node.getModifiers()), new IValueList(values));
 		} else {
-			modifiers = parseModifiers(node.modifiers());
+			extendedModifiers = parseExtendedModifiers(node.modifiers());
+			
 		}
 
 		IValue type = visitChild(node.getType());
@@ -1004,7 +1022,8 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		 * //$NON-NLS-1$ }
 		 */
 
-		ownValue = constructRascalNode(node, name, modifiers.asList(), type, optional(initializer), isVarags);
+		ownValue = constructRascalNode(node, name, extendedModifiers.getKey().asList(), extendedModifiers.getValue().asList(), 
+										type, optional(initializer), isVarags);
 		return false;
 	}
 
@@ -1139,7 +1158,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 
 	public boolean visit(TypeDeclaration node) {
-		IValueList modifiers = parseModifiers(node);
+		java.util.Map.Entry<IValueList, IValueList> extendedModifiers = parseExtendedModifiers(node);
 		IValue objectType = node.isInterface() ? values.string("interface") : values.string("class");
 		IValue name = values.string(node.getName().getFullyQualifiedName()); 
 		
@@ -1184,7 +1203,8 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 			bodyDeclarations.add(visitChild(d));
 		}
 		
-		ownValue = constructRascalNode(node, modifiers.asList(), objectType, name, genericTypes.asList(), optional(extendsClass), implementsInterfaces.asList(), bodyDeclarations.asList());
+		ownValue = constructRascalNode(node, extendedModifiers.getKey().asList(), extendedModifiers.getValue().asList(), 
+										objectType, name, genericTypes.asList(), optional(extendsClass), implementsInterfaces.asList(), bodyDeclarations.asList());
 		return false;
 	}
 
@@ -1236,11 +1256,11 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 
 	public boolean visit(VariableDeclarationExpression node) {
 
-		IValueList modifiers;
+		java.util.Map.Entry<IValueList, IValueList> extendedModifiers;
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			modifiers = parseModifiers(node.getModifiers());
+			extendedModifiers = new java.util.AbstractMap.SimpleEntry<IValueList, IValueList>(parseModifiers(node.getModifiers()), new IValueList(values));
 		} else {
-			modifiers = parseModifiers(node.modifiers());
+			extendedModifiers = parseExtendedModifiers(node.modifiers());
 		}
 		
 		IValue type = visitChild(node.getType());
@@ -1251,7 +1271,8 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 			fragments.add(visitChild(f));
 		}
 		
-		ownValue = constructRascalNode(node, modifiers.asList(), type, fragments.asList());
+		ownValue = constructRascalNode(node, extendedModifiers.getKey().asList(), extendedModifiers.getValue().asList(), 
+										type, fragments.asList());
 		return false;
 	}
 
@@ -1270,11 +1291,11 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 
 	public boolean visit(VariableDeclarationStatement node) {
-		IValueList modifiers;
+		java.util.Map.Entry<IValueList, IValueList> extendedModifiers;
 		if (node.getAST().apiLevel() == AST.JLS2) {
-			modifiers = parseModifiers(node.getModifiers());
+			extendedModifiers = new java.util.AbstractMap.SimpleEntry<IValueList, IValueList>(parseModifiers(node.getModifiers()), new IValueList(values));
 		} else {		
-			modifiers = parseModifiers(node.modifiers());
+			extendedModifiers = parseExtendedModifiers(node.modifiers());
 		}
 		
 		IValue type = visitChild(node.getType());
@@ -1285,7 +1306,8 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 			fragments.add(visitChild(f));
 		}
 		
-		ownValue = constructRascalNode(node, modifiers.asList(), type, fragments.asList());
+		ownValue = constructRascalNode(node, extendedModifiers.getKey().asList(), extendedModifiers.getValue().asList(), 
+										type, fragments.asList());
 		return false;
 	}
 
