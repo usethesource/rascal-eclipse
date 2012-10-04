@@ -44,9 +44,9 @@ public class Factory implements IPerspectiveFactory {
 		IFolderLayout replFolder = layout.createFolder("bottom", IPageLayout.BOTTOM, (float) 0.75, editorArea); 
 		
 		replFolder.addView(IConsoleConstants.ID_CONSOLE_VIEW);
+		replFolder.addView(StdAndErrorViewPart.ID);
 		replFolder.addView(IPageLayout.ID_PROGRESS_VIEW);
 		replFolder.addView(IPageLayout.ID_PROBLEM_VIEW);
-		replFolder.addView(StdAndErrorViewPart.ID);
 		replFolder.addView(Tutor.ID);
 		
 		IFolderLayout outlineFolder = layout.createFolder("outline", IPageLayout.RIGHT, (float) 0.75, editorArea);
