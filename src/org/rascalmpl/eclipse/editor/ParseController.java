@@ -175,8 +175,22 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 				if(offset == input.length()) {
 					--offset;
 				}
-
-				setParseError(offset, pe.getLength(), pe.getBeginLine() + 1, pe.getBeginColumn(), pe.getEndLine() + 1, pe.getEndColumn(), pe.toString());
+				int k = Math.min(offset + 20, input.length());
+				String follow = input.substring(offset, k);
+				StringBuffer msg = new StringBuffer();
+				boolean hasUni = false;
+				msg.append(pe.toString()).append(" FOLLOWED BY: ");
+				for(char c : follow.toCharArray()){
+					if(c > 31 && c < 128)
+					   msg.append(c);
+					else {
+					   msg.append("\\u").append(Integer.toHexString(c));
+					   hasUni = true;
+					}
+				}
+				if(hasUni)
+					msg.append(" Note: unrecognized characters occur at \\u followed by a hexadecimal number");
+				setParseError(offset, pe.getLength(), pe.getBeginLine() + 1, pe.getBeginColumn(), pe.getEndLine() + 1, pe.getEndColumn(), msg.toString());
 			}
 			catch (StaticError e) {
 				ISourceLocation loc = e.getLocation();
