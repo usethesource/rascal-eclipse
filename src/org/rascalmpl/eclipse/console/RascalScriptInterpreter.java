@@ -53,6 +53,7 @@ import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -71,6 +72,7 @@ import org.rascalmpl.ast.ShellCommand.Quit;
 import org.rascalmpl.ast.ShellCommand.Test;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.ambidexter.ReportView;
 import org.rascalmpl.eclipse.console.internal.CommandExecutionException;
 import org.rascalmpl.eclipse.console.internal.CommandHistory;
 import org.rascalmpl.eclipse.console.internal.ConcurrentCircularOutputStream;
@@ -92,6 +94,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -100,6 +103,7 @@ import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.Factory;
 
 public class RascalScriptInterpreter extends Job implements IInterpreter {
 	private ModuleReloader reloader;
@@ -430,9 +434,37 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 		
 		content = resultMessage(result) + "\n";
+		reportAmbiguities(result);
 		command = "";
 	}
 	
+	private void reportAmbiguities(final Result<IValue> result) {
+		if (result == null || result.getValue() == null) {
+			return;
+		}
+
+		if (result.getType().isSubtypeOf(Factory.Tree)) {
+			new UIJob("Reporting Ambiguities") {
+				@Override
+				public IStatus runInUIThread(IProgressMonitor monitor) {
+					try {
+						ReportView part = (ReportView) PlatformUI.getWorkbench()
+								.getActiveWorkbenchWindow()
+								.getActivePage()
+								.showView(ReportView.ID);
+						monitor.beginTask("listing ambiguities", 10000);
+						part.list(project.getName(), ModuleEnvironment.SHELL_MODULE, (IConstructor) result.getValue(), monitor);
+						monitor.done();
+					} catch (PartInitException e) {
+						RuntimePlugin.getInstance().logException("could not parse module", e);
+					}
+
+					return Status.OK_STATUS;
+				}
+			}.schedule();
+		}
+	}
+
 	private void editCommand(final Edit x){
 		
 		UIJob job = new UIJob("start editor") {

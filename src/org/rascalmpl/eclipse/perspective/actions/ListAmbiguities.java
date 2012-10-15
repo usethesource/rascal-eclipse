@@ -48,7 +48,7 @@ public class ListAmbiguities extends AbstractEditorAction {
 			Object currentAst = editor.getParseController().getCurrentAst();
 			
 			if (currentAst != null) {
-				part.list(project.getName(), moduleName, (IConstructor) currentAst);
+				part.list(project.getName(), moduleName, (IConstructor) currentAst, new NullProgressMonitor());
 			}
 		} catch (PartInitException e) {
 			RuntimePlugin.getInstance().logException("could not parse module", e);

@@ -170,7 +170,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 		return b.toString();
 	}
 
-	public void list(final String project, final String module, IConstructor parseTree) {
+	public void list(final String project, final String module, IConstructor parseTree, final IProgressMonitor monitor) {
 		table.removeAll();
 		
 		try {
@@ -178,6 +178,12 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 				@Override
 				public IConstructor visitTreeAppl(IConstructor arg)
 						throws VisitorException {
+					if (monitor.isCanceled()) {
+						throw new VisitorException("interrupted");
+					}
+					
+					monitor.worked(1);
+					
 					for (IValue child : TreeAdapter.getArgs(arg)) {
 						child.accept(this);
 					}
