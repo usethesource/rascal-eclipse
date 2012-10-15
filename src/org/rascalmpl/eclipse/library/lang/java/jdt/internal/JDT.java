@@ -138,7 +138,7 @@ public class JDT {
 		getIFileForLocation(loc);
 		CompilationUnit cu = this.getCompilationUnit(loc);
 		JdtAstToRascalAstConverter converter = new JdtAstToRascalAstConverter(VF, 
-												   eval.getHeap().getModule("lang::java::jdt::JDT").getStore(), 
+												   eval.getHeap().getModule("lang::java::jdt::JavaADT").getStore(), 
 												   new BindingConverter());
 		converter.set(cu);
 		converter.set(loc);

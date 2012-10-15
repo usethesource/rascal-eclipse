@@ -16,9 +16,9 @@ import static org.rascalmpl.eclipse.library.lang.java.jdt.internal.Java.ADT_ENTI
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -33,24 +33,6 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	private static final String ANNOTATION_JAVA_TYPE = "javaType";
 	private static final String DATATYPE_OPTION = "Option";
 	private static final String DATATYPE_RASCAL_AST_NODE = "AstNode";
-
-	private IValue ownValue;
-
-	private final IValueFactory values;
-	private final TypeStore typeStore;
-	private final BindingConverter bindingConverter;	
-	
-	public static final String ANNOTATION_SOURCE_LOCATION = "location";
-	private CompilationUnit compilUnit;
-	private ISourceLocation loc;
-
-	
-	/* 
-	 * Type binding resolution
-	 */
-	private final BindingsImporter bindingsImporter;
-	private IValue javaType;
-	
 	/*
 	 * Richer binding information of a Java node
 	 */
@@ -60,35 +42,34 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	public static final String ANNOTATION_JAVA_VARIABLE_BINDING = "variableBinding";
 	public static final String ANNOTATION_JAVA_BINDINGS = "bindings";
 	
-	private IMap bindings;
+	public static final String ANNOTATION_SOURCE_LOCATION = "location";
 	
+	private IValue ownValue;
+
+	private final IValueFactory values;
+	private final TypeStore typeStore;
+	private final BindingConverter bindingConverter;	
+	
+	private CompilationUnit compilUnit;
+	private ISourceLocation loc;
+
+	private BindingsImporter bindingsImporter;
+	
+	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_NODE_TYPE;
+	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_OPTION_TYPE;
+	private final Set<String> annotations;
+
 	
 	public JdtAstToRascalAstConverter(final IValueFactory values, final TypeStore typeStore, final BindingConverter bindingConverter) {
 		this.values = values;
 		this.typeStore = typeStore;
 		this.bindingConverter = bindingConverter;
+		this.bindingsImporter = new BindingsImporter(this.values, this.bindingConverter);
+		this.DATATYPE_RASCAL_AST_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_NODE);
+		this.annotations = this.typeStore.getAnnotations(DATATYPE_RASCAL_AST_NODE_TYPE).keySet();
+		this.DATATYPE_OPTION_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_OPTION);
+	}
 		
-		this.bindingsImporter = new BindingsImporter(this.bindingConverter, this.values);
-	}
-	
-	public JdtAstToRascalAstConverter(final IValueFactory values, final TypeStore typeStore, final BindingConverter bindingConverter, final BindingsImporter bindingsImporter) {
-		this.values = values;
-		this.typeStore = typeStore;
-		this.bindingConverter = bindingConverter;
-		
-		this.bindingsImporter = bindingsImporter;
-	}
-	
-	public JdtAstToRascalAstConverter getInstance() {
-		/* 
-		 * Create an instance and passes the bindingsResolver object to it
-		 */
-		JdtAstToRascalAstConverter converter = new JdtAstToRascalAstConverter(values, typeStore, bindingConverter, bindingsImporter);
-		converter.set(compilUnit);
-		converter.set(loc);
-		return converter;
-	}
-	
 	public void set(CompilationUnit compilUnit) {
 		this.compilUnit = compilUnit;
 	}
@@ -96,15 +77,15 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	public void set(ISourceLocation loc) {
 		this.loc = loc;
 	}
-
+	
 	public IValue getValue() {
 		return this.ownValue;
 	}
-
-	public void setAnnotation(String annoName, IValue annoValue) {
-		if(this.ownValue.getType().declaresAnnotation(typeStore, annoName)) {
-			this.ownValue = (this.ownValue != null) ? ((IConstructor) this.ownValue).setAnnotation(annoName, annoValue) : null;
-		}
+	
+	public void setRascalAstNodeAnnotation(String annoName, IValue annoValue) {
+		if(this.ownValue == null) return ;
+		if(this.ownValue.getType().equals(DATATYPE_RASCAL_AST_NODE_TYPE) && annotations.contains(annoName)) 
+			this.ownValue = ((IConstructor) this.ownValue).setAnnotation(annoName, annoValue);
 	}
 
 	private IValueList parseModifiers(int modifiers) {
@@ -183,18 +164,17 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 	
 	private IValue none() {
-		return constructRascalNode(DATATYPE_OPTION, "none");
+		return DATATYPE_OPTION_TYPE.make(values, typeStore, "none", new IValue[] {});
 	}
 	
 	private IValue some(IValue value) {
-		return constructRascalNode(DATATYPE_OPTION, "some", value);		
+		return DATATYPE_OPTION_TYPE.make(values, typeStore, "some", value);		
 	}
 
 	private IValue visitChild(ASTNode node) {
-		JdtAstToRascalAstConverter newConverter = getInstance();
-		node.accept(newConverter);
+		node.accept(this);
 
-		return newConverter.getValue();
+		return this.getValue();
 	}
 
 	private String getNodeName(ASTNode node) {
@@ -202,7 +182,9 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 
 	private IValue constructRascalNode(ASTNode node, IValue... children) {
-		IValue rascalValue = constructRascalNode(DATATYPE_RASCAL_AST_NODE, getNodeName(node), children);	
+		String constructorName = getNodeName(node);
+		// Make sure that the constructor name starts with a lowercase character
+		String modifiedConstructorName = constructorName.substring(0, 1).toLowerCase() + constructorName.substring(1);
 		/*
 		 *  Does not proper deal with possible initializers
 		 *  
@@ -215,7 +197,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 			}			
 		}
 		*/
-		return rascalValue;
+		return DATATYPE_RASCAL_AST_NODE_TYPE.make(values, typeStore, modifiedConstructorName, children);
 	}
 	/*
 	private IValue resolveType(ASTNode node) {
@@ -242,12 +224,13 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		return type;
 	}
 	*/
-	private IValue constructRascalNode(String dataType, String constructorName, IValue... children) {
-		// Make sure that the constructor name starts with a lowercase character
-		String modifiedConstructorName = constructorName.substring(0, 1).toLowerCase() + constructorName.substring(1);
-		org.eclipse.imp.pdb.facts.type.Type type = typeStore.lookupAbstractDataType(dataType);
-		return type.make(values, typeStore, modifiedConstructorName, children);
-	}	
+	
+//	private IValue constructRascalNode(String dataType, String constructorName, IValue... children) {
+//		// Make sure that the constructor name starts with a lowercase character
+//		String modifiedConstructorName = constructorName.substring(0, 1).toLowerCase() + constructorName.substring(1);
+//		org.eclipse.imp.pdb.facts.type.Type type = typeStore.lookupAbstractDataType(dataType);
+//		return type.make(values, typeStore, modifiedConstructorName, children);
+//	}	
 
 //	private IValue constructRascalNode(String dataType, String constructorName) {
 //		org.eclipse.imp.pdb.facts.type.Type constructor = getConstructor(dataType, constructorName);
@@ -267,27 +250,27 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 //	}
 	
 	/*
-	 * 'preVisit' and 'postVisit' manage (scope) stacks of a bindings importer in a proper order
-	 * and resolve java bindings for a node if any
+	 * 'preVisit' and 'postVisit' manage (scope) stacks of the bindingsImporter in a proper order
+	 *  and resolve java bindings for a node if any
 	 */
 	public void preVisit(ASTNode node) {
 		bindingsImporter.resolveBindings(node);
-		this.javaType = bindingsImporter.getTypeBinding();
-		this.bindings = bindingsImporter.getBindings();
 		bindingsImporter.manageStacks(node, true);
 	}
 	public void postVisit(ASTNode node) {
-		if(this.javaType != null) 
-			setAnnotation(ANNOTATION_JAVA_TYPE, this.javaType);
-		setAnnotation(ANNOTATION_JAVA_BINDINGS, this.bindings);
+		IValue javaType = bindingsImporter.popJavaType();
+		IValue bindings = bindingsImporter.popBindings();
+		if(javaType != null) 
+			setRascalAstNodeAnnotation(ANNOTATION_JAVA_TYPE, javaType);
+		setRascalAstNodeAnnotation(ANNOTATION_JAVA_BINDINGS, bindings);
 		int start = node.getStartPosition();
 		int end = start + node.getLength() - 1;
 		if(compilUnit != null && loc != null) 
-			setAnnotation(ANNOTATION_SOURCE_LOCATION, values.sourceLocation(loc.getURI(), 
+			setRascalAstNodeAnnotation(ANNOTATION_SOURCE_LOCATION, values.sourceLocation(loc.getURI(), 
 																			start, node.getLength(), 
 																			compilUnit.getLineNumber(start), compilUnit.getLineNumber(end), 
 																			compilUnit.getColumnNumber(start), compilUnit.getColumnNumber(end)));
-		else System.err.println("The location annotation can not be added to the node");
+		else System.err.println("The 'location' annotation can not be added to the node");
 		bindingsImporter.manageStacks(node, false);
 	}
 	
@@ -1347,28 +1330,40 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		private IValue javaType;
 		private IMapWriter bindings;
 		
+		private final Stack<IValue> javaTypeStack;
+		private final Stack<IValue> bindingsStack;
+		
 		private TypeFactory ftypes = TypeFactory.getInstance();
 		private final IValueFactory values;
 		private final BindingConverter bindingConverter;
 		
-		public BindingsImporter(final BindingConverter bindingConverter, final IValueFactory values) {
+		public BindingsImporter(final IValueFactory values, final BindingConverter bindingConverter) {
 			super(bindingConverter);
 			this.values = values;
 			this.bindingConverter = bindingConverter;
+			
+			this.javaTypeStack = new Stack<IValue>();
+			this.bindingsStack = new Stack<IValue>();			
+		}
+				
+		public IValue popJavaType() {
+			return this.javaTypeStack.pop();
 		}
 		
-		public IValue getTypeBinding() {
-			return this.javaType;
+		public IValue popBindings() {
+			return this.bindingsStack.pop();
 		}
 		
-		public IMap getBindings() {
-		 return this.bindings.done();	
+		private void pushAllBindings() {
+			javaTypeStack.push(javaType);
+			bindingsStack.push(bindings.done());
 		}
 		
 		public void resolveBindings(ASTNode node) {
 			this.javaType = null;
 			this.bindings = this.values.mapWriter(this.ftypes.stringType(), ADT_ENTITY);
 			super.resolveBindings(node);
+			this.pushAllBindings();
 		}
 		public void importBinding(IMethodBinding binding) {
 			this.bindings.put(this.values.string(ANNOTATION_JAVA_METHOD_BINDING), this.bindingConverter.getEntity(binding));
