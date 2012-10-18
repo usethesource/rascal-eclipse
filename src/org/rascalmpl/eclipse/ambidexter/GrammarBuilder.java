@@ -25,8 +25,11 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
 
 
 public class GrammarBuilder {
@@ -41,9 +44,9 @@ public class GrammarBuilder {
 			Entry<IValue, IValue> e = i.next();
 			IConstructor symb = (IConstructor) e.getKey();
 			if (symb.getName().equals("start")) {
-				startSymbols.add(symb.toString());
+				startSymbols.add(SymbolAdapter.toString(symb));
 			} else {
-				otherSymbols.add(symb.toString());
+				otherSymbols.add(SymbolAdapter.toString(symb));
 			}
 		}
 	}
@@ -97,23 +100,23 @@ public class GrammarBuilder {
 //		= prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) 
 //		| regular(Symbol def)
 
-		String name = prod.getName();
-		if (name.equals("choice")) {
+		Type name = prod.getConstructorType();
+		if (name == Factory.Production_Choice) {
 			ISet alts = (ISet) prod.get("alternatives");
 			for (IValue e : alts) {
 				addProd(nt, (IConstructor) e, prodMap);
 			}			
-		} else if (name.equals("priority")) {
+		} else if (name == Factory.Production_Priority) {
 			IList choices = (IList) prod.get("choices");
 			for (IValue e : choices) {
 				addProd(nt, (IConstructor) e, prodMap);
 			}
-		} else if (name.equals("associativity")) {
+		} else if (name == Factory.Production_Associativity) {
 			ISet alts = (ISet) prod.get("alternatives");
 			for (IValue e : alts) {
 				addProd(nt, (IConstructor) e, prodMap);
 			}
-		} else if (name.equals("prod")) {
+		} else if (name == Factory.Production_Default) {
 			Production p = g.newProduction(nt); 
 			
 			IList lhs = (IList) prod.get("symbols");
@@ -123,7 +126,7 @@ public class GrammarBuilder {
 			
 			g.addProduction(p);
 			prodMap.put(prod, p);
-		} else if (name.equals("regular")) {
+		} else if (name == Factory.Production_Regular) {
 			// do nothing, the regular symbols are expanded already
 		} else {
 			throw new ImplementationError("Unknown Production constructor " + name);
@@ -169,10 +172,10 @@ public class GrammarBuilder {
 		
 		Symbol s = null;
 		
-		String name = symbol.getName();
-		if (name.equals("label")) {
+		Type name = symbol.getConstructorType();
+		if (name == Factory.Symbol_Label) {
 			s = getSymbol((IConstructor) symbol.get(1));
-		} else if (name.equals("char-class")) {
+		} else if (name == Factory.Symbol_CharClass) {
 			IList ranges = (IList) symbol.get("ranges");
 			CharacterClass cc = new CharacterClass(ranges.length() * 2, 0);
 //			data CharRange = range(int begin, int end);
@@ -181,7 +184,7 @@ public class GrammarBuilder {
 				cc.append(((IInteger) r.get("begin")).intValue(), ((IInteger) r.get("end")).intValue());
 			}
 			s = cc;
-		} else if (name.equals("conditional")) {
+		} else if (name == Factory.Symbol_Conditional) {
 			s = g.nonTerminals.get(symbol.toString());
 			if (s == null) {
 				s = g.getNonTerminal(symbol.toString());
@@ -191,7 +194,7 @@ public class GrammarBuilder {
 				
 				conditionals.add(symbol);
 			}
-		} else if (name.equals("layouts")) {
+		} else if (name == Factory.Symbol_LayoutX) {
 			NonTerminal n = g.getNonTerminal(symbol.toString());
 			n.layout = true;
 			s = n;
@@ -219,27 +222,28 @@ public class GrammarBuilder {
 			NonTerminal n = (NonTerminal) getSymbol(symbol);
 			for (IValue e : (ISet) symbol.get("conditions")) {
 				IConstructor cond = (IConstructor) e;
-				String cname = cond.getName();
-				if (cname.equals("not-follow")) {
+				Type cname = cond.getConstructorType();
+				if (cname == Factory.Condition_NotFollow) {
 					FollowRestrictions fr = getFollowRestrictions(cond, false);
 					n.addFollowRestrictions(fr);
-				} else if (cname.equals("follow")) {
+				} else if (cname == Factory.Condition_Follow) {
 					FollowRestrictions fr = getMustFollow(cond, false);
 					n.addFollowRestrictions(fr);
-				} else if (cname.equals("delete")) { // reject
+				} else if (cname == Factory.Condition_Delete) { // reject
 					Production reject = g.newProduction(n);
 					reject.reject  = true;
 					reject.addSymbol(getSymbol((IConstructor) cond.get("symbol")));
 					g.addProduction(reject);
-				} else if (cname.equals("not-precede")) {
+				} else if (cname == Factory.Condition_NotPrecede) {
 					FollowRestrictions fr = getFollowRestrictions(cond, true);
 					n.addPrecedeRestrictions(fr);
-				} else if (cname.equals("precede")) {
+				} else if (cname == Factory.Condition_Precede) {
 					FollowRestrictions fr = getMustFollow(cond, true);
 					n.addPrecedeRestrictions(fr);
-				} else if (cname.equals("begin-of-line")) {
+				} else if (cname == Factory.Condition_EndOfLine) {
+					// TODO: if find this suspect that it is the same as the next condition...
 					n.addPrecedeRestrictions(getNewLineMustFollow());
-				} else if (cname.equals("end-of-line")) {
+				} else if (cname == Factory.Condition_EndOfLine) {
 					n.addFollowRestrictions(getNewLineMustFollow());
 				}
 			}
@@ -253,7 +257,7 @@ public class GrammarBuilder {
 		// For the derivation generation it does produce some spurious ambiguous strings.
 		FollowRestrictions fr = new FollowRestrictions();
 		IConstructor r = (IConstructor) cond.get("symbol");
-		if (r.getName().equals("char-class")) {
+		if (r.getConstructorType() == Factory.Symbol_CharClass) {
 			CharacterClass cc = (CharacterClass) getSymbol(r);
 			fr.add(new LinkedList<CharacterClass>(cc.invert()));
 			fr.mustFollowLength = 1;
@@ -283,7 +287,7 @@ public class GrammarBuilder {
 	private FollowRestrictions getFollowRestrictions(IConstructor cond, boolean reverse) {
 		FollowRestrictions fr = new FollowRestrictions();
 		IConstructor r = (IConstructor) cond.get("symbol");
-		if (r.getName().equals("char-class")) {
+		if (r.getConstructorType() == Factory.Symbol_CharClass) {
 			CharacterClass cc = (CharacterClass) getSymbol(r);
 			fr.add(new LinkedList<CharacterClass>(cc));
 		} else {
