@@ -64,7 +64,8 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 					try {
 						IBundleProjectService service = context.getService(ref);
 						IBundleProjectDescription plugin = service.getDescription(project);
-						plugin.setBundleName(project.getName());
+						//plugin.setBundleName(project.getName());
+						plugin.setBundleName(project.getName().replaceAll("[^a-zA-Z0-9_]", "_"));
 						
 						initializeProjectAsRascalProject(project, monitor, service, plugin);
 						initializeProjectAsJavaProject(project);
@@ -83,7 +84,7 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 					final IProject project, IProgressMonitor monitor,
 					IBundleProjectService service,
 					IBundleProjectDescription plugin) throws CoreException {
-				plugin.setSymbolicName(project.getName().replaceAll("-", "_").replaceAll("\\s", "_"));
+				plugin.setSymbolicName(project.getName().replaceAll("[^a-zA-Z0-9_]", "_"));
 				plugin.setNatureIds(new String[] { IRascalResources.ID_RASCAL_NATURE, JavaCore.NATURE_ID, IBundleProjectDescription.PLUGIN_NATURE, TermNature.NATURE_ID});
 				plugin.setRequiredBundles(new IRequiredBundleDescription[] { 
 						service.newRequiredBundle("org.eclipse.imp.pdb.values", null, false, false),
