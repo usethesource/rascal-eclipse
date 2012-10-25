@@ -37,6 +37,3 @@ Export-Package: org.rascalmpl.eclipse.nature,
   org.rascalmpl.eclipse.terms,
   org.rascalmpl.eclipse.uri,
   org.rascalmpl.eclipse.wizards
-  
-  
-
