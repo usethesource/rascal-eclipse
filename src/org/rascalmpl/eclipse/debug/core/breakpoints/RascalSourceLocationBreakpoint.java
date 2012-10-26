@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.breakpoints;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.core.resources.IMarker;

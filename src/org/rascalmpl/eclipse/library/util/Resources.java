@@ -14,7 +14,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.util;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.core.resources.IFile;

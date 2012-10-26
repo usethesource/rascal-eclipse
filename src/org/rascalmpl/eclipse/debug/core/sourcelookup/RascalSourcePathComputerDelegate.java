@@ -13,8 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
-import java.net.URI;
-
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IProject;

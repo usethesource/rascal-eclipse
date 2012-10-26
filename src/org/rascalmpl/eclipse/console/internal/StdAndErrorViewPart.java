@@ -13,9 +13,6 @@ package org.rascalmpl.eclipse.console.internal;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
-
-import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;

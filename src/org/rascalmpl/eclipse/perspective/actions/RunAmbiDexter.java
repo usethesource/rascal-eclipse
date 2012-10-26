@@ -12,8 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.perspective.actions;
 
-import java.net.URI;
-
 import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
 
 import org.eclipse.core.runtime.IProgressMonitor;

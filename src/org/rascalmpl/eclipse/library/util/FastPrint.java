@@ -1,6 +1,5 @@
 package org.rascalmpl.eclipse.library.util;
 
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
