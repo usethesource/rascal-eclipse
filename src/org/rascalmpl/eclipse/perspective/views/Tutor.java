@@ -1,9 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2012 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+*******************************************************************************/
 package org.rascalmpl.eclipse.perspective.views;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -93,7 +99,7 @@ public class Tutor extends ViewPart {
 						eval.addClassLoader(getClass().getClassLoader());
 
 						String rascalPlugin = jarForPlugin("rascal");
-						String rascalEclipsePlugin = jarForPlugin("rascal_eclipse");
+						String rascalEclipsePlugin = jarForPlugin("rascal-eclipse");
 						String PDBValuesPlugin = jarForPlugin("org.eclipse.imp.pdb.values");
 
 						Configuration.setRascalJavaClassPathProperty(
