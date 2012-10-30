@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.nature;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.core.resources.IFolder;
