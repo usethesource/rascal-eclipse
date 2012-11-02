@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -43,9 +44,9 @@ public class GrammarBuilder {
 		while (i.hasNext()) {
 			Entry<IValue, IValue> e = i.next();
 			IConstructor symb = (IConstructor) e.getKey();
-			if (symb.getName().equals("start")) {
+			if (SymbolAdapter.isStart(symb)) {
 				startSymbols.add(SymbolAdapter.toString(symb));
-			} else {
+			} else if (SymbolAdapter.isSort(symb) || SymbolAdapter.isLex(symb)) {
 				otherSymbols.add(SymbolAdapter.toString(symb));
 			}
 		}
@@ -198,7 +199,16 @@ public class GrammarBuilder {
 			NonTerminal n = g.getNonTerminal(symbol.toString());
 			n.layout = true;
 			s = n;
-		} else {
+		} else if (name == Factory.Symbol_Lex) {
+		  NonTerminal n = g.getNonTerminal(((IString) symbol.get("name")).getValue());
+		  n.lexical = true;
+		  s = n;
+		} else if (name == Factory.Symbol_Sort){
+		  NonTerminal n = g.getNonTerminal(((IString) symbol.get("name")).getValue());
+      n.lexical = false;
+      s = n;
+		}
+		else {
 			s = g.getNonTerminal(symbol.toString());
 		}
 		
