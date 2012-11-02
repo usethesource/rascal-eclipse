@@ -251,7 +251,13 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 			this.monitor = monitor;
 			
 			//main.printGrammar();
-			main.checkGrammar();
+			try {
+			  main.checkGrammar();
+			} catch (OutOfMemoryError e) {
+			  Activator.log("out of memory while checking grammar for ambiguity", e);
+			  main = null; // help the GC in this case
+			  System.gc();
+			}
 			
 			monitor.done();
 			this.monitor = null;
