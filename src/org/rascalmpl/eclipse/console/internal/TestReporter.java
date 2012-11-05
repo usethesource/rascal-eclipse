@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console.internal;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import org.rascalmpl.uri.URIUtil;
 
 public class TestReporter implements ITestResultListener {
 	private Map<IFile,List<Report>> reports;
+	private final URIResolverRegistry resolverRegistry;
 	
 	private static class Report {
 		public boolean successful;
@@ -56,6 +58,7 @@ public class TestReporter implements ITestResultListener {
 	}
 
 	public TestReporter(URIResolverRegistry uriResolverRegistry) {
+		resolverRegistry = uriResolverRegistry;
 	}
 
 	@Override
@@ -95,6 +98,11 @@ public class TestReporter implements ITestResultListener {
 	public void report(boolean successful, String test, ISourceLocation loc, String message) {
 		final IFile file = getFile(loc);
 		
+		/*if (loc.getURI().getScheme().equals("rascal")) {
+			System.err.println(loc.getURI());
+			return;
+		}
+		*/
 		List<Report> forFile = reports.get(file);
 		if (forFile == null) {
 			forFile = new ArrayList<Report>(1);
@@ -107,10 +115,13 @@ public class TestReporter implements ITestResultListener {
 	@Override
 	public void start(int count) {
 		reports = new HashMap<IFile,List<Report>>();
-	}
+	}	
 	
 	private IFile getFile(ISourceLocation loc) {
-		URI uri = loc.getURI();
+		return getFile(loc.getURI());
+	}
+	
+	private IFile getFile(URI uri) {
 		String scheme = uri.getScheme();
 		
 		if (scheme.equals("project")) {
@@ -155,9 +166,20 @@ public class TestReporter implements ITestResultListener {
 				return null;
 			}
 		}
-	
-		
+		else if (scheme.equals("rascal")) {
+			try {
+				URI resource = resolverRegistry.getResourceURI(uri);
+				return getFile(resource);
+			} catch (IOException e) {
+				Activator.getInstance().logException("Cannot resolve: " + uri, e);
+				e.printStackTrace();
+			}
+			
+		}
+
 		Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
 		return null;
 	}
+
+
 }
