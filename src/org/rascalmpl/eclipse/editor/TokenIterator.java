@@ -93,6 +93,11 @@ public class TokenIterator implements Iterator<Token>{
 				category = ProductionAdapter.getCategory(prod);
 			}
 			
+			// It's not so nice to link the sort name to the token color constant ...
+			if(TokenColorer.NONTERMINAL_LABEL.equals(ProductionAdapter.getSortName(prod))){
+				category = TokenColorer.NONTERMINAL_LABEL;
+			}
+			
 			// short cut, if we have source locations and a category we found a long token
 			ISourceLocation loc = TreeAdapter.getLocation(arg);
 			if (category != null && loc != null) {
