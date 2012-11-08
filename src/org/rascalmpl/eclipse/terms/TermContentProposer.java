@@ -24,7 +24,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.services.IContentProposer;
 import org.eclipse.jface.text.ITextViewer;
@@ -33,9 +33,11 @@ import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.eclipse.editor.proposer.Prefix;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TermContentProposer implements IContentProposer {	
 	private IConstructor cachedTree = null;
+	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
 	@Override
 	public ICompletionProposal[] getContentProposals(IParseController parseController, int requestOffset, ITextViewer textViewer) {
@@ -60,8 +62,8 @@ public class TermContentProposer implements IContentProposer {
 		}
 
 		Prefix prefix = Prefix.getPrefix(parseController.getDocument(), selection.x, selection.y, prefixIdCharacters);
-		IString _prefixText = ValueFactory.getInstance().string(prefix.getText());
-		IInteger _requestOffset = ValueFactory.getInstance().integer(requestOffset) ;
+		IString _prefixText = VF.string(prefix.getText());
+		IInteger _requestOffset = VF.integer(requestOffset) ;
 
 		if (proposer != null && tree != null) {
 			Result<IValue> result = (Result<IValue>) proposer.call(new Type[] { tree.getType(), _prefixText.getType(), _requestOffset.getType() }, new IValue[] { tree, _prefixText, _requestOffset });
