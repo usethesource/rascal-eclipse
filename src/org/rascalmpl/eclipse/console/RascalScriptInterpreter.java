@@ -53,7 +53,6 @@ import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -447,16 +446,14 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			new UIJob("Reporting Ambiguities") {
 				@Override
 				public IStatus runInUIThread(IProgressMonitor monitor) {
-					try {
-						ReportView part = (ReportView) PlatformUI.getWorkbench()
-								.getActiveWorkbenchWindow()
-								.getActivePage()
-								.showView(ReportView.ID);
+					ReportView part = (ReportView) PlatformUI.getWorkbench()
+							.getActiveWorkbenchWindow()
+							.getActivePage()
+							.findView(ReportView.ID);
+					if(part != null){
 						monitor.beginTask("listing ambiguities", 10000);
 						part.list(project.getName(), ModuleEnvironment.SHELL_MODULE, (IConstructor) result.getValue(), monitor);
 						monitor.done();
-					} catch (PartInitException e) {
-						RuntimePlugin.getInstance().logException("could not parse module", e);
 					}
 
 					return Status.OK_STATUS;
