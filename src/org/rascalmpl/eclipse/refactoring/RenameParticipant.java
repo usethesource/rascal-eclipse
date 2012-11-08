@@ -50,7 +50,7 @@ public class RenameParticipant extends org.eclipse.ltk.core.refactoring.particip
 			String newModuleName = new Path(getArguments().getNewName()).removeFileExtension().toString();
 			  
 			int last;
-			if ((last = moduleName.indexOf("::")) != -1) {
+			if ((last = moduleName.lastIndexOf("::")) != -1) {
 				newModuleName = moduleName.substring(0, last + 2) + newModuleName;
 			}
 			
