@@ -86,7 +86,7 @@ public class RunAmbiDexter extends AbstractEditorAction {
 				}
 				return Status.CANCEL_STATUS;
 			}
-		};
+		}
 		
 		GrammarJob j = new GrammarJob();
 		j.setUser(true);

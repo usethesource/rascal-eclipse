@@ -84,7 +84,7 @@ public class TestReporter implements ITestResultListener {
 					attrs.put(IMarker.SEVERITY, r.successful ? IMarker.SEVERITY_INFO : IMarker.SEVERITY_ERROR);
 					m.setAttributes(attrs);
 				}
-			};
+			}
 		};
 		
 		try {

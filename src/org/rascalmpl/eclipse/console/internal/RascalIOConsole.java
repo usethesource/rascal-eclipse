@@ -64,7 +64,7 @@ public class RascalIOConsole extends IOConsole {
         			cached = super.createViewer(parent);
         		}
         		return cached;
-        	};
+        	}
         };
         this.viewer = page.getViewer();
         getDocument().addDocumentListener(new IDocumentListener() {
