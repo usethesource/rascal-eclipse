@@ -26,9 +26,11 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -71,7 +73,23 @@ public class GrammarBuilder {
 		addPriorities(nestingRestr, prodMap);		
 		addConditions();
 		
-		g.setNewStartSymbol(config.alternativeStartSymbol);
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
+		String start = config.alternativeStartSymbol;
+		String lex = Factory.Symbol_Lex.make(vf, vf.string(start)).toString();
+		String cf = Factory.Symbol_Sort.make(vf, vf.string(start)).toString();
+		String startCf = Factory.Symbol_Start_Sort.make(vf, Factory.Symbol_Sort.make(vf, vf.string(start))).toString();
+    if (g.nonTerminals.containsKey(lex)) {
+		  g.setNewStartSymbol(lex);
+    }
+    else if (g.nonTerminals.containsKey(cf)) {
+      g.setNewStartSymbol(cf);
+    }
+    else if (g.nonTerminals.containsKey(startCf)) {
+      g.setNewStartSymbol(startCf);
+    }
+    else {
+      g.setNewStartSymbol(start);
+    }
 
 		g.finish();
 		g.verify();
@@ -199,7 +217,7 @@ public class GrammarBuilder {
 			NonTerminal n = g.getNonTerminal(symbol.toString());
 			n.layout = true;
 			s = n;
-		} else if (name == Factory.Symbol_Lex) {
+		} /* else if (name == Factory.Symbol_Lex) {
 		  NonTerminal n = g.getNonTerminal(((IString) symbol.get("name")).getValue());
 		  n.lexical = true;
 		  s = n;
@@ -207,7 +225,7 @@ public class GrammarBuilder {
 		  NonTerminal n = g.getNonTerminal(((IString) symbol.get("name")).getValue());
       n.lexical = false;
       s = n;
-		}
+		} */
 		else {
 			s = g.getNonTerminal(symbol.toString());
 		}
