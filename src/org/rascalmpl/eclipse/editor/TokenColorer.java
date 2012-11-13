@@ -46,13 +46,17 @@ public class TokenColorer implements ITokenColorer {
 	public static final String META_VARIABLE = "MetaVariable";
 	public static final String META_KEYWORD = "MetaKeyword";
 	public static final String META_SKIPPED = "MetaSkipped";
+	public static final String NONTERMINAL_LABEL = "NonterminalLabel";
 	private Boolean firstUse = true;
 
 	private final Map<String,TextAttribute> map = new HashMap<String,TextAttribute>();
 
 	public TokenColorer() {
 		super();
+		
 		map.put(NORMAL, new TextAttribute(null, null, SWT.NONE));
+		
+		map.put(NONTERMINAL_LABEL, new TextAttribute(new Color(Display.getDefault(), 0x80, 0x80, 0x80), null, SWT.ITALIC));
 		map.put(META_KEYWORD, new TextAttribute(new Color(Display.getDefault(), 123, 0, 82), null, SWT.BOLD));
 		map.put(META_VARIABLE, new TextAttribute(new Color(Display.getDefault(), 0x29,0x5F,0x94), null, SWT.ITALIC));
 		map.put(META_AMBIGUITY,  new TextAttribute(new Color(Display.getDefault(), 186, 29, 29), null, SWT.BOLD));
