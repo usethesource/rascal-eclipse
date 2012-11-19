@@ -27,6 +27,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
+import org.rascalmpl.ast.Expression.Visit;
 
 @SuppressWarnings({"deprecation", "rawtypes"})
 public class JdtAstToRascalAstConverter extends ASTVisitor {
@@ -419,7 +420,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		ownValue = constructRascalNode(node, value);
 		return false;
 	}
-
+	
 	public boolean visit(ClassInstanceCreation node) {
 		IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
 
@@ -952,7 +953,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		ownValue = constructRascalNode(node, qualifier, name);
 		return false;
 	}
-
+	
 	public boolean visit(ReturnStatement node) {
 		IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
 		ownValue = constructRascalNode(node, optional(expression));
