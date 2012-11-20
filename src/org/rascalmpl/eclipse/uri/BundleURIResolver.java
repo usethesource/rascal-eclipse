@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.rascalmpl.uri.IURIInputStreamResolver;
@@ -105,6 +106,12 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 	@Override
 	public boolean supportsHost() {
 		return false;
+	}
+
+	@Override
+	public Charset getCharset(URI uri) {
+		// TODO need to check if a JAR actually stores the charset
+		return null;
 	}
 
 }

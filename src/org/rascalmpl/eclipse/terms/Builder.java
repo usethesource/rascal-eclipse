@@ -2,6 +2,7 @@ package org.rascalmpl.eclipse.terms;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -83,7 +84,7 @@ public class Builder extends BuilderBase {
 			ISourceProject project = ModelFactory.open(file.getProject());
 			ISourceLocation loc = VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, file.getProjectRelativePath()));
 			contents = file.getContents();
-			input = new String(InputConverter.toChar(contents));
+			input = new String(InputConverter.toChar(contents, Charset.forName(file.getCharset())));
 
 			IConstructor tree;
 			synchronized (parser.getEval()) {
