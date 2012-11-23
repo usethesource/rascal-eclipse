@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2012 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+*******************************************************************************/
 package org.rascalmpl.eclipse.perspective.views;
 
 import java.io.File;
@@ -92,18 +99,17 @@ public class Tutor extends ViewPart {
 						eval.addClassLoader(getClass().getClassLoader());
 
 						String rascalPlugin = jarForPlugin("rascal");
-						String rascalEclipsePlugin = jarForPlugin("rascal_eclipse");
+						String rascalEclipsePlugin = jarForPlugin("rascal-eclipse");
 						String PDBValuesPlugin = jarForPlugin("org.eclipse.imp.pdb.values");
 
 						Configuration.setRascalJavaClassPathProperty(
 								rascalPlugin 
 								+ File.pathSeparator 
-								+ PDBValuesPlugin 
-								+ File.pathSeparator 
-								+ rascalPlugin 
-								+ File.separator + "src" 
+								+ rascalPlugin + File.separator + "src" 
 								+ File.pathSeparator 
 								+ rascalPlugin + File.separator + "bin" 
+								+ File.pathSeparator 
+								+ PDBValuesPlugin 
 								+ File.pathSeparator 
 								+ PDBValuesPlugin + File.separator + "bin"
 								+ File.pathSeparator
@@ -148,23 +154,19 @@ public class Tutor extends ViewPart {
 			
 			try {
 				if (rascalURI.getProtocol().equals("jar")) {
+					/*
+					 * Installed plug-in as jar file. E.g. URI has form
+					 * jar:file:/path/to/eclipse/plugins/rascal_0.5.2.201210301241.jar!/		
+					 */
 					String path = rascalURI.toURI().toASCIIString();
 					return path.substring(path.indexOf("/"), path.indexOf('!'));
-				}
-				else {
-					// TODO this is a monumental workaround, apparently the Rascal plugin gets unpacked and in 
-					// it is a rascal.jar file that we should lookup...
-					String path = rascalURI.getPath();
-					File folder = new File(path);
-					if (folder.isDirectory()) {
-						File[] list = folder.listFiles();
-						for (File f : list) {
-							if (f.getName().startsWith(pluginName) && f.getName().endsWith(".jar")) {
-								return f.getAbsolutePath();
-							}
-						}
-					}
-					
+				
+				} else {					
+					/*
+					 * I.e. Rascal is launched in second level and path is 
+					 * pointing to first level source folder.
+					 */
+					String path = rascalURI.getPath();					
 					return path;
 				}
 			}
