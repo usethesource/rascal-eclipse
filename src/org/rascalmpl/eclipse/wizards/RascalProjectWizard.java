@@ -66,7 +66,7 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 						IBundleProjectDescription plugin = service.getDescription(project);
 						//plugin.setBundleName(project.getName());
 						plugin.setBundleName(project.getName().replaceAll("[^a-zA-Z0-9_]", "_"));
-						
+						project.setDefaultCharset("UTF-8", monitor); // now let's just force new rascal projects to be UTF-8.
 						initializeProjectAsRascalProject(project, monitor, service, plugin);
 						initializeProjectAsJavaProject(project);
 						ConsoleFactory.getInstance().launchConsole(project, ILaunchManager.DEBUG_MODE);
