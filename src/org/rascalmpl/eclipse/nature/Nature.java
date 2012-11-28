@@ -26,12 +26,12 @@ import org.rascalmpl.uri.URIUtil;
 public class Nature extends ProjectNatureBase implements IRascalResources {
 	@Override
 	public String getNatureID() {
-		return "rascal_eclipse.rascal_nature";
+		return IRascalResources.ID_RASCAL_NATURE;
 	}
 	
 	@Override
 	public String getBuilderID() {
-		return "rascal_eclipse.rascal_builder";
+		return IRascalResources.ID_RASCAL_BUILDER;
 	}
 	
 	public void configure() throws CoreException {
