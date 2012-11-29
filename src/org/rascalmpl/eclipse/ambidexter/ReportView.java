@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2012 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Various members of the Software Analysis and Transformation Group - CWI
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *******************************************************************************/
 package org.rascalmpl.eclipse.ambidexter;
 
 import java.io.IOException;
@@ -38,8 +50,10 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 
+import static org.rascalmpl.eclipse.IRascalResources.ID_AMBIDEXTER_REPORT_VIEW_PART;
+
 public class ReportView extends ViewPart implements IAmbiDexterMonitor {
-	public static final String ID = "rascal-eclipse.ambidexter.report";
+	public static final String ID = ID_AMBIDEXTER_REPORT_VIEW_PART;
 	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final PrintStream out = RuntimePlugin.getInstance().getConsoleStream();
 	private TableColumn nonterminals;

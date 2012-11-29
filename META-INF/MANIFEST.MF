@@ -2,8 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: CWI
-Bundle-Name: rascal-eclipse
-Bundle-SymbolicName: rascal-eclipse;singleton:=true
+Bundle-SymbolicName: rascal_eclipse;singleton:=true
 Bundle-Version: 0.5.4.qualifier
 Bundle-Activator: org.rascalmpl.eclipse.Activator
 Bundle-ActivationPolicy: lazy

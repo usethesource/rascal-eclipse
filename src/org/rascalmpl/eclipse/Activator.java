@@ -35,8 +35,10 @@ import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_ECLIPSE_PLUGIN;
+
 public class Activator extends PluginBase {
-	public static final String PLUGIN_ID = "rascal-eclipse";
+	public static final String PLUGIN_ID = ID_RASCAL_ECLIPSE_PLUGIN;
 	public static final String kLanguageName = "Rascal";
 	private static Activator sInstance;
 	

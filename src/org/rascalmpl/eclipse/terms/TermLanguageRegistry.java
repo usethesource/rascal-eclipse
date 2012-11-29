@@ -9,6 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.terms;
 
@@ -31,6 +32,8 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
+
+import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_ECLIPSE_PLUGIN;
 
 public class TermLanguageRegistry {
 	private final Map<String, Language> languages = new HashMap<String,Language>();
@@ -82,7 +85,7 @@ public class TermLanguageRegistry {
 	}
 	
 	public void registerLanguage(String name, String extension, ICallableValue parser, IEvaluatorContext ctx) {
-		Language l = new Language(name, "", "demo editor for " + name, "Terms", "icons/rascal3D_2-32px.gif", "http://www.rascal-mpl.org","rascal-eclipse",extension,"",null);
+		Language l = new Language(name, "", "demo editor for " + name, "Terms", "icons/rascal3D_2-32px.gif", "http://www.rascal-mpl.org",ID_RASCAL_ECLIPSE_PLUGIN,extension,"",null);
 		languages.put(extension, l);
 		evals.put(name, ctx);
 		parsers.put(name, parser);

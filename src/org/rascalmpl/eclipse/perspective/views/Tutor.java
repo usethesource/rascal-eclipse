@@ -4,7 +4,12 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
-*******************************************************************************/
+ *
+ * Contributors:
+ *
+ *   * Various members of the Software Analysis and Transformation Group - CWI
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *******************************************************************************/
 package org.rascalmpl.eclipse.perspective.views;
 
 import java.io.File;
@@ -35,8 +40,10 @@ import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
+import static org.rascalmpl.eclipse.IRascalResources.*;
+
 public class Tutor extends ViewPart {
-	public static final String ID = "rascal-eclipse.tutorBrowser";
+	public static final String ID = ID_RASCAL_TUTOR_VIEW_PART;
 	
 	private Browser browser;
     private RascalTutor tutor;
@@ -99,7 +106,7 @@ public class Tutor extends ViewPart {
 						eval.addClassLoader(getClass().getClassLoader());
 
 						String rascalPlugin = jarForPlugin("rascal");
-						String rascalEclipsePlugin = jarForPlugin("rascal-eclipse");
+						String rascalEclipsePlugin = jarForPlugin(ID_RASCAL_ECLIPSE_PLUGIN);
 						String PDBValuesPlugin = jarForPlugin("org.eclipse.imp.pdb.values");
 
 						Configuration.setRascalJavaClassPathProperty(

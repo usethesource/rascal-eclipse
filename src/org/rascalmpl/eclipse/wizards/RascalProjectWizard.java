@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.wizards;
 
@@ -39,8 +40,6 @@ import org.osgi.framework.Version;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
-import org.rascalmpl.eclipse.terms.TermNature;
-
 
 public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 
@@ -85,7 +84,7 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 					IBundleProjectService service,
 					IBundleProjectDescription plugin) throws CoreException {
 				plugin.setSymbolicName(project.getName().replaceAll("[^a-zA-Z0-9_]", "_"));
-				plugin.setNatureIds(new String[] { IRascalResources.ID_RASCAL_NATURE, JavaCore.NATURE_ID, IBundleProjectDescription.PLUGIN_NATURE, TermNature.NATURE_ID});
+				plugin.setNatureIds(new String[] { IRascalResources.ID_RASCAL_NATURE, JavaCore.NATURE_ID, IBundleProjectDescription.PLUGIN_NATURE, IRascalResources.ID_TERM_NATURE});
 				plugin.setRequiredBundles(new IRequiredBundleDescription[] { 
 						service.newRequiredBundle("org.eclipse.imp.pdb.values", null, false, false),
 						service.newRequiredBundle("rascal", null, false, false)
@@ -156,6 +155,5 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 		
 		return false;
 	}
-
 
 }

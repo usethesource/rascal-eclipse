@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2012 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Various members of the Software Analysis and Transformation Group - CWI
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
+ *******************************************************************************/
 package org.rascalmpl.eclipse.terms;
 
 import java.io.IOException;
@@ -24,6 +36,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.runtime.PluginBase;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
@@ -37,11 +50,10 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 
-
 public class Builder extends BuilderBase {
 	private static final TermLanguageRegistry registry = TermLanguageRegistry.getInstance();
 	private static final TypeFactory TF = TypeFactory.getInstance();
-	private static final String MARKER_ID = "rascal_eclipse.term_markers";
+	private static final String MARKER_ID = IRascalResources.ID_TERM_MARKER;
 	private static final MessagesToMarkers messagesToMarkers = new MessagesToMarkers();
 
 	@Override

@@ -63,7 +63,7 @@
       </language>
    </extension>
    <extension
-         id="rascal-eclipse.parserWrapper"
+         id="rascal_eclipse.parserWrapper"
          name="Rascal Parser Wrapper"
          point="org.eclipse.imp.runtime.parser">
       <parser
@@ -159,7 +159,7 @@
       <editor
             class="org.rascalmpl.eclipse.library.vis.FigureViewer"
             default="false"
-            id="rascal-eclipse.Figure.viewer"
+            id="rascal_eclipse.Figure.viewer"
             name="Figure Viewer">
       </editor>
    </extension>
@@ -180,7 +180,7 @@
             descriptionImage="icons/rascal3D_2-16px.gif"
             finalPerspective="rascal.perspective"
             icon="icons/rascal3D_2-16px.gif"
-            id="rascal-eclipse.projectwizard"
+            id="rascal_eclipse.projectwizard"
             name="Rascal Project"
             project="true">
       </wizard>
@@ -211,8 +211,8 @@
             id="rascal.launchType"
             modes="run, debug"
             name="Rascal Application"
-            sourceLocatorId="rascal-eclipse.sourceLocator"
-            sourcePathComputerId="rascal-eclipse.sourcePathComputer">
+            sourceLocatorId="rascal_eclipse.sourceLocator"
+            sourcePathComputerId="rascal_eclipse.sourcePathComputer">
       </launchConfigurationType>
    </extension>
    <extension
@@ -228,7 +228,7 @@
          point="org.eclipse.debug.core.sourceLocators">
       <sourceLocator
             class="org.rascalmpl.eclipse.debug.core.sourcelookup.RascalSourceLookupDirector"
-            id="rascal-eclipse.sourceLocator"
+            id="rascal_eclipse.sourceLocator"
             name="Rascal source Locator">
       </sourceLocator>
    </extension>
@@ -236,7 +236,7 @@
          point="org.eclipse.debug.core.sourcePathComputers">
       <sourcePathComputer
             class="org.rascalmpl.eclipse.debug.core.sourcelookup.RascalSourcePathComputerDelegate"
-            id="rascal-eclipse.sourcePathComputer">
+            id="rascal_eclipse.sourcePathComputer">
       </sourcePathComputer>
    </extension>
    <extension
@@ -504,7 +504,7 @@
  <extension
        point="org.eclipse.ui.themes">
     <fontDefinition
-          id="rascal-eclipse.printerFontDefinition"
+          id="rascal_eclipse.printerFontDefinition"
           label="Printer Font"
           value="Monospace-regular-6">
     </fontDefinition>
@@ -554,7 +554,7 @@
       point="org.eclipse.ltk.core.refactoring.renameParticipants">
    <renameParticipant
          class="org.rascalmpl.eclipse.refactoring.RenameParticipant"
-         id="rascal-eclipse.rename"
+         id="rascal_eclipse.rename"
          name="Rename Rascal Module">
       <enablement>
          <instanceof
@@ -576,7 +576,7 @@
          allowMultiple="false"
          class="org.rascalmpl.eclipse.ambidexter.ReportView"
          icon="icons/ambidexter-a-16.png"
-         id="rascal-eclipse.ambidexter.report"
+         id="rascal_eclipse.ambidexter.report"
          name="Ambiguity reports"
          restorable="true">
    </view>
@@ -584,7 +584,7 @@
          allowMultiple="false"
          class="org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart"
          icon="icons/rascal3D_2-16px.gif"
-         id="rascal-eclipse.outputview"
+         id="rascal_eclipse.outputview"
          name="Output"
          restorable="true">
    </view>
@@ -592,7 +592,7 @@
          allowMultiple="false"
          class="org.rascalmpl.eclipse.perspective.views.Tutor"
          icon="icons/rascal-tutor-small.png"
-         id="rascal-eclipse.tutorBrowser"
+         id="rascal_eclipse.tutorBrowser"
          name="Tutor"
          restorable="true">
    </view>
@@ -642,7 +642,7 @@
       point="org.eclipse.ui.preferencePages">
    <page
          class="org.rascalmpl.eclipse.preferences.Page"
-         id="rascal-eclipse.preferencePage"
+         id="rascal_eclipse.preferencePage"
          name="Rascal">
    </page>
 </extension>
@@ -682,12 +682,12 @@
 </extension>
     <extension point = "org.eclipse.ui.actionSets">
         <actionSet
-            id="rascal-eclipse.console"
+            id="rascal_eclipse.console"
             label="Rascal Console"
       visible="true"
       description="Start a Rascal console">
       <menu
-            id="rascal-eclipse.menu"
+            id="rascal_eclipse.menu"
             label="Rascal">
     <separator name="consoles"/>
       </menu>
@@ -696,7 +696,7 @@
             icon="icons/rascal3D_2-16px.gif"
             id="StartConsoleAction"
             label="Start Console"
-            menubarPath="rascal-eclipse.menu/consoles"
+            menubarPath="rascal_eclipse.menu/consoles"
             toolbarPath="Normal"
             tooltip="Press to start a Rascal console"/>
       <action
@@ -704,7 +704,7 @@
             icon="icons/rascal-tutor-small.png"
             id="StartTutorAction"
             label="Show Tutor"
-            menubarPath="rascal-eclipse.menu/consoles"
+            menubarPath="rascal_eclipse.menu/consoles"
             toolbarPath="Normal"
             tooltip="Press to show the Rascal tutor">
       </action>
@@ -712,13 +712,13 @@
     </extension>
     <extension point="org.eclipse.ui.popupMenus"> 
    <viewerContribution
-         id="rascal-eclipse.packageExplorer"
+         id="rascal_eclipse.packageExplorer"
          targetID="org.eclipse.jdt.ui.PackageExplorer"> 
    <action
          class="org.rascalmpl.eclipse.perspective.actions.StartConsole"
          enablesFor="?"
          icon="icons/rascal3D_2-16px.gif"
-         id="rascal-eclipse.packageExplorer.console"
+         id="rascal_eclipse.packageExplorer.console"
          label="Rascal Console"
          menubarPath="additions"
          tooltip="Start a Rascal consol">
@@ -729,7 +729,7 @@
           point="org.eclipse.ltk.core.refactoring.moveParticipants">
        <moveParticipant
              class="org.rascalmpl.eclipse.refactoring.MoveParticipant"
-             id="rascal-eclipse.moveParticipant"
+             id="rascal_eclipse.moveParticipant"
              name="Rascal move participant">
           <enablement></enablement>
        </moveParticipant>
