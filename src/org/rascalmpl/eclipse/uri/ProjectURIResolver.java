@@ -20,6 +20,8 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -80,14 +82,18 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		return project.getFile(uri.getPath());
 	}
 	
-	private IFolder resolveFolder(URI uri) throws IOException, MalformedURLException {
+	private IContainer resolveFolder(URI uri) throws IOException, MalformedURLException {
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
-		
 		if (project == null) {
 			throw new IOException("project " + uri.getAuthority() + " does not exist");
 		}
 		
-		return project.getFolder(uri.getPath());
+		if (uri.getPath().isEmpty() || uri.getPath().equals("/")) {
+		  return project;
+		}
+		else {
+		  return project.getFolder(uri.getPath());
+		}
 	}
 
 	private IResource resolve(URI uri) throws IOException, MalformedURLException {
@@ -171,7 +177,7 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 
 	public String[] listEntries(URI uri) {
 		try {
-			IFolder folder = resolveFolder(uri);
+			IContainer folder = resolveFolder(uri);
 			IResource[] members = folder.members();
 			String[] result = new String[members.length];
 			
@@ -190,11 +196,19 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	}
 
 	public void mkDirectory(URI uri) throws IOException {
-		IFolder resolved = resolveFolder(uri);
+		IContainer resolved = resolveFolder(uri);
 
 		if (!resolved.exists()) {
 			try {
-				resolved.create(true, true, null);
+			  if (resolved instanceof IFolder) {
+			    ((IFolder) resolved).create(true, true, null);
+			  }
+			  else if (resolved instanceof IProject) {
+			    IProject project = (IProject) resolved;
+          NullProgressMonitor pm = new NullProgressMonitor();
+          project.create(pm);
+			    project.open(pm);
+			  }
 				return;
 			} catch (CoreException e) {
 				throw new IOException(e.getMessage(), e);
