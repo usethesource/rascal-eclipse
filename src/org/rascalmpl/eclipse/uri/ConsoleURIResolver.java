@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.IURIInputStreamResolver;
@@ -82,4 +83,8 @@ public class ConsoleURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		return false;
 	}
 
+	@Override
+	public Charset getCharset(URI uri) {
+		throw new UnsupportedOperationException("Not supported by console.");
+	}
 }

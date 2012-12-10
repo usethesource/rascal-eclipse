@@ -1,13 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: rascal-eclipse
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: CWI
 Bundle-SymbolicName: rascal_eclipse;singleton:=true
 Bundle-Version: 0.5.4.qualifier
 Bundle-Activator: org.rascalmpl.eclipse.Activator
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: rascal-eclipse.jar,
- .,
- src
 Require-Bundle: rascal,
  org.eclipse.core.runtime,
  org.eclipse.debug.ui,
@@ -38,6 +36,3 @@ Export-Package: org.rascalmpl.eclipse.nature,
   org.rascalmpl.eclipse.terms,
   org.rascalmpl.eclipse.uri,
   org.rascalmpl.eclipse.wizards
-  
-  
-

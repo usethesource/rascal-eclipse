@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
@@ -103,6 +104,12 @@ public class BootstrapURIResolver implements IURIInputOutputResolver {
 	@Override
 	public boolean supportsHost() {
 		return false;
+	}
+
+	@Override
+	public Charset getCharset(URI uri) {
+		// TODO need to check if a JAR actually stores the charset
+		return null;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.perspective;
 
@@ -20,6 +21,8 @@ import org.eclipse.ui.console.IConsoleConstants;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.eclipse.perspective.views.Tutor;
+
+import static org.rascalmpl.eclipse.IRascalResources.*;
 
 public class Factory implements IPerspectiveFactory {
 
@@ -55,9 +58,8 @@ public class Factory implements IPerspectiveFactory {
 
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");
-		layout.addNewWizardShortcut("rascal-eclipse.projectwizard");
-		layout.addNewWizardShortcut("rascal_eclipse.wizards.NewRascalFile");
+		layout.addNewWizardShortcut(ID_RASCAL_NEW_PROJECT_WIZARD);
+		layout.addNewWizardShortcut(ID_RASCAL_NEW_FILE_WIZARD);
 	}
-	
 	
 }

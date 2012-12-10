@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.wizards;
 
@@ -138,7 +139,7 @@ public class NewRascalFile extends Wizard implements INewWizard {
 	
 	private void throwCoreException(String message) throws CoreException {
 		IStatus status =
-			new Status(IStatus.ERROR, "rascal_eclipse", IStatus.OK, message, null);
+			new Status(IStatus.ERROR, IRascalResources.ID_RASCAL_ECLIPSE_PLUGIN, IStatus.OK, message, null);
 		throw new CoreException(status);
 	}
 	

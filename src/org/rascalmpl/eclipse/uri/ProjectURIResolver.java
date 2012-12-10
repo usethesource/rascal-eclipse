@@ -20,8 +20,8 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import org.eclipse.core.resources.IContainer;
+import java.nio.charset.Charset;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -229,5 +229,25 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	@Override
 	public boolean supportsHost() {
 		return false;
+	}
+
+	@Override
+	public Charset getCharset(URI uri) throws IOException {
+		IFile file;
+		try {
+			file = resolveFile(uri);
+		} catch (MalformedURLException e) {
+			return null;
+		}
+		if (file != null) {
+			try {
+				String charsetName = file.getCharset();
+				if (charsetName != null) 
+					return Charset.forName(charsetName);
+			} catch (CoreException e) {
+				return null;
+			}
+		}
+		return null;
 	}
 }

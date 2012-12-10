@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *   * Bert Lisser - Bert.Lisser@cwi.nl (CWI)
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *******************************************************************************/
 package org.rascalmpl.eclipse.library.vis;
 
@@ -35,10 +36,12 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.swt.FigureExecutionEnvironment;
 
+import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_FIGURE_VIEW_PART;
+
 @SuppressWarnings("restriction")
 public class FigureViewer extends EditorPart {
 
-	protected static final String editorId = "rascal-eclipse.Figure.viewer";
+	protected static final String editorId = ID_RASCAL_FIGURE_VIEW_PART;
 
 	private FigureExecutionEnvironment fpa;
 

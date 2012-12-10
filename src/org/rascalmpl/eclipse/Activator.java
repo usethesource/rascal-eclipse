@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2012 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *   * Emilie Balland - (CWI)
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse;
 
@@ -34,9 +35,10 @@ import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_ECLIPSE_PLUGIN;
+
 public class Activator extends PluginBase {
-	private static final String SPACE = " ";
-	public static final String PLUGIN_ID = "rascal_eclipse";
+	public static final String PLUGIN_ID = ID_RASCAL_ECLIPSE_PLUGIN;
 	public static final String kLanguageName = "Rascal";
 	private static Activator sInstance;
 	
@@ -150,6 +152,5 @@ public class Activator extends PluginBase {
 
 		getLog().log(status);
 	}
-
 	
 }
