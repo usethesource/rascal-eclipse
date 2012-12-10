@@ -199,7 +199,7 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		IContainer resolved = resolveFolder(uri);
 
 		if (!resolved.exists()) {
-			try {
+			try { 
 			  if (resolved instanceof IFolder) {
 			    ((IFolder) resolved).create(true, true, null);
 			  }
