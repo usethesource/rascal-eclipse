@@ -175,14 +175,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 								}
 								return null;
 							}
-
-              @Override
-              public Object visitListRelation(IListRelation o) throws VisitorException {
-                for (IValue tuple : o) {
-                  tuple.accept(this);
-                }
-                return null;
-              }
 						});
 
 					}

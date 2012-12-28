@@ -318,10 +318,6 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				return new IVariable[0];
 			}
 
-      @Override
-      public IVariable[] visitListRelationType(Type type) {
-        return visitList(type);
-      }
 		});
 	}
 
