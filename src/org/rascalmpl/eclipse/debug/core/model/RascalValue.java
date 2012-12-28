@@ -317,6 +317,11 @@ public class RascalValue extends RascalDebugElement implements IValue {
 			public IVariable[] visitDateTime(Type type) {
 				return new IVariable[0];
 			}
+
+      @Override
+      public IVariable[] visitListRelationType(Type type) {
+        return visitList(type);
+      }
 		});
 	}
 

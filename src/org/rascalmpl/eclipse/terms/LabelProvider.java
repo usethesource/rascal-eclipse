@@ -141,6 +141,11 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 					public String visitTuple(ITuple o) throws VisitorException {
 						return "";
 					}
+
+          @Override
+          public String visitListRelation(IListRelation o) throws VisitorException {
+            return "";
+          }
 				});
 			} catch (VisitorException e) {
 				Activator.getInstance().logException("could not compute label", e);
