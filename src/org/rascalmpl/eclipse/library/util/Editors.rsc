@@ -42,7 +42,7 @@ public void edit(loc file,str msg){
 
 @doc{Open a source editor (using annotations from location)}
 public void edit(loc file,LineDecoration (int,str) decorator,str msg){
-	edit(file,[decorator(i,msg) | i <- [file.begin[0]..file.end[0]]]);
+	edit(file,[decorator(i,msg) | i <- [file.begin[0]..file.end[0]+1]]);
 }
 	
 @doc{Open a source editor}
