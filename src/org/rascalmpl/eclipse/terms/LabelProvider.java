@@ -120,6 +120,10 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 					public String visitRelation(IRelation o) throws VisitorException {
 						return "";
 					}
+					
+					public String visitListRelation(IListRelation o) throws VisitorException {
+						return "";
+					}
 
 					public String visitSet(ISet o) throws VisitorException {
 						return "";
@@ -138,10 +142,6 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 						return "";
 					}
 
-          @Override
-          public String visitListRelation(IListRelation o) throws VisitorException {
-            return "";
-          }
 				});
 			} catch (VisitorException e) {
 				Activator.getInstance().logException("could not compute label", e);

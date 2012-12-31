@@ -144,6 +144,14 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 								}
 								return null;
 							}
+							
+							public Object visitListRelation(IListRelation o)
+							throws VisitorException {
+								for (IValue tuple : o) {
+										tuple.accept(this);
+								}
+								return null;
+							}
 
 							public Object visitSet(ISet o) throws VisitorException {
 								for (IValue tuple : o) {
@@ -167,14 +175,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 								}
 								return null;
 							}
-
-              @Override
-              public Object visitListRelation(IListRelation o) throws VisitorException {
-                for (IValue tuple : o) {
-                  tuple.accept(this);
-                }
-                return null;
-              }
 						});
 
 					}
