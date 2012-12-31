@@ -10,8 +10,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.util;
 
-import java.util.Arrays;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -42,7 +40,7 @@ public class ResourceMarkers {
 		try {
 			file.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, false, IResource.DEPTH_ZERO);
 		} catch (CoreException ce) {
-			throw RuntimeExceptionFactory.javaException("Failed to remove markers: " + ce.getMessage(), null, Arrays.toString(ce.getStackTrace()));
+			throw RuntimeExceptionFactory.javaException(ce, null, null);
 		}
 	}
 
@@ -95,7 +93,7 @@ public class ResourceMarkers {
 		        IMarker m = file.createMarker(IRascalResources.ID_RASCAL_MARKER);
 		        m.setAttributes(attributeNames, values);
 			} catch (CoreException ce) {
-				throw RuntimeExceptionFactory.javaException("Failed to add markers: " + ce.getMessage(), null, Arrays.toString(ce.getStackTrace()));
+				throw RuntimeExceptionFactory.javaException(ce, null, null);
 			}
 		}
 	}
