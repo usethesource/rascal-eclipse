@@ -168,7 +168,7 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 					if (selectedLine != null) {
 						RascalInvoker.invokeAsync(new Runnable() {
 							public void run() {
-								func.call(new Type[] { TF.stringType(), TF.sourceLocationType() }, new IValue[] { selectedText,  selectedLine });
+								func.call(new Type[] { TF.stringType(), TF.sourceLocationType() }, new IValue[] { selectedText,  selectedLine }, null);
 							}
 						}, func.getEval());
 					}

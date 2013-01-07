@@ -60,7 +60,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 		try {
 			IValue outline;
 			synchronized(outliner.getEval()){
-				outline = outliner.call(new Type[] {RascalTypeFactory.getInstance().nonTerminalType(pt)}, new IValue[] {pt}).getValue();
+				outline = outliner.call(new Type[] {RascalTypeFactory.getInstance().nonTerminalType(pt)}, new IValue[] {pt}, null).getValue();
 			}
 
 			if (outline instanceof INode) {

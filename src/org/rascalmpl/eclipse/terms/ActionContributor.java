@@ -128,7 +128,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 					rascalMonitor.startJob("Executing " + getName(), 10000);
 					IValue result;
 					synchronized(func.getEval()){
-						result = func.call(rascalMonitor, actualTypes, actuals).getValue();
+						result = func.call(rascalMonitor, actualTypes, actuals, null).getValue();
 					}
 					
 					if (((FunctionType) func.getType()).getReturnType() != TF.voidType()) {
@@ -192,7 +192,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 		Type[] actualTypes = new Type[] { };
 		IValue[] actuals = new IValue[] { };
 		synchronized(func.getEval()){
-			return ((IBool) func.call(actualTypes, actuals).getValue()).getValue();
+			return ((IBool) func.call(actualTypes, actuals, null).getValue()).getValue();
 		}
 		
 	}
