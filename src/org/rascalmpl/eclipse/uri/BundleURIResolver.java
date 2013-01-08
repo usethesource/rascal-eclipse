@@ -68,7 +68,26 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 
 	private URI resolve(URI uri) throws IOException {
 		try {
-			URI result = FileLocator.resolve(uri.toURL()).toURI();
+		  URI result;
+
+		  // this is a workaround to make sure that output can be written into a source folder of a bundle. If the path
+		  // starts with "src" (no prefix slash), then it is removed first, the folder is located and then "bin" is replaced by "src".
+		  // this is not good code, since it depends on the eventuality that "bin" is called "bin" and "src" and "src".
+		  
+		  if (uri.getPath().startsWith("src")) {
+		    uri = URIUtil.changePath(uri, uri.getPath().substring("src".length()));
+		    
+		    result = FileLocator.resolve(uri.toURL()).toURI();
+		    
+		    if (result.getPath().contains("bin")) {
+	        String path = result.getPath().replaceAll("bin", "src");
+	        result = URIUtil.changePath(result, path);
+	      }
+		  }
+		  else {
+		    result = FileLocator.resolve(uri.toURL()).toURI();  
+		  }
+			
 			if (result == uri) {
 				throw new IOException("could not resolve " + uri);
 			}
