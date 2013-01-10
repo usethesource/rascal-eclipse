@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -99,10 +100,10 @@ public class JDT {
 		return r;
     }
     
-	public IConstructor extractClass(ISourceLocation loc, IEvaluatorContext eval) {
+	public IConstructor extractClass(ISourceLocation loc, IBool gatherASTs, IBool fillASTBindings, IBool fillOldStyleUsage, IEvaluatorContext eval) {
 		IFile file = getJavaIFileForLocation(loc);
 
-		Map<String,IValue> facts = new JDTImporter(eval.getHeap().getModule("lang::java::jdt::JDT").getStore()).importFacts(loc, file);
+		Map<String,IValue> facts = new JDTImporter(eval.getHeap().getModule("lang::java::jdt::JDT").getStore(), gatherASTs, fillASTBindings, fillOldStyleUsage).importFacts(loc, file);
 		IConstructor resource = (IConstructor) Resources.file.make(VF, loc);
 		return resource.setAnnotations(facts);
 	}

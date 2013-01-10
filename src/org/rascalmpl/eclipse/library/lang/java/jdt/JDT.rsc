@@ -87,25 +87,40 @@ anno EntityRel  Resource@declaredFields;
 @doc{defines which methods call which other methods, and which class initialization code calls which methods}
 anno EntityRel  Resource@calls;
 
+/*
+data ExtractionOptions 
+	= gatherASTs() // also gather the ASTs for the methods (eg the @methodBodies annotation)
+	| fillOldStyleUsage() // fill the @types, @methods, @constructors, @fields annotations
+	| fillASTBindings() // if ASTs are gathered, fill the @bindings
+	;
+	
+public set[ExtractionOptions] extractEverything = {gatherASTs(), fillASTBindings(), fillOldStyleUsage()};
+public set[ExtractionOptions] fastExtraction = {};
+*/
+
+
 @doc{import JDT facts from a Java file}
 @javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.internal.JDT}
 @reflect
-public java Resource extractClass(loc file);
+public java Resource extractClass(loc file, bool gatherASTs, bool fillASTBindings, bool fillOldStyleUsage);
+
+public Resource extractClass(loc file, bool gatherASTs = true, bool fillASTBindings = true, bool fillOldStyleUsage = true)
+	= extractClass(file, gatherASTs, fillASTBindings, fillOldStyleUsage);
 
 @doc{import JDT facts from a file or an entire project}
-public Resource extractProject(loc project) {
-  return extractResource(getProject(project));
+public Resource extractProject(loc project, bool gatherASTs = true, bool fillASTBindings = true, bool fillOldStyleUsage = true) {
+  return extractResource(getProject(project), gatherASTs = gatherASTs, fillASTBindings = fillASTBindings, fillOldStyleUsage = fillOldStyleUsage);
 }
 
 @doc{import JDT facts from a project, file or folder}
-public Resource extractResource(Resource res) {
+public Resource extractResource(Resource res, bool gatherASTs = true, bool fillASTBindings = true, bool fillOldStyleUsage = true) {
   if (res.id?) {
     if (res.contents?) {
-      return extractResources(res, res.contents);
+      return extractResources(res, res.contents, gatherASTs = gatherASTs, fillASTBindings = fillASTBindings, fillOldStyleUsage = fillOldStyleUsage);
     } else {
       loc file = res.id;
       if (file.extension == "java" && isOnBuildPath(file)) {
-        return extractClass(file);
+        return extractClass(file, gatherASTs = gatherASTs, fillASTBindings = fillASTBindings, fillOldStyleUsage = fillOldStyleUsage);
       }
     }
   }
@@ -113,13 +128,13 @@ public Resource extractResource(Resource res) {
 }
 
 @doc{import JDT from a set of resources}
-private Resource extractResources(Resource receiver, set[Resource] res) {
-  return unionFacts(receiver, { extractResource(r) | r <- res });
+private Resource extractResources(Resource receiver, set[Resource] res, bool gatherASTs = true, bool fillASTBindings = true, bool fillOldStyleUsage = true) {
+  return unionFacts(receiver, { extractResource(r, gatherASTs = gatherASTs, fillASTBindings = fillASTBindings, fillOldStyleUsage = fillOldStyleUsage) | r <- res });
 }
 
 @doc{extracts facts from projects and all projects they depends on (transitively)}
-public Resource extractFactsTransitive(loc project) {
-  return extractResources(extractProject(project), { getProject(p) | p <- dependencies(project) });
+public Resource extractFactsTransitive(loc project, bool gatherASTs = true, bool fillASTBindings = true, bool fillOldStyleUsage = true) {
+  return extractResources(extractProject(project), { getProject(p) | p <- dependencies(project) }, gatherASTs = gatherASTs, fillASTBindings = fillASTBindings, fillOldStyleUsage = fillOldStyleUsage);
 }
 
 @doc{checks if a Resource is in its project's build path}

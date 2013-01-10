@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -128,10 +129,16 @@ public class JDTImporter extends ASTVisitor {
 
 	private final TypeStore typeStore;
 	private CompilationUnit compilationUnit;
+	private final boolean gatherASTs;
+	private final boolean fillASTBindings;
+	private final boolean fillOldStyleUsage;
 
-	public JDTImporter(final TypeStore typeStore) {
+	public JDTImporter(final TypeStore typeStore, IBool gatherASTs, IBool fillASTBindings, IBool fillOldStyleUsage) {
 		super();
 		this.typeStore = typeStore;
+		this.gatherASTs = gatherASTs.getValue();
+		this.fillASTBindings = fillASTBindings.getValue();
+		this.fillOldStyleUsage = fillOldStyleUsage.getValue();
 	}
 
 	public Map<String, IValue> importFacts(ISourceLocation loc, IFile file) {
@@ -316,8 +323,9 @@ public class JDTImporter extends ASTVisitor {
 			} catch (EmptyStackException e) {
 				// ignore
 			}
-
-			addBinding(typeBindings, n, bindingCache.getEntity(tb, possibleParent));
+			if (fillOldStyleUsage) {
+				addBinding(typeBindings, n, bindingCache.getEntity(tb, possibleParent));
+			}
 		}
 
 		// method and constructor bindings
@@ -350,7 +358,9 @@ public class JDTImporter extends ASTVisitor {
 		}
 
 		if (mb != null) {
-			addBinding(methodBindings, n, bindingCache.getEntity(mb));
+			if (fillOldStyleUsage) {
+				addBinding(methodBindings, n, bindingCache.getEntity(mb));
+			}
 			if (n instanceof MethodDeclaration) {
 				addBinding(methodDecls, n, bindingCache.getEntity(mb));
 				addMethodBody((MethodDeclaration) n, mb);
@@ -366,7 +376,7 @@ public class JDTImporter extends ASTVisitor {
 			}
 		}
 
-		if (cb != null) {
+		if (cb != null && fillOldStyleUsage) {
 			addBinding(constructorBindings, n, bindingCache.getEntity(cb));
 		}
 
@@ -453,7 +463,7 @@ public class JDTImporter extends ASTVisitor {
 				// ignore
 			}
 
-			if (fb != null) {
+			if (fb != null && fillOldStyleUsage) {
 				addBinding(fieldBindings, n, bindingCache.getEntity(fb, possibleParent));
 			}
 			if (vb != null) {
@@ -473,13 +483,15 @@ public class JDTImporter extends ASTVisitor {
 	}
 
 	private void addMethodBody(MethodDeclaration method, IMethodBinding methodBinding) {
-		JdtAstToRascalAstConverter converter = new JdtAstToRascalAstConverter(VF, typeStore, bindingCache);
-		converter.set(compilationUnit);
-		converter.set(loc);
-		method.accept(converter);
-
-		ITuple relation = VF.tuple(bindingCache.getEntity(methodBinding), converter.getValue());
-		methodBodies.insert(relation);
+		if (gatherASTs) {
+			JdtAstToRascalAstConverter converter = new JdtAstToRascalAstConverter(VF, typeStore, bindingCache);
+			converter.set(compilationUnit);
+			converter.set(loc);
+			method.accept(converter);
+	
+			ITuple relation = VF.tuple(bindingCache.getEntity(methodBinding), converter.getValue());
+			methodBodies.insert(relation);
+		}
 	}
 
 	private void importTypeInfo(ASTNode n) {
