@@ -66,7 +66,10 @@ public class TermContentProposer implements IContentProposer {
 		IInteger _requestOffset = VF.integer(requestOffset) ;
 
 		if (proposer != null && tree != null) {
-			Result<IValue> result = (Result<IValue>) proposer.call(new Type[] { tree.getType(), _prefixText.getType(), _requestOffset.getType() }, new IValue[] { tree, _prefixText, _requestOffset });
+			Result<IValue> result;
+			synchronized (proposer.getEval()) {
+				 result = (Result<IValue>) proposer.call(new Type[] { tree.getType(), _prefixText.getType(), _requestOffset.getType() }, new IValue[] { tree, _prefixText, _requestOffset });	
+			}
 			IList resultProposals = (IList) result.getValue();
 			for (IValue proposal : resultProposals) {
 				IConstructor propCons = (IConstructor) proposal;
