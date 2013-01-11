@@ -59,9 +59,10 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_NODE_TYPE;
 	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_OPTION_TYPE;
 	private final Set<String> annotations;
+	private final boolean collectBindings;
 
 	
-	public JdtAstToRascalAstConverter(final IValueFactory values, final TypeStore typeStore, final BindingConverter bindingConverter) {
+	public JdtAstToRascalAstConverter(final IValueFactory values, final TypeStore typeStore, final BindingConverter bindingConverter, boolean collectBindings) {
 		this.values = values;
 		this.typeStore = typeStore;
 		this.bindingConverter = bindingConverter;
@@ -69,6 +70,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		this.DATATYPE_RASCAL_AST_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_NODE);
 		this.annotations = this.typeStore.getAnnotations(DATATYPE_RASCAL_AST_NODE_TYPE).keySet();
 		this.DATATYPE_OPTION_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_OPTION);
+		this.collectBindings = collectBindings;
 	}
 		
 	public void set(CompilationUnit compilUnit) {
@@ -263,7 +265,9 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		IValue bindings = bindingsImporter.popBindings();
 		if(javaType != null) 
 			setRascalAstNodeAnnotation(ANNOTATION_JAVA_TYPE, javaType);
-		setRascalAstNodeAnnotation(ANNOTATION_JAVA_BINDINGS, bindings);
+		if (collectBindings) {
+			setRascalAstNodeAnnotation(ANNOTATION_JAVA_BINDINGS, bindings);
+		}
 		int start = node.getStartPosition();
 		int end = start + node.getLength() - 1;
 		if(compilUnit != null && loc != null) 
