@@ -28,7 +28,7 @@ public class ConsoleURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	
 	public static URI constructConsoleURI(String id){
 		try{
-			return new URI("console://"+id);
+			return URIUtil.create("console", id, ""); 
 		}catch(URISyntaxException usex){
 			throw new BadURIException(usex);
 		}
