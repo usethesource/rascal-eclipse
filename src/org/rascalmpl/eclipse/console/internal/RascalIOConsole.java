@@ -123,7 +123,7 @@ public class RascalIOConsole extends IOConsole {
 					Result<IValue> result = null;
 					try {
 						synchronized (eval) {
-							result = callback.call(new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
+							result = callback.call(new Type[] { tf.stringType() }, new IValue[] { vf.string(line) }, null);
 						}
 					} catch (Throw e) {
 						e.printStackTrace(eval.getStdErr());
