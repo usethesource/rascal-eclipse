@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *   * Mike Bierlee - mike.bierlee@lostmoment.com
+ *   * Tijs van der Storm - storm@cwi.nl
 *******************************************************************************/
 
 package org.rascalmpl.eclipse.terms;
@@ -68,7 +69,7 @@ public class TermContentProposer implements IContentProposer {
 		if (proposer != null && tree != null) {
 			Result<IValue> result;
 			synchronized (proposer.getEval()) {
-				 result = (Result<IValue>) proposer.call(new Type[] { tree.getType(), _prefixText.getType(), _requestOffset.getType() }, new IValue[] { tree, _prefixText, _requestOffset });	
+			    result = (Result<IValue>) proposer.call(new Type[] { tree.getType(), _prefixText.getType(), _requestOffset.getType() }, new IValue[] { tree, _prefixText, _requestOffset }, null);	
 			}
 			IList resultProposals = (IList) result.getValue();
 			for (IValue proposal : resultProposals) {
