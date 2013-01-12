@@ -77,7 +77,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 	 */
 	public String getValueString() throws DebugException {
 		if (value == null) {
-			return "";
+			return "<uninitialized>";
 		}
 		
 		if (value.getType().isSubtypeOf(Factory.Tree)) {
@@ -127,6 +127,8 @@ public class RascalValue extends RascalDebugElement implements IValue {
 	 * @see org.eclipse.debug.core.model.IValue#getVariables()
 	 */
 	public IVariable[] getVariables() throws DebugException {
+		if (value == null) return null;
+		
 		return value.getType().accept(new ITypeVisitor<IVariable[]>() {
 			@Override
 			public IVariable[] visitReal(Type type) {
@@ -325,6 +327,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 	 * @see org.eclipse.debug.core.model.IValue#hasVariables()
 	 */
 	public boolean hasVariables() throws DebugException {
+		if (value == null) return false;
 		Type type = value.getType();
 		return type.isListType() || type.isMapType() || type.isSetType() || type.isAliasType() || type.isNodeType() || type.isConstructorType() || type.isRelationType();
 	}
@@ -348,7 +351,10 @@ public class RascalValue extends RascalDebugElement implements IValue {
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return value.toString();	
+		if (value != null)
+			return value.toString();
+		else
+			return "<uninitialized>";
 	}
 	
 	public IValue getValue() {
