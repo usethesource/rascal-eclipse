@@ -17,9 +17,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.imp.runtime.RuntimePlugin;
@@ -277,12 +281,49 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		return (page = new InterpreterConsolePage(this, view));
 	}
 	
+	// scan for both \uE007 + [Title](url) and \\u007 + |loc|
+	private static Pattern findLinks = Pattern.compile("\\uE007(?:\\[([^\\]]*)\\]\\(([^\\)]*)\\))|(\\|[^\\|]*\\|(?:\\([^\\)]*\\))?)");
+
 	private void writeToConsole(final String line, final boolean terminateLine){
+		List<Integer> linkOffsets = new ArrayList<Integer>(0);
+		List<Integer> linkLengths = new ArrayList<Integer>(0);
+		List<String> linkTargets = new ArrayList<String>(0);
+		
+		StringBuffer sb = null; 
+		Matcher m = findLinks.matcher(line);
+		while (m.find()) {
+			if (sb == null) {
+				sb = new StringBuffer(line.length());
+			}
+			if (m.group(3) == null) {
+				// markdown link
+				String name = m.group(1);
+				String url = m.group(2);
+				linkTargets.add(url);
+				m.appendReplacement(sb, name);
+				linkOffsets.add(sb.length() - name.length());
+				linkLengths.add(name.length());
+			}
+			else {
+				// source location
+				String loc = m.group(3);
+				linkTargets.add(loc);
+				m.appendReplacement(sb, loc);
+				linkOffsets.add(sb.length() - loc.length());
+				linkLengths.add(loc.length());
+			}
+		}
+		if (sb != null) {
+			m.appendTail(sb);
+		}
+		final String actualLine = sb == null ? line : sb.toString();
+		System.out.println("Found links: " + linkLengths.size());
+		
 		Display.getDefault().asyncExec(new Runnable(){
 			public void run(){
 				try{
 					IDocument doc = getDocument();
-					doc.replace(doc.getLength(), 0, line);
+					doc.replace(doc.getLength(), 0, actualLine);
 					if(terminateLine) doc.replace(doc.getLength(), 0, COMMAND_TERMINATOR);
 					
 					int endOfDocument = doc.getLength();
