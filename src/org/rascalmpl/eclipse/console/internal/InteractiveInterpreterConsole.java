@@ -51,6 +51,7 @@ import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.console.TextConsolePage;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.part.IPageBookViewPage;
+import org.rascalmpl.uri.LinkifiedString;
 
 public class InteractiveInterpreterConsole extends TextConsole implements IInterpreterConsole{
 	private final static String CONSOLE_TYPE = InteractiveInterpreterConsole.class.getName();
@@ -281,60 +282,14 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		return (page = new InterpreterConsolePage(this, view));
 	}
 	
-	// scan for both \uE007 + [Title](url) and \uE007 + |loc|
-	private static Pattern findLinks = Pattern.compile("\\uE007" // signaling char
-			+ "(?:" // non capturing group to make sure \uE007 is eaten by the replace
-				+ "(?:" // first alternative, Markdown
-					+ "\\[([^\\]]*)\\]" // [Title]
-					+ "\\(([^\\)]*)\\)" // (link)
-				+ ")"
-				+ "|"
-				+ "(" // or the other alternative, a rascal location 
-					+ "\\|[^\\|]*\\|" // |location|
-					+ "(?:\\([^\\)]*\\))?" // (optional offset)
-				+ ")"
-			+ ")");
 
 	private void writeToConsole(final String line, final boolean terminateLine){
-		List<Integer> linkOffsets = new ArrayList<Integer>(0);
-		List<Integer> linkLengths = new ArrayList<Integer>(0);
-		List<String> linkTargets = new ArrayList<String>(0);
-		
-		StringBuffer sb = null; 
-		Matcher m = findLinks.matcher(line);
-		while (m.find()) {
-			if (sb == null) {
-				sb = new StringBuffer(line.length());
-			}
-			if (m.group(3) == null) {
-				// markdown link
-				String name = m.group(1);
-				String url = m.group(2);
-				linkTargets.add(url);
-				m.appendReplacement(sb, name);
-				linkOffsets.add(sb.length() - name.length());
-				linkLengths.add(name.length());
-			}
-			else {
-				// source location
-				String loc = m.group(3);
-				linkTargets.add(loc);
-				m.appendReplacement(sb, loc);
-				linkOffsets.add(sb.length() - loc.length());
-				linkLengths.add(loc.length());
-			}
-		}
-		if (sb != null) {
-			m.appendTail(sb);
-		}
-		final String actualLine = sb == null ? line : sb.toString();
-		System.out.println("Found links: " + linkLengths.size());
-		
+		final LinkifiedString linkedLine = new LinkifiedString(line);
 		Display.getDefault().asyncExec(new Runnable(){
 			public void run(){
 				try{
 					IDocument doc = getDocument();
-					doc.replace(doc.getLength(), 0, actualLine);
+					doc.replace(doc.getLength(), 0, linkedLine.getString());
 					if(terminateLine) doc.replace(doc.getLength(), 0, COMMAND_TERMINATOR);
 					
 					int endOfDocument = doc.getLength();
