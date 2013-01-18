@@ -36,6 +36,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.jface.text.formatter.ContentFormatter;
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.swt.SWT;
@@ -45,8 +46,10 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IConsoleView;
+import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.console.TextConsolePage;
 import org.eclipse.ui.console.TextConsoleViewer;
@@ -73,6 +76,9 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	
 	private int inputOffset;
 	private String currentContent;
+	private final List<IHyperlink> currentHyperlinks = new ArrayList<IHyperlink>();
+	private final List<Integer> currentHyperlinkOffsets = new ArrayList<Integer>();
+	private final List<Integer> currentHyperlinkLengths = new ArrayList<Integer>();
 	
 	private volatile boolean promptInitialized;
 	private volatile boolean terminated;
@@ -87,6 +93,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	 * </ul>
 	 */
 	private final Queue<String> delayedCommandQueue = new ConcurrentLinkedQueue<String>();
+
 	
 	public InteractiveInterpreterConsole(IInterpreter interpreter, String name, String prompt, String continuationPrompt){
 		super(name, CONSOLE_TYPE, null, false);
@@ -281,7 +288,17 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	public IPageBookViewPage createPage(IConsoleView view){
 		return (page = new InterpreterConsolePage(this, view));
 	}
-	
+
+	public void addExistingHyperlink(IHyperlink hyperlink, int offset, int length) throws BadLocationException {
+		super.addHyperlink(hyperlink, offset, length);
+	}
+	@Override
+	public void addHyperlink(IHyperlink hyperlink, int offset, int length) throws BadLocationException {
+		currentHyperlinks.add(hyperlink);
+		currentHyperlinkOffsets.add(offset);
+		currentHyperlinkLengths.add(length);
+		super.addHyperlink(hyperlink, offset, length);
+	}
 
 	private void writeToConsole(final String line, final boolean terminateLine){
 		final LinkifiedString linkedLine = new LinkifiedString(line);
@@ -290,6 +307,22 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				try{
 					IDocument doc = getDocument();
 					doc.replace(doc.getLength(), 0, linkedLine.getString());
+					if (linkedLine.containsLinks()) {
+						int fragmentOffsetStart = doc.getLength() - linkedLine.getString().length();
+						for (int i = 0; i < linkedLine.linkCount(); i++) {
+							String target = linkedLine.linkTarget(i);
+							if (target.startsWith("|stdin")) continue; // do not make a link out of the stdin console loc
+							IHyperlink h;
+							if (target.startsWith("|")) {
+								// source location
+								h = new RascalHyperlink(target);
+							}
+							else {
+								h = new WebHyperlink(target);
+							}
+							addHyperlink(h, fragmentOffsetStart + linkedLine.linkOffset(i), linkedLine.linkLength(i));
+						}
+					}
 					if(terminateLine) doc.replace(doc.getLength(), 0, COMMAND_TERMINATOR);
 					
 					int endOfDocument = doc.getLength();
@@ -436,6 +469,13 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				// Reset the content.
 				IDocument doc = getDocument();
 				doc.set(currentContent);
+				for (int i =0; i < currentHyperlinks.size(); i++) {
+					try {
+						addExistingHyperlink(currentHyperlinks.get(i), currentHyperlinkOffsets.get(i), currentHyperlinkLengths.get(i));
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+				}
 				
 				documentListener.enable();
 				
@@ -453,6 +493,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		});
 	}
 	
+
+
 	public void historyCommand(final String command){
 		Display.getDefault().syncExec(new Runnable(){
 			public void run(){

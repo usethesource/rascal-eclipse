@@ -46,10 +46,27 @@ public class Tutor extends ViewPart {
 	public static final String ID = ID_RASCAL_TUTOR_VIEW_PART;
 	
 	private Browser browser;
+	private String mainLocation;
     private RascalTutor tutor;
 	private Object lock = new Object();
     
 	public Tutor() { }
+	
+	public void gotoPage(final String page) {
+		new WorkbenchJob("Loading concept page") {
+			@Override
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+				if (mainLocation == null) {
+					gotoPage(page);
+					return Status.OK_STATUS;
+				}
+				else {
+					browser.setUrl(mainLocation + page);
+					return Status.OK_STATUS;
+				}
+			}
+		}.schedule();
+	}
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -80,6 +97,7 @@ public class Tutor extends ViewPart {
 	}
 	
 	private class StarterJob extends Job {
+
 		public StarterJob() {
 			super("Starting tutor");
 		}
@@ -142,7 +160,8 @@ public class Tutor extends ViewPart {
 					new WorkbenchJob("Loading tutor start page") {
 						@Override
 						public IStatus runInUIThread(IProgressMonitor monitor) {
-							browser.setUrl("http://127.0.0.1:" + foundPort);
+							mainLocation = "http://127.0.0.1:" + foundPort;
+							browser.setUrl(mainLocation);
 							return Status.OK_STATUS;
 						}
 					}.schedule();
