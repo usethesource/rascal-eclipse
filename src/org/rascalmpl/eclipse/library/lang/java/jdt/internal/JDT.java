@@ -135,24 +135,24 @@ public class JDT {
 	/*
 	 * Creates Rascal ASTs for Java source files
 	 */
-	public IValue createAstFromFile(ISourceLocation loc, IEvaluatorContext eval) {
+	public IValue createAstFromFile(ISourceLocation loc, IBool collectBindings, IEvaluatorContext eval) {
 		getIFileForLocation(loc);
-		CompilationUnit cu = this.getCompilationUnit(loc);
+		CompilationUnit cu = this.getCompilationUnit(loc, collectBindings.getValue());
 		JdtAstToRascalAstConverter converter = new JdtAstToRascalAstConverter(VF, 
 												   eval.getHeap().getModule("lang::java::jdt::JavaADT").getStore(), 
-												   new BindingConverter(), true);
+												   new BindingConverter(), collectBindings.getValue());
 		converter.set(cu);
 		converter.set(loc);
 		cu.accept(converter);
 		return converter.getValue();
 	}
 	
-	private CompilationUnit getCompilationUnit(ISourceLocation loc) {
+	private CompilationUnit getCompilationUnit(ISourceLocation loc, boolean resolveBindings) {
 		IFile file = new JDT(VF).getJavaIFileForLocation(loc);
 		ICompilationUnit icu = JavaCore.createCompilationUnitFrom(file);
 		
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
-		parser.setResolveBindings(true);
+		parser.setResolveBindings(resolveBindings);
 		parser.setSource(icu);
 
 		CompilationUnit cu = (CompilationUnit) parser.createAST(null);

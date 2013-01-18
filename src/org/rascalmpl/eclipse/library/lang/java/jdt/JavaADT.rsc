@@ -10,8 +10,9 @@ module lang::java::jdt::JavaADT
 
 import lang::java::jdt::Java;
 
-@doc{Returns the type of the AstNode if it can be resolved}
-anno Entity AstNode@javaType; 
+@doc{This annotation has been removed, use @bindings["typeBinding"] instead}
+// @doc{Returns the type of the AstNode if it can be resolved}
+// anno Entity AstNode@javaType; 
 
 @doc{All the bindings that can be resolved for a node}
 anno map[str, Entity] AstNode@bindings;
