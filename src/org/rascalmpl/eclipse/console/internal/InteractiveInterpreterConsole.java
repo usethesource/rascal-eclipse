@@ -281,8 +281,19 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		return (page = new InterpreterConsolePage(this, view));
 	}
 	
-	// scan for both \uE007 + [Title](url) and \\u007 + |loc|
-	private static Pattern findLinks = Pattern.compile("\\uE007(?:\\[([^\\]]*)\\]\\(([^\\)]*)\\))|(\\|[^\\|]*\\|(?:\\([^\\)]*\\))?)");
+	// scan for both \uE007 + [Title](url) and \uE007 + |loc|
+	private static Pattern findLinks = Pattern.compile("\\uE007" // signaling char
+			+ "(?:" // non capturing group to make sure \uE007 is eaten by the replace
+				+ "(?:" // first alternative, Markdown
+					+ "\\[([^\\]]*)\\]" // [Title]
+					+ "\\(([^\\)]*)\\)" // (link)
+				+ ")"
+				+ "|"
+				+ "(" // or the other alternative, a rascal location 
+					+ "\\|[^\\|]*\\|" // |location|
+					+ "(?:\\([^\\)]*\\))?" // (optional offset)
+				+ ")"
+			+ ")");
 
 	private void writeToConsole(final String line, final boolean terminateLine){
 		List<Integer> linkOffsets = new ArrayList<Integer>(0);
