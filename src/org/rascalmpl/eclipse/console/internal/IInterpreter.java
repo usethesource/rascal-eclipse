@@ -80,4 +80,6 @@ public interface IInterpreter{
 	 * Prints the current stack trace
 	 */
 	String getTrace();
+
+	Evaluator getEval();
 }

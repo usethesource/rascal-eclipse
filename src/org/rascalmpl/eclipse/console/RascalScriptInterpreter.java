@@ -584,6 +584,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		return null;
 	}
 
+	@Override
 	public Evaluator getEval(){
 		return eval;
 	}

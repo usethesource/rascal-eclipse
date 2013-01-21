@@ -315,7 +315,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 							IHyperlink h;
 							if (target.startsWith("|")) {
 								// source location
-								h = new RascalHyperlink(target);
+								h = new RascalHyperlink(target, getInterpreter().getEval().getResolverRegistry(), getInterpreter().getEval().getStdErr());
 							}
 							else {
 								h = new WebHyperlink(target);
