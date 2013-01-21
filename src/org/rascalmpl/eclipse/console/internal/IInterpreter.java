@@ -12,6 +12,7 @@
 package org.rascalmpl.eclipse.console.internal;
 
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.StackTrace;
 
 
 /**
@@ -77,9 +78,9 @@ public interface IInterpreter{
 	void storeHistory(CommandHistory history);
 
 	/**
-	 * Prints the current stack trace
+	 * Obtain the current stack trace
 	 */
-	String getTrace();
+	StackTrace getTrace();
 
 	Evaluator getEval();
 }

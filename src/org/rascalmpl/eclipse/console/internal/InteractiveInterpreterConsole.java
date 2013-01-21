@@ -261,8 +261,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	}
 	
 	public void printTrace() {
-		String trace = interpreter.getTrace();
-		writeToConsole(trace, true);
+		writeToConsole(interpreter.getTrace().toLinkedString(), true);
 	}
 
 	public void interrupt() {

@@ -88,6 +88,7 @@ import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -589,7 +590,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		return eval;
 	}
 
-	public String getTrace() {
+	public StackTrace getTrace() {
 		return eval.getStackTrace();
 	}
 

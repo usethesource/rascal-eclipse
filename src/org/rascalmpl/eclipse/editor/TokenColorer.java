@@ -31,6 +31,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 
 public class TokenColorer implements ITokenColorer {
@@ -121,8 +122,7 @@ public class TokenColorer implements ITokenColorer {
 				background = SWTFontsAndColors.getRgbColor(Display.getCurrent(), color);
 			}
 			else {
-				ISourceLocation unambiguousCall = null;
-				throw new Throw(fs, unambiguousCall, "Font property " + fsName + " is not supported by IMP syntax highlighting.");
+				throw RuntimeExceptionFactory.illegalArgument(fs, null, null, "Font property " + fsName + " is not supported by IMP syntax highlighting.");
 			}
 		}
 		return new TextAttribute(foreground, background, style);
