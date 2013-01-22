@@ -54,6 +54,7 @@ import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.console.TextConsolePage;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.part.IPageBookViewPage;
+import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.uri.LinkifiedString;
 
 public class InteractiveInterpreterConsole extends TextConsole implements IInterpreterConsole{
@@ -445,13 +446,29 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		
 		String command = delayedCommandQueue.poll();
 		if (command != null) {
+			boolean validCommand = true;
 			try{
-				doc.replace(inputOffset, doc.getLength() - inputOffset, command);
+				if (command.startsWith("main();")) {
+					// this command is special cased to make sure a main is defined
+					// Paul has indicated new users are confused by the errors caused
+					// by the lack of a main() method in the "executed" module.
+					List<AbstractFunction> collection = new ArrayList<AbstractFunction>();
+					getInterpreter().getEval().getCurrentEnvt().getAllFunctions("main", collection);
+					if (collection.isEmpty()) {
+						// main is not defined, dropping the command
+						getInterpreter().getEval().getStdErr().println("Dropping command: \"main();\" since main is not defined");
+						validCommand = false;
+					}
+				}
+				if (validCommand) {
+					doc.replace(inputOffset, doc.getLength() - inputOffset, command);
+				}
 			}catch(BadLocationException blex){
 				// Ignore, can't happen.
 			}
-			
-			moveCaretTo(doc.getLength());
+			if (validCommand) {
+				moveCaretTo(doc.getLength());
+			}
 		}
 	}
 	
