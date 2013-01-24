@@ -48,7 +48,7 @@ public class Tutor extends ViewPart {
 	public static final String ID = ID_RASCAL_TUTOR_VIEW_PART;
 	
 	private Browser browser;
-	private String mainLocation;
+	private volatile String mainLocation;
     private RascalTutor tutor;
 	private Object lock = new Object();
 
@@ -79,12 +79,11 @@ public class Tutor extends ViewPart {
 					if (mainLocation == null) {
 						// this shouldn't happen but lets just be sure
 						gotoPage(page);
-						return Status.OK_STATUS;
 					}
 					else {
 						browser.setUrl(mainLocation + page);
-						return Status.OK_STATUS;
 					}
+					return Status.OK_STATUS;
 				}
 			}.schedule();
 		}
