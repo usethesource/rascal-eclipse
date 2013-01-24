@@ -2,7 +2,9 @@ package org.rascalmpl.eclipse.console.internal;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,6 +59,22 @@ public class RascalHyperlink implements IHyperlink {
 			}
 		} catch (PartInitException e) {
 			Activator.log("Cannot get editor part", e);
+		} catch (UnsupportedSchemeException use) {
+			//
+			if (getURIPart().getScheme().equals("http")) {
+				try {
+					PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(getURIPart().toURL());
+				} catch (PartInitException e) {
+					Activator.log("Cannot get editor part", e);
+				} catch (MalformedURLException e) {
+					err.println("Cannot open link " + target);
+					Activator.log("Cannot resolve link", e);
+				}
+			}
+			else {
+				err.println("Cannot open link " + target);
+				Activator.log("Cannot resolve link", use);
+			}
 		} catch (IOException e1) {
 			err.println("Cannot open link " + target);
 			Activator.log("Cannot resolve link", e1);
