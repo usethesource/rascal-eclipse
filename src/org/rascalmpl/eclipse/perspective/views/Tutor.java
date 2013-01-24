@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -49,23 +51,43 @@ public class Tutor extends ViewPart {
 	private String mainLocation;
     private RascalTutor tutor;
 	private Object lock = new Object();
+
+	private ExecutorService backgroundTasks;
     
-	public Tutor() { }
+	public Tutor() { 
+		backgroundTasks = Executors.newSingleThreadExecutor(); 
+	}
 	
 	public void gotoPage(final String page) {
-		new WorkbenchJob("Loading concept page") {
-			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
-				if (mainLocation == null) {
-					gotoPage(page);
-					return Status.OK_STATUS;
+		if (mainLocation == null) {
+			// lets wait in the background for the tutor being loaded, we know it will at some point..
+			backgroundTasks.execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(10);
+						gotoPage(page);
+					} catch (InterruptedException e) {
+					}
 				}
-				else {
-					browser.setUrl(mainLocation + page);
-					return Status.OK_STATUS;
+			});
+		}
+		else {
+			new WorkbenchJob("Loading concept page") {
+				@Override
+				public IStatus runInUIThread(IProgressMonitor monitor) {
+					if (mainLocation == null) {
+						// this shouldn't happen but lets just be sure
+						gotoPage(page);
+						return Status.OK_STATUS;
+					}
+					else {
+						browser.setUrl(mainLocation + page);
+						return Status.OK_STATUS;
+					}
 				}
-			}
-		}.schedule();
+			}.schedule();
+		}
 	}
 
 	@Override
