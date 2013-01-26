@@ -172,7 +172,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			}
 			catch (ParseError pe){
 				int offset = pe.getOffset();
-				if(offset == input.length()) {
+				if(offset > 0 && offset == input.length()) {
 					--offset;
 				}
 				int k = Math.min(offset + 20, input.length());
