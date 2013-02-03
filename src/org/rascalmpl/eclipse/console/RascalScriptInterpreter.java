@@ -265,16 +265,15 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				content = staticErrorMessage(e) + "\n";
 				command = "";
 				ISourceLocation location = e.getLocation();
-				if (location != null
-						&& !location.getURI().getScheme().equals("stdin")) {
-					setMarker(e.getMessage(), location.getURI(),
-							location.getOffset(), location.getLength());
+				
+				if (location != null && !location.getURI().getScheme().equals("stdin")) {
+					setMarker(e.getMessage(), location.getURI(), location.getOffset(), location.getLength());
 					error = new CommandExecutionException(content);
-				} else if (location != null
-						&& location.getURI().getScheme().equals("stdin")) {
-					error = new CommandExecutionException(content,
-							location.getOffset(), location.getLength());
-				} else {
+				} 
+				else if (location != null && location.getURI().getScheme().equals("stdin") && location.hasOffsetLength()) {
+					error = new CommandExecutionException(content, location.getOffset(), location.getLength());
+				} 
+				else {
 					error = new CommandExecutionException(content);
 				}
 			} catch (Throw e) {
@@ -282,11 +281,14 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				command = "";
 				ISourceLocation location = e.getLocation();
 				if (location != null
-						&& !location.getURI().getScheme().equals("stdin")) {
+						&& !location.getURI().getScheme().equals("stdin") && location.hasOffsetLength()) {
 					setMarker(e.getMessage(), location.getURI(),
 							location.getOffset(), location.getLength());
 					error = new CommandExecutionException(content,
 							location.getOffset(), location.getLength());
+				}
+				else {
+				  error = new CommandExecutionException(content);
 				}
 			} catch (Throwable e) {
 				Activator.getInstance().logException(e.getMessage(), e);
