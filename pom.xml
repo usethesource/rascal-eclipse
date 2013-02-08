@@ -13,4 +13,36 @@
 	<version>0.6.0.qualifier</version>
 	<packaging>eclipse-plugin</packaging>
 
+	<scm>
+		<developerConnection>scm:git:https://github.com/cwi-swat/rascal-eclipse.git</developerConnection>			
+	</scm>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.imp</groupId>
+			<artifactId>org.eclipse.imp.pdb.ui</artifactId>
+			<version>0.4.0.qualifier</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.imp</groupId>
+			<artifactId>org.eclipse.imp.pdb.values</artifactId>
+			<version>0.4.0.qualifier</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.imp</groupId>
+			<artifactId>org.eclipse.imp.runtime</artifactId>
+			<version>0.2.1.qualifier</version>
+		</dependency>
+		<dependency>
+			<groupId>org.rascalmpl</groupId>
+			<artifactId>rascal</artifactId>
+			<version>0.6.0.qualifier</version>		
+		</dependency>
+		<dependency>
+			<groupId>org.rascalmpl</groupId>
+			<artifactId>AmbiDexter</artifactId>
+			<version>0.1.2.qualifier</version>		
+		</dependency>
+	</dependencies>
+ 
 </project>
