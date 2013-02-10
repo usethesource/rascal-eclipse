@@ -43,14 +43,12 @@ public class TestReporter implements ITestResultListener {
 	
 	private static class Report {
 		public boolean successful;
-		public String test;
 		public ISourceLocation loc;
 		public String message;
-		public Throwable exception;
 		
 		public Report(boolean successful, String test, ISourceLocation loc, String message) {
 			this.successful = successful;
-			this.test = test;
+		//	this.test = test;
 			this.loc = loc;
 			this.message = message;
 		}
