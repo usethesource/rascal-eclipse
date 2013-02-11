@@ -57,6 +57,9 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	private final static String CONSOLE_TYPE = InteractiveInterpreterConsole.class.getName();
 	
 	private final static String COMMAND_TERMINATOR = System.getProperty("line.separator");
+
+	// enable this to print the time each command took to execute
+	public static final boolean PRINTCOMMANDTIME = false;
 	
 	private final IInterpreter interpreter;
 	
@@ -817,10 +820,15 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 						Command command = commandQueue.remove(0);
 						if(completeCommandStartOffset == -1) completeCommandStartOffset = command.commandStartOffset;
 						try{
+							long start = System.currentTimeMillis();
 							completeCommand = console.interpreter.execute(command.command);
+							long stop = System.currentTimeMillis();
 							
 							if(completeCommand){
 								console.printOutput(console.interpreter.getOutput());
+								if (PRINTCOMMANDTIME) {
+									console.printOutput("Time taken: " + (stop-start) + "ms.\n");
+								}
 								completeCommandStartOffset = -1; // Reset offset.
 							}else{
 								console.printOutput();
