@@ -1,17 +1,18 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: CWI
 Bundle-SymbolicName: rascal_eclipse;singleton:=true
-Bundle-Version: 0.5.4.qualifier
+Bundle-Version: 0.6.0.qualifier
 Bundle-Activator: org.rascalmpl.eclipse.Activator
 Bundle-ActivationPolicy: lazy
-Require-Bundle: rascal,
+Require-Bundle: rascal;bundle-version="0.6.0",
+ org.eclipse.imp.pdb.ui;bundle-version="0.4.0",
+ org.eclipse.imp.pdb.values;bundle-version="0.4.0",
+ org.eclipse.imp.runtime;bundle-version="0.2.1",
+ AmbiDexter;bundle-version="0.1.2",
  org.eclipse.core.runtime,
  org.eclipse.debug.ui,
- org.eclipse.imp.pdb.ui;bundle-version="0.2.4",
- org.eclipse.imp.pdb.values;bundle-version="0.2.5",
- org.eclipse.imp.runtime;bundle-version="0.2.1",
  org.eclipse.jdt.core,
  org.eclipse.jdt.ui,
  org.eclipse.jface.text,
@@ -24,7 +25,6 @@ Require-Bundle: rascal,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.pde.core,
  org.eclipse.jdt.launching,
- AmbiDexter,
  org.eclipse.ui.views;bundle-version="3.6.0"
 Import-Package: org.eclipse.core.expressions
 Export-Package: org.rascalmpl.eclipse.nature,

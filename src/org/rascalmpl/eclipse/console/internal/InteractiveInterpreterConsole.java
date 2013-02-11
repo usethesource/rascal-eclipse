@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.imp.runtime.RuntimePlugin;
@@ -36,7 +34,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
-import org.eclipse.jface.text.formatter.ContentFormatter;
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.swt.SWT;
@@ -46,7 +43,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.IHyperlink;
@@ -61,6 +57,9 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	private final static String CONSOLE_TYPE = InteractiveInterpreterConsole.class.getName();
 	
 	private final static String COMMAND_TERMINATOR = System.getProperty("line.separator");
+
+	// enable this to print the time each command took to execute
+	public static final boolean PRINTCOMMANDTIME = false;
 	
 	private final IInterpreter interpreter;
 	
@@ -821,10 +820,15 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 						Command command = commandQueue.remove(0);
 						if(completeCommandStartOffset == -1) completeCommandStartOffset = command.commandStartOffset;
 						try{
+							long start = System.currentTimeMillis();
 							completeCommand = console.interpreter.execute(command.command);
+							long stop = System.currentTimeMillis();
 							
 							if(completeCommand){
 								console.printOutput(console.interpreter.getOutput());
+								if (PRINTCOMMANDTIME) {
+									console.printOutput("Time taken: " + (stop-start) + "ms.\n");
+								}
 								completeCommandStartOffset = -1; // Reset offset.
 							}else{
 								console.printOutput();
