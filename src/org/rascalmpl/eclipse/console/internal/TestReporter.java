@@ -43,14 +43,11 @@ public class TestReporter implements ITestResultListener {
 	
 	private static class Report {
 		public boolean successful;
-		public String test;
 		public ISourceLocation loc;
 		public String message;
-		public Throwable exception;
 		
-		public Report(boolean successful, String test, ISourceLocation loc, String message) {
+		public Report(boolean successful, String test, ISourceLocation loc, String message, Throwable exception) {
 			this.successful = successful;
-			this.test = test;
 			this.loc = loc;
 			this.message = message;
 		}
@@ -95,7 +92,7 @@ public class TestReporter implements ITestResultListener {
 	}
 
 	@Override
-	public void report(boolean successful, String test, ISourceLocation loc, String message) {
+	public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
 		final IFile file = getFile(loc);
 		
 		/*if (loc.getURI().getScheme().equals("rascal")) {
@@ -108,7 +105,7 @@ public class TestReporter implements ITestResultListener {
 			forFile = new ArrayList<Report>(1);
 			reports.put(file, forFile);
 		}
-		forFile.add(new Report(successful, test, loc, message));
+		forFile.add(new Report(successful, test, loc, message, t));
 	}
 	
 
