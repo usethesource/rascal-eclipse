@@ -91,13 +91,11 @@ public class RascalMonitor implements IRascalMonitor {
 		private final SubRascalMonitor parent;
 		private final SubMonitor monitor;
 		private int workActuallyDone;
-		private final String name;
 		private int workRemaining;
 		private int nextWorkUnit;
 		
 		
 		SubRascalMonitor(SubRascalMonitor parent, String name, int workShare, int totalWork) {
-			this.name = name;
 			this.monitor = parent.monitor.newChild(workShare);
 			monitor.beginTask(name, totalWork);
 			this.workRemaining = totalWork;
@@ -106,7 +104,6 @@ public class RascalMonitor implements IRascalMonitor {
 		}
 		
 		SubRascalMonitor(SubMonitor monitor, String name, int workShare, int totalWork) {
-			this.name = name;
 			this.monitor = SubMonitor.convert(monitor, workShare);
 			monitor.beginTask(name, totalWork);
 			this.workRemaining = totalWork;

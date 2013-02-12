@@ -140,7 +140,8 @@ public class Editors {
 						// Lock on the annotation model
 						Object lockObject = ((ISynchronizable) annotationModel).getLockObject();
 						synchronized (lockObject) {
-							Iterator<Annotation> iter = annotationModel.getAnnotationIterator();
+							@SuppressWarnings("unchecked")
+              Iterator<Annotation> iter = annotationModel.getAnnotationIterator();
 							while (iter.hasNext()) {
 								Annotation anno = iter.next();
 								if (anno.getType().startsWith("rascal.highlight")) {
