@@ -307,7 +307,7 @@ public class UnqualifyTypeNames extends ASTVisitor {
 		ListRewrite lrw = rewriter.getListRewrite(cu, CompilationUnit.IMPORTS_PROPERTY);
 
 		// Throw away the current imports
-		List imps = lrw.getOriginalList();
+		List<?> imps = lrw.getOriginalList();
 		for (int i = 0; i < imps.size(); ++i) {
 			lrw.remove((ASTNode)imps.get(i), null);
 		}

@@ -152,7 +152,7 @@ public class BindingConverter extends ASTVisitor {
 		return createEntity(getIds(binding, possibleParent));
 	}
 	
-	public List<IValue> getModifiers(List list) {
+	public List<IValue> getModifiers(List<?> list) {
 		List<IValue> result = new ArrayList<IValue>();
 		for (Object element : list) {
 			IExtendedModifier extMod = (IExtendedModifier) element;
