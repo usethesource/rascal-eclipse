@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -27,6 +28,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -34,6 +37,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
@@ -128,9 +132,9 @@ public class ProjectEvaluatorFactory {
 	 * @param project context to run the evaluator in, may be null
 	 * @param evaluator the evaluator to configure, may not be null
 	 */
-	public void initializeProjectEvaluator(IProject project, Evaluator parser) {
+	public void initializeProjectEvaluator(IProject project, Evaluator evaluator) {
 		// NB. the code in this method is order dependent because it constructs a rascal module path in a particular order
-		URIResolverRegistry resolverRegistry = parser.getResolverRegistry();
+		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
 		
 		ProjectURIResolver resolver = new ProjectURIResolver();
 		resolverRegistry.registerInput(resolver);
@@ -145,16 +149,18 @@ public class ProjectEvaluatorFactory {
 		ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(resolverRegistry, "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
 		resolverRegistry.registerInput(eclipseResolver);
 		
-		parser.addRascalSearchPath(URIUtil.rootScheme(eclipseResolver.scheme()));
-		parser.addClassLoader(getClass().getClassLoader());
+		evaluator.addRascalSearchPath(URIUtil.rootScheme(eclipseResolver.scheme()));
+		evaluator.addClassLoader(getClass().getClassLoader());
+		
+		configureRascalLibraryPlugins(evaluator);
 		
 		if (project != null) {
 			try {
-				addProjectToSearchPath(project, parser);
+				addProjectToSearchPath(project, evaluator);
 				
 				IProject[] projects = project.getReferencedProjects();
 				for (IProject ref : projects) {
-					addProjectToSearchPath(ref, parser);
+					addProjectToSearchPath(ref, evaluator);
 				}
 			} 
 			catch (URISyntaxException usex) {
@@ -166,11 +172,13 @@ public class ProjectEvaluatorFactory {
 			
 			try {
 				if (project.hasNature(JavaCore.NATURE_ID)) {
-					configureRascalJavaPluginProject(project, parser); 
+					configureRascalJavaPluginProject(project, evaluator); 
 				}
 				else {
-					configureRawRascalProject(project, parser);
+					configureRawRascalProject(project, evaluator);
 				}
+				
+				
 			}
 			catch (CoreException e) {
 				Activator.getInstance().logException("exception while constructing classpath for evaluator", e);
@@ -179,7 +187,63 @@ public class ProjectEvaluatorFactory {
 		
 	}
 
-	private void addProjectToSearchPath(IProject project, Evaluator parser)
+	private void configureRascalLibraryPlugins(Evaluator evaluator) {
+	  IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
+        .getExtensionPoint("rascal_eclipse", "rascalLibrary");
+	  
+	  try {
+	    for (IExtension element : extensionPoint.getExtensions()) {
+	      String name = element.getContributor().getName();
+	      Bundle bundle = Platform.getBundle(name);
+	      evaluator.addRascalSearchPath(bundle.getResource("src").toURI());
+	      evaluator.addClassLoader(new BundleClassLoader(bundle));
+	    }
+	  } catch (URISyntaxException e) {
+	    Activator.log("could not load some library", e);
+	  }
+  }
+
+	/**
+	 * This code is taken from http://wiki.eclipse.org/BundleProxyClassLoader_recipe
+	 */
+	private class BundleClassLoader extends ClassLoader {
+	  private Bundle bundle;
+	  private ClassLoader parent;
+	    
+	  public BundleClassLoader(Bundle bundle) {
+	    this.bundle = bundle;
+	  }
+	  
+	  @Override
+	  public Enumeration<URL> getResources(String name) throws IOException {
+	    return bundle.getResources(name);
+	  }
+	  
+	  @Override
+	  public URL findResource(String name) {
+	      return bundle.getResource(name);
+	  }
+
+	  @Override
+	  public Class<?> findClass(String name) throws ClassNotFoundException {
+	      return bundle.loadClass(name);
+	  }
+	  
+	  @Override
+	  public URL getResource(String name) {
+	    return (parent == null) ? findResource(name) : super.getResource(name);
+	  }
+
+	  @Override
+	  protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+	    Class<?> clazz = (parent == null) ? findClass(name) : super.loadClass(name, false);
+	    if (resolve)
+	      super.resolveClass(clazz);
+	    
+	    return clazz;
+	  }
+	}
+  private void addProjectToSearchPath(IProject project, Evaluator parser)
 			throws URISyntaxException {
 		if (project.exists(new Path(IRascalResources.RASCAL_SRC))) {
 			parser.addRascalSearchPath(URIUtil.create("project", project.getName(), "/" + IRascalResources.RASCAL_SRC));
