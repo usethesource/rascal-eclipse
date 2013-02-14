@@ -163,7 +163,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			
 			try {
 				synchronized (parser) {
-					parseTree = parser.parseModule(rm, input.toCharArray(), uri, null);
+					parseTree = parser.parseModule(rm, input.toCharArray(), uri);
 				}
 				
 			}
