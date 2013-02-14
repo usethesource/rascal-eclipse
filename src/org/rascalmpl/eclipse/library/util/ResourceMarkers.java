@@ -26,12 +26,10 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class ResourceMarkers {
-	private final IValueFactory values;
 	private final JDT jdt;
 	
 	public ResourceMarkers(IValueFactory values){
 		super();
-		this.values = values;
 		this.jdt = new JDT(values);
 	}
 

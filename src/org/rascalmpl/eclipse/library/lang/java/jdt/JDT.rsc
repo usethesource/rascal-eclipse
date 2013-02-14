@@ -60,6 +60,9 @@ anno BindingRel Resource@packages;
 @doc{contains all class declarations}
 anno BindingRel Resource@classes;
 
+@doc{contains all interface declarations}
+anno BindingRel Resource@interfaces;
+
 @doc{maps Entities to the modifiers that have been declared for it}
 anno ModifierRel Resource@modifiers; 
 

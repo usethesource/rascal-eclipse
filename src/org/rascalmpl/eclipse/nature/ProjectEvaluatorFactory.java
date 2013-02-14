@@ -190,6 +190,10 @@ public class ProjectEvaluatorFactory {
 	private void configureRascalLibraryPlugins(Evaluator evaluator) {
 	  IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
         .getExtensionPoint("rascal_eclipse", "rascalLibrary");
+
+	  if (extensionPoint == null) {
+	    return; // this may happen when nobody extends this point.
+	  }
 	  
 	  try {
 	    for (IExtension element : extensionPoint.getExtensions()) {

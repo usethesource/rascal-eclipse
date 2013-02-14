@@ -104,6 +104,7 @@ public class JDTImporter extends ASTVisitor {
 
 	private IRelationWriter typeBindings;
 	private IRelationWriter classBindings;
+	private IRelationWriter interfaceBindings;
 	private IRelationWriter methodBindings;
 	private IRelationWriter methodDecls;
 	private IRelationWriter fieldDecls;
@@ -144,6 +145,7 @@ public class JDTImporter extends ASTVisitor {
 	public Map<String, IValue> importFacts(ISourceLocation loc, IFile file) {
 		typeBindings = VF.relationWriter(bindingTupleType);
 		classBindings = VF.relationWriter(bindingTupleType);
+		interfaceBindings = VF.relationWriter(bindingTupleType);
 		methodBindings = VF.relationWriter(bindingTupleType);
 		methodDecls = VF.relationWriter(bindingTupleType);
 		fieldDecls = VF.relationWriter(bindingTupleType);
@@ -178,6 +180,7 @@ public class JDTImporter extends ASTVisitor {
 		facts.put("variables", variableBindings.done());
 		facts.put("packages", packageBindings.done());
 		facts.put("classes", classBindings.done());
+		facts.put("interfaces", interfaceBindings.done());
 		facts.put("declaredTopTypes", declaredTopTypes.done());
 		facts.put("implements", implmnts.done());
 		facts.put("extends", extnds.done());
@@ -513,6 +516,8 @@ public class JDTImporter extends ASTVisitor {
 			importTypeInfo(tb);
 			if (tb.isClass())
 				addBinding(classBindings, n, bindingCache.getEntity(tb));
+			else if (tb.isInterface())
+				addBinding(interfaceBindings, n, bindingCache.getEntity(tb));
 		}
 
 		// EnumDeclaration

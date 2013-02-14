@@ -43,6 +43,7 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
  * A simpler implementation of a console that does not support large output to be written, just
  * a repl with limited output capabilities. Larger output is supposed to be written elsewhere!
  */
+@SuppressWarnings("restriction")
 public class RascalIOConsole extends IOConsole {
 	private final Thread handlerThread;
 	private TextConsoleViewer viewer;
@@ -55,7 +56,6 @@ public class RascalIOConsole extends IOConsole {
 	}
 	@Override
     public IPageBookViewPage createPage(IConsoleView view) {
-        @SuppressWarnings("restriction")
 		final IOConsolePage page = new IOConsolePage(this, view) {
         	private org.eclipse.ui.console.TextConsoleViewer cached;
         	@Override
