@@ -20,6 +20,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 public class RascalMonitor implements IRascalMonitor {
 	private SubRascalMonitor subMon = null;
 	private final IProgressMonitor monitor;
+	private String topName;
 
 	public RascalMonitor(IProgressMonitor monitor) {
 		this.monitor = monitor;
@@ -29,6 +30,7 @@ public class RascalMonitor implements IRascalMonitor {
 	public int endJob(boolean succeeded) {
 		int worked = subMon.getWorkDone();
 		subMon = subMon.endJob();
+		monitor.setTaskName(topName);
 		return worked;
 	}
 
@@ -68,6 +70,11 @@ public class RascalMonitor implements IRascalMonitor {
 
 	@Override
 	public void startJob(String name, int workShare, int totalWork) {
+	  if (topName == null) {
+	    topName = name;
+	  }
+	  monitor.setTaskName(name);
+	  
 		if(subMon == null)
 			subMon = new SubRascalMonitor(SubMonitor.convert(monitor), name, workShare, totalWork);
 		else
@@ -133,7 +140,6 @@ public class RascalMonitor implements IRascalMonitor {
 			monitor.done();
 			workActuallyDone += nextWorkUnit;
 			nextWorkUnit = 0;
-//			RuntimePlugin.getInstance().getConsoleStream().println("Work done: " + workActuallyDone + " (" + name + ")");
 
 			if (parent != null) {
 				parent.workActuallyDone += parent.nextWorkUnit;

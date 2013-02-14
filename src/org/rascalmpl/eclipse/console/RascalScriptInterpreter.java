@@ -232,8 +232,8 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			try {
 				eval.overrideDefaultWriters(consoleStdOut, consoleStdErr);
 				IConstructor tree = eval.parseCommand(rm, command, URIUtil.rootScheme("stdin"));
-				rm.event("running command");
 				reloader.updateModules(monitor);
+				rm.event("running command");
 				execCommand(rm, tree);
 			}
 			catch (ParseError e) {
@@ -319,7 +319,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		try {
 			command += cmd;
 			
-			if (cmd.startsWith(":test")) {
+			if (project != null && cmd.startsWith(":test")) {
 				// this is very expensive because it triggers all kinds of build actions, so
 				// we only do it before running the :test command
 				project.getWorkspace().getRoot().deleteMarkers(IRascalResources.ID_RASCAL_MARKER_TYPE_TEST_RESULTS, false, IResource.DEPTH_INFINITE);
@@ -382,7 +382,9 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		};
 		
 		try{
-			project.getWorkspace().run(action, project, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+		  if (project != null) {
+		    project.getWorkspace().run(action, project, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+		  }
 		}catch(CoreException cex){
 			Activator.getInstance().logException("marker", cex);
 		}
