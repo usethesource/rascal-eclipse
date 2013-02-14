@@ -51,6 +51,7 @@ import org.eclipse.ui.console.TextConsolePage;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.uri.LinkifiedString;
 
 public class InteractiveInterpreterConsole extends TextConsole implements IInterpreterConsole{
@@ -820,14 +821,15 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 						Command command = commandQueue.remove(0);
 						if(completeCommandStartOffset == -1) completeCommandStartOffset = command.commandStartOffset;
 						try{
-							long start = System.currentTimeMillis();
+							Timing tm = new Timing();
+							tm.start();
 							completeCommand = console.interpreter.execute(command.command);
-							long stop = System.currentTimeMillis();
+							long duration = tm.duration();
 							
 							if(completeCommand){
 								console.printOutput(console.interpreter.getOutput());
 								if (PRINTCOMMANDTIME) {
-									console.printOutput("Time taken: " + (stop-start) + "ms.\n");
+									console.printOutput("Time taken: " + duration + "ms.\n");
 								}
 								completeCommandStartOffset = -1; // Reset offset.
 							}else{
