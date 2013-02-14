@@ -105,6 +105,7 @@ public class JDTImporter extends ASTVisitor {
 	private IRelationWriter typeBindings;
 	private IRelationWriter classBindings;
 	private IRelationWriter interfaceBindings;
+	private IRelationWriter enumBindings;
 	private IRelationWriter methodBindings;
 	private IRelationWriter methodDecls;
 	private IRelationWriter fieldDecls;
@@ -146,6 +147,7 @@ public class JDTImporter extends ASTVisitor {
 		typeBindings = VF.relationWriter(bindingTupleType);
 		classBindings = VF.relationWriter(bindingTupleType);
 		interfaceBindings = VF.relationWriter(bindingTupleType);
+		enumBindings = VF.relationWriter(bindingTupleType);
 		methodBindings = VF.relationWriter(bindingTupleType);
 		methodDecls = VF.relationWriter(bindingTupleType);
 		fieldDecls = VF.relationWriter(bindingTupleType);
@@ -181,6 +183,7 @@ public class JDTImporter extends ASTVisitor {
 		facts.put("packages", packageBindings.done());
 		facts.put("classes", classBindings.done());
 		facts.put("interfaces", interfaceBindings.done());
+		facts.put("enums", enumBindings.done());
 		facts.put("declaredTopTypes", declaredTopTypes.done());
 		facts.put("implements", implmnts.done());
 		facts.put("extends", extnds.done());
@@ -511,6 +514,10 @@ public class JDTImporter extends ASTVisitor {
 		if (n instanceof AnonymousClassDeclaration) {
 			tb = ((AnonymousClassDeclaration) n).resolveBinding();
 		}
+		
+		if (n instanceof EnumDeclaration) {
+			tb = ((EnumDeclaration) n).resolveBinding();
+		}
 
 		if (tb != null) {
 			importTypeInfo(tb);
@@ -518,6 +525,8 @@ public class JDTImporter extends ASTVisitor {
 				addBinding(classBindings, n, bindingCache.getEntity(tb));
 			else if (tb.isInterface())
 				addBinding(interfaceBindings, n, bindingCache.getEntity(tb));
+			else if (tb.isEnum())
+				addBinding(enumBindings, n, bindingCache.getEntity(tb));
 		}
 
 		// EnumDeclaration

@@ -63,6 +63,9 @@ anno BindingRel Resource@classes;
 @doc{contains all interface declarations}
 anno BindingRel Resource@interfaces;
 
+@doc{contains all enum declarations}
+anno BindingRel Resource@enums;
+
 @doc{maps Entities to the modifiers that have been declared for it}
 anno ModifierRel Resource@modifiers; 
 
