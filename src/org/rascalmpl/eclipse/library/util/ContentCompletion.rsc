@@ -59,7 +59,7 @@ Remember to set the "label" annotation on the tree and all children.
 
 Examples:
 <screen>
-import util::ContentProposal;
+import util::ContentCompletion;
 SymbolTree symbol = symbol("main", "method", {});
 symbol@label = "main (Entry Point)";
 createProposalsFromLabels(symbol);
@@ -127,7 +127,7 @@ Usable in the list sort function, see [List/sort].
 
 Examples:
 <screen>
-import util::ContentProposal;
+import util::ContentCompletion;
 import List;
 list[CompletionProposal] proposals = [sourceProposal("banana"), sourceProposal("apple")];
 sort(proposals, lessThanOrEqual);
@@ -145,7 +145,7 @@ If the prefix string is empty, the complete list will be returned as-is.
 
 Examples:
 <screen>
-import util::ContentProposal;
+import util::ContentCompletion;
 list[CompletionProposal] proposals = [sourceProposal("apple"), sourceProposal("pineapple"), sourceProposal("banana")];
 filterPrefix(proposals, "apple");
 </screen>
