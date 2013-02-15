@@ -31,7 +31,7 @@ Tree markVertical(Tree t) {
 list[Figure] ambMap(appl(Production p, list[Tree] args)) {
   list[list[Tree]] blocks = [];
   
-   while ([list[Tree] pre, Tree t, list[Tree] post] := args, t@vertical) {
+   while ([*Tree pre, Tree t, *Tree post] := args, t@vertical) {
      blocks += [pre + t];
      args = post;
    };

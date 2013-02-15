@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::c90::Plugin
 
-import lang::c90::syntax::C;
+import lang::c90::\syntax::C;
 import util::IDE;
 import ParseTree;
 
