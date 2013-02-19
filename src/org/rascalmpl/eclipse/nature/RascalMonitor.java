@@ -14,6 +14,8 @@ package org.rascalmpl.eclipse.nature;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 
@@ -154,11 +156,15 @@ public class RascalMonitor implements IRascalMonitor {
 			monitor.subTask(name);
 		}
 
-		/** TODO: this method won't actually help you get any work done... */
 		public int getWorkDone() {
 			return workActuallyDone;
 		}
-
 	}
+
+  @Override
+  public void warning(String message, ISourceLocation src) {
+    // TODO: put this as markers in the files pointed to by the src location
+    Activator.log(message + " at " + src, null);
+  }
 
 }
