@@ -175,7 +175,7 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 					return null;
 				}
 			};
-			newCommand.setHandler(handler);
+			handlerService.activateHandler(commandId, handler);
 			return commandId;
 			
 		}
