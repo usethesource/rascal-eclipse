@@ -13,6 +13,13 @@ import org.rascalmpl.eclipse.Activator;
 
 public class URIResourceResolver {
   
+  /**
+   * Compute a handle to an Eclipse resource, given a URI. This uses extensions that implement 
+   * the @link {@link IURIResourceResolver} interface to map URI to IResources.
+   * 
+   * @param uri 
+   * @return null if no IURIResourceResolved could resolve the URI to a resource, or an IResource handle.
+   */
   public static IResource getResource(URI uri) {
     IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint("rascal_eclipse", "uriResolver");
 
