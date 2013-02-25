@@ -2,6 +2,7 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension-point id="rascalLibrary" name="rascalLibrary" schema="schema/rascalLibrary.exsd"/>
+   <extension-point id="uriResolver" name="uriResolver" schema="schema/uriResolver.exsd"/>
    <extension
          point="org.eclipse.core.runtime.preferences">
    </extension>
@@ -752,5 +753,13 @@
              class="org.rascalmpl.eclipse.terms.TermContentProposer"
              language="Terms">
        </proposer>
+    </extension>
+    <extension
+          id="projectURIResolver"
+          name="projectURIResolver"
+          point="rascal_eclipse.uriResolver">
+        <uriResolver
+              class="org.rascalmpl.eclipse.uri.ProjectResourceResolver"
+              scheme="project"> </uriResolver>
     </extension>
 </plugin>

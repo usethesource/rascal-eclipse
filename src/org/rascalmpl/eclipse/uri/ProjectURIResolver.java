@@ -38,7 +38,7 @@ import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
 import org.rascalmpl.uri.URIUtil;
 
-public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputStreamResolver {
+public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputStreamResolver, IURIResourceResolver {
 	
 	public static URI constructProjectURI(ISourceProject project, IPath path){
 		return constructProjectURI(project.getName(), path);
@@ -250,4 +250,9 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		}
 		return null;
 	}
+
+  @Override
+  public IResource getResource(URI uri) throws IOException {
+    return resolve(uri);
+  }
 }
