@@ -18,8 +18,11 @@ package org.rascalmpl.eclipse.editor;
 
 import java.net.URI;
 import java.util.Iterator;
+import java.util.Set;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -39,6 +42,7 @@ import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
@@ -137,6 +141,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	
 	private class ParseJob extends Job {
 		private final URI uri;
+		private Set<IResource> markedFiles;
 
 		private String input;
 		public IConstructor parseTree = null;
@@ -151,9 +156,24 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			this.input = input;
 		}
 		
+		private void clearMarkers() {
+      try {
+        if (markedFiles != null) {
+          for (IResource res : markedFiles) {
+            res.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, true, 0);
+          }
+          
+          markedFiles = null;
+        }
+      } catch (CoreException e) {
+        Activator.log("could not erase markers completely", e);
+      }
+    }
+		
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			RascalMonitor rm = new RascalMonitor(monitor);
+			clearMarkers();
 			rm.startJob("parsing", 500);
 			parseTree = null;
 			if (input == null || path == null || (path != null && !path.isAbsolute() && project == null)) {

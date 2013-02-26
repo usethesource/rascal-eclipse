@@ -36,6 +36,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -118,6 +119,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 	private PrintWriter consoleStdErr;
 	private TimedBufferedPipe consoleStreamPipe;
 	private AbstractInterpreterEventTrigger eventTrigger;
+	private Set<IResource> currentMarkedResources;
 	
 	public RascalScriptInterpreter(IProject project){
 		super("Rascal");
@@ -226,6 +228,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		RascalMonitor rm = new RascalMonitor(monitor);
+		clearMarkers();
 		rm.startJob("executing command", 10000);
 		rm.event("parsing command");
 		synchronized (eval) {
@@ -300,6 +303,8 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				try {
 					consoleStreamPipe.signalAndWaitForFlush(500); // try to get the most out of the console
 					eval.revertToDefaultWriters();
+					
+					currentMarkedResources = rm.getMarkedFiles();
 				} catch (NullPointerException e) {
 					Activator.getInstance().logException(e.getMessage(), e);
 				}
@@ -309,7 +314,21 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		return Status.OK_STATUS;
 	}
 
-	public synchronized boolean execute(String cmd) throws CommandExecutionException, TerminationException{
+	private void clearMarkers() {
+	  try {
+	    if (currentMarkedResources != null) {
+	      for (IResource res : currentMarkedResources) {
+	        res.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, true, 0);
+	      }
+	      
+	      currentMarkedResources = null;
+	    }
+	  } catch (CoreException e) {
+	    Activator.log("could not erase markers completely", e);
+    }
+  }
+
+  public synchronized boolean execute(String cmd) throws CommandExecutionException, TerminationException{
 		if(cmd.trim().length() == 0){
 			content = ReadEvalPrintDialogMessages.CANCELLED + "\n";
 			command = "";
