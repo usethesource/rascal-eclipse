@@ -759,7 +759,7 @@
           name="projectURIResolver"
           point="rascal_eclipse.uriResolver">
         <uriResolver
-              class="org.rascalmpl.eclipse.uri.ProjectResourceResolver"
+              class="org.rascalmpl.eclipse.uri.ProjectURIResolver"
               scheme="project"> </uriResolver>
     </extension>
 </plugin>

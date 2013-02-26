@@ -12,10 +12,21 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.nature;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.imp.builder.MarkerCreator;
+import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PartInitException;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 
@@ -162,9 +173,21 @@ public class RascalMonitor implements IRascalMonitor {
 	}
 
   @Override
-  public void warning(String message, ISourceLocation src) {
-    // TODO: put this as markers in the files pointed to by the src location
-    Activator.log(message + " at " + src, null);
+  public void warning(String msg, ISourceLocation src) {
+    try {
+      IResource res = URIResourceResolver.getResource(src.getURI());
+
+      Map<String,Object> attrs = new HashMap<String,Object>();
+      attrs.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+      attrs.put(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+
+      MarkerCreator mc = new MarkerCreator((IFile) res, "rascal-runtime-warnings");
+      mc.handleSimpleMessage(msg, src.getOffset(), src.getOffset() + src.getLength(), src.getBeginColumn(), src.getEndColumn(), src.getBeginLine(), src.getEndLine(), attrs);
+    }
+    catch (Throwable e) {
+      // handling error messages should be very robust 
+      Activator.log("could not handle warning message: " + msg, e);
+    }
   }
 
 }
