@@ -117,7 +117,7 @@
             language="Terms">
       </language>
    </extension>
-   <extension
+   <extension 
          point="org.eclipse.imp.runtime.hyperLink">
       <hyperlinkDetector
             class="org.rascalmpl.eclipse.editor.HyperlinkDetector"

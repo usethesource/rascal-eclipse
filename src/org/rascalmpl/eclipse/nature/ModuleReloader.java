@@ -135,11 +135,13 @@ public class ModuleReloader{
 	private static class RascalModuleChangeListener implements IModuleChangedListener{
 		private final HashSet<URI> dirtyModules = new HashSet<URI>();
 		private final Evaluator eval;
+		private final IWarningHandler warnings;
 		
 		public RascalModuleChangeListener(Evaluator eval){
 			super();
 			
 			this.eval = eval;
+			this.warnings = new WarningsToPrintWriter(eval.getStdErr());
 		}
 		
 		public void moduleChanged(URI name) {
@@ -164,7 +166,7 @@ public class ModuleReloader{
 				
 				try {
 					synchronized(eval){
-						eval.reloadModules(new RascalMonitor(monitor) , names, URIUtil.rootScheme("console"));
+						eval.reloadModules(new RascalMonitor(monitor, warnings) , names, URIUtil.rootScheme("console"));
 					}
 				}catch (Throwable x) {
 					// reloading modules may trigger many issues, however, these should be visible

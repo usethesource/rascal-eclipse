@@ -43,7 +43,9 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.NodeLocator;
 import org.rascalmpl.eclipse.editor.Token;
 import org.rascalmpl.eclipse.editor.TokenIterator;
+import org.rascalmpl.eclipse.nature.IWarningHandler;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
+import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -138,6 +140,7 @@ public class TermParseController implements IParseController {
 	
 	private class ParseJob extends Job {
 		private final IMessageHandler handler;
+		private final IWarningHandler warnings;
 		private final ISourceLocation loc;
 		
 		private String input;
@@ -148,6 +151,7 @@ public class TermParseController implements IParseController {
 			
 			this.loc = loc;
 			this.handler = handler;
+			this.warnings = new WarningsToMessageHandler(loc.getURI(), handler);
 		}
 		
 		public void initialize(String input) {
@@ -156,7 +160,7 @@ public class TermParseController implements IParseController {
 		
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
-			RascalMonitor rm = new RascalMonitor(monitor);
+			RascalMonitor rm = new RascalMonitor(monitor, warnings);
 			rm.startJob("Parsing Term", 105);
 			
 			try{

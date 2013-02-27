@@ -6,7 +6,7 @@
          <meta.schema plugin="rascal_eclipse" id="uriResolver" name="uriResolver"/>
       </appInfo>
       <documentation>
-         This extension point is used by URIResourceResolver to map URIs to IResources. For each supported scheme there should be an extension that binds this points and implements IURIResourceResolver. 
+         This extension point is used by URIResourceResolver to map URIs to IResources. For each supported scheme there should be an extension that binds this points and implements IURIResourceResolver.
       </documentation>
    </annotation>
 
@@ -17,13 +17,9 @@
          </appInfo>
       </annotation>
       <complexType>
-         <attribute name="point" type="string" use="required">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
+         <sequence>
+            <element ref="uriResolver"/>
+         </sequence>
          <attribute name="id" type="string">
             <annotation>
                <documentation>
@@ -39,6 +35,13 @@
                <appInfo>
                   <meta.attribute translatable="true"/>
                </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="point" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
             </annotation>
          </attribute>
       </complexType>
@@ -102,8 +105,6 @@ All rights reserved. This program and the accompanying materials
 are made available under the terms of the Eclipse Public License v1.0
 which accompanies this distribution, and is available at
 http://www.eclipse.org/legal/epl-v10.html
-
-
       </documentation>
    </annotation>
 

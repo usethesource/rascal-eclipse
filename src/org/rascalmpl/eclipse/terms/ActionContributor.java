@@ -38,6 +38,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
+import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -101,14 +102,17 @@ public class ActionContributor implements ILanguageActionsContributor {
 	
 	private static final class RascalAction extends Job {
 		private final ICallableValue func;
+		private final WarningsToErrorLog warnings;
 		private IConstructor tree;
 		private Point selection;
 		public IString result = null;
+    
 
 		private RascalAction(String text, ICallableValue func) {
 			super(text);
 			
 			this.func = func;
+			this.warnings = new WarningsToErrorLog();
 		}
 		
 		public void init(UniversalEditor editor) {
@@ -118,7 +122,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 
 		@Override
 		public IStatus run(IProgressMonitor monitor) {
-			RascalMonitor rascalMonitor = new RascalMonitor(monitor);
+			RascalMonitor rascalMonitor = new RascalMonitor(monitor, warnings);
 			
 			if (tree != null) {
 				Type[] actualTypes = new Type[] { RTF.nonTerminalType(ProductionAdapter.getType(TreeAdapter.getProduction(tree))), TF.sourceLocationType() };

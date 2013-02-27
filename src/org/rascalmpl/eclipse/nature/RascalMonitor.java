@@ -12,22 +12,9 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.nature;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.imp.builder.MarkerCreator;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 
@@ -35,10 +22,11 @@ public class RascalMonitor implements IRascalMonitor {
 	private SubRascalMonitor subMon = null;
 	private final IProgressMonitor monitor;
 	private String topName;
-  private Set<IResource> marked;
+  private final IWarningHandler handler;
 
-	public RascalMonitor(IProgressMonitor monitor) {
+	public RascalMonitor(IProgressMonitor monitor, IWarningHandler handler) {
 		this.monitor = monitor;
+		this.handler = handler;
 	}
 	
 	@Override
@@ -174,33 +162,8 @@ public class RascalMonitor implements IRascalMonitor {
 		}
 	}
 
-	public Set<IResource> getMarkedFiles() {
-	  return Collections.unmodifiableSet(marked);
-	}
-	
   @Override
   public void warning(String msg, ISourceLocation src) {
-    try {
-      IResource res = URIResourceResolver.getResource(src.getURI());
-
-      rememberMarker(res);
-      Map<String,Object> attrs = new HashMap<String,Object>();
-      attrs.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-      attrs.put(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-
-      MarkerCreator mc = new MarkerCreator((IFile) res, IRascalResources.ID_RASCAL_MARKER);
-      mc.handleSimpleMessage(msg, src.getOffset(), src.getOffset() + src.getLength(), src.getBeginColumn(), src.getEndColumn(), src.getBeginLine(), src.getEndLine(), attrs);
-    }
-    catch (Throwable e) {
-      // handling error messages should be very robust 
-      Activator.log("could not handle warning message: " + msg, e);
-    }
-  }
-
-  protected void rememberMarker(IResource res) {
-    if (marked == null) {
-      marked = new HashSet<IResource>();
-    }
-    marked.add(res);
+    handler.warning(msg, src);
   }
 }

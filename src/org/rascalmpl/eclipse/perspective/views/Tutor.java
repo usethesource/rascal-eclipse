@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.rascalmpl.eclipse.perspective.views;
 
+import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_ECLIPSE_PLUGIN;
+import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_TUTOR_VIEW_PART;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
@@ -34,6 +37,7 @@ import org.eclipse.ui.progress.WorkbenchJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
+import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
@@ -41,8 +45,6 @@ import org.rascalmpl.tutor.RascalTutor;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-
-import static org.rascalmpl.eclipse.IRascalResources.*;
 
 public class Tutor extends ViewPart {
 	public static final String ID = ID_RASCAL_TUTOR_VIEW_PART;
@@ -166,7 +168,7 @@ public class Tutor extends ViewPart {
 
 						for (int i = 0; i < 100; i++) {
 							try {
-								tutor.start(port, new RascalMonitor(monitor));
+								tutor.start(port, new RascalMonitor(monitor, new WarningsToPrintWriter(eval.getStdErr())));
 								break;
 							}
 							catch (BindException e) {

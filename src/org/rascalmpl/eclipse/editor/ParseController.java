@@ -43,8 +43,10 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.nature.IWarningHandler;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
+import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -61,6 +63,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	private IDocument document;
 	private ParseJob job;
 	private Evaluator parser;
+  private IWarningHandler warnings;
 	
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
 		return null;
@@ -124,6 +127,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(null);
 		}
 
+		this.warnings = new WarningsToMessageHandler(location, handler);
 		this.job = new ParseJob("Rascal parser", location, handler);
 	}
 	
@@ -172,7 +176,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
-			RascalMonitor rm = new RascalMonitor(monitor);
+			RascalMonitor rm = new RascalMonitor(monitor, warnings);
 			clearMarkers();
 			rm.startJob("parsing", 500);
 			parseTree = null;

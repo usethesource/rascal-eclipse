@@ -39,6 +39,7 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
+import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -55,6 +56,7 @@ public class Builder extends BuilderBase {
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	private static final String MARKER_ID = IRascalResources.ID_TERM_MARKER;
 	private static final MessagesToMarkers messagesToMarkers = new MessagesToMarkers();
+	private static final WarningsToErrorLog warnings = new WarningsToErrorLog();
 
 	@Override
 	protected PluginBase getPlugin() {
@@ -91,7 +93,7 @@ public class Builder extends BuilderBase {
 		try {
 			ICallableValue parser = registry.getParser(lang);
 			evalForErrors = parser.getEval();
-			RascalMonitor rmonitor = new RascalMonitor(monitor);
+			RascalMonitor rmonitor = new RascalMonitor(monitor, warnings);
 			IValueFactory VF = parser.getEval().getValueFactory();
 			ISourceProject project = ModelFactory.open(file.getProject());
 			ISourceLocation loc = VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, file.getProjectRelativePath()));
