@@ -1,5 +1,6 @@
 package org.rascalmpl.eclipse.util;
 
+import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,7 +62,7 @@ public class RascalEclipseManifest extends RascalManifest {
     IFile rascalMF = project.getFile(new Path(META_INF_RASCAL_MF));
     try {
       if (rascalMF.exists()) {
-        return rascalMF.getContents();
+        return new BufferedInputStream(rascalMF.getContents());
       }
     } 
     catch (CoreException e) {
