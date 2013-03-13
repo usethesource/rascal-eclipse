@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 
 import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_ECLIPSE_PLUGIN;
 
@@ -51,6 +52,8 @@ public class Activator extends PluginBase {
 	public void start(BundleContext context) throws Exception {
 		sInstance = this;
 		super.start(context);
+		
+		ProjectEvaluatorFactory.getInstance().loadInstalledRascalLibraryPlugins();
 	}
 	
 	public static ImageDescriptor getRascalImage() {
@@ -72,8 +75,8 @@ public class Activator extends PluginBase {
 
 	// Definitions for image management
 
-	public static final org.eclipse.core.runtime.IPath ICONS_PATH = new org.eclipse.core.runtime.Path(
-			"icons/"); //$NON-NLS-1$("icons/"); //$NON-NLS-1$
+	public static final org.eclipse.core.runtime.IPath ICONS_PATH 
+	  = new org.eclipse.core.runtime.Path("icons/"); //$NON-NLS-1$("icons/"); //$NON-NLS-1$
 
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		IPath path = ICONS_PATH.append("rascal3D_2-32px.png");//$NON-NLS-1$

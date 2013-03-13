@@ -19,6 +19,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jface.operation.*;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.core.resources.*;
@@ -27,6 +29,7 @@ import java.io.*;
 import org.eclipse.ui.*;
 import org.eclipse.ui.ide.IDE;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.util.RascalManifest;
 
 public class NewRascalFile extends Wizard implements INewWizard {
 	private NewRascalFilePage page;
@@ -61,13 +64,17 @@ public class NewRascalFile extends Wizard implements INewWizard {
 					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 					IProject project = root.findMember(new Path(containerName)).getProject();
 					
-					if (project.exists(new Path(IRascalResources.RASCAL_SRC))) {
-						fileToCreate = fileToCreate.startsWith("/src/") ? fileToCreate : "/src/" + fileToCreate;
-					}
-					
 					fileToCreate = fileToCreate.endsWith(".rsc") ? fileToCreate : fileToCreate + ".rsc";
 					
+					List<String> srcs = RascalManifest.getSourceRoots(project);
 					moduleName = fileToCreate;
+					
+					for (String src : srcs) {
+					  if (moduleName.startsWith("/" + src)) {
+					    moduleName = moduleName.substring(src.length() + 1);
+					    break;
+					  }
+					}
 					moduleName = moduleName.substring(0, moduleName.length() - 4);
 					moduleName = moduleName.replaceAll("/", "::");
 					moduleName = moduleName.startsWith("::") ? moduleName.substring(2) : moduleName;

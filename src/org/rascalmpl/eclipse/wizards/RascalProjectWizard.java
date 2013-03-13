@@ -96,8 +96,6 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 				description.setBuildConfigs(new String[] { "org.eclipse.jdt.core.javabuilder", "org.eclipse.pde.ManifestBuilder", "org.eclipse.pde.SchemaBuilder" });
 				project.setDescription(description, monitor);
 				plugin.apply(monitor);
-				
-				
 			}
 
 			/**

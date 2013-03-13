@@ -17,6 +17,13 @@ public class ResourcesToModules {
 	public static String moduleFromFile(IFile file) {
 		IProject proj = file.getProject();
 		if (proj != null && proj.exists()) {
+		  for (String root : RascalManifest.getSourceRoots(proj)) {
+		    String mod = moduleForRoot(file, proj.getFolder(root));
+        if (mod != null) {
+          return mod;
+        }
+		  }
+		  
 			for (String root : new String[] { IRascalResources.RASCAL_SRC, IRascalResources.STD_LIB, IRascalResources.ECLIPSE_LIB }) {
 				String mod = moduleForRoot(file, proj.getFolder(root));
 				if (mod != null) {

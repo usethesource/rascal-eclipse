@@ -11,13 +11,11 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.nature;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -28,6 +26,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.uri.URIUtil;
 
@@ -107,21 +106,10 @@ public class ModuleReloader{
 
 						private void notify(IPath path) {
 							IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
-							IProject proj = file.getProject();
-							if (proj != null && proj.exists()) {
-								IFolder srcFolder = proj.getFolder(IRascalResources.RASCAL_SRC);
-								if (srcFolder != null && srcFolder.exists()) {
-									if (srcFolder.getProjectRelativePath().isPrefixOf(file.getProjectRelativePath())) {
-										try{
-											URI uri = URIUtil.create("project", proj.getName(), "/" + file.getProjectRelativePath().removeFirstSegments(1).toString());
-											interpreter.moduleChanged(uri);
-											uri = URIUtil.create("project", proj.getName(), "/" + IRascalResources.RASCAL_SRC + "/" + file.getProjectRelativePath().removeFirstSegments(1).toString());
-											interpreter.moduleChanged(uri);
-										}catch(URISyntaxException usex){
-											usex.printStackTrace(); // TODO Change to something better.
-										}
-									}
-								}
+							String module = ResourcesToModules.moduleFromFile(file);
+							
+							if (module != null) {
+							  interpreter.moduleChanged(module);
 							}
 						}
 					});
@@ -133,7 +121,7 @@ public class ModuleReloader{
 	}
 	
 	private static class RascalModuleChangeListener implements IModuleChangedListener{
-		private final HashSet<URI> dirtyModules = new HashSet<URI>();
+		private final Set<String> dirtyModules = new HashSet<String>();
 		private final Evaluator eval;
 		private final IWarningHandler warnings;
 		
@@ -144,7 +132,7 @@ public class ModuleReloader{
 			this.warnings = new WarningsToPrintWriter(eval.getStdErr());
 		}
 		
-		public void moduleChanged(URI name) {
+		public void moduleChanged(String name) {
 			synchronized (dirtyModules) {
 				dirtyModules.add(name);
 			}
@@ -152,23 +140,13 @@ public class ModuleReloader{
 		
 		public void updateModules(IProgressMonitor monitor) {
 			synchronized (dirtyModules) {
-				HashSet<String> names = new HashSet<String>();
-				
-				for (URI uri : dirtyModules) {
-					String path = uri.getPath();
-					path = path.substring(0, path.indexOf(IRascalResources.RASCAL_EXT) - 1);
-					path = path.startsWith("/") ? path.substring(1) : path;
-					names.add(path.replaceAll("/","::"));
-				}
-				
-				dirtyModules.clear();
-				
-				
 				try {
 					synchronized(eval){
-						eval.reloadModules(new RascalMonitor(monitor, warnings) , names, URIUtil.rootScheme("console"));
+						eval.reloadModules(new RascalMonitor(monitor, warnings) , Collections.unmodifiableSet(dirtyModules), URIUtil.rootScheme("console"));
+						dirtyModules.clear();
 					}
-				}catch (Throwable x) {
+				}
+				catch (Throwable x) {
 					// reloading modules may trigger many issues, however, these should be visible
 					// already in the editors for the respective modules, so we ignore them here
 					// to prevent redundant error messages

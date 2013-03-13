@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,6 +35,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -45,10 +48,13 @@ import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.eclipse.uri.BootstrapURIResolver;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
+import org.rascalmpl.eclipse.util.RascalManifest;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -124,6 +130,13 @@ public class ProjectEvaluatorFactory {
 		initializeProjectEvaluator(project, parser);
 		return parser;
 	}
+	
+	public Evaluator getBundleEvaluator(Bundle bundle) {
+	  GlobalEnvironment heap = new GlobalEnvironment();
+    Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, new ModuleEnvironment("***parser***", heap), heap);
+    initializeBundleEvaluator(bundle, parser);
+    return parser;
+	}
 
 	
 
@@ -187,7 +200,69 @@ public class ProjectEvaluatorFactory {
 		
 	}
 
-	private void configureRascalLibraryPlugins(Evaluator evaluator) {
+	 /**
+   * This method configures an evaluator for use in an eclipse context. 
+   * @param bundle context to run the evaluator in, may be null
+   * @param evaluator the evaluator to configure, may not be null
+   */
+  public void initializeBundleEvaluator(Bundle bundle, Evaluator evaluator) {
+    // NB. the code in this method is order dependent because it constructs a rascal module path in a particular order
+    URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
+    
+    ProjectURIResolver resolver = new ProjectURIResolver();
+    resolverRegistry.registerInput(resolver);
+    resolverRegistry.registerOutput(resolver);
+    
+    BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
+    resolverRegistry.registerInput(bundleResolver);
+    resolverRegistry.registerOutput(bundleResolver);
+    
+    BootstrapURIResolver bootResolver = new BootstrapURIResolver();
+    resolverRegistry.registerInputOutput(bootResolver);
+    ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(resolverRegistry, "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
+    resolverRegistry.registerInput(eclipseResolver);
+    
+    evaluator.addRascalSearchPath(URIUtil.rootScheme(eclipseResolver.scheme()));
+    evaluator.addClassLoader(getClass().getClassLoader());
+    
+    configureRascalLibraryPlugins(evaluator);
+    
+    if (bundle != null) {
+      try {
+        addBundleToSearchPath(bundle, evaluator);
+        evaluator.addClassLoader(new BundleClassLoader(bundle));
+      } 
+      catch (URISyntaxException e) {
+        Activator.getInstance().logException("could not construct search path", e);
+      }
+    }
+  }
+	
+	public void loadInstalledRascalLibraryPlugins() {
+    IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
+        .getExtensionPoint("rascal_eclipse", "rascalLibrary");
+
+    if (extensionPoint == null) {
+      return; // this may happen when nobody extends this point.
+    }
+    
+    for (IExtension element : extensionPoint.getExtensions()) {
+      String name = element.getContributor().getName();
+      Bundle bundle = Platform.getBundle(name);
+      GlobalEnvironment heap = new GlobalEnvironment();
+      ModuleEnvironment env = new ModuleEnvironment("***" + name + "***", heap);
+      Evaluator bundleEval = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, env, heap);
+      
+      // first load the other plugins
+      // TODO: support true dependencies
+      configureRascalLibraryPlugins(bundleEval);
+      
+      // then run the main of the current one
+      runLibraryPluginMain(bundleEval, bundle);
+    } 
+  }
+	
+	public static void configureRascalLibraryPlugins(Evaluator evaluator) {
 	  IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
         .getExtensionPoint("rascal_eclipse", "rascalLibrary");
 
@@ -199,18 +274,43 @@ public class ProjectEvaluatorFactory {
 	    for (IExtension element : extensionPoint.getExtensions()) {
 	      String name = element.getContributor().getName();
 	      Bundle bundle = Platform.getBundle(name);
-	      evaluator.addRascalSearchPath(bundle.getResource("src").toURI());
-	      evaluator.addClassLoader(new BundleClassLoader(bundle));
+	      configureRascalLibraryPlugin(evaluator, bundle);
 	    }
-	  } catch (URISyntaxException e) {
+	  } 
+	  catch (URISyntaxException e) {
 	    Activator.log("could not load some library", e);
 	  }
+  }
+
+  public static void configureRascalLibraryPlugin(Evaluator evaluator, Bundle bundle) throws URISyntaxException {
+    List<String> roots = RascalManifest.getSourceRoots(bundle);
+    
+    for (String root : roots) {
+      evaluator.addRascalSearchPath(bundle.getResource(root).toURI());
+    }
+    
+    evaluator.addClassLoader(new BundleClassLoader(bundle));
+  }
+
+  public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
+    try {
+      String mainModule = RascalManifest.getMainModule(bundle);
+      evaluator.doImport(evaluator.getMonitor(), mainModule);
+      ICallableValue main = (ICallableValue) evaluator.getHeap().getModule(mainModule).getVariable(RascalManifest.getMainFunction(bundle));
+      
+      if (main != null) {
+        main.call(new Type[] {}, new IValue[] {}, Collections.<String,Result<IValue>>emptyMap());
+      }
+    }
+    catch (Throwable e) {
+      Activator.log("Library defined by bundle " + bundle.getBundleId() + " has no main module or main function", e);
+    }
   }
 
 	/**
 	 * This code is taken from http://wiki.eclipse.org/BundleProxyClassLoader_recipe
 	 */
-	private class BundleClassLoader extends ClassLoader {
+	private static class BundleClassLoader extends ClassLoader {
 	  private Bundle bundle;
 	  private ClassLoader parent;
 	    
@@ -247,15 +347,36 @@ public class ProjectEvaluatorFactory {
 	    return clazz;
 	  }
 	}
-  private void addProjectToSearchPath(IProject project, Evaluator parser)
+	
+  public static void addProjectToSearchPath(IProject project, Evaluator parser)
 			throws URISyntaxException {
-		if (project.exists(new Path(IRascalResources.RASCAL_SRC))) {
-			parser.addRascalSearchPath(URIUtil.create("project", project.getName(), "/" + IRascalResources.RASCAL_SRC));
+		List<String> srcs = RascalManifest.getSourceRoots(project);
+		
+		if (srcs != null) {
+		  for (String root : srcs) {
+		    parser.addRascalSearchPath(URIUtil.create("project", project.getName(), "/" + root.trim()));
+		  }
+		}
+		else if (project.exists(new Path(IRascalResources.RASCAL_SRC))) {
+		  parser.addRascalSearchPath(URIUtil.create("project", project.getName(), "/" + IRascalResources.RASCAL_SRC));
 		}
 		else {
-			parser.addRascalSearchPath(URIUtil.create("project", project.getName(), "/"));
+		  parser.addRascalSearchPath(URIUtil.create("project", project.getName(), "/"));
 		}
 	}
+  
+  public static void addBundleToSearchPath(Bundle project, Evaluator parser) throws URISyntaxException {
+    List<String> srcs = RascalManifest.getSourceRoots(project);
+    
+    if (srcs != null) {
+      for (String root : srcs) {
+        parser.addRascalSearchPath(project.getEntry(root.trim()).toURI());
+      }
+    }
+    else {
+      parser.addRascalSearchPath(project.getEntry("/").toURI());
+    }
+  }
 
 	/**
 	 * This code has to remain alive while there are still old-fashioned Rascal projects around that did not

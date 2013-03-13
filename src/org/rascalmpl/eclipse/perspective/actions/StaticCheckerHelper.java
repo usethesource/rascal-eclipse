@@ -6,8 +6,10 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.runtime.RuntimePlugin;
@@ -17,6 +19,7 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
+import org.rascalmpl.eclipse.util.RascalManifest;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -28,13 +31,24 @@ public class StaticCheckerHelper {
 	public void initChecker(StaticChecker checker, final ISourceProject sourceProject) {
 		checker.init();
 
-		if (sourceProject != null) {
-			try{
-				checker.addRascalSearchPath(URIUtil.create("project", sourceProject.getName(),"/" + IRascalResources.RASCAL_SRC));
-			}catch(URISyntaxException usex){
-				throw new RuntimeException(usex);
-			}
+		List<String> srcs = RascalManifest.getSourceRoots(sourceProject.getRawProject());
+    
+		try {
+		  if (srcs != null) {
+		    for (String root : srcs) {
+		      checker.addRascalSearchPath(URIUtil.create("project", sourceProject.getRawProject().getName(), "/" + root.trim()));
+		    }
+		  }
+		  else if (sourceProject.getRawProject().exists(new Path(IRascalResources.RASCAL_SRC))) {
+		    checker.addRascalSearchPath(URIUtil.create("project", sourceProject.getRawProject().getName(), "/" + IRascalResources.RASCAL_SRC));
+		  }
+		  else {
+		    checker.addRascalSearchPath(URIUtil.create("project", sourceProject.getRawProject().getName(), "/"));
+		  }
+		} catch (URISyntaxException e) {
+		  Activator.log("???", e);
 		}
+		finally {}
 		
 		ProjectURIResolver resolver = new ProjectURIResolver();
 		URIResolverRegistry resolverRegistry = checker.getResolverRegistry();

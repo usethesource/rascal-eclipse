@@ -8,6 +8,7 @@ import org.eclipse.imp.runtime.PluginBase;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
+import org.rascalmpl.eclipse.util.RascalManifest;
 
 public class Builder extends BuilderBase {
 
@@ -18,9 +19,18 @@ public class Builder extends BuilderBase {
 
 	@Override
 	protected boolean isSourceFile(IFile file) {
-		if (file==null || file.getFileExtension()==null) return false;
+		if (file == null || file.getFileExtension() == null) {
+		  return false;
+		}
+		
 		if (file.getFileExtension().equals(IRascalResources.RASCAL_EXT)) {
-			return file.getProjectRelativePath().segment(0).equals(IRascalResources.RASCAL_SRC);
+		  for (String root : RascalManifest.getSourceRoots(file.getProject())) {
+		    if (file.getProjectRelativePath().segment(0).equals(root)) {
+		      return true;
+		    }
+		  }
+		  
+		  return file.getProjectRelativePath().segment(0).equals(IRascalResources.RASCAL_SRC);
 		}
 		
 		return false;

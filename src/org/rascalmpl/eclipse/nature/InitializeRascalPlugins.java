@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.nature;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -18,6 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.language.ILanguageRegistrar;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.util.RascalManifest;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -39,10 +42,17 @@ public class InitializeRascalPlugins implements ILanguageRegistrar {
 	public static void registerTermLanguagePlugin(final IProject project) {
 		try {
 			if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
-				IResource pluginRsc = project.findMember("src/Plugin.rsc");
-				if (pluginRsc != null) {
-					runPluginMain(project);
-				}
+			  String mainModule = RascalManifest.getMainModule(project);
+			  String mainFunction = RascalManifest.getMainFunction(project);
+			  List<String> roots = RascalManifest.getSourceRoots(project);
+			  
+			  for (String root : roots) {
+			    IResource pluginRsc = project.findMember(root + "/" + mainModule + IRascalResources.RASCAL_EXT);
+			    if (pluginRsc != null) {
+			      runPluginMain(project, mainModule, mainFunction);
+			      break;
+			    }
+			  }
 			}
 		}
 		catch (CoreException e) {
@@ -50,24 +60,19 @@ public class InitializeRascalPlugins implements ILanguageRegistrar {
 		}
 	}
 
-	private static void runPluginMain(final IProject project) {
+	private static void runPluginMain(final IProject project, String mainModule, String mainFunction) {
 		Evaluator eval = null;
 		try {
 			eval = initializeEvaluator(project);
 
 			synchronized(eval){
-				eval.doImport(null, "Plugin");
-				eval.call(new NullRascalMonitor(), "main");
+				eval.doImport(null, mainModule);
+				eval.call(new NullRascalMonitor(), mainFunction);
 			}
 		}
-		catch (RuntimeException e) {
-			if (eval != null && (e instanceof ParseError || e instanceof StaticError || e instanceof Throw)) {
-				eval.getStdErr().println("Could not run Plugin.rsc main of " + project.getName());
-				eval.getStdErr().println(ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(e));
-			}
-			else {
-				Activator.getInstance().logException("could not run Plugin.rsc main of " + project.getName(), e);
-			}
+		catch (ParseError | StaticError | Throw e) {
+		  eval.getStdErr().println("Could not run Plugin.rsc main of " + project.getName());
+      eval.getStdErr().println(ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(e));
 		}
 		catch (Throwable e) {
 			Activator.getInstance().logException("could not run Plugin.rsc main of " + project.getName(), e);
