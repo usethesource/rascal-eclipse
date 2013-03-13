@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.language.ILanguageRegistrar;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.util.RascalManifest;
+import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -42,9 +42,10 @@ public class InitializeRascalPlugins implements ILanguageRegistrar {
 	public static void registerTermLanguagePlugin(final IProject project) {
 		try {
 			if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
-			  String mainModule = RascalManifest.getMainModule(project);
-			  String mainFunction = RascalManifest.getMainFunction(project);
-			  List<String> roots = RascalManifest.getSourceRoots(project);
+			  RascalEclipseManifest mf = new RascalEclipseManifest();
+			  String mainModule = mf.getMainModule(project);
+			  String mainFunction = mf.getMainFunction(project);
+			  List<String> roots = mf.getSourceRoots(project);
 			  
 			  for (String root : roots) {
 			    IResource pluginRsc = project.findMember(root + "/" + mainModule + IRascalResources.RASCAL_EXT);

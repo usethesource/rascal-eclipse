@@ -29,7 +29,7 @@ import java.io.*;
 import org.eclipse.ui.*;
 import org.eclipse.ui.ide.IDE;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.util.RascalManifest;
+import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 
 public class NewRascalFile extends Wizard implements INewWizard {
 	private NewRascalFilePage page;
@@ -66,7 +66,7 @@ public class NewRascalFile extends Wizard implements INewWizard {
 					
 					fileToCreate = fileToCreate.endsWith(".rsc") ? fileToCreate : fileToCreate + ".rsc";
 					
-					List<String> srcs = RascalManifest.getSourceRoots(project);
+					List<String> srcs = new RascalEclipseManifest().getSourceRoots(project);
 					moduleName = fileToCreate;
 					
 					for (String src : srcs) {

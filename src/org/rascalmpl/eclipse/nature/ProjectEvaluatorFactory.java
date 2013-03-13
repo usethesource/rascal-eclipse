@@ -48,7 +48,7 @@ import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.eclipse.uri.BootstrapURIResolver;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
-import org.rascalmpl.eclipse.util.RascalManifest;
+import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -283,7 +283,7 @@ public class ProjectEvaluatorFactory {
   }
 
   public static void configureRascalLibraryPlugin(Evaluator evaluator, Bundle bundle) throws URISyntaxException {
-    List<String> roots = RascalManifest.getSourceRoots(bundle);
+    List<String> roots = new RascalEclipseManifest().getSourceRoots(bundle);
     
     for (String root : roots) {
       evaluator.addRascalSearchPath(bundle.getResource(root).toURI());
@@ -294,9 +294,10 @@ public class ProjectEvaluatorFactory {
 
   public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
     try {
-      String mainModule = RascalManifest.getMainModule(bundle);
+      RascalEclipseManifest mf = new RascalEclipseManifest();
+      String mainModule = mf.getMainModule(bundle);
       evaluator.doImport(evaluator.getMonitor(), mainModule);
-      ICallableValue main = (ICallableValue) evaluator.getHeap().getModule(mainModule).getVariable(RascalManifest.getMainFunction(bundle));
+      ICallableValue main = (ICallableValue) evaluator.getHeap().getModule(mainModule).getVariable(mf.getMainFunction(bundle));
       
       if (main != null) {
         main.call(new Type[] {}, new IValue[] {}, Collections.<String,Result<IValue>>emptyMap());
@@ -350,7 +351,8 @@ public class ProjectEvaluatorFactory {
 	
   public static void addProjectToSearchPath(IProject project, Evaluator parser)
 			throws URISyntaxException {
-		List<String> srcs = RascalManifest.getSourceRoots(project);
+    RascalEclipseManifest mf = new RascalEclipseManifest();
+		List<String> srcs = mf.getSourceRoots(project);
 		
 		if (srcs != null) {
 		  for (String root : srcs) {
@@ -366,7 +368,7 @@ public class ProjectEvaluatorFactory {
 	}
   
   public static void addBundleToSearchPath(Bundle project, Evaluator parser) throws URISyntaxException {
-    List<String> srcs = RascalManifest.getSourceRoots(project);
+    List<String> srcs = new RascalEclipseManifest().getSourceRoots(project);
     
     if (srcs != null) {
       for (String root : srcs) {

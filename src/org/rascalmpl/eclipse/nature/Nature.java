@@ -21,7 +21,7 @@ import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.runtime.IPluginLog;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.util.RascalManifest;
+import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.uri.URIUtil;
 
 public class Nature extends ProjectNatureBase implements IRascalResources {
@@ -43,7 +43,7 @@ public class Nature extends ProjectNatureBase implements IRascalResources {
 			folder.create(false, false, null);
 		}
 		
-		RascalManifest.createIfNotPresent(this.getProject(), IRascalResources.RASCAL_SRC, "Plugin", "main");
+		new RascalEclipseManifest().createIfNotPresent(this.getProject());
 		link();
 	}
 

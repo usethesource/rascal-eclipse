@@ -8,7 +8,7 @@ import org.eclipse.imp.runtime.PluginBase;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
-import org.rascalmpl.eclipse.util.RascalManifest;
+import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 
 public class Builder extends BuilderBase {
 
@@ -24,7 +24,7 @@ public class Builder extends BuilderBase {
 		}
 		
 		if (file.getFileExtension().equals(IRascalResources.RASCAL_EXT)) {
-		  for (String root : RascalManifest.getSourceRoots(file.getProject())) {
+		  for (String root : new RascalEclipseManifest().getSourceRoots(file.getProject())) {
 		    if (file.getProjectRelativePath().segment(0).equals(root)) {
 		      return true;
 		    }

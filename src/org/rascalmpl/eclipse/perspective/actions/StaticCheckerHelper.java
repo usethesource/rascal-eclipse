@@ -19,7 +19,7 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
-import org.rascalmpl.eclipse.util.RascalManifest;
+import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -31,7 +31,7 @@ public class StaticCheckerHelper {
 	public void initChecker(StaticChecker checker, final ISourceProject sourceProject) {
 		checker.init();
 
-		List<String> srcs = RascalManifest.getSourceRoots(sourceProject.getRawProject());
+		List<String> srcs = new RascalEclipseManifest().getSourceRoots(sourceProject.getRawProject());
     
 		try {
 		  if (srcs != null) {

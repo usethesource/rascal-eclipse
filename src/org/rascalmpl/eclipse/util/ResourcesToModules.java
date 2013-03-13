@@ -17,7 +17,7 @@ public class ResourcesToModules {
 	public static String moduleFromFile(IFile file) {
 		IProject proj = file.getProject();
 		if (proj != null && proj.exists()) {
-		  for (String root : RascalManifest.getSourceRoots(proj)) {
+		  for (String root : new RascalEclipseManifest().getSourceRoots(proj)) {
 		    String mod = moduleForRoot(file, proj.getFolder(root));
         if (mod != null) {
           return mod;
