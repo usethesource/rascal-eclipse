@@ -155,7 +155,7 @@ public class RascalInterpreter extends JavaToRascal {
 	public RascalInterpreter(IProject project, PrintWriter stdout,
 			PrintWriter stderr) {
 		super(stdout, stderr);
-		ProjectEvaluatorFactory.getInstance().initializeProjectEvaluator(
+		ProjectEvaluatorFactory.getInstance().configure(
 				project, getEvaluator());
 	}
 

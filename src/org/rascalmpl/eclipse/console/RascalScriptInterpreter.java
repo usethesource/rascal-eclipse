@@ -137,7 +137,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 	}
 
 	public void initialize(Evaluator eval){
-		ProjectEvaluatorFactory.getInstance().initializeProjectEvaluator(project, eval);
+		ProjectEvaluatorFactory.getInstance().configure(project, eval);
 		loadCommandHistory();
 		synchronized(eval){
 			eval.doImport(null, "IO");   
