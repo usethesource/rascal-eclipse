@@ -52,8 +52,6 @@ public class Activator extends PluginBase {
 	public void start(BundleContext context) throws Exception {
 		sInstance = this;
 		super.start(context);
-		
-		ProjectEvaluatorFactory.getInstance().loadInstalledRascalLibraryPlugins();
 	}
 	
 	public static ImageDescriptor getRascalImage() {

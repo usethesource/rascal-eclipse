@@ -113,7 +113,7 @@
       <language
             description="Abstract language which all Rascal-based implementations of languages are derived from to allow on-the-fly extension of the Eclipse IDE"
             extensions="trm"
-            initializerClass="org.rascalmpl.eclipse.nature.InitializeRascalPlugins"
+            initializerClass="org.rascalmpl.eclipse.plugins.LoadRascalPluginsFromProjects"
             language="Terms">
       </language>
    </extension>
@@ -297,7 +297,7 @@
   <extension
         point="org.eclipse.imp.runtime.languageRegistrar">
         <languageRegistrar   
-              class="org.rascalmpl.eclipse.nature.InitializeRascalPlugins"
+              class="org.rascalmpl.eclipse.plugins.LoadRascalPluginsFromProjects"
               id="rascalStarter"></languageRegistrar>
   </extension>
   
@@ -761,5 +761,11 @@
         <uriResolver
               class="org.rascalmpl.eclipse.uri.ProjectURIResolver"
               scheme="project"> </uriResolver>
+    </extension>
+    <extension
+          point="org.eclipse.ui.startup">
+       <startup
+             class="org.rascalmpl.eclipse.plugins.LoadRascalPluginsFromBundles">
+       </startup>
     </extension>
 </plugin>

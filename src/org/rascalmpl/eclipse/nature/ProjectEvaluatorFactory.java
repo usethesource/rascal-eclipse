@@ -19,7 +19,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,16 +32,12 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.eclipse.uri.BootstrapURIResolver;
@@ -53,8 +48,6 @@ import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.ClassResourceInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -252,6 +245,13 @@ public class ProjectEvaluatorFactory {
       GlobalEnvironment heap = new GlobalEnvironment();
       ModuleEnvironment env = new ModuleEnvironment("***" + name + "***", heap);
       Evaluator bundleEval = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, env, heap);
+      URIResolverRegistry registry = bundleEval.getResolverRegistry();
+      registry.registerInput(new BundleURIResolver(registry));
+      ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(registry, "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
+      registry.registerInput(eclipseResolver);
+    
+      bundleEval.addRascalSearchPath(URIUtil.rootScheme(eclipseResolver.scheme()));
+      bundleEval.addClassLoader(getClass().getClassLoader());
       
       // first load the other plugins
       // TODO: support true dependencies
@@ -297,14 +297,10 @@ public class ProjectEvaluatorFactory {
       RascalEclipseManifest mf = new RascalEclipseManifest();
       String mainModule = mf.getMainModule(bundle);
       evaluator.doImport(evaluator.getMonitor(), mainModule);
-      ICallableValue main = (ICallableValue) evaluator.getHeap().getModule(mainModule).getVariable(mf.getMainFunction(bundle));
-      
-      if (main != null) {
-        main.call(new Type[] {}, new IValue[] {}, Collections.<String,Result<IValue>>emptyMap());
-      }
+      evaluator.call(mf.getMainFunction(bundle));
     }
     catch (Throwable e) {
-      Activator.log("Library defined by bundle " + bundle.getBundleId() + " has no main module or main function", e);
+      Activator.log("Library defined by bundle " + bundle.getSymbolicName() + " has no main module or main function", e);
     }
   }
 

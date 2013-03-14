@@ -9,7 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Anya Helene Bagge - A.H.S.Bagge@cwi.nl (Univ. Bergen)
 *******************************************************************************/
-package org.rascalmpl.eclipse.nature;
+package org.rascalmpl.eclipse.plugins;
 
 import java.util.List;
 
@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.language.ILanguageRegistrar;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -28,7 +29,7 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 
-public class InitializeRascalPlugins implements ILanguageRegistrar {
+public class LoadRascalPluginsFromProjects implements ILanguageRegistrar {
 	public void registerLanguages() {
 			registerTermLanguagePlugins();
 	}
