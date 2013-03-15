@@ -15,6 +15,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse;
 
+import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_ECLIPSE_PLUGIN;
+
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,9 +36,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
-
-import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_ECLIPSE_PLUGIN;
 
 public class Activator extends PluginBase {
 	public static final String PLUGIN_ID = ID_RASCAL_ECLIPSE_PLUGIN;
