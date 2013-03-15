@@ -11,10 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.plugins;
 
-import java.util.List;
-
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.language.ILanguageRegistrar;
@@ -44,15 +41,13 @@ public class LoadRascalPluginsFromProjects implements ILanguageRegistrar {
 		try {
 			if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
 			  RascalEclipseManifest mf = new RascalEclipseManifest();
-			  String mainModule = mf.getMainModule(project);
-			  String mainFunction = mf.getMainFunction(project);
-			  List<String> roots = mf.getSourceRoots(project);
 			  
-			  for (String root : roots) {
-			    IResource pluginRsc = project.findMember(root + "/" + mainModule + IRascalResources.RASCAL_EXT);
-			    if (pluginRsc != null) {
+			  if (mf.hasManifest(project)) {
+			    String mainModule = mf.getMainModule(project);
+			    String mainFunction = mf.getMainFunction(project);
+
+			    if (mainModule != null && mainFunction != null) {
 			      runPluginMain(project, mainModule, mainFunction);
-			      break;
 			    }
 			  }
 			}

@@ -17,6 +17,10 @@ import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 
+/**
+ * See @link {@link RascalManifest}. This class adds support for Eclipse projects 
+ * and OSGI bundles.
+ */
 public class RascalEclipseManifest extends RascalManifest {
 
   public List<String> getSourceRoots(IProject project) {
@@ -87,5 +91,13 @@ public class RascalEclipseManifest extends RascalManifest {
     catch (IOException | CoreException e) {
       Activator.log("could not create RASCAL.MF", e);
     }
+  }
+
+  public boolean hasManifest(IProject project) {
+    return hasManifest(manifest(project));
+  }
+  
+  public boolean hasManifest(Bundle bundle) {
+    return hasManifest(manifest(bundle));
   }
 }

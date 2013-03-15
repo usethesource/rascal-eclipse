@@ -19,7 +19,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,14 +36,8 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
-import org.osgi.framework.wiring.FrameworkWiring;
-import org.osgi.service.packageadmin.PackageAdmin;
-import org.osgi.service.packageadmin.RequiredBundle;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
@@ -281,9 +274,21 @@ public class ProjectEvaluatorFactory {
   public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
     try {
       RascalEclipseManifest mf = new RascalEclipseManifest();
+      
+      if (!mf.hasManifest(bundle)) {
+        return;
+      }
+      
       String mainModule = mf.getMainModule(bundle);
-      evaluator.doImport(evaluator.getMonitor(), mainModule);
-      evaluator.call(mf.getMainFunction(bundle));
+      String mainFunction = mf.getMainFunction(bundle);
+      
+      // we only run a function if the main module and function have been configured.
+      // this is to give the option to NOT run a main module, but provide only the 
+      // plugin as a library to other plugins.
+      if (mainModule != null && mainFunction != null) {
+        evaluator.doImport(evaluator.getMonitor(), mainModule);
+        evaluator.call(mainFunction);
+      }
     }
     catch (Throwable e) {
       Activator.log("Library defined by bundle " + bundle.getSymbolicName() + " has no main module or main function", e);
