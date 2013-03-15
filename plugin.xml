@@ -763,9 +763,9 @@
               scheme="project"> </uriResolver>
     </extension>
     <extension
-          point="org.eclipse.ui.startup">
-       <startup
+          point="org.eclipse.imp.runtime.languageRegistrar">
+       <languageRegistrar
              class="org.rascalmpl.eclipse.plugins.LoadRascalPluginsFromBundles">
-       </startup>
+       </languageRegistrar>
     </extension>
 </plugin>

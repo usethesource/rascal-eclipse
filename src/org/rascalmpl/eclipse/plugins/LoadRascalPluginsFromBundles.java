@@ -1,11 +1,11 @@
 package org.rascalmpl.eclipse.plugins;
 
-import org.eclipse.ui.IStartup;
+import org.eclipse.imp.language.ILanguageRegistrar;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 
-public class LoadRascalPluginsFromBundles implements IStartup {
+public class LoadRascalPluginsFromBundles implements ILanguageRegistrar {
   @Override
-  public void earlyStartup() {
+  public void registerLanguages() {
     ProjectEvaluatorFactory.getInstance().loadInstalledRascalLibraryPlugins();
   }
 }
