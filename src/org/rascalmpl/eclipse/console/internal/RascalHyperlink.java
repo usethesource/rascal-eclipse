@@ -1,14 +1,13 @@
 package org.rascalmpl.eclipse.console.internal;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -17,9 +16,9 @@ import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.UnsupportedSchemeException;
 
 public class RascalHyperlink implements IHyperlink {
 
@@ -44,23 +43,15 @@ public class RascalHyperlink implements IHyperlink {
 	@Override
 	public void linkActivated() {
 		try {
-			URI uri = resolver.getResourceURI(getURIPart());
-			if (uri != null) {
-				IFileStore fileStore = EFS.getLocalFileSystem().getStore(uri);
+			IResource res = URIResourceResolver.getResource(getURIPart());
+			if (res != null && res instanceof IFile) {
 				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-				IEditorPart part = IDE.openEditorOnFileStore(page, fileStore);
+				IEditorPart part = IDE.openEditor(page, (IFile)res);
 				if (getOffsetPart() > -1 && part instanceof ITextEditor) {
 					((ITextEditor)part).selectAndReveal(getOffsetPart(), getLength());
 				}
 			}
-			else {
-				err.println("Cannot open link " + target);
-			}
-		} catch (PartInitException e) {
-			Activator.log("Cannot get editor part", e);
-		} catch (UnsupportedSchemeException use) {
-			//
-			if (getURIPart().getScheme().equals("http")) {
+			else if (getURIPart().getScheme().equals("http")) {
 				try {
 					PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(getURIPart().toURL());
 				} catch (PartInitException e) {
@@ -72,11 +63,9 @@ public class RascalHyperlink implements IHyperlink {
 			}
 			else {
 				err.println("Cannot open link " + target);
-				Activator.log("Cannot resolve link", use);
 			}
-		} catch (IOException e1) {
-			err.println("Cannot open link " + target);
-			Activator.log("Cannot resolve link", e1);
+		} catch (PartInitException e) {
+			Activator.log("Cannot get editor part", e);
 		}
 	}
 
