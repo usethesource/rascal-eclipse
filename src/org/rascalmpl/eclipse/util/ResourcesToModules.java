@@ -38,7 +38,8 @@ public class ResourcesToModules {
 	private static String moduleForRoot(IFile file, IFolder stdFolder) {
 		if (stdFolder != null && stdFolder.exists()) {
 			if (stdFolder.getProjectRelativePath().isPrefixOf(file.getProjectRelativePath())) {
-				String name = file.getProjectRelativePath().removeFirstSegments(1).removeFileExtension().toPortableString();
+			  int segments = stdFolder.getProjectRelativePath().segmentCount();
+				String name = file.getProjectRelativePath().removeFirstSegments(segments).removeFileExtension().toPortableString();
 				return name.replaceAll("/", "::");
 			}
 		}
