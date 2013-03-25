@@ -50,6 +50,7 @@ import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.console.TextConsolePage;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.part.IPageBookViewPage;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.uri.LinkifiedString;
@@ -320,7 +321,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 							else {
 								h = new WebHyperlink(target);
 							}
-							addHyperlink(h, fragmentOffsetStart + linkedLine.linkOffset(i), linkedLine.linkLength(i));
+							addHyperlink(h, fragmentOffsetStart + linkedLine.linkOffset(i), linkedLine.linkLength(i) - 1);
 						}
 					}
 					if(terminateLine) doc.replace(doc.getLength(), 0, COMMAND_TERMINATOR);
