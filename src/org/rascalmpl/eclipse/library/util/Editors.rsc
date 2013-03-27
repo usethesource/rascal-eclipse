@@ -32,12 +32,19 @@ public java void setHighlightColors(list[Color] colors);
 
 @doc{Open a source editor (using annotations from location)}
 public void edit(loc file){
-	edit(file,info,"Here");
+	edit(file,"Here");
 }
 
 @doc{Open a source editor (using annotations from location)}
 public void edit(loc file,str msg){
-	edit(file,info,msg);
+	list[LineDecoration] ld = [];
+	if (file.begin?) {
+		ld = [info(l, msg) | l <- [file.begin.line..file.end.line+1]];
+	}
+	else {
+		ld = [info(1, msg)];	
+	}
+	edit(file, ld);
 }
 
 @doc{Open a source editor (using annotations from location)}
