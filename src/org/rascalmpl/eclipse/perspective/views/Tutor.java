@@ -39,7 +39,6 @@ import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
-import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.tutor.RascalTutor;
 import org.rascalmpl.uri.ClassResourceInputOutput;
@@ -150,7 +149,7 @@ public class Tutor extends ViewPart {
 						String rascalEclipsePlugin = jarForPlugin(ID_RASCAL_ECLIPSE_PLUGIN);
 						String PDBValuesPlugin = jarForPlugin("org.eclipse.imp.pdb.values");
 
-						Configuration.setRascalJavaClassPathProperty(
+						eval.getConfiguration().setRascalJavaClassPathProperty(
 								rascalPlugin 
 								+ File.pathSeparator 
 								+ rascalPlugin + File.separator + "src" 

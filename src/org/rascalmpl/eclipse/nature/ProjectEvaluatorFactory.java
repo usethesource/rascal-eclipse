@@ -457,6 +457,6 @@ public class ProjectEvaluatorFactory {
 			ccp += File.pathSeparatorChar + elem;
 		}
 		
-		Configuration.setRascalJavaClassPathProperty(ccp.substring(1));
+		parser.getConfiguration().setRascalJavaClassPathProperty(ccp.substring(1));
 	}
 }

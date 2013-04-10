@@ -225,7 +225,12 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			catch (StaticError e) {
 				ISourceLocation loc = e.getLocation();
 				
-				setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), e.getMessage());
+				if (loc.hasOffsetLength()) {
+				  setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), e.getMessage());
+				}
+				else {
+				  Activator.log("weird error during parsing", e);
+				}
 			}
 			catch (Throw t) {
 				ISourceLocation loc = t.getLocation();
