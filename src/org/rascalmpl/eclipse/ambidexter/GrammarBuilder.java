@@ -21,7 +21,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -53,7 +52,7 @@ public class GrammarBuilder {
 		}
 	}
 	
-	public Grammar build(IConstructor grammar, IRelation nestingRestr, AmbiDexterConfig config) throws InvalidInputException {
+	public Grammar build(IConstructor grammar, ISet nestingRestr, AmbiDexterConfig config) throws InvalidInputException {
 		g = new Grammar(grammar.getName(), true, config.doRejects, config.doFollowRestrictions);
 		
 		IMap rules = (IMap) grammar.get("rules");
@@ -96,7 +95,7 @@ public class GrammarBuilder {
 		return g;
 	}
 
-	private void addPriorities(IRelation nestingRestr,
+	private void addPriorities(ISet nestingRestr,
 			Map<IConstructor, Production> prodMap) {
 		for (IValue e : nestingRestr) {
 			ITuple tup = (ITuple) e;

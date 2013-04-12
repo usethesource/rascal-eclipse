@@ -23,7 +23,6 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -137,7 +136,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 								return createSubItem(o);
 							}
 
-							public Object visitRelation(IRelation o)
+							public Object visitRelation(ISet o)
 							throws VisitorException {
 								for (IValue tuple : o) {
 									tuple.accept(this);
