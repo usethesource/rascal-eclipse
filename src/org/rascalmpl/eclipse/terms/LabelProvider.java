@@ -27,7 +27,6 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -117,7 +116,7 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 						return o.toString();
 					}
 
-					public String visitRelation(IRelation o) throws VisitorException {
+					public String visitRelation(ISet o) throws VisitorException {
 						return "";
 					}
 					

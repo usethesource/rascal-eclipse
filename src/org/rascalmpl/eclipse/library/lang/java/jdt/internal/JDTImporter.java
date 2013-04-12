@@ -28,7 +28,6 @@ import java.util.Stack;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -102,32 +101,32 @@ public class JDTImporter extends ASTVisitor {
 	private static final Type locType = TF.sourceLocationType();
 	private static final Type bindingTupleType = TF.tupleType(locType, ADT_ENTITY);
 
-	private IRelationWriter typeBindings;
-	private IRelationWriter classBindings;
-	private IRelationWriter interfaceBindings;
-	private IRelationWriter enumBindings;
-	private IRelationWriter methodBindings;
-	private IRelationWriter methodDecls;
-	private IRelationWriter fieldDecls;
-	private IRelationWriter constructorBindings;
-	private IRelationWriter fieldBindings;
-	private IRelationWriter variableBindings;
-	private IRelationWriter packageBindings;
+	private ISetWriter typeBindings;
+	private ISetWriter classBindings;
+	private ISetWriter interfaceBindings;
+	private ISetWriter enumBindings;
+	private ISetWriter methodBindings;
+	private ISetWriter methodDecls;
+	private ISetWriter fieldDecls;
+	private ISetWriter constructorBindings;
+	private ISetWriter fieldBindings;
+	private ISetWriter variableBindings;
+	private ISetWriter packageBindings;
 
 	// type facts
 	private static final Type entityTupleType = TF.tupleType(ADT_ENTITY, "from", ADT_ENTITY, "to");
 	private static final Type modifierTupleType = TF.tupleType(ADT_ENTITY, "entity", ADT_MODIFIER, "modifier");
 	private static final Type astNodeTupleType = TF.tupleType(ADT_ENTITY, "method", ADT_ASTNODE, "body");
 
-	private IRelationWriter extnds;
-	private IRelationWriter implmnts;
-	private IRelationWriter declaredMethods;
-	private IRelationWriter declaredFields;
-	private IRelationWriter declaredSubTypes;
+	private ISetWriter extnds;
+	private ISetWriter implmnts;
+	private ISetWriter declaredMethods;
+	private ISetWriter declaredFields;
+	private ISetWriter declaredSubTypes;
 	private ISetWriter declaredTopTypes;
-	private IRelationWriter calls;
-	private IRelationWriter modifiers;
-	private IRelationWriter methodBodies;
+	private ISetWriter calls;
+	private ISetWriter modifiers;
+	private ISetWriter methodBodies;
 
 	private final TypeStore typeStore;
 	private CompilationUnit compilationUnit;
@@ -689,7 +688,7 @@ public class JDTImporter extends ASTVisitor {
 		}
 	}
 
-	private void addBinding(IRelationWriter rw, ASTNode n, IValue entity) {
+	private void addBinding(ISetWriter rw, ASTNode n, IValue entity) {
 		ISourceLocation fileLoc = new Resources(VF).makeFile(file);
 		int start = n.getStartPosition();
 		int end = start + n.getLength() - 1;

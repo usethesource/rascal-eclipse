@@ -21,7 +21,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -58,8 +57,8 @@ public class JDTRefactoring {
     	this.jdt = new JDT(vf);
 	}
     
-	public IRelation encapsulateFields(ISet fieldOffsetsFromLoc, ISourceLocation loc) {
-		IRelation result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
+	public ISet encapsulateFields(ISet fieldOffsetsFromLoc, ISourceLocation loc) {
+		ISet result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
 		Job.getJobManager().beginRule(ResourcesPlugin.getWorkspace().getRoot(), new NullProgressMonitor());
     	try {
     		IFile file = jdt.getJavaIFileForLocation(loc);
@@ -80,7 +79,7 @@ public class JDTRefactoring {
     }
 
 
-	private IRelation encapsulateField(IField field, int flags, String getterName, String setterName) {
+	private ISet encapsulateField(IField field, int flags, String getterName, String setterName) {
 		try {
 			SelfEncapsulateFieldRefactoring refactoring = new SelfEncapsulateFieldRefactoring(field);
 			refactoring.setVisibility(flags);
@@ -89,7 +88,7 @@ public class JDTRefactoring {
 			refactoring.setSetterName(setterName);
 			PerformRefactoringOperation operation = new PerformRefactoringOperation(refactoring, CheckConditionsOperation.ALL_CONDITIONS);
 			operation.run(new NullProgressMonitor());
-			IRelation result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
+			ISet result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
 			RefactoringStatus rs = operation.getConditionStatus();
 			if (rs != null && rs.hasWarning()) {
 				for (RefactoringStatusEntry rse : rs.getEntries()) {
@@ -110,11 +109,11 @@ public class JDTRefactoring {
 		}
 	}    
 
-	public IRelation makeMethodsPublic(ISet methodOffsetsFromLoc, ISourceLocation loc) {
+	public ISet makeMethodsPublic(ISet methodOffsetsFromLoc, ISourceLocation loc) {
     	IFile file = jdt.getJavaIFileForLocation(loc);
 
 		Set<IMethod> methods = new FindIMethods().findMethodsAtLocs(methodOffsetsFromLoc, loc, file);
-		IRelation result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
+		ISet result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
 		for (IMethod method : methods) {
 			result.union(changeMethodSignature(method, Modifier.PUBLIC));
 		}
@@ -122,8 +121,8 @@ public class JDTRefactoring {
 		return result;
     }    
     
-	private IRelation changeMethodSignature(IMethod method, int visibility) {
-		IRelation result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
+	private ISet changeMethodSignature(IMethod method, int visibility) {
+		ISet result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
 		try {
 			Job.getJobManager().beginRule(ResourcesPlugin.getWorkspace().getRoot(), new NullProgressMonitor());
 
@@ -156,10 +155,10 @@ public class JDTRefactoring {
 		return result;
 	}   
     
-    public IRelation cleanUpSource(ISourceLocation loc) {
+    public ISet cleanUpSource(ISourceLocation loc) {
     	IFile file = jdt.getJavaIFileForLocation(loc);
 
-		IRelation result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
+		ISet result = VF.relation(TF.tupleType(TF.stringType(), TF.stringType()));
 		
 		try {
 			Job.getJobManager().beginRule(ResourcesPlugin.getWorkspace().getRoot(), new NullProgressMonitor());

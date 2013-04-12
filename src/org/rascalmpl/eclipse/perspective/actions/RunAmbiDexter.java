@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.eclipse.Activator;
@@ -62,7 +62,7 @@ public class RunAmbiDexter extends AbstractEditorAction {
 					monitor.worked(1);
 					final IConstructor grammar = getGrammar(eval, moduleName);
 					monitor.worked(1);
-					final IRelation nestingRestr = eval.getNestingRestrictions(eval.getMonitor(), grammar);				
+					final ISet nestingRestr = eval.getNestingRestrictions(eval.getMonitor(), grammar);				
 					monitor.worked(1);
 					monitor.done();
 					
