@@ -12,7 +12,6 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -208,7 +207,7 @@ public class Editor extends EditorPart {
 						return empty;
 					}
 
-					public Object[] visitRelation(IRelation o)
+					public Object[] visitRelation(ISet o)
 							throws VisitorException {
 						return visitSet(o);
 					}
@@ -329,7 +328,7 @@ public class Editor extends EditorPart {
 						return o.toString();
 					}
 
-					public String visitRelation(IRelation o)
+					public String visitRelation(ISet o)
 							throws VisitorException {
 						return o.getType().toString();
 					}
