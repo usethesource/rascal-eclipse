@@ -7,7 +7,6 @@ import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
@@ -244,7 +243,7 @@ public class Editor extends EditorPart {
 						return empty;
 					}
 
-          public Object[] visitListRelation(IListRelation o) throws VisitorException {
+          public Object[] visitListRelation(IList o) throws VisitorException {
             return visitList(o);
           }
 				});
@@ -355,7 +354,7 @@ public class Editor extends EditorPart {
 						return o.toString();
 					}
 
-          public String visitListRelation(IListRelation o) throws VisitorException {
+          public String visitListRelation(IList o) throws VisitorException {
             return o.getType().toString();
           }
 				});
