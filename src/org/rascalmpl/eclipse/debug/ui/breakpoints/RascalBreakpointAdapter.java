@@ -27,7 +27,6 @@ import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTargetExtension;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -256,7 +255,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 				return null;
 			}
 			
-			public IValue visitListRelation(IListRelation o) throws VisitorException{
+			public IValue visitListRelation(IList o) throws VisitorException{
 				for(IValue v : o){
 					v.accept(this);
 				}
