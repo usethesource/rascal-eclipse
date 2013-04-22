@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -17,17 +19,17 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.uri.URIResourceResolver;
-import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIUtil;
 
 public class RascalHyperlink implements IHyperlink {
-
-	private URIResolverRegistry resolver;
-	private String target;
+	private static final int INVALID_OFFSET = -1;
+  private String target;
 	private PrintWriter err;
+  private IEvaluatorContext ctx;
 
-	public RascalHyperlink(String target, URIResolverRegistry resolver, PrintWriter err) {
-		this.resolver = resolver;
+	public RascalHyperlink(String target, IEvaluatorContext ctx, PrintWriter err) {
+	  this.ctx = ctx;
 		this.target = target;
 		this.err = err;
 	}
@@ -75,7 +77,7 @@ public class RascalHyperlink implements IHyperlink {
 		return length;
 	}
 
-	private int offset = -1;
+	private int offset = INVALID_OFFSET;
 	private int getOffsetPart() {
 		makeSureLinkIsParsed();
 		return offset;
@@ -100,7 +102,20 @@ public class RascalHyperlink implements IHyperlink {
 					length = Integer.parseInt(m.group(3));
 				}
 			}
+			
+			IValueFactory vf = ctx.getValueFactory();
+			ISourceLocation loc;
+			if (offset != INVALID_OFFSET) {
+			  loc = ctx.getHeap().resolveSourceLocation(vf.sourceLocation(uri, offset, length));
+			}
+			else {
+			  loc = ctx.getHeap().resolveSourceLocation(vf.sourceLocation(uri));
+			}
+			uri = loc.getURI();
+			if (loc.hasOffsetLength()) {
+			  offset = loc.getOffset(); 
+			  length = loc.getLength();
+			}
 		}
-
 	}
 }
