@@ -1,7 +1,6 @@
 package org.eclipse.imp.pdb.ui.text;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.ui.PDBUIPlugin;
 import org.eclipse.imp.pdb.ui.ValueEditorInput;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
