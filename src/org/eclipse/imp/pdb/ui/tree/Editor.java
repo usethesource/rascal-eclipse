@@ -7,12 +7,10 @@ import org.eclipse.imp.pdb.facts.IDateTime;
 import org.eclipse.imp.pdb.facts.IExternalValue;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRational;
 import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -208,7 +206,7 @@ public class Editor extends EditorPart {
 						return empty;
 					}
 
-					public Object[] visitRelation(IRelation o)
+					public Object[] visitRelation(ISet o)
 							throws VisitorException {
 						return visitSet(o);
 					}
@@ -245,7 +243,7 @@ public class Editor extends EditorPart {
 						return empty;
 					}
 
-          public Object[] visitListRelation(IListRelation o) throws VisitorException {
+          public Object[] visitListRelation(IList o) throws VisitorException {
             return visitList(o);
           }
 				});
@@ -329,7 +327,7 @@ public class Editor extends EditorPart {
 						return o.toString();
 					}
 
-					public String visitRelation(IRelation o)
+					public String visitRelation(ISet o)
 							throws VisitorException {
 						return o.getType().toString();
 					}
@@ -356,7 +354,7 @@ public class Editor extends EditorPart {
 						return o.toString();
 					}
 
-          public String visitListRelation(IListRelation o) throws VisitorException {
+          public String visitListRelation(IList o) throws VisitorException {
             return o.getType().toString();
           }
 				});

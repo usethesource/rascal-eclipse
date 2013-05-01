@@ -68,7 +68,7 @@ public class ValueEditorInput implements IStorageEditorInput {
 		return getName();
 	}
 
-	public Object getAdapter(Class adapter) {
+	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
 		if (IValue.class.equals(adapter)) {
 			return value;
 		}
@@ -104,7 +104,7 @@ public class ValueEditorInput implements IStorageEditorInput {
 				return false;
 			}
 
-			public Object getAdapter(Class adapter) {
+			public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
 				return null;
 			}
 		};
