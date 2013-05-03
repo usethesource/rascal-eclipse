@@ -104,7 +104,7 @@ public class JDT {
 		IFile file = getJavaIFileForLocation(loc);
 
 		Map<String,IValue> facts = new JDTImporter(eval.getHeap().getModule("lang::java::jdt::JDT").getStore(), gatherASTs, fillASTBindings, fillOldStyleUsage).importFacts(loc, file);
-		IConstructor resource = (IConstructor) Resources.file.make(VF, loc);
+		IConstructor resource = VF.constructor(Resources.file, loc);
 		return resource.setAnnotations(facts);
 	}
 	

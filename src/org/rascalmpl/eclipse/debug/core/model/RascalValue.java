@@ -129,7 +129,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 	public IVariable[] getVariables() throws DebugException {
 		if (value == null) return null;
 		
-		return value.getType().accept(new ITypeVisitor<IVariable[]>() {
+		return value.getType().accept(new ITypeVisitor<IVariable[], RuntimeException>() {
 			@Override
 			public IVariable[] visitReal(Type type) {
 				return new IVariable[0];
@@ -174,16 +174,6 @@ public class RascalValue extends RascalDebugElement implements IValue {
 			@Override
 			public IVariable[] visitAlias(Type type) {
 				return type.getAliased().accept(this);
-			}
-
-			@Override
-			public IVariable[] visitRelationType(Type type) {
-				return visitSet(type);
-			}
-			
-			@Override
-			public IVariable[] visitListRelationType(Type type) {
-				return visitList(type);
 			}
 
 			@Override
@@ -329,7 +319,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 	public boolean hasVariables() throws DebugException {
 		if (value == null) return false;
 		Type type = value.getType();
-		return type.isListType() || type.isMapType() || type.isSetType() || type.isAliasType() || type.isNodeType() || type.isConstructorType() || type.isRelationType();
+		return type.isList() || type.isMap() || type.isSet() || type.isAliased() || type.isNode() || type.isConstructor() || type.isRelation();
 	}
 
 	/* (non-Javadoc)

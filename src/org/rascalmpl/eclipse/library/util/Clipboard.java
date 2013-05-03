@@ -37,7 +37,7 @@ public class Clipboard {
 			public void run() {
 				String str;
 				
-				if (content.getType().isStringType()) {
+				if (content.getType().isString()) {
 					str = ((IString) content).getValue();
 				}
 				else if (content.getType().isSubtypeOf(Factory.Tree)) {

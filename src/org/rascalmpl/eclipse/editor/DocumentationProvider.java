@@ -40,7 +40,7 @@ public class DocumentationProvider  implements IDocumentationProvider {
 	private String getDocString(IConstructor arg, IConstructor top) {
 		IValue val = arg.getAnnotation("doc");
 
-		if (val != null && val.getType().isStringType()) {
+		if (val != null && val.getType().isString()) {
 				return ((IString) val).getValue();
 		}
 		
@@ -48,9 +48,9 @@ public class DocumentationProvider  implements IDocumentationProvider {
 			IValue vals = arg.getAnnotation("docs");
 			
 			if (vals != null 
-					&& vals.getType().isMapType() 
-					&& vals.getType().getKeyType().isSourceLocationType() 
-					&& vals.getType().getValueType().isStringType()) {
+					&& vals.getType().isMap() 
+					&& vals.getType().getKeyType().isSourceLocation() 
+					&& vals.getType().getValueType().isString()) {
 				IMap map = (IMap) vals;
 				ISourceLocation loc = (ISourceLocation) arg.getAnnotation("loc");
 				if (loc != null) {
@@ -60,11 +60,11 @@ public class DocumentationProvider  implements IDocumentationProvider {
 
 			IValue docStringsMapValue = top.getAnnotation("docStrings");
 			IValue loc = arg.getAnnotation("loc");
-			if (docStringsMapValue != null && docStringsMapValue.getType().isMapType() && loc != null && loc.getType().isSourceLocationType()) {
+			if (docStringsMapValue != null && docStringsMapValue.getType().isMap() && loc != null && loc.getType().isSourceLocation()) {
 				IMap docStringsMap = (IMap)docStringsMapValue;
 				if (docStringsMap.containsKey(loc)) { 
 					IValue docString = docStringsMap.get(loc);
-					if (docString.getType().isStringType()) return ((IString)docString).getValue();
+					if (docString.getType().isString()) return ((IString)docString).getValue();
 				}
 			}
 		}

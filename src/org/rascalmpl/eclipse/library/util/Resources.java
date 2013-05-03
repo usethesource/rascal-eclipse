@@ -185,16 +185,16 @@ public class Resources {
 		
 		for (IProject p : ROOT.getProjects()) {
 			ISet contents = getProjectContents(p);
-			projects.insert(project.make(VF, makeProject(p), contents));
+			projects.insert(VF.constructor(project, makeProject(p), contents));
 		}
 		
-		return (IConstructor) root.make(VF, projects.done());
+		return VF.constructor(root, projects.done());
 	}
 	
 	public  IConstructor getProject(ISourceLocation projectName) {
 		IProject p = getIProject(projectName.getURI().getAuthority());
 		ISet contents = getProjectContents(p);
-		return (IConstructor) project.make(VF, projectName, contents);
+		return VF.constructor(project, projectName, contents);
 	}
 	
 	private  IProject getIProject(String projectName) {
@@ -235,11 +235,11 @@ public class Resources {
 	}
 	
 	private  IValue getFolder(IFolder resource) {
-		return folder.make(VF, makeFolder(resource), getFolderContents(resource));
+		return VF.constructor(folder, makeFolder(resource), getFolderContents(resource));
 	}
 
 	private  IValue getFile(IFile resource) {
-		return file.make(VF, makeFile(resource));
+		return VF.constructor(file, makeFile(resource));
 	}
 
 	private  ISet getFolderContents(final IFolder folder) {

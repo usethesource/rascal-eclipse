@@ -73,9 +73,9 @@ public class GrammarBuilder {
 		
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		String start = config.alternativeStartSymbol;
-		String lex = Factory.Symbol_Lex.make(vf, vf.string(start)).toString();
-		String cf = Factory.Symbol_Sort.make(vf, vf.string(start)).toString();
-		String startCf = Factory.Symbol_Start_Sort.make(vf, Factory.Symbol_Sort.make(vf, vf.string(start))).toString();
+		String lex = vf.constructor(Factory.Symbol_Lex, vf.string(start)).toString();
+		String cf = vf.constructor(Factory.Symbol_Sort, vf.string(start)).toString();
+		String startCf = vf.constructor(Factory.Symbol_Start_Sort, vf.constructor(Factory.Symbol_Sort, vf.string(start))).toString();
     if (g.nonTerminals.containsKey(lex)) {
 		  g.setNewStartSymbol(lex);
     }
