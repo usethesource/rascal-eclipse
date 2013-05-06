@@ -47,7 +47,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		if (ref != null) {
 			IValue link = ref.getAnnotation("link");
 			
-			if (link != null && link.getType().isSourceLocationType()) { 
+			if (link != null && link.getType().isSourceLocation()) { 
 				return new IHyperlink[] { new SourceLocationHyperlink(TreeAdapter.getLocation(ref), (ISourceLocation) link) };
 			}
 			
@@ -56,7 +56,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		ref = TreeAdapter.locateAnnotatedTree(tree, "links", region.getOffset());
 		if (ref != null) {
 			IValue links = ref.getAnnotation("links");
-			if (links != null && links.getType().isSetType() && links.getType().getElementType().isSourceLocationType()) {
+			if (links != null && links.getType().isSet() && links.getType().getElementType().isSourceLocation()) {
 				IHyperlink[] a = new IHyperlink[((ISet) links).size()];
 				int i = 0;
 				for (IValue l : ((ISet) links)) {
@@ -68,13 +68,13 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		
 		IValue docLinksMapValue = tree.getAnnotation("docLinks");
 		IConstructor subtree = TreeAdapter.locateAnnotatedTree(tree, "loc", region.getOffset());
-		if (docLinksMapValue != null && docLinksMapValue.getType().isMapType() && subtree != null) {
+		if (docLinksMapValue != null && docLinksMapValue.getType().isMap() && subtree != null) {
 			ISourceLocation loc = TreeAdapter.getLocation(subtree);
 			if (loc != null) {
 				IMap docLinksMap = (IMap)docLinksMapValue;
 				if (docLinksMap.containsKey(loc)) {
 					IValue links = docLinksMap.get(loc);
-					if (links != null && links.getType().isSetType() && links.getType().getElementType().isSourceLocationType()) {
+					if (links != null && links.getType().isSet() && links.getType().getElementType().isSourceLocation()) {
 						IHyperlink[] a = new IHyperlink[((ISet) links).size()];
 						int i = 0;
 						for (IValue l : ((ISet) links)) {

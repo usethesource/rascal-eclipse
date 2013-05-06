@@ -23,6 +23,7 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredConstructorException;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.*;
@@ -48,6 +49,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 
 	private final IValueFactory values;
 	private final TypeStore typeStore;
+	private static final TypeFactory TF = TypeFactory.getInstance();
 	private final BindingConverter bindingConverter;	
 	
 	private CompilationUnit compilUnit;
@@ -98,37 +100,37 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		IValueList modifierList = new IValueList(values);
 
 		if (Modifier.isPublic(modifiers)) {
-			modifierList.add(Java.CONS_PUBLIC.make(values)); 
+			modifierList.add(values.constructor(Java.CONS_PUBLIC)); 
 		}
 		if (Modifier.isProtected(modifiers)) {
-			modifierList.add(Java.CONS_PROTECTED.make(values));
+			modifierList.add(values.constructor(Java.CONS_PROTECTED));
 		}
 		if (Modifier.isPrivate(modifiers)) {
-			modifierList.add(Java.CONS_PRIVATE.make(values));
+			modifierList.add(values.constructor(Java.CONS_PRIVATE));
 		}
 		if (Modifier.isStatic(modifiers)) {
-			modifierList.add(Java.CONS_STATIC.make(values));
+			modifierList.add(values.constructor(Java.CONS_STATIC));
 		}
 		if (Modifier.isAbstract(modifiers)) {
-			modifierList.add(Java.CONS_ABSTRACT.make(values));
+			modifierList.add(values.constructor(Java.CONS_ABSTRACT));
 		}
 		if (Modifier.isFinal(modifiers)) {
-			modifierList.add(Java.CONS_FINAL.make(values));
+			modifierList.add(values.constructor(Java.CONS_FINAL));
 		}
 		if (Modifier.isSynchronized(modifiers)) {
-			modifierList.add(Java.CONS_SYNCHRONIZED.make(values));
+			modifierList.add(values.constructor(Java.CONS_SYNCHRONIZED));
 		}
 		if (Modifier.isVolatile(modifiers)) {
-			modifierList.add(Java.CONS_VOLATILE.make(values));
+			modifierList.add(values.constructor(Java.CONS_VOLATILE));
 		}
 		if (Modifier.isNative(modifiers)) {
-			modifierList.add(Java.CONS_NATIVE.make(values));
+			modifierList.add(values.constructor(Java.CONS_NATIVE));
 		}
 		if (Modifier.isStrictfp(modifiers)) {
-			modifierList.add(Java.CONS_STRICTFP.make(values));
+			modifierList.add(values.constructor(Java.CONS_STRICTFP));
 		}
 		if (Modifier.isTransient(modifiers)) {
-			modifierList.add(Java.CONS_TRANSIENT.make(values));
+			modifierList.add(values.constructor(Java.CONS_TRANSIENT));
 		}
 		
 		return modifierList;
@@ -170,11 +172,19 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	}
 	
 	private IValue none() {
-		return DATATYPE_OPTION_TYPE.make(values, typeStore, "none", new IValue[] {});
+		org.eclipse.imp.pdb.facts.type.Type constructor = typeStore.lookupConstructor(DATATYPE_OPTION_TYPE, "none", TF.tupleEmpty());
+		if(constructor != null)
+			return values.constructor(constructor, new IValue[] {});
+			// DATATYPE_OPTION_TYPE.make(values, typeStore, "none", new IValue[] {});
+		throw new UndeclaredConstructorException("none", TF.tupleEmpty());
 	}
 	
 	private IValue some(IValue value) {
-		return DATATYPE_OPTION_TYPE.make(values, typeStore, "some", value);		
+		org.eclipse.imp.pdb.facts.type.Type constructor = typeStore.lookupConstructor(DATATYPE_OPTION_TYPE, "some", TF.tupleType(value));
+		if(constructor != null)
+			return values.constructor(constructor, value);
+		throw new UndeclaredConstructorException("some", TF.tupleType(value));
+		// DATATYPE_OPTION_TYPE.make(values, typeStore, "some", value);		
 	}
 
 	private IValue visitChild(ASTNode node) {
@@ -203,7 +213,11 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 			}			
 		}
 		*/
-		return DATATYPE_RASCAL_AST_NODE_TYPE.make(values, typeStore, modifiedConstructorName, children);
+		org.eclipse.imp.pdb.facts.type.Type constructor = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_NODE_TYPE, modifiedConstructorName, TF.tupleType(children));
+		if(constructor != null)
+			return values.constructor(constructor, children);
+		throw new UndeclaredConstructorException(modifiedConstructorName, TF.tupleType(children));
+		// DATATYPE_RASCAL_AST_NODE_TYPE.make(values, typeStore, modifiedConstructorName, children);
 	}
 	/*
 	private IValue resolveType(ASTNode node) {
@@ -750,7 +764,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 				returnType = visitChild(node.getReturnType2());
 			} else {
 				// methods really ought to have a return type
-				returnType = Java.CONS_VOID.make(values);
+				returnType = values.constructor(Java.CONS_VOID);
 			}
 		}
 
@@ -819,27 +833,27 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 
 	public boolean visit(Modifier node) {
 		if (node.getKeyword().equals(ModifierKeyword.PUBLIC_KEYWORD)) {
-			ownValue = Java.CONS_PUBLIC.make(values); 
+			ownValue = values.constructor(Java.CONS_PUBLIC); 
 		} else if (node.getKeyword().equals(ModifierKeyword.PROTECTED_KEYWORD)) {
-			ownValue = Java.CONS_PROTECTED.make(values);
+			ownValue = values.constructor(Java.CONS_PROTECTED);
 		} else if (node.getKeyword().equals(ModifierKeyword.PRIVATE_KEYWORD)) {
-			ownValue = Java.CONS_PRIVATE.make(values);
+			ownValue = values.constructor(Java.CONS_PRIVATE);
 		} else if (node.getKeyword().equals(ModifierKeyword.STATIC_KEYWORD)) {
-			ownValue = Java.CONS_STATIC.make(values);
+			ownValue = values.constructor(Java.CONS_STATIC);
 		} else if (node.getKeyword().equals(ModifierKeyword.ABSTRACT_KEYWORD)) {
-			ownValue = Java.CONS_ABSTRACT.make(values);
+			ownValue = values.constructor(Java.CONS_ABSTRACT);
 		} else if (node.getKeyword().equals(ModifierKeyword.FINAL_KEYWORD)) {
-			ownValue = Java.CONS_FINAL.make(values);
+			ownValue = values.constructor(Java.CONS_FINAL);
 		} else if (node.getKeyword().equals(ModifierKeyword.SYNCHRONIZED_KEYWORD)) {
-			ownValue = Java.CONS_SYNCHRONIZED.make(values);
+			ownValue = values.constructor(Java.CONS_SYNCHRONIZED);
 		} else if (node.getKeyword().equals(ModifierKeyword.VOLATILE_KEYWORD)) {
-			ownValue = Java.CONS_VOLATILE.make(values);
+			ownValue = values.constructor(Java.CONS_VOLATILE);
 		} else if (node.getKeyword().equals(ModifierKeyword.NATIVE_KEYWORD)) {
-			ownValue = Java.CONS_NATIVE.make(values);
+			ownValue = values.constructor(Java.CONS_NATIVE);
 		} else if (node.getKeyword().equals(ModifierKeyword.STRICTFP_KEYWORD)) {
-			ownValue = Java.CONS_STRICTFP.make(values);
+			ownValue = values.constructor(Java.CONS_STRICTFP);
 		} else if (node.getKeyword().equals(ModifierKeyword.TRANSIENT_KEYWORD)) {
-			ownValue = Java.CONS_TRANSIENT.make(values);
+			ownValue = values.constructor(Java.CONS_TRANSIENT);
 		}
 
 		return false;
@@ -924,23 +938,23 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 		IValue type;
 		
 		if (node.getPrimitiveTypeCode().equals(PrimitiveType.BOOLEAN)) {
-			type = Java.CONS_BOOLEAN.make(values);
+			type = values.constructor(Java.CONS_BOOLEAN);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.BYTE)) {
-			type = Java.CONS_BYTE.make(values);
+			type = values.constructor(Java.CONS_BYTE);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.CHAR)) {
-			type = Java.CONS_CHAR.make(values);
+			type = values.constructor(Java.CONS_CHAR);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.DOUBLE)) {
-			type = Java.CONS_DOUBLE.make(values);
+			type = values.constructor(Java.CONS_DOUBLE);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.FLOAT)) {
-			type = Java.CONS_FLOAT.make(values);
+			type = values.constructor(Java.CONS_FLOAT);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.INT)) {
-			type = Java.CONS_INT.make(values);
+			type = values.constructor(Java.CONS_INT);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.LONG)) {
-			type = Java.CONS_LONG.make(values);
+			type = values.constructor(Java.CONS_LONG);
 		} else if (node.getPrimitiveTypeCode().equals(PrimitiveType.SHORT)) {
-			type = Java.CONS_SHORT.make(values);
+			type = values.constructor(Java.CONS_SHORT);
 		} else {
-			type = Java.CONS_VOID.make(values);
+			type = values.constructor(Java.CONS_VOID);
 		}			
 				
 		ownValue = constructRascalNode(node, type);

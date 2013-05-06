@@ -35,7 +35,7 @@ public class MessagesTo {
 	private void processMarkers(IConstructor tree, IMessageHandler handler) {
 		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isLexical(tree)) {
 			IValue anno = tree.getAnnotation("message");
-			if (anno != null && anno.getType().isAbstractDataType() && anno.getType().getName().equals("Message")) {
+			if (anno != null && anno.getType().isAbstractData() && anno.getType().getName().equals("Message")) {
 				IConstructor message = (IConstructor) anno;
 				ISourceLocation loc = TreeAdapter.getLocation(tree);
 				processMessage(message, loc, handler);
@@ -43,7 +43,7 @@ public class MessagesTo {
 			
 			anno = tree.getAnnotation("messages");
 			
-			if (anno != null && anno.getType().isSetType()) {
+			if (anno != null && anno.getType().isSet()) {
 				process((ISourceLocation) tree.getAnnotation("loc"),  (ISet) anno, handler);
 				return; // we do not recurse if we found messages (for efficiency)
 			}
@@ -62,7 +62,7 @@ public class MessagesTo {
 	public void process(ISourceLocation treeLoc, ISet set, IMessageHandler handler) {
 		Type elemType = set.getType().getElementType();
 
-		if (elemType.isAbstractDataType() && elemType.getName().equals("Message")) {
+		if (elemType.isAbstractData() && elemType.getName().equals("Message")) {
 
 			for (IValue messagev : ((ISet) set)) {
 				IConstructor message = (IConstructor)messagev;

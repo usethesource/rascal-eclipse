@@ -132,7 +132,7 @@ public class RascalIOConsole extends IOConsole {
 						eval.getStdErr().printf("Static callback error: " + e.getMessage());
 						e.printStackTrace(eval.getStdErr());
 					}
-					if (result != null && result.getValue().getType().isStringType()) {
+					if (result != null && result.getValue().getType().isString()) {
 						String actualResult = ((IString)result.getValue()).getValue();
 						append = actualResult.length();
 						output.print(actualResult);
