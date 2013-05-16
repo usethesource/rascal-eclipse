@@ -274,6 +274,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 			parseTree.accept(of);
 		}catch(Exception vex){
 			// Ignore.
+		  ;
 		}
 		
 		return of.getSourceLocation();
