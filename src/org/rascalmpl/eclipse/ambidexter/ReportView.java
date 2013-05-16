@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.rascalmpl.eclipse.ambidexter;
 
+import static org.rascalmpl.eclipse.IRascalResources.ID_AMBIDEXTER_REPORT_VIEW_PART;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
@@ -33,7 +35,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
@@ -49,8 +50,6 @@ import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
-
-import static org.rascalmpl.eclipse.IRascalResources.ID_AMBIDEXTER_REPORT_VIEW_PART;
 
 public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 	public static final String ID = ID_AMBIDEXTER_REPORT_VIEW_PART;
@@ -188,12 +187,12 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 		table.removeAll();
 		
 		try {
-			parseTree.accept(new IdentityTreeVisitor() {
+			parseTree.accept(new IdentityTreeVisitor<Exception>() {
 				@Override
 				public IConstructor visitTreeAppl(IConstructor arg)
-						throws VisitorException {
+						throws Exception {
 					if (monitor.isCanceled()) {
-						throw new VisitorException("interrupted");
+						throw new Exception("interrupted");
 					}
 					
 					monitor.worked(1);
@@ -206,7 +205,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 				
 				@Override
 				public IConstructor visitTreeAmb(IConstructor arg)
-						throws VisitorException {
+						throws Exception {
 					IConstructor sym = null;
 					String sentence = TreeAdapter.yield(arg);
 					
@@ -219,7 +218,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 					return arg;
 				}
 			});
-		} catch (VisitorException e) {
+		} catch (Exception e) {
 			// do nothing
 		}
 	}

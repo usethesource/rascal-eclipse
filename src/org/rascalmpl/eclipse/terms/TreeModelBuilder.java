@@ -29,7 +29,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.eclipse.imp.services.base.TreeModelBuilderBase;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -65,17 +64,16 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 				INode node = (INode) outline;
 				createTopItem(outline);
 
-				try {
 					for (IValue child : node) {
-						child.accept(new IValueVisitor<Object>() {
+						child.accept(new IValueVisitor<Object, RuntimeException>() {
 							public Object visitBoolean(IBool o)
-							throws VisitorException {
+							 {
 								createSubItem(o);
 								return null;
 							}
 
 							public Object visitConstructor(IConstructor o)
-							throws VisitorException {
+							 {
 								pushSubItem(o);
 								for (IValue child : o) {
 									child.accept(this);
@@ -85,35 +83,35 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 							}
 
 							public Object visitDateTime(IDateTime o)
-							throws VisitorException {
+							 {
 								createSubItem(o);
 								return null;
 							}
 
 							public Object visitExternal(IExternalValue o)
-							throws VisitorException {
+							 {
 								createSubItem(o);
 								return null;
 							}
 
-							public Object visitInteger(IInteger o) throws VisitorException {
+							public Object visitInteger(IInteger o)  {
 								createSubItem(o);
 								return null;
 							}
 
-							public Object visitRational(IRational o) throws VisitorException {
+							public Object visitRational(IRational o)  {
 								createSubItem(o);
 								return null;
 							}
 
-							public Object visitList(IList o) throws VisitorException {
+							public Object visitList(IList o)  {
 								for (IValue elem : o) {
 									elem.accept(this);
 								}
 								return null;
 							}
 
-							public Object visitMap(IMap o) throws VisitorException {
+							public Object visitMap(IMap o)  {
 								for (IValue key : o) {
 									pushSubItem(key);
 									o.get(key).accept(this);
@@ -122,7 +120,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 								return null;
 							}
 
-							public Object visitNode(INode o) throws VisitorException {
+							public Object visitNode(INode o)  {
 								pushSubItem(o);
 								for (IValue child : o) {
 									child.accept(this);
@@ -131,12 +129,12 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 								return null;
 							}
 
-							public Object visitReal(IReal o) throws VisitorException {
+							public Object visitReal(IReal o)  {
 								return createSubItem(o);
 							}
 
 							public Object visitRelation(ISet o)
-							throws VisitorException {
+							 {
 								for (IValue tuple : o) {
 									tuple.accept(this);
 								}
@@ -144,14 +142,14 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 							}
 							
 							public Object visitListRelation(IList o)
-							throws VisitorException {
+							 {
 								for (IValue tuple : o) {
 										tuple.accept(this);
 								}
 								return null;
 							}
 
-							public Object visitSet(ISet o) throws VisitorException {
+							public Object visitSet(ISet o)  {
 								for (IValue tuple : o) {
 									tuple.accept(this);
 								}
@@ -159,15 +157,15 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 							}
 
 							public Object visitSourceLocation(ISourceLocation o)
-							throws VisitorException {
+							 {
 								return createSubItem(o);
 							}
 
-							public Object visitString(IString o) throws VisitorException {
+							public Object visitString(IString o)  {
 								return createSubItem(o);
 							}
 
-							public Object visitTuple(ITuple o) throws VisitorException {
+							public Object visitTuple(ITuple o)  {
 								for (IValue field : o) {
 									field.accept(this);
 								}
@@ -176,9 +174,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 						});
 
 					}
-				} catch (VisitorException e) {
-					Activator.getInstance().logException("could not compute outline", e);
-				}
 			}
 		}
 		catch (Throwable e) {

@@ -34,7 +34,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.visitors.NullVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.eclipse.imp.services.IASTFindReplaceTarget;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
@@ -191,7 +190,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 	 * Query the closest (i.e. first) source location of a 'breakable' parse tree node associated with a line number?
 	 */
 	private static ISourceLocation calculateClosestLocation(final IConstructor parseTree, final int lineNumber){
-		class OffsetFinder extends NullVisitor<IValue>{
+		class OffsetFinder extends NullVisitor<IValue, Exception>{
 	
 			private IValueFactory VF = ValueFactoryFactory.getValueFactory(); 
 			
@@ -201,7 +200,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 				return location;
 			}
 			
-			public IValue visitConstructor(IConstructor o) throws VisitorException{
+			public IValue visitConstructor(IConstructor o) throws Exception{
 				IValue locationAnnotation = o.getAnnotation(Factory.Location);
 				
 				if(locationAnnotation != null){
@@ -214,7 +213,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 								&& annotations.containsKey("breakable")
 								&& annotations.get("breakable").equals(VF.bool(true))) {
 							location = sourceLocation;
-							throw new VisitorException("Stop");
+							throw new Exception("Stop");
 						}
 					}
 				}
@@ -226,7 +225,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 				return null;
 			}
 			
-			public IValue visitNode(INode o) throws VisitorException{
+			public IValue visitNode(INode o) throws Exception{
 				for(IValue child : o){
 					child.accept(this);
 				}
@@ -234,35 +233,35 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 				return null;
 			}
 			
-			public IValue visitList(IList o) throws VisitorException{
+			public IValue visitList(IList o) throws Exception{
 				for(IValue v : o){
 					v.accept(this);
 				}
 				return null;
 			}
 			
-			public IValue visitSet(ISet o) throws VisitorException{
+			public IValue visitSet(ISet o) throws Exception{
 				for(IValue v : o){
 					v.accept(this);
 				}
 				return null;
 			}
 			
-			public IValue visitRelation(ISet o) throws VisitorException{
+			public IValue visitRelation(ISet o) throws Exception{
 				for(IValue v : o){
 					v.accept(this);
 				}
 				return null;
 			}
 			
-			public IValue visitListRelation(IList o) throws VisitorException{
+			public IValue visitListRelation(IList o) throws Exception{
 				for(IValue v : o){
 					v.accept(this);
 				}
 				return null;
 			}
 			
-			public IValue visitMap(IMap o) throws VisitorException{
+			public IValue visitMap(IMap o) throws Exception{
 				for(IValue v : o){
 					v.accept(this);
 				}
@@ -273,7 +272,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 		OffsetFinder of = new OffsetFinder();
 		try{
 			parseTree.accept(of);
-		}catch(VisitorException vex){
+		}catch(Exception vex){
 			// Ignore.
 		}
 		

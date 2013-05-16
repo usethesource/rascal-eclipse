@@ -32,11 +32,9 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
-import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -52,15 +50,14 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 			element = ((ModelTreeNode) element).getASTNode();
 		}
 		if (element instanceof IValue) {
-			try {
-				return ((IValue) element).accept(new IValueVisitor<String>() {
+				return ((IValue) element).accept(new IValueVisitor<String, RuntimeException>() {
 
-					public String visitBoolean(IBool boolValue) throws VisitorException {
+					public String visitBoolean(IBool boolValue)  {
 						return boolValue.toString();
 					}
 
 					public String visitConstructor(IConstructor o)
-					throws VisitorException {
+					 {
 						IValue img = o.getAnnotation("label");
 						if (img != null) {
 							if (img instanceof IString) {
@@ -73,32 +70,32 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 						return o.getName();
 					}
 
-					public String visitDateTime(IDateTime o) throws VisitorException {
+					public String visitDateTime(IDateTime o)  {
 						return o.toString();
 					}
 
 					public String visitExternal(IExternalValue externalValue)
-					throws VisitorException {
+					 {
 						return "";
 					}
 
-					public String visitInteger(IInteger o) throws VisitorException {
+					public String visitInteger(IInteger o)  {
 						return o.toString();
 					}
 
-					public String visitRational(IRational o) throws VisitorException {
+					public String visitRational(IRational o)  {
 						return o.toString();
 					}
 
-					public String visitList(IList o) throws VisitorException {
+					public String visitList(IList o)  {
 						return "";
 					}
 
-					public String visitMap(IMap o) throws VisitorException {
+					public String visitMap(IMap o)  {
 						return "";
 					}
 
-					public String visitNode(INode o) throws VisitorException {
+					public String visitNode(INode o)  {
 						IValue label = o.getAnnotation("label");
 						if (label != null) {
 							if (label instanceof IString) {
@@ -111,39 +108,36 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 						return o.getName();
 					}
 
-					public String visitReal(IReal o) throws VisitorException {
+					public String visitReal(IReal o)  {
 						return o.toString();
 					}
 
-					public String visitRelation(ISet o) throws VisitorException {
+					public String visitRelation(ISet o)  {
 						return "";
 					}
 					
-					public String visitListRelation(IList o) throws VisitorException {
+					public String visitListRelation(IList o)  {
 						return "";
 					}
 
-					public String visitSet(ISet o) throws VisitorException {
+					public String visitSet(ISet o)  {
 						return "";
 					}
 
 					public String visitSourceLocation(ISourceLocation o)
-					throws VisitorException {
+					 {
 						return o.toString();
 					}
 
-					public String visitString(IString o) throws VisitorException {
+					public String visitString(IString o)  {
 						return o.getValue();
 					}
 
-					public String visitTuple(ITuple o) throws VisitorException {
+					public String visitTuple(ITuple o)  {
 						return "";
 					}
 
 				});
-			} catch (VisitorException e) {
-				Activator.getInstance().logException("could not compute label", e);
-			}
 		}
 		
 		if (element instanceof IConstructor) {

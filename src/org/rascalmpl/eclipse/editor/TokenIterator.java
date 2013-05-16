@@ -19,7 +19,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
@@ -34,11 +33,7 @@ public class TokenIterator implements Iterator<Token>{
 		this.showAmb = false;
 		
 		if(parseTree != null){
-			try{
-				parseTree.accept(new LexicalCollector());
-			}catch(VisitorException e){
-				// is not thrown
-			}
+		  parseTree.accept(new LexicalCollector());
 		}
 		tokenIterator = tokenList.iterator();
 	}
@@ -55,7 +50,7 @@ public class TokenIterator implements Iterator<Token>{
 		throw new UnsupportedOperationException();
 	}
 
-	private class LexicalCollector extends TreeVisitor{
+	private class LexicalCollector extends TreeVisitor<RuntimeException>{
 		private int location;
 		
 		public LexicalCollector(){
@@ -64,7 +59,7 @@ public class TokenIterator implements Iterator<Token>{
 			location = 0;
 		}
 		
-		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeAmb(IConstructor arg) {
 			if (showAmb) {
 				int offset = location;
 				ISourceLocation ambLoc = TreeAdapter.getLocation(arg);
@@ -80,7 +75,7 @@ public class TokenIterator implements Iterator<Token>{
 			
 		}
 		
-		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException{
+		public IConstructor visitTreeAppl(IConstructor arg){
 			IValue catAnno = arg.getAnnotation("category");
 			String category = null;
 			
@@ -141,13 +136,13 @@ public class TokenIterator implements Iterator<Token>{
 			return arg;
 		}
 		
-		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException{
+		public IConstructor visitTreeChar(IConstructor arg){
 			++location;
 			
 			return arg;
 		}
 		
-		public IConstructor visitTreeCycle(IConstructor arg) throws VisitorException{
+		public IConstructor visitTreeCycle(IConstructor arg){
 			return arg;
 		}
 	}
