@@ -18,7 +18,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.eclipse.imp.pdb.ui.PDBUIPlugin;
 import org.eclipse.imp.pdb.ui.ValueEditorInput;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -141,17 +140,15 @@ public class Editor extends EditorPart {
 		}
 
 		public Object[] getChildren(Object parentElement) {
-			try {
-				return ((IValue) parentElement).accept(new IValueVisitor<Object[]>() {
+				return ((IValue) parentElement).accept(new IValueVisitor<Object[], RuntimeException>() {
 					
 
-					public Object[] visitBoolean(IBool boolValue)
-							throws VisitorException {
+					public Object[] visitBoolean(IBool boolValue) {
 						return empty; 
 					}
 
 					public Object[] visitConstructor(IConstructor o)
-							throws VisitorException {
+							 {
 						Object[] children = new Object[o.arity()];
 						int i = 0;
 						for (IValue child : o) {
@@ -161,21 +158,21 @@ public class Editor extends EditorPart {
 					}
 
 					public Object[] visitExternal(IExternalValue externalValue)
-							throws VisitorException {
+							 {
 						return empty;
 					}
 
 					public Object[] visitInteger(IInteger o)
-							throws VisitorException {
+							 {
 						return empty;
 					}
 
 					public Object[] visitRational(IRational o)
-							throws VisitorException {
+							 {
 						return empty;
 					}
 
-					public Object[] visitList(IList o) throws VisitorException {
+					public Object[] visitList(IList o)  {
 						Object[] children = new Object[o.length()];
 						int i = 0;
 						for (IValue child : o) {
@@ -184,7 +181,7 @@ public class Editor extends EditorPart {
 						return children;
 					}
 
-					public Object[] visitMap(IMap o) throws VisitorException {
+					public Object[] visitMap(IMap o)  {
 						Object[] children = new Object[o.size()];
 						int i = 0;
 						for (IValue child : o) {
@@ -193,7 +190,7 @@ public class Editor extends EditorPart {
 						return children;
 					}
 
-					public Object[] visitNode(INode o) throws VisitorException {
+					public Object[] visitNode(INode o)  {
 						Object[] children = new Object[o.arity()];
 						int i = 0;
 						for (IValue child : o) {
@@ -202,16 +199,16 @@ public class Editor extends EditorPart {
 						return children;
 					}
 
-					public Object[] visitReal(IReal o) throws VisitorException {
+					public Object[] visitReal(IReal o)  {
 						return empty;
 					}
 
 					public Object[] visitRelation(ISet o)
-							throws VisitorException {
+							 {
 						return visitSet(o);
 					}
 
-					public Object[] visitSet(ISet o) throws VisitorException {
+					public Object[] visitSet(ISet o)  {
 						Object[] children = new Object[o.size()];
 						int i = 0;
 						for (IValue child : o) {
@@ -221,15 +218,15 @@ public class Editor extends EditorPart {
 					}
 
 					public Object[] visitSourceLocation(ISourceLocation o)
-							throws VisitorException {
+							 {
 						return empty;
 					}
 
-					public Object[] visitString(IString o) throws VisitorException {
+					public Object[] visitString(IString o)  {
 						return empty;
 					}
 
-					public Object[] visitTuple(ITuple o) throws VisitorException {
+					public Object[] visitTuple(ITuple o)  {
 						Object[] children = new Object[o.arity()];
 						int i = 0;
 						for (IValue child : o) {
@@ -239,17 +236,14 @@ public class Editor extends EditorPart {
 					}
 
 					public Object[] visitDateTime(IDateTime o)
-							throws VisitorException {
+							 {
 						return empty;
 					}
 
-          public Object[] visitListRelation(IList o) throws VisitorException {
+          public Object[] visitListRelation(IList o)  {
             return visitList(o);
           }
 				});
-			} catch (VisitorException e) {
-				return null;
-			}
 		}
 
 		public Object getParent(Object element) {
@@ -285,82 +279,76 @@ public class Editor extends EditorPart {
 
 		public String getText(Object element) {
 			IValue value = (IValue) element;
-			try {
-				return value.accept(new IValueVisitor<String>() {
+			return value.accept(new IValueVisitor<String, RuntimeException>() {
 
-					public String visitBoolean(IBool boolValue)
-							throws VisitorException {
-						return boolValue.toString();
-					}
+			  public String visitBoolean(IBool boolValue)
+			  {
+			    return boolValue.toString();
+			  }
 
-					public String visitConstructor(IConstructor o)
-							throws VisitorException {
-						return o.getConstructorType().toString();
-					}
+			  public String visitConstructor(IConstructor o)
+			  {
+			    return o.getConstructorType().toString();
+			  }
 
-					public String visitExternal(IExternalValue externalValue)
-							throws VisitorException {
-						return externalValue.getType().toString();
-					}
+			  public String visitExternal(IExternalValue externalValue)
+			  {
+			    return externalValue.getType().toString();
+			  }
 
-					public String visitInteger(IInteger o) throws VisitorException {
-						return o.toString();
-					}
+			  public String visitInteger(IInteger o)  {
+			    return o.toString();
+			  }
 
-					public String visitRational(IRational o) throws VisitorException {
-						return o.toString();
-					}
+			  public String visitRational(IRational o)  {
+			    return o.toString();
+			  }
 
-					public String visitList(IList o) throws VisitorException {
-						return o.getType().toString();
-					}
+			  public String visitList(IList o)  {
+			    return o.getType().toString();
+			  }
 
-					public String visitMap(IMap o) throws VisitorException {
-						return o.getType().toString();
-					}
+			  public String visitMap(IMap o)  {
+			    return o.getType().toString();
+			  }
 
-					public String visitNode(INode o) throws VisitorException {
-						return o.getName();
-					}
+			  public String visitNode(INode o)  {
+			    return o.getName();
+			  }
 
-					public String visitReal(IReal o) throws VisitorException {
-						return o.toString();
-					}
+			  public String visitReal(IReal o)  {
+			    return o.toString();
+			  }
 
-					public String visitRelation(ISet o)
-							throws VisitorException {
-						return o.getType().toString();
-					}
+			  public String visitRelation(ISet o)
+			  {
+			    return o.getType().toString();
+			  }
 
-					public String visitSet(ISet o) throws VisitorException {
-						return o.getType().toString();
-					}
+			  public String visitSet(ISet o)  {
+			    return o.getType().toString();
+			  }
 
-					public String visitSourceLocation(ISourceLocation o)
-							throws VisitorException {
-						return o.toString();
-					}
+			  public String visitSourceLocation(ISourceLocation o) {
+			    return o.toString();
+			  }
 
-					public String visitString(IString o) throws VisitorException {
-						return o.toString();
-					}
+			  public String visitString(IString o)  {
+			    return o.toString();
+			  }
 
-					public String visitTuple(ITuple o) throws VisitorException {
-						return o.getType().toString();
-					}
+			  public String visitTuple(ITuple o)  {
+			    return o.getType().toString();
+			  }
 
-					public String visitDateTime(IDateTime o)
-							throws VisitorException {
-						return o.toString();
-					}
+			  public String visitDateTime(IDateTime o) {
+			    return o.toString();
+			  }
 
-          public String visitListRelation(IList o) throws VisitorException {
-            return o.getType().toString();
-          }
-				});
-			} catch (VisitorException e) {
-				return "...";
-			}
+			  public String visitListRelation(IList o)  {
+			    return o.getType().toString();
+			  }
+			});
 		}
 	}
 }
