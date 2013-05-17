@@ -255,4 +255,9 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
   public IResource getResource(URI uri) throws IOException {
     return resolve(uri);
   }
+
+	@Override
+	public IResource getResource(URI uri, String projectName) throws IOException {
+		return resolve(uri);
+	}
 }

@@ -83,4 +83,6 @@ public interface IInterpreter{
 	StackTrace getTrace();
 
 	Evaluator getEval();
+	
+	String getProjectName();
 }

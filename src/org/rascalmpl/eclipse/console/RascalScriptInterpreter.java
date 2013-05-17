@@ -605,5 +605,10 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 	public void setEventTrigger(AbstractInterpreterEventTrigger eventTrigger) {
 		this.eventTrigger = eventTrigger;
 	}
+
+	@Override
+	public String getProjectName() {
+		return this.project.getName();
+	}
 	
 }

@@ -27,11 +27,13 @@ public class RascalHyperlink implements IHyperlink {
   private String target;
 	private PrintWriter err;
   private IEvaluatorContext ctx;
+private String projectName;
 
-	public RascalHyperlink(String target, IEvaluatorContext ctx, PrintWriter err) {
+	public RascalHyperlink(String target, IEvaluatorContext ctx, String projectName, PrintWriter err) {
 	  this.ctx = ctx;
 		this.target = target;
 		this.err = err;
+		this.projectName = projectName;
 	}
 
 	@Override
@@ -45,7 +47,7 @@ public class RascalHyperlink implements IHyperlink {
 	@Override
 	public void linkActivated() {
 		try {
-			IResource res = URIResourceResolver.getResource(getURIPart());
+			IResource res = URIResourceResolver.getResource(getURIPart(), projectName);
 			if (res != null && res instanceof IFile) {
 				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 				IEditorPart part = IDE.openEditor(page, (IFile)res);
