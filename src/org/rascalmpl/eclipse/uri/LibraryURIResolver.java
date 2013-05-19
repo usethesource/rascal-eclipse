@@ -31,14 +31,21 @@ public class LibraryURIResolver implements IURIResourceResolver {
 		
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject proj = root.getProject(projectName);
+		IResource nonProjectResult = null;
 		if (proj != null) {
 			IFile[] files = root.findFilesForLocationURI(uri);
 			for (IFile f : files) {
-				if (f.exists() && f.getProject() == proj)
-					return f; 
+				if (f.exists()) {
+					if (f.getProject() == proj) {
+						return f; 
+					}
+					else if (nonProjectResult == null) {
+						nonProjectResult = f;
+					}
+				}
 			}
 		}
-		return getResource(uri);
+		return nonProjectResult;
 	}
 
 	private URI fixRascalURI(URI uri) {
