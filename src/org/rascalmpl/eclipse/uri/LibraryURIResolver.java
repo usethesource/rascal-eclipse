@@ -13,30 +13,18 @@ import org.rascalmpl.uri.URIUtil;
 public class LibraryURIResolver implements IURIResourceResolver {
 
 	@Override
-	public IResource getResource(URI uri) throws IOException {
-		uri = fixRascalURI(uri);
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IFile[] files = root.findFilesForLocationURI(uri);
-		for (IFile f : files) {
-			if (f.exists())
-				return f; 
-		}
-		return null;
-	}
-
-	@Override
 	public IResource getResource(URI uri, String projectName)
 			throws IOException {
 		uri = fixRascalURI(uri);
 		
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IProject proj = root.getProject(projectName);
+		IProject proj = projectName == null ? null : root.getProject(projectName);
 		IResource nonProjectResult = null;
 		if (proj != null) {
 			IFile[] files = root.findFilesForLocationURI(uri);
 			for (IFile f : files) {
 				if (f.exists()) {
-					if (f.getProject() == proj) {
+					if (proj == null || f.getProject() == proj) {
 						return f; 
 					}
 					else if (nonProjectResult == null) {

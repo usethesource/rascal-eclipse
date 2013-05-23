@@ -14,21 +14,11 @@ import org.rascalmpl.eclipse.Activator;
 public class URIResourceResolver {
   
   /**
-   * Compute a handle to an Eclipse resource, given a URI. This uses extensions that implement 
-   * the @link {@link IURIResourceResolver} interface to map URI to IResources.
-   * 
-   * @param uri 
-   * @return null if no IURIResourceResolved could resolve the URI to a resource, or an IResource handle.
-   */
-  public static IResource getResource(URI uri) {
-	  return getResource(uri, null);
-  }
-  /**
    * Compute a handle to an Eclipse resource, given a URI, in the context of a project. This uses extensions that implement 
    * the @link {@link IURIResourceResolver} interface to map URI to IResources.
    * 
    * @param uri 
-   * @param projectName 
+   * @param projectName the context of the URI, can be null
    * @return null if no IURIResourceResolved could resolve the URI to a resource, or an IResource handle.
    */
   public static IResource getResource(URI uri, String projectName) {
@@ -43,13 +33,7 @@ public class URIResourceResolver {
         try {
           if (cfg.getAttribute("scheme").equals(uri.getScheme())) {
             IURIResourceResolver resolver = (IURIResourceResolver) cfg.createExecutableExtension("class");
-            IResource res = null;
-            if (projectName == null) {
-            	res = resolver.getResource(uri);
-            }
-            else {
-            	res = resolver.getResource(uri, projectName);
-            }
+            IResource res = resolver.getResource(uri, projectName);
             if (res != null) {
               return res;
             }
