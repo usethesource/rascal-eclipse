@@ -34,9 +34,11 @@ public class CommandHistory{
 	
 	public void addToHistory(String command){
 		if(updated){
-			if(history.size() == COMMAND_LIMIT) history.remove(0);
-			
-			history.add(command);
+			if (history.size() == 0 || !history.get(history.size() -1).equals(command)) {
+				if(history.size() == COMMAND_LIMIT) history.remove(0);
+				
+				history.add(command);
+			}
 		}else{
 			history.set(index, command);
 		}
