@@ -69,6 +69,7 @@ import org.rascalmpl.ast.ShellCommand.Edit;
 import org.rascalmpl.ast.ShellCommand.History;
 import org.rascalmpl.ast.ShellCommand.Quit;
 import org.rascalmpl.ast.ShellCommand.Test;
+import org.rascalmpl.ast.ShellCommand.Clear;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
@@ -77,6 +78,7 @@ import org.rascalmpl.eclipse.console.internal.CommandHistory;
 import org.rascalmpl.eclipse.console.internal.ConcurrentCircularOutputStream;
 import org.rascalmpl.eclipse.console.internal.IInterpreter;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
+import org.rascalmpl.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.PausableOutput;
 import org.rascalmpl.eclipse.console.internal.TerminationException;
 import org.rascalmpl.eclipse.console.internal.TestReporter;
@@ -431,13 +433,23 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				saveCommandHistory();
 				throw new QuitException();
 			}
+			
+			@Override
+			public Result<IValue> visitShellCommandClear(Clear c) {
+				((InteractiveInterpreterConsole)console).clearConsole();
+				content = "";
+				return null;
+			}
 		});
 		
 		if (result == null) {
 			result = eval.eval(monitor, stat);
 		}
 		
-		content = resultMessage(result) + "\n";
+		if (result != null) {
+			content = resultMessage(result) + "\n";
+		}
+		
 		reportAmbiguities(result);
 		command = "";
 	}
