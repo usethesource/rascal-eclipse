@@ -436,7 +436,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			
 			@Override
 			public Result<IValue> visitShellCommandClear(Clear c) {
-				((InteractiveInterpreterConsole)console).clearConsole();
+				clearConsole();
 				content = "";
 				return null;
 			}
@@ -452,6 +452,18 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		
 		reportAmbiguities(result);
 		command = "";
+	}
+	
+	public void clearConsole() {
+		UIJob job = new UIJob("clear console") {
+			@Override
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+				((InteractiveInterpreterConsole)console).clearConsole();
+				return Status.OK_STATUS;
+			}
+		};
+		
+		job.schedule();
 	}
 	
 	private void reportAmbiguities(final Result<IValue> result) {
