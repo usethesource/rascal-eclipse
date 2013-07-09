@@ -130,6 +130,14 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		});
 	}
 	
+	public void clearConsole() {
+		super.clearConsole();
+		currentHyperlinks.clear();
+		currentHyperlinkLengths.clear();
+		currentHyperlinkOffsets.clear();
+		currentContent = "";
+	}
+	
 	public void initializeConsole(){
 		final Thread commandExecutorThread = new Thread(commandExecutor);
 		commandExecutorThread.setDaemon(true);
