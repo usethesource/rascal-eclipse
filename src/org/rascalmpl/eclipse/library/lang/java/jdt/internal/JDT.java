@@ -105,7 +105,7 @@ public class JDT {
 
 		Map<String,IValue> facts = new JDTImporter(eval.getHeap().getModule("lang::java::jdt::JDT").getStore(), gatherASTs, fillASTBindings, fillOldStyleUsage).importFacts(loc, file);
 		IConstructor resource = VF.constructor(Resources.file, loc);
-		return resource.setAnnotations(facts);
+		return resource.asAnnotatable().setAnnotations(facts);
 	}
 	
 	public IValue isOnBuildPath(ISourceLocation loc) {

@@ -201,13 +201,13 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 			}
 			
 			public IValue visitConstructor(IConstructor o) throws Exception{
-				IValue locationAnnotation = o.getAnnotation(Factory.Location);
+				IValue locationAnnotation = o.asAnnotatable().getAnnotation(Factory.Location);
 				
 				if(locationAnnotation != null){
 					ISourceLocation sourceLocation = ((ISourceLocation) locationAnnotation);
 					
 					if(sourceLocation.getBeginLine() == lineNumber){
-						Map<String, IValue> annotations = o.getAnnotations();
+						Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
 						
 						if (annotations != null 
 								&& annotations.containsKey("breakable")

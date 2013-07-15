@@ -93,7 +93,7 @@ public class JdtAstToRascalAstConverter extends ASTVisitor {
 	public void setRascalAstNodeAnnotation(String annoName, IValue annoValue) {
 		if(this.ownValue == null) return ;
 		if(this.ownValue.getType().equals(DATATYPE_RASCAL_AST_NODE_TYPE) && annotations.contains(annoName)) 
-			this.ownValue = ((IConstructor) this.ownValue).setAnnotation(annoName, annoValue);
+			this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annoValue);
 	}
 
 	private IValueList parseModifiers(int modifiers) {
