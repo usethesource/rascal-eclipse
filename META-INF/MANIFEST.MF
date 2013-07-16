@@ -6,8 +6,7 @@ Bundle-SymbolicName: rascal_eclipse;singleton:=true
 Bundle-Version: 0.6.0.qualifier
 Bundle-Activator: org.rascalmpl.eclipse.Activator
 Bundle-ActivationPolicy: lazy
-Require-Bundle: rascal,
- org.eclipse.imp.pdb.ui,
+Require-Bundle: org.eclipse.imp.pdb.ui,
  org.eclipse.imp.pdb.values,
  org.eclipse.imp.runtime,
  AmbiDexter,
@@ -25,8 +24,8 @@ Require-Bundle: rascal,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.pde.core,
  org.eclipse.jdt.launching,
- org.eclipse.ui.views;bundle-version="3.6.0"
-Import-Package: org.eclipse.core.expressions
+ org.eclipse.ui.views;bundle-version="3.6.0",
+ rascal
 Export-Package: org.rascalmpl.eclipse.nature,
   org.rascalmpl.eclipse.console,
   org.rascalmpl.eclipse.editor,
