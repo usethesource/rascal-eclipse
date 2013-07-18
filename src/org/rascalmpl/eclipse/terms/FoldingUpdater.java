@@ -56,10 +56,10 @@ public class FoldingUpdater extends FolderBase {
 						else if (ProductionAdapter.hasAttribute(prod, VF.constructor(Factory.Attr_Tag, VF.node("Folded")))) {
 							makeAnnotation(arg, true);	
 						}
-						else if (arg.getAnnotation("foldable") != null) {
+						else if (arg.asAnnotatable().getAnnotation("foldable") != null) {
 							makeAnnotation(arg, false);
 						}
-						else if (arg.getAnnotation("folded") != null) {
+						else if (arg.asAnnotatable().getAnnotation("folded") != null) {
 							makeAnnotation(arg, true);
 						}
 						

@@ -34,17 +34,17 @@ public class MessagesTo {
 
 	private void processMarkers(IConstructor tree, IMessageHandler handler) {
 		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isLexical(tree)) {
-			IValue anno = tree.getAnnotation("message");
+			IValue anno = tree.asAnnotatable().getAnnotation("message");
 			if (anno != null && anno.getType().isAbstractData() && anno.getType().getName().equals("Message")) {
 				IConstructor message = (IConstructor) anno;
 				ISourceLocation loc = TreeAdapter.getLocation(tree);
 				processMessage(message, loc, handler);
 			}
 			
-			anno = tree.getAnnotation("messages");
+			anno = tree.asAnnotatable().getAnnotation("messages");
 			
 			if (anno != null && anno.getType().isSet()) {
-				process((ISourceLocation) tree.getAnnotation("loc"),  (ISet) anno, handler);
+				process((ISourceLocation) tree.asAnnotatable().getAnnotation("loc"),  (ISet) anno, handler);
 				return; // we do not recurse if we found messages (for efficiency)
 			}
 			

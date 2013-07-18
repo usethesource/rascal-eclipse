@@ -92,7 +92,7 @@ public class NodeLocator implements ISourcePositionLocator {
 		
 		if (node instanceof INode) {
 			INode n = (INode) node;
-			IValue ann = n.getAnnotation("loc");
+			IValue ann = n.asAnnotatable().getAnnotation("loc");
 			if (ann != null) {
 				return (ISourceLocation) ann;
 			}
