@@ -30,6 +30,8 @@ import org.rascalmpl.eclipse.perspective.actions.RunTests;
 import org.rascalmpl.eclipse.perspective.actions.StartConsole;
 import org.rascalmpl.eclipse.perspective.actions.SubMenu;
 import org.rascalmpl.eclipse.perspective.actions.TextTree;
+import org.rascalmpl.eclipse.perspective.actions.highlight.ShowAsHTML;
+import org.rascalmpl.eclipse.perspective.actions.highlight.ShowAsLaTeX;
 
 public class ActionsContributor implements ILanguageActionsContributor {
 
@@ -46,6 +48,8 @@ public class ActionsContributor implements ILanguageActionsContributor {
 		exp.add(new ListAmbiguities(editor));
 		exp.add(new RunStaticChecker(editor));
 		exp.add(new ReloadStaticChecker(editor));
+		exp.add(new ShowAsHTML(editor));
+		exp.add(new ShowAsLaTeX(editor));
 		
 		MenuManager devel = new SubMenu(menuManager, "Developers");
 		devel.add(new ResetProjectState(editor));
