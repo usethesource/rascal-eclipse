@@ -31,7 +31,7 @@ import org.rascalmpl.eclipse.perspective.actions.StartConsole;
 import org.rascalmpl.eclipse.perspective.actions.SubMenu;
 import org.rascalmpl.eclipse.perspective.actions.TextTree;
 import org.rascalmpl.eclipse.perspective.actions.highlight.ShowAsHTML;
-import org.rascalmpl.eclipse.perspective.actions.highlight.ShowAsLaTeX;
+import org.rascalmpl.eclipse.perspective.actions.highlight.ShowAsLatex;
 
 public class ActionsContributor implements ILanguageActionsContributor {
 
@@ -49,7 +49,7 @@ public class ActionsContributor implements ILanguageActionsContributor {
 		exp.add(new RunStaticChecker(editor));
 		exp.add(new ReloadStaticChecker(editor));
 		exp.add(new ShowAsHTML(editor));
-		exp.add(new ShowAsLaTeX(editor));
+		exp.add(new ShowAsLatex(editor));
 		
 		MenuManager devel = new SubMenu(menuManager, "Developers");
 		devel.add(new ResetProjectState(editor));

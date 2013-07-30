@@ -6,37 +6,38 @@ import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IStorageEditorInput;
 
 class StringInput implements IStorageEditorInput {
-	private IStorage storage;
+		private IStorage storage;
 
-	StringInput(IStorage storage) {
-		this.storage = storage;
-	}
+		StringInput(IStorage storage) {
+			this.storage = storage;
+		}
 
-	public boolean exists() {
-		return true;
-	}
+		public boolean exists() {
+			return true;
+		}
 
-	public ImageDescriptor getImageDescriptor() {
-		return null;
-	}
+		public ImageDescriptor getImageDescriptor() {
+			return null;
+		}
 
-	public String getName() {
-		return storage.getName();
-	}
+		public String getName() {
+			return storage.getName();
+		}
 
-	public IPersistableElement getPersistable() {
-		return null;
-	}
+		public IPersistableElement getPersistable() {
+			return null;
+		}
 
-	public IStorage getStorage() {
-		return storage;
-	}
+		public IStorage getStorage() {
+			return storage;
+		}
 
-	public String getToolTipText() {
-		return "String-based file: " + storage.getName();
-	}
+		public String getToolTipText() {
+			return "String-based file: " + storage.getName();
+		}
 
-	public Object getAdapter(Class adapter) {
-		return null;
+		public Object getAdapter(Class adapter) {
+			return null;
+		}
 	}
-}
+	
