@@ -1,13 +1,13 @@
 package org.rascalmpl.eclipse.perspective.actions.highlight;
 
 import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.editor.ParseController;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.perspective.actions.AbstractEditorAction;
 import org.rascalmpl.interpreter.Evaluator;
@@ -25,7 +25,7 @@ abstract class HighlightAction extends AbstractEditorAction {
 		
 	@Override
 	public void run() {
-		IConstructor tree = (IConstructor) ((ParseController) editor
+		IConstructor tree = (IConstructor) ((IParseController) editor
 				.getParseController()).getCurrentAst();
 		if (tree != null) {
 			Evaluator eval = ProjectEvaluatorFactory.getInstance()

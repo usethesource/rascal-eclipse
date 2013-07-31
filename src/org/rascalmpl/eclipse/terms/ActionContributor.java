@@ -39,6 +39,8 @@ import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
+import org.rascalmpl.eclipse.perspective.actions.highlight.ShowAsHTML;
+import org.rascalmpl.eclipse.perspective.actions.highlight.ShowAsLatex;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
@@ -164,6 +166,9 @@ public class ActionContributor implements ILanguageActionsContributor {
 	public void contributeToEditorMenu(UniversalEditor editor,
 			IMenuManager menuManager) {
 		ISet contribs = getContribs(editor);
+		
+		menuManager.add(new ShowAsHTML(editor));
+		menuManager.add(new ShowAsLatex(editor));
 		
 		for (IValue contrib : contribs) {
 			IConstructor node = (IConstructor) contrib;
