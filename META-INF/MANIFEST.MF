@@ -9,7 +9,7 @@ Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.imp.pdb.ui,
  org.eclipse.imp.pdb.values,
  org.eclipse.imp.runtime,
- AmbiDexter,
+ ambidexter,
  org.eclipse.core.runtime,
  org.eclipse.debug.ui,
  org.eclipse.jdt.core,
