@@ -148,7 +148,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 			@Override
 			public void run() {
 				TableItem item = new TableItem(table, SWT.NONE);
-				item.setText(new String[] { SymbolAdapter.toString(sym), ascii});
+				item.setText(new String[] { SymbolAdapter.toString(sym, false), ascii});
 				item.setData("nonterminal", sym);
 				item.setData("sentence", ascii);
 				item.setData("module", module);

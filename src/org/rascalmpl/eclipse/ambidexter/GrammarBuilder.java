@@ -45,9 +45,9 @@ public class GrammarBuilder {
 			Entry<IValue, IValue> e = i.next();
 			IConstructor symb = (IConstructor) e.getKey();
 			if (SymbolAdapter.isStart(symb)) {
-				startSymbols.add(SymbolAdapter.toString(symb));
+				startSymbols.add(SymbolAdapter.toString(symb, false));
 			} else if (SymbolAdapter.isSort(symb) || SymbolAdapter.isLex(symb)) {
-				otherSymbols.add(SymbolAdapter.toString(symb));
+				otherSymbols.add(SymbolAdapter.toString(symb, false));
 			}
 		}
 	}

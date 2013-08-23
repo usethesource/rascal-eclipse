@@ -105,7 +105,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 		
 		IConstructor type = TreeAdapter.getType((IConstructor) value);
 		
-		b.append(SymbolAdapter.toString(type));
+		b.append(SymbolAdapter.toString(type, false));
 		
 		String cons = TreeAdapter.getConstructorName((IConstructor) value);
 		if (cons != null) {
