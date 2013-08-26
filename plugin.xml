@@ -796,6 +796,9 @@
              <actionExtension
                    pattern="org.rascalmpl.navigator.actions.*">
              </actionExtension>
+             <actionExtension
+                   pattern="rascal_eclipse.console">
+             </actionExtension>
           </includes>
        </viewerActionBinding>
    </extension>
