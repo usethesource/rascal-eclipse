@@ -174,6 +174,7 @@ public class RascalLibraryFileSystem extends FileSystem {
 				}
 				info.setExists(true);
 				info.setAttribute(EFS.ATTRIBUTE_READ_ONLY, true);
+				info.setAttribute(EFS.ATTRIBUTE_IMMUTABLE, true);
 				return info;
 			}
 			
