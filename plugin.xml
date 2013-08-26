@@ -787,6 +787,17 @@
              <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
           </includes>
        </viewerContentBinding>
+       <viewerActionBinding
+             viewerId="rascal.navigator">
+          <includes>
+             <actionExtension
+                   pattern="org.eclipse.ui.navigator.resources.*">
+             </actionExtension>
+             <actionExtension
+                   pattern="org.rascalmpl.navigator.actions.*">
+             </actionExtension>
+          </includes>
+       </viewerActionBinding>
    </extension>
    <extension
          point="org.eclipse.ui.navigator.navigatorContent">
@@ -807,6 +818,10 @@
                <instanceof value="java.lang.Object"/> 
             </or>
          </possibleChildren>
+         <actionProvider
+               class="org.rascalmpl.eclipse.nature.NavigatorActionProvider"
+               id="org.rascalmpl.navigator.actions">
+         </actionProvider>
       </navigatorContent>
    </extension>
     <extension
