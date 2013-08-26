@@ -23,15 +23,12 @@ import org.rascalmpl.eclipse.debug.core.model.RascalStackFrame;
  */
 public class RascalSourceLookupParticipant extends AbstractSourceLookupParticipant {
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.internal.core.sourcelookup.ISourceLookupParticipant#getSourceName(java.lang.Object)
-	 */
 	public String getSourceName(Object object) throws CoreException {
-		
 		if (object instanceof RascalStackFrame) {
-			
 			RascalStackFrame stackFrame = (RascalStackFrame)object;
-			if (stackFrame.hasSourceName()) { return stackFrame.getSourceName(); }
+			if (stackFrame.hasSourceName()) { 
+			  return stackFrame.getSourceName(); 
+			}
 		}
 		
 		return null;

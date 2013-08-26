@@ -13,18 +13,23 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
 import org.eclipse.debug.core.sourcelookup.containers.DirectorySourceContainer;
-import org.eclipse.debug.core.sourcelookup.containers.ProjectSourceContainer;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
-import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.eclipse.navigator.RascalLibraryFileSystem;
+import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 
 public class RascalSourcePathComputerDelegate implements ISourcePathComputerDelegate {
 
@@ -39,17 +44,24 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 		 * Calculating the final set of source containers.
 		 */
 		if (configurationUtility.hasAssociatedProject()) {
-			
 			IProject associatedProject = configurationUtility.getAssociatedProject();
 			
-			IFileStore libraryStore = EFS.getStore(URIUtil.assumeCorrect("rascal-library","rascal",""));
-			IFileStore eclipseLibraryStore = EFS.getStore(URIUtil.assumeCorrect("rascal-library", "eclipse", ""));
+			RascalEclipseManifest mf = new RascalEclipseManifest();
+			List<String> sourceRoots = mf.getSourceRoots(associatedProject);
+			IFileSystem fileSystem = EFS.getFileSystem("rascal-library");
+			Map<String,IFileStore> roots = ((RascalLibraryFileSystem) fileSystem).getRoots();
+
+			ISourceContainer[] sourceContainers = new ISourceContainer[sourceRoots.size() + roots.size()];
 			
-			ISourceContainer[] sourceContainers = new ISourceContainer[] {
-				new ProjectSourceContainer(associatedProject, true),
-				new DirectorySourceContainer(libraryStore.toLocalFile(EFS.NONE, monitor), true),
-				new DirectorySourceContainer(eclipseLibraryStore.toLocalFile(EFS.NONE, monitor), true),
+			int i = 0;
+			for (; i < sourceRoots.size(); i++) {
+			  IResource src = associatedProject.findMember(sourceRoots.get(i), false);
+			  sourceContainers[i] = new DirectorySourceContainer(src.getFullPath(), false);
 			};
+			
+			for (IFileStore lib : roots.values()) {
+			  sourceContainers[i++] = new DirectorySourceContainer(lib.toLocalFile(EFS.NONE, monitor), false);
+			}
 		
 			return sourceContainers;
 		
