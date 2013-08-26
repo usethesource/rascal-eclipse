@@ -56,11 +56,11 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 			int i = 0;
 			for (; i < sourceRoots.size(); i++) {
 			  IResource src = associatedProject.findMember(sourceRoots.get(i), false);
-			  sourceContainers[i] = new DirectorySourceContainer(src.getFullPath(), false);
+			  sourceContainers[i] = new DirectorySourceContainer(src.getFullPath(), true);
 			};
 			
 			for (IFileStore lib : roots.values()) {
-			  sourceContainers[i++] = new DirectorySourceContainer(lib.toLocalFile(EFS.NONE, monitor), false);
+			  sourceContainers[i++] = new DirectorySourceContainer(lib.toLocalFile(EFS.NONE, monitor), true);
 			}
 		
 			return sourceContainers;
