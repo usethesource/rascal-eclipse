@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.nature;
+package org.rascalmpl.eclipse.navigator;
 
 import java.util.Map;
 

@@ -32,7 +32,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.nature.RascalLibraryFileSystem;
+import org.rascalmpl.eclipse.navigator.RascalLibraryFileSystem;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;

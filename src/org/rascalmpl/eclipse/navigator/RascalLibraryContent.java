@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.nature;
+package org.rascalmpl.eclipse.navigator;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;

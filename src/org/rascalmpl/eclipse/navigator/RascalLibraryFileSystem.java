@@ -9,7 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.eclipse.nature;
+package org.rascalmpl.eclipse.navigator;
 
 import java.io.File;
 import java.io.FileInputStream;

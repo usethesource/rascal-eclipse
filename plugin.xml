@@ -48,7 +48,7 @@
       <filesystem
             scheme="rascal-library">
          <run
-               class="org.rascalmpl.eclipse.nature.RascalLibraryFileSystem">
+               class="org.rascalmpl.eclipse.navigator.RascalLibraryFileSystem">
          </run>
       </filesystem>
    </extension>
@@ -803,9 +803,9 @@
          point="org.eclipse.ui.navigator.navigatorContent">
       <navigatorContent
             activeByDefault="true"
-            contentProvider="org.rascalmpl.eclipse.nature.NavigatorContentProvider"
+            contentProvider="org.rascalmpl.eclipse.navigator.NavigatorContentProvider"
             id="org.rascalmpl.navigator.searchPathContent"
-            labelProvider="org.rascalmpl.eclipse.nature.NavigatorContentLabelProvider"
+            labelProvider="org.rascalmpl.eclipse.navigator.NavigatorContentLabelProvider"
             name="Rascal search path"
             priority="normal">
          <triggerPoints>
@@ -819,7 +819,7 @@
             </or>
          </possibleChildren>
          <actionProvider
-               class="org.rascalmpl.eclipse.nature.NavigatorActionProvider"
+               class="org.rascalmpl.eclipse.navigator.NavigatorActionProvider"
                id="org.rascalmpl.navigator.actions">
          </actionProvider>
       </navigatorContent>
