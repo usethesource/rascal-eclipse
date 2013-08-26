@@ -32,27 +32,58 @@ import org.eclipse.core.filesystem.provider.FileStore;
 import org.eclipse.core.filesystem.provider.FileSystem;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
-import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.uri.URIUtil;
 
 // TODO: link this stuff with the rascal search path instead
 public class RascalLibraryFileSystem extends FileSystem {
-	public static final String SCHEME = "rascal-library";
+  public static final String SCHEME = "rascal-library";
 	public static final String ECLIPSE = "eclipse";
 	public static final String RASCAL = "rascal";
-	protected Map<String, RascalLibraryFileStore> roots = new HashMap<String, RascalLibraryFileStore>();
+	protected Map<String, IFileStore> roots = new HashMap<String, IFileStore>();
 
 	public RascalLibraryFileSystem() {
-		addRoot(RASCAL, Evaluator.class, "/org/rascalmpl/library");
-		addRoot(ECLIPSE, Activator.class, "/org/rascalmpl/eclipse/library");
+	  IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
+        .getExtensionPoint("rascal_eclipse", "rascalLibrary");
+
+    if (extensionPoint == null) {
+      return; // this may happen when nobody extends this point.
+    }
+    
+    for (IExtension element : extensionPoint.getExtensions()) {
+      try {
+        String name = element.getContributor().getName();
+        Bundle bundle = Platform.getBundle(name);
+        List<String> src = new RascalEclipseManifest().getSourceRoots(bundle);
+
+        URL resource = bundle.getEntry(src.get(0));
+        URL fileURL = FileLocator.toFileURL(resource);
+        URI fileURI = URIUtil.create(fileURL.getProtocol(), fileURL.getHost(), fileURL.getPath(), fileURL.getQuery(), null);
+        roots.put(name, new RascalLibraryFileStore(fileURI));
+      }
+      catch (URISyntaxException e) {
+        Activator.log("could not load some library", e);
+      } 
+      catch (IOException e) {
+        Activator.log("could not load some library", e);
+      }
+    }
 	}
 
+	public Map<String, IFileStore> getRoots() {
+	  return roots;
+	}
+	
 	@Override
 	public IFileStore getStore(URI uri) {
 		if (!uri.getScheme().equals(SCHEME)) {
@@ -63,29 +94,10 @@ public class RascalLibraryFileSystem extends FileSystem {
 			return roots.get(uri.getHost()).getChild(uri.getPath());
 		}
 		else {
-			return roots.get(uri.getHost());
+		  return roots.get(uri.getHost());
 		}
 	}
 	
-	private void addRoot(String name, Class<?> root, String loc) {
-		try {
-			URL resource = root.getResource(loc);
-
-			if (resource == null) {
-				Activator.getInstance().logException("can not find " + loc + " using " + root.getName(), new NullPointerException());
-				return;
-			}
-			
-			URL fileURL = FileLocator.toFileURL(resource);
-			URI fileURI = URIUtil.create(fileURL.getProtocol(), fileURL.getHost(), fileURL.getPath(), fileURL.getQuery(), null);
-			roots.put(name, new RascalLibraryFileStore(fileURI));
-		} catch (URISyntaxException e) {
-			Activator.getInstance().logException("linking library failed", e);
-		} catch (IOException e) {
-			Activator.getInstance().logException("linking library failed", e);
-		}
-	}
-
 	public class RascalLibraryFileStore extends FileStore {
 			private RascalLibraryFileStore parent;
 			private File file;
@@ -116,8 +128,6 @@ public class RascalLibraryFileSystem extends FileSystem {
 				return file.hashCode();
 			}
 			
-			
-	
 			@Override
 			public String[] childNames(int options, IProgressMonitor monitor)
 					throws CoreException {

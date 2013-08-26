@@ -265,6 +265,7 @@ public class ProjectEvaluatorFactory {
     List<String> roots = new RascalEclipseManifest().getSourceRoots(bundle);
     
     for (String root : roots) {
+      // TODO: add check to see if library is referenced in RASCAL.MF
       evaluator.addRascalSearchPath(bundle.getResource(root).toURI());
     }
     

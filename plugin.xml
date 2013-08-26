@@ -770,4 +770,54 @@
              class="org.rascalmpl.eclipse.plugins.LoadRascalPluginsFromBundles">
        </languageRegistrar>
     </extension>
+    <extension
+         point="org.eclipse.ui.views">
+      <view
+            name="Rascal Navigator"
+            class="org.eclipse.ui.navigator.CommonNavigator"
+            id="rascal.navigator">
+      </view>
+   </extension>
+    <extension
+         point="org.eclipse.ui.navigator.viewer">
+       <viewerContentBinding 
+            viewerId="rascal.navigator">
+          <includes>
+             <contentExtension pattern="org.eclipse.ui.navigator.resourceContent" />                  
+             <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
+          </includes>
+       </viewerContentBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <navigatorContent
+            activeByDefault="true"
+            contentProvider="org.rascalmpl.eclipse.nature.NavigatorContentProvider"
+            id="org.rascalmpl.navigator.searchPathContent"
+            labelProvider="org.rascalmpl.eclipse.nature.NavigatorContentLabelProvider"
+            name="Rascal search path"
+            priority="normal">
+         <triggerPoints>
+          <or>
+                 <instanceof value="org.eclipse.core.resources.IResource"/>
+          </or>
+         </triggerPoints>
+         <possibleChildren>
+            <or>
+               <instanceof value="java.lang.Object"/> 
+            </or>
+         </possibleChildren>
+      </navigatorContent>
+   </extension>
+    <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerContentBinding viewerId="rascal.navigator">
+         <includes>
+            <contentExtension pattern="org.rascalmpl.navigator.searchPathContent"/>
+         </includes>
+      </viewerContentBinding>
+   </extension>
+    <extension
+          point="rascal_eclipse.rascalLibrary">
+    </extension>
 </plugin>

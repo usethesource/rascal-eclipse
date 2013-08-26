@@ -25,7 +25,9 @@ Require-Bundle: org.eclipse.imp.pdb.ui,
  org.eclipse.pde.core,
  org.eclipse.jdt.launching,
  org.eclipse.ui.views;bundle-version="3.6.0",
- rascal
+ rascal,
+ org.eclipse.ui.navigator,
+ org.eclipse.ui.navigator.resources
 Export-Package: org.rascalmpl.eclipse.nature,
   org.rascalmpl.eclipse.console,
   org.rascalmpl.eclipse.editor,

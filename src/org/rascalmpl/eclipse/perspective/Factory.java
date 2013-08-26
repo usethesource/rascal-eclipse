@@ -30,7 +30,7 @@ public class Factory implements IPerspectiveFactory {
 		String editorArea = layout.getEditorArea();
 
 		IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, (float) 0.25, editorArea); 
-		folder.addView(JavaUI.ID_PACKAGES);
+		folder.addView("rascal.navigator");
 
 		IFolderLayout replFolder = layout.createFolder("bottom", IPageLayout.BOTTOM, (float) 0.75, editorArea); 
 		
