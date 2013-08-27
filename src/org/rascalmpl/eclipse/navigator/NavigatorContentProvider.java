@@ -11,26 +11,16 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.uri.URIUtil;
 
 public class NavigatorContentProvider implements ITreeContentProvider {
-
-  private Viewer viewer;
-  private Object oldInput;
-  private Object newInput;
   private Map<IFileStore,RascalLibraryContent> libraries;
 
   @Override
   public void dispose() {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-    this.viewer = viewer;
-    this.oldInput = oldInput;
-    this.newInput = newInput;
   }
 
   @Override
@@ -55,7 +45,7 @@ public class NavigatorContentProvider implements ITreeContentProvider {
 
   private Object[] getProjectSearchPath() {
     try {
-      RascalLibraryFileSystem fd = (RascalLibraryFileSystem) EFS.getFileSystem("rascal-library");
+      RascalLibraryFileSystem fd = RascalLibraryFileSystem.getInstance();
       Map<String, IFileStore> libs = fd.getRoots();
       Object[] roots = new Object[libs.size()];
       int i = 0;

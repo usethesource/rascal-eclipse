@@ -52,6 +52,10 @@ public class RascalLibraryFileSystem extends FileSystem {
 	public static final String RASCAL = "rascal";
 	protected Map<String, IFileStore> roots = new HashMap<String, IFileStore>();
 
+	public static RascalLibraryFileSystem getInstance() throws CoreException {
+	  return (RascalLibraryFileSystem) EFS.getFileSystem(SCHEME);
+	}
+	
 	public RascalLibraryFileSystem() {
 	  IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
         .getExtensionPoint("rascal_eclipse", "rascalLibrary");

@@ -44,7 +44,7 @@ public interface IRascalResources {
 	/**
 	 * Standard library folder name within an Eclipse project.
 	 */
-	public static final String RASCAL_STD = "std";
+	public static final String RASCAL_STD = "rascal";
 
 	public static final String ID_RASCAL_MARKER_TYPE_TEST_RESULTS = "rascal.markerType.testResult";
 	public static final String ID_RASCAL_MARKER_TYPE_FOCUS = "rascal.focusMarker";
