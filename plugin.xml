@@ -727,6 +727,7 @@
       </action>
    </viewerContribution> 
 </extension>
+
     <extension
           point="org.eclipse.ltk.core.refactoring.moveParticipants">
        <moveParticipant
@@ -801,7 +802,9 @@
              </actionExtension>
           </includes>
        </viewerActionBinding>
+    
    </extension>
+   
    <extension
          point="org.eclipse.ui.navigator.navigatorContent">
       <navigatorContent
@@ -838,4 +841,20 @@
     <extension
           point="rascal_eclipse.rascalLibrary">
     </extension>
+    <extension point="org.eclipse.ui.popupMenus"> 
+   <viewerContribution
+         id="rascal.navigator.contributions"
+         targetID="rascal.navigator"> 
+   <action
+         class="org.rascalmpl.eclipse.perspective.actions.StartConsole"
+         enablesFor="?"
+         icon="icons/rascal3D_2-16px.gif"
+         id="rascal.navigator.contributions.console"
+         label="Rascal Console"
+         menubarPath="additions"
+         tooltip="Start a Rascal consol">
+      </action>
+   </viewerContribution> 
+   </extension>
+   
 </plugin>
