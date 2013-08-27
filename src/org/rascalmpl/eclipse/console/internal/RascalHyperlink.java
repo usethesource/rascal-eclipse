@@ -59,10 +59,12 @@ private String projectName;
 
 	@Override
 	public void linkActivated() {
+	  
 		try {
+		  IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		  
 			IResource res = URIResourceResolver.getResource(getURIPart(), projectName);
 			if (res != null && res instanceof IFile) {
-				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 				IEditorPart part = IDE.openEditor(page, (IFile)res);
 				if (getOffsetPart() > -1 && part instanceof ITextEditor) {
 					((ITextEditor)part).selectAndReveal(getOffsetPart(), getLength());
@@ -80,8 +82,7 @@ private String projectName;
 			}
 			else {
 			  IFileStore fileStore = EFS.getLocalFileSystem().getStore(getURIPart());
-		    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		 
+		   
 		    if (fileStore.fetchInfo().exists()) {
 		      IDE.openEditorOnFileStore( page, fileStore );
 		    }
@@ -91,6 +92,15 @@ private String projectName;
 		      
 		      if (eval != null) {
 		        URI resourceURI = eval.getResolverRegistry().getResourceURI(getURIPart());
+		        
+		        if (resourceURI.getScheme().equals("project")) {
+		          project = ResourcesPlugin.getWorkspace().getRoot().getProject(resourceURI.getAuthority());
+		          IFile file = project.getFile(resourceURI.getPath());
+		          IEditorPart part = IDE.openEditor(page, file);
+		          if (getOffsetPart() > -1 && part instanceof ITextEditor) {
+		            ((ITextEditor)part).selectAndReveal(getOffsetPart(), getLength());
+		          }
+		        }
 
 		        if (resourceURI != null) {
 		          URL find = FileLocator.resolve(resourceURI.toURL());
