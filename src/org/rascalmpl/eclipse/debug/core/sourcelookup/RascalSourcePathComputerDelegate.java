@@ -14,28 +14,35 @@
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
+import org.eclipse.debug.core.sourcelookup.ISourceContainerType;
+import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
 import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
+import org.eclipse.debug.core.sourcelookup.containers.CompositeSourceContainer;
 import org.eclipse.debug.core.sourcelookup.containers.DirectorySourceContainer;
 import org.eclipse.debug.core.sourcelookup.containers.FolderSourceContainer;
+import org.eclipse.debug.core.sourcelookup.containers.ProjectSourceContainer;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
 import org.rascalmpl.eclipse.navigator.RascalLibraryFileSystem;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 
 public class RascalSourcePathComputerDelegate implements ISourcePathComputerDelegate {
 
-	/* (non-Javadoc)
+  /* (non-Javadoc)
 	 * @see org.eclipse.debug.internal.core.sourcelookup.ISourcePathComputerDelegate#computeSourceContainers(org.eclipse.debug.core.ILaunchConfiguration, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public ISourceContainer[] computeSourceContainers(ILaunchConfiguration configuration, IProgressMonitor monitor) throws CoreException {
@@ -47,33 +54,19 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 		 */
 		if (configurationUtility.hasAssociatedProject()) {
 			IProject associatedProject = configurationUtility.getAssociatedProject();
+			return new ISourceContainer[] { new ProjectSourceContainer(associatedProject, true) };
 			
-			RascalEclipseManifest mf = new RascalEclipseManifest();
-			List<String> sourceRoots = mf.getSourceRoots(associatedProject);
-			RascalLibraryFileSystem fileSystem = RascalLibraryFileSystem.getInstance();
-			Map<String,IFileStore> roots = fileSystem.getRoots();
+			// TODO: add code to make lookup in the libraries possible
+//    RascalLibraryFileSystem fileSystem = RascalLibraryFileSystem.getInstance();
+//    Map<String,IFileStore> roots = fileSystem.getRoots();
 
-			ISourceContainer[] sourceContainers = new ISourceContainer[sourceRoots.size() + roots.size()];
-			
-			int i = 0;
-			for (; i < sourceRoots.size(); i++) {
-			  IResource src = associatedProject.findMember(sourceRoots.get(i), false);
-			  sourceContainers[i] = new FolderSourceContainer((IContainer) src, true);
-			};
-			
-			for (IFileStore lib : roots.values()) {
-			  File localFile = lib.toLocalFile(EFS.CACHE, monitor);
-        sourceContainers[i++] = new DirectorySourceContainer(localFile, true);
-			}
-		
-			return sourceContainers;
-		
+//			for (IFileStore lib : roots.values()) {
+//        sourceContainers[i++] = new FileStoreSourceContainer(lib, true);
+//			}
+//		
 		} else {
-			
 			/* default case */
 			return new ISourceContainer[]{};			
-		
 		}
 	}
-	
 }
