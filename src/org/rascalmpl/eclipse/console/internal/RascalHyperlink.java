@@ -1,13 +1,23 @@
 package org.rascalmpl.eclipse.console.internal;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.ui.IEditorPart;
@@ -16,9 +26,12 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.uri.URIResourceResolver;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIUtil;
 
@@ -66,11 +79,41 @@ private String projectName;
 				}
 			}
 			else {
-				err.println("Cannot open link " + target);
+			  IFileStore fileStore = EFS.getLocalFileSystem().getStore(getURIPart());
+		    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		 
+		    if (fileStore.fetchInfo().exists()) {
+		      IDE.openEditorOnFileStore( page, fileStore );
+		    }
+		    else {
+		      IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+		      Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
+		      
+		      if (eval != null) {
+		        URI resourceURI = eval.getResolverRegistry().getResourceURI(getURIPart());
+
+		        if (resourceURI != null) {
+		          URL find = FileLocator.resolve(resourceURI.toURL());
+		          fileStore = EFS.getLocalFileSystem().getStore(find.toURI());
+
+		          if (fileStore != null && fileStore.fetchInfo().exists()) {
+		            IEditorPart part = IDE.openEditorOnFileStore( page, fileStore );
+		            if (getOffsetPart() > -1 && part instanceof ITextEditor) {
+		              ((ITextEditor)part).selectAndReveal(getOffsetPart(), getLength());
+		            }
+		            return;
+		          }
+		        }
+		      }
+		    }
+		    
+		    Activator.log("can not open link", null);
 			}
-		} catch (PartInitException e) {
-			Activator.log("Cannot get editor part", e);
-		}
+		} catch (IOException | CoreException e) {
+			Activator.log("Cannot follow link", e);
+		} catch (URISyntaxException e) {
+		  Activator.log("Cannot follow link", e);
+    }
 	}
 
 	private int length = -1;
