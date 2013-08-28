@@ -31,6 +31,11 @@ public class NavigatorActionProvider extends CommonActionProvider {
     }
     
     @Override
+    public String getText() {
+      return "Open";
+    }
+    
+    @Override
     public void run() {
       if (store != null) {
         try {

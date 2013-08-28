@@ -13,32 +13,18 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
-import org.eclipse.debug.core.sourcelookup.ISourceContainerType;
-import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
 import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
-import org.eclipse.debug.core.sourcelookup.containers.CompositeSourceContainer;
-import org.eclipse.debug.core.sourcelookup.containers.DirectorySourceContainer;
-import org.eclipse.debug.core.sourcelookup.containers.FolderSourceContainer;
 import org.eclipse.debug.core.sourcelookup.containers.ProjectSourceContainer;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
 import org.rascalmpl.eclipse.navigator.RascalLibraryFileSystem;
-import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 
 public class RascalSourcePathComputerDelegate implements ISourcePathComputerDelegate {
 
@@ -54,16 +40,19 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 		 */
 		if (configurationUtility.hasAssociatedProject()) {
 			IProject associatedProject = configurationUtility.getAssociatedProject();
-			return new ISourceContainer[] { new ProjectSourceContainer(associatedProject, true) };
-			
-			// TODO: add code to make lookup in the libraries possible
-//    RascalLibraryFileSystem fileSystem = RascalLibraryFileSystem.getInstance();
-//    Map<String,IFileStore> roots = fileSystem.getRoots();
+			RascalLibraryFileSystem fileSystem = RascalLibraryFileSystem.getInstance();
+	    Map<String,IFileStore> roots = fileSystem.getRoots();
 
-//			for (IFileStore lib : roots.values()) {
-//        sourceContainers[i++] = new FileStoreSourceContainer(lib, true);
-//			}
-//		
+			ISourceContainer[] sourceContainers = new ISourceContainer[roots.size() + 1];
+			
+			sourceContainers[0] = new ProjectSourceContainer(associatedProject, true);
+
+			int i = 1;
+			for (IFileStore lib : roots.values()) {
+        sourceContainers[i++] = new FileStoreSourceContainer(lib, true);
+			}
+			
+			return sourceContainers;
 		} else {
 			/* default case */
 			return new ISourceContainer[]{};			
