@@ -25,6 +25,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTargetExtension;
+import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -125,15 +126,12 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 	 * given part, or <code>null</code> if none
 	 */
 	private ITextEditor getEditor(IWorkbenchPart part) {
-		if (part instanceof ITextEditor) {
-			ITextEditor editorPart = (ITextEditor) part;
-			IResource resource = (IResource) editorPart.getEditorInput().getAdapter(IResource.class);
-			if (resource != null) {
-				String extension = resource.getFileExtension();
-				if (extension != null && extension.equals(IRascalResources.RASCAL_EXT)) {
-					return editorPart;
-				}
-			}
+		if (part instanceof UniversalEditor) {
+		  UniversalEditor editorPart = (UniversalEditor) part;
+		  
+		  if (editorPart.getParseController().getPath().getFileExtension().equals(IRascalResources.RASCAL_EXT)) {
+		    return editorPart;
+		  }
 		}
 		return null;
 	}
