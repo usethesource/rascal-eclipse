@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.breakpoints;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.core.resources.IMarker;
@@ -127,7 +128,8 @@ public class RascalSourceLocationBreakpoint extends LineBreakpoint implements II
 				marker.setAttribute(MARKER_ATTRIBUTE_BEGIN_COLUMN, sourceLocation.getBeginColumn());
 				marker.setAttribute(MARKER_ATTRIBUTE_END_COLUMN, sourceLocation.getEndColumn());
 				
-				marker.setAttribute(MARKER_ATTRIBUTE_URI, sourceLocation.getURI().toString());
+				URI uri = sourceLocation.getURI();
+        marker.setAttribute(MARKER_ATTRIBUTE_URI, uri.toString());
 				
 				setMarker(marker);
 			}
