@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.navigator;
 
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.ISelection;
@@ -39,10 +40,10 @@ public class NavigatorActionProvider extends CommonActionProvider {
     public void run() {
       if (store != null) {
         try {
-          IDE.openEditorOnFileStore(page, store);
+            IDE.openEditor(page, store.toURI(), UniversalEditor.EDITOR_ID, true);
         } catch (PartInitException e) {
           Activator.log("could not open editor for " + store, e);
-        }
+        } 
       }
     }
     
