@@ -164,8 +164,6 @@ public class ProjectEvaluatorFactory {
 	 * @param evaluator the evaluator to configure, may not be null
 	 */
 	public void configure(IProject project, Evaluator evaluator) {
-		configure(evaluator);
-		
 		if (project != null) {
 			try {
 				addProjectToSearchPath(project, evaluator);
@@ -181,6 +179,8 @@ public class ProjectEvaluatorFactory {
 			catch (CoreException e) {
 				Activator.getInstance().logException("could not construct search path", e);
 			}
+		
+			configure(evaluator);
 			
 			try {
 				if (project.hasNature(JavaCore.NATURE_ID)) {
