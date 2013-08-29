@@ -146,23 +146,6 @@ public class TestReporter implements ITestResultListener {
 				return files[0];
 			}
 		}
-		else if (scheme.equals("std")) {
-			try {
-				uri = URIUtil.create(RascalLibraryFileSystem.SCHEME, RascalLibraryFileSystem.RASCAL, uri.getPath());
-				IFile [] files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
-				if (files.length > 0) {
-					return files[0];
-				}
-				uri = URIUtil.create(RascalLibraryFileSystem.SCHEME, RascalLibraryFileSystem.ECLIPSE, uri.getPath());
-				files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
-				if (files.length > 0) {
-					return files[0];
-				}
-			} catch (URISyntaxException e) {
-				Activator.getInstance().logException(e.getMessage(), e);
-				return null;
-			}
-		}
 		else if (scheme.equals("rascal")) {
 			try {
 				URI resource = resolverRegistry.getResourceURI(uri);
