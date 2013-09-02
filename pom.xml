@@ -40,7 +40,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
-			<artifactId>AmbiDexter</artifactId>
+			<artifactId>ambidexter</artifactId>
 			<version>1.2.0.qualifier</version>
 		</dependency>
 	</dependencies>
