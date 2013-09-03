@@ -69,7 +69,7 @@ public class NavigatorContentProvider implements ITreeContentProvider {
       if (parentElement instanceof IProject) {
         IProject project = (IProject) parentElement;
 
-        if (project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
+        if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
           return getProjectSearchPath();
         }
       }
