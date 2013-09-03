@@ -1,1 +1,2 @@
 Source: src/org/rascalmpl/eclipse/library
+Bin: org/rascalmpl/eclipse/library

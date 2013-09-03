@@ -17,6 +17,15 @@
 		<developerConnection>scm:git:https://github.com/cwi-swat/rascal-eclipse.git</developerConnection>			
 	</scm>
 
+	<resources>
+	  <resource>
+	    <directory>.</directory>
+	    <filtering>false</filtering>
+	    <includes>
+	      <include>META-INF/RASCAL.MF</include>
+	    </includes>
+	  </resource>
+	</resources>
 	<dependencies>
 		<dependency>
 			<groupId>org.eclipse.imp</groupId>
