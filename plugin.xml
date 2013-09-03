@@ -654,7 +654,7 @@
          class="org.rascalmpl.eclipse.preferences.Initializer">
    </initializer>
 </extension>
-<extension
+<!-- <extension
       id="rascal_builder"
       name="rascal_builder"
       point="org.eclipse.core.resources.builders">
@@ -663,7 +663,7 @@
             class="org.rascalmpl.eclipse.nature.Builder">
       </run>
    </builder>
-</extension>
+</extension> -->
 <extension
       id="rascal_markers"
       name="rascal_markers"
