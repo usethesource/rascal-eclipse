@@ -45,7 +45,6 @@ import org.rascalmpl.eclipse.uri.BootstrapURIResolver;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
-import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -179,17 +178,17 @@ public class ProjectEvaluatorFactory {
 			catch (CoreException e) {
 				Activator.getInstance().logException("could not construct search path", e);
 			}
+		}
 		
-			configure(evaluator);
-			
-			try {
-				if (project.hasNature(JavaCore.NATURE_ID)) {
-					configureClassPath(project, evaluator); 
-				}
-			}
-			catch (CoreException e) {
-				Activator.getInstance().logException("exception while constructing classpath for evaluator", e);
-			}
+		configure(evaluator);
+
+		try {
+		  if (project != null && project.hasNature(JavaCore.NATURE_ID)) {
+		    configureClassPath(project, evaluator); 
+		  }
+		}
+		catch (CoreException e) {
+		  Activator.getInstance().logException("exception while constructing classpath for evaluator", e);
 		}
 	}
 	
