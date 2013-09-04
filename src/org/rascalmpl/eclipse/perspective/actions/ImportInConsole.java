@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,8 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
-*******************************************************************************/
+ *   * Anya Helene Bagge - anya@ii.uib.no - UiB
+ *******************************************************************************/
 package org.rascalmpl.eclipse.perspective.actions;
 
 import org.eclipse.imp.editor.UniversalEditor;
@@ -18,18 +19,21 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
+import org.rascalmpl.eclipse.util.RascalKeywords;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
 
 public class ImportInConsole extends AbstractEditorAction {
-	
+
+
 	public ImportInConsole(UniversalEditor editor) {
 		super(editor, "Import Current Module in Console");
 	}
 
 	@Override
 	public void run() {
-		String mod = ResourcesToModules.moduleFromFile(file);
+		String mod = RascalKeywords.escapeName(ResourcesToModules.moduleFromFile(file));
 		IConsoleManager man = ConsolePlugin.getDefault().getConsoleManager();
+
 		
 		for (IConsole console : man.getConsoles()) {
 			if (console.getType().equals(ConsoleFactory.INTERACTIVE_CONSOLE_ID)) {

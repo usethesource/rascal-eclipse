@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2013 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *   * Anya Helene Bagge - anya@ii.uib.no - UiB
 *******************************************************************************/
 package org.rascalmpl.eclipse.wizards;
 
@@ -30,6 +31,7 @@ import org.eclipse.ui.*;
 import org.eclipse.ui.ide.IDE;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
+import org.rascalmpl.eclipse.util.RascalKeywords;
 
 public class NewRascalFile extends Wizard implements INewWizard {
 	private NewRascalFilePage page;
@@ -42,15 +44,18 @@ public class NewRascalFile extends Wizard implements INewWizard {
 		setWindowTitle("Create a new Rascal module file");
 	}
 	
+	@Override
 	public void addPages() {
 		page = new NewRascalFilePage(selection);
 		addPage(page);
 	}
 	
+	@Override
 	public boolean performFinish() {
 		final String containerName = page.getContainerName();
 		final String filename = page.getFileName();
 		IRunnableWithProgress op = new IRunnableWithProgress() {
+			@Override
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
 					int till = containerName.substring(1).indexOf("/");
@@ -79,6 +84,7 @@ public class NewRascalFile extends Wizard implements INewWizard {
 					moduleName = moduleName.replaceAll("/", "::");
 					moduleName = moduleName.startsWith("::") ? moduleName.substring(2) : moduleName;
 					moduleName = moduleName.startsWith("src::") ? moduleName.substring(5) : moduleName;
+					moduleName = RascalKeywords.escapeName(moduleName);
 					
 					doFinish(containerToPutFileIn, fileToCreate, monitor);
 				} catch (CoreException e) {
@@ -127,6 +133,7 @@ public class NewRascalFile extends Wizard implements INewWizard {
 		monitor.worked(1);
 		monitor.setTaskName("Opening file for editing...");
 		getShell().getDisplay().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				IWorkbenchPage page =
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
@@ -150,6 +157,7 @@ public class NewRascalFile extends Wizard implements INewWizard {
 		throw new CoreException(status);
 	}
 	
+	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.selection = selection;
 	}
