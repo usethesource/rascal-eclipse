@@ -39,11 +39,13 @@ public class NavigatorActionProvider extends CommonActionProvider {
     @Override
     public void run() {
       if (store != null) {
-        try {
+        if (!store.fetchInfo().isDirectory()) {
+          try {
             IDE.openEditor(page, store.toURI(), UniversalEditor.EDITOR_ID, true);
-        } catch (PartInitException e) {
-          Activator.log("could not open editor for " + store, e);
-        } 
+          } catch (PartInitException e) {
+            Activator.log("could not open editor for " + store, e);
+          } 
+        }
       }
     }
     
