@@ -184,6 +184,7 @@
             icon="icons/rascal3D_2-16px.gif"
             id="rascal_eclipse.projectwizard"
             name="Rascal Project"
+            preferredPerspectives="rascal.perspective"
             project="true">
       </wizard>
       <category
@@ -193,9 +194,11 @@
       <wizard
             category="rascal_eclipse"
             class="org.rascalmpl.eclipse.wizards.NewRascalFile"
+            finalPerspective="rascal.perspective"
             icon="icons/rascal3D_2-16px.gif"
             id="rascal_eclipse.wizards.NewRascalFile"
-            name="Rascal File">
+            name="Rascal File"
+            preferredPerspectives="rascal.perspective">
       </wizard>
    </extension>
    <extension
@@ -829,6 +832,16 @@
                id="org.rascalmpl.navigator.actions">
          </actionProvider>
       </navigatorContent>
+      <commonWizard
+            type="new"
+            wizardId="rascal_eclipse.wizards.NewRascalFile">
+         <enablement></enablement>
+      </commonWizard>
+      <commonWizard
+            type="new"
+            wizardId="rascal_eclipse.projectwizard">
+         <enablement></enablement>
+      </commonWizard>
    </extension>
     <extension
          point="org.eclipse.ui.navigator.viewer">
