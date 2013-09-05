@@ -36,6 +36,7 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.osgi.framework.Bundle;
@@ -48,8 +49,6 @@ import org.rascalmpl.uri.URIUtil;
 // TODO: link this stuff with the rascal search path instead
 public class RascalLibraryFileSystem extends FileSystem {
   public static final String SCHEME = "rascal-library";
-	public static final String ECLIPSE = "eclipse";
-	public static final String RASCAL = "rascal";
 	protected Map<String, IFileStore> roots = new HashMap<String, IFileStore>();
 
 	public static RascalLibraryFileSystem getInstance() throws CoreException {
@@ -65,22 +64,10 @@ public class RascalLibraryFileSystem extends FileSystem {
     }
     
     for (IExtension element : extensionPoint.getExtensions()) {
-      try {
-        String name = element.getContributor().getName();
-        Bundle bundle = Platform.getBundle(name);
-        List<String> src = new RascalEclipseManifest().getSourceRoots(bundle);
-
-        URL resource = bundle.getEntry(src.get(0));
-        URL fileURL = FileLocator.toFileURL(resource);
-        URI fileURI = URIUtil.create(fileURL.getProtocol(), fileURL.getHost(), fileURL.getPath(), fileURL.getQuery(), null);
-        roots.put(name, new RascalLibraryFileStore(fileURI));
-      }
-      catch (URISyntaxException e) {
-        Activator.log("could not load some library", e);
-      } 
-      catch (IOException e) {
-        Activator.log("could not load some library", e);
-      }
+      String name = element.getContributor().getName();
+      Bundle bundle = Platform.getBundle(name);
+      List<String> src = new RascalEclipseManifest().getSourceRoots(bundle);
+      roots.put(name, new RascalLibraryFileStore(bundle, src.get(0)));
     }
 	}
 
@@ -103,45 +90,66 @@ public class RascalLibraryFileSystem extends FileSystem {
 	}
 	
 	public class RascalLibraryFileStore extends FileStore {
-			private RascalLibraryFileStore parent;
-			private File file;
+			private final RascalLibraryFileStore parent;
+      private final Bundle bundle;
+      private final String root;
+      private final String path;
 	
-			public RascalLibraryFileStore(File file, RascalLibraryFileStore parent) {
+			public RascalLibraryFileStore(Bundle bundle, String path, RascalLibraryFileStore parent) {
 				this.parent = parent;
-				this.file = file;
+			  this.bundle = bundle;
+        this.path = path;
+        this.root = parent.root;
 			}
 			
-			public RascalLibraryFileStore(URI root) {
+			public RascalLibraryFileStore(Bundle bundle, String root) {
 				this.parent = null;
-				this.file = new File(root.getPath());
+				this.bundle = bundle;
+				this.root = root;
+				this.path = "";
 			}
 			
 			@Override
 			public boolean equals(Object obj) {
-				if(obj == null)
+				if (obj == null) {
 					return false;
+				}
+				
 				if (obj.getClass() == getClass()) {
 					RascalLibraryFileStore other = (RascalLibraryFileStore) obj;
-					return file.equals(other.file);
+					return bundle.getBundleId() == other.bundle.getBundleId() 
+					    && path.equals(other.path);
 				}
 				return false;
 			}
 			
 			@Override
 			public int hashCode() {
-				return file.hashCode();
+				return path.hashCode();
+			}
+			
+			File getFile() throws CoreException {
+			  try {
+			    URL resource = bundle.getEntry(new Path(root).append(path).toString());
+			    URL fileURL = FileLocator.toFileURL(resource);
+			    return new File(fileURL.getPath());
+			  } catch (IOException e) {
+			    throw new CoreException(new Status(IStatus.ERROR, "", e.getMessage()));
+        }
 			}
 			
 			@Override
 			public String[] childNames(int options, IProgressMonitor monitor)
 					throws CoreException {
+			 File file = getFile();
+			  
 				if (file.isDirectory()) {
 					List<String> list = new LinkedList<String>();
 					
 					for (File f : file.listFiles()) {
-						if (f.isDirectory() || shouldShow(f)) {
-							list.add(f.getName());
-						}
+					  if (f.isDirectory() || shouldShow(f)) {
+					    list.add(f.getName());
+					  }
 					}
 					
 					return list.toArray(new String[list.size()]);
@@ -168,6 +176,7 @@ public class RascalLibraryFileSystem extends FileSystem {
 			@Override
 			public IFileInfo fetchInfo(int options, IProgressMonitor monitor)
 					throws CoreException {
+			  File file = getFile();
 				FileInfo info = new FileInfo(getName());
 				if (file.isDirectory()) {
 					info.setDirectory(true);
@@ -184,16 +193,26 @@ public class RascalLibraryFileSystem extends FileSystem {
 			
 			@Override
 			public IFileStore getChild(String name) {
-				if (file.isDirectory()) {
-					return new RascalLibraryFileStore(new File(file, name), this);
-				}
+			  try {
+			    File file = getFile();
+
+			    if (file.isDirectory()) {
+			      return new RascalLibraryFileStore(bundle, new Path(path).append(name).toString(), this);
+			    }
+			  } catch (CoreException e) {
+			    return null;
+			  } 
 				
 				return null;
 			}
 	
 			@Override
 			public String getName() {
-				return file.getName();
+				try {
+          return getFile().getName();
+        } catch (CoreException e) {
+          return null;
+        }
 			}
 	
 			@Override
@@ -204,18 +223,18 @@ public class RascalLibraryFileSystem extends FileSystem {
 			@Override
 			public InputStream openInputStream(int options, IProgressMonitor monitor)
 					throws CoreException {
-				try {
-					return new FileInputStream(file);
-				} catch (FileNotFoundException e) {
-					throw new CoreException(new Status(IStatus.ERROR, "", e.getMessage()));
-				}
+			  try {
+			    File file = getFile();
+          return new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+          throw new CoreException(new Status(IStatus.ERROR, "", e.getMessage()));
+        }
 			}
 	
 			@Override
 			public URI toURI() {
-				return file.toURI();
+			  return URIUtil.assumeCorrect("rascal-library", bundle.getSymbolicName(), "/" + path);
 			}
-	
 		}
 
 }
