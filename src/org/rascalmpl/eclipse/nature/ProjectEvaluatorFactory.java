@@ -149,10 +149,6 @@ public class ProjectEvaluatorFactory {
     BootstrapURIResolver bootResolver = new BootstrapURIResolver();
     resolverRegistry.registerInputOutput(bootResolver);
     
-    ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(resolverRegistry, "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
-    resolverRegistry.registerInput(eclipseResolver);
-    
-    evaluator.addRascalSearchPath(URIUtil.rootScheme(eclipseResolver.scheme()));
     evaluator.addClassLoader(getClass().getClassLoader());
     
     configureRascalLibraryPlugins(evaluator);
