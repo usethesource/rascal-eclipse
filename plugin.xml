@@ -197,7 +197,7 @@
             finalPerspective="rascal.perspective"
             icon="icons/rascal3D_2-16px.gif"
             id="rascal_eclipse.wizards.NewRascalFile"
-            name="Rascal File"
+            name="Rascal Module"
             preferredPerspectives="rascal.perspective">
       </wizard>
    </extension>
