@@ -7,7 +7,6 @@ import java.net.URI;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.load.RascalURIResolver;
 import org.rascalmpl.uri.URIUtil;
@@ -19,17 +18,10 @@ public class ResourcesToModules {
 		if (proj != null && proj.exists()) {
 		  for (String root : new RascalEclipseManifest().getSourceRoots(proj)) {
 		    String mod = moduleForRoot(file, proj.getFolder(root));
-        if (mod != null) {
-          return mod;
-        }
+		    if (mod != null) {
+		    	return mod;
+		    }
 		  }
-		  
-			for (String root : new String[] { IRascalResources.RASCAL_SRC, IRascalResources.STD_LIB, IRascalResources.ECLIPSE_LIB }) {
-				String mod = moduleForRoot(file, proj.getFolder(root));
-				if (mod != null) {
-					return mod;
-				}
-			}
 		}
 
 		return null;
