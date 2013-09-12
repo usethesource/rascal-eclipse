@@ -80,10 +80,10 @@ public class RascalLibraryFileSystem extends FileSystem {
 		}
 		
 		if (uri.getPath() != null && uri.getPath().length() > 0) {
-			return roots.get(uri.getHost()).getChild(uri.getPath());
+			return roots.get(uri.getAuthority()).getChild(uri.getPath());
 		}
 		else {
-		  return roots.get(uri.getHost());
+		  return roots.get(uri.getAuthority());
 		}
 	}
 	
