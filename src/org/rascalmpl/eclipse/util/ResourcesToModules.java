@@ -50,18 +50,16 @@ public class ResourcesToModules {
 	public static URI uriFromModule(RascalURIResolver resolver, String module) {
 		URI uri = resolver.resolve(URIUtil.createRascalModule(module));
 
-		if (uri.getScheme().equals("std")) {
-			return URIUtil.assumeCorrect("rascal-library", "rascal", uri.getPath());
-		}
-		else if (uri.getScheme().equals("eclipse")) {
-			return URIUtil.assumeCorrect("rascal-library", "eclipse", uri.getPath());
-		}
-		else if (uri.getScheme().equals("project")) {
-			try {
-				return new ProjectURIResolver().resolveFile(uri).getLocationURI();
-			} catch (MalformedURLException e) {
-			} catch (IOException e) {
-			}
+		if (uri.getScheme().equals("project")) {
+		  try {
+		    return new ProjectURIResolver().resolveFile(uri).getLocationURI();
+		  } 
+		  catch (MalformedURLException e) {
+		    // nothing
+		  } 
+		  catch (IOException e) {
+		    // nothing
+		  }
 		}
 
 		return uri;
