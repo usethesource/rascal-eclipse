@@ -13,6 +13,7 @@ M3 createM3FromEclipseProject(loc project) {
 
 M3 createM3FromEclipseFile(loc file) {
    setEnvironmentOptions(classPathForProject(file[path=""]), sourceRootsForProject(file[path=""]));
-   return createM3FromFile(file);
+   compliance = getProjectOptions(project)["org.eclipse.jdt.core.compiler.compliance"];
+   return createM3FromFile(file, compliance);
 } 
 
