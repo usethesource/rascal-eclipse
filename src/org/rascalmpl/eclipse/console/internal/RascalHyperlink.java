@@ -33,6 +33,7 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.uri.URIUtil;
 
 public class RascalHyperlink implements IHyperlink {
@@ -123,6 +124,8 @@ private String projectName;
 			Activator.log("Cannot follow link", e);
 		} catch (URISyntaxException e) {
 		  Activator.log("Cannot follow link", e);
+    } catch (Throw e) {
+      Activator.log("Cannot follow link", e);
     }
 	}
 
