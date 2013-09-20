@@ -66,6 +66,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.util.RascalInvoker;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
@@ -108,6 +109,7 @@ public class Editors {
 		}
 
 		private IList previousList = null;
+		private boolean firstTime = true;
 
 		public void run() {
 			try {
@@ -203,6 +205,12 @@ public class Editors {
 								} catch (org.eclipse.jface.text.BadLocationException e) {
 									// Ignore, lineNumber may just not exist in file
 								}
+							}
+						}
+						if (firstTime) {
+							firstTime = false;
+							if (loc.hasOffsetLength() && editorPart instanceof ITextEditor) {
+								((ITextEditor)editorPart).selectAndReveal(loc.getOffset(), loc.getLength());
 							}
 						}
 					}
