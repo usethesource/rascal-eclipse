@@ -37,7 +37,7 @@ public class CommandHistory{
 	}
 	
 	public boolean isSearching() {
-	  return currentSearch != null;
+	  return currentSearch != null && !currentSearch.isEmpty();
 	}
 	
 	public void resetSearch() {
@@ -104,7 +104,7 @@ public class CommandHistory{
 	}
 	
   public String findNextCommand() {
-    if (currentSearch != null && !currentSearch.isEmpty()) {
+    if (isSearching()) {
       for (int i = currentFind - 1; i >= 0; i--) {
         String candidate = history.get(i);
         
@@ -119,7 +119,7 @@ public class CommandHistory{
   }
   
   public String findPreviousCommand() {
-    if (currentSearch != null) {
+    if (isSearching()) {
       for (int i = currentFind + 1; i < index; i++) {
         String candidate = history.get(i);
        
