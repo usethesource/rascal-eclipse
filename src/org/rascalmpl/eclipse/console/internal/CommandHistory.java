@@ -22,6 +22,10 @@ public class CommandHistory{
 	
 	private boolean updated;
 	
+	private String currentSearch;
+
+  private int currentFind;
+	
 	public CommandHistory(){
 		super();
 		
@@ -32,7 +36,18 @@ public class CommandHistory{
 		updated = true;
 	}
 	
+	public boolean isSearching() {
+	  return currentSearch != null;
+	}
+	
+	public void resetSearch() {
+	  currentFind = index;
+    currentSearch = null;
+	}
+	
 	public void addToHistory(String command){
+	  resetSearch();
+    
 		if(updated){
 			if (history.size() == 0 || !history.get(history.size() -1).equals(command)) {
 				if(history.size() == COMMAND_LIMIT) history.remove(0);
@@ -81,6 +96,42 @@ public class CommandHistory{
 		
 		return history.get(index);
 	}
+	
+	public String findCommand(String needle) {
+	  this.currentSearch = needle;
+	  this.currentFind = index;
+	  return findNextCommand();
+	}
+	
+  public String findNextCommand() {
+    if (currentSearch != null && !currentSearch.isEmpty()) {
+      for (int i = currentFind - 1; i >= 0; i--) {
+        String candidate = history.get(i);
+        
+        if (candidate.contains(currentSearch)) {
+          currentFind = i;
+          return candidate; 
+        }
+      }
+    }
+    
+    return currentSearch;
+  }
+  
+  public String findPreviousCommand() {
+    if (currentSearch != null) {
+      for (int i = currentFind + 1; i < index; i++) {
+        String candidate = history.get(i);
+       
+        if (candidate.contains(currentSearch)) {
+          currentFind = i;
+          return candidate; 
+        }
+      }
+    }
+    
+    return currentSearch;
+  }
 	
 	public void resetState(){
 		index = history.size();

@@ -50,7 +50,6 @@ import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.console.TextConsolePage;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.part.IPageBookViewPage;
-import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.uri.LinkifiedString;
@@ -78,9 +77,9 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	
 	private int inputOffset;
 	private String currentContent;
-	private final List<IHyperlink> currentHyperlinks = new ArrayList<IHyperlink>();
-	private final List<Integer> currentHyperlinkOffsets = new ArrayList<Integer>();
-	private final List<Integer> currentHyperlinkLengths = new ArrayList<Integer>();
+	protected final List<IHyperlink> currentHyperlinks = new ArrayList<IHyperlink>();
+	protected final List<Integer> currentHyperlinkOffsets = new ArrayList<Integer>();
+	protected final List<Integer> currentHyperlinkLengths = new ArrayList<Integer>();
 	
 	private volatile boolean promptInitialized;
 	private volatile boolean terminated;
@@ -322,14 +321,18 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 							String target = linkedLine.linkTarget(i);
 							if (target.startsWith("|stdin")) continue; // do not make a link out of the stdin console loc
 							IHyperlink h;
+							int offset = fragmentOffsetStart + linkedLine.linkOffset(i);
+              int length = linkedLine.linkLength(i) - 1;
+              
 							if (target.startsWith("|")) {
 								// source location
-								h = new RascalHyperlink(target, getInterpreter().getEval(), getInterpreter().getProjectName(), getInterpreter().getEval().getStdErr());
+								h = new RascalHyperlink(InteractiveInterpreterConsole.this, offset, length, target, getInterpreter().getEval(), getInterpreter().getProjectName(), getInterpreter().getEval().getStdErr());
 							}
 							else {
 								h = new WebHyperlink(target);
 							}
-							addHyperlink(h, fragmentOffsetStart + linkedLine.linkOffset(i), linkedLine.linkLength(i) - 1);
+							
+              addHyperlink(h, offset, length);
 						}
 					}
 					if(terminateLine) doc.replace(doc.getLength(), 0, COMMAND_TERMINATOR);
@@ -546,6 +549,19 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		consoleViewer.revealRange(index, 0);
 	}
 	
+ public void setSelection(final int offset, final int length) {
+   Display.getDefault().asyncExec(new Runnable(){
+    @Override
+    public void run() {
+      TextConsoleViewer consoleViewer = page.getViewer();
+      StyledText styledText = consoleViewer.getTextWidget();
+      
+      styledText.setSelectionRange(offset, length);
+      consoleViewer.revealRange(offset, length);
+    }
+   });
+ }
+	
 	private static class InterpreterConsolePage extends TextConsolePage{
 		private final InteractiveInterpreterConsole console;
 		
@@ -556,7 +572,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		}
 
 		public TextConsoleViewer createViewer(Composite parent){
-			return new InterpreterConsoleViewer(console, parent);
+			  return new InterpreterConsoleViewer(console, parent);
 		}
 		
 		public void createActions(){
@@ -746,6 +762,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		
 		private void execute(){
 			console.commandExecutor.execute();
+			console.commandHistory.resetSearch();
 		}
 		
 		public synchronized void reset(){

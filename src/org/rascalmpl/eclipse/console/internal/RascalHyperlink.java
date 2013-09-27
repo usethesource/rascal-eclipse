@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -26,7 +25,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
@@ -41,10 +39,24 @@ public class RascalHyperlink implements IHyperlink {
   private String target;
 	private PrintWriter err;
   private IEvaluatorContext ctx;
-private String projectName;
+  private String projectName;
+  private final InteractiveInterpreterConsole console;
+  private final int srcOffset;
+  private final int srcLen;
 
-	public RascalHyperlink(String target, IEvaluatorContext ctx, String projectName, PrintWriter err) {
+  public int getSrcOffset() {
+    return srcOffset;
+  }
+  
+  public int getSrcLength() {
+    return srcLen;
+  }
+  
+	public RascalHyperlink(InteractiveInterpreterConsole console, int srcOffset, int srcLen, String target, IEvaluatorContext ctx, String projectName, PrintWriter err) {
 	  this.ctx = ctx;
+	  this.srcOffset = srcOffset;
+	  this.srcLen = srcLen;
+	  this.console = console;
 		this.target = target;
 		this.err = err;
 		this.projectName = projectName;
@@ -60,6 +72,7 @@ private String projectName;
 
 	@Override
 	public void linkActivated() {
+	  console.setSelection(srcOffset - 1, srcLen + 1);
 	  
 		try {
 		  IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();

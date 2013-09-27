@@ -27,13 +27,17 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 		
 		this.console = console;
 		this.history = console.getHistory();
-		
 		styledText.removeLineStyleListener(this);
 	}
 	
 	public StyledText createTextWidget(Composite parent, int styles){
-		return (styledText != null) ? styledText : (styledText = new InterpreterConsoleStyledText(parent, styles));
+		if (styledText == null) {
+		  styledText = new InterpreterConsoleStyledText(parent, styles);
+		}
+		
+		return styledText;
 	}
+	
 	
 	public void setEditable(boolean editable){
 		super.setEditable(editable);
@@ -53,10 +57,10 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 
 		public InterpreterConsoleStyledText(Composite parent, int style){
 			super(parent, style);
-			
 			enable();
 		}
-
+		
+		@Override
 		public synchronized void invokeAction(int action){
 			if(!enabled) return;
 			
@@ -74,6 +78,23 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 				case ST.LINE_START:
 					setCaretOffset(console.getInputOffset());
 					return;
+				case ST.TEXT_START:
+				  if (history.isSearching()) {
+				    console.historyCommand(history.findNextCommand());
+				  }
+				  else {
+				    console.historyCommand(history.findCommand(console.getCurrentConsoleInput()));
+				  }
+				  return;
+				case ST.TEXT_END:
+          if (history.isSearching()) {
+            console.historyCommand(history.findPreviousCommand());
+          }
+          else {
+            console.historyCommand(history.findCommand(console.getCurrentConsoleInput()));
+          }
+          return;  
+				  
 			}
 
 			super.invokeAction(action);
