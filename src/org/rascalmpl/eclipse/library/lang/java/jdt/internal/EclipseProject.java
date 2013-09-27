@@ -74,7 +74,8 @@ public class EclipseProject {
       for (IPackageFragmentRoot root : jProject.getAllPackageFragmentRoots()) {
         if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
           IPath path = root.getPath();
-          URI rootUri = URIUtil.create("file", "", path.toPortableString());
+          String pathString = path.toPortableString();
+          URI rootUri = URIUtil.create("file", "", pathString.startsWith("/") ? pathString : "/" + pathString);
           result.insert(VF.sourceLocation(rootUri));
         }
       }
