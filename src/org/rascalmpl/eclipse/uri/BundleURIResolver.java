@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -68,7 +69,8 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 
 	private URI resolve(URI uri) throws IOException {
 		try {
-			URI result = FileLocator.resolve(uri.toURL()).toURI();
+			URL resolved = FileLocator.resolve(uri.toURL());
+      URI result = URIUtil.fixUnicode(resolved.toURI());
 			if (result == uri) {
 				throw new IOException("could not resolve " + uri);
 			}
