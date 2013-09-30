@@ -75,7 +75,7 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 			
 			return result;
 		} catch (URISyntaxException e) {
-			return null;
+			throw new IOException("unexpected URI syntax exception: " + e.getMessage(), e);
 		}
 	}
 
