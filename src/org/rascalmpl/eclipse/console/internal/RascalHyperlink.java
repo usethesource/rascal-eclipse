@@ -114,6 +114,7 @@ public class RascalHyperlink implements IHyperlink {
 		          if (getOffsetPart() > -1 && part instanceof ITextEditor) {
 		            ((ITextEditor)part).selectAndReveal(getOffsetPart(), getLength());
 		          }
+		          return;
 		        }
 
 		        if (resourceURI != null) {
