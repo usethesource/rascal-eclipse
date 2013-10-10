@@ -11,13 +11,12 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.navigator;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,9 +29,9 @@ import org.eclipse.core.filesystem.provider.FileInfo;
 import org.eclipse.core.filesystem.provider.FileStore;
 import org.eclipse.core.filesystem.provider.FileSystem;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -40,7 +39,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.uri.URIUtil;
 
@@ -126,64 +124,51 @@ public class RascalLibraryFileSystem extends FileSystem {
 				return path.hashCode();
 			}
 			
-			File getFile() throws CoreException {
-			  try {
-			    URL resource = bundle.getEntry(new Path(root).append(path).toString());
-			    URL fileURL = FileLocator.toFileURL(resource);
-			    return new File(fileURL.getPath());
-			  } catch (IOException e) {
-			    throw new CoreException(new Status(IStatus.ERROR, "", e.getMessage()));
-        }
-			}
 			
 			@Override
 			public String[] childNames(int options, IProgressMonitor monitor)
-					throws CoreException {
-			 File file = getFile();
-			  
-				if (file.isDirectory()) {
-					List<String> list = new LinkedList<String>();
-					
-					for (File f : file.listFiles()) {
-					  if (f.isDirectory() || shouldShow(f)) {
-					    list.add(f.getName());
-					  }
-					}
-					
-					return list.toArray(new String[list.size()]);
-				}
-				
-				return EMPTY_STRING_ARRAY;
+			    throws CoreException {
+        Enumeration<URL> found = bundle.findEntries(getFullPath().toString(), null, false);
+			  List<String> list = new LinkedList<>();
+
+			  while (found != null && found.hasMoreElements()) {
+          Path elemPath = new Path(found.nextElement().getPath());
+			    
+          if (isDirectory(elemPath.toString())) {
+            list.add(0, elemPath.lastSegment());
+          }
+          else if (isRascalFile(elemPath)) {
+			      list.add(list.size(), elemPath.lastSegment());
+			    }
+			  }
+
+			  return list.toArray(new String[list.size()]);
 			}
 
-			private boolean shouldShow(File f) {
-				if (f.getName().endsWith("." + IRascalResources.RASCAL_EXT)) {
-					return true;
-				}
-				
-				String path = f.getPath();
-				int i = path.lastIndexOf('.');
-				if (i != -1 && i != path.length() - 1) {
-					String ext = path.substring(i+1);
-					return TermLanguageRegistry.getInstance().getLanguage(ext) != null;
-				}
-				
-				return false;
+      private boolean isRascalFile(Path elemPath) {
+        return elemPath.getFileExtension().equals(IRascalResources.RASCAL_EXT);
+      }
+
+      private IPath getFullPath() {
+        return new Path(root).append(path);
+      }
+			
+			boolean isDirectory(String path) {
+			  Enumeration<URL> contents = bundle.findEntries(path.toString(), null, false);
+			  return contents != null && contents.hasMoreElements();
 			}
-	
+
 			@Override
 			public IFileInfo fetchInfo(int options, IProgressMonitor monitor)
 					throws CoreException {
-			  File file = getFile();
 				FileInfo info = new FileInfo(getName());
-				if (file.isDirectory()) {
+				if (isDirectory(getFullPath().toString())) {
 					info.setDirectory(true);
-					info.setLastModified(file.lastModified());
 				} else {
 					info.setDirectory(false);
-					info.setLastModified(file.lastModified());
 				}
-				info.setExists(true);
+				
+				info.setExists(bundle.getEntry(getFullPath().toString()) != null);
 				info.setAttribute(EFS.ATTRIBUTE_READ_ONLY, true);
 				info.setAttribute(EFS.ATTRIBUTE_IMMUTABLE, true);
 				return info;
@@ -191,26 +176,16 @@ public class RascalLibraryFileSystem extends FileSystem {
 			
 			@Override
 			public IFileStore getChild(String name) {
-			  try {
-			    File file = getFile();
+			  if (isDirectory(getFullPath().toString())) {
+			    return new RascalLibraryFileStore(bundle, new Path(path).append(name).toString(), this);
+			  }
 
-			    if (file.isDirectory()) {
-			      return new RascalLibraryFileStore(bundle, new Path(path).append(name).toString(), this);
-			    }
-			  } catch (CoreException e) {
-			    return null;
-			  } 
-				
-				return null;
+			  return null;
 			}
 	
 			@Override
 			public String getName() {
-				try {
-          return getFile().getName();
-        } catch (CoreException e) {
-          return null;
-        }
+			  return path.length() > 0 ? new Path(path).lastSegment() : "";
 			}
 	
 			@Override
@@ -222,9 +197,14 @@ public class RascalLibraryFileSystem extends FileSystem {
 			public InputStream openInputStream(int options, IProgressMonitor monitor)
 					throws CoreException {
 			  try {
-			    File file = getFile();
-          return new FileInputStream(file);
-        } catch (FileNotFoundException e) {
+			    URL entry = bundle.getEntry(getFullPath().toString());
+			    if (entry != null) {
+			      return entry.openStream();
+			    }
+			    else {
+			      throw new FileNotFoundException(getFullPath().toString());
+			    }
+        } catch (IOException e) {
           throw new CoreException(new Status(IStatus.ERROR, "", e.getMessage()));
         }
 			}
