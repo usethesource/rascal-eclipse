@@ -787,7 +787,6 @@
        <viewerContentBinding 
             viewerId="rascal.navigator">
           <includes>
-             <contentExtension pattern="org.eclipse.ui.navigator.resourceContent" />                  
              <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
           </includes>
        </viewerContentBinding>
