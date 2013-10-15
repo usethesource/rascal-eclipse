@@ -5,12 +5,12 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class FastPrint {
 	class PrintSwitching {
@@ -45,9 +45,9 @@ public class FastPrint {
 		
 		
 	}
-	private IValueFactory VF;
+	private IRascalValueFactory VF;
 	
-	public FastPrint(IValueFactory vf) { this.VF = vf; }
+	public FastPrint(IRascalValueFactory vf) { this.VF = vf; }
 	
 	public void fprint(IValue arg, IEvaluatorContext ctx) {
 		PrintSwitching ps = new PrintSwitching(ctx);
