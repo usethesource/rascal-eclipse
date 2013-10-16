@@ -92,9 +92,16 @@ public class RascalMonitor implements IRascalMonitor {
 			throw new ImplementationError("event() called before startJob()");
 	}
 	
+	private long nextPoll = 0;
+	private boolean previousResult;
 	@Override
 	public boolean isCanceled() {
-		return monitor.isCanceled();
+		if (System.currentTimeMillis() < nextPoll) {
+			return previousResult;
+		}
+		nextPoll = System.currentTimeMillis() + 100;
+		previousResult = monitor.isCanceled();
+		return previousResult;
 	}
 
 	private class SubRascalMonitor {
