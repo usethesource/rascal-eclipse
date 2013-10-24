@@ -43,6 +43,13 @@ public class NavigatorContentProvider implements ITreeContentProvider {
         return workingSets;
       }
     }
+    else if (inputElement instanceof IContainer) {
+      try {
+        return ((IContainer) inputElement).members();
+      } catch (CoreException e) {
+        Activator.log("navigator exception", e);
+      }
+    }
     
     return new Object[] { };
   }
