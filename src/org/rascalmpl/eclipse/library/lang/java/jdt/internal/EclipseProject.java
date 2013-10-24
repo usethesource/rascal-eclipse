@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -46,9 +47,13 @@ public class EclipseProject {
       
       for (IPackageFragmentRoot root : jProject.getAllPackageFragmentRoots()) {
         if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
-          IPath path = root.getResource().getProjectRelativePath();
-          URI rootUri = URIUtil.changePath(uri, "/" + path.toPortableString());
-          result.insert(VF.sourceLocation(rootUri));
+          IResource resource = root.getResource();
+          IPath path = resource.getProjectRelativePath();
+          IProject thisProject = resource.getProject();
+          if (thisProject == project) {
+        	URI rootUri = URIUtil.changePath(uri, "/" + path.toPortableString());
+            result.insert(VF.sourceLocation(rootUri));  
+          }
         }
       }
      
@@ -77,6 +82,14 @@ public class EclipseProject {
           String pathString = path.toPortableString();
           URI rootUri = URIUtil.create("file", "", pathString.startsWith("/") ? pathString : "/" + pathString);
           result.insert(VF.sourceLocation(rootUri));
+        }
+        if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
+        	IResource resource = root.getResource();
+            IPath path = resource.getProjectRelativePath();
+            IProject thisProject = resource.getProject();
+            if (thisProject != project) {
+          	  result.insert(VF.sourceLocation("project", thisProject.getName(), "/"+path.toPortableString()));
+            }
         }
       }
      
