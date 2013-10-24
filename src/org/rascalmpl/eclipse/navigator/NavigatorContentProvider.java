@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -40,6 +41,13 @@ public class NavigatorContentProvider implements ITreeContentProvider {
       }
       else {
         return workingSets;
+      }
+    }
+    else if (inputElement instanceof IContainer) {
+      try {
+        return ((IContainer) inputElement).members();
+      } catch (CoreException e) {
+        Activator.log("navigator exception", e);
       }
     }
     
@@ -90,8 +98,21 @@ public class NavigatorContentProvider implements ITreeContentProvider {
         IProject project = (IProject) parentElement;
 
         if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
-          return getProjectSearchPath();
+          Object[] libraries = getProjectSearchPath();
+          IResource[] members = project.members();
+          Object[] result = new Object[members.length + libraries.length];
+          
+          System.arraycopy(members, 0, result, 0, members.length);
+          System.arraycopy(libraries, 0, result, members.length, libraries.length);
+          
+          return result;
         }
+        else if (project.isOpen()) {
+          return project.members();
+        }
+      }
+      else if (parentElement instanceof IContainer) {
+        return ((IContainer) parentElement).members();
       }
       else if (parentElement instanceof IFileStore) {
         return ((IFileStore) parentElement).childStores(EFS.NONE, null);
