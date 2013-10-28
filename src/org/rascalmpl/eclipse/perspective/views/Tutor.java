@@ -208,7 +208,20 @@ public class Tutor extends ViewPart {
 					 * Installed plug-in as jar file. E.g. URI has form
 					 * jar:file:/path/to/eclipse/plugins/rascal_0.5.2.201210301241.jar!/		
 					 */
-					String path = rascalURI.toURI().toASCIIString();
+					String path = null;
+					try {
+						path = rascalURI.toURI().toASCIIString();
+					}
+					catch (URISyntaxException e) {
+						// okay so the path contains special chars, lets be smarter
+						// and try one possible way of creating a path
+						path = rascalURI.getPath();
+						if (path.startsWith("file:")) {
+							path = path.substring(5);
+						}
+						path = URIUtil.create(rascalURI.getProtocol(), null, path).toString();
+						
+					}
 					return path.substring(path.indexOf("/"), path.indexOf('!'));
 				
 				} else {					
