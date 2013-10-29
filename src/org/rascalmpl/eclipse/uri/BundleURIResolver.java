@@ -44,10 +44,9 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 		return registry.getOutputStream(URIUtil.getChildURI(parent, URIUtil.getURIName(uri)), append);
 	}
 
-	public void mkDirectory(URI uri) throws IOException {
+  public void mkDirectory(URI uri) throws IOException {
 		URI parent = resolve(URIUtil.getParentURI(uri));
 		parent = resolve(parent);
-		
 		registry.mkDirectory(URIUtil.getChildURI(parent, URIUtil.getURIName(uri)));
 	}
 

@@ -42,7 +42,7 @@ import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.tutor.RascalTutor;
-import org.rascalmpl.uri.ClassResourceInputOutput;
+import org.rascalmpl.uri.ClassResourceInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
@@ -142,7 +142,7 @@ public class Tutor extends ViewPart {
 
 						Evaluator eval = tutor.getRascalEvaluator();
 						eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-						ClassResourceInputOutput eclipseResolver = new ClassResourceInputOutput(eval.getResolverRegistry(), "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
+						ClassResourceInput eclipseResolver = new ClassResourceInput(eval.getResolverRegistry(), "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
 						eval.getResolverRegistry().registerInput(eclipseResolver);
 						eval.addRascalSearchPath(URIUtil.rootScheme(eclipseResolver.scheme()));
 						eval.addClassLoader(getClass().getClassLoader());
