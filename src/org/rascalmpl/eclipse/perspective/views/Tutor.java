@@ -29,13 +29,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.osgi.framework.internal.core.BundleResourceHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.WorkbenchJob;
+import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
+import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
@@ -135,41 +138,13 @@ public class Tutor extends ViewPart {
 					if (tutor == null) {
 						monitor.beginTask("Loading Tutor server", 2);
 						tutor = new RascalTutor();
-						URIResolverRegistry registry = tutor.getResolverRegistry();
-						BundleURIResolver resolver = new BundleURIResolver(registry);
-						registry.registerInput(resolver);
-						registry.registerOutput(resolver);
-
-						Evaluator eval = tutor.getRascalEvaluator();
-						eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-						ClassResourceInput eclipseResolver = new ClassResourceInput(eval.getResolverRegistry(), "eclipse-std", RascalScriptInterpreter.class, "/org/rascalmpl/eclipse/library");
-						eval.getResolverRegistry().registerInput(eclipseResolver);
-						eval.addRascalSearchPath(URIUtil.rootScheme(eclipseResolver.scheme()));
-						eval.addClassLoader(getClass().getClassLoader());
-
-						String rascalPlugin = jarForPlugin("rascal");
-						String rascalEclipsePlugin = jarForPlugin(ID_RASCAL_ECLIPSE_PLUGIN);
-						String PDBValuesPlugin = jarForPlugin("org.eclipse.imp.pdb.values");
-
-						eval.getConfiguration().setRascalJavaClassPathProperty(
-								rascalPlugin 
-								+ File.pathSeparator 
-								+ rascalPlugin + File.separator + "src" 
-								+ File.pathSeparator 
-								+ rascalPlugin + File.separator + "bin" 
-								+ File.pathSeparator 
-								+ PDBValuesPlugin 
-								+ File.pathSeparator 
-								+ PDBValuesPlugin + File.separator + "bin"
-								+ File.pathSeparator
-								+ rascalEclipsePlugin
-								+ File.pathSeparator
-								+ rascalEclipsePlugin + File.separator + "bin"
-								);
-
+						
+						Bundle bundle = Activator.getInstance().getBundle();
+						ProjectEvaluatorFactory.getInstance().initializeBundleEvaluator(bundle, tutor.getRascalEvaluator());
+						
 						for (int i = 0; i < 100; i++) {
 							try {
-								tutor.start(port, new RascalMonitor(monitor, new WarningsToPrintWriter(eval.getStdErr())));
+								tutor.start(port, new RascalMonitor(monitor, new WarningsToPrintWriter(tutor.getRascalEvaluator().getStdErr())));
 								break;
 							}
 							catch (BindException e) {
