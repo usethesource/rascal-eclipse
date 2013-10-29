@@ -75,11 +75,15 @@ public class EclipseProject {
       IJavaProject jProject = JavaCore.create(project);
       
       ISetWriter result = VF.setWriter();
-      
+      // TODO: Check this whole loop w.r.t. rascal-eclipse and hsqldb
       for (IPackageFragmentRoot root : jProject.getAllPackageFragmentRoots()) {
         if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
           IPath path = root.getPath();
-          String pathString = path.toPortableString();
+          if (!root.isExternal()) {
+        	  // Need to make the path for all non-external package fragment roots into absolute paths
+        	  path = root.getResource().getLocation();
+          }
+          String pathString = path.toString();
           URI rootUri = URIUtil.create("file", "", pathString.startsWith("/") ? pathString : "/" + pathString);
           result.insert(VF.sourceLocation(rootUri));
         }
