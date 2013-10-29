@@ -41,29 +41,12 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 			throws IOException {
 		URI parent = resolve(URIUtil.getParentURI(uri));
 		parent = resolve(parent);
-		parent = fixCoursesSrcDir(parent);
 		return registry.getOutputStream(URIUtil.getChildURI(parent, URIUtil.getURIName(uri)), append);
 	}
-
-	private URI fixCoursesSrcDir(URI parent) {
-	  // TODO: this is a temporary workaround for a problem that we have no good solution for at the moment
-	  try {
-	    String path = parent.getPath();
-	    if (path != null) {
-	      path = path.replaceAll("bin/org/rascalmpl/courses", "src/org/rascalmpl/courses");
-	    }
-
-	    return URIUtil.changePath(parent, path);
-	  } catch (URISyntaxException e) {
-	    assert false;
-	    return parent;
-	  }
-  }
 
   public void mkDirectory(URI uri) throws IOException {
 		URI parent = resolve(URIUtil.getParentURI(uri));
 		parent = resolve(parent);
-		
 		registry.mkDirectory(URIUtil.getChildURI(parent, URIUtil.getURIName(uri)));
 	}
 
