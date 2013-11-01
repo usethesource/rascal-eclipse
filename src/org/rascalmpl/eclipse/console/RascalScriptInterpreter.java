@@ -632,6 +632,8 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 
 	@Override
 	public String getProjectName() {
+		if (this.project == null) 
+			return null;
 		return this.project.getName();
 	}
 	

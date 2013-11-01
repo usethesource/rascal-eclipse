@@ -101,14 +101,17 @@ public class RascalHyperlink implements IHyperlink {
 					IDE.openEditorOnFileStore( page, fileStore );
 				}
 				else {
-					IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-					Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
+					IEvaluatorContext eval = ctx;
+					if (projectName != null) {
+						IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+						eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
+					}
 
 					if (eval != null) {
 						URI resourceURI = eval.getResolverRegistry().getResourceURI(getURIPart());
 
 						if (resourceURI.getScheme().equals("project")) {
-							project = ResourcesPlugin.getWorkspace().getRoot().getProject(resourceURI.getAuthority());
+							IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(resourceURI.getAuthority());
 							IFile file = project.getFile(resourceURI.getPath());
 							IEditorPart part = IDE.openEditor(page, file);
 							if (getOffsetPart() > -1 && part instanceof ITextEditor) {
