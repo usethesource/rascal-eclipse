@@ -113,6 +113,6 @@ public class LibraryURIResolver implements IURIInputStreamResolver {
 
   @Override
   public boolean supportsHost() {
-    return true;
+    return false;
   }
 }
