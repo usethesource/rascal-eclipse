@@ -20,7 +20,6 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.uri.URIUtil;
 
 
 /**
@@ -36,10 +35,9 @@ public class EclipseProject {
 
   public ISet sourceRootsForProject(ISourceLocation loc) {
     try {
-      URI uri = loc.getURI();
-      IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
+      IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(loc.getAuthority());
       if (project == null || !project.isOpen()) {
-        throw RuntimeExceptionFactory.io(VF.string("project " + uri.getAuthority() + " could not be opened."), null, null);
+        throw RuntimeExceptionFactory.io(VF.string("project " + loc.getAuthority() + " could not be opened."), null, null);
       }
       
       IJavaProject jProject = JavaCore.create(project);
@@ -51,8 +49,7 @@ public class EclipseProject {
           IPath path = resource.getProjectRelativePath();
           IProject thisProject = resource.getProject();
           if (thisProject == project) {
-        	URI rootUri = URIUtil.changePath(uri, "/" + path.toPortableString());
-            result.insert(VF.sourceLocation(rootUri));  
+            result.insert(VF.sourceLocation(loc.getScheme(), loc.getAuthority(), path.toPortableString()));  
           }
         }
       }
@@ -66,16 +63,14 @@ public class EclipseProject {
   
   public ISet classPathForProject(ISourceLocation loc) {
     try {
-      URI uri = loc.getURI();
-      IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
+      IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(loc.getAuthority());
       if (project == null || !project.isOpen()) {
-        throw RuntimeExceptionFactory.io(VF.string("project " + uri.getAuthority() + " could not be opened."), null, null);
+        throw RuntimeExceptionFactory.io(VF.string("project " + loc.getAuthority() + " could not be opened."), null, null);
       }
       
       IJavaProject jProject = JavaCore.create(project);
       
       ISetWriter result = VF.setWriter();
-      // TODO: Check this whole loop w.r.t. rascal-eclipse and hsqldb
       for (IPackageFragmentRoot root : jProject.getAllPackageFragmentRoots()) {
         if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
           IPath path = root.getPath();
@@ -83,9 +78,7 @@ public class EclipseProject {
         	  // Need to make the path for all non-external package fragment roots into absolute paths
         	  path = root.getResource().getLocation();
           }
-          String pathString = path.toString();
-          URI rootUri = URIUtil.create("file", "", pathString.startsWith("/") ? pathString : "/" + pathString);
-          result.insert(VF.sourceLocation(rootUri));
+          result.insert(VF.sourceLocation("file", "", path.toString()));
         }
         if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
         	IResource resource = root.getResource();
