@@ -12,10 +12,8 @@
  *******************************************************************************/
 package org.rascalmpl.eclipse.perspective.views;
 
-import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_ECLIPSE_PLUGIN;
 import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_TUTOR_VIEW_PART;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.URISyntaxException;
@@ -29,7 +27,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.osgi.framework.internal.core.BundleResourceHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Composite;
@@ -37,16 +34,10 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
-import org.rascalmpl.eclipse.uri.BundleURIResolver;
-import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.tutor.RascalTutor;
-import org.rascalmpl.uri.ClassResourceInput;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 public class Tutor extends ViewPart {
@@ -141,7 +132,7 @@ public class Tutor extends ViewPart {
 						
 						Bundle bundle = Activator.getInstance().getBundle();
 						ProjectEvaluatorFactory.getInstance().initializeBundleEvaluator(bundle, tutor.getRascalEvaluator());
-						
+						 
 						for (int i = 0; i < 100; i++) {
 							try {
 								tutor.start(port, new RascalMonitor(monitor, new WarningsToPrintWriter(tutor.getRascalEvaluator().getStdErr())));
