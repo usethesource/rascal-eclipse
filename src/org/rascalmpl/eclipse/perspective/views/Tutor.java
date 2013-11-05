@@ -16,6 +16,7 @@ import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_TUTOR_VIEW_PART;
 
 import java.io.IOException;
 import java.net.BindException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
@@ -37,7 +38,11 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.tutor.RascalTutor;
+import org.rascalmpl.uri.ClassResourceInput;
+import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 public class Tutor extends ViewPart {
@@ -131,11 +136,38 @@ public class Tutor extends ViewPart {
 						tutor = new RascalTutor();
 						
 						Bundle bundle = Activator.getInstance().getBundle();
-						ProjectEvaluatorFactory.getInstance().initializeBundleEvaluator(bundle, tutor.getRascalEvaluator());
-						 
+						Evaluator eval = tutor.getRascalEvaluator();
+						
+						// somehow the tutor should get access to the library files in this project.
+						// we create a new scheme especially for this, which is used in the mapping file: remote-concepts.value
+            ProjectEvaluatorFactory.getInstance().initializeBundleEvaluator(bundle, eval);
+						URIResolverRegistry registry = eval.getResolverRegistry();
+						
+						for (final String lib : new String[] { "rascal", "rascal-eclipse" }) {
+						  final String courseSrc = System.getProperty("rascal.courses.lib." + lib);
+					  
+						  if (courseSrc != null) {
+						    FileURIResolver fileURIResolver = new FileURIResolver() {
+						      @Override
+						      public String scheme() {
+						        return "clib-" + lib;
+						      }
+
+						      @Override
+						      protected String getPath(URI uri) {
+						        String path = uri.getPath();
+						        return courseSrc + (path.startsWith("/") ? path : ("/" + path));
+						      }
+						    };
+					      
+					      registry.registerInputOutput(fileURIResolver);
+					      eval.addRascalSearchPath(URIUtil.rootScheme("clib-" + lib));
+					    }
+						}
+			      
 						for (int i = 0; i < 100; i++) {
 							try {
-								tutor.start(port, new RascalMonitor(monitor, new WarningsToPrintWriter(tutor.getRascalEvaluator().getStdErr())));
+								tutor.start(port, new RascalMonitor(monitor, new WarningsToPrintWriter(eval.getStdErr())));
 								break;
 							}
 							catch (BindException e) {
