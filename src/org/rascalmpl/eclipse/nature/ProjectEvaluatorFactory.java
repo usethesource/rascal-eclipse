@@ -35,12 +35,9 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.osgi.service.resolver.BundleDescription;
-import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
-import org.osgi.resource.Wire;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.eclipse.uri.BootstrapURIResolver;
@@ -381,7 +378,7 @@ public class ProjectEvaluatorFactory {
       BundleWiring wiring = bundle.adapt(BundleWiring.class);
 
       for (BundleWire dep : wiring.getRequiredWires(null)) {
-        collectClassPathForBundle(dep.getProvider().getBundle(), classPath, compilerClassPath);
+        collectClassPathForBundle(dep.getProviderWiring().getBundle(), classPath, compilerClassPath);
       }
     } 
     catch (IOException e) {

@@ -14,12 +14,12 @@ import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 
 /**
@@ -27,9 +27,9 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
  * and configuration of Eclipse Java projects
  */
 public class EclipseProject {
-  private final IValueFactory VF;
+  private final IRascalValueFactory VF;
 
-  public EclipseProject(IValueFactory vf) {
+  public EclipseProject(IRascalValueFactory vf) {
     this.VF = vf;
   }
 
