@@ -21,7 +21,7 @@ public M3 createM3FromEclipseProject(loc project) {
   setEnvironmentOptions(classPathForProject(project), sourceRootsForProject(project));
   compliance = getProjectOptions(project)["org.eclipse.jdt.core.compiler.compliance"];
   result = composeJavaM3(project, { createM3FromFile(f, javaVersion=compliance) | loc f <- sourceFilesForProject(project)});
-  registerProject(project.authority, result);
+  registerProject(project, result);
   return result;
 }
 
@@ -29,23 +29,14 @@ public M3 createM3FromEclipseProject(loc project) {
 Synopsis: Create an AST for the given logical method location
 }
 public Declaration getMethodASTEclipse(loc methodLoc, M3 model = m3(|unknown:///|)) {
-  if (isMethod(methodLoc)) {
-    if (isEmpty(model)) {
-      model = getModelContaining(methodLoc);
-      if (isEmpty(model))
-        throw "Declaration for <methodLoc> not found in any models";
-    }
-    loc file = getFileContaining(methodLoc, model);
-    Declaration fileAST = createAstsFromEclipseFile(file, true);
-    visit(fileAST) {
-      case Declaration d: {
-        if ("decl" in getAnnotations(d) && d@decl == methodLoc)
-          return d;
-      }
-    }
-    throw "No declaration matching <methodLoc> found";
+  if (isEmpty(model)) {
+    model = getModelContaining(methodLoc);
   }
-  throw "Only methods are supported at the moment";
+  if (model.id notin methodASTs) {
+    methodASTs[model.id] = ( d@decl : d |/Declaration d := createAstsFromEclipseProject(model.id, true), d is method || d is constructor);
+  }
+  try return methodASTs[model.id][methodLoc];
+  catch: throw "Method <methodLoc> not found in any model";
 }
 
 @doc{
