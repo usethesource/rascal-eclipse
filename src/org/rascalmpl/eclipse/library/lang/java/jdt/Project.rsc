@@ -1,3 +1,6 @@
+@doc{
+Synopsis: API to extract classpath information from Eclipse project meta-data
+}
 module lang::java::jdt::Project
 
 import util::FileSystem;

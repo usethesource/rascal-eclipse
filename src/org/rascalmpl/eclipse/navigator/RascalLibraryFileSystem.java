@@ -146,6 +146,8 @@ public class RascalLibraryFileSystem extends FileSystem {
 			}
 
       private boolean isRascalFile(Path elemPath) {
+    	if (elemPath.getFileExtension() == null)
+    		return false;
         return elemPath.getFileExtension().equals(IRascalResources.RASCAL_EXT);
       }
 

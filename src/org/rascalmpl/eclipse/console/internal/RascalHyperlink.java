@@ -36,27 +36,27 @@ import org.rascalmpl.uri.URIUtil;
 
 public class RascalHyperlink implements IHyperlink {
 	private static final int INVALID_OFFSET = -1;
-  private String target;
+	private String target;
 	private PrintWriter err;
-  private IEvaluatorContext ctx;
-  private String projectName;
-  private final InteractiveInterpreterConsole console;
-  private final int srcOffset;
-  private final int srcLen;
+	private IEvaluatorContext ctx;
+	private String projectName;
+	private final InteractiveInterpreterConsole console;
+	private final int srcOffset;
+	private final int srcLen;
 
-  public int getSrcOffset() {
-    return srcOffset;
-  }
-  
-  public int getSrcLength() {
-    return srcLen;
-  }
-  
+	public int getSrcOffset() {
+		return srcOffset;
+	}
+
+	public int getSrcLength() {
+		return srcLen;
+	}
+
 	public RascalHyperlink(InteractiveInterpreterConsole console, int srcOffset, int srcLen, String target, IEvaluatorContext ctx, String projectName, PrintWriter err) {
-	  this.ctx = ctx;
-	  this.srcOffset = srcOffset;
-	  this.srcLen = srcLen;
-	  this.console = console;
+		this.ctx = ctx;
+		this.srcOffset = srcOffset;
+		this.srcLen = srcLen;
+		this.console = console;
 		this.target = target;
 		this.err = err;
 		this.projectName = projectName;
@@ -72,11 +72,11 @@ public class RascalHyperlink implements IHyperlink {
 
 	@Override
 	public void linkActivated() {
-	  console.setSelection(srcOffset - 1, srcLen + 1);
-	  
+		console.setSelection(srcOffset - 1, srcLen + 1);
+
 		try {
-		  IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		  
+			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+
 			IResource res = URIResourceResolver.getResource(getURIPart(), projectName);
 			if (res != null && res instanceof IFile) {
 				IEditorPart part = IDE.openEditor(page, (IFile)res);
@@ -95,52 +95,55 @@ public class RascalHyperlink implements IHyperlink {
 				}
 			}
 			else {
-			  IFileStore fileStore = EFS.getLocalFileSystem().getStore(getURIPart());
-		   
-		    if (fileStore.fetchInfo().exists()) {
-		      IDE.openEditorOnFileStore( page, fileStore );
-		    }
-		    else {
-		      IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-		      Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
-		      
-		      if (eval != null) {
-		        URI resourceURI = eval.getResolverRegistry().getResourceURI(getURIPart());
-		        
-		        if (resourceURI.getScheme().equals("project")) {
-		          project = ResourcesPlugin.getWorkspace().getRoot().getProject(resourceURI.getAuthority());
-		          IFile file = project.getFile(resourceURI.getPath());
-		          IEditorPart part = IDE.openEditor(page, file);
-		          if (getOffsetPart() > -1 && part instanceof ITextEditor) {
-		            ((ITextEditor)part).selectAndReveal(getOffsetPart(), getLength());
-		          }
-		          return;
-		        }
+				IFileStore fileStore = EFS.getLocalFileSystem().getStore(getURIPart());
 
-		        if (resourceURI != null) {
-		          URL find = FileLocator.resolve(resourceURI.toURL());
-		          fileStore = EFS.getLocalFileSystem().getStore(find.toURI());
+				if (fileStore.fetchInfo().exists()) {
+					IDE.openEditorOnFileStore( page, fileStore );
+				}
+				else {
+					IEvaluatorContext eval = ctx;
+					if (projectName != null) {
+						IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+						eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
+					}
 
-		          if (fileStore != null && fileStore.fetchInfo().exists()) {
-		            IEditorPart part = IDE.openEditorOnFileStore( page, fileStore );
-		            if (getOffsetPart() > -1 && part instanceof ITextEditor) {
-		              ((ITextEditor)part).selectAndReveal(getOffsetPart(), getLength());
-		            }
-		            return;
-		          }
-		        }
-		      }
-		    }
-		    
-		    Activator.log("can not open link", null);
+					if (eval != null) {
+						URI resourceURI = eval.getResolverRegistry().getResourceURI(getURIPart());
+
+						if (resourceURI.getScheme().equals("project")) {
+							IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(resourceURI.getAuthority());
+							IFile file = project.getFile(resourceURI.getPath());
+							IEditorPart part = IDE.openEditor(page, file);
+							if (getOffsetPart() > -1 && part instanceof ITextEditor) {
+								((ITextEditor)part).selectAndReveal(getOffsetPart(), getLength());
+							}
+							return;
+						}
+
+						if (resourceURI != null) {
+							URL find = FileLocator.resolve(resourceURI.toURL());
+							fileStore = EFS.getLocalFileSystem().getStore(find.toURI());
+
+							if (fileStore != null && fileStore.fetchInfo().exists()) {
+								IEditorPart part = IDE.openEditorOnFileStore( page, fileStore );
+								if (getOffsetPart() > -1 && part instanceof ITextEditor) {
+									((ITextEditor)part).selectAndReveal(getOffsetPart(), getLength());
+								}
+								return;
+							}
+						}
+					}
+				}
+
+				Activator.log("can not open link", null);
 			}
 		} catch (IOException | CoreException e) {
 			Activator.log("Cannot follow link", e);
 		} catch (URISyntaxException e) {
-		  Activator.log("Cannot follow link", e);
-    } catch (Throw e) {
-      Activator.log("Cannot follow link", e);
-    }
+			Activator.log("Cannot follow link", e);
+		} catch (Throw e) {
+			Activator.log("Cannot follow link", e);
+		}
 	}
 
 	private int length = -1;
@@ -160,7 +163,7 @@ public class RascalHyperlink implements IHyperlink {
 		makeSureLinkIsParsed();
 		return uri;
 	}
-	
+
 	private boolean linkParsed = false;
 	private Pattern splitParts = Pattern.compile("\\|([^\\|]*)\\|(?:\\(\\s*([0-9]+)\\s*,\\s*([0-9]+))?");
 	private void makeSureLinkIsParsed() {
@@ -174,19 +177,19 @@ public class RascalHyperlink implements IHyperlink {
 					length = Integer.parseInt(m.group(3));
 				}
 			}
-			
+
 			IValueFactory vf = ctx.getValueFactory();
 			ISourceLocation loc;
 			if (offset != INVALID_OFFSET) {
-			  loc = ctx.getHeap().resolveSourceLocation(vf.sourceLocation(uri, offset, length));
+				loc = ctx.getHeap().resolveSourceLocation(vf.sourceLocation(uri, offset, length));
 			}
 			else {
-			  loc = ctx.getHeap().resolveSourceLocation(vf.sourceLocation(uri));
+				loc = ctx.getHeap().resolveSourceLocation(vf.sourceLocation(uri));
 			}
 			uri = loc.getURI();
 			if (loc.hasOffsetLength()) {
-			  offset = loc.getOffset(); 
-			  length = loc.getLength();
+				offset = loc.getOffset(); 
+				length = loc.getLength();
 			}
 		}
 	}

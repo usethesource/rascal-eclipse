@@ -35,9 +35,12 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
+import org.osgi.resource.Wire;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.eclipse.uri.BootstrapURIResolver;
@@ -352,24 +355,38 @@ public class ProjectEvaluatorFactory {
   }
 
   private void collectClassPathForBundle(Bundle bundle, List<URL> classPath, List<String> compilerClassPath) {
-    URL res = bundle.getResource("/");
-    if (res == null || classPath.contains(res)) {
-      return; // breaks infinite recursion
-    }
-    
-    classPath.add(res);
     try {
-      compilerClassPath.add(FileLocator.resolve(res).getPath().toString());
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    
-    BundleWiring wiring = bundle.adapt(BundleWiring.class);
-    
-    for (BundleWire dep : wiring.getRequiredWires(null)) {
-      collectClassPathForBundle(dep.getProviderWiring().getBundle(), classPath, compilerClassPath);
-    }
+      File file = FileLocator.getBundleFile(bundle);
+      
+      // in the case we are loading a bundle which is actually a first Eclipse level source project,
+      // we now just concatenate the bin folder and hope to find our class files there.
+      // this is only relevant in the context of people developing Rascal, not people using it.
+      if (file.isDirectory()) {
+        File bin = new File(file, "bin");
+        if (bin.exists()) {
+          file = bin;
+        }
+      }
+      
+      URL url = file.toURI().toURL();
+      
+      if (classPath.contains(url)) {
+        return; // kill infinite loop
+      }
+
+      
+      classPath.add(0, url);
+      compilerClassPath.add(0, file.getAbsolutePath());
+
+      BundleWiring wiring = bundle.adapt(BundleWiring.class);
+
+      for (BundleWire dep : wiring.getRequiredWires(null)) {
+        collectClassPathForBundle(dep.getProvider().getBundle(), classPath, compilerClassPath);
+      }
+    } 
+    catch (IOException e) {
+     Activator.log("error construction classpath for bundle: " + bundle.getSymbolicName(), e);
+    } 
   }
   
 	private void collectClassPathForProject(IProject project, List<URL> classPath, List<String> compilerClassPath) {

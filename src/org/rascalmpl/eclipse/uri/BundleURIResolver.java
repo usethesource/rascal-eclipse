@@ -44,10 +44,9 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 		return registry.getOutputStream(URIUtil.getChildURI(parent, URIUtil.getURIName(uri)), append);
 	}
 
-	public void mkDirectory(URI uri) throws IOException {
+  public void mkDirectory(URI uri) throws IOException {
 		URI parent = resolve(URIUtil.getParentURI(uri));
 		parent = resolve(parent);
-		
 		registry.mkDirectory(URIUtil.getChildURI(parent, URIUtil.getURIName(uri)));
 	}
 
@@ -70,7 +69,18 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 	private URI resolve(URI uri) throws IOException {
 		try {
 			URL resolved = FileLocator.resolve(uri.toURL());
-      URI result = URIUtil.fixUnicode(resolved.toURI());
+			URI result = null;
+			try {
+				result = URIUtil.fixUnicode(resolved.toURI()); 
+			}
+			catch (URISyntaxException e) {
+				// lets try to make a URI out of the URL.
+				String path = resolved.getPath();
+				if (path.startsWith("file:")) {
+					path = path.substring(5);
+				}
+				result = URIUtil.create(resolved.getProtocol(), resolved.getAuthority(), path);
+			}
 			if (result == uri) {
 				throw new IOException("could not resolve " + uri);
 			}

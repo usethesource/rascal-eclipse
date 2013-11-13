@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: CWI
 Bundle-SymbolicName: rascal_eclipse;singleton:=true
-Bundle-Version: 0.6.1.qualifier
+Bundle-Version: 0.6.2.qualifier
 Bundle-Activator: org.rascalmpl.eclipse.Activator
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.imp.pdb.ui,
