@@ -15,23 +15,24 @@ package org.rascalmpl.eclipse.library.vis;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.swt.FigureExecutionEnvironment;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class FigureLibrary {
 	
-	IValueFactory values;
+	IRascalValueFactory values;
 
-	public FigureLibrary(IValueFactory values) {
+	public FigureLibrary(IRascalValueFactory values) {
 		this.values = values;
 	}
 	

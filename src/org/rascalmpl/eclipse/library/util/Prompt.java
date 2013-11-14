@@ -26,12 +26,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Prompt {
 	
-	private final IValueFactory vf;
+	private final IRascalValueFactory vf;
 
-	public Prompt(IValueFactory vf) {
+	public Prompt(IRascalValueFactory vf) {
 		this.vf = vf;
 	}
 	

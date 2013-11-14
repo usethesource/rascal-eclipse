@@ -15,17 +15,17 @@ package org.rascalmpl.eclipse.library.util;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.eclipse.console.CustomConsoleRegistry;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class IDE {
-	private final IValueFactory VF;
+	private final IRascalValueFactory VF;
 	private static final TypeFactory TF = TypeFactory.getInstance();
-	public IDE(IValueFactory factory) {
+	public IDE(IRascalValueFactory factory) {
 		VF = factory;
 	}
 	
