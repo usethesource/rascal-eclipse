@@ -16,6 +16,13 @@ import Node;
 
 @doc{
 Synopsis: Extract a full m3 model from an Eclipse project
+
+Examples:
+
+<screen>
+import lang::java::jdt::m3::Core;
+myModel = createM3FromEclipseProject(|project://HelloWorld|);
+</screen>
 }
 public M3 createM3FromEclipseProject(loc project) {
   setEnvironmentOptions(classPathForProject(project), sourceRootsForProject(project));

@@ -11,7 +11,11 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.wizards;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
@@ -35,6 +39,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
+import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 
 /**
  * The "New" wizard page allows setting the container for the new file as well
@@ -114,8 +119,11 @@ public class NewRascalFilePage extends WizardPage {
 		if (selection != null && selection.isEmpty() == false
 				&& selection instanceof IStructuredSelection) {
 			IStructuredSelection ssel = (IStructuredSelection) selection;
-			if (ssel.size() > 1)
+			
+			if (ssel.size() > 1) {
 				return;
+			}
+			
 			Object obj = ssel.getFirstElement();
 			if (obj instanceof IResource) {
 				IContainer container;
@@ -125,6 +133,7 @@ public class NewRascalFilePage extends WizardPage {
 				else {
 					container = ((IResource) obj).getParent();
 				}
+				
 				containerText.setText(container.getFullPath().toString());
 			}
 			else if (obj instanceof IJavaProject) {
@@ -175,6 +184,32 @@ public class NewRascalFilePage extends WizardPage {
 			updateStatus("Folder must exist");
 			return;
 		}
+		
+		List<String> sourceRoots = new RascalEclipseManifest().getSourceRoots(container.getProject());
+		List<IResource> rootPaths = new LinkedList<>();
+		for (String root : sourceRoots) {
+		  rootPaths.add(container.getProject().findMember(root));
+		}
+		
+		IResource runner = container;
+		boolean found = false;
+
+    stop: while (runner != null) {
+      for (IResource root : rootPaths) {
+        if (root.equals(runner)) {
+          found = true;
+          
+          break stop;
+        }
+      }
+      runner = runner.getParent();
+    }
+		
+		String srcPath = rootPaths.get(0).getFullPath().toString();
+    if (!found && !containerText.equals(srcPath)) {
+		  containerText.setText(srcPath);
+		}
+		
 		if (!container.isAccessible()) {
 			updateStatus("Project must be writable");
 			return;
