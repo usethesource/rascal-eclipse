@@ -44,6 +44,7 @@ import org.rascalmpl.eclipse.editor.NodeLocator;
 import org.rascalmpl.eclipse.editor.Token;
 import org.rascalmpl.eclipse.editor.TokenIterator;
 import org.rascalmpl.eclipse.nature.IWarningHandler;
+import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
@@ -63,6 +64,7 @@ public class TermParseController implements IParseController {
 	private IDocument document;
 	private ICallableValue annotator;
 	private ParseJob job;
+	private ModuleReloader reloader;
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory(); 
 	private final static AnnotatorExecutor executor = new AnnotatorExecutor();
 	
@@ -113,6 +115,7 @@ public class TermParseController implements IParseController {
 		TermLanguageRegistry reg = TermLanguageRegistry.getInstance();
 		this.language = reg.getLanguage(path.getFileExtension());
 		this.parser = reg.getParser(this.language);
+		this.reloader = reg.getReloader(this.language);
 		this.annotator = reg.getAnnotator(this.language);
 
 		URI location = null;
@@ -168,6 +171,7 @@ public class TermParseController implements IParseController {
 				TypeFactory TF = TypeFactory.getInstance();
 				if (parser != null) {
 					synchronized (parser.getEval()) {
+						reloader.updateModules(monitor);
 						parseTree = (IConstructor) parser.call(rm, new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}, null).getValue();
 					}
 					if (parseTree != null && annotator != null) {
