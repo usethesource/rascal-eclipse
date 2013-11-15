@@ -40,6 +40,7 @@ import org.osgi.framework.Version;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
+import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 
 public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 
@@ -95,6 +96,8 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 				IProjectDescription description = project.getDescription();
 				description.setBuildConfigs(new String[] { "org.eclipse.jdt.core.javabuilder", "org.eclipse.pde.ManifestBuilder", "org.eclipse.pde.SchemaBuilder" });
 				project.setDescription(description, monitor);
+				
+				new RascalEclipseManifest().createIfNotPresent(project);
 				plugin.apply(monitor);
 			}
 

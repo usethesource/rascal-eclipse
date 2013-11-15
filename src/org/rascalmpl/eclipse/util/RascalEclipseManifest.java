@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.util;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +13,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
@@ -80,13 +82,20 @@ public class RascalEclipseManifest extends RascalManifest {
     try {
       IFolder folder = project.getFolder(META_INF);
       if (!folder.exists()) {
-        folder.create(false, false, null);
+        if (!new File(folder.getLocation().toOSString()).mkdirs()) {
+          Activator.log("could not mkdir META-INF", new IOException());
+          return;
+        }
       }
       
       IFile rascalMF = project.getFile(new Path(META_INF_RASCAL_MF)) ;
       if (!rascalMF.exists()) {
-        getDefaultManifest().write(new FileOutputStream(rascalMF.getLocation().toOSString()));
+        try (FileOutputStream file = new FileOutputStream(rascalMF.getLocation().toOSString())) {
+          getDefaultManifest().write(file);
+        }
       }
+      
+      project.refreshLocal(IProject.DEPTH_INFINITE, new NullProgressMonitor());
     } 
     catch (IOException | CoreException e) {
       Activator.log("could not create RASCAL.MF", e);
