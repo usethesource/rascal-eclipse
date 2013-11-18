@@ -833,6 +833,9 @@
          <commonSorter
                class="org.rascalmpl.eclipse.navigator.Sorter">
          </commonSorter>
+         <actionProvider
+               class="org.eclipse.ui.internal.navigator.resources.actions.EditActionProvider">
+         </actionProvider>
       </navigatorContent>
       <commonWizard
             type="new"
