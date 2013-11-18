@@ -836,6 +836,9 @@
          <actionProvider
                class="org.eclipse.ui.internal.navigator.resources.actions.EditActionProvider">
          </actionProvider>
+         <actionProvider
+               class="org.eclipse.ui.internal.navigator.resources.actions.RefactorActionProvider">
+         </actionProvider>
       </navigatorContent>
       <commonWizard
             type="new"
