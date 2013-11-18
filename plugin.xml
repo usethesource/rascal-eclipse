@@ -859,7 +859,20 @@
     <extension point="org.eclipse.ui.popupMenus"> 
    <viewerContribution
          id="rascal.navigator.contributions"
-         targetID="rascal.navigator"> 
+         targetID="rascal.navigator">
+   <action
+         class="org.rascalmpl.eclipse.perspective.actions.ImportInConsole"
+         enablesFor="1"
+         icon="icons/rascal3D_2-16px.gif"
+         id="rascal.navigator.contributions.importInConsole"
+         label="Import Module in current console"
+         menubarPath="additions"
+         tooltip="Import module in the current console">
+      <selection
+            class="org.eclipse.core.resources.IFile"
+            name="*.rsc">
+      </selection>
+   </action> 
    <action
          class="org.rascalmpl.eclipse.perspective.actions.StartConsole"
          enablesFor="?"
