@@ -7,27 +7,41 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 
-public class NavigatorContentProvider implements ITreeContentProvider {
+public class NavigatorContentProvider implements ITreeContentProvider, IResourceChangeListener {
   private Map<IFileStore,RascalLibraryContent> libraries;
+  private Viewer _viewer;
 
+  public NavigatorContentProvider() {
+	  super();
+	  ResourcesPlugin.getWorkspace().addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE);
+  }
+  
   @Override
   public void dispose() {
+	  ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
   }
 
   @Override
   public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+	  _viewer = viewer;
   }
 
   @Override
@@ -159,5 +173,17 @@ public class NavigatorContentProvider implements ITreeContentProvider {
   @Override
   public boolean hasChildren(Object element) {
     return getChildren(element).length > 0;
+  }
+
+  @Override
+  public void resourceChanged(IResourceChangeEvent event) {
+    UIJob job = new UIJob("Refresh viewer") {
+      @Override
+	  public IStatus runInUIThread(IProgressMonitor monitor) {
+		NavigatorContentProvider.this._viewer.refresh();
+		return Status.OK_STATUS;
+	  }
+    };
+    job.schedule();
   }
 }
