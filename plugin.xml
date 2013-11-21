@@ -778,7 +778,7 @@
          point="org.eclipse.ui.views">
       <view
             name="Rascal Navigator"
-            class="org.eclipse.ui.navigator.CommonNavigator"
+            class="org.rascalmpl.eclipse.navigator.RascalNavigator"
             id="rascal.navigator">
       </view>
    </extension>
@@ -788,6 +788,9 @@
             viewerId="rascal.navigator">
           <includes>
              <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
+             <contentExtension
+                   pattern="org.eclipse.ui.navigator.resourceContent">
+             </contentExtension>
           </includes>
        </viewerContentBinding>
        <viewerActionBinding
