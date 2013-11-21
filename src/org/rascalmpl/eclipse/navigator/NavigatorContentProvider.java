@@ -9,6 +9,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -17,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
@@ -25,9 +28,10 @@ import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 
-public class NavigatorContentProvider implements ITreeContentProvider, IResourceChangeListener {
+public class NavigatorContentProvider implements ITreeContentProvider, IResourceChangeListener,
+	IResourceDeltaVisitor {
   private Map<IFileStore,RascalLibraryContent> libraries;
-  private Viewer _viewer;
+  public TreeViewer _viewer;
 
   public NavigatorContentProvider() {
 	  super();
@@ -41,7 +45,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 
   @Override
   public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-	  _viewer = viewer;
+	  _viewer = (TreeViewer) viewer;
   }
 
   @Override
@@ -177,13 +181,24 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 
   @Override
   public void resourceChanged(IResourceChangeEvent event) {
-    UIJob job = new UIJob("Refresh viewer") {
-      @Override
-	  public IStatus runInUIThread(IProgressMonitor monitor) {
-		NavigatorContentProvider.this._viewer.refresh();
-		return Status.OK_STATUS;
-	  }
-    };
-    job.schedule();
+	IResourceDelta delta = event.getDelta();
+	try {
+		delta.accept(this);
+	} catch (CoreException e) { 
+		e.printStackTrace();
+	}
+  }
+
+  @Override
+  public boolean visit(IResourceDelta delta) throws CoreException {
+	  final IResource source = delta.getResource();
+	  new UIJob("Refresh viewer") {  //$NON-NLS-1$
+		public IStatus runInUIThread(IProgressMonitor monitor) {
+		if (_viewer != null && !_viewer.getControl().isDisposed())
+			_viewer.refresh(source);
+		return Status.OK_STATUS;						
+		}
+	  }.schedule();
+	  return false;
   }
 }
