@@ -28,7 +28,7 @@ public class RascalNavigator extends CommonNavigator {
 			for (int i = 0; i < elementMem.length; i++) {
 				Object element = PlatformUI.getWorkbench().getWorkingSetManager().getWorkingSet(elementMem[i].getString("name"));
 				if (element != null) {
-					elements.add((IWorkingSet) element);
+					elements.add(element);
 				}
 			}
 			elementMem = childMem.getChildren("element");
@@ -36,7 +36,7 @@ public class RascalNavigator extends CommonNavigator {
 				Object element = container.findMember(elementMem[i]
 						.getString("path"));
 	            if (element != null) {
-	            	elements.add((IResource) element);
+	              elements.add(element);
 	            }
 			}
 	      }
@@ -56,7 +56,8 @@ public class RascalNavigator extends CommonNavigator {
 	                  elementMem.putString("path",
 	                          ((IResource) expandedElements[i]).getFullPath()
 	                                  .toString());
-	              } else if (expandedElements[i] instanceof IWorkingSet) {
+	              }
+	              else if (expandedElements[i] instanceof IWorkingSet) {
 	            	  IMemento elementMem = expandedMem.createChild("ws_element");
 	            	  elementMem.putString("name", ((IWorkingSet) expandedElements[i]).getName());
 	              }
