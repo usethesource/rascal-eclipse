@@ -378,12 +378,13 @@ public class Editors {
 	 *            Code is cloned from SourceLocationHyperlink (but heavily
 	 *            adapted)
 	 */
-	public void edit(final ISourceLocation loc, final IList lineInfo) {
+	public void edit( ISourceLocation loc, final IList lineInfo, IEvaluatorContext ctx) {
+	  final ISourceLocation rloc = ctx != null ? ctx.getHeap().resolveSourceLocation(loc) : loc;
 		IWorkbenchWindow win = getWorkbenchWindow();
 		if (win != null) {
 			IWorkbenchPage page = win.getActivePage();
 			if (page != null) {
-				Display.getDefault().asyncExec(new OneTimeDecoratorRunner(loc, lineInfo, page));
+				Display.getDefault().asyncExec(new OneTimeDecoratorRunner(rloc, lineInfo, page));
 			}
 		}
 
@@ -401,7 +402,9 @@ public class Editors {
 	 *            Code is cloned from SourceLocationHyperlink (but heavily
 	 *            adapted)
 	 */
-	public void edit(final ISourceLocation loc, final IValue lineInfo) {
+	public void edit(ISourceLocation loc, final IValue lineInfo, IEvaluatorContext ctx) {
+	  final ISourceLocation rloc = ctx != null ? ctx.getHeap().resolveSourceLocation(loc) : loc;
+	  
 		if (lineInfo instanceof ICallableValue) {
 			final ICallableValue lineInfoFunc = (ICallableValue) lineInfo;
 
@@ -416,7 +419,7 @@ public class Editors {
 						@Override
 						public void run() {
 							// and only then schedule it on a non UI thread for the rascal callbacks
-							RascalInvoker.invokeAsync(new RepeatableDecoratorRunner(loc, lineInfoFunc, page), lineInfoFunc.getEval());
+							RascalInvoker.invokeAsync(new RepeatableDecoratorRunner(rloc, lineInfoFunc, page), lineInfoFunc.getEval());
 						}
 					});
 				}
@@ -490,7 +493,7 @@ public class Editors {
 								synchronized (defaultProvider.getEval()) {
 									result = defaultProvider.call(new Type[] { TF.sourceLocationType() }, new IValue[] { fileLoc }, null);
 								}
-								new Editors(VF).edit(fileLoc, result.getValue());
+								new Editors(VF).edit(fileLoc, result.getValue(), null);
 							}
 						});
 						// execute the callback on a separate thread to avoid slowing down the page switches

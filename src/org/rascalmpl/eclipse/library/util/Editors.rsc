@@ -54,11 +54,13 @@ public void edit(loc file,LineDecoration (int,str) decorator,str msg){
 	
 @doc{Open a source editor}
 @javaClass{org.rascalmpl.eclipse.library.util.Editors}
+@reflect{to resolve logical uri}
 public java void edit(loc file, list[LineDecoration] lineInfo);
 
 alias ComputedLineDecorations = list[LineDecoration] ();
 @doc{Open a source editor, but with computed line dectorations}
 @javaClass{org.rascalmpl.eclipse.library.util.Editors}
+@reflect{to resolve logical uri}
 public java void edit(loc file,  ComputedLineDecorations lineInfo);
 
 @doc{Provide a closure to add line decorations for file not opened using the edit method, but of a certain extensions (such as .java)}
