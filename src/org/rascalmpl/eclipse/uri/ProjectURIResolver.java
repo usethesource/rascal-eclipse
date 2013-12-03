@@ -197,15 +197,16 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 
 	public void mkDirectory(URI uri) throws IOException {
 		IContainer resolved = resolveFolder(uri);
-
+		NullProgressMonitor pm = new NullProgressMonitor();
+		
 		if (!resolved.exists()) {
 			try { 
 			  if (resolved instanceof IFolder) {
-			    ((IFolder) resolved).create(true, true, null);
+			    ((IFolder) resolved).create(true, true, pm);
+			    resolved.refreshLocal(0, pm);
 			  }
 			  else if (resolved instanceof IProject) {
 			    IProject project = (IProject) resolved;
-          NullProgressMonitor pm = new NullProgressMonitor();
           project.create(pm);
 			    project.open(pm);
 			  }
