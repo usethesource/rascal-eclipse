@@ -117,6 +117,13 @@
             language="Terms">
       </language>
    </extension>
+   <extension
+         point="org.eclipse.imp.runtime.editorService">
+      <editorService
+            class="org.rascalmpl.eclipse.editor.StringOriginsEditableRegionsService"
+            language="Terms">
+      </editorService>
+   </extension>
    <extension 
          point="org.eclipse.imp.runtime.hyperLink">
       <hyperlinkDetector
@@ -871,5 +878,5 @@
       </action>
    </viewerContribution> 
    </extension>
-   
+      
 </plugin>
