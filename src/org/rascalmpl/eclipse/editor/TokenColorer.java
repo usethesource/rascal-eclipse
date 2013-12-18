@@ -46,6 +46,7 @@ public class TokenColorer implements ITokenColorer {
 	public static final String META_KEYWORD = "MetaKeyword";
 	public static final String META_SKIPPED = "MetaSkipped";
 	public static final String NONTERMINAL_LABEL = "NonterminalLabel";
+	public static final String REGION = "Region";
 	private Boolean firstUse = true;
 
 	private final Map<String,TextAttribute> map = new HashMap<String,TextAttribute>();
@@ -67,6 +68,7 @@ public class TokenColorer implements ITokenColorer {
 		map.put(IDENTIFIER,new TextAttribute(new Color(Display.getDefault(), 0x2C,0x57,0x7C), null, SWT.NONE));
 		map.put(QUOTE,new TextAttribute(new Color(Display.getDefault(), 255, 69, 0), new Color(Display.getDefault(), 32,178,170), SWT.NONE));
 		map.put(TYPE,new TextAttribute(new Color(Display.getDefault(), 0xAB,0x25,0x25), null, SWT.NONE));
+		map.put(REGION, new TextAttribute(null, Display.getDefault().getSystemColor(SWT.COLOR_YELLOW), SWT.NONE));
 	} 
 
 	public IRegion calculateDamageExtent(IRegion seed, IParseController ctlr) {

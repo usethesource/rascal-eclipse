@@ -1,46 +1,33 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.util.HashMap;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.eclipse.imp.parser.IParseController;
-import org.eclipse.imp.utils.Pair;
-import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.jface.text.IRegion;
 
 public class EditableRegionsRegistry{
-
-	private static Map<IParseController, LinkedHashMap<String,Pair<Integer, Integer>>> regionsMap =
-			new HashMap<IParseController, LinkedHashMap<String,Pair<Integer,Integer>>>();
-
-	private static Map<IParseController, ISourceViewer> viewersMap =
-			new HashMap<IParseController, ISourceViewer>();
 			
+	private static Map<IConstructor, LinkedHashMap<String,IRegion>> regionsMap =
+			new HashMap<IConstructor, LinkedHashMap<String,IRegion>>();
+
 	
-	public static LinkedHashMap<String,Pair<Integer, Integer>> getRegistryForDocument(IParseController pc){
-		return regionsMap.get(pc);
+	public static LinkedHashMap<String,IRegion> getRegistryForDocument(IConstructor c){
+		return regionsMap.get(c);
+	}
+
+	public static boolean hasRegistryForDocument(IConstructor c){
+		return regionsMap.containsKey(c);
+	}
+
+	public static void setRegistryForDocument(IConstructor c,
+			LinkedHashMap<String, IRegion> regions) {
+		regionsMap.put(c, regions);
 	}
 	
-	public static void setRegistryForDocument(IParseController pc, LinkedHashMap<String,Pair<Integer, Integer>> regions){
-		regionsMap.put(pc, regions);
-	}	
-	
-	public static boolean hasRegistryForDocument(IParseController pc){
-		return regionsMap.containsKey(pc);
+	public static void removeRegistryForDocument(IConstructor currentAst) {
+		regionsMap.remove(currentAst);
 	}
-	
-	public static ISourceViewer getSourceViewerForDocument(IParseController pc){
-		return viewersMap.get(pc);
-	}
-	
-	public static void setSourceViewerForDocument(IParseController pc, ISourceViewer viewer){
-		viewersMap.put(pc, viewer);
-	}
-	
-	public static boolean hasViewerForDocument(IParseController pc){
-		return viewersMap.containsKey(pc);
-	}
-	
 	
 }

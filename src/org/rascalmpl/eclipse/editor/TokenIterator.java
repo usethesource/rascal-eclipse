@@ -12,6 +12,7 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
@@ -27,12 +29,22 @@ public class TokenIterator implements Iterator<Token>{
 	private final List<Token> tokenList;
 	private final Iterator<Token> tokenIterator;
 	private boolean showAmb;
-
+	private boolean[] inRegion;
+	
 	public TokenIterator(boolean showAmb, IConstructor parseTree){
 		this.tokenList = new ArrayList<Token>(1000);
 		this.showAmb = false;
 		
 		if(parseTree != null){
+			if(EditableRegionsRegistry.hasRegistryForDocument(parseTree)){
+				Collection<IRegion> regions = EditableRegionsRegistry.getRegistryForDocument(parseTree).values();
+				IRegion lastRegion = regions.toArray(new IRegion[0])[regions.size()-1];
+				inRegion = new boolean[lastRegion.getOffset()+lastRegion.getLength()+1];
+				for (IRegion region:regions){
+					for (int i=region.getOffset(); i<=region.getOffset()+region.getLength(); i++)
+						inRegion[i] = true;
+			}
+		  }
 		  parseTree.accept(new LexicalCollector());
 		}
 		tokenIterator = tokenList.iterator();
@@ -50,6 +62,15 @@ public class TokenIterator implements Iterator<Token>{
 		throw new UnsupportedOperationException();
 	}
 
+	private boolean inRegion(int offset){
+		if (inRegion !=null){
+			if (offset<inRegion.length){
+				return inRegion[offset];
+			}
+		}
+		return false;
+	}
+	
 	private class LexicalCollector extends TreeVisitor<RuntimeException>{
 		private int location;
 		
@@ -96,7 +117,10 @@ public class TokenIterator implements Iterator<Token>{
 			// short cut, if we have source locations and a category we found a long token
 			ISourceLocation loc = TreeAdapter.getLocation(arg);
 			if (category != null && loc != null) {
-				tokenList.add(new Token(category, location, loc.getLength()));
+				if (inRegion(location))
+					tokenList.add(new Token(TokenColorer.REGION, location, loc.getLength()));
+				else
+					tokenList.add(new Token(category, location, loc.getLength()));
 				location += loc.getLength();
 				return arg;
 			}
@@ -130,10 +154,15 @@ public class TokenIterator implements Iterator<Token>{
 			}
 			
 			if (category != null) {
-				tokenList.add(new Token(category, offset, location - offset));
-			}
-
-			return arg;
+				if (inRegion(offset))
+					tokenList.add(new Token(TokenColorer.REGION, offset, location - offset));
+				else
+					tokenList.add(new Token(category, offset, location - offset));
+			}else{
+				if (inRegion(offset))
+					tokenList.add(new Token(TokenColorer.REGION, offset, location - offset));
+			}		
+ 			return arg;
 		}
 		
 		public IConstructor visitTreeChar(IConstructor arg){

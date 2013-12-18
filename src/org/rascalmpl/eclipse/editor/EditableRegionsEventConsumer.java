@@ -14,9 +14,13 @@ public class EditableRegionsEventConsumer implements IEventConsumer{
 		this.regions = regions;
 	}
 	
+	private boolean contains(IRegion region, int offset){
+		return offset>=region.getOffset() && offset<= region.getOffset()+region.getLength();
+	}
+	
 	private boolean inRegion(int offset){
 		for (IRegion region:regions.values()){
-			if (offset>=region.getOffset() && offset<= region.getOffset()+region.getLength()){
+			if (contains(region, offset)){
 				return true;
 			}
 		}
@@ -25,17 +29,8 @@ public class EditableRegionsEventConsumer implements IEventConsumer{
 
 	@Override
 	public void processEvent(VerifyEvent event) {
- 		if (!inRegion(event.start)){
+ 		if (!inRegion(event.start))
 			event.doit = false;
-		}else{
-			updateRegions(event.start, event.text.length());
-		}
-		
-	}
-
-	private void updateRegions(int start, int length) {
-		
-		
 	}
 
 	public void setRegions(LinkedHashMap<String, IRegion> regions) {

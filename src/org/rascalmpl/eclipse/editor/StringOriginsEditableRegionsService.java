@@ -11,13 +11,21 @@ import org.eclipse.imp.services.base.EditorServiceBase;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
-import org.eclipse.imp.services.EditableRegionsRegistry;
 
 public class StringOriginsEditableRegionsService extends EditorServiceBase{
 	
 	private ISourceViewer sourceViewer;
 	private EditableRegionsEventConsumer eventConsumer;
+	private EditableRegionsTextListener textListener;
+	private EditableRegionsHighlightingController highlightingController;
+	private IConstructor previousAst;
+	private LinkedHashMap<String, IRegion> regions;
 	
+	
+	public StringOriginsEditableRegionsService() {
+		super();
+	}
+
 	@Override
 	public AnalysisRequired getAnalysisRequired() {
 		return AnalysisRequired.SYNTACTIC_ANALYSIS;
@@ -31,7 +39,6 @@ public class StringOriginsEditableRegionsService extends EditorServiceBase{
 				Method getter = AbstractTextEditor.class.getDeclaredMethod("getSourceViewer");
 				getter.setAccessible(true);
 				sourceViewer = (ISourceViewer) getter.invoke(super.editor, new Object[0]);
-				EditableRegionsRegistry.setSourceViewerForDocument(parseController, sourceViewer);
 			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | 
 					IllegalArgumentException | InvocationTargetException e) {
 				return;
@@ -40,11 +47,19 @@ public class StringOriginsEditableRegionsService extends EditorServiceBase{
 		if (eventConsumer == null){
 			LinkedHashMap<String, IRegion> regions = RegionsCalculator.calculateRegions((IConstructor) parseController.getCurrentAst(), 
 				 parseController.getDocument().get());
+			this.regions = regions;
 			eventConsumer = new EditableRegionsEventConsumer(regions);
-			EditableRegionsRegistry.setRegistryForDocument(parseController, regions);
-			sourceViewer.setEventConsumer(eventConsumer);	
+			textListener = new EditableRegionsTextListener(regions);
+			sourceViewer.setEventConsumer(eventConsumer);
+			sourceViewer.addTextListener(textListener);
 		}
+		if (previousAst != null)
+			EditableRegionsRegistry.removeRegistryForDocument((IConstructor) parseController.getCurrentAst());
+		EditableRegionsRegistry.setRegistryForDocument((IConstructor) parseController.getCurrentAst(), regions);
+		if (highlightingController != null)
+			highlightingController.update(parseController, monitor);
 	}
+
 	
 	
 }
