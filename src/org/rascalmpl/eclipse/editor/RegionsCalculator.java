@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -19,8 +20,9 @@ public class RegionsCalculator {
 	private static final String PROTECTED = "protected";
 	private static final String ORIGINS = "origins";
 
+	@Deprecated
 	public static LinkedHashMap<String, IRegion> calculateRegions(
-			IConstructor ast, String text) {
+			IConstructor ast) {
 		LinkedHashMap<String, IRegion> result = new LinkedHashMap<String, IRegion>();
 		if (ast.asAnnotatable().hasAnnotation(ORIGINS)){
 			IList list = (IList) ast.asAnnotatable().getAnnotation(ORIGINS);
@@ -39,6 +41,28 @@ public class RegionsCalculator {
 				}
 				offset += originalText.length();
 			}
+		}
+		return result;
+	}
+	
+	public static LinkedHashMap<String, IRegion> getRegions(IConstructor ast){
+		if (ast.asAnnotatable().hasAnnotation(ORIGINS)){
+			IList list = (IList) ast.asAnnotatable().getAnnotation(ORIGINS);
+			return toMap(list);
+		}
+		else
+			return null;
+	}
+	
+	private static LinkedHashMap<String, IRegion> toMap(IList regions){
+		LinkedHashMap<String, IRegion> result = new LinkedHashMap<String, IRegion>();
+		Iterator<IValue> iter = regions.iterator();
+		while (iter.hasNext()){
+			ITuple tuple = (ITuple) iter.next();
+			int start = ((IInteger) tuple.get(0)).intValue();
+			int length = ((IInteger) tuple.get(1)).intValue();
+			String name = ((IString) tuple.get(2)).getValue();
+			result.put(name, new Region(start, length));
 		}
 		return result;
 	}

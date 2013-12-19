@@ -23,7 +23,8 @@ public class EditableRegionsRegistry{
 
 	public static void setRegistryForDocument(IConstructor c,
 			LinkedHashMap<String, IRegion> regions) {
-		regionsMap.put(c, regions);
+		if (regions!=null)
+			regionsMap.put(c, regions);
 	}
 	
 	public static void removeRegistryForDocument(IConstructor currentAst) {

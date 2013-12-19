@@ -17,7 +17,6 @@ public class StringOriginsEditableRegionsService extends EditorServiceBase{
 	private ISourceViewer sourceViewer;
 	private EditableRegionsEventConsumer eventConsumer;
 	private EditableRegionsTextListener textListener;
-	private EditableRegionsHighlightingController highlightingController;
 	private IConstructor previousAst;
 	private LinkedHashMap<String, IRegion> regions;
 	
@@ -45,21 +44,19 @@ public class StringOriginsEditableRegionsService extends EditorServiceBase{
 			}
 		}
 		if (eventConsumer == null){
-			LinkedHashMap<String, IRegion> regions = RegionsCalculator.calculateRegions((IConstructor) parseController.getCurrentAst(), 
-				 parseController.getDocument().get());
-			this.regions = regions;
-			eventConsumer = new EditableRegionsEventConsumer(regions);
-			textListener = new EditableRegionsTextListener(regions);
-			sourceViewer.setEventConsumer(eventConsumer);
-			sourceViewer.addTextListener(textListener);
+			LinkedHashMap<String, IRegion> regions = RegionsCalculator.getRegions((IConstructor) parseController.getCurrentAst());
+			if (regions != null){
+				this.regions = regions;
+				eventConsumer = new EditableRegionsEventConsumer(regions);
+				textListener = new EditableRegionsTextListener(regions);
+				sourceViewer.setEventConsumer(eventConsumer);
+				sourceViewer.addTextListener(textListener);
+			}
 		}
-		if (previousAst != null)
-			EditableRegionsRegistry.removeRegistryForDocument((IConstructor) parseController.getCurrentAst());
+		if (previousAst != null){
+			EditableRegionsRegistry.removeRegistryForDocument(previousAst);
+			previousAst = (IConstructor) parseController.getCurrentAst();
+		}
 		EditableRegionsRegistry.setRegistryForDocument((IConstructor) parseController.getCurrentAst(), regions);
-		if (highlightingController != null)
-			highlightingController.update(parseController, monitor);
-	}
-
-	
-	
+	}	
 }
