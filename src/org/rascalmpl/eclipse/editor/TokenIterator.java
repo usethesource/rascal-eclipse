@@ -30,6 +30,7 @@ public class TokenIterator implements Iterator<Token>{
 	private final Iterator<Token> tokenIterator;
 	private boolean showAmb;
 	private boolean[] inRegion;
+	private boolean hasRegions = false;
 	
 	public TokenIterator(boolean showAmb, IConstructor parseTree){
 		this.tokenList = new ArrayList<Token>(1000);
@@ -37,6 +38,7 @@ public class TokenIterator implements Iterator<Token>{
 		
 		if(parseTree != null){
 			if(EditableRegionsRegistry.hasRegistryForDocument(parseTree)){
+				this.hasRegions  = true;
 				Collection<IRegion> regions = EditableRegionsRegistry.getRegistryForDocument(parseTree).values();
 				IRegion lastRegion = regions.toArray(new IRegion[0])[regions.size()-1];
 				inRegion = new boolean[lastRegion.getOffset()+lastRegion.getLength()+1];
@@ -80,6 +82,21 @@ public class TokenIterator implements Iterator<Token>{
 			location = 0;
 		}
 		
+		private Token getToken(String category, int start, int length){
+			if (category != null) {
+				if (hasRegions){
+					if (inRegion(start))
+						return new Token(TokenColorer.REGION, start, length);
+				}
+				return new Token(category, start, length);
+			}else{
+				if (hasRegions)
+					if (inRegion(start))
+						return new Token(TokenColorer.REGION, start, length);
+				return null;
+			}
+		}
+		
 		public IConstructor visitTreeAmb(IConstructor arg) {
 			if (showAmb) {
 				int offset = location;
@@ -116,13 +133,10 @@ public class TokenIterator implements Iterator<Token>{
 			
 			// short cut, if we have source locations and a category we found a long token
 			ISourceLocation loc = TreeAdapter.getLocation(arg);
-			if (category != null && loc != null) {
-				if (inRegion(location))
-					tokenList.add(new Token(TokenColorer.REGION, location, loc.getLength()));
-				else
-					tokenList.add(new Token(category, location, loc.getLength()));
-				location += loc.getLength();
-				return arg;
+			if (loc != null){
+				Token t=getToken(category, location, loc.getLength());
+				if (t!=null)
+					tokenList.add(t);
 			}
 			
 			// now we go down in the tree to find more tokens
@@ -153,16 +167,10 @@ public class TokenIterator implements Iterator<Token>{
 				}
 			}
 			
-			if (category != null) {
-				if (inRegion(offset))
-					tokenList.add(new Token(TokenColorer.REGION, offset, location - offset));
-				else
-					tokenList.add(new Token(category, offset, location - offset));
-			}else{
-				if (inRegion(offset))
-					tokenList.add(new Token(TokenColorer.REGION, offset, location - offset));
-			}		
- 			return arg;
+			Token t=getToken(category, offset, location - offset);
+			if (t!=null)
+				tokenList.add(t);
+			return arg;
 		}
 		
 		public IConstructor visitTreeChar(IConstructor arg){
