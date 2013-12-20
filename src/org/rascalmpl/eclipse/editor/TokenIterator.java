@@ -37,11 +37,18 @@ public class TokenIterator implements Iterator<Token>{
 		this.showAmb = false;
 		
 		if(parseTree != null){
-			if(EditableRegionsRegistry.hasRegistryForDocument(parseTree)){
+			ISourceLocation loc = TreeAdapter.getLocation(parseTree);
+			if(EditableRegionsRegistry.hasRegistryForDocument(loc)){
 				this.hasRegions  = true;
-				Collection<IRegion> regions = EditableRegionsRegistry.getRegistryForDocument(parseTree).values();
-				IRegion lastRegion = regions.toArray(new IRegion[0])[regions.size()-1];
-				inRegion = new boolean[lastRegion.getOffset()+lastRegion.getLength()+1];
+				Collection<IRegion> regions = EditableRegionsRegistry.getRegistryForDocument(loc).values();
+				IRegion[] regionsArray = regions.toArray(new IRegion[0]);
+				if (regionsArray.length > 0) {
+					IRegion lastRegion = regionsArray[regionsArray.length - 1];
+					inRegion = new boolean[lastRegion.getOffset()+lastRegion.getLength()+1];
+				}
+				else {
+					inRegion = new boolean[0];
+				}
 				for (IRegion region:regions){
 					for (int i=region.getOffset(); i<=region.getOffset()+region.getLength(); i++)
 						inRegion[i] = true;

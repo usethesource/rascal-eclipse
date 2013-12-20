@@ -13,6 +13,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class StringOriginsEditableRegionsService extends EditorServiceBase{
 	
@@ -46,8 +47,9 @@ public class StringOriginsEditableRegionsService extends EditorServiceBase{
 				return;
 			}
 		}
+		IConstructor pt = (IConstructor) parseController.getCurrentAst();
 		if (eventConsumer == null){
-			LinkedHashMap<String, IRegion> regions = RegionsCalculator.getRegions((IConstructor) parseController.getCurrentAst());
+			LinkedHashMap<String, IRegion> regions = RegionsCalculator.getRegions(pt);
 			if (regions != null){
 				this.regions = regions;
 				eventConsumer = new EditableRegionsEventConsumer(regions);
@@ -56,15 +58,11 @@ public class StringOriginsEditableRegionsService extends EditorServiceBase{
 				sourceViewer.addTextListener(textListener);
 			}
 		}
-		if (previousAst != null){
-			EditableRegionsRegistry.removeRegistryForDocument(previousAst);
-			if (this.regions != null)
-				((IConstructor) parseController.getCurrentAst()).asAnnotatable()
-					.setAnnotation("regions", 
-							RegionsCalculator.fromMap(values, this.regions, parseController.getDocument().get()));
-		}
-		previousAst = (IConstructor) parseController.getCurrentAst();
-		EditableRegionsRegistry.setRegistryForDocument((IConstructor) parseController.getCurrentAst(), regions);
+//		if (previousAst != null){
+//			EditableRegionsRegistry.removeRegistryForDocument(previousAst);
+//		}
+		previousAst = pt;
+		EditableRegionsRegistry.setRegistryForDocument(TreeAdapter.getLocation(pt), regions);
 		
 	}	
 }

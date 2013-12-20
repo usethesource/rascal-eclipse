@@ -15,6 +15,7 @@ package org.rascalmpl.eclipse.terms;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.LinkedHashMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -35,9 +36,12 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.runtime.PluginBase;
+import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.editor.EditableRegionsRegistry;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
+import org.rascalmpl.eclipse.editor.RegionsCalculator;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
@@ -50,6 +54,7 @@ import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.values.IRascalValueFactory;
 
 public class Builder extends BuilderBase {
 	private static final TermLanguageRegistry registry = TermLanguageRegistry.getInstance();
@@ -94,7 +99,7 @@ public class Builder extends BuilderBase {
 			ICallableValue parser = registry.getParser(lang);
 			evalForErrors = parser.getEval();
 			RascalMonitor rmonitor = new RascalMonitor(monitor, warnings);
-			IValueFactory VF = parser.getEval().getValueFactory();
+			IRascalValueFactory VF = parser.getEval().getValueFactory();
 			ISourceProject project = ModelFactory.open(file.getProject());
 			ISourceLocation loc = VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, file.getProjectRelativePath()));
 			contents = file.getContents();
@@ -103,7 +108,14 @@ public class Builder extends BuilderBase {
 			IConstructor tree;
 			synchronized (parser.getEval()) {
 				tree = (IConstructor) parser.call(rmonitor, new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}, null).getValue();
+				LinkedHashMap<String, IRegion> regions = EditableRegionsRegistry.getRegistryForDocument(loc);
+				if (regions != null) {
+					tree = tree.asAnnotatable()
+							.setAnnotation("regions", 
+								RegionsCalculator.fromMap(VF, regions, input));
+				}
 			}
+				
 
 			ISetWriter messages = VF.setWriter();
 			Type type = RascalTypeFactory.getInstance().nonTerminalType(tree);
