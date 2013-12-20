@@ -58,10 +58,12 @@ public class StringOriginsEditableRegionsService extends EditorServiceBase{
 		}
 		if (previousAst != null){
 			EditableRegionsRegistry.removeRegistryForDocument(previousAst);
-			previousAst = (IConstructor) parseController.getCurrentAst();
-			((IConstructor) parseController.getCurrentAst()).asAnnotatable()
-				.setAnnotation("regions", RegionsCalculator.fromMap(values, regions, parseController.getDocument().get()));
+			if (this.regions != null)
+				((IConstructor) parseController.getCurrentAst()).asAnnotatable()
+					.setAnnotation("regions", 
+							RegionsCalculator.fromMap(values, this.regions, parseController.getDocument().get()));
 		}
+		previousAst = (IConstructor) parseController.getCurrentAst();
 		EditableRegionsRegistry.setRegistryForDocument((IConstructor) parseController.getCurrentAst(), regions);
 		
 	}	

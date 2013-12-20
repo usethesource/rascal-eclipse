@@ -78,7 +78,7 @@ public class RegionsCalculator {
 			IInteger start = values.integer(region.getOffset());
 			IInteger length = values.integer(region.getLength());
 			IString theName = values.string(name);
-			IString content = values.string(text.substring(region.getOffset()+ region.getLength()-1));
+			IString content = values.string(text.substring(region.getOffset(), region.getOffset()+ region.getLength()));
 			ITuple tuple = values.tuple(start, length, theName, content);
 			writer.append(tuple);
 		}
