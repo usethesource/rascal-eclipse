@@ -11,6 +11,8 @@ import org.eclipse.imp.services.base.EditorServiceBase;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
 
 public class StringOriginsEditableRegionsService extends EditorServiceBase{
 	
@@ -19,10 +21,11 @@ public class StringOriginsEditableRegionsService extends EditorServiceBase{
 	private EditableRegionsTextListener textListener;
 	private IConstructor previousAst;
 	private LinkedHashMap<String, IRegion> regions;
-	
+	private IRascalValueFactory values;
 	
 	public StringOriginsEditableRegionsService() {
 		super();
+		this.values = RascalValueFactory.getInstance();
 	}
 
 	@Override
@@ -56,7 +59,10 @@ public class StringOriginsEditableRegionsService extends EditorServiceBase{
 		if (previousAst != null){
 			EditableRegionsRegistry.removeRegistryForDocument(previousAst);
 			previousAst = (IConstructor) parseController.getCurrentAst();
+			((IConstructor) parseController.getCurrentAst()).asAnnotatable()
+				.setAnnotation("regions", RegionsCalculator.fromMap(values, regions, parseController.getDocument().get()));
 		}
 		EditableRegionsRegistry.setRegistryForDocument((IConstructor) parseController.getCurrentAst(), regions);
+		
 	}	
 }

@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -13,12 +14,15 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.rascalmpl.library.util.Maybe;
+import org.rascalmpl.values.IRascalValueFactory;
 
 
 public class RegionsCalculator {
 	
 	private static final String PROTECTED = "protected";
 	private static final String ORIGINS = "origins";
+	private static final String REGIONS = "regions";
+	
 
 	@Deprecated
 	public static LinkedHashMap<String, IRegion> calculateRegions(
@@ -46,8 +50,8 @@ public class RegionsCalculator {
 	}
 	
 	public static LinkedHashMap<String, IRegion> getRegions(IConstructor ast){
-		if (ast.asAnnotatable().hasAnnotation(ORIGINS)){
-			IList list = (IList) ast.asAnnotatable().getAnnotation(ORIGINS);
+		if (ast.asAnnotatable().hasAnnotation(REGIONS)){
+			IList list = (IList) ast.asAnnotatable().getAnnotation(REGIONS);
 			return toMap(list);
 		}
 		else
@@ -65,6 +69,20 @@ public class RegionsCalculator {
 			result.put(name, new Region(start, length));
 		}
 		return result;
+	}
+	
+	public static IList fromMap(IRascalValueFactory values, LinkedHashMap<String, IRegion> regions, String text){
+		IListWriter writer = values.listWriter();
+		for (String name : regions.keySet()){
+			IRegion region = regions.get(name);
+			IInteger start = values.integer(region.getOffset());
+			IInteger length = values.integer(region.getLength());
+			IString theName = values.string(name);
+			IString content = values.string(text.substring(region.getOffset()+ region.getLength()-1));
+			ITuple tuple = values.tuple(start, length, theName, content);
+			writer.append(tuple);
+		}
+		return writer.done();
 	}
 
 	private static String getQueryStringParam(String query, String name) {
