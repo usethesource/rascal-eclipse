@@ -19,6 +19,9 @@ public class RascalNavigator extends CommonNavigator {
 	
 	@SuppressWarnings("unchecked")
 	private void restoreState() {
+		if (memento == null) {
+			return;
+		}
 		@SuppressWarnings("rawtypes")
 		ArrayList elements = new ArrayList();
 		IContainer container = ResourcesPlugin.getWorkspace().getRoot();
