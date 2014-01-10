@@ -765,7 +765,17 @@
         <uriResolver
               class="org.rascalmpl.eclipse.uri.ProjectURIResolver"
               scheme="project"> </uriResolver>
+    </extension>
+    <extension
+          id="projectURIResolver"
+          name="projectURIResolver"
+          point="rascal_eclipse.uriResolver">
         <uriResolver class="org.rascalmpl.eclipse.uri.LibraryURIResolver" scheme="std"></uriResolver>
+    </extension>
+    <extension
+          id="projectURIResolver"
+          name="projectURIResolver"
+          point="rascal_eclipse.uriResolver">
         <uriResolver class="org.rascalmpl.eclipse.uri.LibraryURIResolver" scheme="eclipse-std"></uriResolver>
     </extension>
     <extension
