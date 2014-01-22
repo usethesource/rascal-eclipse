@@ -307,12 +307,12 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
     	ISourceLocation result = null;
     	
     	if (location.hasLineColumn()) {
-        	result = valueFactory.sourceLocation(uri, 
+        	result = valueFactory.sourceLocation(valueFactory.sourceLocation(uri), 
 					location.getOffset(), location.getLength(), 
 					location.getBeginLine(), location.getEndLine(), 
 					location.getBeginColumn(),location.getEndColumn());
     	} else if (location.hasOffsetLength()) {
-        	result = valueFactory.sourceLocation(uri, 
+        	result = valueFactory.sourceLocation(valueFactory.sourceLocation(uri), 
         			location.getOffset(), location.getLength()); 
     	} else {
     		result = valueFactory.sourceLocation(uri);

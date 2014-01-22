@@ -43,11 +43,12 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 			RascalLibraryFileSystem fileSystem = RascalLibraryFileSystem.getInstance();
 	    Map<String,IFileStore> roots = fileSystem.getRoots();
 
-			ISourceContainer[] sourceContainers = new ISourceContainer[roots.size() + 1];
+			ISourceContainer[] sourceContainers = new ISourceContainer[roots.size() + 2];
 			
-			sourceContainers[0] = new ProjectSourceContainer(associatedProject, true);
-
-			int i = 1;
+			int i = 0;
+			sourceContainers[i++] = new ProjectSourceContainer(associatedProject, true);
+			sourceContainers[i++] = new DummyConsoleSourceContainer();
+			
 			for (IFileStore lib : roots.values()) {
         sourceContainers[i++] = new FileStoreSourceContainer(lib, true);
 			}
@@ -55,7 +56,7 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 			return sourceContainers;
 		} else {
 			/* default case */
-			return new ISourceContainer[]{};			
+			return new ISourceContainer[]{new DummyConsoleSourceContainer()};			
 		}
 	}
 }

@@ -441,17 +441,18 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 
 	@Override
 	public void handleInterpreterEvent(InterpreterEvent event) {
-		switch (event.getKind()) {
-		
-		case CREATE:
-			started();
-			break;
+	  switch (event.getKind()) {
+	  case CREATE:
+	    started();
+	    break;
 
-		case TERMINATE:
-			terminated();
-			break;
+	  case TERMINATE:
+	    terminated();
+	    break;
 
-		}
+	  default:
+	    break;
+	  }
 	}
 	
 }

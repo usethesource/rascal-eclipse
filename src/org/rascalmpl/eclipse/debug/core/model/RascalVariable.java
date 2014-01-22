@@ -27,23 +27,12 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 
 	private final RascalStackFrame frame;
 
-	@Override
-	public boolean equals(Object arg0) {
-		if (arg0 instanceof RascalVariable) {
-			RascalVariable var = (RascalVariable) arg0;
-			return name.equals(var.name);
-		}
-		return false;
-	}
-	
-	@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
-	
-	protected RascalVariable(RascalStackFrame frame, String name, org.eclipse.imp.pdb.facts.IValue value) {
+  private final Object parent;
+
+	protected RascalVariable(RascalStackFrame frame, Object parent, String name, org.eclipse.imp.pdb.facts.IValue value) {
 		super(frame.getRascalDebugTarget());
 		this.name = name;
+		this.parent = parent;
 		this.frame = frame;
 		this.value = value;
 	}

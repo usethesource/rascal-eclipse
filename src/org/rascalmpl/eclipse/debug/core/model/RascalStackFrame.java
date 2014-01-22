@@ -47,11 +47,16 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	/**
 	 * Location information w.r.t. current execution point within this stack frame.
 	 */
-	private final ISourceLocation location; 
+	private final ISourceLocation location;
 
-	public RascalStackFrame(RascalThread thread, Environment environment, ISourceLocation location) {
+	/**
+	 * Gives identity to stack frames that are nested due to recursion
+	 */
+  private final IStackFrame parent; 
+
+	public RascalStackFrame(RascalThread thread, Environment environment, ISourceLocation location, IStackFrame parent) {
 		super(thread.getDebugTarget());
-		
+		this.parent = parent;
 		this.thread = thread;
 		this.environment = environment;
 		this.location = location;
@@ -83,7 +88,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 * @see org.eclipse.debug.core.model.IStackFrame#getLineNumber()
 	 */
 	public int getLineNumber() throws DebugException {
-		if (location == null) {
+		if (location == null || !location.hasLineColumn()) {
 			return -1;
 		} else {
 			return location.getBeginLine();
@@ -95,6 +100,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 */
 	public String getName() throws DebugException {
 		//TODO: return the name of the current module
+	
 		return environment.getName();
 	}
 
@@ -118,16 +124,14 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	public IVariable[] getVariables() throws DebugException {
 		//manage the list of variables local to the current module
 		Set<String> vars = environment.getVariables().keySet();
-		//manage the list of imported modules
-		Set<String> modules = environment.getImports();
 
-		IVariable[] ivars = new IVariable[vars.size()+modules.size()];
+		IVariable[] ivars = new IVariable[vars.size()];
 		int i = 0;
 
 		for (String v : vars) {
-			ivars[i] = new RascalVariable(this, v, environment.getVariable(v).getValue());
-			i++;
+			ivars[i++] = new RascalVariable(this, this, v, environment.getVariable(v).getValue());
 		}
+		
 		return ivars;
 	}
 
@@ -261,10 +265,16 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 		boolean result = false;
 			
 		if (location != null) {
+		  ISourceLocation l = location;
+		  
+		  if (l.getScheme().equals("rascal")) {
+		    l = getRascalDebugTarget().getConsole().getInterpreter().getEval().getRascalResolver().resolve(l);
+		  }
+		  
 			try {
 				getRascalDebugTarget()
 						.getDebuggableURIResolverRegistry()
-						.getResourceURI(location.getURI());
+						.getResourceURI(l.getURI());
 			
 				result = true;
 
@@ -291,9 +301,15 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 		assert hasSourceName();
 
 		try {
+		  ISourceLocation l = location;
+      
+      if (l.getScheme().equals("rascal")) {
+        l = getRascalDebugTarget().getConsole().getInterpreter().getEval().getRascalResolver().resolve(l);
+      }
+      
 			URI resolvedURI = getRascalDebugTarget()
 					.getDebuggableURIResolverRegistry().getResourceURI(
-							location.getURI());
+							l.getURI());
 		
 			return resolvedURI.getPath();
 		
@@ -327,21 +343,21 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 */
 	public boolean equals(Object obj) {
 		if (obj instanceof RascalStackFrame) {
-			RascalStackFrame sf = (RascalStackFrame)obj;
-			return sf.getThread().equals(getThread()) && 
-			    sf.hasSourceName() == false ? hasSourceName() == false : (hasSourceName() && sf.getSourceName().equals(getSourceName())) &&
-				sf.getEnvironment().equals(getEnvironment()) &&
-				sf.getLocation().equals(getLocation());
+			RascalStackFrame sf = (RascalStackFrame) obj;
+			
+			return sf.getEnvironment().equals(getEnvironment())
+			    && parent == sf.parent && thread == sf.thread
+			    && location.equals(sf.location); 
 		}
 		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+	  return 3  +  getEnvironment().hashCode() * 29  + 17 * location.hashCode() + ((parent != null) ? 1331 * parent.hashCode() : 1);
 	}
 
 	public Environment getEnvironment() {
 		return environment;
 	}	
-	
-	private ISourceLocation getLocation() {
-		return location;
-	}
-
 }

@@ -898,5 +898,15 @@
       </action>
    </viewerContribution> 
    </extension>
+    <extension
+          point="org.eclipse.ui.editors">
+       <editor
+             class="org.rascalmpl.eclipse.console.DummyConsoleEditor"
+             default="false"
+             filenames="rascal.console.dummy"
+             id="rascal-eclipse.consoleDummyEditor"
+             name="Rascal Console">
+       </editor>
+    </extension>
    
 </plugin>

@@ -51,19 +51,19 @@ public class RascalValue extends RascalDebugElement implements IValue {
 		this.target = target;
 	}
 
-	@Override
-	public boolean equals(Object arg0) {
-		if (arg0 instanceof RascalValue) {
-			RascalValue val = (RascalValue) arg0;
-			return value.equals(val.value) && name.equals(val.name);
-		}
-		return false;
-	}
-	
-	@Override
-	public int hashCode() {
-		return value.hashCode();
-	}
+//	@Override
+//	public boolean equals(Object arg0) {
+//		if (arg0 instanceof RascalValue) {
+//			RascalValue val = (RascalValue) arg0;
+//			return value.equals(val.value) && name.equals(val.name);
+//		}
+//		return false;
+//	}
+//	
+//	@Override
+//	public int hashCode() {
+//		return value.hashCode() + 7 * name.hashCode();
+//	}
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValue#getReferenceTypeName()
@@ -150,7 +150,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				IList list = (IList) value;
 				IVariable[] result = new IVariable[list.length()];
 				for (int i = 0; i < list.length(); i++) {
-					result[i] = new RascalVariable(target, "[" + i + "]", list.get(i));
+					result[i] = new RascalVariable(target, RascalValue.this, "[" + i + "]", list.get(i));
 				}
 				return result;
 			}
@@ -161,7 +161,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				IVariable[] result = new IVariable[map.size()];
 				int i = 0;
 				for (org.eclipse.imp.pdb.facts.IValue key : map) {
-					result[i++] = new RascalVariable(target, key.toString(), map.get(key));
+					result[i++] = new RascalVariable(target,RascalValue.this, key.toString(), map.get(key));
 				}
 				return result;
 			}
@@ -182,7 +182,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				IVariable[] result = new IVariable[set.size()];
 				int i = 0;
 				for (org.eclipse.imp.pdb.facts.IValue elem : set) {
-					result[i++] = new RascalVariable(target, "[" + i + "]", elem);
+					result[i++] = new RascalVariable(target, RascalValue.this, "[" + i + "]", elem);
 				}
 				return result;
 			}
@@ -202,7 +202,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				INode node = (INode) value;
 				IVariable[] result = new IVariable[node.arity()];
 				for (int i = 0; i < result.length; i++) {
-					result[i] = new RascalVariable(target, "[" + i + "]", node.get(i));
+					result[i] = new RascalVariable(target, RascalValue.this, "[" + i + "]", node.get(i));
 				}
 				return result;
 			}
@@ -216,7 +216,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				IConstructor node = (IConstructor) value;
 				IVariable[] result = new IVariable[node.arity()];
 				for (int i = 0; i < result.length; i++) {
-					result[i] = new RascalVariable(target, type.hasFieldNames() ? type.getFieldName(i) : "" + i, node.get(i));
+					result[i] = new RascalVariable(target, RascalValue.this, type.hasFieldNames() ? type.getFieldName(i) : "" + i, node.get(i));
 				}
 				return result;
 			}
@@ -229,7 +229,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 					IVariable[] vars = new IVariable[elems.length()];
 					int i = 0;
 					for (org.eclipse.imp.pdb.facts.IValue elem : elems) {
-						vars[i++] = new RascalVariable(target, "elem " + i, elem);
+						vars[i++] = new RascalVariable(target, RascalValue.this, "elem " + i, elem);
 					}
 					
 					return vars;
@@ -245,7 +245,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 					for (int i = 0; i < vars.length; i++) {
 						IConstructor sym = (IConstructor) astSymbols.get(i);
 						String label = SymbolAdapter.isLabel(sym) ? SymbolAdapter.getLabelName(sym) : ("arg " + i);
-						vars[i] = new RascalVariable(target, label, args.get(i));
+						vars[i] = new RascalVariable(target, RascalValue.this, label, args.get(i));
 					}
 					
 					return vars;
@@ -256,7 +256,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 					IVariable[] vars = new IVariable[alts.size()];
 					int i = 0;
 					for (org.eclipse.imp.pdb.facts.IValue elem : alts) {
-						vars[i++] = new RascalVariable(target, "alt " + i, elem);
+						vars[i++] = new RascalVariable(target, RascalValue.this, "alt " + i, elem);
 					}
 					
 					return vars;
@@ -275,7 +275,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				ITuple node = (ITuple) value;
 				IVariable[] result = new IVariable[node.arity()];
 				for (int i = 0; i < result.length; i++) {
-					result[i] = new RascalVariable(target, type.hasFieldNames() ? type.getFieldName(i) : "[" + i + "]", node.get(i));
+					result[i] = new RascalVariable(target, RascalValue.this, type.hasFieldNames() ? type.getFieldName(i) : "[" + i + "]", node.get(i));
 				}
 				return result;
 			}

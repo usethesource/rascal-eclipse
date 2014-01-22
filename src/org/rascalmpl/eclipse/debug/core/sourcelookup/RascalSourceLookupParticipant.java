@@ -14,7 +14,6 @@ package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.sourcelookup.AbstractSourceLookupParticipant;
-
 import org.rascalmpl.eclipse.debug.core.model.RascalStackFrame;
 
 /**
@@ -22,17 +21,21 @@ import org.rascalmpl.eclipse.debug.core.model.RascalStackFrame;
  * rascal stack frame into a source file name 
  */
 public class RascalSourceLookupParticipant extends AbstractSourceLookupParticipant {
+	public static final String RASCAL_CONSOLE_DUMMY = "rascal.console.dummy";
 
-	public String getSourceName(Object object) throws CoreException {
+  public String getSourceName(Object object) throws CoreException {
 		if (object instanceof RascalStackFrame) {
 			RascalStackFrame stackFrame = (RascalStackFrame)object;
+			
 			if (stackFrame.hasSourceName()) { 
 			  return stackFrame.getSourceName(); 
+			}
+			else {
+			  return RASCAL_CONSOLE_DUMMY;
 			}
 		}
 		
 		return null;
-	
 	}
 	
 }

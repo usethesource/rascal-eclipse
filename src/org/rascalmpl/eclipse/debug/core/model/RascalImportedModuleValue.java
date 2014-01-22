@@ -43,6 +43,23 @@ public class RascalImportedModuleValue extends RascalDebugElement implements IVa
 		return "Module";
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+	  if (obj instanceof RascalImportedModuleValue) {
+	    RascalImportedModuleValue o = (RascalImportedModuleValue) obj;
+	    
+	    return module.equals(o.module)
+	        && frame.equals(o.frame);
+	  }
+	  
+	  return false;
+	}
+	
+	@Override
+	public int hashCode() {
+	  return 5 * module.hashCode() + 23 * frame.hashCode();
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValue#getValueString()
 	 */
@@ -59,7 +76,7 @@ public class RascalImportedModuleValue extends RascalDebugElement implements IVa
 		ArrayList<RascalVariable> variables = new ArrayList<RascalVariable>(vars.size());
 		
 		for (String var: vars.keySet()) {
-			variables.add(new RascalVariable(frame, var, vars.get(var).getValue()));
+			variables.add(new RascalVariable(frame, module, var, vars.get(var).getValue()));
 		}		
 		
 		return variables.toArray(new IVariable[] {});

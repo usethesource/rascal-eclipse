@@ -32,4 +32,18 @@ public class RascalVariableValue extends RascalValue implements IValue {
 	public String getReferenceTypeName() throws DebugException {
 		return value.getType().toString();
 	}
+	
+//	@Override
+//	public boolean equals(Object arg0) {
+//	  if (arg0 instanceof RascalVariableValue) {
+//	    return value.getValue().equals(((RascalVariableValue) arg0).value.getValue());
+//	  }
+//	  
+//	  return false;
+//	}
+//	
+//	@Override
+//	public int hashCode() {
+//	  return super.hashCode() + 41 * value.getValue().hashCode();
+//	}
 }

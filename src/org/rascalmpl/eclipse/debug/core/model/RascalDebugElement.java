@@ -22,7 +22,7 @@ import org.rascalmpl.interpreter.debug.IDebugMessage;
 /**
  * Common function for debug elements.
  */
-public class RascalDebugElement extends DebugElement {
+abstract public class RascalDebugElement extends DebugElement {
 
 	/**
 	 * Constructs a new debug element in the given target.

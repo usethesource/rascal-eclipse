@@ -45,6 +45,11 @@ public class RascalImportedModule extends RascalDebugElement implements IVariabl
 		}
 		return false;
 	}
+	
+	@Override
+	public int hashCode() {
+	  return moduleName.hashCode();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IVariable#getValue()
