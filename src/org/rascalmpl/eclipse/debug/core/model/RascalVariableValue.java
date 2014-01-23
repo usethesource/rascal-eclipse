@@ -20,9 +20,8 @@ import org.rascalmpl.interpreter.result.Result;
 public class RascalVariableValue extends RascalValue implements IValue {
 	private Result<org.eclipse.imp.pdb.facts.IValue> value;
 
-	public RascalVariableValue(RascalStackFrame target, String name,
-			Result<org.eclipse.imp.pdb.facts.IValue> value) {
-		super(target, name, value.getValue());
+	public RascalVariableValue(RascalStackFrame target, Result<org.eclipse.imp.pdb.facts.IValue> value) {
+		super(target, value.getValue());
 		this.value = value;
 	}
 
@@ -32,18 +31,4 @@ public class RascalVariableValue extends RascalValue implements IValue {
 	public String getReferenceTypeName() throws DebugException {
 		return value.getType().toString();
 	}
-	
-//	@Override
-//	public boolean equals(Object arg0) {
-//	  if (arg0 instanceof RascalVariableValue) {
-//	    return value.getValue().equals(((RascalVariableValue) arg0).value.getValue());
-//	  }
-//	  
-//	  return false;
-//	}
-//	
-//	@Override
-//	public int hashCode() {
-//	  return super.hashCode() + 41 * value.getValue().hashCode();
-//	}
 }

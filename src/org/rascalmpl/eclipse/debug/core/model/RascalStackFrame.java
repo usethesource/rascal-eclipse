@@ -129,7 +129,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 		int i = 0;
 
 		for (String v : vars) {
-			ivars[i++] = new RascalVariable(this, this, v, environment.getVariable(v).getValue());
+			ivars[i++] = new RascalVariable(this, v, environment.getVariable(v).getValue());
 		}
 		
 		return ivars;

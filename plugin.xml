@@ -901,12 +901,45 @@
     <extension
           point="org.eclipse.ui.editors">
        <editor
-             class="org.rascalmpl.eclipse.console.DummyConsoleEditor"
+             class="org.rascalmpl.eclipse.debug.core.sourcelookup.DummyConsoleEditor"
              default="false"
              filenames="rascal.console.dummy"
              id="rascal-eclipse.consoleDummyEditor"
              name="Rascal Console">
        </editor>
+    </extension>
+    <extension
+          point="org.eclipse.ui.popupMenus">
+       <objectContribution
+             adaptable="false"
+             id="rascal-eclipse.rascalValueActions"
+             objectClass="org.rascalmpl.eclipse.debug.core.model.RascalValue">
+          <action
+                class="org.rascalmpl.eclipse.perspective.actions.IndentedTextValueAction"
+                id="rascal-eclipse.action3"
+                label="Indented Editor">
+          </action>
+          <action
+                class="org.rascalmpl.eclipse.perspective.actions.TreeViewValueAction"
+                id="rascal-eclipse.action3"
+                label="Tree Editor">
+          </action>
+       </objectContribution>
+       <objectContribution
+             adaptable="false"
+             id="rascal-eclipse.rascalVariableActions"
+             objectClass="org.rascalmpl.eclipse.debug.core.model.RascalVariable">
+          <action
+                class="org.rascalmpl.eclipse.perspective.actions.IndentedTextValueAction"
+                id="rascal-eclipse.action4"
+                label="Indented Editor">
+          </action>
+          <action
+                class="org.rascalmpl.eclipse.perspective.actions.TreeViewValueAction"
+                id="rascal-eclipse.action3"
+                label="Tree Editor">
+          </action>
+       </objectContribution>
     </extension>
    
 </plugin>

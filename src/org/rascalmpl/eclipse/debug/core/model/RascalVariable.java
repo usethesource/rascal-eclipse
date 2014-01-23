@@ -27,21 +27,22 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 
 	private final RascalStackFrame frame;
 
-  private final Object parent;
-
-	protected RascalVariable(RascalStackFrame frame, Object parent, String name, org.eclipse.imp.pdb.facts.IValue value) {
+	protected RascalVariable(RascalStackFrame frame, String name, org.eclipse.imp.pdb.facts.IValue value) {
 		super(frame.getRascalDebugTarget());
 		this.name = name;
-		this.parent = parent;
 		this.frame = frame;
 		this.value = value;
 	}
 
+	public org.eclipse.imp.pdb.facts.IValue getRuntimeValue() {
+	  return value;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IVariable#getValue()
 	 */
 	public IValue getValue() throws DebugException {
-		return new RascalValue(frame, name, value);
+		return new RascalValue(frame, value);
 	}
 
 	/* (non-Javadoc)
@@ -69,22 +70,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IValueModification#setValue(java.lang.String)
 	 */
 	public void setValue(String expression) throws DebugException {
-		/*
-		 * 2012-07-19: Disabling value modification, because it leads to a
-		 * deadlock. No evaluator lock can be aquired here in the UI thread,
-		 * because it's already locked at the moment of suspension.
-		 */
-		
-//		IEvaluator<?> eval = getRascalDebugTarget().getEvaluator();
-//		synchronized(eval){
-//			//evaluate
-//			value = eval.eval(null, expression, URI.create("debug:///"));
-//	
-//			//store the result in its environment
-//			environment.storeVariable(name, value);
-//	
-//			fireChangeEvent(DebugEvent.CONTENT);
-//		}
+
 	}
 
 	/* (non-Javadoc)
@@ -114,5 +100,4 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	public boolean verifyValue(IValue value) throws DebugException {
 		return false;
 	}
-		
 }

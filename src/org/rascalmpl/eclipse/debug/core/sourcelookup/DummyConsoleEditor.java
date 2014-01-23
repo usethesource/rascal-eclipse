@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.console;
+package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
@@ -7,6 +7,13 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+/**
+ * This class exists to work around the fact that the eclipse debugging ui wants
+ * to show an editor for every active stack frame. The stack frame that corresponds to
+ * the console repl does not have a source editor. To avoid showing the default 
+ * "empty editor" from eclipse, we registered this dummy editor and show actually nothing. 
+ * 
+ */
 public class DummyConsoleEditor extends EditorPart {
 
   public DummyConsoleEditor() {  }
