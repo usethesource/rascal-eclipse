@@ -163,7 +163,7 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 					ITextSelection selection = (ITextSelection)HandlerUtil.getActiveWorkbenchWindowChecked(event).getSelectionService().getSelection();
 					IEditorInput activeEditorInput = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput();
 					URI fileRef = new Resources(VF).makeFile(activeEditorInput).getURI();
-					final ISourceLocation selectedLine = VF.sourceLocation(fileRef, selection.getOffset(), selection.getLength(), selection.getStartLine() + 1, selection.getEndLine() + 1, 0, 0);
+					final ISourceLocation selectedLine = VF.sourceLocation(VF.sourceLocation(fileRef), selection.getOffset(), selection.getLength(), selection.getStartLine() + 1, selection.getEndLine() + 1, 0, 0);
 					final IString selectedText = VF.string(selection.getText());
 					if (selectedLine != null) {
 						RascalInvoker.invokeAsync(new Runnable() {

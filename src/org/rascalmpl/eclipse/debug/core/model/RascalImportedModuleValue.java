@@ -76,7 +76,8 @@ public class RascalImportedModuleValue extends RascalDebugElement implements IVa
 		ArrayList<RascalVariable> variables = new ArrayList<RascalVariable>(vars.size());
 		
 		for (String var: vars.keySet()) {
-			variables.add(new RascalVariable(frame, var, vars.get(var).getValue()));
+			Result<org.eclipse.imp.pdb.facts.IValue> result = vars.get(var);
+      variables.add(new RascalVariable(frame, var, result.getType(), result.getValue()));
 		}		
 		
 		return variables.toArray(new IVariable[] {});

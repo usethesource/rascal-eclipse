@@ -908,38 +908,30 @@
              name="Rascal Console">
        </editor>
     </extension>
-    <extension
-          point="org.eclipse.ui.popupMenus">
-       <objectContribution
-             adaptable="false"
-             id="rascal-eclipse.rascalValueActions"
-             objectClass="org.rascalmpl.eclipse.debug.core.model.RascalValue">
-          <action
-                class="org.rascalmpl.eclipse.perspective.actions.IndentedTextValueAction"
-                id="rascal-eclipse.action3"
-                label="Indented Editor">
-          </action>
-          <action
-                class="org.rascalmpl.eclipse.perspective.actions.TreeViewValueAction"
-                id="rascal-eclipse.action3"
-                label="Tree Editor">
-          </action>
-       </objectContribution>
-       <objectContribution
-             adaptable="false"
-             id="rascal-eclipse.rascalVariableActions"
-             objectClass="org.rascalmpl.eclipse.debug.core.model.RascalVariable">
-          <action
-                class="org.rascalmpl.eclipse.perspective.actions.IndentedTextValueAction"
-                id="rascal-eclipse.action4"
-                label="Indented Editor">
-          </action>
-          <action
-                class="org.rascalmpl.eclipse.perspective.actions.TreeViewValueAction"
-                id="rascal-eclipse.action3"
-                label="Tree Editor">
-          </action>
-       </objectContribution>
-    </extension>
-   
+   <extension
+      point="org.eclipse.ui.menus">
+   <menuContribution
+         locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+      <dynamic
+            class="org.rascalmpl.eclipse.perspective.actions.ValueContributionItem"
+            id="rascal-eclipse.valueContributionItem">
+         <visibleWhen
+               checkEnabled="false">
+               <iterate>
+            <or>
+               <instanceof
+                     value="org.eclipse.imp.pdb.facts.IValue">
+               </instanceof>
+               <instanceof
+                     value="org.rascalmpl.eclipse.debug.core.model.RascalValue">
+               </instanceof>
+               <instanceof
+                     value="org.rascalmpl.eclipse.debug.core.model.RascalVariable">
+               </instanceof>
+            </or>
+            </iterate>
+         </visibleWhen>
+      </dynamic>
+   </menuContribution>
+</extension>
 </plugin>

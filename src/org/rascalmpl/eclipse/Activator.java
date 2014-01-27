@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.tools.ToolProvider;
 
+import org.eclipse.core.expressions.Expression;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IPath;
@@ -31,6 +32,9 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
 import org.eclipse.imp.runtime.PluginBase;
+import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;

@@ -32,7 +32,9 @@ public class Factory implements IPerspectiveFactory {
 		IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, (float) 0.25, editorArea); 
 		folder.addView("rascal.navigator");
 
-		IFolderLayout replFolder = layout.createFolder("bottom", IPageLayout.BOTTOM, (float) 0.75, editorArea); 
+		layout.createFolder("bottom",  IPageLayout.BOTTOM, 0.5f, editorArea);
+		IFolderLayout inspect = layout.createFolder("inspect", IPageLayout.RIGHT, 0.75f, "bottom");
+		IFolderLayout replFolder = layout.createFolder("bottom", IPageLayout.LEFT, 0.25f, "bottom"); 
 		
 		replFolder.addView(IConsoleConstants.ID_CONSOLE_VIEW);
 		replFolder.addView(StdAndErrorViewPart.ID);
@@ -40,10 +42,12 @@ public class Factory implements IPerspectiveFactory {
 		replFolder.addView(IPageLayout.ID_PROBLEM_VIEW);
 		replFolder.addView(Tutor.ID);
 		
+		inspect.addView("org.eclipse.debug.ui.VariableView");
+		
 		IFolderLayout outlineFolder = layout.createFolder("outline", IPageLayout.RIGHT, (float) 0.75, editorArea);
 		outlineFolder.addView(IPageLayout.ID_OUTLINE);
 		outlineFolder.addView(ReportView.ID);
-		
+		outlineFolder.addView("org.eclipse.debug.ui.DebugView");
 		layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
 
 		layout.addShowViewShortcut(JavaUI.ID_PACKAGES);

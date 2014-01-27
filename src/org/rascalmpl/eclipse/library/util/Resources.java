@@ -59,7 +59,7 @@ public class Resources {
 	
 	public  ISet projects() {
 		IProject[] projects = ROOT.getProjects();
-		ISetWriter w = VF.setWriter(TF.sourceLocationType());
+		ISetWriter w = VF.setWriter();
 		
 		for (IProject p : projects) {
 			w.insert(makeProject(p));
@@ -70,7 +70,7 @@ public class Resources {
 	
 	public  ISet references(ISourceLocation loc) {
 		IProject project = getIProject(loc.getURI().getAuthority());
-		ISetWriter w = VF.setWriter(TF.sourceLocationType());
+		ISetWriter w = VF.setWriter();
 		
 		try {
 			for (IProject r : project.getReferencedProjects()) {
@@ -126,7 +126,7 @@ public class Resources {
 	public  ISet files(ISourceLocation name) {
 		final String projectName = name.getURI().getHost();
 		IProject project = getIProject(projectName);
-		final ISetWriter w = VF.setWriter(TF.sourceLocationType());
+		final ISetWriter w = VF.setWriter();
 		try {
 			project.accept(new IResourceVisitor() {
 				public boolean visit(IResource resource)
@@ -181,7 +181,7 @@ public class Resources {
 	}
 	
 	public  IConstructor root() {
-		ISetWriter projects = VF.setWriter(res);
+		ISetWriter projects = VF.setWriter();
 		
 		for (IProject p : ROOT.getProjects()) {
 			ISet contents = getProjectContents(p);
@@ -207,7 +207,7 @@ public class Resources {
 	}
 	
 	private  ISet getProjectContents(IProject project) {
-		final ISetWriter w = VF.setWriter(res);
+		final ISetWriter w = VF.setWriter();
 
 		try {
 			project.accept(new IResourceVisitor() {
@@ -243,7 +243,7 @@ public class Resources {
 	}
 
 	private  ISet getFolderContents(final IFolder folder) {
-	final ISetWriter w = VF.setWriter(res);
+	final ISetWriter w = VF.setWriter();
 		
 		try {
 			folder.accept(new IResourceVisitor() {

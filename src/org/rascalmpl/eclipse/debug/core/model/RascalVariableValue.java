@@ -21,7 +21,7 @@ public class RascalVariableValue extends RascalValue implements IValue {
 	private Result<org.eclipse.imp.pdb.facts.IValue> value;
 
 	public RascalVariableValue(RascalStackFrame target, Result<org.eclipse.imp.pdb.facts.IValue> value) {
-		super(target, value.getValue());
+		super(target, value.getType(), value.getValue());
 		this.value = value;
 	}
 

@@ -26,9 +26,11 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.UnsupportedSchemeException;
 
@@ -129,7 +131,8 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 		int i = 0;
 
 		for (String v : vars) {
-			ivars[i++] = new RascalVariable(this, v, environment.getVariable(v).getValue());
+			Result<IValue> var = environment.getVariable(v);
+      ivars[i++] = new RascalVariable(this, v, var.getType(), var.getValue());
 		}
 		
 		return ivars;
