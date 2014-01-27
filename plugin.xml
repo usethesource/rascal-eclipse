@@ -910,7 +910,7 @@
     </extension>
    <extension
       point="org.eclipse.ui.menus">
-   <menuContribution
+      <!--   <menuContribution
          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
       <dynamic
             class="org.rascalmpl.eclipse.perspective.actions.ValueContributionItem"
@@ -932,6 +932,6 @@
             </iterate>
          </visibleWhen>
       </dynamic>
-   </menuContribution>
+   </menuContribution> !-->
 </extension>
 </plugin>
