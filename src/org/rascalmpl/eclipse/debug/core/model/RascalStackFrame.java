@@ -28,6 +28,7 @@ import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.Result;
@@ -60,7 +61,9 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 		super(thread.getDebugTarget());
 		this.parent = parent;
 		this.thread = thread;
-		this.environment = environment;
+		/* need to clone to know previous state, in order to compute model deltas */ 
+		this.environment = new ModuleEnvironment(environment.getName(), environment.getHeap());
+		this.environment.extend(environment);
 		this.location = location;
 	}
 	

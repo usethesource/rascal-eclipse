@@ -29,7 +29,7 @@ public class Factory implements IPerspectiveFactory {
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
 
-		IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, (float) 0.25, editorArea); 
+		IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, 0.25f, editorArea); 
 		folder.addView("rascal.navigator");
 
 		layout.createFolder("bottom",  IPageLayout.BOTTOM, 0.5f, editorArea);
@@ -44,7 +44,7 @@ public class Factory implements IPerspectiveFactory {
 		
 		inspect.addView("org.eclipse.debug.ui.VariableView");
 		
-		IFolderLayout outlineFolder = layout.createFolder("outline", IPageLayout.RIGHT, (float) 0.75, editorArea);
+		IFolderLayout outlineFolder = layout.createFolder("outline", IPageLayout.RIGHT, 0.75f, editorArea);
 		outlineFolder.addView(IPageLayout.ID_OUTLINE);
 		outlineFolder.addView(ReportView.ID);
 		outlineFolder.addView("org.eclipse.debug.ui.DebugView");

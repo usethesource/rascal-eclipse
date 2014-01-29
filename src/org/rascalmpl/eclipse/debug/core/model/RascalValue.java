@@ -118,6 +118,9 @@ public class RascalValue extends RascalDebugElement implements IValue {
 	 * @see org.eclipse.debug.core.model.IValue#getVariables()
 	 */
 	public IVariable[] getVariables() throws DebugException {
+	  TypeFactory tf = TypeFactory.getInstance();
+	  final Type vt = tf.valueType();
+	  
 		if (value == null) return null;
 		
 		return value.getType().accept(new ITypeVisitor<IVariable[], RuntimeException>() {
@@ -141,7 +144,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				IList list = (IList) value;
 				IVariable[] result = new IVariable[list.length()];
 				for (int i = 0; i < list.length(); i++) {
-					result[i] = new RascalVariable(target, "[" + i + "]", decl.getElementType(), list.get(i));
+					result[i] = new RascalVariable(target, "[" + i + "]", decl.isList() ? decl.getElementType() : vt, list.get(i));
 				}
 				return result;
 			}
@@ -152,7 +155,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				IVariable[] result = new IVariable[map.size()];
 				int i = 0;
 				for (org.eclipse.imp.pdb.facts.IValue key : map) {
-					result[i++] = new RascalVariable(target, key.toString(), decl.getValueType(), map.get(key));
+					result[i++] = new RascalVariable(target, key.toString(), decl.isMap() ? decl.getValueType() : vt, map.get(key));
 				}
 				return result;
 			}
@@ -173,7 +176,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				IVariable[] result = new IVariable[set.size()];
 				int i = 0;
 				for (org.eclipse.imp.pdb.facts.IValue elem : set) {
-					result[i++] = new RascalVariable(target, "[" + i + "]", decl.getElementType(), elem);
+					result[i++] = new RascalVariable(target, "[" + i + "]", decl.isSet() ? decl.getElementType() : vt, elem);
 				}
 				return result;
 			}
@@ -266,7 +269,8 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				ITuple node = (ITuple) value;
 				IVariable[] result = new IVariable[node.arity()];
 				for (int i = 0; i < result.length; i++) {
-					result[i] = new RascalVariable(target, type.hasFieldNames() ? type.getFieldName(i) : "[" + i + "]", node.getType().getFieldType(i), node.get(i));
+				  Type toUse = decl.isTuple() ? decl : type;
+					result[i] = new RascalVariable(target, toUse.hasFieldNames() ? toUse.getFieldName(i) : "[" + i + "]", toUse.getFieldType(i), node.get(i));
 				}
 				return result;
 			}
