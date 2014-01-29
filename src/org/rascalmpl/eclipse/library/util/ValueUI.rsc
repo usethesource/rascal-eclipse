@@ -18,15 +18,18 @@ import Map;
 public java void text(value v, int indent);
 
 @doc{Starts an editor with an indented textual representation of any value}
+@label{Indented value in editor}
 public void text(value v) {
   text(v, 2);
 }
 
 @javaClass{org.rascalmpl.eclipse.library.util.ValueUI}
 @doc{Starts a tree view with a node for each nested value in a value}
+@label{Explorable tree view}
 public java void tree(value v);
 
 @doc{Displays any value as a set of nested figures. EXPERIMENTAL!}
+@label{Experimental value as graph view}
 public void graph(value v) {
   render(toGraph(v));
 }
