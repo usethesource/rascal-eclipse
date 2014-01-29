@@ -262,7 +262,7 @@ public class RascalSourceLocationBreakpoint extends LineBreakpoint implements II
 		String uriString = (String) marker.getAttribute(MARKER_ATTRIBUTE_URI);
 
 		try {
-			result = valueFactory.sourceLocation(URIUtil.createFromEncoded(uriString), offset, length, beginLine, endLine, beginCol, endCol);
+			result = valueFactory.sourceLocation(valueFactory.sourceLocation(URIUtil.createFromEncoded(uriString)), offset, length, beginLine, endLine, beginCol, endCol);
 		} catch (URISyntaxException e) {
 			IStatus message = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
 					"Persisted URI string of the marker's source location is invalid.", e);

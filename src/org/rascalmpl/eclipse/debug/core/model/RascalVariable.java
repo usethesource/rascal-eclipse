@@ -16,6 +16,7 @@ package org.rascalmpl.eclipse.debug.core.model;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.imp.pdb.facts.type.Type;
 
 /**
  *  Model for the local variable of a module. 
@@ -27,32 +28,25 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 
 	private final RascalStackFrame frame;
 
-	@Override
-	public boolean equals(Object arg0) {
-		if (arg0 instanceof RascalVariable) {
-			RascalVariable var = (RascalVariable) arg0;
-			return name.equals(var.name);
-		}
-		return false;
-	}
-	
-	@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
-	
-	protected RascalVariable(RascalStackFrame frame, String name, org.eclipse.imp.pdb.facts.IValue value) {
+  private final Type declaredType;
+
+	protected RascalVariable(RascalStackFrame frame, String name, Type declaredType, org.eclipse.imp.pdb.facts.IValue value) {
 		super(frame.getRascalDebugTarget());
 		this.name = name;
 		this.frame = frame;
 		this.value = value;
+		this.declaredType = declaredType;
 	}
 
+	public org.eclipse.imp.pdb.facts.IValue getRuntimeValue() {
+	  return value;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IVariable#getValue()
 	 */
 	public IValue getValue() throws DebugException {
-		return new RascalValue(frame, name, value);
+		return new RascalValue(frame, declaredType, value);
 	}
 
 	/* (non-Javadoc)
@@ -66,7 +60,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IVariable#getReferenceTypeName()
 	 */
 	public String getReferenceTypeName() throws DebugException {
-		return value.getType().toString();
+		return declaredType.toString();
 	}
 
 	/* (non-Javadoc)
@@ -80,22 +74,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IValueModification#setValue(java.lang.String)
 	 */
 	public void setValue(String expression) throws DebugException {
-		/*
-		 * 2012-07-19: Disabling value modification, because it leads to a
-		 * deadlock. No evaluator lock can be aquired here in the UI thread,
-		 * because it's already locked at the moment of suspension.
-		 */
-		
-//		IEvaluator<?> eval = getRascalDebugTarget().getEvaluator();
-//		synchronized(eval){
-//			//evaluate
-//			value = eval.eval(null, expression, URI.create("debug:///"));
-//	
-//			//store the result in its environment
-//			environment.storeVariable(name, value);
-//	
-//			fireChangeEvent(DebugEvent.CONTENT);
-//		}
+
 	}
 
 	/* (non-Javadoc)
@@ -125,5 +104,4 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	public boolean verifyValue(IValue value) throws DebugException {
 		return false;
 	}
-		
 }

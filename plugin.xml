@@ -765,7 +765,17 @@
         <uriResolver
               class="org.rascalmpl.eclipse.uri.ProjectURIResolver"
               scheme="project"> </uriResolver>
+    </extension>
+    <extension
+          id="projectURIResolver"
+          name="projectURIResolver"
+          point="rascal_eclipse.uriResolver">
         <uriResolver class="org.rascalmpl.eclipse.uri.LibraryURIResolver" scheme="std"></uriResolver>
+    </extension>
+    <extension
+          id="projectURIResolver"
+          name="projectURIResolver"
+          point="rascal_eclipse.uriResolver">
         <uriResolver class="org.rascalmpl.eclipse.uri.LibraryURIResolver" scheme="eclipse-std"></uriResolver>
     </extension>
     <extension
@@ -888,5 +898,40 @@
       </action>
    </viewerContribution> 
    </extension>
-   
+    <extension
+          point="org.eclipse.ui.editors">
+       <editor
+             class="org.rascalmpl.eclipse.debug.core.sourcelookup.DummyConsoleEditor"
+             default="false"
+             filenames="rascal.console.dummy"
+             id="rascal-eclipse.consoleDummyEditor"
+             name="Rascal Console">
+       </editor>
+    </extension>
+   <extension
+      point="org.eclipse.ui.menus">
+      <menuContribution
+         locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+      <dynamic
+            class="org.rascalmpl.eclipse.perspective.actions.ValueContributionItem"
+            id="rascal-eclipse.valueContributionItem">
+         <visibleWhen
+               checkEnabled="false">
+               <iterate>
+            <or>
+               <instanceof
+                     value="org.eclipse.imp.pdb.facts.IValue">
+               </instanceof>
+               <instanceof
+                     value="org.rascalmpl.eclipse.debug.core.model.RascalValue">
+               </instanceof>
+               <instanceof
+                     value="org.rascalmpl.eclipse.debug.core.model.RascalVariable">
+               </instanceof>
+            </or>
+            </iterate>
+         </visibleWhen>
+      </dynamic>
+   </menuContribution> 
+</extension>
 </plugin>

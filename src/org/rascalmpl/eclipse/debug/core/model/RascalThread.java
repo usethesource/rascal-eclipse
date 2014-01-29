@@ -13,6 +13,12 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
+import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestResumption;
+import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestStepInto;
+import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestStepOver;
+import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestSuspension;
+import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestTermination;
+
 import java.util.Stack;
 
 import org.eclipse.debug.core.DebugEvent;
@@ -26,8 +32,6 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.InterpreterEvent;
 import org.rascalmpl.interpreter.env.Environment;
-
-import static org.rascalmpl.interpreter.debug.DebugMessageFactory.*;
 
 /**
  * A Rascal thread. Rascal programs are currently modelled single threaded.
@@ -68,7 +72,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 	public int getPriority() throws DebugException {
 		return 0;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IThread#getBreakpoints()
 	 */
@@ -90,15 +94,19 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 			IStackFrame[] theFrames = new IStackFrame[size];
 			// for the top, use the current AST location
 			ISourceLocation currentLoc = eval.getRascalResolver().resolve(eval.getCurrentAST().getLocation());
-			theFrames[0] = new RascalStackFrame(this, callStack.get(size-1), currentLoc);
-			for (int i = 1; i < size; i++) {
-				theFrames[i] = new RascalStackFrame(this, callStack.get(size-i-1), callStack.get(size-i).getCallerLocation());
+			theFrames[0] = new RascalStackFrame(this, callStack.get(size-1), currentLoc, null);
+			for (int i = 1; i < size; i++) { 
+				theFrames[i] = new RascalStackFrame(this, callStack.get(size-i-1), callStack.get(size-i).getCallerLocation(), theFrames[i-1]);
 			}
 			return theFrames;
 		}
 		return new IStackFrame[0];
 	}
 
+	public ISourceLocation resolveLocation(ISourceLocation loc) {
+	  return getRascalDebugTarget().getConsole().getRascalInterpreter().getEval().getHeap().resolveSourceLocation(loc);
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IThread#getTopStackFrame()
 	 */
@@ -114,7 +122,8 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 	 * @see org.eclipse.debug.core.model.IThread#hasStackFrames()
 	 */
 	public boolean hasStackFrames() throws DebugException {
-		return isSuspended();
+	  Evaluator eval = getRascalDebugTarget().getConsole().getRascalInterpreter().getEval();
+		return isSuspended() || eval.getCurrentEnvt().isRootStackFrame();
 	}
 
 	/* (non-Javadoc)
@@ -289,7 +298,6 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 		setStepping(false);
 		
 		switch (event.getKind()) {
-	
 			case SUSPEND:	
 				setSuspended(true);
 		
@@ -305,7 +313,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 				case STEP_END:
 					fireSuspendEvent(DebugEvent.STEP_END);
 					break;
-			
+				  
 				default:
 					new UnsupportedOperationException("Suspension mode not supported.");
 				}
@@ -337,15 +345,21 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 			
 			break;
 			
+		case CREATE:
 		case IDLE:
-			/*
-			 * sending a request of resumption to the runtime cleans the state,
-			 * if it the last operation before IDLE was a step over or step
-			 * into.
-			 */
-			sendRequest(requestResumption());
+		  /*
+       * sending a request of resumption to the runtime cleans the state,
+       * if it the last operation before IDLE was a step over or step
+       * into. (JV: but I commented this out to get a variables view for the console frame.)
+       */
+//      sendRequest(requestResumption());
+		  setSuspended(true);
+	    fireSuspendEvent(DebugEvent.BREAKPOINT | DebugEvent.STEP_END); // BREAKPOINT is essential to trigger viewer updates
 			break;
 			
+		case TERMINATE:
+		  setSuspended(true);
+		  fireSuspendEvent(DebugEvent.TERMINATE);
 		}
 	}
 

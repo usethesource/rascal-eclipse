@@ -188,6 +188,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 		
 		try {
 			parseTree.accept(new IdentityTreeVisitor<Exception>() {
+				int ambTreesSeen = 0;
 				@Override
 				public IConstructor visitTreeAppl(IConstructor arg)
 						throws Exception {
@@ -206,6 +207,10 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 				@Override
 				public IConstructor visitTreeAmb(IConstructor arg)
 						throws Exception {
+					ambTreesSeen++;
+					if (ambTreesSeen > 100) {
+						throw new RuntimeException("Lets stop collecting, the user get's the point, it is VERY ambigious");
+					}
 					IConstructor sym = null;
 					String sentence = TreeAdapter.yield(arg);
 					

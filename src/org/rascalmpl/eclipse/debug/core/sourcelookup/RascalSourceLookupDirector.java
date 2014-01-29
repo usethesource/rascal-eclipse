@@ -17,12 +17,12 @@ import org.eclipse.debug.core.sourcelookup.ISourceLookupParticipant;
 import org.rascalmpl.eclipse.debug.core.sourcelookup.RascalSourceLookupParticipant;
 
 public class RascalSourceLookupDirector extends AbstractSourceLookupDirector {
-	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.internal.core.sourcelookup.ISourceLookupDirector#initializeParticipants()
 	 */
 	public void initializeParticipants() {
-		addParticipants(new ISourceLookupParticipant[]{new RascalSourceLookupParticipant()});
+		addParticipants(new ISourceLookupParticipant[] {
+		    new RascalSourceLookupParticipant()
+		    });
 	}
-
 }

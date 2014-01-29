@@ -161,6 +161,15 @@ public class Builder extends BuilderBase {
 					Activator.getInstance().logException(e.getMessage(), e);
 				}
 			}
+			else {
+				if (evalForErrors != null) {
+					evalForErrors.getStdErr().write(ReadEvalPrintDialogMessages.throwMessage(e) + "\n");
+					evalForErrors.getStdErr().flush();
+				}
+				else {
+					Activator.getInstance().logException(exc.toString(), e);
+				}
+			}
 		}
 		catch (IOException e) {
 			String error = "could not read file in builder: " + file;
