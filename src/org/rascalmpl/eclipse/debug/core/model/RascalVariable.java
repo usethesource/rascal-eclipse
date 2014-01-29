@@ -95,7 +95,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	 * @see org.eclipse.debug.core.model.IValueModification#verifyValue(java.lang.String)
 	 */
 	public boolean verifyValue(String expression) throws DebugException {
-		return false;
+	  return false;
 	}
 
 	/* (non-Javadoc)
