@@ -144,9 +144,9 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				IList list = (IList) value;
 				IVariable[] result = new IVariable[list.length()];
 				for (int i = 0; i < list.length(); i++) {
-					result[i] = new RascalVariable(target, "[" + i + "]", decl.isList() ? decl.getElementType() : vt, list.get(i));
+					result[i] = new RascalVariable(target, "[" + i + "]", decl.isList() ? decl.getElementType() : list.getElementType(), list.get(i));
 				}
-				return result;
+				return result; 
 			}
 
 			@Override
