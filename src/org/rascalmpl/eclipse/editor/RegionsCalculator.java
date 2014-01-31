@@ -89,7 +89,7 @@ public class RegionsCalculator {
 		IMapWriter writer = values.mapWriter();
 		for (String name : regions.keySet()){
 			ISourceLocation region = regions.get(name);
-			writer.put(values.string(name), values.tuple(values.string(text.substring(region.getOffset(), region.getOffset()+region.getLength()-1)), region));
+			writer.put(values.string(name), values.tuple(values.string(text.substring(region.getOffset(), region.getOffset()+region.getLength())), region));
 		}
 		return writer.done();
 	}
