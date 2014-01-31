@@ -16,6 +16,12 @@ import Map;
 import Ambiguity;
 import util::Clipboard;
 import ParseTree;
+import vis::ParseTree;
+
+@label{Visualize parse tree}
+public void visPT(Tree x) {
+  renderParsetree(x);
+}
 
 @label{Copy to clipboard}
 public void copyToClipboard(value x) {

@@ -93,12 +93,25 @@ public class RascalValue extends RascalDebugElement implements IValue {
 
 	private String getTreeValueString() {
 		StringBuilder b = new StringBuilder();
+		IConstructor tree = (IConstructor) value;
 		
-		IConstructor type = TreeAdapter.getType((IConstructor) value);
+		if (TreeAdapter.isChar(tree)) {
+		  return TreeAdapter.yield(tree, MAX_VALUE_STRING);
+		}
+		
+    IConstructor type = TreeAdapter.getType(tree);
 		
 		b.append(SymbolAdapter.toString(type, false));
 		
-		String cons = TreeAdapter.getConstructorName((IConstructor) value);
+		String cons = null;
+		
+		if (TreeAdapter.isAppl(tree)) {
+		  cons = TreeAdapter.getConstructorName(tree);
+		}
+		else if (TreeAdapter.isAmb(tree)) {
+		  cons = "amb";
+		}
+		
 		if (cons != null) {
 			b.append(' ');
 			b.append(cons);
@@ -106,7 +119,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 
 		b.append(':');
 		b.append('`');
-		b.append(TreeAdapter.yield((IConstructor) value, MAX_VALUE_STRING));
+		b.append(TreeAdapter.yield(tree, MAX_VALUE_STRING));
 		b.append('`');
 		b.append("\n");
 		
