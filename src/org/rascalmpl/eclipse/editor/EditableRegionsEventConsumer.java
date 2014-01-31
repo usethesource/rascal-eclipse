@@ -8,7 +8,6 @@ import org.eclipse.swt.events.VerifyEvent;
 
 public class EditableRegionsEventConsumer implements IEventConsumer{
 	
-	private ISourceLocation location;
 	private LinkedHashMap<String, ISourceLocation> regions;
 	
 	public EditableRegionsEventConsumer(ISourceLocation location) {
@@ -20,7 +19,7 @@ public class EditableRegionsEventConsumer implements IEventConsumer{
 	}
 	
 	private boolean inRegion(int offset){
-		for (ISourceLocation region:getRegions().values()){
+		for (ISourceLocation region : regions.values()){
 			if (contains(region, offset)){
 				return true;
 			}
@@ -36,7 +35,4 @@ public class EditableRegionsEventConsumer implements IEventConsumer{
 			event.doit = false;
 	}
 
-	private LinkedHashMap<String, ISourceLocation> getRegions(){
-		return EditableRegionsRegistry.getRegistryForDocument(location);
-	}
 }

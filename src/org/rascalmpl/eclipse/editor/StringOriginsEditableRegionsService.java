@@ -25,7 +25,6 @@ public class StringOriginsEditableRegionsService extends EditorServiceBase{
 	public StringOriginsEditableRegionsService() {
 		super();
 		this.values = RascalValueFactory.getInstance();
-		this.sourceViewer = getSourceViewer();
 	}
 
 	@Override
@@ -36,10 +35,11 @@ public class StringOriginsEditableRegionsService extends EditorServiceBase{
 	@Override
 	public void update(IParseController parseController,
 			IProgressMonitor monitor) {
-		if (sourceViewer == null)
-			return;
-		if (eventConsumer == null){
-			createListeners((IConstructor) parseController.getCurrentAst());
+		if (sourceViewer == null){
+			sourceViewer = getSourceViewer();
+			if (eventConsumer == null){
+				createListeners((IConstructor) parseController.getCurrentAst());
+			}
 		}
 	}
 	
