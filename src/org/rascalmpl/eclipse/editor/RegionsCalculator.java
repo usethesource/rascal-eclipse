@@ -1,12 +1,15 @@
 package org.rascalmpl.eclipse.editor;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -49,38 +52,44 @@ public class RegionsCalculator {
 		return result;
 	}
 	
-	public static LinkedHashMap<String, IRegion> getRegions(IConstructor ast){
+	public static LinkedHashMap<String, ISourceLocation> getRegions(IConstructor ast){
 		if (ast.asAnnotatable().hasAnnotation(REGIONS)){
-			IList list = (IList) ast.asAnnotatable().getAnnotation(REGIONS);
-			return toMap(list);
+			IMap map = (IMap) ast.asAnnotatable().getAnnotation(REGIONS);
+			return toMap(map);
 		}
 		else
 			return null;
 	}
 	
-	private static LinkedHashMap<String, IRegion> toMap(IList regions){
-		LinkedHashMap<String, IRegion> result = new LinkedHashMap<String, IRegion>();
-		Iterator<IValue> iter = regions.iterator();
+	private static LinkedHashMap<String, ISourceLocation> toMap(IMap regions){
+		LinkedHashMap<String, ISourceLocation> result = new LinkedHashMap<String, ISourceLocation>();
+		
+		Iterator<IValue> iter = orderRegions(regions);
+		
 		while (iter.hasNext()){
-			ITuple tuple = (ITuple) iter.next();
-			int start = ((IInteger) tuple.get(0)).intValue();
-			int length = ((IInteger) tuple.get(1)).intValue();
-			String name = ((IString) tuple.get(2)).getValue();
-			result.put(name, new Region(start, length));
+			IString regionName = (IString) iter.next();
+			ITuple txtpos = (ITuple) regions.get(regionName);
+			ISourceLocation loc = (ISourceLocation) txtpos.get(1);
+			result.put(regionName.getValue(), loc);
 		}
 		return result;
 	}
 	
-	public static IList fromMap(IRascalValueFactory values, LinkedHashMap<String, IRegion> regions, String text){
-		IListWriter writer = values.listWriter();
+	private static Iterator<IValue> orderRegions(IMap regions) {
+		LinkedList<IValue> unordered = new LinkedList<IValue>();
+		Iterator<IValue> iter = regions.iterator();
+		while (iter.hasNext()){
+			unordered.add(iter.next());
+		}
+		Collections.sort(unordered, new OffsetComparator(regions));
+		return unordered.iterator();
+	}
+
+	public static IMap fromMap(IRascalValueFactory values, LinkedHashMap<String, ISourceLocation> regions, String text){
+		IMapWriter writer = values.mapWriter();
 		for (String name : regions.keySet()){
-			IRegion region = regions.get(name);
-			IInteger start = values.integer(region.getOffset());
-			IInteger length = values.integer(region.getLength());
-			IString theName = values.string(name);
-			IString content = values.string(text.substring(region.getOffset(), region.getOffset()+ region.getLength()));
-			ITuple tuple = values.tuple(start, length, theName, content);
-			writer.append(tuple);
+			ISourceLocation region = regions.get(name);
+			writer.put(values.string(name), region);
 		}
 		return writer.done();
 	}
@@ -95,5 +104,22 @@ public class RegionsCalculator {
 		}
 		return null;
 	}
-
+	
+	private static class OffsetComparator implements Comparator<IValue>{
+		private IMap regions;
+		OffsetComparator(IMap regions){
+			this.regions = regions;
+		}
+		@Override
+		public int compare(IValue v1, IValue v2) {
+			return getOffset(v1) - getOffset(v2); 
+		}
+		
+		private int getOffset(IValue regionName){
+			ITuple txtpos = (ITuple) regions.get(regionName);
+			ISourceLocation loc = (ISourceLocation) txtpos.get(1);
+			return loc.getOffset();
+		}
+		
+	}
 }

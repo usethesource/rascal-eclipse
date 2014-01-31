@@ -108,7 +108,7 @@ public class Builder extends BuilderBase {
 			IConstructor tree;
 			synchronized (parser.getEval()) {
 				tree = (IConstructor) parser.call(rmonitor, new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}, null).getValue();
-				LinkedHashMap<String, IRegion> regions = EditableRegionsRegistry.getRegistryForDocument(loc);
+				LinkedHashMap<String, ISourceLocation> regions = EditableRegionsRegistry.getRegistryForDocument(loc);
 				if (regions != null) {
 					tree = tree.asAnnotatable()
 							.setAnnotation("regions", 

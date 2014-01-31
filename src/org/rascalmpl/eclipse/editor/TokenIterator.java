@@ -35,27 +35,7 @@ public class TokenIterator implements Iterator<Token>{
 	public TokenIterator(boolean showAmb, IConstructor parseTree){
 		this.tokenList = new ArrayList<Token>(1000);
 		this.showAmb = false;
-		
-		if(parseTree != null){
-			ISourceLocation loc = TreeAdapter.getLocation(parseTree);
-			if(EditableRegionsRegistry.hasRegistryForDocument(loc)){
-				this.hasRegions  = true;
-				Collection<IRegion> regions = EditableRegionsRegistry.getRegistryForDocument(loc).values();
-				IRegion[] regionsArray = regions.toArray(new IRegion[0]);
-				if (regionsArray.length > 0) {
-					IRegion lastRegion = regionsArray[regionsArray.length - 1];
-					inRegion = new boolean[lastRegion.getOffset()+lastRegion.getLength()+1];
-				}
-				else {
-					inRegion = new boolean[0];
-				}
-				for (IRegion region:regions){
-					for (int i=region.getOffset(); i<=region.getOffset()+region.getLength(); i++)
-						inRegion[i] = true;
-			}
-		  }
-		  parseTree.accept(new LexicalCollector());
-		}
+		setupRegions(parseTree);
 		tokenIterator = tokenList.iterator();
 	}
 
@@ -69,6 +49,29 @@ public class TokenIterator implements Iterator<Token>{
 
 	public void remove(){
 		throw new UnsupportedOperationException();
+	}
+	
+	private void setupRegions(IConstructor parseTree){
+		if(parseTree != null){
+			ISourceLocation loc = TreeAdapter.getLocation(parseTree);
+			if(EditableRegionsRegistry.hasRegistryForDocument(loc)){
+				this.hasRegions  = true;
+				Collection<ISourceLocation> regions = EditableRegionsRegistry.getRegistryForDocument(loc).values();
+				ISourceLocation[] regionsArray = regions.toArray(new ISourceLocation[0]);
+				if (regionsArray.length > 0) {
+					ISourceLocation lastRegion = regionsArray[regionsArray.length - 1];
+					inRegion = new boolean[lastRegion.getOffset()+lastRegion.getLength()+1];
+				}
+				else {
+					inRegion = new boolean[0];
+				}
+				for (ISourceLocation region:regions){
+					for (int i=region.getOffset(); i<=region.getOffset()+region.getLength(); i++)
+						inRegion[i] = true;
+				}
+			}
+			parseTree.accept(new LexicalCollector());
+		}
 	}
 
 	private boolean inRegion(int offset){
