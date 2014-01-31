@@ -8,10 +8,31 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module util::ValueUI
 
+import util::Editors;
 import vis::Figure;
 import vis::Render;
 import Node;
 import Map;
+import Ambiguity;
+import util::Clipboard;
+import ParseTree;
+
+@label{Copy to clipboard}
+public void copyToClipboard(value x) {
+  copy(x);
+}
+
+@label{Open location in editor}
+public void openEditor(loc l) {
+  edit(l);
+}
+
+@label{Diagnose ambiguity}
+public void diagnoseAmbiguity(Tree x) {
+  text(diagnose(x));
+}
+
+
 
 @javaClass{org.rascalmpl.eclipse.library.util.ValueUI}
 @doc{Starts an editor with an indented textual representation of any value}
@@ -38,9 +59,9 @@ Figure toGraph(value v) {
  props = [hcenter(),vcenter(),gap(5),width(0),height(0)];
  
   switch (v) {
-    case bool b : return Figure::text("<b>");
-    case num i  : return Figure::text("<i>");
-    case str s  : return Figure::text("<s>");
+    case bool b : return vis::Figure::text("<b>");
+    case num i  : return vis::Figure::text("<i>");
+    case str s  : return vis::Figure::text("<s>");
     case list[value] l : return box(pack([toGraph(e) | e <- l]), props);
     case rel[value from, value to] r : {
       int next = 0;
@@ -50,10 +71,10 @@ Figure toGraph(value v) {
                    [edge(ids[from],ids[to],toArrow(triangle(10))) | from <- r.from, to <- r[from]],hint("layered"),gap(40),width(1600),height(1600)));
     }
     case set[value] l :  return box(pack([toGraph(e) | e <- l]),[hcenter(),vcenter()]);
-    case node x :  return box(vcat([Figure::text(getName(x),fontSize(20)), vcat([toGraph(c) | c <- x ])]),props);
+    case node x :  return box(vcat([vis::Figure::text(getName(x),fontSize(20)), vcat([toGraph(c) | c <- x ])]),props);
     case map[value,value] x : return box(vcat([hcat([toGraph(key), toGraph(x[key])]) | key <- x],props)); 
     case tuple[value a, value b] t: return box(hcat([toGraph(t.a), toGraph(t.b)]),props);
     case tuple[value a, value b, value c] t: return box(hcat([toGraph(t.a), toGraph(t.b), toGraph(t.c)]),props);
-    default: return Figure::text("<v>");
+    default: return vis::Figure::text("<v>");
   }
 }
