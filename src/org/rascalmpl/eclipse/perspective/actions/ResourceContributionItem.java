@@ -8,11 +8,13 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.ContributionItem;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.library.util.Clipboard;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -34,6 +36,12 @@ public class ResourceContributionItem extends ContributionItem {
     final IValueFactory vf = ValueFactoryFactory.getValueFactory();
     final Clipboard cb = new Clipboard(vf);
     new ActionContributionItem(new Action("Copy source location") { 
+      
+      @Override
+      public ImageDescriptor getImageDescriptor() {
+        return Activator.getRascalImage();
+      }
+      
       @Override
       public void run() {
         try {
