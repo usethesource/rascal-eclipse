@@ -44,6 +44,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 	private final RascalStackFrame target;
 	private final org.eclipse.imp.pdb.facts.IValue value;
   private final Type decl;
+  private IVariable[] children = null;
 
 	public RascalValue(RascalStackFrame target, Type decl, org.eclipse.imp.pdb.facts.IValue value) {
 		super(target.getRascalDebugTarget());
@@ -127,16 +128,26 @@ public class RascalValue extends RascalDebugElement implements IValue {
 		return b.toString();
 	}
 
+	public IVariable[] getVariables() throws DebugException {
+	  return null;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValue#getVariables()
 	 */
-	public IVariable[] getVariables() throws DebugException {
+	public IVariable[] getVariables2() throws DebugException {
+	  if (children != null) {
+	    return children.clone();
+	  }
+	  
 	  TypeFactory tf = TypeFactory.getInstance();
 	  final Type vt = tf.valueType();
 	  
-		if (value == null) return null;
+		if (value == null) {
+		  return null;
+		}
 		
-		return value.getType().accept(new ITypeVisitor<IVariable[], RuntimeException>() {
+		return children = value.getType().accept(new ITypeVisitor<IVariable[], RuntimeException>() {
 			@Override
 			public IVariable[] visitReal(Type type) {
 				return new IVariable[0];
@@ -321,11 +332,17 @@ public class RascalValue extends RascalDebugElement implements IValue {
 		});
 	}
 
+	public boolean hasVariables() throws DebugException {
+	  return false;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValue#hasVariables()
 	 */
-	public boolean hasVariables() throws DebugException {
-		if (value == null) return false;
+	public boolean hasVariables2() throws DebugException {
+		if (value == null) {
+		  return false;
+		}
 		Type type = value.getType();
 		return type.isList() || type.isMap() || type.isSet() || type.isAliased() || type.isNode() || type.isConstructor() || type.isRelation();
 	}

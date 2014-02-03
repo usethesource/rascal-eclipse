@@ -26,10 +26,13 @@ import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.debug.core.model.RascalStackFrame;
 import org.rascalmpl.eclipse.debug.core.model.RascalThread;
+import org.rascalmpl.eclipse.debug.core.model.RascalValue;
+import org.rascalmpl.eclipse.debug.core.model.RascalVariable;
 
 /**
  * Renders Rascal debug elements
@@ -45,14 +48,23 @@ public class RascalModelPresentation extends LabelProvider implements IDebugMode
 	 * @see org.eclipse.jface.viewers.ILabelProvider#getText(java.lang.Object)
 	 */
 	public String getText(Object element) {
-		if (element instanceof RascalDebugTarget) {
-			return getTargetText((RascalDebugTarget)element);
-		} else if (element instanceof RascalThread) {
-			return getThreadText((RascalThread)element);
-		} else if (element instanceof RascalStackFrame) {
-			return getStackFrameText((RascalStackFrame)element);
-		}
-		return null;
+	  try {
+	    if (element instanceof RascalDebugTarget) {
+	      return getTargetText((RascalDebugTarget)element);
+	    } else if (element instanceof RascalThread) {
+	      return getThreadText((RascalThread)element);
+	    } else if (element instanceof RascalStackFrame) {
+	      return getStackFrameText((RascalStackFrame)element);
+	    } else if (element instanceof RascalValue) {
+	      return ((RascalValue) element).getReferenceTypeName();
+	    } else if (element instanceof RascalVariable) {
+	      return ((RascalVariable) element).getName();
+	    }
+	  } catch (DebugException e) {
+	    return null;
+	  }
+	  finally {}
+	  return null;
 	}
 
 	/**
@@ -140,6 +152,7 @@ public class RascalModelPresentation extends LabelProvider implements IDebugMode
 		try {
 			detail = value.getValueString();
 		} catch (DebugException e) {
+		  Activator.log("unexpected problem in debug view", e);
 		}
 		listener.detailComputed(value, detail);
 	}
