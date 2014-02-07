@@ -17,6 +17,7 @@ public java void htmlDisplay(loc location, str htmlInput);
 
 
 @javaClass{org.rascalmpl.eclipse.library.util.HtmlDisplay}
+@reflect{Uses URI Resolver Registry}
 public java void htmlDisplay(loc location); 
 
 

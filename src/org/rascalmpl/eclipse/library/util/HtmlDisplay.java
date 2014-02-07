@@ -17,13 +17,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -34,7 +33,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.uri.URIUtil;
 
 public class HtmlDisplay {
 
@@ -56,6 +57,7 @@ public class HtmlDisplay {
 					IWorkbenchBrowserSupport.AS_EDITOR,
 					"dotplugin.editors.DotEditor", loc.getFile(), null);
 			browser.openURL(loc);
+			
 			// browser.close();
 		} catch (PartInitException e) {
 			// TODO Auto-generated catch block
@@ -63,22 +65,32 @@ public class HtmlDisplay {
 		}
 	}
 
-	private URI getHtmlOutputLoc(ISourceLocation loc, String input)
+	private URI getHtmlOutputLoc(ISourceLocation loc, String input, IEvaluatorContext ctx)
 			throws IOException {
 		IFile output = null;
-		IPath path = new Path(loc.getURI().getPath());
+		URI inputUri = loc.getURI();
+		URI resourceUri = ctx.getResolverRegistry().getResourceURI(loc.getURI());
+		
+		URI uri= inputUri.getScheme().equals("project")?inputUri:resourceUri;
+		IPath path = new Path(uri.getPath());
 		if (path.getFileExtension() == null
 				|| !path.getFileExtension().equals("html")
 				&& !path.getFileExtension().equals("json"))
 			path = path.append("index.html");
-		if (loc.getURI().getScheme().equals("project")) {
+		try {
+			uri = URIUtil.changePath(uri, path.toString());
+		} catch (URISyntaxException e1) {
+			throw new IOException("Invalid uri:" + uri);
+		}
+		// System.err.println("getHtmlOutputLoc:"+path);
+		if (uri.getScheme().equals("project")) {
 			try {
-				String projName = loc.getURI().getAuthority();
-				IProject p = ResourcesPlugin.getWorkspace().getRoot()
-						.getProject(projName);
-				output = p.getFile(path);
-				if (output == null)
+				IResource res = URIResourceResolver.getResource(uri, null);
+				// System.err.println("Test File:"+res);
+				if (res==null || res.getType()!=IResource.FILE) {
 					throw new IOException("Invalid uri:" + loc.getURI());
+				}
+				output = (IFile) res;			
 				if (input != null) {
 					if (output.exists())
 						output.delete(true, null);
@@ -101,21 +113,22 @@ public class HtmlDisplay {
 			}
 
 		}
-		if (loc.getURI().getScheme().equals("file")) {
+		if (resourceUri!=null) {
 			File f = new File(path.toOSString());
 			if (input != null) {
 				f.getParentFile().mkdir();
 				FileWriter w = new FileWriter(f);
 				w.write(input);
-				w.close();
+				w.close();			
 			}
 			return f.toURI();
 		}
-		return null;
+		return null;	
 	}
 
-	public void htmlDisplay(ISourceLocation loc) throws IOException {
-		final URI output = getHtmlOutputLoc(loc, null);
+	public void htmlDisplay(ISourceLocation loc, IEvaluatorContext ctx) throws IOException {
+		final URI output = getHtmlOutputLoc(loc, null, ctx);
+		// System.err.println("htmlDisplay browse2:"+output);
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {
@@ -132,7 +145,8 @@ public class HtmlDisplay {
 
 	private void htmlDisplay(ISourceLocation loc, String input,
 			IEvaluatorContext ctx) throws IOException {
-		final URI uri = getHtmlOutputLoc(loc, input);
+		final URI uri = getHtmlOutputLoc(loc, input, ctx);
+		// System.err.println("htmlDisplay browse:"+uri);
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {

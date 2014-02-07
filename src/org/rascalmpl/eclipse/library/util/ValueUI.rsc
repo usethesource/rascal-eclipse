@@ -26,6 +26,11 @@ public void text(value v) {
 @doc{Starts a tree view with a node for each nested value in a value}
 public java void tree(value v);
 
+//@label{Scatter plot with histogram}
+//public void scatterplot(map[num,num] data) {
+//   ...
+//}
+
 @doc{Displays any value as a set of nested figures. EXPERIMENTAL!}
 public void graph(value v) {
   render(toGraph(v));
