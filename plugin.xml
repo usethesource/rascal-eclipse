@@ -932,6 +932,21 @@
             </iterate>
          </visibleWhen>
       </dynamic>
-   </menuContribution> 
+   </menuContribution>
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <dynamic
+               class="org.rascalmpl.eclipse.perspective.actions.ResourceContributionItem"
+               id="rascal-eclipse.valueContributionItem">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate>
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+               </iterate>
+            </visibleWhen>
+         </dynamic>
+      </menuContribution> 
 </extension>
 </plugin>

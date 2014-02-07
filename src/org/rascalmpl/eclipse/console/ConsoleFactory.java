@@ -32,6 +32,8 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -102,6 +104,7 @@ public final class ConsoleFactory{
 					ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 					ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(IRascalResources.LAUNCHTYPE);
 					ILaunchConfigurationWorkingCopy launch = type.newInstance(null, "Rascal Project Console Launch");
+				  DebugUITools.setLaunchPerspective(type, ILaunchManager.DEBUG_MODE, IDebugUIConstants.PERSPECTIVE_NONE);
 					launch.setAttribute(IRascalResources.ATTR_RASCAL_PROJECT, project.getName());
 					launch.launch(mode, monitor);
 				} catch (CoreException e) {

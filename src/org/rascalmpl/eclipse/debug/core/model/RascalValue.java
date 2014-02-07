@@ -44,6 +44,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 	private final RascalStackFrame target;
 	private final org.eclipse.imp.pdb.facts.IValue value;
   private final Type decl;
+  private IVariable[] children = null;
 
 	public RascalValue(RascalStackFrame target, Type decl, org.eclipse.imp.pdb.facts.IValue value) {
 		super(target.getRascalDebugTarget());
@@ -93,12 +94,25 @@ public class RascalValue extends RascalDebugElement implements IValue {
 
 	private String getTreeValueString() {
 		StringBuilder b = new StringBuilder();
+		IConstructor tree = (IConstructor) value;
 		
-		IConstructor type = TreeAdapter.getType((IConstructor) value);
+		if (TreeAdapter.isChar(tree)) {
+		  return TreeAdapter.yield(tree, MAX_VALUE_STRING);
+		}
+		
+    IConstructor type = TreeAdapter.getType(tree);
 		
 		b.append(SymbolAdapter.toString(type, false));
 		
-		String cons = TreeAdapter.getConstructorName((IConstructor) value);
+		String cons = null;
+		
+		if (TreeAdapter.isAppl(tree)) {
+		  cons = TreeAdapter.getConstructorName(tree);
+		}
+		else if (TreeAdapter.isAmb(tree)) {
+		  cons = "amb";
+		}
+		
 		if (cons != null) {
 			b.append(' ');
 			b.append(cons);
@@ -106,7 +120,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 
 		b.append(':');
 		b.append('`');
-		b.append(TreeAdapter.yield((IConstructor) value, MAX_VALUE_STRING));
+		b.append(TreeAdapter.yield(tree, MAX_VALUE_STRING));
 		b.append('`');
 		b.append("\n");
 		
@@ -114,16 +128,26 @@ public class RascalValue extends RascalDebugElement implements IValue {
 		return b.toString();
 	}
 
+	public IVariable[] getVariables() throws DebugException {
+	  return null;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValue#getVariables()
 	 */
-	public IVariable[] getVariables() throws DebugException {
+	public IVariable[] getVariables2() throws DebugException {
+	  if (children != null) {
+	    return children.clone();
+	  }
+	  
 	  TypeFactory tf = TypeFactory.getInstance();
 	  final Type vt = tf.valueType();
 	  
-		if (value == null) return null;
+		if (value == null) {
+		  return null;
+		}
 		
-		return value.getType().accept(new ITypeVisitor<IVariable[], RuntimeException>() {
+		return children = value.getType().accept(new ITypeVisitor<IVariable[], RuntimeException>() {
 			@Override
 			public IVariable[] visitReal(Type type) {
 				return new IVariable[0];
@@ -144,9 +168,9 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				IList list = (IList) value;
 				IVariable[] result = new IVariable[list.length()];
 				for (int i = 0; i < list.length(); i++) {
-					result[i] = new RascalVariable(target, "[" + i + "]", decl.isList() ? decl.getElementType() : vt, list.get(i));
+					result[i] = new RascalVariable(target, "[" + i + "]", decl.isList() ? decl.getElementType() : list.getElementType(), list.get(i));
 				}
-				return result;
+				return result; 
 			}
 
 			@Override
@@ -308,11 +332,17 @@ public class RascalValue extends RascalDebugElement implements IValue {
 		});
 	}
 
+	public boolean hasVariables() throws DebugException {
+	  return false;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValue#hasVariables()
 	 */
-	public boolean hasVariables() throws DebugException {
-		if (value == null) return false;
+	public boolean hasVariables2() throws DebugException {
+		if (value == null) {
+		  return false;
+		}
 		Type type = value.getType();
 		return type.isList() || type.isMap() || type.isSet() || type.isAliased() || type.isNode() || type.isConstructor() || type.isRelation();
 	}

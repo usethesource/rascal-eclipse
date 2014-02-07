@@ -5,12 +5,21 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.ContributionItem;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
+import org.rascalmpl.eclipse.debug.core.model.RascalValue;
+import org.rascalmpl.eclipse.debug.core.model.RascalVariable;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.JavaToRascal;
@@ -20,6 +29,27 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 
 public class ValueContributionItem extends ContributionItem {
+  private static final class FunctionAction extends Action {
+    private final IValue val;
+    private final AbstractFunction f;
+
+    private FunctionAction(String name, IValue val, AbstractFunction f) {
+      super(name);
+      this.val = val;
+      this.f = f;
+    }
+
+    @Override
+    public void runWithEvent(Event event) {
+      try {
+        f.call(new Type[] { val.getType() }, new IValue[] { val }, null);
+      }
+      catch (Throwable e) {
+        Activator.log("failed to execute " + getText(), e);
+      }
+    }
+  }
+
   private static final String UTIL_VALUE_UI = "util::ValueUI";
   private static PrintWriter out;
   private static PrintWriter err;
@@ -51,30 +81,56 @@ public class ValueContributionItem extends ContributionItem {
     return true;
   }
   
+  private IValue getSelectedValue() {
+    IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+    
+    if (window != null) {
+        ISelection sel = window.getSelectionService().getSelection();
+        
+        if (sel instanceof IStructuredSelection) {
+          IStructuredSelection selection = (IStructuredSelection) sel;
+          Object firstElement = selection.getFirstElement();
+
+          if (firstElement instanceof RascalVariable) {
+            return ((RascalVariable) firstElement).getRuntimeValue();
+          }
+          else if (firstElement instanceof RascalValue) {
+            return ((RascalValue) firstElement).getRuntimeValue();
+          }
+          else if (firstElement instanceof IValue) {
+            return (IValue) firstElement;
+          }
+        }
+    }
+    
+    return null;
+  }
+  
   @Override
-  public void fill(Menu menu, int index) {
+  public void fill(final Menu menu, int index) {
+    final IValue val = getSelectedValue();
+    
+    if (val == null) {
+      return;
+    }
+    
     if (eval == null) {
       init();
     }
     
     ModuleEnvironment module = eval.getHeap().getModule(UTIL_VALUE_UI);
-    List<Pair<String, List<AbstractFunction>>> functions = module.getFunctions();
     
-    for (Pair<String, List<AbstractFunction>> func : functions) {
+    for (Pair<String, List<AbstractFunction>> func : module.getFunctions()) {
       final String name = func.getFirst();
-      List<AbstractFunction> overloads = func.getSecond();
       
-      for (final AbstractFunction f : overloads) {
-        if (f.getArity() == 1 && f.getReturnType().isBottom()) {
-          Action a = new Action() {
-            @Override
-            public void run() {
-              System.err.println("called " + name);
-            } 
-          };
-          ActionContributionItem aci = new ActionContributionItem(a);
-          aci.fill(menu, index);
-        }
+      for (final AbstractFunction f : func.getSecond()) {
+        if (f.getArity() == 1 
+            && f.getReturnType().isBottom()
+            && val.getType().isSubtypeOf(f.getFunctionType().getArgumentTypes().getFieldType(0))) {
+          String label = f.getTag("label");
+          Action a = new FunctionAction(label != null ? label : name, val, f);
+          new ActionContributionItem(a).fill(menu, index);
+        };
       }
     }
   }
