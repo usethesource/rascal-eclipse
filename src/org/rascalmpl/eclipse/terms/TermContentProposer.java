@@ -69,6 +69,7 @@ public class TermContentProposer implements IContentProposer {
 		if (proposer != null && tree != null) {
 			Result<IValue> result;
 			synchronized (proposer.getEval()) {
+				proposer.getEval().__setInterrupt(false);
 			    result = (Result<IValue>) proposer.call(new Type[] { tree.getType(), _prefixText.getType(), _requestOffset.getType() }, new IValue[] { tree, _prefixText, _requestOffset }, null);	
 			}
 			IList resultProposals = (IList) result.getValue();

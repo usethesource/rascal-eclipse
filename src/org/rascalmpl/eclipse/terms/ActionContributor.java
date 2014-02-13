@@ -205,6 +205,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 		Type[] actualTypes = new Type[] { };
 		IValue[] actuals = new IValue[] { };
 		synchronized(func.getEval()){
+			func.getEval().__setInterrupt(false);
 			return ((IBool) func.call(actualTypes, actuals, null).getValue()).getValue();
 		}
 		
