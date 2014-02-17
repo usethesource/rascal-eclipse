@@ -269,7 +269,9 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				ISourceLocation location = e.getLocation();
 				
 				if (location != null && !location.getURI().getScheme().equals("stdin")) {
-					setMarker(e.getMessage(), location.getURI(), location.getOffset(), location.getLength());
+				  if (location.hasOffsetLength()) {
+				    setMarker(e.getMessage(), location.getURI(), location.getOffset(), location.getLength());
+				  }
 					error = new CommandExecutionException(content);
 				} 
 				else if (location != null && location.getURI().getScheme().equals("stdin") && location.hasOffsetLength()) {

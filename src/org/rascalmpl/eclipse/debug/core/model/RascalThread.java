@@ -32,6 +32,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.InterpreterEvent;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.uri.URIUtil;
 
 /**
  * A Rascal thread. Rascal programs are currently modelled single threaded.
@@ -93,7 +94,9 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 			int size = callStack.size();
 			IStackFrame[] theFrames = new IStackFrame[size];
 			// for the top, use the current AST location
-			ISourceLocation currentLoc = eval.getRascalResolver().resolve(eval.getCurrentAST().getLocation());
+			ISourceLocation currentLoc = eval.getCurrentAST() != null ? 
+			    eval.getRascalResolver().resolve(eval.getCurrentAST().getLocation())
+			    : eval.getValueFactory().sourceLocation(URIUtil.rootScheme("stdin"));
 			theFrames[0] = new RascalStackFrame(this, callStack.get(size-1), currentLoc, null);
 			for (int i = 1; i < size; i++) { 
 				theFrames[i] = new RascalStackFrame(this, callStack.get(size-i-1), callStack.get(size-i).getCallerLocation(), theFrames[i-1]);
