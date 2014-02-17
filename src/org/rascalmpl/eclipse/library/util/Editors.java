@@ -290,6 +290,7 @@ public class Editors {
 			if (Thread.currentThread().equals(Display.getDefault().getThread())) {
 				throw new RuntimeException("The repeatable runner should not be run from inside the UI thread");
 			}
+			fun.getEval().__setInterrupt(false);
 			return (IList) fun.call(new Type[0], new IValue[0], null).getValue();
 		}
 
@@ -491,6 +492,7 @@ public class Editors {
 							public void run() {
 								Result<IValue> result;
 								synchronized (defaultProvider.getEval()) {
+									defaultProvider.getEval().__setInterrupt(false);
 									result = defaultProvider.call(new Type[] { TF.sourceLocationType() }, new IValue[] { fileLoc }, null);
 								}
 								new Editors(VF).edit(fileLoc, result.getValue(), null);

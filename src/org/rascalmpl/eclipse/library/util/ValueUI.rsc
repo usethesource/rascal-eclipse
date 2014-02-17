@@ -56,6 +56,11 @@ public void text(value v) {
 @label{Explorable tree view}
 public java void tree(value v);
 
+//@label{Scatter plot with histogram}
+//public void scatterplot(map[num,num] data) {
+//   ...
+//}
+
 @doc{Displays any value as a set of nested figures. EXPERIMENTAL!}
 @label{Experimental value as graph view}
 public void graph(value v) {

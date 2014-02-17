@@ -59,6 +59,7 @@ public class AnnotatorExecutor {
 			Type type = RascalTypeFactory.getInstance().nonTerminalType(tree);
 			IConstructor newTree;
 			synchronized(func.getEval()){
+				func.getEval().__setInterrupt(false);
 				newTree = (IConstructor) func.call(new Type[] {type}, new IValue[] {tree}, null).getValue();
 			}
 			
