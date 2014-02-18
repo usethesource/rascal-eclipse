@@ -128,10 +128,14 @@ public class RascalValue extends RascalDebugElement implements IValue {
 		return b.toString();
 	}
 
+	public IVariable[] getVariables() throws DebugException {
+	  return null;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValue#getVariables()
 	 */
-	public IVariable[] getVariables() throws DebugException {
+	public IVariable[] getVariables2() throws DebugException {
 	  if (children != null) {
 	    return children.clone();
 	  }
@@ -328,10 +332,14 @@ public class RascalValue extends RascalDebugElement implements IValue {
 		});
 	}
 
+	public boolean hasVariables() throws DebugException {
+	  return false;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IValue#hasVariables()
 	 */
-	public boolean hasVariables() throws DebugException {
+	public boolean hasVariables2() throws DebugException {
 		if (value == null) {
 		  return false;
 		}
