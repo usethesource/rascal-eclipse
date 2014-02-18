@@ -337,7 +337,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 			
 			return obj == this 
 			    || (Arrays.equals(variables, sf.variables)
-			    && ((parent == null && sf.parent == null) || parent.equals(sf.parent)) 
+			    && ((parent == null && sf.parent == null) || (parent != null && sf.parent != null && parent.equals(sf.parent))) 
 			    && thread == sf.thread
 			    && location.equals(sf.location)
 			    ); 
