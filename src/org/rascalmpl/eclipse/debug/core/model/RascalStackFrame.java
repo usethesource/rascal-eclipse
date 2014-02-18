@@ -15,10 +15,11 @@ package org.rascalmpl.eclipse.debug.core.model;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IRegisterGroup;
@@ -28,9 +29,6 @@ import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.env.Pair;
-import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.UnsupportedSchemeException;
@@ -43,11 +41,6 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	private final RascalThread thread;
 	
 	/**
-	 * Environment corresponding to the current scope.
-	 */
-	private final Environment environment;
-	
-	/**
 	 * Location information w.r.t. current execution point within this stack frame.
 	 */
 	private final ISourceLocation location;
@@ -55,19 +48,41 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	/**
 	 * Gives identity to stack frames that are nested due to recursion
 	 */
-  private final IStackFrame parent; 
+  private final IStackFrame parent;
+
+  private final IVariable[] variables;
+
+  private final String name; 
 
 	public RascalStackFrame(RascalThread thread, Environment environment, ISourceLocation location, IStackFrame parent) {
 		super(thread.getDebugTarget());
 		this.parent = parent;
 		this.thread = thread;
 		/* need to clone to know previous state, in order to compute model deltas */ 
-		this.environment = new ModuleEnvironment(environment.getName(), environment.getHeap());
-		this.environment.extend(environment);
 		this.location = location;
+		this.variables = initVariables(environment);
+		this.name = environment.getName();
 	}
 	
-	/* (non-Javadoc)
+	private IVariable[] initVariables(Environment environment) {
+	  //manage the list of variables local to the current module
+    Set<String> keys = environment.getVariables().keySet();
+    List<String> vars = new ArrayList<>(keys.size());
+    vars.addAll(keys);
+    Collections.sort(vars);
+
+    IVariable[] ivars = new IVariable[vars.size()];
+    int i = 0;
+
+    for (String v : vars) {
+      Result<IValue> var = environment.getVariable(v);
+      ivars[i++] = new RascalVariable(this, v, var.getType(), var.getValue());
+    }
+    
+    return ivars;
+  }
+
+  /* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IStackFrame#getCharEnd()
 	 */
 	public int getCharEnd() throws DebugException {
@@ -104,9 +119,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 * @see org.eclipse.debug.core.model.IStackFrame#getName()
 	 */
 	public String getName() throws DebugException {
-		//TODO: return the name of the current module
-	
-		return environment.getName();
+	  return name;
 	}
 
 	/* (non-Javadoc)
@@ -127,18 +140,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 * @see org.eclipse.debug.core.model.IStackFrame#getVariables()
 	 */
 	public IVariable[] getVariables() throws DebugException {
-		//manage the list of variables local to the current module
-		Set<String> vars = environment.getVariables().keySet();
-
-		IVariable[] ivars = new IVariable[vars.size()];
-		int i = 0;
-
-		for (String v : vars) {
-			Result<IValue> var = environment.getVariable(v);
-      ivars[i++] = new RascalVariable(this, v, var.getType(), var.getValue());
-		}
-		
-		return ivars;
+		return variables;
 	}
 
 	/* (non-Javadoc)
@@ -152,7 +154,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 * @see org.eclipse.debug.core.model.IStackFrame#hasVariables()
 	 */
 	public boolean hasVariables() throws DebugException {
-		return ! environment.getVariables().isEmpty();
+		return variables.length > 0;
 	}
 
 	/* (non-Javadoc)
@@ -324,24 +326,6 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 		}
 	}
 
-	/**
-	 * Transforms the function list from
-	 * {@link org.rascalmpl.interpreter.env.Environment#getFunctions()} to a
-	 * {@link java.util.Map}.
-	 * 
-	 * @return function map utilizing native Collections API
-	 */
-	public SortedMap<String, List<AbstractFunction>> getFunctions() {
-		SortedMap<String, List<AbstractFunction>> functionMap = 
-					new TreeMap<String, List<AbstractFunction>>(); 
-		
-		for (Pair<String, List<AbstractFunction>>  functionPair : environment.getFunctions()) {
-			functionMap.put(functionPair.getFirst(), functionPair.getSecond());
-		}
-		
-		return functionMap;
-	}
-	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 * used by eclipse to refresh the view 
@@ -351,19 +335,18 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 		if (obj instanceof RascalStackFrame) {
 			RascalStackFrame sf = (RascalStackFrame) obj;
 			
-			return sf.getEnvironment().equals(getEnvironment())
-			    && parent == sf.parent && thread == sf.thread
-			    && location.equals(sf.location); 
+			return obj == this 
+			    || (Arrays.equals(variables, sf.variables)
+			    && ((parent == null && sf.parent == null) || parent.equals(sf.parent)) 
+			    && thread == sf.thread
+			    && location.equals(sf.location)
+			    ); 
 		}
 		return false;
 	}
 	
 	@Override
 	public int hashCode() {
-	  return 3  +  getEnvironment().hashCode() * 29  + 17 * location.hashCode() + ((parent != null) ? 1331 * parent.hashCode() : 1);
+	  return 3  +  location.hashCode() + ((parent != null) ? 1331 * parent.hashCode() : 1);
 	}
-
-	public Environment getEnvironment() {
-		return environment;
-	}	
 }

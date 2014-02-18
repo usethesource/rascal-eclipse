@@ -55,6 +55,23 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	public String getName() throws DebugException {
 		return name;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+	  if (obj instanceof RascalVariable) {
+	    RascalVariable o = (RascalVariable) obj;
+	    
+	    return name.equals(o.name)
+	        && value.equals(o.value);
+	  }
+	  
+	  return false;
+	}
+	
+	@Override
+	public int hashCode() {
+	  return name.hashCode();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.core.model.IVariable#getReferenceTypeName()
