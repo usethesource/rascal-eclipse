@@ -59,6 +59,8 @@ Remember to set the "label" annotation on the tree and all children.
 
 Examples:
 <screen>
+import ParseTree;
+import Type;
 import util::ContentCompletion;
 SymbolTree symbol = symbol("main", "method", {});
 symbol@label = "main (Entry Point)";

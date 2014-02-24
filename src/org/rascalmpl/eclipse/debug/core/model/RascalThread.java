@@ -19,6 +19,7 @@ import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestStepOve
 import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestSuspension;
 import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestTermination;
 
+import java.util.Arrays;
 import java.util.Stack;
 
 import org.eclipse.debug.core.DebugEvent;
@@ -28,6 +29,7 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.InterpreterEvent;
@@ -105,6 +107,27 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 		}
 		return new IStackFrame[0];
 	}
+	
+//	@Override
+//	public int hashCode() {
+//	  return 1;
+//	}
+//	
+//	@Override
+//	public boolean equals(Object obj) {
+//	  if (obj instanceof RascalThread) {
+//	    RascalThread o = (RascalThread) obj;
+//	    
+//	    try {
+//        return Arrays.equals(o.getStackFrames(), getStackFrames());
+//      } catch (DebugException e) {
+//        Activator.log("this debug exception should not happen", e);
+//        return false;
+//      }
+//	  }
+//	  
+//	  return false;
+//	}
 
 	public ISourceLocation resolveLocation(ISourceLocation loc) {
 	  return getRascalDebugTarget().getConsole().getRascalInterpreter().getEval().getHeap().resolveSourceLocation(loc);
