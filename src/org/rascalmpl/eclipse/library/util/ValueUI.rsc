@@ -98,11 +98,18 @@ Figure toGraph(value v) {
 @label{Experimental value as web view}
 public void histogramHtml(value v) {
   switch (v) {
-     case map[int, int] m: chart(m);
-     case map[int, list[int]] m: chart(m);
-     case rel[int, int] r: chart(r);
-     case rel[loc, loc] r: chart(r);
+     case map[num, num] m: chart(m);
+     case map[num, list[num]] m: chart(m);
+     case rel[num, num] r: chart(r);
+     case rel[num, num, str] r: chart(r);
      case rel[str, str] r: chart(r);
+     case rel[loc, loc] r: chart(r);
+     case rel[map[str, num], str] r:chart(r);
+     case rel[map[str, num], str, str] r:chart(r);
+     case rel[map[loc, num], loc] r:chart(r);
+     case rel[map[loc, num], loc, str] r:chart(r);
+     case rel[map[str, num], map[str, num]] r:chart(r);
+     case rel[map[loc, num], map[loc, num]] r:chart(r);
      default: chartDefault("<v>");
      }    
 }

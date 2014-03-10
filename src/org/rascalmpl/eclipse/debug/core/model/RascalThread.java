@@ -10,6 +10,7 @@
  *   * Emilie Balland - (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
+ *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
@@ -20,6 +21,8 @@ import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestSuspens
 import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestTermination;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import org.eclipse.debug.core.DebugEvent;
@@ -28,12 +31,16 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.InterpreterEvent;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.uri.URIUtil;
 
 /**
@@ -93,8 +100,10 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 		if (isSuspended()) {
 			Evaluator eval = getRascalDebugTarget().getConsole().getRascalInterpreter().getEval();
 			Stack<Environment> callStack = eval.getCallStack();
+			
 			int size = callStack.size();
-			IStackFrame[] theFrames = new IStackFrame[size];
+			Set<String> imports = callStack.get(size-1).getImports();
+			IStackFrame[] theFrames = new IStackFrame[callStack.size()+imports.size()];
 			// for the top, use the current AST location
 			ISourceLocation currentLoc = eval.getCurrentAST() != null ? 
 			    eval.getRascalResolver().resolve(eval.getCurrentAST().getLocation())
@@ -102,6 +111,15 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 			theFrames[0] = new RascalStackFrame(this, callStack.get(size-1), currentLoc, null);
 			for (int i = 1; i < size; i++) { 
 				theFrames[i] = new RascalStackFrame(this, callStack.get(size-i-1), callStack.get(size-i).getCallerLocation(), theFrames[i-1]);
+			}
+			Environment e = callStack.peek();
+			for (String s:imports) {
+				ModuleEnvironment module = callStack.peek().getHeap().getModule(s);
+				Map<String, Result<IValue>> variables = module.getVariables();
+				for (String v:variables.keySet()) {
+					 Result<IValue> w = variables.get(v);
+				     e.storeVariable(s+"::"+v, w);
+				}
 			}
 			return theFrames;
 		}
