@@ -1,8 +1,13 @@
 package org.rascalmpl.eclipse.editor;
 
-import java.util.LinkedHashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.TextEvent;
@@ -10,21 +15,22 @@ import org.eclipse.jface.text.TextEvent;
 public class EditableRegionsTextListener implements ITextListener {
 
 	private IValueFactory vf;
-	private LinkedHashMap<String, ISourceLocation> regions;
+	private ISourceLocation loc;
 	
 	public EditableRegionsTextListener(IValueFactory vf, ISourceLocation location) {
 		this.vf = vf;
-		this.regions = EditableRegionsRegistry.getRegistryForDocument(location);
+		this.loc = location;
 	}
 
 	@Override
 	public void textChanged(TextEvent event) {
+		IMap regions = EditableRegionsRegistry.getRegistryForDocument(loc);
 		if (regions == null)
 			return;
-		ISourceLocation region = getRegionForOffset(event.getOffset());
+		ISourceLocation region = getRegionForOffset(regions, event.getOffset());
 		if (region != null){
 			int delta = event.getText().length() - event.getLength();
-			updateRegionsFrom(region, delta);
+			updateRegionsFrom(regions, region, delta);
 		}
 	}
 
@@ -32,8 +38,10 @@ public class EditableRegionsTextListener implements ITextListener {
 		return offset>=region.getOffset() && offset<= region.getOffset()+region.getLength();
 	}
 	
-	private ISourceLocation getRegionForOffset(int offset){
-		for (ISourceLocation region:regions.values()){
+	private ISourceLocation getRegionForOffset(IMap regions, int offset){
+		Iterator<IValue> iterator = regions.iterator();
+		while (iterator.hasNext()){
+			ISourceLocation region = (ISourceLocation) iterator.next();
 			if (contains(region, offset)){
 				return region;
 			}
@@ -41,22 +49,28 @@ public class EditableRegionsTextListener implements ITextListener {
 		return null;
 	}
 
-	private synchronized void updateRegionsFrom(ISourceLocation region, int delta) {
-		boolean found = false;
-		for (String name:regions.keySet()){
-			ISourceLocation r = regions.get(name);
-			if (r.equals(region)){
+	private synchronized void updateRegionsFrom(IMap regions, ISourceLocation region, int delta) {
+		//boolean found = false;
+		Iterator<Entry<IValue,IValue>> entriesIterator = regions.entryIterator();
+		IMapWriter newMap = vf.mapWriter();
+		while (entriesIterator.hasNext()){
+			Entry<IValue,IValue> entry = entriesIterator.next();
+			ISourceLocation r = (ISourceLocation) entry.getKey();
+			IString name = (IString) entry.getValue();
+			/*if (r.equals(region)){
 				found = true;
-			}
-			if (found){
+			}*/
+			if (r.getOffset()>=region.getOffset()){
 				if (r.equals(region)){
-					regions.put(name, vf.sourceLocation(region, r.getOffset(), r.getLength() + delta));
+					newMap.put(vf.sourceLocation(region, r.getOffset(), r.getLength() + delta), name);
 				}else{
-					regions.put(name, vf.sourceLocation(region, r.getOffset() + delta, r.getLength()));
+					newMap.put(vf.sourceLocation(region, r.getOffset() + delta, r.getLength()), name);
 				}
 			}
+			else
+				newMap.put(r, name);
 		}
-			
+		EditableRegionsRegistry.setRegistryForDocument(loc, newMap.done());
 	}
 
 }

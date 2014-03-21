@@ -1,25 +1,29 @@
 package org.rascalmpl.eclipse.editor;
 
-import java.util.LinkedHashMap;
+import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.jface.text.IEventConsumer;
 import org.eclipse.swt.events.VerifyEvent;
 
 public class EditableRegionsEventConsumer implements IEventConsumer{
 	
-	private LinkedHashMap<String, ISourceLocation> regions;
-	
+	private ISourceLocation location;
+
 	public EditableRegionsEventConsumer(ISourceLocation location) {
-		regions = EditableRegionsRegistry.getRegistryForDocument(location);
+		this.location = location;
 	}
 	
 	private boolean contains(ISourceLocation region, int offset){
 		return offset>=region.getOffset() && offset<= region.getOffset()+region.getLength();
 	}
 	
-	private boolean inRegion(int offset){
-		for (ISourceLocation region : regions.values()){
+	private boolean inRegion(IMap regions, int offset){
+		Iterator<IValue> iterator = regions.iterator();
+		while (iterator.hasNext()){
+			ISourceLocation region = (ISourceLocation) iterator.next();
 			if (contains(region, offset)){
 				return true;
 			}
@@ -29,9 +33,10 @@ public class EditableRegionsEventConsumer implements IEventConsumer{
 	
 	@Override
 	public void processEvent(VerifyEvent event) {
+		IMap regions = EditableRegionsRegistry.getRegistryForDocument(location);
 		if (regions == null)
 			return;
- 		if (!inRegion(event.start))
+ 		if (!inRegion(regions, event.start))
 			event.doit = false;
 	}
 

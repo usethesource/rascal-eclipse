@@ -15,7 +15,6 @@ package org.rascalmpl.eclipse.terms;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.LinkedHashMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -28,20 +27,18 @@ import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.runtime.PluginBase;
-import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.editor.EditableRegionsRegistry;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
-import org.rascalmpl.eclipse.editor.RegionsCalculator;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
@@ -108,11 +105,10 @@ public class Builder extends BuilderBase {
 			IConstructor tree;
 			synchronized (parser.getEval()) {
 				tree = (IConstructor) parser.call(rmonitor, new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}, null).getValue();
-				LinkedHashMap<String, ISourceLocation> regions = EditableRegionsRegistry.getRegistryForDocument(loc);
+				IMap regions = EditableRegionsRegistry.getRegistryForDocument(loc);
 				if (regions != null) {
 					tree = tree.asAnnotatable()
-							.setAnnotation("regions", 
-								RegionsCalculator.fromMap(VF, regions, input));
+							.setAnnotation("regions", regions);
 				}
 			}
 				

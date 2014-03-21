@@ -1,23 +1,21 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.jface.text.IRegion;
 
 public class EditableRegionsRegistry{
 			
-	private static Map<String, LinkedHashMap<String,ISourceLocation>> regionsMap =
-			new HashMap<String, LinkedHashMap<String,ISourceLocation>>();
-
+	private static Map<String, IMap> regionsMap =
+			new HashMap<String, IMap>();
 	
 	private static String makeKey(ISourceLocation loc) {
 		return loc.getScheme() + loc.getAuthority() + loc.getPath();
 	}
 	
-	public static LinkedHashMap<String,ISourceLocation> getRegistryForDocument(ISourceLocation c){
+	public static IMap getRegistryForDocument(ISourceLocation c){
 		return regionsMap.get(makeKey(c));
 	}
 
@@ -26,7 +24,7 @@ public class EditableRegionsRegistry{
 	}
 
 	public static void setRegistryForDocument(ISourceLocation c,
-			LinkedHashMap<String, ISourceLocation> regions) {
+			IMap regions) {
 		if (regions!=null)
 			regionsMap.put(makeKey(c), regions);
 	}

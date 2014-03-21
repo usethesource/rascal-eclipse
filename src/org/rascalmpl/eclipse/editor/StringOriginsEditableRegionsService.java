@@ -2,11 +2,11 @@ package org.rascalmpl.eclipse.editor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.services.base.EditorServiceBase;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -21,6 +21,7 @@ public class StringOriginsEditableRegionsService extends EditorServiceBase{
 	private EditableRegionsEventConsumer eventConsumer;
 	private EditableRegionsTextListener textListener;
 	private IRascalValueFactory values;
+	private static final String REGIONS = "regions";
 	
 	public StringOriginsEditableRegionsService() {
 		super();
@@ -44,7 +45,9 @@ public class StringOriginsEditableRegionsService extends EditorServiceBase{
 	}
 	
 	private void createListeners(IConstructor pt) {
-		LinkedHashMap<String, ISourceLocation> regions = RegionsCalculator.getRegions(pt);
+		IMap regions =null;
+		if (pt.asAnnotatable().hasAnnotation(REGIONS))
+			regions = (IMap) pt.asAnnotatable().getAnnotation(REGIONS);
 		if (regions != null){
 			ISourceLocation loc = TreeAdapter.getLocation(pt);
 			EditableRegionsRegistry.setRegistryForDocument(loc, regions);

@@ -12,11 +12,14 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -55,16 +58,17 @@ public class TokenIterator implements Iterator<Token>{
 			ISourceLocation loc = TreeAdapter.getLocation(parseTree);
 			if(EditableRegionsRegistry.hasRegistryForDocument(loc)){
 				this.hasRegions  = true;
-				Collection<ISourceLocation> regions = EditableRegionsRegistry.getRegistryForDocument(loc).values();
-				ISourceLocation[] regionsArray = regions.toArray(new ISourceLocation[0]);
-				if (regionsArray.length > 0) {
-					ISourceLocation lastRegion = regionsArray[regionsArray.length - 1];
+				IMap regionsMap = EditableRegionsRegistry.getRegistryForDocument(loc);
+				if (regionsMap.size() > 0) {
+					ISourceLocation lastRegion = getLastRegion(regionsMap);
 					inRegion = new boolean[lastRegion.getOffset()+lastRegion.getLength()+1];
 				}
 				else {
 					inRegion = new boolean[0];
 				}
-				for (ISourceLocation region:regions){
+				Iterator<IValue> iterator = regionsMap.iterator();
+				while (iterator.hasNext()){
+					ISourceLocation region = (ISourceLocation) iterator.next();
 					for (int i=region.getOffset(); i<=region.getOffset()+region.getLength(); i++)
 						inRegion[i] = true;
 				}
@@ -73,6 +77,16 @@ public class TokenIterator implements Iterator<Token>{
 		}
 	}
 
+	private static ISourceLocation getLastRegion(IMap regions) {
+		LinkedList<ISourceLocation> unordered = new LinkedList<ISourceLocation>();
+		Iterator<IValue> iter = regions.iterator();
+		while (iter.hasNext()){
+			IValue val = iter.next();
+			unordered.add((ISourceLocation) val);
+		}
+		return Collections.max(unordered, new OffsetComparator());
+	}
+	
 	private boolean inRegion(int offset){
 		if (inRegion !=null){
 			if (offset<inRegion.length){
@@ -190,6 +204,13 @@ public class TokenIterator implements Iterator<Token>{
 		
 		public IConstructor visitTreeCycle(IConstructor arg){
 			return arg;
+		}
+	}
+	
+	private static class OffsetComparator implements Comparator<ISourceLocation>{
+		@Override
+		public int compare(ISourceLocation l1, ISourceLocation l2) {
+			return l1.getOffset() - l2.getOffset();
 		}
 	}
 }
