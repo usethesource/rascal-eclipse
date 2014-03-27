@@ -46,18 +46,27 @@ import org.rascalmpl.uri.URIUtil;
 public class SourceLocationHyperlink implements IHyperlink {
 	private final ISourceLocation from;
 	private ISourceLocation to;
+	private String text = null;
 
 	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to) {
 		this.from = from;
 		this.to = to;
 	}
-	
+
+	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to, String text) {
+		this(from, to);
+		this.text  = text;
+	}
+
 	public IRegion getHyperlinkRegion() {
 		return new Region(from.getOffset(), from.getLength());
 	}
 
 	public String getHyperlinkText() {
-		return to.toString();
+		if (text == null) {
+			return to.toString();
+		}
+		return text;
 	}
 
 	public String getTypeLabel() {
