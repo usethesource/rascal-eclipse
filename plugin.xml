@@ -949,4 +949,19 @@
          </dynamic>
       </menuContribution> 
 </extension>
+   <extension
+         point="org.eclipse.compare.structureCreators">
+      <structureCreator
+            class="org.eclipse.imp.compare.ModelStructureCreator"
+            extensions="dql"
+            id="rascal-eclipse.structureCreator1">
+      </structureCreator>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.compareNodeIdentifier">
+      <compareNodeIdentifier
+            class="org.rascalmpl.eclipse.editor.ParseTreeCompareNodeIdentifier"
+            language="Terms">
+      </compareNodeIdentifier>
+   </extension>
 </plugin>

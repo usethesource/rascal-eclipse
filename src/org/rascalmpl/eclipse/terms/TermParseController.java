@@ -167,7 +167,8 @@ public class TermParseController implements IParseController {
 			rm.startJob("Parsing Term", 105);
 			
 			try{
-				handler.clearMessages();
+				if (handler != null)
+					handler.clearMessages();
 				TypeFactory TF = TypeFactory.getInstance();
 				if (parser != null) {
 					synchronized (parser.getEval()) {
@@ -186,8 +187,8 @@ public class TermParseController implements IParseController {
 			catch (ParseError pe){
 				int offset = pe.getOffset();
 				if(offset == input.length()) --offset;
-				
-				handler.handleSimpleMessage("parse error", offset, offset + pe.getLength(), pe.getBeginColumn(), pe.getEndColumn(), pe.getBeginLine() + 1, pe.getEndLine() + 1);
+				if (handler != null)
+					handler.handleSimpleMessage("parse error", offset, offset + pe.getLength(), pe.getBeginColumn(), pe.getEndColumn(), pe.getBeginLine() + 1, pe.getEndLine() + 1);
 			} 
 			catch (Throw e) {
 				IValue exc = e.getException();
@@ -195,7 +196,8 @@ public class TermParseController implements IParseController {
 				if (exc.getType() == RuntimeExceptionFactory.Exception) {
 					if (((IConstructor) exc).getConstructorType() == RuntimeExceptionFactory.ParseError) {
 						ISourceLocation loc = (ISourceLocation) ((IConstructor) e.getException()).get(0);
-						handler.handleSimpleMessage("parse error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
+						if (handler != null)
+							handler.handleSimpleMessage("parse error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 					}
 					else {
 						Activator.getInstance().logException(e.getMessage(), e);
