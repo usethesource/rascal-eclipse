@@ -62,6 +62,9 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 						links.add(new SourceLocationHyperlink(loc, (ISourceLocation)t.get(1), ((IString)t.get(2)).getValue()));
 					}
 				}
+				if (links.isEmpty()) {
+					return null;
+				}
 				return links.toArray(new IHyperlink[] {});
 			}
 		}
