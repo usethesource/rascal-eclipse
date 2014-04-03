@@ -59,9 +59,7 @@ public class TermParseController implements IParseController {
 	private IConstructor parseTree;
 	private IPath path;
 	private Language language;
-	private ICallableValue parser;
 	private IDocument document;
-	private ICallableValue annotator;
 	private ParseJob job;
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory(); 
 	private final static AnnotatorExecutor executor = new AnnotatorExecutor();
@@ -112,8 +110,6 @@ public class TermParseController implements IParseController {
 
 		TermLanguageRegistry reg = TermLanguageRegistry.getInstance();
 		this.language = reg.getLanguage(path.getFileExtension());
-		this.parser = reg.getParser(this.language);
-		this.annotator = reg.getAnnotator(this.language);
 
 		URI location = null;
 
@@ -166,10 +162,12 @@ public class TermParseController implements IParseController {
 			try{
 				handler.clearMessages();
 				TypeFactory TF = TypeFactory.getInstance();
+				ICallableValue parser = getParser();
 				if (parser != null) {
 					synchronized (parser.getEval()) {
 						parseTree = (IConstructor) parser.call(rm, new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}, null).getValue();
 					}
+					ICallableValue annotator = getAnnotator();
 					if (parseTree != null && annotator != null) {
 						rm.event("annotating", 5);
 						IConstructor newTree = executor.annotate(annotator, parseTree, handler);
@@ -212,6 +210,14 @@ public class TermParseController implements IParseController {
 			}
 			
 			return Status.OK_STATUS;
+		}
+
+		private ICallableValue getAnnotator() {
+			return TermLanguageRegistry.getInstance().getAnnotator(language);
+		}
+
+		private ICallableValue getParser() {
+			return TermLanguageRegistry.getInstance().getParser(language);
 		}
 	}
 	
