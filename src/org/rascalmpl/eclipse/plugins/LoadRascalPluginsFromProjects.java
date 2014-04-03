@@ -20,6 +20,7 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -56,12 +57,34 @@ public class LoadRascalPluginsFromProjects implements ILanguageRegistrar {
 			Activator.getInstance().logException("could not register any term language plugins", e);
 		}
 	}
+	
+	public static void registerTermLanguagePlugin(final IProject project, IEvaluatorContext eval) {
+		try {
+			if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
+			  RascalEclipseManifest mf = new RascalEclipseManifest();
+			  
+			  if (mf.hasManifest(project)) {
+			    String mainModule = mf.getMainModule(project);
+			    String mainFunction = mf.getMainFunction(project);
+
+			    if (mainModule != null && mainFunction != null) {
+			      runPluginMain(project, mainModule, mainFunction, eval);
+			    }
+			  }
+			}
+		}
+		catch (CoreException e) {
+			Activator.getInstance().logException("could not register any term language plugins", e);
+		}
+	}
 
 	private static void runPluginMain(final IProject project, String mainModule, String mainFunction) {
-		Evaluator eval = null;
+		runPluginMain(project, mainModule, mainFunction, initializeEvaluator(project));
+	}
+	
+	private static void runPluginMain(final IProject project, String mainModule, String mainFunction, IEvaluatorContext ctx) {
+		Evaluator eval = (Evaluator) ctx.getEvaluator();
 		try {
-			eval = initializeEvaluator(project);
-
 			synchronized(eval){
 				eval.doImport(null, mainModule);
 				eval.call(new NullRascalMonitor(), mainFunction);
