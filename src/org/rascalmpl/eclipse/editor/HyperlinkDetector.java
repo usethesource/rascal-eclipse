@@ -52,14 +52,20 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 			if (xref.getType().isSet() && xref.getType().getElementType().isTuple() 
 					&& xref.getType().getElementType().getFieldType(0).isSourceLocation()
 					&& xref.getType().getElementType().getFieldType(1).isSourceLocation()
-					&& xref.getType().getElementType().getFieldType(2).isString()) {
+					) {
 				List<IHyperlink> links = new ArrayList<IHyperlink>();
 				ISet rel = ((ISet)xref);
 				for (IValue v: rel) {
 					ITuple t = ((ITuple)v);
 					ISourceLocation loc = (ISourceLocation)t.get(0);
 					if (region.getOffset() >= loc.getOffset() && region.getOffset() < loc.getOffset() + loc.getLength()) {
-						links.add(new SourceLocationHyperlink(loc, (ISourceLocation)t.get(1), ((IString)t.get(2)).getValue()));
+						ISourceLocation to = (ISourceLocation)t.get(1);
+						if (xref.getType().getElementType().getArity() == 3 && xref.getType().getElementType().getFieldType(2).isString()) {
+							links.add(new SourceLocationHyperlink(loc, to, ((IString)t.get(2)).getValue()));
+						}
+						else {
+							links.add(new SourceLocationHyperlink(loc, to, to.toString()));
+						}
 					}
 				}
 				if (links.isEmpty()) {
