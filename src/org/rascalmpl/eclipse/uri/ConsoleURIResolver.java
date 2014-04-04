@@ -38,42 +38,57 @@ public class ConsoleURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		super();
 	}
 	
+	@Override
 	public String scheme(){
 		return "console";
 	}
 	
+	@Override
 	public InputStream getInputStream(URI uri) throws IOException{
 		throw new UnsupportedOperationException("Not supported by console.");
 	}
 
+	@Override
 	public OutputStream getOutputStream(URI uri, boolean append) throws IOException{
 		throw new UnsupportedOperationException("Not supported by console.");
 	}
 	
+	@Override
+	public void remove(URI uri) throws IOException {
+	  throw new UnsupportedOperationException("Not supported by console.");
+	}
+	
+	@Override
 	public boolean exists(URI uri) {
 		return true;
 	}
 
+	@Override
 	public boolean isDirectory(URI uri) {
 		return false;
 	}
 
+	@Override
 	public boolean isFile(URI uri) {
 		return false;
 	}
 
+	@Override
 	public long lastModified(URI uri) {
 		return 0L;
 	}
 
+	@Override
 	public String[] listEntries(URI uri) {
 		return new String[0];
 	}
 
+	@Override
 	public void mkDirectory(URI uri) {
 		throw new UnsupportedOperationException("Not supported by console");
 	}
 
+	@Override
 	public URI getResourceURI(URI uri) {
 		return URIUtil.invalidURI();
 	}
