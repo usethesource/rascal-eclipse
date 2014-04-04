@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.terms;
 
+import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_ECLIPSE_PLUGIN;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,15 +29,11 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.nature.ModuleReloader;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.Factory;
 import org.rascalmpl.values.uptr.TreeAdapter;
-
-import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_ECLIPSE_PLUGIN;
 
 public class TermLanguageRegistry {
 	private final Map<String, Language> languages = new HashMap<String,Language>();
@@ -45,7 +43,6 @@ public class TermLanguageRegistry {
 	private final Map<String, ICallableValue> outliners = new HashMap<String,ICallableValue>();
 	private final Map<String, ISet> contributions = new HashMap<String, ISet>();
 	private final Map<String, ISet> nonRascalContributions = new ConcurrentHashMap<String, ISet>();
-	private Map<String, ModuleReloader> reloaders = new HashMap<>();
 
 	static private class InstanceKeeper {
 		public static TermLanguageRegistry sInstance = new TermLanguageRegistry();
@@ -64,7 +61,6 @@ public class TermLanguageRegistry {
 		analyses.clear();
 		outliners.clear();
 		contributions.clear();
-		reloaders.clear();
 	}
 	
 	public void clearNonRascal() {
@@ -82,7 +78,6 @@ public class TermLanguageRegistry {
 		analyses.remove(value);
 		outliners.remove(value);
 		contributions.remove(value);
-		reloaders.remove(value);
 	}
 	
 	public void clearNonRascal(String value) {
@@ -93,7 +88,6 @@ public class TermLanguageRegistry {
 		Language l = new Language(name, "", "demo editor for " + name, "Terms", "icons/rascal3D_2-32px.gif", "http://www.rascal-mpl.org",ID_RASCAL_ECLIPSE_PLUGIN,extension,"",null);
 		languages.put(extension, l);
 		evals.put(name, ctx);
-		reloaders.put(name, new ModuleReloader((Evaluator) ctx.getEvaluator()));
 		parsers.put(name, parser);
 		LanguageRegistry.registerLanguage(l);
 	}
@@ -151,13 +145,6 @@ public class TermLanguageRegistry {
 			return null;
 		}
 		return  parsers.get(lang.getName());
-	}
-	
-	public ModuleReloader getReloader(Language language) {
-		if (language == null) {
-			return null;
-		}
-		return reloaders.get(language.getName());
 	}
 	
 	public ICallableValue getOutliner(Language lang) {

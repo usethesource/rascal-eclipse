@@ -11,11 +11,16 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.services.ISourceHyperlinkDetector;
 import org.eclipse.jface.text.IRegion;
@@ -42,6 +47,35 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 	}
 
 	private IHyperlink[] getTreeLinks(IConstructor tree, IRegion region) {
+		IValue xref = tree.asAnnotatable().getAnnotation("hyperlinks");
+		if (xref != null) {
+			if (xref.getType().isSet() && xref.getType().getElementType().isTuple() 
+					&& xref.getType().getElementType().getFieldType(0).isSourceLocation()
+					&& xref.getType().getElementType().getFieldType(1).isSourceLocation()
+					) {
+				List<IHyperlink> links = new ArrayList<IHyperlink>();
+				ISet rel = ((ISet)xref);
+				for (IValue v: rel) {
+					ITuple t = ((ITuple)v);
+					ISourceLocation loc = (ISourceLocation)t.get(0);
+					if (region.getOffset() >= loc.getOffset() && region.getOffset() < loc.getOffset() + loc.getLength()) {
+						ISourceLocation to = (ISourceLocation)t.get(1);
+						if (xref.getType().getElementType().getArity() == 3 && xref.getType().getElementType().getFieldType(2).isString()) {
+							links.add(new SourceLocationHyperlink(loc, to, ((IString)t.get(2)).getValue()));
+						}
+						else {
+							links.add(new SourceLocationHyperlink(loc, to, to.toString()));
+						}
+					}
+				}
+				if (links.isEmpty()) {
+					return null;
+				}
+				return links.toArray(new IHyperlink[] {});
+			}
+		}
+		
+		
 		IConstructor ref = TreeAdapter.locateAnnotatedTree(tree, "link", region.getOffset());
 		
 		if (ref != null) {

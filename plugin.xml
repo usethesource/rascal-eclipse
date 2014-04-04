@@ -713,6 +713,14 @@
             toolbarPath="Normal"
             tooltip="Press to show the Rascal tutor">
       </action>
+      <action
+            class="org.rascalmpl.eclipse.perspective.actions.ReloadLanguage"
+            id="ReloadTermLanguage"
+            label="Reload Language"
+            menubarPath="rascal_eclipse.menu/consoles"
+            toolbarPath="Normal"
+            tooltip="Press to reload registered language">
+      </action>
         </actionSet>
     </extension>
     <extension point="org.eclipse.ui.popupMenus"> 
