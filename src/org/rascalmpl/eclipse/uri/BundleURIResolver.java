@@ -44,11 +44,17 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 		return registry.getOutputStream(URIUtil.getChildURI(parent, URIUtil.getURIName(uri)), append);
 	}
 
+	@Override
   public void mkDirectory(URI uri) throws IOException {
 		URI parent = resolve(URIUtil.getParentURI(uri));
 		parent = resolve(parent);
 		registry.mkDirectory(URIUtil.getChildURI(parent, URIUtil.getURIName(uri)));
 	}
+  
+  @Override
+  public void remove(URI uri) throws IOException {
+    registry.remove(resolve(uri));
+  }
 
 	public String scheme() {
 		return "bundleresource";

@@ -143,7 +143,6 @@ public class ModuleReloader{
 				try {
 					synchronized(eval){
 						eval.reloadModules(new RascalMonitor(monitor, warnings) , Collections.unmodifiableSet(dirtyModules), URIUtil.rootScheme("console"));
-						dirtyModules.clear();
 					}
 				}
 				catch (Throwable x) {
