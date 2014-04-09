@@ -195,6 +195,16 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		}
 	}
 
+	@Override
+	public void remove(URI uri) throws IOException {
+	  try {
+      resolve(uri).delete(true, new NullProgressMonitor());
+    } catch (CoreException e) {
+      throw new IOException("could not remove file", e);
+    }
+	}
+	
+	@Override
 	public void mkDirectory(URI uri) throws IOException {
 		IContainer resolved = resolveFolder(uri);
 		NullProgressMonitor pm = new NullProgressMonitor();

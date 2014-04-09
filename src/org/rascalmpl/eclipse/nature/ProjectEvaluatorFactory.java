@@ -35,14 +35,11 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.osgi.service.resolver.BundleDescription;
-import org.eclipse.osgi.service.resolver.BundleSpecification;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
-import org.rascalmpl.eclipse.uri.BootstrapURIResolver;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
@@ -145,9 +142,6 @@ public class ProjectEvaluatorFactory {
     BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
     resolverRegistry.registerInput(bundleResolver);
     resolverRegistry.registerOutput(bundleResolver);
-    
-    BootstrapURIResolver bootResolver = new BootstrapURIResolver();
-    resolverRegistry.registerInputOutput(bootResolver);
     
     evaluator.addClassLoader(getClass().getClassLoader());
     

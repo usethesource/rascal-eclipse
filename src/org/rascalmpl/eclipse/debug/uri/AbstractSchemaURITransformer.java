@@ -39,6 +39,13 @@ public abstract class AbstractSchemaURITransformer implements IURIOutputStreamRe
 	public void mkDirectory(URI uri) throws IOException {
 		throw new UnsupportedOperationException("Not supported by URI transformer.");
 	}
+	
+	/* (non-Javadoc)
+   * @see org.rascalmpl.uri.IURIOutputStreamResolver#remove(java.net.URI)
+   */
+	public void remove(URI uri) throws IOException {
+	  throw new UnsupportedOperationException("Not supported by URI transformer.");
+	};
 
 	public boolean supportsHost() {
 		return false;
