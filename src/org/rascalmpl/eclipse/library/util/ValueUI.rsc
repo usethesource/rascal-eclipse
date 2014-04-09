@@ -110,6 +110,10 @@ public void histogramHtml(value v) {
      case rel[map[loc, num], loc, str] r:chart(r);
      case rel[map[str, num], map[str, num]] r:chart(r);
      case rel[map[loc, num], map[loc, num]] r:chart(r);
+     case tuple[str name, list[num] ticks, num(num) q] f: chart([f]);
+     case tuple[str name, lrel[num, num] r] p: chart([p]);
+     case list[tuple[str name, list[num] ticks, num(num) q]] f: chart(f);
+     case list[tuple[str name, lrel[num, num] r]] p: chart(p);
      default: chartDefault("<v>");
      }    
 }
