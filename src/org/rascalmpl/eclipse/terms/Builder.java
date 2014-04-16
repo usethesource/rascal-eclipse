@@ -15,6 +15,8 @@ package org.rascalmpl.eclipse.terms;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -28,9 +30,11 @@ import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -51,6 +55,7 @@ import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.values.Chunk;
 import org.rascalmpl.values.IRascalValueFactory;
 
 public class Builder extends BuilderBase {
@@ -103,12 +108,18 @@ public class Builder extends BuilderBase {
 			input = new String(InputConverter.toChar(contents, Charset.forName(file.getCharset())));
 
 			IConstructor tree;
-			synchronized (parser.getEval()) {
-				tree = (IConstructor) parser.call(rmonitor, new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}, null).getValue();
-				IMap regions = EditableRegionsRegistry.getRegistryForDocument(loc);
-				if (regions != null) {
-					tree = tree.asAnnotatable()
-							.setAnnotation("regions", regions);
+			IMap regions = EditableRegionsRegistry.getRegistryForDocument(loc);
+			IMap contentsMap = null;
+			if (regions != null)
+				contentsMap = calculateContents(VF, input, regions);
+				synchronized (parser.getEval()) {
+					tree = (IConstructor) parser.call(rmonitor, new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}, null).getValue();
+					if (regions != null) {
+						tree = tree
+								.asAnnotatable()
+								.setAnnotation("regions", regions)
+								.asAnnotatable()
+								.setAnnotation("contents", contentsMap);
 				}
 			}
 				
@@ -193,6 +204,23 @@ public class Builder extends BuilderBase {
 				}
 			}
 		}
+	}
+
+	private IMap calculateContents(IRascalValueFactory vf, String text, IMap regions) {
+		IMapWriter contents = vf.mapWriter();
+		Iterator<Entry<IValue, IValue>> iter = regions.entryIterator();
+		while (iter.hasNext()){
+			Entry<IValue, IValue> current = iter.next();
+			ISourceLocation src = (ISourceLocation) current.getKey();
+			int begin = src.getOffset();
+			int end = src.getOffset() + src.getLength();
+			IString name = (IString) current.getValue();
+			// In this case, the location of the original string is preserved,
+			// though with potential different offset and length.
+			IString subtext = new Chunk(src, text.substring(begin, end));
+			contents.put(name, subtext);
+		}
+		return contents.done();
 	}
 
 	@Override
