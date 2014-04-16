@@ -48,23 +48,19 @@ public class EditableRegionsTextListener implements ITextListener {
 		}
 		return null;
 	}
-
+	
 	private synchronized void updateRegionsFrom(IMap regions, ISourceLocation region, int delta) {
-		//boolean found = false;
 		Iterator<Entry<IValue,IValue>> entriesIterator = regions.entryIterator();
 		IMapWriter newMap = vf.mapWriter();
 		while (entriesIterator.hasNext()){
 			Entry<IValue,IValue> entry = entriesIterator.next();
 			ISourceLocation r = (ISourceLocation) entry.getKey();
 			IString name = (IString) entry.getValue();
-			/*if (r.equals(region)){
-				found = true;
-			}*/
 			if (r.getOffset()>=region.getOffset()){
 				if (r.equals(region)){
-					newMap.put(vf.sourceLocation(region, r.getOffset(), r.getLength() + delta), name);
+					newMap.put(vf.sourceLocation(r, r.getOffset(), r.getLength() + delta), name);
 				}else{
-					newMap.put(vf.sourceLocation(region, r.getOffset() + delta, r.getLength()), name);
+					newMap.put(vf.sourceLocation(r, r.getOffset() + delta, r.getLength()), name);
 				}
 			}
 			else
