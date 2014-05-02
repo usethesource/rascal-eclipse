@@ -61,8 +61,8 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 	  if (obj instanceof RascalVariable) {
 	    RascalVariable o = (RascalVariable) obj;
 	    
-	    return name.equals(o.name)
-	        && value.equals(o.value);
+	    return (value==null && o.value==null) || (name.equals(o.name)
+	        && value.equals(o.value));
 	  }
 	  
 	  return false;

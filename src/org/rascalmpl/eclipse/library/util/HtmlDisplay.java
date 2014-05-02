@@ -38,6 +38,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIUtil;
 
 public class HtmlDisplay {
+	
+	
 
 	@SuppressWarnings("unused")
 	private final IValueFactory vf;
@@ -49,15 +51,13 @@ public class HtmlDisplay {
 
 	public static void browse(URL loc) {
 		IWebBrowser browser;
-
 		try {
 			IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench()
 					.getBrowserSupport();
 			browser = browserSupport.createBrowser(
 					IWorkbenchBrowserSupport.AS_EDITOR,
-					"dotplugin.editors.DotEditor", loc.getFile(), null);
-			browser.openURL(loc);
-			
+					"htmldisplay", loc.getFile(), null);
+			browser.openURL(loc);	
 			// browser.close();
 		} catch (PartInitException e) {
 			// TODO Auto-generated catch block
@@ -137,7 +137,7 @@ public class HtmlDisplay {
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+				} 
 			}
 		};
 		PlatformUI.getWorkbench().getDisplay().asyncExec(runnable);
