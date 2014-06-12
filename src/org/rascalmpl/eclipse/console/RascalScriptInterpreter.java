@@ -13,7 +13,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
-*******************************************************************************/
+ *******************************************************************************/
 package org.rascalmpl.eclipse.console;
 
 import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newNullEventTrigger;
@@ -36,6 +36,11 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -65,11 +70,11 @@ import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Command.Shell;
 import org.rascalmpl.ast.NullASTVisitor;
+import org.rascalmpl.ast.ShellCommand.Clear;
 import org.rascalmpl.ast.ShellCommand.Edit;
 import org.rascalmpl.ast.ShellCommand.History;
 import org.rascalmpl.ast.ShellCommand.Quit;
 import org.rascalmpl.ast.ShellCommand.Test;
-import org.rascalmpl.ast.ShellCommand.Clear;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
@@ -98,7 +103,10 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.env.Pair;
+import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -123,45 +131,46 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 	private TimedBufferedPipe consoleStreamPipe;
 	private AbstractInterpreterEventTrigger eventTrigger;
 	private IWarningHandler warnings;
-	
-	public RascalScriptInterpreter(IProject project){
+
+	public RascalScriptInterpreter(IProject project) {
 		super("Rascal");
-		
+
 		this.eventTrigger = newNullEventTrigger();
-		
+
 		this.project = project;
 
 		this.command = "";
 	}
-	
-	public RascalScriptInterpreter(){
+
+	public RascalScriptInterpreter() {
 		this(null);
 	}
 
-	public void initialize(Evaluator eval){
+	public void initialize(Evaluator eval) {
 		ProjectEvaluatorFactory.getInstance().configure(project, eval);
 		loadCommandHistory();
-		synchronized(eval){
-			eval.doImport(null, "IO");   
+		synchronized (eval) {
+			eval.doImport(null, "IO");
 			eval.doImport(null, "ParseTree");
 		}
 		this.eval = eval;
 		this.reloader = new ModuleReloader(eval);
 		this.warnings = new WarningsToPrintWriter(eval.getStdErr());
-	
+
 		getEventTrigger().fireCreationEvent();
 	}
 
 	private void updateConsoleStream(IInterpreterConsole console) {
 		final OutputStream target = console.getConsoleOutputStream();
-		
-		StringBuffer consoleStreamPipeName = new StringBuffer("Rascal console output syncer");
-		if (this.project != null) { 
+
+		StringBuffer consoleStreamPipeName = new StringBuffer(
+				"Rascal console output syncer");
+		if (this.project != null) {
 			consoleStreamPipeName.append(" [");
 			consoleStreamPipeName.append(this.project.getName());
 			consoleStreamPipeName.append("]");
 		}
-		
+
 		consoleStreamPipe = new TimedBufferedPipe(50, new PausableOutput() {
 			@Override
 			public boolean isPaused() {
@@ -173,42 +182,49 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				target.write(b);
 			}
 		}, consoleStreamPipeName.toString());
-		ConcurrentCircularOutputStream fasterStream = new ConcurrentCircularOutputStream(4*1024*1024, consoleStreamPipe);
+		ConcurrentCircularOutputStream fasterStream = new ConcurrentCircularOutputStream(
+				4 * 1024 * 1024, consoleStreamPipe);
 		consoleStreamPipe.initializeWithStream(fasterStream);
 		try {
 			// create buffer loop
-			//this.consoleStdErr = new PrintWriter(new OutputStreamWriter(fasterStream, "UTF16"),true);
-			this.consoleStdErr = null; // perhaps errors do not need to show up in the main console!
-			this.consoleStdOut = new PrintWriter(new OutputStreamWriter(fasterStream, "UTF16"),false);
+			// this.consoleStdErr = new PrintWriter(new
+			// OutputStreamWriter(fasterStream, "UTF16"),true);
+			this.consoleStdErr = null; // perhaps errors do not need to show up
+										// in the main console!
+			this.consoleStdOut = new PrintWriter(new OutputStreamWriter(
+					fasterStream, "UTF16"), false);
 		} catch (UnsupportedEncodingException e) {
-			Activator.getInstance().logException("could not get stderr/stdout writer", e);
+			Activator.getInstance().logException(
+					"could not get stderr/stdout writer", e);
 		}
 	}
-	
-	public void setConsole(IInterpreterConsole console){
+
+	public void setConsole(IInterpreterConsole console) {
 		this.console = console;
 		updateConsoleStream(console);
 	}
 
-	public void storeHistory(CommandHistory history){
+	public void storeHistory(CommandHistory history) {
 		saveCommandHistory();
 	}
 
 	public void interrupt() {
 		eval.interrupt();
 	}
-	
+
 	public void terminate() {
 		saveCommandHistory();
 		content = null;
 		clearErrorMarker();
-		
+
 		reloader.destroy();
-		
-		ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] {console});
+
+		ConsolePlugin.getDefault().getConsoleManager()
+				.removeConsoles(new IConsole[] { console });
 		getEventTrigger().fireTerminateEvent();
-		
-		// Make the memory leak less severe (Eclipse is broken, I can't help it).
+
+		// Make the memory leak less severe (Eclipse is broken, I can't help
+		// it).
 		eval = null;
 		reloader = null;
 		if (consoleStdErr != null) {
@@ -224,7 +240,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			consoleStreamPipe = null;
 		}
 	}
-	
+
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		RascalMonitor rm = new RascalMonitor(monitor, warnings);
@@ -233,12 +249,12 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		synchronized (eval) {
 			try {
 				eval.overrideDefaultWriters(consoleStdOut, consoleStdErr);
-				IConstructor tree = eval.parseCommand(rm, command, URIUtil.rootScheme("stdin"));
+				IConstructor tree = eval.parseCommand(rm, command,
+						URIUtil.rootScheme("stdin"));
 				reloader.updateModules(monitor);
 				rm.event("running command");
 				execCommand(rm, tree);
-			}
-			catch (ParseError e) {
+			} catch (ParseError e) {
 				if (e.getLocation().getScheme().equals("stdin")) {
 					if (e.getOffset() >= command.length()) {
 						content = "";
@@ -267,17 +283,20 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				content = staticErrorMessage(e) + "\n";
 				command = "";
 				ISourceLocation location = e.getLocation();
-				
-				if (location != null && !location.getURI().getScheme().equals("stdin")) {
-				  if (location.hasOffsetLength()) {
-				    setMarker(e.getMessage(), location.getURI(), location.getOffset(), location.getLength());
-				  }
+
+				if (location != null
+						&& !location.getURI().getScheme().equals("stdin")) {
+					if (location.hasOffsetLength()) {
+						setMarker(e.getMessage(), location.getURI(),
+								location.getOffset(), location.getLength());
+					}
 					error = new CommandExecutionException(content);
-				} 
-				else if (location != null && location.getURI().getScheme().equals("stdin") && location.hasOffsetLength()) {
-					error = new CommandExecutionException(content, location.getOffset(), location.getLength());
-				} 
-				else {
+				} else if (location != null
+						&& location.getURI().getScheme().equals("stdin")
+						&& location.hasOffsetLength()) {
+					error = new CommandExecutionException(content,
+							location.getOffset(), location.getLength());
+				} else {
 					error = new CommandExecutionException(content);
 				}
 			} catch (Throw e) {
@@ -285,24 +304,30 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				command = "";
 				ISourceLocation location = e.getLocation();
 				if (location != null
-						&& !location.getURI().getScheme().equals("stdin") && location.hasOffsetLength()) {
+						&& !location.getURI().getScheme().equals("stdin")
+						&& location.hasOffsetLength()) {
 					setMarker(e.getMessage(), location.getURI(),
 							location.getOffset(), location.getLength());
 					error = new CommandExecutionException(content,
 							location.getOffset(), location.getLength());
-				}
-				else {
-				  error = new CommandExecutionException(content);
+				} else {
+					error = new CommandExecutionException(content);
 				}
 			} catch (Throwable e) {
 				Activator.getInstance().logException(e.getMessage(), e);
 				content += throwableMessage(e, eval.getStackTrace()) + "\n";
 				command = "";
-			}
-			finally {
-				/* References might be <code>null</code> when #terminate() was called beforehand */ 
+			} finally {
+				/*
+				 * References might be <code>null</code> when #terminate() was
+				 * called beforehand
+				 */
 				try {
-					consoleStreamPipe.signalAndWaitForFlush(500); // try to get the most out of the console
+					consoleStreamPipe.signalAndWaitForFlush(500); // try to get
+																	// the most
+																	// out of
+																	// the
+																	// console
 					eval.revertToDefaultWriters();
 				} catch (NullPointerException e) {
 					Activator.getInstance().logException(e.getMessage(), e);
@@ -313,8 +338,9 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		return Status.OK_STATUS;
 	}
 
-  public synchronized boolean execute(String cmd) throws CommandExecutionException, TerminationException{
-		if(cmd.trim().length() == 0){
+	public synchronized boolean execute(String cmd)
+			throws CommandExecutionException, TerminationException {
+		if (cmd.trim().length() == 0) {
 			content = ReadEvalPrintDialogMessages.CANCELLED + "\n";
 			command = "";
 			return true;
@@ -322,46 +348,55 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 
 		try {
 			command += cmd;
-			
+
 			if (project != null && cmd.startsWith(":test")) {
-				// this is very expensive because it triggers all kinds of build actions, so
+				// this is very expensive because it triggers all kinds of build
+				// actions, so
 				// we only do it before running the :test command
-				project.getWorkspace().getRoot().deleteMarkers(IRascalResources.ID_RASCAL_MARKER_TYPE_TEST_RESULTS, false, IResource.DEPTH_INFINITE);
+				project.getWorkspace()
+						.getRoot()
+						.deleteMarkers(
+								IRascalResources.ID_RASCAL_MARKER_TYPE_TEST_RESULTS,
+								false, IResource.DEPTH_INFINITE);
 			}
-			
+
 			error = null;
 			schedule();
 			join();
-			if(error != null){
-				if(error instanceof CommandExecutionException) {
+			if (error != null) {
+				if (error instanceof CommandExecutionException) {
 					throw ((CommandExecutionException) error);
-				}else if(error instanceof TerminationException){
+				} else if (error instanceof TerminationException) {
 					throw ((TerminationException) error);
 				}
-				
+
 				return false;
 			}
 		} catch (CoreException e) {
-			Activator.getInstance().logException("could not delete test markers", e);
+			Activator.getInstance().logException(
+					"could not delete test markers", e);
 		} catch (InterruptedException e) {
 			eval.interrupt();
 			command = "";
 			content = "interrupted";
 			eval.__setInterrupt(false);
 		}
-		
+
 		return true;
 	}
-	
-	private void setMarker(final String message, final URI location, final int offset, final int length){
-		// This code makes sure that if files are read or written during Rascal execution, the build
+
+	private void setMarker(final String message, final URI location,
+			final int offset, final int length) {
+		// This code makes sure that if files are read or written during Rascal
+		// execution, the build
 		// infra-structure of Eclipse is not triggered
-		IWorkspaceRunnable action = new IWorkspaceRunnable(){
-			public void run(IProgressMonitor monitor) throws CoreException{
-				try{
-					if (project != null && location.getScheme().equals("project")) {
+		IWorkspaceRunnable action = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				try {
+					if (project != null
+							&& location.getScheme().equals("project")) {
 						lastMarked = project.getFile(location.getPath());
-						
+
 						if (!lastMarked.exists()) {
 							for (IProject ref : project.getReferencedProjects()) {
 								lastMarked = ref.getFile(location.getPath());
@@ -369,27 +404,31 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 						}
 
 						if (lastMarked != null && lastMarked.exists()) {
-							IMarker m = lastMarked.createMarker(IRascalResources.ID_RASCAL_MARKER);
+							IMarker m = lastMarked
+									.createMarker(IRascalResources.ID_RASCAL_MARKER);
 
 							m.setAttribute(IMarker.TRANSIENT, true);
 							m.setAttribute(IMarker.CHAR_START, offset);
 							m.setAttribute(IMarker.CHAR_END, offset + length);
 							m.setAttribute(IMarker.MESSAGE, message);
-							m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-							m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+							m.setAttribute(IMarker.PRIORITY,
+									IMarker.PRIORITY_HIGH);
+							m.setAttribute(IMarker.SEVERITY,
+									IMarker.SEVERITY_ERROR);
 						}
 					}
 				} catch (CoreException ex) {
 					Activator.getInstance().logException("marker", ex);
-				} 
+				}
 			}
 		};
-		
-		try{
-		  if (project != null) {
-		    project.getWorkspace().run(action, project, IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
-		  }
-		}catch(CoreException cex){
+
+		try {
+			if (project != null) {
+				project.getWorkspace().run(action, project,
+						IWorkspace.AVOID_UPDATE, new NullProgressMonitor());
+			}
+		} catch (CoreException cex) {
 			Activator.getInstance().logException("marker", cex);
 		}
 	}
@@ -402,72 +441,77 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 		clearErrorMarker();
 
-		// We first try to evaluate commands that have specific implementations in the
-		// Eclipse environment (such as editing a file). After that we simply call
-		// the evaluator to reuse as much of the evaluators standard implementation of commands
-		
-		Result<IValue> result = stat.accept(new NullASTVisitor<Result<IValue>>() {
-			@Override
-			public Result<IValue> visitCommandShell(Shell x) {
-				return x.getCommand().accept(this);
-			}
-			
-			@Override
-			public Result<IValue> visitShellCommandEdit(Edit x) {
-				editCommand(x);
-				
-				return ResultFactory.nothing();
-			}
-			
-			@Override
-			public Result<IValue> visitShellCommandTest(final Test x) {
-				eval.setTestResultListener(new TestReporter(eval.getResolverRegistry()));
-				x.interpret(eval);								
-				return ResultFactory.nothing();
-			}
+		// We first try to evaluate commands that have specific implementations
+		// in the
+		// Eclipse environment (such as editing a file). After that we simply
+		// call
+		// the evaluator to reuse as much of the evaluators standard
+		// implementation of commands
 
-			public Result<IValue> visitShellCommandHistory(History x) {
-				return historyCommand();
-			}
+		Result<IValue> result = stat
+				.accept(new NullASTVisitor<Result<IValue>>() {
+					@Override
+					public Result<IValue> visitCommandShell(Shell x) {
+						return x.getCommand().accept(this);
+					}
 
-			@Override
-			public Result<IValue> visitShellCommandQuit(Quit x) {
-				saveCommandHistory();
-				throw new QuitException();
-			}
-			
-			@Override
-			public Result<IValue> visitShellCommandClear(Clear c) {
-				clearConsole();
-				content = "";
-				return null;
-			}
-		});
-		
+					@Override
+					public Result<IValue> visitShellCommandEdit(Edit x) {
+						editCommand(x);
+
+						return ResultFactory.nothing();
+					}
+
+					@Override
+					public Result<IValue> visitShellCommandTest(final Test x) {
+						eval.setTestResultListener(new TestReporter(eval
+								.getResolverRegistry()));
+						x.interpret(eval);
+						return ResultFactory.nothing();
+					}
+
+					public Result<IValue> visitShellCommandHistory(History x) {
+						return historyCommand();
+					}
+
+					@Override
+					public Result<IValue> visitShellCommandQuit(Quit x) {
+						saveCommandHistory();
+						throw new QuitException();
+					}
+
+					@Override
+					public Result<IValue> visitShellCommandClear(Clear c) {
+						clearConsole();
+						content = "";
+						return null;
+					}
+				});
+
 		if (result == null) {
 			result = eval.eval(monitor, stat);
 		}
-		
+
 		if (result != null) {
 			content = resultMessage(result) + "\n";
 		}
-		
+
 		reportAmbiguities(result);
 		command = "";
 	}
-	
+
 	public void clearConsole() {
 		UIJob job = new UIJob("clear console") {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				((InteractiveInterpreterConsole)console).clearConsole();
+				((InteractiveInterpreterConsole) console).clearConsole();
 				return Status.OK_STATUS;
 			}
 		};
-		
+
 		job.schedule();
 	}
-	
+
 	private void reportAmbiguities(final Result<IValue> result) {
 		if (result == null || result.getValue() == null) {
 			return;
@@ -478,12 +522,13 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				@Override
 				public IStatus runInUIThread(IProgressMonitor monitor) {
 					ReportView part = (ReportView) PlatformUI.getWorkbench()
-							.getActiveWorkbenchWindow()
-							.getActivePage()
+							.getActiveWorkbenchWindow().getActivePage()
 							.findView(ReportView.ID);
-					if(part != null){
+					if (part != null) {
 						monitor.beginTask("listing ambiguities", 10000);
-						part.list(project.getName(), ModuleEnvironment.SHELL_MODULE, (IConstructor) result.getValue(), monitor);
+						part.list(project.getName(),
+								ModuleEnvironment.SHELL_MODULE,
+								(IConstructor) result.getValue(), monitor);
 						monitor.done();
 					}
 
@@ -493,14 +538,15 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 	}
 
-	private void editCommand(final Edit x){
-		
+	private void editCommand(final Edit x) {
+
 		UIJob job = new UIJob("start editor") {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				try {
 					String module = Names.fullName(x.getName());
-					URI uri = ResourcesToModules.uriFromModule(eval.getRascalResolver(), module);
+					URI uri = ResourcesToModules.uriFromModule(
+							eval.getRascalResolver(), module);
 					IWorkbench wb = PlatformUI.getWorkbench();
 					IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
 					final IWorkbenchPage page = win.getActivePage();
@@ -508,58 +554,60 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				} catch (PartInitException e) {
 					Activator.log("edit", e);
 				} catch (NullPointerException e) {
-					// The above code could easily throw null pointer exceptions at every
-					// turn, so instead of checking 5 times for null, we catch it here and
+					// The above code could easily throw null pointer exceptions
+					// at every
+					// turn, so instead of checking 5 times for null, we catch
+					// it here and
 					// ignore it.
 					eval.getStdErr().print("Could not open " + x.getName());
 				}
-				
+
 				return Status.OK_STATUS;
 			}
 		};
-		
+
 		job.schedule();
 	}
 
 	private void clearErrorMarker() {
 		if (lastMarked != null) {
 			try {
-				lastMarked.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, false, IResource.DEPTH_ZERO);
+				lastMarked.deleteMarkers(IRascalResources.ID_RASCAL_MARKER,
+						false, IResource.DEPTH_ZERO);
 			} catch (CoreException e) {
 				Activator.getInstance().logException("marker", e);
 			}
 		}
 	}
 
-
-	public String getOutput(){
+	public String getOutput() {
 		String output = content;
 		content = "";
 		return output;
 	}
 
-	private void loadCommandHistory(){
-		if(console.hasHistory()){
+	private void loadCommandHistory() {
+		if (console.hasHistory()) {
 			CommandHistory history = console.getHistory();
 			BufferedReader in = null;
-			try{
+			try {
 				File historyFile = getHistoryFile();
 				in = new BufferedReader(new FileReader(historyFile));
 
 				String command = null;
-				while((command = in.readLine()) != null){
+				while ((command = in.readLine()) != null) {
 					history.addToHistory(command);
 				}
-			}catch(IOException e){
+			} catch (IOException e) {
 				e.printStackTrace();
 				Activator.getInstance().logException("history", e);
-			}catch(Throwable t){
+			} catch (Throwable t) {
 				t.printStackTrace();
-			}finally{
-				if(in != null){
-					try{
+			} finally {
+				if (in != null) {
+					try {
 						in.close();
-					}catch(IOException e){
+					} catch (IOException e) {
 						Activator.getInstance().logException("history", e);
 					}
 				}
@@ -567,30 +615,31 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 	}
 
-	private void saveCommandHistory(){
-		if(console.hasHistory()){
+	private void saveCommandHistory() {
+		if (console.hasHistory()) {
 			CommandHistory history = console.getHistory();
-			OutputStream out = null; 
-			try{
+			OutputStream out = null;
+			try {
 				File historyFile = getHistoryFile();
 
 				out = new FileOutputStream(historyFile);
-				do{/* Nothing */}while(history.getPreviousCommand() != "");
+				do {/* Nothing */
+				} while (history.getPreviousCommand() != "");
 
 				String command;
-				while((command = history.getNextCommand()) != ""){
+				while ((command = history.getNextCommand()) != "") {
 					out.write(command.getBytes());
 					out.write('\n');
 				}
-			}catch(FileNotFoundException e){
+			} catch (FileNotFoundException e) {
 				Activator.getInstance().logException("history", e);
-			}catch(IOException e){
+			} catch (IOException e) {
 				Activator.getInstance().logException("history", e);
-			}finally{
-				if(out != null){
-					try{
+			} finally {
+				if (out != null) {
+					try {
 						out.close();
-					}catch(IOException e){
+					} catch (IOException e) {
 						Activator.getInstance().logException("history", e);
 					}
 				}
@@ -598,25 +647,25 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 	}
 
-	private File getHistoryFile() throws IOException{
+	private File getHistoryFile() throws IOException {
 		File home = new File(System.getProperty("user.home"));
 		File rascal = new File(home, ".rascal");
-		if(!rascal.exists()){
+		if (!rascal.exists()) {
 			rascal.mkdirs();
 		}
 		File historyFile = new File(rascal, "history");
-		if(!historyFile.exists()){
+		if (!historyFile.exists()) {
 			historyFile.createNewFile();
 		}
 		return historyFile;
 	}
 
-	private Result<IValue> historyCommand(){
+	private Result<IValue> historyCommand() {
 		return null;
 	}
 
 	@Override
-	public Evaluator getEval(){
+	public Evaluator getEval() {
 		return eval;
 	}
 
@@ -634,9 +683,39 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 
 	@Override
 	public String getProjectName() {
-		if (this.project == null) 
+		if (this.project == null)
 			return null;
 		return this.project.getName();
 	}
-	
+
+	@Override
+	public Collection<String> findIdentifiers(String originalTerm) {
+		Set<String> result = new HashSet<>();
+		Set<Environment> done = new HashSet<>();
+		List<Environment> todo = new ArrayList<>();
+		todo.add(eval.__getRootScope());
+		while (!todo.isEmpty()) {
+			Environment env = todo.remove(0);
+			if (done.contains(env)) {
+				continue;
+			}
+			for (Pair<String, List<AbstractFunction>> p : env.getFunctions()) {
+				if (p.getFirst().startsWith(originalTerm)) {
+					result.add(p.getFirst());
+				}
+			}
+			for (String v : env.getVariables().keySet()) {
+				if (v.startsWith(originalTerm)) {
+					result.add(v);
+				}
+			}
+			for (String mod : env.getImports()) {
+				todo.add(env.getImport(mod));
+			}
+			done.add(env);
+		}
+
+		return result;
+	}
+
 }

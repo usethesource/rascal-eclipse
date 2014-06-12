@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console.internal;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
@@ -21,12 +22,14 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 	private final CommandHistory history;
 	
 	private InterpreterConsoleStyledText styledText;
+	private CommandFragmentCompletion completion;
 	
 	public InterpreterConsoleViewer(InteractiveInterpreterConsole console, Composite parent){
 		super(parent, console);
 		
 		this.console = console;
 		this.history = console.getHistory();
+		this.completion = console.getCompletion();
 		styledText.removeLineStyleListener(this);
 	}
 	
@@ -54,9 +57,14 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 
 	private class InterpreterConsoleStyledText extends StyledText{
 		private boolean enabled;
+		private int completionOffset;
+		private final int COMPLETION_FORWARD = 18000001;
+		private final int COMPLETION_BACKWARD = 18000002;
 
 		public InterpreterConsoleStyledText(Composite parent, int style){
 			super(parent, style);
+			setKeyBinding(SWT.SPACE | SWT.MOD3, COMPLETION_FORWARD);
+			setKeyBinding(SWT.SPACE | SWT.MOD3 | SWT.SHIFT, COMPLETION_BACKWARD);
 			enable();
 		}
 		
@@ -65,6 +73,14 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 			if(!enabled) return;
 			
 			switch(action){
+				case COMPLETION_FORWARD:
+					if (!completion.isCompleting()) {
+						this.completionOffset = completion.start(console.getCurrentConsoleInput());
+					}
+					if (completion.isCompleting()) {
+						console.replaceCompletion(completionOffset, completion.nextCompletion());
+					}
+					return;
 				case ST.LINE_UP:
 					history.updateCurrent(console.getCurrentConsoleInput());
 					String previousCommand = history.getPreviousCommand();

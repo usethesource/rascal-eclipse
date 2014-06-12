@@ -66,6 +66,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	
 	private final CommandExecutor commandExecutor;
 	private final CommandHistory commandHistory;
+	private final CommandFragmentCompletion completion;
 	private final ConsoleDocumentListener documentListener;
 	private final ConsoleOutputStream consoleOutputStream;
 	
@@ -95,6 +96,8 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	 */
 	private final Queue<String> delayedCommandQueue = new ConcurrentLinkedQueue<String>();
 
+	private boolean completing = false;
+
 	
 	public InteractiveInterpreterConsole(IInterpreter interpreter, String name, String prompt, String continuationPrompt){
 		super(name, CONSOLE_TYPE, null, false);
@@ -108,6 +111,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		this.continuationPrompt = continuationPrompt;
 		
 		commandHistory = new CommandHistory();
+		completion = new CommandFragmentCompletion(interpreter);
 		documentListener = new ConsoleDocumentListener(this);
 		documentListener.registerListener();
 		
@@ -287,6 +291,10 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	
 	public CommandHistory getHistory(){
 		return commandHistory;
+	}
+
+	public CommandFragmentCompletion getCompletion() {
+		return completion;
 	}
 	
 	protected IConsoleDocumentPartitioner getPartitioner(){
@@ -539,7 +547,37 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			}
 		});
 	}
+
+	public void replaceCompletion(final int completionOffset, final String newSuggestion) {
+		Display.getDefault().syncExec(new Runnable(){
+			public void run(){
+				setCompletionReplace();
+				
+				IDocument doc = getDocument();
+				try{
+					int subOffset = inputOffset + completionOffset;
+					doc.replace(subOffset, doc.getLength() - subOffset, newSuggestion);
+				}catch(BadLocationException blex){
+					// Ignore, can't happen.
+				}
+				finally {
+					unsetCompletionReplace();
+				}
+				
+				moveCaretTo(doc.getLength());
+			}
+		});
+	}
 	
+	protected void unsetCompletionReplace() {
+		this.completing = false;
+		
+	}
+
+	protected void setCompletionReplace() {
+		this.completing = true;
+	}
+
 	// Only call from inside the UI-thread.
 	private void moveCaretTo(int index){
 		TextConsoleViewer consoleViewer = page.getViewer();
@@ -697,6 +735,9 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		
 		public synchronized void documentChanged(DocumentEvent event){
 			if(!enabled) return;
+			if(!console.completing) {
+				console.completion.resetSearch();
+			}
 			
 			String text = event.getText();
 			
@@ -763,6 +804,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		private void execute(){
 			console.commandExecutor.execute();
 			console.commandHistory.resetSearch();
+			console.completion.resetSearch();
 		}
 		
 		public synchronized void reset(){
@@ -896,5 +938,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 			lock.wakeUp();
 		}
 	}
+
+
 
 }
