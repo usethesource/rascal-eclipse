@@ -40,7 +40,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -57,7 +60,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -103,7 +108,6 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -690,32 +694,47 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 
 	@Override
 	public Collection<String> findIdentifiers(String originalTerm) {
-		Set<String> result = new HashSet<>();
-		Set<Environment> done = new HashSet<>();
-		List<Environment> todo = new ArrayList<>();
-		todo.add(eval.__getRootScope());
-		while (!todo.isEmpty()) {
-			Environment env = todo.remove(0);
-			if (done.contains(env)) {
-				continue;
-			}
+		SortedSet<String> result = new TreeSet<>();
+		List<ModuleEnvironment> todo = new ArrayList<>();
+		ModuleEnvironment root = eval.__getRootScope();
+		todo.add(root);
+		for (String mod: root.getImports()) {
+			todo.add(root.getImport(mod));
+		}
+		for (ModuleEnvironment env: todo) {
 			for (Pair<String, List<AbstractFunction>> p : env.getFunctions()) {
-				if (p.getFirst().startsWith(originalTerm)) {
-					result.add(p.getFirst());
-				}
+				addIt(result, p.getFirst(), originalTerm);
 			}
 			for (String v : env.getVariables().keySet()) {
-				if (v.startsWith(originalTerm)) {
-					result.add(v);
+				addIt(result, v, originalTerm);
+			}
+			for (IValue key: env.getSyntaxDefinition()) {
+				addIt(result, ((IString)key).getValue(), originalTerm);
+			}
+			for (Type t: env.getAbstractDatatypes()) {
+				addIt(result, t.getName(), originalTerm);
+			}
+			for (Type t: env.getAliases()) {
+				addIt(result, t.getName(), originalTerm);
+			}
+			Map<Type, Map<String, Type>> annos = env.getAnnotations();
+			for (Type t: annos.keySet()) {
+				for (String k: annos.get(t).keySet()) {
+					addIt(result, k, originalTerm);
 				}
 			}
-			for (String mod : env.getImports()) {
-				todo.add(env.getImport(mod));
-			}
-			done.add(env);
 		}
 
 		return result;
+	}
+
+	private void addIt(SortedSet<String> result, String v, String originalTerm) {
+		if (v.startsWith(originalTerm) && !v.equals(originalTerm)) {
+			if (v.contains("-")) {
+				v = "\\" + v;
+			}
+			result.add(v);
+		}
 	}
 
 }
