@@ -59,12 +59,17 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 		private boolean enabled;
 		private int completionOffset;
 		private final int COMPLETION_FORWARD = 18000001;
-		private final int COMPLETION_BACKWARD = 18000002;
 
 		public InterpreterConsoleStyledText(Composite parent, int style){
 			super(parent, style);
-			setKeyBinding(SWT.SPACE | SWT.MOD3, COMPLETION_FORWARD);
-			setKeyBinding(SWT.SPACE | SWT.MOD3 | SWT.SHIFT, COMPLETION_BACKWARD);
+			String platform = SWT.getPlatform();
+			boolean isMac = "carbon".equals(platform) || "cocoa".equals(platform);
+			if (isMac) {
+				setKeyBinding(SWT.SPACE | SWT.MOD4, COMPLETION_FORWARD);
+			}
+			else {
+				setKeyBinding(SWT.SPACE | SWT.MOD1, COMPLETION_FORWARD);
+			}
 			enable();
 		}
 		
