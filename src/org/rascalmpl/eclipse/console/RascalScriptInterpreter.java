@@ -694,6 +694,9 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 
 	@Override
 	public Collection<String> findIdentifiers(String originalTerm) {
+		if (originalTerm.startsWith("\\")) {
+			originalTerm = originalTerm.substring(1);
+		}
 		SortedSet<String> result = new TreeSet<>();
 		List<ModuleEnvironment> todo = new ArrayList<>();
 		ModuleEnvironment root = eval.__getRootScope();
