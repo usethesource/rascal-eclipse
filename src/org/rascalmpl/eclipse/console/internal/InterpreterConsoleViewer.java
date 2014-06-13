@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console.internal;
 
+import org.eclipse.imp.utils.Pair;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
@@ -58,6 +59,7 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 	private class InterpreterConsoleStyledText extends StyledText{
 		private boolean enabled;
 		private int completionOffset;
+		private int completionPreviousLength;
 		private final int COMPLETION_FORWARD = 18000001;
 
 		public InterpreterConsoleStyledText(Composite parent, int style){
@@ -80,10 +82,14 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 			switch(action){
 				case COMPLETION_FORWARD:
 					if (!completion.isCompleting()) {
-						this.completionOffset = completion.start(console.getCurrentConsoleInput());
+						Pair<Integer, Integer> offsetLength = completion.start(console.getCurrentCursorPosition(), console.getCurrentConsoleInput());
+						this.completionOffset = offsetLength.first ;
+						this.completionPreviousLength = offsetLength.second ;
 					}
 					if (completion.isCompleting()) {
-						console.replaceCompletion(completionOffset, completion.nextCompletion());
+						String next = completion.nextCompletion();
+						console.replaceCompletion(completionOffset, completionPreviousLength, next);
+						completionPreviousLength = next.length();
 					}
 					return;
 				case ST.LINE_UP:

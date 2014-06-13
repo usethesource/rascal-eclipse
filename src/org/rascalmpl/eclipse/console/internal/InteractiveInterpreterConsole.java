@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console.internal;
 
+import java.awt.BufferCapabilities.FlipContents;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -397,6 +398,11 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 	protected String getCurrentConsoleInput(){
 		return documentListener.getCurrentBufferContent();
 	}
+	protected int getCurrentCursorPosition() {
+		TextConsoleViewer consoleViewer = page.getViewer();
+		StyledText styledText = consoleViewer.getTextWidget();
+		return styledText.getCaretOffset() - getInputOffset();
+	}
 	
 	protected void printOutput(String output){
 		writeToConsole(output, false);
@@ -548,7 +554,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		});
 	}
 
-	public void replaceCompletion(final int completionOffset, final String newSuggestion) {
+	public void replaceCompletion(final int completionOffset, final int completionPreviousLength, final String newSuggestion) {
 		Display.getDefault().syncExec(new Runnable(){
 			public void run(){
 				setCompletionReplace();
@@ -556,7 +562,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 				IDocument doc = getDocument();
 				try{
 					int subOffset = inputOffset + completionOffset;
-					doc.replace(subOffset, doc.getLength() - subOffset, newSuggestion);
+					doc.replace(subOffset, completionPreviousLength, newSuggestion);
 				}catch(BadLocationException blex){
 					// Ignore, can't happen.
 				}
@@ -564,7 +570,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 					unsetCompletionReplace();
 				}
 				
-				moveCaretTo(doc.getLength());
+				moveCaretTo(inputOffset + completionOffset + newSuggestion.length());
 			}
 		});
 	}

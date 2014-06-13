@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.imp.utils.Pair;
+
 public class CommandFragmentCompletion {
 	private String originalTerm;
 	private Iterator<String> suggestions;
@@ -32,15 +34,36 @@ public class CommandFragmentCompletion {
 		}
 		return originalTerm;
 	}
-	private final static Pattern getIdentifier = Pattern.compile(".*?([_a-zA-Z][_a-zA-Z0-9]*)\\s*$");
+	private final static Pattern getIdentifier = Pattern.compile(".*?([\\\\]?[_a-zA-Z][\\-_a-zA-Z0-9]*)\\s*$");
 
-	public int start(String currentConsoleInput) {
+	public Pair<Integer, Integer> start(int currentCursorPosition, String currentConsoleInput) {
+		int split = findSplitPoint(currentCursorPosition, currentConsoleInput);
+		if (split < currentConsoleInput.length()) {
+			currentConsoleInput = currentConsoleInput.substring(0, split + 1);
+		}
 		Matcher m = getIdentifier.matcher(currentConsoleInput);
 		if (m.matches()) {
 			originalTerm = m.group(1).trim();
 			suggestions =  interpreter.findIdentifiers(originalTerm).iterator();
-			return m.start(1);
+			return new Pair<>(m.start(1), originalTerm.length());
 		}
-		return 0;
+		return new Pair<>(0, 0);
 	}
+	
+	private boolean validRascalIdentifier(char c) {
+		return (c >= 'A' && c <= 'Z') 
+			|| (c >= 'a' && c <= 'z')
+			|| (c >= '0' && c <= '9')
+			|| c == '_' || c == '-'
+			;
+	}
+
+	private int findSplitPoint(int currentCursorPosition, String currentConsoleInput) {
+		for (int i = currentCursorPosition; i < currentConsoleInput.length(); i++) {
+			if (!validRascalIdentifier(currentConsoleInput.charAt(i)))
+				return i - 1;
+		}
+		return currentConsoleInput.length();
+	}
+
 }
