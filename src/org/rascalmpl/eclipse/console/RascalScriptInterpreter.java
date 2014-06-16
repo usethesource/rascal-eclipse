@@ -38,6 +38,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -694,10 +695,24 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 
 	@Override
 	public Collection<String> findIdentifiers(String originalTerm) {
+		if (originalTerm == null || originalTerm.isEmpty()) {
+			throw new IllegalArgumentException("The behavior with empty string is undefined.");
+		}
 		if (originalTerm.startsWith("\\")) {
 			originalTerm = originalTerm.substring(1);
 		}
-		SortedSet<String> result = new TreeSet<>();
+		SortedSet<String> result = new TreeSet<>(new Comparator<String>() {
+			@Override
+			public int compare(String a, String b) {
+				if (a.charAt(0) == '\\') {
+					a = a.substring(1);
+				}
+				if (b.charAt(0) == '\\') {
+					b = b.substring(1);
+				}
+				return a.compareTo(b);
+			}
+		});
 		List<ModuleEnvironment> todo = new ArrayList<>();
 		ModuleEnvironment root = eval.__getRootScope();
 		todo.add(root);
