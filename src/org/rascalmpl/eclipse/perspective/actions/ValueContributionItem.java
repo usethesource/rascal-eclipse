@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.jface.action.Action;
@@ -127,8 +128,8 @@ public class ValueContributionItem extends ContributionItem {
         if (f.getArity() == 1 
             && f.getReturnType().isBottom()
             && val.getType().isSubtypeOf(f.getFunctionType().getArgumentTypes().getFieldType(0))) {
-          String label = f.getTag("label");
-          Action a = new FunctionAction(label != null ? label : name, val, f);
+          IString label = (IString) f.getTag("label");
+          Action a = new FunctionAction(label != null ? label.getValue() : name, val, f);
           new ActionContributionItem(a).fill(menu, index);
         };
       }
