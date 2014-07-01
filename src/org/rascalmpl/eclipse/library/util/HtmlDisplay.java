@@ -69,6 +69,7 @@ public class HtmlDisplay {
 			throws IOException {
 		IFile output = null;
 		URI inputUri = loc.getURI();
+		if (inputUri.getScheme().equals("http")) return inputUri;
 		URI resourceUri = ctx.getResolverRegistry().getResourceURI(loc.getURI());
 		
 		URI uri= inputUri.getScheme().equals("project")?inputUri:resourceUri;
@@ -161,7 +162,7 @@ public class HtmlDisplay {
 		PlatformUI.getWorkbench().getDisplay().asyncExec(runnable);
 	}
 
-	public void htmlDisplay(ISourceLocation loc, IString input,
+	public void _htmlDisplay(ISourceLocation loc, IString input,
 			IEvaluatorContext ctx) throws IOException {
 		String s = input.getValue();
 		htmlDisplay(loc, s, ctx);

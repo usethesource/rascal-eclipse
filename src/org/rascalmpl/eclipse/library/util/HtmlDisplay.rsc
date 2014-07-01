@@ -10,15 +10,26 @@
  *******************************************************************************/
 module util::HtmlDisplay
 
+str responseString = "";
+
 
 @javaClass{org.rascalmpl.eclipse.library.util.HtmlDisplay}
 @reflect{Uses URI Resolver Registry}
-public java void htmlDisplay(loc location, str htmlInput); 
+private java void _htmlDisplay(loc location, str htmlInput); 
 
 
 @javaClass{org.rascalmpl.eclipse.library.util.HtmlDisplay}
 @reflect{Uses URI Resolver Registry}
 public java void htmlDisplay(loc location); 
+
+public void htmlDisplay(loc location, str htmlInput){
+    responseString = htmlInput;
+    _htmlDisplay(location, htmlInput);
+}
+
+public str getResponseString() {
+  return responseString;
+  }
 
 
  
