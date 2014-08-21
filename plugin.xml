@@ -958,4 +958,12 @@
          </dynamic>
       </menuContribution> 
 </extension>
+   <extension
+         point="org.eclipse.imp.runtime.quickFixAssistant">
+      <quickFixAssistant
+            class="org.rascalmpl.eclipse.terms.TermQuickFixAssistant"
+            language="Terms">
+         <supportedMarkerType></supportedMarkerType>
+      </quickFixAssistant>
+   </extension>
 </plugin>
