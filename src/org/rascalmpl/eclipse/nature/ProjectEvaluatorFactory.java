@@ -216,6 +216,7 @@ public class ProjectEvaluatorFactory {
 				List<String> libs = mf.getRequiredLibraries(bundle);
 				if (libs != null) {
 					for (String required : libs) {
+						// TODO: this will not work and needs to be fixed with the new JarInputStreamURIResolver
 						URL libFile = bundle.getEntry(required);
 						File jarFile = new File(libFile.getFile());
 						addJarToSearchPath(jarFile, evaluator);
