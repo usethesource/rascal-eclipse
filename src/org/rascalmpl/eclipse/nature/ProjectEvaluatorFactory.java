@@ -20,8 +20,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import org.eclipse.core.resources.IProject;
@@ -47,6 +49,8 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -131,21 +135,23 @@ public class ProjectEvaluatorFactory {
 	/**
 	 * This method configures an evaluator for use in an eclipse context
 	 */
-	public void configure(Evaluator evaluator) {
-	  // NB. the code in this method is order dependent because it constructs a rascal module path in a particular order
-    URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
-    
-    ProjectURIResolver resolver = new ProjectURIResolver();
-    resolverRegistry.registerInput(resolver);
-    resolverRegistry.registerOutput(resolver);
-    
-    BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
-    resolverRegistry.registerInput(bundleResolver);
-    resolverRegistry.registerOutput(bundleResolver);
-    
-    evaluator.addClassLoader(getClass().getClassLoader());
-    
-    configureRascalLibraryPlugins(evaluator);
+	public static void configure(Evaluator evaluator) {
+		// NB. the code in this method is order dependent because it constructs a rascal module path in a particular order
+		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
+
+		ProjectURIResolver resolver = new ProjectURIResolver();
+		resolverRegistry.registerInput(resolver);
+		resolverRegistry.registerOutput(resolver);
+
+		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
+		resolverRegistry.registerInput(bundleResolver);
+		resolverRegistry.registerOutput(bundleResolver);
+
+		resolverRegistry.registerInput(new JarURIResolver());
+		
+		evaluator.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
+
+		configureRascalLibraryPlugins(evaluator);
 	}
 	/**
 	 * This method configures an evaluator for use in an eclipse context. 
@@ -182,21 +188,44 @@ public class ProjectEvaluatorFactory {
 		}
 	}
 	
-	private void configure(Bundle bundle, Evaluator evaluator) {
-	  configure(evaluator);
-	  
-	  if (bundle != null) {
-      try {
-        addBundleToSearchPath(bundle, evaluator);
-        evaluator.addClassLoader(new BundleClassLoader(bundle));
-      } 
-      catch (URISyntaxException e) {
-        Activator.getInstance().logException("could not construct search path", e);
-      }
-      
-      configureClassPath(bundle, evaluator);
-    }
-	  
+	private static void configure(Bundle bundle, Evaluator evaluator) {
+		configure(evaluator);
+		configure(bundle, evaluator, new HashSet<String>());
+	}
+	
+	private static void configure(Bundle bundle, Evaluator evaluator, Set<String> configured) {
+		if (bundle != null) {
+			configured.add(bundle.getSymbolicName());
+
+			try {
+				addBundleToSearchPath(bundle, evaluator);
+				evaluator.addClassLoader(new BundleClassLoader(bundle));
+				configureClassPath(bundle, evaluator);
+
+				RascalEclipseManifest mf = new RascalEclipseManifest();
+				List<String> requiredBundles = mf.getRequiredBundles(bundle);
+				
+				if (requiredBundles != null) {
+					for (String required : requiredBundles) {
+						if (!configured.contains(required)) {
+							configure(Platform.getBundle(required), evaluator);
+						}
+					}
+				}
+				
+				List<String> libs = mf.getRequiredLibraries(bundle);
+				if (libs != null) {
+					for (String required : libs) {
+						URL libFile = bundle.getEntry(required);
+						File jarFile = new File(libFile.getFile());
+						addJarToSearchPath(jarFile, evaluator);
+					}
+				}
+			} 
+			catch (URISyntaxException e) {
+				Activator.getInstance().logException("could not construct search path", e);
+			}
+		}
 	}
 
 	 /**
@@ -326,28 +355,51 @@ public class ProjectEvaluatorFactory {
 	  }
 	}
 	
-  public static void addProjectToSearchPath(IProject project, Evaluator parser)
+	public static void addProjectToSearchPath(IProject project, Evaluator eval)
 			throws URISyntaxException {
-    RascalEclipseManifest mf = new RascalEclipseManifest();
+		RascalEclipseManifest mf = new RascalEclipseManifest();
 		for (String root : mf.getSourceRoots(project)) {
-		  parser.addRascalSearchPath(URIUtil.create("project", project.getName(), "/" + root.trim()));
+			eval.addRascalSearchPath(URIUtil.create("project", project.getName(), "/" + root.trim()));
+		}
+		
+		List<String> requiredBundles = mf.getRequiredBundles(project);
+		if (requiredBundles != null) {
+			for (String lib : requiredBundles) {
+				configure(Platform.getBundle(lib), eval);
+			}
+		}
+		
+		List<String> requiredLibraries = mf.getRequiredLibraries(project);
+		if (requiredLibraries != null) {
+			for (String lib : requiredLibraries) {
+				addJarToSearchPath(project.getFile(lib).getLocation().toFile(), eval);
+			}
 		}
 	}
   
+  public static void addJarToSearchPath(File jar, Evaluator eval) throws URISyntaxException {
+	  List<String> roots = new RascalManifest().getSourceRoots(jar);
+	  
+	  for (String root : roots) {
+		  eval.addRascalSearchPath(URIUtil.fixUnicode(URIUtil.create("jar", "", jar.getAbsolutePath() + "!" + root)));
+	  }
+  }
+  
   public static void addBundleToSearchPath(Bundle bundle, Evaluator eval) throws URISyntaxException {
-    List<String> srcs = new RascalEclipseManifest().getSourceRoots(bundle);
-    
-    if (srcs != null) {
-      for (String root : srcs) {
-        eval.addRascalSearchPath(bundle.getEntry(root.trim()).toURI());
-      }
-    }
-    else {
-      eval.addRascalSearchPath(bundle.getEntry("/").toURI());
-    }
+	  RascalEclipseManifest mf = new RascalEclipseManifest();
+	  List<String> srcs = mf.getSourceRoots(bundle);
+
+	  if (srcs != null) {
+		  for (String root : srcs) {
+			  eval.addRascalSearchPath(bundle.getEntry(root.trim()).toURI());
+		  }
+	  }
+	  else {
+		  eval.addRascalSearchPath(bundle.getEntry("/").toURI());
+	  }
   }
 
-  private void collectClassPathForBundle(Bundle bundle, List<URL> classPath, List<String> compilerClassPath) {
+  private static void collectClassPathForBundle(Bundle bundle, List<URL> classPath, List<String> compilerClassPath) {
     try {
       File file = FileLocator.getBundleFile(bundle);
       
@@ -444,18 +496,18 @@ public class ProjectEvaluatorFactory {
     configureClassPath(parser, classPath, compilerClassPath);
 	}
 	
-	private void configureClassPath(Bundle bundle, Evaluator evaluator) {
+	private static void configureClassPath(Bundle bundle, Evaluator evaluator) {
 	  List<URL> classPath = new LinkedList<URL>();
-    List<String> compilerClassPath = new LinkedList<String>();
-    collectClassPathForBundle(bundle, classPath, compilerClassPath);
-    configureClassPath(evaluator, classPath, compilerClassPath);
+	  List<String> compilerClassPath = new LinkedList<String>();
+	  collectClassPathForBundle(bundle, classPath, compilerClassPath);
+	  configureClassPath(evaluator, classPath, compilerClassPath);
 	}
 	
-	private void configureClassPath(Evaluator parser, List<URL> classPath, List<String> compilerClassPath) {
+	private static void configureClassPath(Evaluator parser, List<URL> classPath, List<String> compilerClassPath) {
 		// this registers the run-time path:
 		URL[] urls = new URL[classPath.size()];
 		classPath.toArray(urls);
-		URLClassLoader classPathLoader = new URLClassLoader(urls, getClass().getClassLoader());
+		URLClassLoader classPathLoader = new URLClassLoader(urls, ProjectEvaluatorFactory.class.getClassLoader());
 		parser.addClassLoader(classPathLoader);
 		
 		// this registers the compile-time path:

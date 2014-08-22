@@ -29,6 +29,22 @@ public class RascalEclipseManifest extends RascalManifest {
     return getSourceRoots(manifest(project));
   }
   
+  public List<String> getRequiredBundles(IProject project) {
+	  return getRequiredBundles(manifest(project));
+  }
+  
+  public List<String> getRequiredBundles(Bundle bundle) {
+	  return getRequiredBundles(manifest(bundle));
+  }
+  
+  public List<String> getRequiredLibraries(IProject project) {
+	  return getRequiredLibraries(manifest(project));
+  }
+  
+  public List<String> getRequiredLibraries(Bundle bundle) {
+	  return getRequiredLibraries(manifest(bundle));
+  }
+  
   public List<String> getSourceRoots(Bundle project) {
     return getSourceRoots(manifest(project));
   }
@@ -73,6 +89,7 @@ public class RascalEclipseManifest extends RascalManifest {
     } 
     catch (CoreException e) {
       // do nothing
+    	System.err.println(e);
     }
     
     return null;
