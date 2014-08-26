@@ -26,43 +26,43 @@ import org.rascalmpl.interpreter.utils.RascalManifest;
 public class RascalEclipseManifest extends RascalManifest {
 
   public List<String> getSourceRoots(IProject project) {
-    return getSourceRoots(manifest(project));
+    return getManifestSourceRoots(manifest(project));
   }
   
   public List<String> getRequiredBundles(IProject project) {
-	  return getRequiredBundles(manifest(project));
+	  return getManifestRequiredBundles(manifest(project));
   }
   
   public List<String> getRequiredBundles(Bundle bundle) {
-	  return getRequiredBundles(manifest(bundle));
+	  return getManifestRequiredBundles(manifest(bundle));
   }
   
   public List<String> getRequiredLibraries(IProject project) {
-	  return getRequiredLibraries(manifest(project));
+	  return getManifestRequiredLibraries(manifest(project));
   }
   
   public List<String> getRequiredLibraries(Bundle bundle) {
-	  return getRequiredLibraries(manifest(bundle));
+	  return getManifestRequiredLibraries(manifest(bundle));
   }
   
   public List<String> getSourceRoots(Bundle project) {
-    return getSourceRoots(manifest(project));
+    return getManifestSourceRoots(manifest(project));
   }
   
   public String getMainModule(IProject project) {
-    return getMainModule(manifest(project));
+    return getManifestMainModule(manifest(project));
   }
   
   public String getMainModule(Bundle project) {
-    return getMainModule(manifest(project));
+    return getManifestMainModule(manifest(project));
   }
   
   public String getMainFunction(IProject project) {
-    return getMainFunction(manifest(project));
+    return getManifestMainFunction(manifest(project));
   }
   
   public String getMainFunction(Bundle project) {
-    return getMainFunction(manifest(project));
+    return getManifestMainFunction(manifest(project));
   }
   
   private InputStream manifest(Bundle bundle) {
