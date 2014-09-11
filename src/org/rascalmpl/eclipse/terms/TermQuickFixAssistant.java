@@ -98,7 +98,7 @@ public class TermQuickFixAssistant implements IQuickFixAssistant {
 			
 			@Override
 			public Point getSelection(IDocument document) {
-				return new Point(loc.getOffset(), 0);
+				return new Point(loc.getOffset() + loc.getLength(), 0);
 			}
 			
 			@Override
