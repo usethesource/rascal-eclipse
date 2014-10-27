@@ -17,6 +17,8 @@ import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_TUTOR_VIEW_PART;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -79,7 +81,14 @@ public class Tutor extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		browser = new Browser(parent, SWT.NONE);
-		browser.setText("<html><body>The Rascal tutor is now loading: <progress max=\"100\"></progress></body></html>");
+		
+		IProject exampleProject = ResourcesPlugin.getWorkspace().getRoot().getProject("example-project");
+		if (exampleProject == null || !exampleProject.exists() || !exampleProject.isOpen()) {
+			browser.setText("<html><body>The Rascal tutor is now loading: <progress max=\"100\">, but you have not imported the example-project into your workspace! So please do so, it is contained in the rascal project.</progress></body></html>");
+		}
+		else {
+			browser.setText("<html><body>The Rascal tutor is now loading: <progress max=\"100\"></progress></body></html>");
+		}
 		new StarterJob().schedule();
 	}
 

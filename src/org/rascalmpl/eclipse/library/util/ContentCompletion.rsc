@@ -32,14 +32,14 @@ Completion proposals are passed on to the editor.
 	creating proposals. By default the framework will display an errorProposal stating "no
 	propsals available" when you return no proposals.
 }
-public data CompletionProposal 
+data CompletionProposal 
 				= sourceProposal(str newText) /*1*/
 				| sourceProposal(str newText, str proposal) /*2*/
 				| errorProposal(str errorText) /*3*/
 				;
 
 @doc {Helper datatype for storing symbol information.}				
-public data SymbolTree
+data SymbolTree
 				= symbol(str name, str symbolType)
 				| symbol(str name, str symbolType, map[str, str] attributes)
 				| scope(SymbolTree scopeSymbol, list[SymbolTree] children)
@@ -62,7 +62,7 @@ Examples:
 import ParseTree;
 import Type;
 import util::ContentCompletion;
-SymbolTree symbol = symbol("main", "method", {});
+SymbolTree symbol = symbol("main", "method", ());
 symbol@label = "main (Entry Point)";
 createProposalsFromLabels(symbol);
 </screen>
