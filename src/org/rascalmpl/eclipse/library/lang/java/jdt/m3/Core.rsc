@@ -21,7 +21,7 @@ Examples:
 
 <screen>
 import lang::java::jdt::m3::Core;
-myModel = createM3FromEclipseProject(|project://pdb.values|);
+myModel = createM3FromEclipseProject(|project://example-project|);
 </screen>
 }
 public M3 createM3FromEclipseProject(loc project) {
