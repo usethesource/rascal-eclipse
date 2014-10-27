@@ -31,7 +31,11 @@ import org.eclipse.ui.progress.WorkbenchJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
+import org.rascalmpl.eclipse.uri.ProjectURIResolver;
+import org.rascalmpl.eclipse.wizards.RascalProjectWizard;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.tutor.RascalTutor;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class Tutor extends ViewPart {
 	public static final String ID = ID_RASCAL_TUTOR_VIEW_PART;
@@ -132,7 +136,13 @@ public class Tutor extends ViewPart {
 						tutor = new RascalTutor();
 						
 						// to make sure we can find classes used in the Eclipse libraries.
-						tutor.getRascalEvaluator().addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
+						Evaluator eval = tutor.getRascalEvaluator();
+						eval.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
+						ProjectURIResolver resolver = new ProjectURIResolver();
+						URIResolverRegistry reg = eval.getResolverRegistry();
+						reg.registerInput(resolver);
+						reg.registerOutput(resolver);
+						
 						tutor.start(new RascalMonitor(monitor, null));
 					}
 					
