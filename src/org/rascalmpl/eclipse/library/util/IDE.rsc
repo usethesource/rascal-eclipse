@@ -121,12 +121,19 @@ Use with caution! This will clear all registered languages (for debugging purpos
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public java void clearLanguages();
 
-@doc{Synopsis: Clear a registered language.
+@doc{
+Synopsis: Clear a registered language.
 
 Description:
+
 Remove a registered language.
 
+Benefits:
+
+When in doubt about the state of your IDE additions, you can always remove the language, close all editors and check if everything is gone, then re-register your language again.
+
 Pitfalls:
+
 Use with caution! This will clear a registered language (for debugging purposes).
 }
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}

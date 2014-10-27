@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.tutor.RascalTutor;
 
@@ -120,6 +121,9 @@ public class Tutor extends ViewPart {
 					if (tutor == null) {
 						monitor.beginTask("Loading Tutor server", 2);
 						tutor = new RascalTutor();
+						
+						// to make sure we can find classes used in the Eclipse libraries.
+						tutor.getRascalEvaluator().addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
 						tutor.start(new RascalMonitor(monitor, null));
 					}
 					
