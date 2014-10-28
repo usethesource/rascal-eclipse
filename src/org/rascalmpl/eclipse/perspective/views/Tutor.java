@@ -32,7 +32,6 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
-import org.rascalmpl.eclipse.wizards.RascalProjectWizard;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.tutor.RascalTutor;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -85,14 +84,7 @@ public class Tutor extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		browser = new Browser(parent, SWT.NONE);
-		
-		IProject exampleProject = ResourcesPlugin.getWorkspace().getRoot().getProject("example-project");
-		if (exampleProject == null || !exampleProject.exists() || !exampleProject.isOpen()) {
-			browser.setText("<html><body>The Rascal tutor is now loading: <progress max=\"100\">, but you have not imported the example-project into your workspace! So please do so, it is contained in the rascal project.</progress></body></html>");
-		}
-		else {
-			browser.setText("<html><body>The Rascal tutor is now loading: <progress max=\"100\"></progress></body></html>");
-		}
+		browser.setText("<html><body>The Rascal tutor is now loading: <progress max=\"100\"></progress></body></html>");
 		new StarterJob().schedule();
 	}
 
@@ -137,11 +129,23 @@ public class Tutor extends ViewPart {
 						
 						// to make sure we can find classes used in the Eclipse libraries.
 						Evaluator eval = tutor.getRascalEvaluator();
+						
 						eval.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
 						ProjectURIResolver resolver = new ProjectURIResolver();
 						URIResolverRegistry reg = eval.getResolverRegistry();
 						reg.registerInput(resolver);
 						reg.registerOutput(resolver);
+						
+						// This is to make parser generation work (a JDK classpath has to be constructed)
+						ProjectEvaluatorFactory.configureClassPath(Activator.getInstance().getBundle(), eval);						
+						
+						// if we go into edit mode and have some extra checks 
+						if (tutor.isEditMode()) {
+							IProject exampleProject = ResourcesPlugin.getWorkspace().getRoot().getProject("example-project");
+							if (exampleProject == null || !exampleProject.exists() || !exampleProject.isOpen()) {
+								throw new RuntimeException("Tutor will not start before you make sure example-project is open in your workspace. You can find it nested in the rascal project to import.");
+							}
+						}
 						
 						tutor.start(new RascalMonitor(monitor, null));
 					}

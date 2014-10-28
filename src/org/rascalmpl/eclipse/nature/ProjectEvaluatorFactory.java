@@ -506,14 +506,14 @@ public class ProjectEvaluatorFactory {
 		}
 	}
 	
-	private void configureClassPath(IProject project, Evaluator parser) {
-	  List<URL> classPath = new LinkedList<URL>();
-    List<String> compilerClassPath = new LinkedList<String>();
-    collectClassPathForProject(project, classPath, compilerClassPath);
-    configureClassPath(parser, classPath, compilerClassPath);
+	public void configureClassPath(IProject project, Evaluator parser) {
+		List<URL> classPath = new LinkedList<URL>();
+		List<String> compilerClassPath = new LinkedList<String>();
+		collectClassPathForProject(project, classPath, compilerClassPath);
+		configureClassPath(parser, classPath, compilerClassPath);
 	}
 	
-	private static void configureClassPath(Bundle bundle, Evaluator evaluator) {
+	public static void configureClassPath(Bundle bundle, Evaluator evaluator) {
 	  List<URL> classPath = new LinkedList<URL>();
 	  List<String> compilerClassPath = new LinkedList<String>();
 	  collectClassPathForBundle(bundle, classPath, compilerClassPath);
