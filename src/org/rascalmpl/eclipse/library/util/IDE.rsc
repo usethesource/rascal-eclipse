@@ -91,7 +91,7 @@ Register an outliner function. An outliner maps a parse tree to a simpler
 tree that summarizes the contents of a file. This summary is used to generate the outline
 view in Eclipse. 
 
-Use the  [$IDE/label], [$IDE/loc] and [$IDE/image] annotations on each node to guide how each outline
+Use the  [$IDE/label] and [$IDE/loc] annotations on each node to guide how each outline
 item is displayed, which item it links to and what image is displayed next to it.
 }
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
