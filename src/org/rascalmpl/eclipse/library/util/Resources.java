@@ -184,8 +184,10 @@ public class Resources {
 		ISetWriter projects = VF.setWriter();
 		
 		for (IProject p : ROOT.getProjects()) {
-			ISet contents = getProjectContents(p);
-			projects.insert(VF.constructor(project, makeProject(p), contents));
+			if (p.exists() && p.isOpen()) {
+				ISet contents = getProjectContents(p);
+				projects.insert(VF.constructor(project, makeProject(p), contents));
+			}
 		}
 		
 		return VF.constructor(root, projects.done());
