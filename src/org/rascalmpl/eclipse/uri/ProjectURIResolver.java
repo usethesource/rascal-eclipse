@@ -99,8 +99,12 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	private IResource resolve(URI uri) throws IOException, MalformedURLException {
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		
-		if (project == null) {
-			throw new IOException("project " + uri.getAuthority() + " does not exist");
+		if (project == null || !project.exists()) {
+			throw new IOException("project " + uri.getAuthority() + " does not exist.");
+		}
+		
+		if (!project.isOpen()) {
+			throw new IOException("project " + uri.getAuthority() + " is closed.");
 		}
 		
 		if(isDirectory(uri)){

@@ -202,10 +202,15 @@ public class Resources {
 	private  IProject getIProject(String projectName) {
 		IProject p = ROOT.getProject(projectName);
 		
-		if (p != null) {
+		if (p != null && p.exists()) {
 			return p;
 		}
-		throw new Throw(VF.string("Project does not exist: " + projectName), (ISourceLocation) null, null);
+		else if (!p.isOpen()) {
+			throw new Throw(VF.string("Project does is not open: " + projectName), (ISourceLocation) null, null);
+		}
+		else {
+			throw new Throw(VF.string("Project does not exist: " + projectName), (ISourceLocation) null, null);
+		}
 	}
 	
 	private  ISet getProjectContents(IProject project) {
