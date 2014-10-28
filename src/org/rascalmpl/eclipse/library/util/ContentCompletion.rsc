@@ -132,10 +132,10 @@ Examples:
 import util::ContentCompletion;
 import List;
 list[CompletionProposal] proposals = [sourceProposal("banana"), sourceProposal("apple")];
-sort(proposals, lessThanOrEqual);
+sort(proposals, lessThan);
 </screen>
 }
-public bool lessThanOrEqual(CompletionProposal lhs, CompletionProposal rhs) = toLowerCase(lhs.newText) <= toLowerCase(rhs.newText);
+public bool lessThan(CompletionProposal lhs, CompletionProposal rhs) = toLowerCase(lhs.newText) < toLowerCase(rhs.newText);
 
 @doc {
 Synopsis: Allows a list of proposals to be filtered based on a given prefix string.
