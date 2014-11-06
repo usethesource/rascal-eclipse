@@ -166,7 +166,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
     } 
     else if (element instanceof IFileStore) {
       IFileStore parent = ((IFileStore) element).getParent();
-      if (libraries.containsKey(parent)) {
+      if (libraries != null && parent != null && libraries.containsKey(parent)) {
         return libraries.get(parent);
       }
     }
