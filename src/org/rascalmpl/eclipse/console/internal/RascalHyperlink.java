@@ -27,6 +27,7 @@ import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.interpreter.Evaluator;
@@ -73,78 +74,14 @@ public class RascalHyperlink implements IHyperlink {
 	@Override
 	public void linkActivated() {
 		console.setSelection(srcOffset - 1, srcLen + 1);
-
-		try {
-			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-
-			IResource res = URIResourceResolver.getResource(getURIPart(), projectName);
-			if (res != null && res instanceof IFile) {
-				IEditorPart part = IDE.openEditor(page, (IFile)res);
-				if (getOffsetPart() > -1 && part instanceof ITextEditor) {
-					((ITextEditor)part).selectAndReveal(getOffsetPart(), getLength());
-				}
-			}
-			else if (getURIPart().getScheme().equals("http")) {
-				try {
-					PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(getURIPart().toURL());
-				} catch (PartInitException e) {
-					Activator.log("Cannot get editor part", e);
-				} catch (MalformedURLException e) {
-					err.println("Cannot open link " + target);
-					Activator.log("Cannot resolve link", e);
-				}
-			}
-			else {
-				IFileStore fileStore = EFS.getLocalFileSystem().getStore(getURIPart());
-
-				if (fileStore.fetchInfo().exists()) {
-					IDE.openEditorOnFileStore( page, fileStore );
-				}
-				else {
-					IEvaluatorContext eval = ctx;
-					if (projectName != null) {
-						IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-						eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
-					}
-
-					if (eval != null) {
-						URI resourceURI = eval.getResolverRegistry().getResourceURI(getURIPart());
-
-						if (resourceURI.getScheme().equals("project")) {
-							IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(resourceURI.getAuthority());
-							IFile file = project.getFile(resourceURI.getPath());
-							IEditorPart part = IDE.openEditor(page, file);
-							if (getOffsetPart() > -1 && part instanceof ITextEditor) {
-								((ITextEditor)part).selectAndReveal(getOffsetPart(), getLength());
-							}
-							return;
-						}
-
-						if (resourceURI != null) {
-							URL find = FileLocator.resolve(resourceURI.toURL());
-							fileStore = EFS.getLocalFileSystem().getStore(find.toURI());
-
-							if (fileStore != null && fileStore.fetchInfo().exists()) {
-								IEditorPart part = IDE.openEditorOnFileStore( page, fileStore );
-								if (getOffsetPart() > -1 && part instanceof ITextEditor) {
-									((ITextEditor)part).selectAndReveal(getOffsetPart(), getLength());
-								}
-								return;
-							}
-						}
-					}
-				}
-
-				Activator.log("can not open link", null);
-			}
-		} catch (IOException | CoreException e) {
-			Activator.log("Cannot follow link", e);
-		} catch (URISyntaxException e) {
-			Activator.log("Cannot follow link", e);
-		} catch (Throw e) {
-			Activator.log("Cannot follow link", e);
+		if (getOffsetPart() > -1) {
+			EditorUtil.openAndSelectURI(getURIPart(), getOffsetPart(), getLength(), ctx, projectName);
+		}
+		else {
+			EditorUtil.openAndSelectURI(getURIPart(), ctx, projectName);
 		}
 	}
+
 
 	private int length = -1;
 	private int getLength() {
