@@ -41,20 +41,25 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIUtil;
 
 public class SourceLocationHyperlink implements IHyperlink {
 	private final ISourceLocation from;
 	private ISourceLocation to;
 	private String text = null;
+	private IEvaluatorContext eval;
+	private String project;
 
-	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to) {
+	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to, IEvaluatorContext eval, String project) {
 		this.from = from;
 		this.to = to;
+		this.eval = eval;
+		this.project = project;
 	}
 
-	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to, String text) {
-		this(from, to);
+	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to, String text, IEvaluatorContext eval, String project) {
+		this(from, to, eval, project);
 		this.text  = text;
 	}
 
@@ -77,101 +82,7 @@ public class SourceLocationHyperlink implements IHyperlink {
 		if (to == null) {
 			return;
 		}
-		
-	 	IWorkbench wb = PlatformUI.getWorkbench();
-		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-
-		if (win == null && wb.getWorkbenchWindowCount() != 0) {
-			win = wb.getWorkbenchWindows()[0];
-		}
-		
-		if (win != null) {
-			final IWorkbenchPage page = win.getActivePage();
-
-			if (page != null) {
-				Display.getDefault().asyncExec(new Runnable() {
-					public void run() {
-						try {
-							IEditorDescriptor desc;
-							if (TermLanguageRegistry.getInstance().getLanguage(to) != null) {
-								desc = PlatformUI.getWorkbench().getEditorRegistry().findEditor(UniversalEditor.EDITOR_ID);
-							} 
-							else {
-								desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(to.getURI().getPath());
-							}
-							IEditorPart part;
-							
-							if (desc != null) {
-								IEditorInput editorInput = getEditorInput(to.getURI());
-								part = page.openEditor(editorInput, desc.getId());
-								ISelectionProvider sp = part.getEditorSite().getSelectionProvider();
-								if (sp != null) {
-									sp.setSelection(new TextSelection(to.getOffset(), to.getLength()));
-								}
-								else {
-									Activator.getInstance().logException("no selection provider", new RuntimeException());
-								}
-							}
-							else {
-								IFileStore fileStore = EFS.getLocalFileSystem().getStore(to.getURI());
-							    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-							    part = IDE.openEditorOnFileStore(page, fileStore);
-							}
-
-							if (part != null) {
-								IRegionSelectionService ss = (IRegionSelectionService) part.getAdapter(IRegionSelectionService.class);
-								ss.selectAndReveal(to.getOffset(), to.getLength());
-							}
-						} catch (PartInitException e) {
-							Activator.getInstance().logException("failed to open editor for source loc:" + to, e);
-						}
-					}
-
-					private IEditorInput getEditorInput(URI uri) {
-						String scheme = uri.getScheme();
-						
-						if (scheme.equals("project")) {
-							IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
-							
-							if (project != null) {
-								return new FileEditorInput(project.getFile(uri.getPath()));
-							}
-							
-							Activator.getInstance().logException("project " + uri.getAuthority() + " does not exist", new RuntimeException());
-						}
-						else if (scheme.equals("file")) {
-							IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-							IFile[] cs = root.findFilesForLocationURI(uri);
-							
-							if (cs != null && cs.length > 0) {
-								return new FileEditorInput(cs[0]);
-							}
-							
-							Activator.getInstance().logException("file " + uri + " not found", new RuntimeException());
-						}
-						else if (scheme.equals("rascal-library")) {
-							IFile [] files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
-							if (files.length > 0) {
-								return new FileEditorInput(files[0]);
-							}
-						}
-						else if (scheme.equals("std")) {
-							// TODO: this design is wrong, we should rethink the way we want
-							// to tie the Rascal schemes into Eclipse.
-							try {
-								uri = URIUtil.createFromEncoded(uri.toString().replaceFirst("std:///", "rascal-library://rascal/"));
-								return getEditorInput(uri);
-							} catch (URISyntaxException e) {
-								// Do nothing, fall through and return null
-							}
-						}
-						
-						Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
-						return null;
-					}
-				});
-			}
-		}
+		EditorUtil.openAndSelectURI(to, eval, project);
 	}
 
 }

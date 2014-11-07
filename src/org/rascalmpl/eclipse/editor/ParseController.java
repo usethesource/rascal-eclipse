@@ -49,6 +49,7 @@ import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -106,6 +107,10 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	
 	public Iterator<Token> getTokenIterator(IRegion region) {
 		return parseTree != null ? new TokenIterator(false, parseTree) : null;
+	}
+	
+	public IEvaluatorContext getEvaluator() {
+		return parser;
 	}
 
 	@Override
