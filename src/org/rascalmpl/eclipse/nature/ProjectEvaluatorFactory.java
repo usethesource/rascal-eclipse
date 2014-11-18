@@ -467,7 +467,7 @@ public class ProjectEvaluatorFactory {
 				classPath.add(new URL("file", "",  binLoc + "/"));
 				
 				if (!jProject.isOpen()) {
-					return;
+				  jProject.open(new NullProgressMonitor());
 				}
 				IClasspathEntry[] entries = jProject.getResolvedClasspath(true);
 				
