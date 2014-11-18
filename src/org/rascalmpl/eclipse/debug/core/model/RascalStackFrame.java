@@ -275,10 +275,6 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 		if (location != null) {
 		  ISourceLocation l = location;
 		  
-		  if (l.getScheme().equals("rascal")) {
-		    l = getRascalDebugTarget().getConsole().getInterpreter().getEval().getRascalResolver().resolve(l);
-		  }
-		  
 			try {
 				getRascalDebugTarget()
 						.getDebuggableURIResolverRegistry()
@@ -310,10 +306,6 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 
 		try {
 		  ISourceLocation l = location;
-      
-      if (l.getScheme().equals("rascal")) {
-        l = getRascalDebugTarget().getConsole().getInterpreter().getEval().getRascalResolver().resolve(l);
-      }
       
 			URI resolvedURI = getRascalDebugTarget()
 					.getDebuggableURIResolverRegistry().getResourceURI(
