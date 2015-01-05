@@ -1,5 +1,5 @@
 module demo::lang::MissGrant::Completion
-
+ 
 import demo::lang::MissGrant::MissGrant;
 import demo::lang::MissGrant::AST;
 import demo::lang::MissGrant::Implode;
@@ -41,11 +41,11 @@ list[str] getFilterTypes(demo::lang::MissGrant::MissGrant::Controller input, int
 SymbolTree makeSymbolTree(Controller ast) {
 	list[SymbolTree] symbols = [];	
 	visit(ast) {
-		case command(str name, str token): symbols += symbol(name, symbol_type_command, (symbol_attr_token:token))[@label = "<name> (<token>) - Command"];
-		case event(str name, str token): symbols += symbol(name, symbol_type_event, (symbol_attr_token:token))[@label = "<name> (<token>) - Event"];
-		case state(str name, _, _): symbols += symbol(name, symbol_type_state)[@label = "<name> - state"];
+		case command(str name, str token): symbols += symbol(name, symbol_type_command, (symbol_attr_token:token),label = "<name> (<token>) - Command");
+		case event(str name, str token): symbols += symbol(name, symbol_type_event, (symbol_attr_token:token),label = "<name> (<token>) - Event");
+		case state(str name, _, _): symbols += symbol(name, symbol_type_state,label = "<name> - state");
 	}	
-	return scope(symbols)[@label=""];
+	return scope(symbols,label="");
 }
 
 public Contribution proposerContrib = proposer(makeProposals, alphaNumeric + "_");

@@ -34,7 +34,7 @@ public void main() {
   		}),
   		annotator(demo::lang::MissGrant::MissGrant::Controller (demo::lang::MissGrant::MissGrant::Controller input) {
     		msgs = toSet(checkController(implode(input)));
-    		return input[@messages=msgs];
+    		return input[messages=msgs];
   		}),
 		popup(
 			menu(CONTROLLER_LANG,[

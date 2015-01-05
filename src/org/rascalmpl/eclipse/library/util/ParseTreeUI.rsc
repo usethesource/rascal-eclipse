@@ -16,22 +16,21 @@ public void ambiguityMap(Tree t) {
   render(vcat(ambMap(markVertical(t))));
 }
 
-anno bool Tree@vertical;
+data Tree(bool vertical=false);
 
 @doc{annotates each tree iff it contains a newline}
 Tree markVertical(Tree t) {
   return visit (t) {
-     case Tree u:appl(_,[_*, Tree v, _*]) : if (v@vertical?false) insert u[@vertical=true]; else fail;
-     case Tree u:amb({_*, Tree v, _*})    : if (v@vertical?false) insert u[@vertical=true]; else fail;
-     case char(10) : return t[@vertical=true];
-     case Tree u   : return u[@vertical=false];
+     case Tree u:appl(_,[_*, Tree v, _*]) : if (v.vertical) insert u[vertical=true]; else fail;
+     case Tree u:amb({_*, Tree v, _*})    : if (v.vertical) insert u[vertical=true]; else fail;
+     case char(10) : return t[vertical=true];
   }
 }
 
 list[Figure] ambMap(appl(Production p, list[Tree] args)) {
   list[list[Tree]] blocks = [];
   
-   while ([*Tree pre, Tree t, *Tree post] := args, t@vertical) {
+   while ([*Tree pre, Tree t, *Tree post] := args, t.vertical) {
      blocks += [pre + t];
      args = post;
    };

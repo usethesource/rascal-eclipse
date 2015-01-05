@@ -34,10 +34,10 @@ public Program checkPicoProgram(Program x) {
 	env = checkProgram(p);
 	errors = { error(v, l) | <loc l, PicoId v> <- env.errors };
 	if(!isEmpty(errors))
-		return x[@messages = errors];
+		return x[messages = errors];
     ids = uninitProgram(p);
 	warnings = { warning("Variable <v> maybe uninitialized", l) | <loc l, PicoId v, STATEMENT s> <- ids };
-	return x[@messages = warnings];
+	return x[messages = warnings];
 }
 
 // /*4*/ Define the connection with the Pico evaluator

@@ -21,7 +21,7 @@ public void registerContributions() {
 	});
 	registerContributions("Turing L2", 
 		{annotator(Tree (Tree t) {
-		  return t[@messages=check(load(t))];
+		  return t[messages=check(load(t))];
 		}),
 		outliner(node (Tree t) {
 		  return turing2outline(load(t));

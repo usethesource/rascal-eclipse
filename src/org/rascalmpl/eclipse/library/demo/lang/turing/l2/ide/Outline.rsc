@@ -8,10 +8,10 @@ import List;
 public node turing2outline(Program p) = "program"(stats2outline(p.statements));
 
 public node stat2outline(l:loop(n, ss)) 
-  = "loop"(stats2outline(ss))[@label="rep <n>"][@\loc=l@location];
+  = "loop"(stats2outline(ss),label="rep <n>",src=l.location);
 
 public default node stat2outline(Statement s) 
-  = "stat"()[@label=format(stat2box(s))][@\loc=s@location];
+  = "stat"(label=format(stat2box(s)),src=s.location);
 
 public list[node] stats2outline(list[Statement] ss) {
   result = while (ss != []) {
@@ -19,7 +19,7 @@ public list[node] stats2outline(list[Statement] ss) {
     if (h is label) {
       kids = takeWhile(ss, bool(Statement s) { return !(s is label); });
       ss = drop(size(kids), ss);
-      append "labeled"([stat2outline(k) | k <- kids])[@label=h.name][@\loc=h@location]; 
+      append "labeled"([stat2outline(k) | k <- kids],label=h.name,src=h.location); 
     }
     else {
       append stat2outline(h);

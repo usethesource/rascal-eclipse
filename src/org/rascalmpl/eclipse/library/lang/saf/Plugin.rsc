@@ -59,15 +59,15 @@ private void dumpXML(start[Fighter] fighter, loc sel) {
 private node outlineSAF(start[Fighter] fighter) {
   // .specs (or any field) does not work start[Fighter]
   // <- on start does not work either
-  attrs = ["attr"()[@label="<s.name>: <s.strength>"][@\loc=s@\loc] | /Spec s := fighter, s is attribute ];
+  attrs = ["attr"(label="<s.name>: <s.strength>",src=s.src) | /Spec s := fighter, s is attribute ];
   behvs = ["behv"(
-         "move"()[@label="move: <s.move>"][@\loc=((s.move)@\loc)],
-         "fight"()[@label="fight: <s.fight>"][@\loc=((s.fight)@\loc)]
-      )[@label="<s.cond>"][@\loc=s@\loc] | /Spec s := fighter, s is behavior ];
+         "move"(label="move: <s.move>",src=((s.move).src)),
+         "fight"(label="fight: <s.fight>",src=((s.fight).src))
+      ,label="<s.cond>",src=s.src) | /Spec s := fighter, s is behavior ];
   name = ( "" | "<f.name>" | /Fighter f := fighter );
   return "fighter"(
-            "attrs"(attrs)[@label="Strengths"],
-            "behvs"(behvs)[@label="Behaviors"]
-          )[@label="<name>"][@\loc=fighter@\loc];
+            "attrs"(attrs,label="Strengths"),
+            "behvs"(behvs,label="Behaviors")
+          ,label="<name>",src=fighter.src);
 }
 

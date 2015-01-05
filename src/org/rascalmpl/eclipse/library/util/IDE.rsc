@@ -46,7 +46,7 @@ registerLanguage("The ABC language", "abc", abc);
 // After this, your __current__ Eclipse instance will start editors for all files ending in `.abc` and parse them using the `abc` function. The editor will provide some default highlighting features.
 //
 // To add annotations to trees, just after parsing, you should register an 'annotator' function:
-registerAnnotator("abc", Tree (Tree t) { return t[@doc="Hello!"]; });
+registerAnnotator("abc", Tree (Tree t) { return t[doc="Hello!"]; });
 </screen>
 
 
