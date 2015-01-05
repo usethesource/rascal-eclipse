@@ -98,18 +98,6 @@ data Menu
   
 
 @doc{
-Synopsis: Annotate an outline node with a label.
-}
-
-anno str node@label;
-
-@doc{
-Synopsis: Annotate an outline node with a link.
-}
-anno loc node@\loc;  // a link for an outline node
-
-
-@doc{
 Synopsis: Register a language extension and a parser for use in Eclipse.
 }
 @reflect{Use the evaluator to parse editor contents and apply functions to parse trees}
