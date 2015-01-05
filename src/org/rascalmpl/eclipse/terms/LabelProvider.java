@@ -58,7 +58,7 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 
 					public String visitConstructor(IConstructor o)
 					 {
-						IValue img = o.asAnnotatable().getAnnotation("label");
+						IValue img = o.asWithKeywordParameters().getParameter("label");
 						if (img != null) {
 							if (img instanceof IString) {
 								return ((IString) img).getValue();
@@ -96,7 +96,7 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 					}
 
 					public String visitNode(INode o)  {
-						IValue label = o.asAnnotatable().getAnnotation("label");
+						IValue label = o.asWithKeywordParameters().getParameter("label");
 						if (label != null) {
 							if (label instanceof IString) {
 								return ((IString) label).getValue();

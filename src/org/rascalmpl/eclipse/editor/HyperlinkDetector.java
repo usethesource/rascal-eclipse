@@ -58,7 +58,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 	}
 
 	private IHyperlink[] getTreeLinks(IConstructor tree, IRegion region, IEvaluatorContext eval, String currentProject) {
-		IValue xref = tree.asAnnotatable().getAnnotation("hyperlinks");
+		IValue xref = tree.asWithKeywordParameters().getParameter("hyperlinks");
 		if (xref != null) {
 			if (xref.getType().isSet() && xref.getType().getElementType().isTuple() 
 					&& xref.getType().getElementType().getFieldType(0).isSourceLocation()

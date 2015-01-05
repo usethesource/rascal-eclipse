@@ -76,7 +76,7 @@ public class RunStaticChecker extends AbstractEditorAction {
 				if (newTree != null) {
 					IConstructor treeTop = parseTree;
 					IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
-					IConstructor newTreeTop = treeTop.set("args", treeArgs).asAnnotatable().setAnnotation("loc", treeTop.asAnnotatable().getAnnotation("loc")).asAnnotatable().setAnnotation("docStrings", newTree.asAnnotatable().getAnnotation("docStrings")).asAnnotatable().setAnnotation("docLinks", newTree.asAnnotatable().getAnnotation("docLinks"));
+					IConstructor newTreeTop = TreeAdapter.setLocation(TreeAdapter.setArgs(treeTop, treeArgs), TreeAdapter.getLocation(treeTop)).asWithKeywordParameters().setParameter("docStrings", newTree.asWithKeywordParameters().getParameter("docStrings")).asWithKeywordParameters().setParameter("docLinks", newTree.asWithKeywordParameters().getParameter("docLinks"));
 					parseTree = newTreeTop;
 					handler.clearMessages();
 					marker.process(parseTree, handler);
