@@ -50,12 +50,12 @@ public class TermQuickFixAssistant implements IQuickFixAssistant {
 	}
 
 	private void constructProposals(IConstructor ast, int problemOffset, Collection<ICompletionProposal> proposals) {
-		IAnnotatable<? extends IConstructor> annotatedAst = ast.asAnnotatable();
-		if (!annotatedAst.hasAnnotation(ANNOTATION_MESSAGES)) {
+		IWithKeywordParameters<? extends IConstructor> annotatedAst = ast.asWithKeywordParameters();
+		ISet annotations = (ISet) annotatedAst.getParameter(ANNOTATION_MESSAGES);
+		
+		if (annotations == null) {
 			return;
 		}
-		
-		ISet annotations = (ISet) annotatedAst.getAnnotation(ANNOTATION_MESSAGES);
 		
 		for (IValue annotation : annotations) {
 			IConstructor cons = (IConstructor) annotation;

@@ -38,28 +38,28 @@ public class DocumentationProvider  implements IDocumentationProvider {
 	}
 
 	private String getDocString(IConstructor arg, IConstructor top) {
-		IValue val = arg.asAnnotatable().getAnnotation("doc");
+		IValue val = arg.asWithKeywordParameters().getParameter("doc");
 
 		if (val != null && val.getType().isString()) {
 				return ((IString) val).getValue();
 		}
 		
 		if (top != null && top.getType() == Factory.Tree) {
-			IValue vals = arg.asAnnotatable().getAnnotation("docs");
+			IValue vals = arg.asWithKeywordParameters().getParameter("docs");
 			
 			if (vals != null 
 					&& vals.getType().isMap() 
 					&& vals.getType().getKeyType().isSourceLocation() 
 					&& vals.getType().getValueType().isString()) {
 				IMap map = (IMap) vals;
-				ISourceLocation loc = (ISourceLocation) arg.asAnnotatable().getAnnotation("loc");
+				ISourceLocation loc = (ISourceLocation) arg.asWithKeywordParameters().getParameter("src");
 				if (loc != null) {
 					return ((IString) map.get(loc)).getValue();
 				}
 			}
 
-			IValue docStringsMapValue = top.asAnnotatable().getAnnotation("docStrings");
-			IValue loc = arg.asAnnotatable().getAnnotation("loc");
+			IValue docStringsMapValue = top.asWithKeywordParameters().getParameter("docStrings");
+			IValue loc = arg.asAnnotatable().getAnnotation("src");
 			if (docStringsMapValue != null && docStringsMapValue.getType().isMap() && loc != null && loc.getType().isSourceLocation()) {
 				IMap docStringsMap = (IMap)docStringsMapValue;
 				if (docStringsMap.containsKey(loc)) { 

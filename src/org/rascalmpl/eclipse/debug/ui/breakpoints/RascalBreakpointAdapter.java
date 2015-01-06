@@ -205,11 +205,9 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 					ISourceLocation sourceLocation = ((ISourceLocation) locationAnnotation);
 					
 					if(sourceLocation.getBeginLine() == lineNumber){
-						Map<String, IValue> annotations = o.asAnnotatable().getAnnotations();
+						IValue br = o.asWithKeywordParameters().getParameter("breakable");
 						
-						if (annotations != null 
-								&& annotations.containsKey("breakable")
-								&& annotations.get("breakable").equals(VF.bool(true))) {
+						if (br != null && br.equals(VF.bool(true))) {
 							location = sourceLocation;
 							throw new Exception("Stop");
 						}

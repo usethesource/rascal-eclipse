@@ -44,7 +44,7 @@ public class MessagesTo {
 			anno = tree.asWithKeywordParameters().getParameter("messages");
 			
 			if (anno != null && anno.getType().isSet()) {
-				process((ISourceLocation) tree.asAnnotatable().getAnnotation("loc"),  (ISet) anno, handler);
+				process((ISourceLocation) tree.asWithKeywordParameters().getParameter("src"),  (ISet) anno, handler);
 				return; // we do not recurse if we found messages (for efficiency)
 			}
 			
