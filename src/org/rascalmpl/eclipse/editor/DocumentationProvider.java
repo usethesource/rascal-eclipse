@@ -59,7 +59,7 @@ public class DocumentationProvider  implements IDocumentationProvider {
 			}
 
 			IValue docStringsMapValue = top.asWithKeywordParameters().getParameter("docStrings");
-			IValue loc = arg.asAnnotatable().getAnnotation("src");
+			IValue loc = arg.asWithKeywordParameters().getParameter("src");
 			if (docStringsMapValue != null && docStringsMapValue.getType().isMap() && loc != null && loc.getType().isSourceLocation()) {
 				IMap docStringsMap = (IMap)docStringsMapValue;
 				if (docStringsMap.containsKey(loc)) { 
