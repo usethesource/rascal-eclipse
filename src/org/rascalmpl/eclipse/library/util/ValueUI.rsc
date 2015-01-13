@@ -44,12 +44,13 @@ public void diagnoseAmbiguity(Tree x) {
 
 @javaClass{org.rascalmpl.eclipse.library.util.ValueUI}
 @doc{Starts an editor with an indented textual representation of any value}
+@deprecated
 public java void text(value v, int indent);
 
 @doc{Starts an editor with an indented textual representation of any value}
 @label{Indented value in editor}
-public void text(value v) {
-  text(v, 2);
+public void text(value v, int indent=2) {
+  text(v, indent);
 }
 
 @javaClass{org.rascalmpl.eclipse.library.util.ValueUI}
