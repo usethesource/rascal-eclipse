@@ -7,7 +7,6 @@ Bundle-Version: 0.7.2.qualifier
 Bundle-Activator: org.rascalmpl.eclipse.Activator
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.imp.pdb.ui,
- org.eclipse.imp.pdb.values,
  org.eclipse.imp.runtime,
  ambidexter,
  org.eclipse.core.runtime,
@@ -25,7 +24,6 @@ Require-Bundle: org.eclipse.imp.pdb.ui,
  org.eclipse.pde.core,
  org.eclipse.jdt.launching,
  org.eclipse.ui.views;bundle-version="3.6.0",
- rascal,
  org.eclipse.ui.navigator,
  org.eclipse.ui.navigator.resources
 Export-Package: org.rascalmpl.eclipse.nature,
@@ -38,3 +36,5 @@ Export-Package: org.rascalmpl.eclipse.nature,
   org.rascalmpl.eclipse.uri,
   org.rascalmpl.eclipse.wizards
 Import-Package: org.eclipse.core.expressions
+Bundle-ClassPath: .,
+  lib/rascal-shell-0.7.2-SNAPSHOT.jar

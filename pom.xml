@@ -17,33 +17,119 @@
 		<developerConnection>scm:git:https://github.com/cwi-swat/rascal-eclipse.git</developerConnection>
 	</scm>
 
-	<!-- Used to trigger upstream projects in Jenkins  -->
+	<!-- Used to trigger upstream projects in Jenkins -->
 	<dependencies>
-		<dependency>
-			<groupId>org.eclipse.imp</groupId>
-			<artifactId>org.eclipse.imp.pdb.ui</artifactId>
-			<version>0.4.0.qualifier</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.imp</groupId>
-			<artifactId>org.eclipse.imp.pdb.values</artifactId>
-			<version>0.4.1.qualifier</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.imp</groupId>
-			<artifactId>org.eclipse.imp.runtime</artifactId>
-			<version>0.2.1.qualifier</version>
-		</dependency>
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
 			<artifactId>rascal</artifactId>
-			<version>0.7.2.qualifier</version>
-		</dependency>
-		<dependency>
-			<groupId>org.rascalmpl</groupId>
-			<artifactId>ambidexter</artifactId>
-			<version>1.2.0.qualifier</version>
+			<version>0.7.2-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
- 
+
+<!-- 	<build> -->
+	
+<!-- 		<sourceDirectory>src</sourceDirectory> -->
+<!-- 		<resources> -->
+<!-- 			<resource> -->
+<!-- 				<directory>src</directory> -->
+<!-- 				<excludes> -->
+<!-- 					<exclude>**/*.java</exclude> -->
+<!-- 					<exclude>**/*.class</exclude> -->
+<!-- 				</excludes> -->
+<!-- 			</resource> -->
+<!-- 			<resource> -->
+<!-- 				<directory>.</directory> -->
+<!-- 				<filtering>false</filtering> -->
+<!-- 				<includes> -->
+<!-- 					<include>plugin.xml</include> -->
+<!-- 					<include>META-INF/RASCAL.MF</include> -->
+<!-- 				</includes> -->
+<!-- 			</resource> -->
+<!-- 		</resources> -->
+<!-- 		<testSourceDirectory>test</testSourceDirectory> -->
+<!-- 		<testResources> -->
+<!-- 			<testResource> -->
+<!-- 				<directory>test</directory> -->
+<!-- 				<excludes> -->
+<!-- 					<exclude>**/*.java</exclude> -->
+<!-- 					<exclude>**/*.class</exclude> -->
+<!-- 				</excludes> -->
+<!-- 			</testResource> -->
+<!-- 		</testResources> -->
+
+<!-- 		<plugins> -->
+
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.apache.felix</groupId> -->
+<!-- 				<artifactId>maven-bundle-plugin</artifactId> -->
+<!-- 				<extensions>true</extensions> -->
+<!-- 				<configuration> -->
+<!-- 					<instructions> -->
+<!-- 						<_include>META-INF/MANIFEST.MF</_include> -->
+<!-- 						<Embed-Dependency> -->
+<!-- 							*; -->
+<!-- 						</Embed-Dependency> -->
+<!-- 						<_exportcontents> org.rascalmpl.values.*;version="0.7.2" </_exportcontents> -->
+<!-- 						<Bundle-ClassPath>{maven-dependencies}</Bundle-ClassPath> -->
+<!-- 						<Embed-Transitive>true</Embed-Transitive> -->
+<!-- 						<Embed-Directory>jars</Embed-Directory> -->
+<!-- 						<_failok>true</_failok> -->
+<!-- 						<_nouses>true</_nouses> -->
+<!-- 					</instructions> -->
+<!-- 				</configuration> -->
+<!-- 			</plugin> -->
+<!-- 		</plugins> -->
+
+<!-- 		<pluginManagement> -->
+<!-- 			<plugins> -->
+<!-- 				<plugin> -->
+<!-- 					<groupId>org.eclipse.m2e</groupId> -->
+<!-- 					<artifactId>lifecycle-mapping</artifactId> -->
+<!-- 					<version>1.0.0</version> -->
+<!-- 					<configuration> -->
+<!-- 						<lifecycleMappingMetadata> -->
+<!-- 							<lifecycleMappings> -->
+<!-- 								<lifecycleMapping> -->
+<!-- 									<packagingType>bundle</packagingType> -->
+<!-- 									<lifecycleMappingId>org.sonatype.tycho.m2e.wrapperBundle</lifecycleMappingId> -->
+<!-- 								</lifecycleMapping> -->
+<!-- 							</lifecycleMappings> -->
+<!-- 							<pluginExecutions> -->
+<!-- 								<pluginExecution> -->
+<!-- 									<pluginExecutionFilter> -->
+<!-- 										<groupId>org.apache.felix</groupId> -->
+<!-- 										<artifactId>maven-bundle-plugin</artifactId> -->
+<!-- 										<versionRange>2.5.3</versionRange> -->
+<!-- 										<goals> -->
+<!-- 											<goal>bundle</goal> -->
+<!-- 										</goals> -->
+<!-- 									</pluginExecutionFilter> -->
+<!-- 									<action> -->
+<!-- 										<configurator> -->
+<!-- 											<id>org.sonatype.tycho.m2e.wrapperBundle</id> -->
+<!-- 										</configurator> -->
+<!-- 									</action> -->
+<!-- 								</pluginExecution> -->
+<!-- 								<pluginExecution> -->
+<!-- 									<pluginExecutionFilter> -->
+<!-- 										<groupId>org.apache.felix</groupId> -->
+<!-- 										<artifactId>maven-bundle-plugin</artifactId> -->
+<!-- 										<versionRange>2.5.3</versionRange> -->
+<!-- 										<goals> -->
+<!-- 											<goal>manifest</goal> -->
+<!-- 										</goals> -->
+<!-- 									</pluginExecutionFilter> -->
+<!-- 									<action> -->
+<!-- 										<ignore /> -->
+<!-- 									</action> -->
+<!-- 								</pluginExecution> -->
+<!-- 							</pluginExecutions> -->
+<!-- 						</lifecycleMappingMetadata> -->
+<!-- 					</configuration> -->
+<!-- 				</plugin> -->
+<!-- 			</plugins> -->
+<!-- 		</pluginManagement> -->
+
+<!-- 	</build> -->
+
 </project>
