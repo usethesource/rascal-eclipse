@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.services.IDocumentationProvider;
 import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 /*
  * Assuming the innermost lexical node in the parse tree is given,  we simply return the annotation labeled
@@ -52,14 +53,14 @@ public class DocumentationProvider  implements IDocumentationProvider {
 					&& vals.getType().getKeyType().isSourceLocation() 
 					&& vals.getType().getValueType().isString()) {
 				IMap map = (IMap) vals;
-				ISourceLocation loc = (ISourceLocation) arg.asWithKeywordParameters().getParameter("src");
+				ISourceLocation loc = TreeAdapter.getLocation(arg);
 				if (loc != null) {
 					return ((IString) map.get(loc)).getValue();
 				}
 			}
 
 			IValue docStringsMapValue = top.asWithKeywordParameters().getParameter("docStrings");
-			IValue loc = arg.asWithKeywordParameters().getParameter("src");
+			IValue loc = TreeAdapter.getLocation(arg);
 			if (docStringsMapValue != null && docStringsMapValue.getType().isMap() && loc != null && loc.getType().isSourceLocation()) {
 				IMap docStringsMap = (IMap)docStringsMapValue;
 				if (docStringsMap.containsKey(loc)) { 
