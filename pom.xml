@@ -17,16 +17,56 @@
 		<developerConnection>scm:git:https://github.com/cwi-swat/rascal-eclipse.git</developerConnection>
 	</scm>
 
-	<!-- Used to trigger upstream projects in Jenkins -->
 	<dependencies>
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
-			<artifactId>rascal</artifactId>
+			<artifactId>rascal-shell</artifactId>
 			<version>0.7.2-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
-<!-- 	<build> -->
+	<build>
+		<plugins>
+			<plugin>
+				<!-- Copy non-Ecipse plugins to target/dependency so that may be referenced 
+					for runtime use. -->
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.9</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.rascalmpl</groupId>
+									<artifactId>rascal-shell</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${basedir}/lib</outputDirectory>
+									<destFileName>rascal-shell.jar</destFileName>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+					<execution>
+						<id>classpath</id>
+						<goals>
+							<goal>build-classpath</goal>
+						</goals>
+						<configuration>
+							<fileSeparator>/</fileSeparator>
+							<prefix>lib</prefix>
+							<outputFile>${project.build.directory}/classPath.txt</outputFile>
+              				<excludeTransitive>true</excludeTransitive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 	
 <!-- 		<sourceDirectory>src</sourceDirectory> -->
 <!-- 		<resources> -->
@@ -130,6 +170,6 @@
 <!-- 			</plugins> -->
 <!-- 		</pluginManagement> -->
 
-<!-- 	</build> -->
+	</build>
 
 </project>

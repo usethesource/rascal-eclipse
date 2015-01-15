@@ -8,5 +8,6 @@
 			<accessrule kind="accessible" pattern="*"/>
 		</accessrules>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/rascal-shell.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

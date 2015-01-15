@@ -6,8 +6,7 @@ Bundle-SymbolicName: rascal_eclipse;singleton:=true
 Bundle-Version: 0.7.2.qualifier
 Bundle-Activator: org.rascalmpl.eclipse.Activator
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.eclipse.imp.pdb.ui,
- org.eclipse.imp.runtime,
+Require-Bundle: org.eclipse.imp.runtime,
  ambidexter,
  org.eclipse.core.runtime,
  org.eclipse.debug.ui,
@@ -37,4 +36,4 @@ Export-Package: org.rascalmpl.eclipse.nature,
   org.rascalmpl.eclipse.wizards
 Import-Package: org.eclipse.core.expressions
 Bundle-ClassPath: .,
-  lib/rascal-shell-0.7.2-SNAPSHOT.jar
+  lib/rascal-shell.jar

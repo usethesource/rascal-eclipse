@@ -15,12 +15,7 @@ local.properties
 # maven stuff
 target/
 launch/
-/bin
-/bin
-/bin
-/bin
-/bin
-/bin
-/bin
-/bin
-/bin
+
+# copied-dependencies
+lib
+lib/**

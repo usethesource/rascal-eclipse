@@ -966,4 +966,44 @@
          <supportedMarkerType></supportedMarkerType>
       </quickFixAssistant>
    </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.eclipse.imp.pdb.ui.graph.Editor"
+            default="false"
+            id="org.eclipse.imp.pdb.ui.graph.editor"
+            icon="icons/graphEditor.gif"
+            name="PDB Value Graph">
+      </editor>
+      <editor
+            class="org.eclipse.imp.pdb.ui.tree.Editor"
+            default="false"
+            icon="icons/graphEditor.gif"
+            id="org.eclipse.imp.pdb.ui.tree.editor"
+            name="Value Tree Editor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            id="org.eclipse.imp.pdb.ui.tree.contributions"
+            targetID="org.eclipse.imp.pdb.ui.tree.editor">
+         <action
+               class="org.eclipse.imp.pdb.ui.tree.ExpandAll"
+               id="org.eclipse.imp.pdb.ui.tree.expandAll"
+               label="Expand All"
+               menubarPath="additions"
+               style="push"
+               toolbarPath="additions">
+         </action>
+         <action
+               class="org.eclipse.imp.pdb.ui.tree.CollapseAll"
+               id="org.eclipse.imp.pdb.ui.tree.collapseAll"
+               label="Collapse All"
+               menubarPath="additions"
+               style="push"
+               toolbarPath="additions">
+         </action>
+      </editorContribution>
+   </extension>   
 </plugin>
