@@ -8,6 +8,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
@@ -41,7 +42,9 @@ public class NavigatorActionProvider extends CommonActionProvider {
       if (store != null) {
         if (!store.fetchInfo().isDirectory()) {
           try {
-            IDE.openEditor(page, store.toURI(), UniversalEditor.EDITOR_ID, true);
+        	  IEditorInput res = new LibraryFileStoreEditorInput(new LibraryFileStoreStorage(store));
+        	  IDE.openEditor(page, res, UniversalEditor.EDITOR_ID, true);
+        	  Activator.log("could not open editor for " + store, new NullPointerException());
           } catch (PartInitException e) {
             Activator.log("could not open editor for " + store, e);
           } 
@@ -87,7 +90,4 @@ public class NavigatorActionProvider extends CommonActionProvider {
       menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openAction);
     }
   }
-
-
-
 }

@@ -13,8 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
-import java.util.Map;
-
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -24,7 +22,8 @@ import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
 import org.eclipse.debug.core.sourcelookup.containers.ProjectSourceContainer;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
-import org.rascalmpl.eclipse.navigator.RascalLibraryFileSystem;
+import org.rascalmpl.eclipse.navigator.LibraryFileSystem;
+import org.rascalmpl.uri.URIUtil;
 
 public class RascalSourcePathComputerDelegate implements ISourcePathComputerDelegate {
 
@@ -40,20 +39,14 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 		 */
 		if (configurationUtility.hasAssociatedProject()) {
 			IProject associatedProject = configurationUtility.getAssociatedProject();
-			RascalLibraryFileSystem fileSystem = RascalLibraryFileSystem.getInstance();
-	    Map<String,IFileStore> roots = fileSystem.getRoots();
+			LibraryFileSystem fileSystem = LibraryFileSystem.getInstance();
+	        IFileStore lib = fileSystem.getStore(URIUtil.assumeCorrect(LibraryFileSystem.SCHEME, associatedProject.getName(), ""));
 
-			ISourceContainer[] sourceContainers = new ISourceContainer[roots.size() + 2];
-			
-			int i = 0;
-			sourceContainers[i++] = new ProjectSourceContainer(associatedProject, true);
-			sourceContainers[i++] = new DummyConsoleSourceContainer();
-			
-			for (IFileStore lib : roots.values()) {
-        sourceContainers[i++] = new FileStoreSourceContainer(lib, true);
-			}
-			
-			return sourceContainers;
+	        return new ISourceContainer[] {
+	        		new ProjectSourceContainer(associatedProject, true),
+	        		new DummyConsoleSourceContainer(),
+	        		new FileStoreSourceContainer(lib, true)
+	        };
 		} else {
 			/* default case */
 			return new ISourceContainer[]{new DummyConsoleSourceContainer()};			

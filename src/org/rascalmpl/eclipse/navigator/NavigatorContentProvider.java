@@ -1,7 +1,5 @@
 package org.rascalmpl.eclipse.navigator;
 
-import java.util.Map;
-
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
@@ -27,10 +25,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.uri.URIUtil;
 
 public class NavigatorContentProvider implements ITreeContentProvider, IResourceChangeListener,
 	IResourceDeltaVisitor {
-  private Map<IFileStore,RascalLibraryContent> libraries;
   public TreeViewer _viewer;
 
   public NavigatorContentProvider() {
@@ -72,24 +70,14 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
     return new Object[] { };
   }
 
-  private Object[] getProjectSearchPath() {
+  private IFileStore getProjectSearchPath(IProject project) {
     try {
-      RascalLibraryFileSystem fd = RascalLibraryFileSystem.getInstance();
-      Map<String, IFileStore> libs = fd.getRoots();
-      Object[] roots = new Object[libs.size()];
-      int i = 0;
-      
-      // TODO: add check if library is referenced in RASCAL.MF
-      for (String key : libs.keySet()) {
-        roots[i++] = new RascalLibraryContent(key, libs.get(key));
-      }
-      
-      return roots;
-    } catch (CoreException e) {
+      return EFS.getFileSystem(LibraryFileSystem.SCHEME).getStore(URIUtil.assumeCorrect(LibraryFileSystem.SCHEME, project.getName(), ""));
+    } 
+    catch (CoreException e) {
       Activator.log(e.getMessage(), e);
+      return null;
     }
-    
-    return new Object[] {};
   }
 
   @Override
@@ -116,13 +104,14 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
         IProject project = (IProject) parentElement;
 
         if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
-          Object[] libraries = getProjectSearchPath();
           IResource[] members = project.members();
-          Object[] result = new Object[members.length + libraries.length];
+          IFileStore library = getProjectSearchPath(project);
+          Object[] result = new Object[members.length + (library != null ? 1 : 0)];
           
           System.arraycopy(members, 0, result, 0, members.length);
-          System.arraycopy(libraries, 0, result, members.length, libraries.length);
-          
+          if (library != null) {
+        	  result[members.length] = library;
+          }
           return result;
         }
         else if (project.isOpen()) {
@@ -134,9 +123,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
       }
       else if (parentElement instanceof IFileStore) {
         return ((IFileStore) parentElement).childStores(EFS.NONE, null);
-      }
-      else if (parentElement instanceof RascalLibraryContent) {
-        return ((RascalLibraryContent) parentElement).getContent();
       }
     } catch (CoreException e) {
       Activator.log(e.getMessage(), e);
@@ -164,12 +150,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
     else if (element instanceof IResource) {
       return ((IResource) element).getParent();
     } 
-    else if (element instanceof IFileStore) {
-      IFileStore parent = ((IFileStore) element).getParent();
-      if (libraries != null && parent != null && libraries.containsKey(parent)) {
-        return libraries.get(parent);
-      }
-    }
     
     return null;
   }

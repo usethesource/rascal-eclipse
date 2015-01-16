@@ -15,10 +15,7 @@ public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
   
   @Override
   public String getText(Object element) {
-    if (element instanceof RascalLibraryContent) {
-      return ((RascalLibraryContent) element).getName();
-    }
-    else if (element instanceof IFileStore) {
+    if (element instanceof IFileStore) {
       return ((IFileStore) element).getName();
     }
     else {
@@ -28,7 +25,7 @@ public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
   
   @Override
   public StyledString getStyledText(Object element) {
-    if (element instanceof RascalLibraryContent || element instanceof IFileStore) {
+    if (element instanceof IFileStore) {
       return new StyledString(getText(element));
     }
     return super.getStyledText(element);
@@ -36,11 +33,12 @@ public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
   
   @Override
   public Image getImage(Object element) {
-    if (element instanceof RascalLibraryContent) {
-      return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_JAR_WITH_SOURCE);
-    }
-    else if (element instanceof IFileStore) {
+    if (element instanceof IFileStore) {
         IFileStore curr = (IFileStore) element;
+        
+        if (curr.getParent() == null) {
+        	return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_JAR_WITH_SOURCE);
+        }
         if (curr.fetchInfo().isDirectory()) {
           return PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FOLDER);
         }
