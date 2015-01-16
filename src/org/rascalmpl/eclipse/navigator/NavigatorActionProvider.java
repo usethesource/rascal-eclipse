@@ -44,7 +44,6 @@ public class NavigatorActionProvider extends CommonActionProvider {
           try {
         	  IEditorInput res = new LibraryFileStoreEditorInput(new LibraryFileStoreStorage(store));
         	  IDE.openEditor(page, res, UniversalEditor.EDITOR_ID, true);
-        	  Activator.log("could not open editor for " + store, new NullPointerException());
           } catch (PartInitException e) {
             Activator.log("could not open editor for " + store, e);
           } 
