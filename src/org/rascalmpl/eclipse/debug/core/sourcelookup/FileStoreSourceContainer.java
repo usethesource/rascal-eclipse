@@ -9,12 +9,13 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourceContainerType;
 import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
+import org.rascalmpl.eclipse.uri.URIStorage;
 
 public class FileStoreSourceContainer implements ISourceContainer {
   private boolean fSubfolders = false;
-  private IFileStore fRootFile = null;
+  private URIStorage fRootFile = null;
 
-  public FileStoreSourceContainer(IFileStore root, boolean subfolders) {
+  public FileStoreSourceContainer(URIStorage root, boolean subfolders) {
     fRootFile = root;
   }
   
@@ -27,13 +28,13 @@ public class FileStoreSourceContainer implements ISourceContainer {
     // To prevent the interruption of the search procedure we check 
     // if the path is valid before passing it to "getFile".   
 
-    IFileStore target = fRootFile.getFileStore(new Path(name));
-    if (target.fetchInfo().exists()) {
-      sources.add(target);
+    URIStorage needle = fRootFile.makeChild(name);
+    if (needle.exists()) {
+      sources.add(needle);
     }         
 
     //check sub-folders   
-    if (sources.isEmpty() && fSubfolders && fRootFile.fetchInfo().isDirectory()) {
+    if (sources.isEmpty() && fSubfolders && fRootFile.isDirectory()) {
       ISourceContainer[] children = getSourceContainers();
          
       for (ISourceContainer child : children) {
@@ -86,11 +87,11 @@ public class FileStoreSourceContainer implements ISourceContainer {
 
   @Override
   public ISourceContainer[] getSourceContainers() throws CoreException {
-    IFileStore[] children = fRootFile.childStores(EFS.NONE, null);
+    String[] children = fRootFile.listEntries();
     ISourceContainer[] conts = new ISourceContainer[children.length];
     
     for (int i=0; i < children.length; i++) {
-      conts[i] = new FileStoreSourceContainer(children[i], fSubfolders);
+      conts[i] = new FileStoreSourceContainer(fRootFile.makeChild(children[i]), fSubfolders);
     }
     
     return conts;

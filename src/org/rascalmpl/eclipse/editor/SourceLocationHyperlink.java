@@ -82,7 +82,7 @@ public class SourceLocationHyperlink implements IHyperlink {
 		if (to == null) {
 			return;
 		}
-		EditorUtil.openAndSelectURI(to, eval, project);
+		EditorUtil.openAndSelectURI(to, eval.getResolverRegistry(), project);
 	}
 
 }

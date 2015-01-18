@@ -1,14 +1,14 @@
-package org.rascalmpl.eclipse.navigator;
+package org.rascalmpl.eclipse.uri;
 
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IStorageEditorInput;
 
-class LibraryFileStoreEditorInput implements IStorageEditorInput {
-    private LibraryFileStoreStorage storage;
+public class URIEditorInput implements IStorageEditorInput {
+    private URIStorage storage;
     
-    LibraryFileStoreEditorInput(LibraryFileStoreStorage storage) {
+    public URIEditorInput(URIStorage storage) {
     	this.storage = storage;
     }
     
@@ -33,7 +33,7 @@ class LibraryFileStoreEditorInput implements IStorageEditorInput {
     }
     
     public String getToolTipText() {
-       return storage.getStore().toURI().toString();
+       return storage.getURI().toString();
     }
     
     public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {

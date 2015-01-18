@@ -13,7 +13,6 @@ package org.rascalmpl.eclipse.console.internal;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,10 +31,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.navigator.LibraryFileSystem;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
 
 public class TestReporter implements ITestResultListener {
 	private Map<IFile,List<Report>> reports;
@@ -139,12 +136,6 @@ public class TestReporter implements ITestResultListener {
 			}
 			
 			Activator.getInstance().logException("file " + uri + " not found", new RuntimeException());
-		}
-		else if (scheme.equals(LibraryFileSystem.SCHEME)) {
-			IFile [] files =ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
-			if (files.length > 0) {
-				return files[0];
-			}
 		}
 		else if (scheme.equals("rascal")) {
 			try {

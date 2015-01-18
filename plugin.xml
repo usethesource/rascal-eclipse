@@ -43,15 +43,6 @@
             id="rascal_eclipse.rascal_builder">
       </builder>
    </extension>
-   <extension
-         point="org.eclipse.core.filesystem.filesystems">
-      <filesystem
-            scheme="rascal-path">
-         <run
-               class="org.rascalmpl.eclipse.navigator.LibraryFileSystem">
-         </run>
-      </filesystem>
-   </extension>
 
    <extension
          point="org.eclipse.imp.runtime.languageDescription">

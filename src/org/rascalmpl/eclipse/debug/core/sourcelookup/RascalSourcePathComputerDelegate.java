@@ -13,17 +13,19 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
-import org.eclipse.core.filesystem.IFileStore;
+import java.net.URI;
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
-import org.eclipse.debug.core.sourcelookup.containers.ProjectSourceContainer;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
-import org.rascalmpl.eclipse.navigator.LibraryFileSystem;
-import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
+import org.rascalmpl.eclipse.uri.URIStorage;
+import org.rascalmpl.interpreter.Evaluator;
 
 public class RascalSourcePathComputerDelegate implements ISourcePathComputerDelegate {
 
@@ -39,14 +41,18 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 		 */
 		if (configurationUtility.hasAssociatedProject()) {
 			IProject associatedProject = configurationUtility.getAssociatedProject();
-			LibraryFileSystem fileSystem = LibraryFileSystem.getInstance();
-	        IFileStore lib = fileSystem.getStore(URIUtil.assumeCorrect(LibraryFileSystem.SCHEME, associatedProject.getName(), ""));
-
-	        return new ISourceContainer[] {
-	        		new ProjectSourceContainer(associatedProject, true),
-	        		new DummyConsoleSourceContainer(),
-	        		new FileStoreSourceContainer(lib, true)
-	        };
+			Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(associatedProject);
+			List<URI> path = eval.getRascalResolver().collect();
+			ISourceContainer[] result = new ISourceContainer[path.size() + 1];
+			
+			int i = 0;
+			for (URI elem : path) {
+				result[i++] = new FileStoreSourceContainer(new URIStorage(eval.getResolverRegistry(), elem, true), true);
+			}
+			
+			result[i++] = new DummyConsoleSourceContainer();
+			
+			return result;
 		} else {
 			/* default case */
 			return new ISourceContainer[]{new DummyConsoleSourceContainer()};			
