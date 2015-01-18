@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,7 +29,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.UnsupportedSchemeException;
 
 public class RascalStackFrame extends RascalDebugElement implements IStackFrame {
 
@@ -269,33 +267,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 * @see URIResolverRegistry#getResourceURI(java.net.URI)
 	 */	
 	public boolean hasSourceName() {
-		boolean result = false;
-			
-		if (location != null) {
-		  ISourceLocation l = location;
-		  
-		  if (l.getScheme().equals("rascal")) {
-		    l = getRascalDebugTarget().getConsole().getInterpreter().getEval().getRascalResolver().resolve(l);
-		  }
-		  
-			try {
-				getRascalDebugTarget()
-						.getDebuggableURIResolverRegistry()
-						.getResourceURI(l.getURI());
-			
-				result = true;
-
-			} catch (UnsupportedSchemeException e) {
-				/* in case the the schema is not supported for source lookup */
-				result = false;
-			
-			} catch (IOException e) {
-				/* should not be thrown */
-				throw new RuntimeException(e);
-			}
-		}
-		
-		return result;		
+		return location != null;
 	}
 	
 	/**

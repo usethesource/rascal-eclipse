@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.core.sourcelookup.AbstractSourceLookupDirector;
 import org.eclipse.debug.core.sourcelookup.ISourceLookupParticipant;

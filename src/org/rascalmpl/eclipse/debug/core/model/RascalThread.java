@@ -20,7 +20,6 @@ import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestStepOve
 import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestSuspension;
 import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestTermination;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -31,10 +30,8 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.InterpreterEvent;
