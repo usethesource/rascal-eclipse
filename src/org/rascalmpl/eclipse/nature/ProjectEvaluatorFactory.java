@@ -44,6 +44,7 @@ import org.osgi.framework.wiring.BundleWiring;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.eclipse.uri.BundleURIResolver;
+import org.rascalmpl.eclipse.uri.PluginURIResolver;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.interpreter.Evaluator;
@@ -150,6 +151,7 @@ public class ProjectEvaluatorFactory {
 		resolverRegistry.registerOutput(bundleResolver);
 
 		resolverRegistry.registerInput(new JarURIResolver());
+		resolverRegistry.registerInput(new PluginURIResolver(resolverRegistry));
 		
 		evaluator.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
 
@@ -290,7 +292,7 @@ public class ProjectEvaluatorFactory {
     
     for (String root : roots) {
       // TODO: add check to see if library is referenced in RASCAL.MF
-      evaluator.addRascalSearchPath(bundle.getResource(root).toURI());
+      evaluator.addRascalSearchPath(URIUtil.assumeCorrect("plugin", bundle.getSymbolicName(), "/" + root));
     }
     
     evaluator.addClassLoader(new BundleClassLoader(bundle));
@@ -408,11 +410,11 @@ public class ProjectEvaluatorFactory {
 
 	  if (srcs != null) {
 		  for (String root : srcs) {
-			  eval.addRascalSearchPath(bundle.getEntry(root.trim()).toURI());
+			  eval.addRascalSearchPath(URIUtil.assumeCorrect("plugin", bundle.getSymbolicName(), "/" + root.trim()));
 		  }
 	  }
 	  else {
-		  eval.addRascalSearchPath(bundle.getEntry("/").toURI());
+		  eval.addRascalSearchPath(URIUtil.assumeCorrect("plugin", bundle.getSymbolicName(), "/"));
 	  }
   }
 

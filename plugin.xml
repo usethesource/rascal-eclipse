@@ -43,15 +43,6 @@
             id="rascal_eclipse.rascal_builder">
       </builder>
    </extension>
-   <extension
-         point="org.eclipse.core.filesystem.filesystems">
-      <filesystem
-            scheme="rascal-library">
-         <run
-               class="org.rascalmpl.eclipse.navigator.RascalLibraryFileSystem">
-         </run>
-      </filesystem>
-   </extension>
 
    <extension
          point="org.eclipse.imp.runtime.languageDescription">
@@ -779,13 +770,7 @@
           id="projectURIResolver"
           name="projectURIResolver"
           point="rascal_eclipse.uriResolver">
-        <uriResolver class="org.rascalmpl.eclipse.uri.LibraryURIResolver" scheme="std"></uriResolver>
-    </extension>
-    <extension
-          id="projectURIResolver"
-          name="projectURIResolver"
-          point="rascal_eclipse.uriResolver">
-        <uriResolver class="org.rascalmpl.eclipse.uri.LibraryURIResolver" scheme="eclipse-std"></uriResolver>
+        <uriResolver class="BundleUriResolver" scheme="bundleresource"></uriResolver>
     </extension>
     <extension
           point="org.eclipse.imp.runtime.languageRegistrar">

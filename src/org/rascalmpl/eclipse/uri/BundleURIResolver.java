@@ -19,14 +19,17 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
 import org.rascalmpl.uri.IURIInputStreamResolver;
 import org.rascalmpl.uri.IURIOutputStreamResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 public class BundleURIResolver implements IURIOutputStreamResolver,
-		IURIInputStreamResolver {
+		IURIInputStreamResolver, IURIResourceResolver {
 	private URIResolverRegistry registry;
 
 	public BundleURIResolver(URIResolverRegistry registry) {
@@ -72,7 +75,7 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 		return registry.getInputStream(resolve(uri));
 	}
 
-	private URI resolve(URI uri) throws IOException {
+	protected URI resolve(URI uri) throws IOException {
 		try {
 			URL resolved = FileLocator.resolve(uri.toURL());
 			URI result = null;
@@ -128,8 +131,13 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 
 	@Override
 	public Charset getCharset(URI uri) {
-		// TODO need to check if a JAR actually stores the charset
-		return null;
+		return Charset.defaultCharset(); // TODO
+	}
+
+	@Override
+	public IResource getResource(URI uri, String projectName)
+			throws IOException {
+		return ResourcesPlugin.getWorkspace().getRoot().getProject(projectName).findMember(new Path(uri.getPath()));
 	}
 
 }

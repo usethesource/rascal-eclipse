@@ -1,33 +1,27 @@
 package org.rascalmpl.eclipse.navigator;
 
-import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.navigator.CommonActionProvider;
 import org.eclipse.ui.navigator.ICommonActionConstants;
 import org.eclipse.ui.navigator.ICommonActionExtensionSite;
 import org.eclipse.ui.navigator.ICommonMenuConstants;
 import org.eclipse.ui.navigator.ICommonViewerSite;
 import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
-import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.editor.EditorUtil;
+import org.rascalmpl.eclipse.uri.URIStorage;
 
 public class NavigatorActionProvider extends CommonActionProvider {
 
   public class OpenFileStoreAction extends Action {
-    private final IWorkbenchPage page;
     private final ISelectionProvider sp;
-    private IFileStore store;
+    private URIStorage store;
 
-    public OpenFileStoreAction(IWorkbenchPage page, ISelectionProvider selectionProvider) {
-      this.page = page;
+    public OpenFileStoreAction(ISelectionProvider selectionProvider) {
       this.sp = selectionProvider;
     }
     
@@ -39,12 +33,8 @@ public class NavigatorActionProvider extends CommonActionProvider {
     @Override
     public void run() {
       if (store != null) {
-        if (!store.fetchInfo().isDirectory()) {
-          try {
-            IDE.openEditor(page, store.toURI(), UniversalEditor.EDITOR_ID, true);
-          } catch (PartInitException e) {
-            Activator.log("could not open editor for " + store, e);
-          } 
+        if (!store.isDirectory()) {
+        	EditorUtil.openAndSelectURI(store.getURI(), store.getRegistry());
         }
       }
     }
@@ -53,8 +43,8 @@ public class NavigatorActionProvider extends CommonActionProvider {
       ISelection selection = sp.getSelection();
       if (!selection.isEmpty()) {
         IStructuredSelection sSelection = (IStructuredSelection) selection;
-        if(sSelection.size() == 1 && sSelection.getFirstElement() instanceof IFileStore) {
-          store = ((IFileStore)sSelection.getFirstElement());        
+        if(sSelection.size() == 1 && sSelection.getFirstElement() instanceof URIStorage) {
+          store = (URIStorage) sSelection.getFirstElement();
           return true;
         }
       }
@@ -72,7 +62,7 @@ public class NavigatorActionProvider extends CommonActionProvider {
     ICommonViewerSite viewSite = aSite.getViewSite();
     if (viewSite instanceof ICommonViewerWorkbenchSite) {
       ICommonViewerWorkbenchSite workbenchSite = (ICommonViewerWorkbenchSite) viewSite;
-      openAction =  new OpenFileStoreAction(workbenchSite.getPage(), workbenchSite.getSelectionProvider());
+      openAction =  new OpenFileStoreAction(workbenchSite.getSelectionProvider());
     }
   } 
 
@@ -87,7 +77,4 @@ public class NavigatorActionProvider extends CommonActionProvider {
       menu.appendToGroup(ICommonMenuConstants.GROUP_OPEN, openAction);
     }
   }
-
-
-
 }
