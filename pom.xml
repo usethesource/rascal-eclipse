@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>rascal_eclipse</artifactId>
-	<version>0.7.1.qualifier</version>
+	<version>0.7.2.qualifier</version>
 	<packaging>eclipse-plugin</packaging>
 
 	<scm>
@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
 			<artifactId>rascal</artifactId>
-			<version>0.7.1.qualifier</version>
+			<version>0.7.2.qualifier</version>
 		</dependency>
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
