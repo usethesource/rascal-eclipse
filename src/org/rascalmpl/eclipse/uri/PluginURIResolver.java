@@ -23,7 +23,13 @@ public class PluginURIResolver extends BundleURIResolver {
 	@Override
 	protected URI resolve(URI uri) throws IOException {
 		try {
-			URL entry = Platform.getBundle(uri.getAuthority()).getEntry(uri.getPath());
+			String authority = uri.getAuthority();
+			
+			if (authority == null) {
+				throw new IOException("missing authority for bundle name in " + uri);
+			}
+			
+			URL entry = Platform.getBundle(authority).getEntry(uri.getPath());
 			if (entry == null) {
 				throw new FileNotFoundException(uri.toString());
 			}
