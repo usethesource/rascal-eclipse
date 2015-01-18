@@ -14,7 +14,6 @@
 package org.rascalmpl.eclipse.debug.core.model;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -307,23 +306,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 */
 	public String getSourceName() {
 		assert hasSourceName();
-
-		try {
-		  ISourceLocation l = location;
-      
-      if (l.getScheme().equals("rascal")) {
-        l = getRascalDebugTarget().getConsole().getInterpreter().getEval().getRascalResolver().resolve(l);
-      }
-      
-			URI resolvedURI = getRascalDebugTarget()
-					.getDebuggableURIResolverRegistry().getResourceURI(
-							l.getURI());
-		
-			return resolvedURI.getPath();
-		
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		return location.getURI().toString();
 	}
 
 	/* (non-Javadoc)
