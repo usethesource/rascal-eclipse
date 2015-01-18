@@ -6,7 +6,6 @@ import org.eclipse.jdt.ui.JavaElementLabelProvider;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
-//import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.SearchPath;
@@ -53,7 +52,12 @@ public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
 		  URIStorage curr = (URIStorage) element;
 
 		  if (curr.isDirectory()) {
-			  return PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FOLDER);
+			  if (curr.isRoot()) {
+				  return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_JAR_WITH_SOURCE);
+			  }
+			  else {
+				  return PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FOLDER);
+			  }
 		  }
 
 		  return PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FILE);

@@ -1,20 +1,11 @@
 package org.rascalmpl.eclipse.editor;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
@@ -25,7 +16,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.uri.URIEditorInput;
 import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.eclipse.uri.URIStorage;
@@ -80,66 +70,24 @@ public class EditorUtil {
 			else if (eval != null) {
 				URIStorage storage = new URIStorage(eval, uri, false);
 				IEditorInput input = new URIEditorInput(storage);
-				IEditorDescriptor id = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(uri.getPath());
-				IEditorPart part = IDE.openEditor(page, input, id.getId(), true);
-				if (offset > -1 && part instanceof ITextEditor) {
-					((ITextEditor)part).selectAndReveal(offset, length);
-				}
-			}
-			else {
-				IFileStore fileStore = EFS.getLocalFileSystem().getStore(uri);
-
-				if (fileStore.fetchInfo().exists()) {
-					IDE.openEditorOnFileStore( page, fileStore );
-					return true;
-				}
-				else {
-					if (projectName != null) {
-						IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-						eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project).getResolverRegistry();
-					}
-
-					if (eval != null) {
-						URI resourceURI = eval.getResourceURI(uri);
-
-						if (resourceURI.getScheme().equals("project")) {
-							IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(resourceURI.getAuthority());
-							IFile file = project.getFile(resourceURI.getPath());
-							IEditorPart part = IDE.openEditor(page, file);
-							if (offset > -1 && part instanceof ITextEditor) {
-								((ITextEditor)part).selectAndReveal(offset, length);
-							}
-							return true;
-						}
-
-						if (resourceURI != null) {
-							URL find = FileLocator.resolve(resourceURI.toURL());
-							fileStore = EFS.getLocalFileSystem().getStore(find.toURI());
-
-							if (fileStore != null && fileStore.fetchInfo().exists()) {
-								IEditorPart part = IDE.openEditorOnFileStore( page, fileStore );
-								if (offset > -1 && part instanceof ITextEditor) {
-									((ITextEditor)part).selectAndReveal(offset, length);
-								}
-								return true;
-							}
-						}
+				IEditorDescriptor[] ids = PlatformUI.getWorkbench().getEditorRegistry().getEditors(uri.getPath());
+				
+				if (ids != null && ids.length > 0) {
+					IEditorPart part = IDE.openEditor(page, input, ids[0].getId(), true);
+					if (offset > -1 && part instanceof ITextEditor) {
+						((ITextEditor)part).selectAndReveal(offset, length);
 					}
 				}
-
-				Activator.log("can not open link", null);
 			}
+			
+			Activator.log("Can not open link " + uri, null);
 		} 
-		catch (IOException | CoreException e) {
-			Activator.log("Cannot follow link", e);
-			return false;
-		} 
-		catch (URISyntaxException e) {
-			Activator.log("Cannot follow link", e);
+		catch (CoreException e) {
+			Activator.log("Can not follow link", e);
 			return false;
 		} 
 		catch (Throw e) {
-			Activator.log("Cannot follow link", e);
+			Activator.log("Can not follow link", e);
 			return false;
 		}
 		return false;
