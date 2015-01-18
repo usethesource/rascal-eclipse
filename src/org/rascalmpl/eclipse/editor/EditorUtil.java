@@ -72,11 +72,15 @@ public class EditorUtil {
 				IEditorInput input = new URIEditorInput(storage);
 				IEditorDescriptor[] ids = PlatformUI.getWorkbench().getEditorRegistry().getEditors(uri.getPath());
 				
+				if (ids == null || ids.length == 0) {
+					ids = new IEditorDescriptor[] { PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor("bla.txt") };
+				}
 				if (ids != null && ids.length > 0) {
 					IEditorPart part = IDE.openEditor(page, input, ids[0].getId(), true);
 					if (offset > -1 && part instanceof ITextEditor) {
 						((ITextEditor)part).selectAndReveal(offset, length);
 					}
+					return true;
 				}
 			}
 			
