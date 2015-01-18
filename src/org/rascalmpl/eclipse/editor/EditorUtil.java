@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -79,7 +80,8 @@ public class EditorUtil {
 			else if (eval != null) {
 				URIStorage storage = new URIStorage(eval, uri, false);
 				IEditorInput input = new URIEditorInput(storage);
-				IEditorPart part = IDE.openEditor(page, input, UniversalEditor.EDITOR_ID, true);
+				IEditorDescriptor id = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(uri.getPath());
+				IEditorPart part = IDE.openEditor(page, input, id.getId(), true);
 				if (offset > -1 && part instanceof ITextEditor) {
 					((ITextEditor)part).selectAndReveal(offset, length);
 				}
