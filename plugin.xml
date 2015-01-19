@@ -39,9 +39,9 @@
                class="org.rascalmpl.eclipse.nature.Nature">
          </run>
       </runtime>
-      <builder
+    <!--  <builder
             id="rascal_eclipse.rascal_builder">
-      </builder>
+      </builder> -->
    </extension>
 
    <extension
@@ -765,12 +765,6 @@
         <uriResolver
               class="org.rascalmpl.eclipse.uri.ProjectURIResolver"
               scheme="project"> </uriResolver>
-    </extension>
-    <extension
-          id="projectURIResolver"
-          name="projectURIResolver"
-          point="rascal_eclipse.uriResolver">
-        <uriResolver class="BundleUriResolver" scheme="bundleresource"></uriResolver>
     </extension>
     <extension
           point="org.eclipse.imp.runtime.languageRegistrar">
