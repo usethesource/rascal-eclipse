@@ -22,22 +22,27 @@ class StringStorage implements IStorage {
 			this.ext = ext;
 		}
 
+		@Override
 		public InputStream getContents() throws CoreException {
 			return new ByteArrayInputStream(string.getBytes());
 		}
 
+		@Override
 		public IPath getFullPath() {
 			return project.getFullPath().addFileExtension(ext);
 		}
-
-		public Object getAdapter(Class adapter) {
+		
+		@Override
+		public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
 			return null;
 		}
 
+		@Override
 		public String getName() {
 			return editor.getEditorInput().getName() + "." + ext;
 		}
 
+		@Override
 		public boolean isReadOnly() {
 			return true;
 		}

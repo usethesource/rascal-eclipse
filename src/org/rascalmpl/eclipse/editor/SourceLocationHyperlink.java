@@ -11,38 +11,11 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.imp.editor.IRegionSelectionService;
-import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
-import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
-import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IEditorDescriptor;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.part.FileEditorInput;
-import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.uri.URIUtil;
 
 public class SourceLocationHyperlink implements IHyperlink {
 	private final ISourceLocation from;
