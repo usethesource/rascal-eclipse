@@ -5,6 +5,7 @@ import java.text.Collator;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
+import org.rascalmpl.eclipse.uri.URIStorage;
 
 public class Sorter extends ViewerSorter {
 
@@ -14,7 +15,7 @@ public class Sorter extends ViewerSorter {
 
   public int category(Object element)
   {
-    if (element instanceof IFileStore) {
+    if (element instanceof URIStorage) {
       if (((IFileStore) element).fetchInfo().isDirectory()) {
         return 1;
       }

@@ -39,18 +39,9 @@
                class="org.rascalmpl.eclipse.nature.Nature">
          </run>
       </runtime>
-      <builder
+    <!--  <builder
             id="rascal_eclipse.rascal_builder">
-      </builder>
-   </extension>
-   <extension
-         point="org.eclipse.core.filesystem.filesystems">
-      <filesystem
-            scheme="rascal-library">
-         <run
-               class="org.rascalmpl.eclipse.navigator.RascalLibraryFileSystem">
-         </run>
-      </filesystem>
+      </builder> -->
    </extension>
 
    <extension
@@ -774,18 +765,6 @@
         <uriResolver
               class="org.rascalmpl.eclipse.uri.ProjectURIResolver"
               scheme="project"> </uriResolver>
-    </extension>
-    <extension
-          id="projectURIResolver"
-          name="projectURIResolver"
-          point="rascal_eclipse.uriResolver">
-        <uriResolver class="org.rascalmpl.eclipse.uri.LibraryURIResolver" scheme="std"></uriResolver>
-    </extension>
-    <extension
-          id="projectURIResolver"
-          name="projectURIResolver"
-          point="rascal_eclipse.uriResolver">
-        <uriResolver class="org.rascalmpl.eclipse.uri.LibraryURIResolver" scheme="eclipse-std"></uriResolver>
     </extension>
     <extension
           point="org.eclipse.imp.runtime.languageRegistrar">

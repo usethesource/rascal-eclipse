@@ -12,31 +12,38 @@ class StringInput implements IStorageEditorInput {
 			this.storage = storage;
 		}
 
+		@Override
 		public boolean exists() {
 			return true;
 		}
 
+		@Override
 		public ImageDescriptor getImageDescriptor() {
 			return null;
 		}
 
+		@Override
 		public String getName() {
 			return storage.getName();
 		}
 
+		@Override
 		public IPersistableElement getPersistable() {
 			return null;
 		}
 
+		@Override
 		public IStorage getStorage() {
 			return storage;
 		}
 
+		@Override
 		public String getToolTipText() {
 			return "String-based file: " + storage.getName();
 		}
 
-		public Object getAdapter(Class adapter) {
+		@Override
+		public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
 			return null;
 		}
 	}

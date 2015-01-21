@@ -44,7 +44,7 @@ public class GrammarBuilder {
 		while (i.hasNext()) {
 			Entry<IValue, IValue> e = i.next();
 			IConstructor symb = (IConstructor) e.getKey();
-			if (SymbolAdapter.isStart(symb)) {
+			if (SymbolAdapter.isStartSort(symb)) {
 				startSymbols.add(SymbolAdapter.toString(symb, false));
 			} else if (SymbolAdapter.isSort(symb) || SymbolAdapter.isLex(symb)) {
 				otherSymbols.add(SymbolAdapter.toString(symb, false));

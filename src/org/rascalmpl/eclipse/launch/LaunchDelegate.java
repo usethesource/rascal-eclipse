@@ -232,6 +232,9 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 				fireTerminateEvent();
 				this.eventTrigger.removeInterpreterEventListener(this);
 				break;
+				
+			default:
+				break;
 
 			}
 		}		

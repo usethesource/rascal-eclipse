@@ -103,7 +103,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 			IStackFrame[] theFrames = new IStackFrame[callStack.size()+imports.size()];
 			// for the top, use the current AST location
 			ISourceLocation currentLoc = eval.getCurrentAST() != null ? 
-			    eval.getCurrentAST().getLocation()
+			    eval.getRascalResolver().resolve(eval.getCurrentAST().getLocation())
 			    : eval.getValueFactory().sourceLocation(URIUtil.rootScheme("stdin"));
 			theFrames[0] = new RascalStackFrame(this, callStack.get(size-1), currentLoc, null);
 			for (int i = 1; i < size; i++) { 

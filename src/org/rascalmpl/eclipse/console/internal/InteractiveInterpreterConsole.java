@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console.internal;
 
-import java.awt.BufferCapabilities.FlipContents;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;

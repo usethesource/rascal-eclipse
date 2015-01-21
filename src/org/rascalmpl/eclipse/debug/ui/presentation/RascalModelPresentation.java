@@ -33,6 +33,8 @@ import org.rascalmpl.eclipse.debug.core.model.RascalStackFrame;
 import org.rascalmpl.eclipse.debug.core.model.RascalThread;
 import org.rascalmpl.eclipse.debug.core.model.RascalValue;
 import org.rascalmpl.eclipse.debug.core.model.RascalVariable;
+import org.rascalmpl.eclipse.uri.URIEditorInput;
+import org.rascalmpl.eclipse.uri.URIStorage;
 
 /**
  * Renders Rascal debug elements
@@ -167,6 +169,9 @@ public class RascalModelPresentation extends LabelProvider implements IDebugMode
 		if (element instanceof ILineBreakpoint) {
 			return new FileEditorInput((IFile)((ILineBreakpoint)element).getMarker().getResource());
 		}
+		if (element instanceof URIStorage) {
+			return new URIEditorInput((URIStorage) element);
+		}
 		return null;
 	}
 
@@ -174,7 +179,7 @@ public class RascalModelPresentation extends LabelProvider implements IDebugMode
 	 * @see org.eclipse.debug.ui.ISourcePresentation#getEditorId(org.eclipse.ui.IEditorInput, java.lang.Object)
 	 */
 	public String getEditorId(IEditorInput input, Object element) {
-		if (element instanceof IFile || element instanceof ILineBreakpoint) {
+		if (element instanceof IFile || element instanceof ILineBreakpoint || element instanceof URIStorage) {
 			return UniversalEditor.EDITOR_ID;
 		}
 		return null;

@@ -8,7 +8,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
-import org.rascalmpl.interpreter.load.RascalSearchPath;
+import org.rascalmpl.interpreter.load.RascalURIResolver;
+import org.rascalmpl.uri.URIUtil;
 
 public class ResourcesToModules {
 
@@ -38,8 +39,8 @@ public class ResourcesToModules {
 		return null;
 	}
 	
-	public static URI uriFromModule(RascalSearchPath resolver, String module) {
-		URI uri = resolver.resolveModule(module);
+	public static URI uriFromModule(RascalURIResolver resolver, String module) {
+		URI uri = resolver.resolve(URIUtil.createRascalModule(module));
 
 		if (uri.getScheme().equals("project")) {
 		  try {

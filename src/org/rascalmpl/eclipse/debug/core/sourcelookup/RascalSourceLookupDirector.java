@@ -11,12 +11,15 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
+import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.core.sourcelookup.AbstractSourceLookupDirector;
 import org.eclipse.debug.core.sourcelookup.ISourceLookupParticipant;
+import org.eclipse.debug.ui.ISourcePresentation;
+import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.ui.IEditorInput;
+import org.rascalmpl.eclipse.uri.URIEditorInput;
 
-import org.rascalmpl.eclipse.debug.core.sourcelookup.RascalSourceLookupParticipant;
-
-public class RascalSourceLookupDirector extends AbstractSourceLookupDirector {
+public class RascalSourceLookupDirector extends AbstractSourceLookupDirector implements ISourcePresentation {
 	/* (non-Javadoc)
 	 * @see org.eclipse.debug.internal.core.sourcelookup.ISourceLookupDirector#initializeParticipants()
 	 */
@@ -24,5 +27,21 @@ public class RascalSourceLookupDirector extends AbstractSourceLookupDirector {
 		addParticipants(new ISourceLookupParticipant[] {
 		    new RascalSourceLookupParticipant()
 		    });
+	}
+
+	@Override
+	public IEditorInput getEditorInput(Object element) {
+		if (element instanceof URISourceContainer) {
+			return new URIEditorInput(((URISourceContainer) element).getStorage());
+		}
+		return null;
+	}
+
+	@Override
+	public String getEditorId(IEditorInput input, Object element) {
+		if (element instanceof URISourceContainer || element instanceof ILineBreakpoint) {
+			return UniversalEditor.EDITOR_ID;
+		}
+		return null;
 	}
 }

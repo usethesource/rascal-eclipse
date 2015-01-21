@@ -121,7 +121,7 @@ public final class ConsoleFactory{
 	public IRascalConsole openRunConsole(){
 		Activator.getInstance().checkRascalRuntimePreconditions();
 		GlobalEnvironment heap = new GlobalEnvironment();
-		IRascalConsole console = new InteractiveRascalConsole(new RascalScriptInterpreter(), new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap, "Rascal console (no project associated)", false);
+		IRascalConsole console = new InteractiveRascalConsole(new RascalScriptInterpreter(), new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap, "Rascal console  [project: NONE associated]", false);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
@@ -130,7 +130,7 @@ public final class ConsoleFactory{
 	public IRascalConsole openRunConsole(IProject project){
 		Activator.getInstance().checkRascalRuntimePreconditions(project);
 		GlobalEnvironment heap = new GlobalEnvironment();
-		IRascalConsole console = new InteractiveRascalConsole(new RascalScriptInterpreter(project), new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap, "Rascal ["+project.getName()+"]", false);
+		IRascalConsole console = new InteractiveRascalConsole(new RascalScriptInterpreter(project), new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap, "Rascal [project: " + project.getName() + "]", false);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
@@ -139,7 +139,7 @@ public final class ConsoleFactory{
 	public IRascalConsole openDebuggableConsole(){
 		Activator.getInstance().checkRascalRuntimePreconditions();
 		GlobalEnvironment heap = new GlobalEnvironment();
-		IRascalConsole console = new InteractiveRascalConsole(new RascalScriptInterpreter(), new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap, "Rascal console (no project associated) [DEBUG]", true);
+		IRascalConsole console = new InteractiveRascalConsole(new RascalScriptInterpreter(), new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap, "Rascal console [DEBUG: enabled, project: NONE associated]", true);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
@@ -148,7 +148,7 @@ public final class ConsoleFactory{
 	public IRascalConsole openDebuggableConsole(IProject project){
 		Activator.getInstance().checkRascalRuntimePreconditions(project);
 		GlobalEnvironment heap = new GlobalEnvironment();
-		IRascalConsole console = new InteractiveRascalConsole(new RascalScriptInterpreter(project), new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap, "Rascal [DEBUG, "+project.getName()+"]", true);
+		IRascalConsole console = new InteractiveRascalConsole(new RascalScriptInterpreter(project), new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap, "Rascal console [DEBUG: enabled, project: "+project.getName()+"]", true);
 		fConsoleManager.addConsoles(new IConsole[]{console});
 		fConsoleManager.showConsoleView(console);
 		return console;
@@ -183,7 +183,7 @@ public final class ConsoleFactory{
 			evaluator.setEventTrigger(eventTrigger);
 
 			if (isDebug) {
-				this.debugHandler = new DebugHandler();
+				this.debugHandler = new DebugHandler(evaluator.getRascalResolver());
 				this.debugHandler.setEventTrigger(eventTrigger);
 				// add termination action to debugging handler
 				this.debugHandler.setTerminateAction(new Runnable() {
