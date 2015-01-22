@@ -31,7 +31,6 @@ import org.rascalmpl.eclipse.ambidexter.AmbiDexterWizard;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.uri.URIUtil;
 
 public class RunAmbiDexter extends AbstractEditorAction {
 	
@@ -95,7 +94,7 @@ public class RunAmbiDexter extends AbstractEditorAction {
 	
 	private static IConstructor getGrammar(Evaluator eval, String moduleName) {
 		eval.doImport(eval.getMonitor(), moduleName);
-		IConstructor grammar = eval.getExpandedGrammar(eval.getMonitor(), URIUtil.createRascalModule(moduleName));
+		IConstructor grammar = eval.getExpandedGrammar(eval.getMonitor(), eval.getRascalResolver().resolveModule(moduleName));
 		return grammar;
 	}
 }
