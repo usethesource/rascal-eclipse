@@ -1,9 +1,9 @@
 package org.rascalmpl.eclipse.navigator;
 
-import java.util.Map;
+import java.net.URI;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -27,10 +27,14 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
+import org.rascalmpl.eclipse.uri.URIStorage;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class NavigatorContentProvider implements ITreeContentProvider, IResourceChangeListener,
 	IResourceDeltaVisitor {
-  private Map<IFileStore,RascalLibraryContent> libraries;
   public TreeViewer _viewer;
 
   public NavigatorContentProvider() {
@@ -72,25 +76,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
     return new Object[] { };
   }
 
-  private Object[] getProjectSearchPath() {
-    try {
-      RascalLibraryFileSystem fd = RascalLibraryFileSystem.getInstance();
-      Map<String, IFileStore> libs = fd.getRoots();
-      Object[] roots = new Object[libs.size()];
-      int i = 0;
-      
-      // TODO: add check if library is referenced in RASCAL.MF
-      for (String key : libs.keySet()) {
-        roots[i++] = new RascalLibraryContent(key, libs.get(key));
-      }
-      
-      return roots;
-    } catch (CoreException e) {
-      Activator.log(e.getMessage(), e);
-    }
-    
-    return new Object[] {};
-  }
+  
 
   @Override
   public Object[] getChildren(Object parentElement) {
@@ -116,13 +102,10 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
         IProject project = (IProject) parentElement;
 
         if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
-          Object[] libraries = getProjectSearchPath();
           IResource[] members = project.members();
-          Object[] result = new Object[members.length + libraries.length];
-          
+          Object[] result = new Object[members.length + 1];
           System.arraycopy(members, 0, result, 0, members.length);
-          System.arraycopy(libraries, 0, result, members.length, libraries.length);
-          
+          result[members.length] = new SearchPath(project);
           return result;
         }
         else if (project.isOpen()) {
@@ -132,11 +115,19 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
       else if (parentElement instanceof IContainer) {
         return ((IContainer) parentElement).members();
       }
-      else if (parentElement instanceof IFileStore) {
-        return ((IFileStore) parentElement).childStores(EFS.NONE, null);
+      else if (parentElement instanceof SearchPath) {
+    	  return ((SearchPath) parentElement).getSearchPath().toArray();
       }
-      else if (parentElement instanceof RascalLibraryContent) {
-        return ((RascalLibraryContent) parentElement).getContent();
+      else if (parentElement instanceof URIStorage) {
+    	  URIStorage storage = (URIStorage) parentElement;
+    	  String[] entries = storage.listEntries();
+    	  Object[] result = new Object[entries.length];
+
+    	  for (int i = 0; i < entries.length; i++) {
+    		  result[i] = storage.makeChild(entries[i]);
+    	  }
+
+    	  return result;
       }
     } catch (CoreException e) {
       Activator.log(e.getMessage(), e);
@@ -145,6 +136,30 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
     return new Object[] {};
   }
 
+  public static class SearchPath {
+	  private IProject project;
+
+	  public SearchPath(IProject project) {
+		  this.project = project;
+	  }
+	  
+	  public List<URIStorage> getSearchPath() {
+		  Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
+		  RascalSearchPath resolver = eval.getRascalResolver();
+		  URIResolverRegistry reg  = eval.getResolverRegistry();
+		  List<URIStorage> result = new LinkedList<>();
+		  
+		  for (URI root : resolver.collect()) {
+			  result.add(new URIStorage(reg, root, true));
+		  }
+
+		  return result;
+	  }
+
+	  public IProject getProject() {
+		  return project;
+	  }
+  }
   @Override
   public Object getParent(Object element) {
     if (element instanceof IWorkingSet) {
@@ -164,11 +179,12 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
     else if (element instanceof IResource) {
       return ((IResource) element).getParent();
     } 
-    else if (element instanceof IFileStore) {
-      IFileStore parent = ((IFileStore) element).getParent();
-      if (libraries != null && parent != null && libraries.containsKey(parent)) {
-        return libraries.get(parent);
-      }
+    else if (element instanceof SearchPath) {
+    	return ((SearchPath) element).getProject();
+    }
+    else if (element instanceof URIStorage) {
+    	// TODO: don't know yet
+    	return null;
     }
     
     return null;

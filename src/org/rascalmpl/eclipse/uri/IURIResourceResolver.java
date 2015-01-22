@@ -6,5 +6,5 @@ import java.net.URI;
 import org.eclipse.core.resources.IResource;
 
 public interface IURIResourceResolver {
-  IResource getResource(URI uri, String projectName) throws IOException;
+	IResource getResource(URI uri) throws IOException;
 }

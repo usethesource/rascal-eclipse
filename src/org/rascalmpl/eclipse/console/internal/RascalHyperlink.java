@@ -1,44 +1,20 @@
 package org.rascalmpl.eclipse.console.internal;
 
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IHyperlink;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.texteditor.ITextEditor;
-import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.EditorUtil;
-import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
-import org.rascalmpl.eclipse.uri.URIResourceResolver;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.uri.URIUtil;
 
 public class RascalHyperlink implements IHyperlink {
 	private static final int INVALID_OFFSET = -1;
 	private String target;
-	private PrintWriter err;
 	private IEvaluatorContext ctx;
 	private String projectName;
 	private final InteractiveInterpreterConsole console;
@@ -59,7 +35,6 @@ public class RascalHyperlink implements IHyperlink {
 		this.srcLen = srcLen;
 		this.console = console;
 		this.target = target;
-		this.err = err;
 		this.projectName = projectName;
 	}
 
@@ -75,10 +50,10 @@ public class RascalHyperlink implements IHyperlink {
 	public void linkActivated() {
 		console.setSelection(srcOffset - 1, srcLen + 1);
 		if (getOffsetPart() > -1) {
-			EditorUtil.openAndSelectURI(getURIPart(), getOffsetPart(), getLength(), ctx, projectName);
+			EditorUtil.openAndSelectURI(getURIPart(), getOffsetPart(), getLength(), ctx.getResolverRegistry(), projectName);
 		}
 		else {
-			EditorUtil.openAndSelectURI(getURIPart(), ctx, projectName);
+			EditorUtil.openAndSelectURI(getURIPart(), ctx.getResolverRegistry(), projectName);
 		}
 	}
 
@@ -118,7 +93,7 @@ public class RascalHyperlink implements IHyperlink {
 			IValueFactory vf = ctx.getValueFactory();
 			ISourceLocation loc;
 			if (offset != INVALID_OFFSET) {
-				loc = ctx.getHeap().resolveSourceLocation(vf.sourceLocation(uri, offset, length));
+				loc = ctx.getHeap().resolveSourceLocation(vf.sourceLocation(vf.sourceLocation(uri), offset, length));
 			}
 			else {
 				loc = ctx.getHeap().resolveSourceLocation(vf.sourceLocation(uri));

@@ -39,10 +39,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -469,8 +467,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 
 					@Override
 					public Result<IValue> visitShellCommandTest(final Test x) {
-						eval.setTestResultListener(new TestReporter(eval
-								.getResolverRegistry()));
+						eval.setTestResultListener(new TestReporter(project));
 						x.interpret(eval);
 						return ResultFactory.nothing();
 					}

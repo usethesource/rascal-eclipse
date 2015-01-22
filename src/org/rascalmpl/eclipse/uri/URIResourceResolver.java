@@ -21,7 +21,7 @@ public class URIResourceResolver {
    * @param projectName the context of the URI, can be null
    * @return null if no IURIResourceResolved could resolve the URI to a resource, or an IResource handle.
    */
-  public static IResource getResource(URI uri, String projectName) {
+  public static IResource getResource(URI uri) {
     IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint("rascal_eclipse", "uriResolver");
 
     if (extensionPoint == null) {
@@ -33,7 +33,7 @@ public class URIResourceResolver {
         try {
           if (cfg.getAttribute("scheme").equals(uri.getScheme())) {
             IURIResourceResolver resolver = (IURIResourceResolver) cfg.createExecutableExtension("class");
-            IResource res = resolver.getResource(uri, projectName);
+            IResource res = resolver.getResource(uri);
             if (res != null) {
               return res;
             }

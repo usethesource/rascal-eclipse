@@ -20,7 +20,6 @@ import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestStepOve
 import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestSuspension;
 import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestTermination;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -31,10 +30,8 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.InterpreterEvent;
@@ -106,7 +103,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 			IStackFrame[] theFrames = new IStackFrame[callStack.size()+imports.size()];
 			// for the top, use the current AST location
 			ISourceLocation currentLoc = eval.getCurrentAST() != null ? 
-			    eval.getRascalResolver().resolve(eval.getCurrentAST().getLocation())
+			    eval.getCurrentAST().getLocation()
 			    : eval.getValueFactory().sourceLocation(URIUtil.rootScheme("stdin"));
 			theFrames[0] = new RascalStackFrame(this, callStack.get(size-1), currentLoc, null);
 			for (int i = 1; i < size; i++) { 

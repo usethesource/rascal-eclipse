@@ -13,8 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.ui.breakpoints;
 
-import java.io.IOException;
-import java.net.URI;
 import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
@@ -43,8 +41,6 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint;
-import org.rascalmpl.eclipse.debug.uri.ProjectURIToStandardLibraryTransformer;
-import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.debug.DebugUpdater;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -108,10 +104,8 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 				Activator.getInstance().getLog().log(message);
 			
 			} else {		
-				ISourceLocation normalizedSourceLocation = normalizeSourceLocation(resource, closestSourceLocation);			
-				
 				// create line breakpoint
-				RascalSourceLocationBreakpoint lineBreakpoint = new RascalSourceLocationBreakpoint(resource, normalizedSourceLocation);
+				RascalSourceLocationBreakpoint lineBreakpoint = new RascalSourceLocationBreakpoint(resource, closestSourceLocation);
 				DebugPlugin.getDefault().getBreakpointManager().addBreakpoint(lineBreakpoint);
 			}
 		}
@@ -275,48 +269,4 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 		
 		return of.getSourceLocation();
 	}
-
-	private static ISourceLocation normalizeSourceLocation(IResource resource, ISourceLocation sourceLocation) { 
-		// 1) create a non-encoded "project" schema URI
-		URI uriBreakPointLocation = ProjectURIResolver.constructProjectURI(resource.getFullPath());
-		
-		// 2) transform the "project" schema URI to a "std" schema URI (if necessary)
-		try {
-			uriBreakPointLocation = new ProjectURIToStandardLibraryTransformer(IRascalResources.RASCAL_STD)
-					.getResourceURI(uriBreakPointLocation);
-		} catch (IOException e) {
-			/* not supposed to happen */
-			IStatus message = new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Conversion of URI schema 'project' to 'std' failed.");
-			Activator.getInstance().getLog().log(message);			
-		}
-		
-		// 3) update the URI in the source location instance
-		return updateSourceLocation(sourceLocation, uriBreakPointLocation);
-	}
-	
-	/**
-     * Create a copy of a source location, but replace the URI.
-     * 
-     * @param uri         exact uri where the source is located.
-     * @return a value representing a source location, with type SourceLocationType
-     */
-    private static ISourceLocation updateSourceLocation(ISourceLocation location, URI uri) {
-    	IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
-    	ISourceLocation result = null;
-    	
-    	if (location.hasLineColumn()) {
-        	result = valueFactory.sourceLocation(valueFactory.sourceLocation(uri), 
-					location.getOffset(), location.getLength(), 
-					location.getBeginLine(), location.getEndLine(), 
-					location.getBeginColumn(),location.getEndColumn());
-    	} else if (location.hasOffsetLength()) {
-        	result = valueFactory.sourceLocation(valueFactory.sourceLocation(uri), 
-        			location.getOffset(), location.getLength()); 
-    	} else {
-    		result = valueFactory.sourceLocation(uri);
-    	}
-    	
-    	return result;
-    }
-    
 }

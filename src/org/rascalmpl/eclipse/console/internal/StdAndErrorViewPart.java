@@ -12,8 +12,11 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console.internal;
 
+import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_OUTPUT_VIEW_PART;
+
 import java.io.IOException;
 import java.io.OutputStream;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -25,8 +28,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
-
-import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_OUTPUT_VIEW_PART;
 
 public class StdAndErrorViewPart extends ViewPart implements Pausable {
 	public static final String ID = ID_RASCAL_OUTPUT_VIEW_PART;

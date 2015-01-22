@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,9 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import org.eclipse.core.resources.IContainer;
 import java.nio.charset.Charset;
+
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -34,11 +35,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.model.ISourceProject;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.uri.BadURIException;
-import org.rascalmpl.uri.IURIInputStreamResolver;
-import org.rascalmpl.uri.IURIOutputStreamResolver;
+import org.rascalmpl.uri.IURIInputOutputResolver;
 import org.rascalmpl.uri.URIUtil;
 
-public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputStreamResolver, IURIResourceResolver {
+public class ProjectURIResolver implements IURIInputOutputResolver, IURIResourceResolver {
 	
 	public static URI constructProjectURI(ISourceProject project, IPath path){
 		return constructProjectURI(project.getName(), path);
@@ -233,14 +233,6 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 		throw new FileNotFoundException(uri.toString());
 	}
 
-	public URI getResourceURI(URI uri) throws IOException {
-		try {
-			return resolve(uri).getLocation().toFile().toURI();
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
-
 	@Override
 	public boolean supportsHost() {
 		return false;
@@ -267,7 +259,7 @@ public class ProjectURIResolver implements IURIInputStreamResolver, IURIOutputSt
 	}
 
 	@Override
-	public IResource getResource(URI uri, String projectName) throws IOException {
+	public IResource getResource(URI uri) throws IOException {
 		return resolve(uri);
 	}
 }
