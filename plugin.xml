@@ -767,6 +767,14 @@
               scheme="project"> </uriResolver>
     </extension>
     <extension
+          id="projectURIResolver"
+          name="projectURIResolver"
+          point="rascal_eclipse.uriResolver">
+        <uriResolver
+              class="org.rascalmpl.eclipse.uri.FileURIResourceResolver"
+              scheme="file"> </uriResolver>
+    </extension>
+    <extension
           point="org.eclipse.imp.runtime.languageRegistrar">
        <languageRegistrar
              class="org.rascalmpl.eclipse.plugins.LoadRascalPluginsFromBundles">

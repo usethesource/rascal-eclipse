@@ -17,7 +17,7 @@ public class WarningsToMarkers implements IWarningHandler {
   @Override
   public void warning(String msg, ISourceLocation src) {
     try {
-      IResource res = URIResourceResolver.getResource(src.getURI(), null);
+      IResource res = URIResourceResolver.getResource(src.getURI());
 
       Map<String,Object> attrs = new HashMap<String,Object>();
       attrs.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);

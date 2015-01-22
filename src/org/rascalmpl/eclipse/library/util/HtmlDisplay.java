@@ -69,8 +69,12 @@ public class HtmlDisplay {
 			throws IOException {
 		IFile output = null;
 		URI inputUri = loc.getURI();
-		if (inputUri.getScheme().equals("http")) return inputUri;
-		URI resourceUri = ctx.getResolverRegistry().getResourceURI(loc.getURI());
+		
+		if (inputUri.getScheme().equals("http")) {
+			return inputUri;
+		}
+		
+		URI resourceUri = loc.getURI();
 		
 		URI uri= inputUri.getScheme().equals("project")?inputUri:resourceUri;
 		IPath path = new Path(uri.getPath());
@@ -86,7 +90,7 @@ public class HtmlDisplay {
 		// System.err.println("getHtmlOutputLoc:"+path);
 		if (uri.getScheme().equals("project")) {
 			try {
-				IResource res = URIResourceResolver.getResource(uri, null);
+				IResource res = URIResourceResolver.getResource(uri);
 				// System.err.println("Test File:"+res);
 				if (res==null || res.getType()!=IResource.FILE) {
 					throw new IOException("Invalid uri:" + loc.getURI());
@@ -114,7 +118,7 @@ public class HtmlDisplay {
 			}
 
 		}
-		if (resourceUri!=null) {
+		if (resourceUri!=null && resourceUri.getScheme().equals("file")) {
 			File f = new File(path.toOSString());
 			if (input != null) {
 				f.getParentFile().mkdir();

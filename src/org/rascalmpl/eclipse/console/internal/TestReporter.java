@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console.internal;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,22 +20,21 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.uri.URIResolverRegistry;
 
 public class TestReporter implements ITestResultListener {
 	private Map<IFile,List<Report>> reports;
-	private final URIResolverRegistry resolverRegistry;
+	private final IProject project;
 	
 	private static class Report {
 		public boolean successful;
@@ -51,8 +49,8 @@ public class TestReporter implements ITestResultListener {
 		
 	}
 
-	public TestReporter(URIResolverRegistry uriResolverRegistry) {
-		resolverRegistry = uriResolverRegistry;
+	public TestReporter(IProject project) {
+		this.project = project;
 	}
 
 	@Override
@@ -116,41 +114,13 @@ public class TestReporter implements ITestResultListener {
 	}
 	
 	private IFile getFile(URI uri) {
-		String scheme = uri.getScheme();
+		IResource res = URIResourceResolver.getResource(uri);
 		
-		if (scheme.equals("project")) {
-			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
-			
-			if (project != null) {
-				return project.getFile(uri.getPath());
-			}
-			
-			Activator.getInstance().logException("project " + uri.getAuthority() + " does not exist", new RuntimeException());
-		}
-		else if (scheme.equals("file")) {
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IFile[] cs = root.findFilesForLocationURI(uri);
-			
-			if (cs != null && cs.length > 0) {
-				return cs[0];
-			}
-			
-			Activator.getInstance().logException("file " + uri + " not found", new RuntimeException());
-		}
-		else if (scheme.equals("rascal")) {
-			try {
-				URI resource = resolverRegistry.getResourceURI(uri);
-				return getFile(resource);
-			} catch (IOException e) {
-				Activator.getInstance().logException("Cannot resolve: " + uri, e);
-				e.printStackTrace();
-			}
-			
+		if (res instanceof IFile) {
+			return (IFile) res;
 		}
 
 		Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
 		return null;
 	}
-
-
 }

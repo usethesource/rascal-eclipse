@@ -48,8 +48,7 @@ public class EditorUtil {
 	public static boolean openAndSelectURI(URI uri, int offset, int length, URIResolverRegistry eval, String projectName ) {
 		try {
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-
-			IResource res = URIResourceResolver.getResource(uri, projectName);
+			IResource res = URIResourceResolver.getResource(uri);
 			if (res != null && res instanceof IFile) {
 				IEditorPart part = IDE.openEditor(page, (IFile)res);
 				if (offset > -1 && part instanceof ITextEditor) {

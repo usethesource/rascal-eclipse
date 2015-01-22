@@ -41,7 +41,7 @@ public class ResourceMarkers {
 	}
 
 	public void removeMessageMarkers(ISourceLocation loc, IEvaluatorContext ctx) {
-	  IResource resource = URIResourceResolver.getResource(loc.getURI(), null);
+	  IResource resource = URIResourceResolver.getResource(loc.getURI());
 	  if (resource instanceof IFile) {
 	    IFile file = (IFile) resource;
 	    try {
@@ -77,7 +77,7 @@ public class ResourceMarkers {
 					if (! marker.getType().getName().equals("Message"))
 					  throw RuntimeExceptionFactory.illegalArgument(marker, null, null);
 					ISourceLocation loc = (ISourceLocation)marker.get(1);
-					IResource resource = URIResourceResolver.getResource(loc.getURI(), null);
+					IResource resource = URIResourceResolver.getResource(loc.getURI());
 					if (resource instanceof IFile) {
 					  IFile file = (IFile) resource;
 					  try {

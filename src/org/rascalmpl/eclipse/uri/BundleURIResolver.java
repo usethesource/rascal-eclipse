@@ -19,27 +19,18 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
-import org.rascalmpl.uri.IURIInputStreamResolver;
-import org.rascalmpl.uri.IURIOutputStreamResolver;
+import org.rascalmpl.uri.IURIInputOutputResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
-public class BundleURIResolver implements IURIOutputStreamResolver,
-		IURIInputStreamResolver, IURIResourceResolver {
+public class BundleURIResolver implements  IURIInputOutputResolver {
 	private URIResolverRegistry registry;
 
 	public BundleURIResolver(URIResolverRegistry registry) {
 		this.registry = registry;
 	}
 	
-	public URI getResourceURI(URI uri) throws IOException {
-		return resolve(uri);
-	}
-
 	public OutputStream getOutputStream(URI uri, boolean append)
 			throws IOException {
 		URI parent = resolve(URIUtil.getParentURI(uri));
@@ -133,11 +124,4 @@ public class BundleURIResolver implements IURIOutputStreamResolver,
 	public Charset getCharset(URI uri) {
 		return Charset.defaultCharset(); // TODO
 	}
-
-	@Override
-	public IResource getResource(URI uri, String projectName)
-			throws IOException {
-		return ResourcesPlugin.getWorkspace().getRoot().getProject(projectName).findMember(new Path(uri.getPath()));
-	}
-
 }
