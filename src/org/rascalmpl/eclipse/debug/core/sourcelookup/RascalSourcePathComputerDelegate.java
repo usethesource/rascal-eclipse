@@ -47,7 +47,7 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 			
 			int i = 0;
 			for (URI elem : path) {
-				result[i++] = new URISourceContainer(new URIStorage(eval.getResolverRegistry(), elem, true), true);
+				result[i++] = new URISourceContainer(new URIStorage(eval.getResolverRegistry(), elem, true));
 			}
 			
 			result[i++] = new DummyConsoleSourceContainer();

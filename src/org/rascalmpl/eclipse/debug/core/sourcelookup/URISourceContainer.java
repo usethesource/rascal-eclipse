@@ -11,10 +11,9 @@ import org.rascalmpl.eclipse.uri.URIStorage;
 import org.rascalmpl.uri.URIUtil;
 
 public class URISourceContainer implements ISourceContainer {
-  private boolean fSubfolders = false;
   private URIStorage fRootFile = null;
 
-  public URISourceContainer(URIStorage root, boolean subfolders) {
+  public URISourceContainer(URIStorage root) {
     fRootFile = root;
   }
   
@@ -32,7 +31,7 @@ public class URISourceContainer implements ISourceContainer {
 				  && uri.getPath() != null 
 				  && uri.getPath().startsWith(root.getPath())) {
 			  URIStorage storage = new URIStorage(fRootFile.getRegistry(), uri, false);
-			  return new Object[] {new URISourceContainer(storage, false)};
+			  return new Object[] {new URISourceContainer(storage)};
 		  }
 		  
 		  return new Object[0];
@@ -58,7 +57,7 @@ public class URISourceContainer implements ISourceContainer {
   }
 
   public boolean isComposite() {  
-    return fSubfolders;
+    return false;
   }
 
   @Override
@@ -73,14 +72,7 @@ public class URISourceContainer implements ISourceContainer {
 
   @Override
   public ISourceContainer[] getSourceContainers() throws CoreException {
-    String[] children = fRootFile.listEntries();
-    ISourceContainer[] conts = new ISourceContainer[children.length];
-    
-    for (int i=0; i < children.length; i++) {
-      conts[i] = new URISourceContainer(fRootFile.makeChild(children[i]), fSubfolders);
-    }
-    
-    return conts;
+    return new ISourceContainer[0];
   }
 
   @Override
