@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -34,7 +33,6 @@ import org.rascalmpl.interpreter.ITestResultListener;
 
 public class TestReporter implements ITestResultListener {
 	private Map<IFile,List<Report>> reports;
-	private final IProject project;
 	
 	private static class Report {
 		public boolean successful;
@@ -47,10 +45,6 @@ public class TestReporter implements ITestResultListener {
 			this.message = message;
 		}
 		
-	}
-
-	public TestReporter(IProject project) {
-		this.project = project;
 	}
 
 	@Override

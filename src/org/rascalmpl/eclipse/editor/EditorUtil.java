@@ -25,27 +25,17 @@ import org.rascalmpl.uri.URIResolverRegistry;
 public class EditorUtil {
 	
 	public static boolean openAndSelectURI(ISourceLocation loc, URIResolverRegistry eval) {
-		return openAndSelectURI(loc, eval, null);
-	}
-	public static boolean openAndSelectURI(ISourceLocation loc, URIResolverRegistry eval, String projectName) {
 		if (loc.hasOffsetLength()) {
-			return openAndSelectURI(loc.getURI(), loc.getOffset(), loc.getLength(), eval, projectName);
+			return openAndSelectURI(loc.getURI(), loc.getOffset(), loc.getLength(), eval);
 		}
-		return openAndSelectURI(loc.getURI(), eval, projectName);
+		return openAndSelectURI(loc.getURI(), eval);
 	}
 
 	public static boolean openAndSelectURI(URI uri, URIResolverRegistry eval) {
-		return openAndSelectURI(uri, eval, null);
-	}
-	
-	public static boolean openAndSelectURI(URI uri, URIResolverRegistry eval, String projectName ) {
-		return openAndSelectURI(uri, -1, 0, eval, projectName);
-	}
-	public static boolean openAndSelectURI(URI uri, int offset, int length, URIResolverRegistry eval) {
-		return openAndSelectURI(uri, offset, length, eval, null);
+		return openAndSelectURI(uri, -1, 0, eval);
 	}
 
-	public static boolean openAndSelectURI(URI uri, int offset, int length, URIResolverRegistry eval, String projectName ) {
+	public static boolean openAndSelectURI(URI uri, int offset, int length, URIResolverRegistry eval) {
 		try {
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			IResource res = URIResourceResolver.getResource(uri);

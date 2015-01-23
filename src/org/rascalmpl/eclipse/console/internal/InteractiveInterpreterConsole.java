@@ -330,11 +330,11 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 							if (target.startsWith("|stdin")) continue; // do not make a link out of the stdin console loc
 							IHyperlink h;
 							int offset = fragmentOffsetStart + linkedLine.linkOffset(i);
-              int length = linkedLine.linkLength(i) - 1;
+							int length = linkedLine.linkLength(i) - 1;
               
 							if (target.startsWith("|")) {
 								// source location
-								h = new RascalHyperlink(InteractiveInterpreterConsole.this, offset, length, target, getInterpreter().getEval(), getInterpreter().getProjectName(), getInterpreter().getEval().getStdErr());
+								h = new RascalHyperlink(InteractiveInterpreterConsole.this, offset, length, target, getInterpreter().getEval(), getInterpreter().getEval().getStdErr());
 							}
 							else {
 								h = new WebHyperlink(target);

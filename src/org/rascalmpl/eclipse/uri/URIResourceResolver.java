@@ -24,10 +24,6 @@ public class URIResourceResolver {
   public static IResource getResource(URI uri) {
     IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint("rascal_eclipse", "uriResolver");
 
-    if (extensionPoint == null) {
-      return null;
-    }
-    
     for (IExtension element : extensionPoint.getExtensions()) {
       for (IConfigurationElement cfg : element.getConfigurationElements()) {
         try {
@@ -39,21 +35,12 @@ public class URIResourceResolver {
             }
           }
         }
-        catch (IOException e) {
-          Activator.log("io exception while resolving " + uri, e);
-          // try the next applicable resolver anyway
-        }
-        catch (ClassCastException e) {
-          Activator.log("could not load resource " + uri, e);
-          // try the next applicable resolver anyway
-        }
-        catch (CoreException e) {
-          Activator.log("could not load resource " + uri, e);
-          // try the next applicable resolver anyway
+        catch (IOException | ClassCastException | CoreException e) {
+          Activator.log("exception while resolving " + uri, e);
+          continue;
         }
       }
     }
-    
     
     return null;
   }

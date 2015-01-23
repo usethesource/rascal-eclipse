@@ -16,7 +16,6 @@ public class RascalHyperlink implements IHyperlink {
 	private static final int INVALID_OFFSET = -1;
 	private String target;
 	private IEvaluatorContext ctx;
-	private String projectName;
 	private final InteractiveInterpreterConsole console;
 	private final int srcOffset;
 	private final int srcLen;
@@ -29,13 +28,12 @@ public class RascalHyperlink implements IHyperlink {
 		return srcLen;
 	}
 
-	public RascalHyperlink(InteractiveInterpreterConsole console, int srcOffset, int srcLen, String target, IEvaluatorContext ctx, String projectName, PrintWriter err) {
+	public RascalHyperlink(InteractiveInterpreterConsole console, int srcOffset, int srcLen, String target, IEvaluatorContext ctx, PrintWriter err) {
 		this.ctx = ctx;
 		this.srcOffset = srcOffset;
 		this.srcLen = srcLen;
 		this.console = console;
 		this.target = target;
-		this.projectName = projectName;
 	}
 
 	@Override
@@ -50,10 +48,10 @@ public class RascalHyperlink implements IHyperlink {
 	public void linkActivated() {
 		console.setSelection(srcOffset - 1, srcLen + 1);
 		if (getOffsetPart() > -1) {
-			EditorUtil.openAndSelectURI(getURIPart(), getOffsetPart(), getLength(), ctx.getResolverRegistry(), projectName);
+			EditorUtil.openAndSelectURI(getURIPart(), getOffsetPart(), getLength(), ctx.getResolverRegistry());
 		}
 		else {
-			EditorUtil.openAndSelectURI(getURIPart(), ctx.getResolverRegistry(), projectName);
+			EditorUtil.openAndSelectURI(getURIPart(), ctx.getResolverRegistry());
 		}
 	}
 
