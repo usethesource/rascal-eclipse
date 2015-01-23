@@ -64,7 +64,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	private IDocument document;
 	private ParseJob job;
 	private Evaluator parser;
-  private IWarningHandler warnings;
+	private IWarningHandler warnings;
 	
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
 		return null;
