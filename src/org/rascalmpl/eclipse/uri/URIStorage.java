@@ -24,6 +24,19 @@ public class URIStorage implements IStorage {
 		this.isRoot = isRoot;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof URIStorage) {
+			return ((URIStorage) obj).uri.equals(uri);
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return uri.hashCode();
+	}
+	
 	public boolean isRoot() {
 		return isRoot;
 	}

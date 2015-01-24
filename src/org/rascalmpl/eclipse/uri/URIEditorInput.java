@@ -1,12 +1,5 @@
-package org.rascalmpl.eclipse.uri;
-
-import org.eclipse.core.resources.IStorage;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.IPersistableElement;
-import org.eclipse.ui.IStorageEditorInput;
-
 /*******************************************************************************
- * Copyright (c) 2009-2015 CWI
+ * Copyright (c) 2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +8,14 @@ import org.eclipse.ui.IStorageEditorInput;
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
 *******************************************************************************/
+package org.rascalmpl.eclipse.uri;
+
+import org.eclipse.core.resources.IStorage;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.IPersistableElement;
+import org.eclipse.ui.IStorageEditorInput;
+
+
 public class URIEditorInput implements IStorageEditorInput {
     private URIStorage storage;
     
@@ -48,5 +49,18 @@ public class URIEditorInput implements IStorageEditorInput {
     
     public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
       return null;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+    	if (obj instanceof URIEditorInput) {
+    		return ((URIEditorInput) obj).storage.equals(storage);
+    	}
+    	return false;
+    }
+    
+    @Override
+    public int hashCode() {
+    	return storage.hashCode();
     }
  }
