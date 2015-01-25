@@ -48,10 +48,10 @@ public class RascalHyperlink implements IHyperlink {
 	public void linkActivated() {
 		console.setSelection(srcOffset - 1, srcLen + 1);
 		if (getOffsetPart() > -1) {
-			EditorUtil.openAndSelectURI(getURIPart(), getOffsetPart(), getLength(), ctx.getResolverRegistry());
+			EditorUtil.openAndSelectURI(getURIPart(), getOffsetPart(), getLength());
 		}
 		else {
-			EditorUtil.openAndSelectURI(getURIPart(), ctx.getResolverRegistry());
+			EditorUtil.openAndSelectURI(getURIPart());
 		}
 	}
 

@@ -24,7 +24,6 @@ import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
-import org.rascalmpl.eclipse.uri.URIStorage;
 import org.rascalmpl.interpreter.Evaluator;
 
 public class RascalSourcePathComputerDelegate implements ISourcePathComputerDelegate {
@@ -47,7 +46,7 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 			
 			int i = 0;
 			for (URI elem : path) {
-				result[i++] = new URISourceContainer(new URIStorage(eval.getResolverRegistry(), elem, true));
+				result[i++] = new URISourceContainer(elem);
 			}
 			
 			result[i++] = new DummyConsoleSourceContainer();

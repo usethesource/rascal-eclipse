@@ -53,7 +53,6 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.FileURIResolver;
-import org.rascalmpl.uri.URIResolverRegistry;
 
 public class ParseController implements IParseController, IMessageHandlerProvider {
 	private IMessageHandler handler;
@@ -109,10 +108,6 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		return parseTree != null ? new TokenIterator(false, parseTree) : null;
 	}
 	
-	public URIResolverRegistry getRegistry() {
-		return parser.getResolverRegistry();
-	}
-
 	@Override
 	public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {
 		Assert.isTrue(filePath.isAbsolute() && project == null

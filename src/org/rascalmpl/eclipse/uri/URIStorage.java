@@ -15,13 +15,9 @@ import org.rascalmpl.uri.URIUtil;
 
 public class URIStorage implements IStorage {
 	private final URI uri;
-	private final URIResolverRegistry reg;
-	private boolean isRoot;
 
-	public URIStorage(URIResolverRegistry reg, URI store, boolean isRoot) {
+	public URIStorage(URI store) {
 		this.uri = store;
-		this.reg = reg;
-		this.isRoot = isRoot;
 	}
 	
 	@Override
@@ -37,16 +33,8 @@ public class URIStorage implements IStorage {
 		return uri.hashCode();
 	}
 	
-	public boolean isRoot() {
-		return isRoot;
-	}
-	
 	public URI getURI() {
 		return uri;
-	}
-	
-	public URIResolverRegistry getRegistry() {
-		return reg;
 	}
 	
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
@@ -55,7 +43,7 @@ public class URIStorage implements IStorage {
 
 	public InputStream getContents() throws CoreException {
 		try {
-			return reg.getInputStream(uri);
+			return URIResolverRegistry.getInstance().getInputStream(uri);
 		} catch (IOException e) {
 			throw new CoreException(new Status(Status.ERROR, IRascalResources.ID_RASCAL_ECLIPSE_PLUGIN, e.getMessage(), e));
 		}
@@ -68,28 +56,8 @@ public class URIStorage implements IStorage {
 	public String getName() {
 		return URIUtil.getURIName(uri);
 	}
-	
-	public boolean exists() {
-		return reg.exists(uri);
-	}
-	
-	public URIStorage makeChild(String child) {
-		return new URIStorage(reg, URIUtil.getChildURI(uri, child), false);
-	}
 
 	public boolean isReadOnly() {
 		return true;
-	}
-
-	public String[] listEntries() {
-		try {
-			return reg.listEntries(uri);
-		} catch (IOException e) {
-			return new String[0];
-		}
-	}
-	
-	public boolean isDirectory() {
-		return reg.isDirectory(uri);
 	}
 }

@@ -15,25 +15,21 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
-import org.rascalmpl.uri.URIResolverRegistry;
 
 public class SourceLocationHyperlink implements IHyperlink {
 	private final ISourceLocation from;
 	private final ISourceLocation to;
 	private final String text;
-	private final URIResolverRegistry registry;
 
-	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to, URIResolverRegistry reg) {
+	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to) {
 		this.from = from;
 		this.to = to;
-		this.registry = reg;
 		this.text = null;
 	}
 
-	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to, String text, URIResolverRegistry reg) {
+	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to, String text) {
 		this.from = from;
 		this.to = to;
-		this.registry = reg;
 		this.text  = text;
 	}
 
@@ -56,7 +52,7 @@ public class SourceLocationHyperlink implements IHyperlink {
 		if (to == null) {
 			return;
 		}
-		EditorUtil.openAndSelectURI(to, registry);
+		EditorUtil.openAndSelectURI(to);
 	}
 
 }

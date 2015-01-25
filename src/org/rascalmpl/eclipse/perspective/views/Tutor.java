@@ -132,7 +132,7 @@ public class Tutor extends ViewPart {
 						
 						eval.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
 						ProjectURIResolver resolver = new ProjectURIResolver();
-						URIResolverRegistry reg = eval.getResolverRegistry();
+						URIResolverRegistry reg = URIResolverRegistry.getInstance();
 						reg.registerInput(resolver);
 						reg.registerOutput(resolver);
 						

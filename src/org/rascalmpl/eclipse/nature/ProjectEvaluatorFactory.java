@@ -140,7 +140,7 @@ public class ProjectEvaluatorFactory {
 	 */
 	public static void configure(Evaluator evaluator) {
 		// NB. the code in this method is order dependent because it constructs a rascal module path in a particular order
-		URIResolverRegistry resolverRegistry = evaluator.getResolverRegistry();
+		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
 
 		ProjectURIResolver resolver = new ProjectURIResolver();
 		resolverRegistry.registerInput(resolver);
@@ -221,8 +221,8 @@ public class ProjectEvaluatorFactory {
 				if (libs != null) {
 					for (String required : libs) {
 						try {
-							JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(bundle.getEntry(required).toURI(), eval.getResolverRegistry());
-							eval.getResolverRegistry().registerInput(resolver);
+							JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(bundle.getEntry(required).toURI());
+							URIResolverRegistry.getInstance().registerInput(resolver);
 							addJarToSearchPath(resolver, eval);
 						} catch (IOException e) {
 							Activator.log("ignoring lib " + required, e);
@@ -380,8 +380,8 @@ public class ProjectEvaluatorFactory {
 		List<String> requiredLibraries = mf.getRequiredLibraries(project);
 		if (requiredLibraries != null) {
 			for (String lib : requiredLibraries) {
-				JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(project.getFile(lib).getLocationURI(), eval.getResolverRegistry());
-				eval.getResolverRegistry().registerInput(resolver);
+				JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(project.getFile(lib).getLocationURI());
+				URIResolverRegistry.getInstance().registerInput(resolver);
 				
 				try {
 					addJarToSearchPath(resolver, eval);

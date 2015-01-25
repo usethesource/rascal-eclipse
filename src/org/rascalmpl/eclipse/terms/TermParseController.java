@@ -52,7 +52,6 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.FileURIResolver;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TermParseController implements IParseController {
@@ -67,10 +66,6 @@ public class TermParseController implements IParseController {
 	
 	public Object getCurrentAst(){
 		return parseTree;
-	}
-	
-	public URIResolverRegistry getRegistry() {
-		return TermLanguageRegistry.getInstance().getEvaluator(getLanguage()).getResolverRegistry();
 	}
 	
 	public void setCurrentAst(IConstructor parseTree) {

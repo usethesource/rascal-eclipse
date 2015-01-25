@@ -7,31 +7,29 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourceContainerType;
 import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
-import org.rascalmpl.eclipse.uri.URIStorage;
 import org.rascalmpl.uri.URIUtil;
 
 public class URISourceContainer implements ISourceContainer {
-  private URIStorage fRootFile = null;
+  private URI fRootFile = null;
 
-  public URISourceContainer(URIStorage root) {
+  public URISourceContainer(URI root) {
     fRootFile = root;
   }
   
-  public URIStorage getStorage() {
+  public URI getURI() {
 	  return fRootFile;
   }
   
   public Object[] findSourceElements(String name) throws CoreException {
 	  try {
 		  URI uri = URIUtil.createFromEncoded(name);
-		  URI root = fRootFile.getURI();
+		  URI root = fRootFile;
 		  
 		  if (root.getScheme().equals(uri.getScheme())
 				  && root.getAuthority().equals(uri.getAuthority())
 				  && uri.getPath() != null 
 				  && uri.getPath().startsWith(root.getPath())) {
-			  URIStorage storage = new URIStorage(fRootFile.getRegistry(), uri, false);
-			  return new Object[] {new URISourceContainer(storage)};
+			  return new Object[] {new URISourceContainer(uri)};
 		  }
 		  
 		  return new Object[0];
@@ -41,7 +39,7 @@ public class URISourceContainer implements ISourceContainer {
   }     
   
   public String getName() {   
-    return fRootFile.getName(); 
+    return URIUtil.getURIName(fRootFile); 
   }
 
   public boolean equals(Object obj) {

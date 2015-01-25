@@ -20,22 +20,21 @@ import org.rascalmpl.eclipse.uri.URIEditorInput;
 import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.eclipse.uri.URIStorage;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.uri.URIResolverRegistry;
 
 public class EditorUtil {
 	
-	public static boolean openAndSelectURI(ISourceLocation loc, URIResolverRegistry eval) {
+	public static boolean openAndSelectURI(ISourceLocation loc) {
 		if (loc.hasOffsetLength()) {
-			return openAndSelectURI(loc.getURI(), loc.getOffset(), loc.getLength(), eval);
+			return openAndSelectURI(loc.getURI(), loc.getOffset(), loc.getLength());
 		}
-		return openAndSelectURI(loc.getURI(), eval);
+		return openAndSelectURI(loc.getURI());
 	}
 
-	public static boolean openAndSelectURI(URI uri, URIResolverRegistry eval) {
-		return openAndSelectURI(uri, -1, 0, eval);
+	public static boolean openAndSelectURI(URI uri) {
+		return openAndSelectURI(uri, -1, 0);
 	}
 
-	public static boolean openAndSelectURI(URI uri, int offset, int length, URIResolverRegistry eval) {
+	public static boolean openAndSelectURI(URI uri, int offset, int length) {
 		try {
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			IResource res = URIResourceResolver.getResource(uri);
@@ -56,8 +55,8 @@ public class EditorUtil {
 					Activator.log("Cannot resolve link", e);
 				}
 			}
-			else if (eval != null) {
-				URIStorage storage = new URIStorage(eval, uri, false);
+			else {
+				URIStorage storage = new URIStorage(uri);
 				IEditorInput input = new URIEditorInput(storage);
 				IEditorDescriptor[] ids = PlatformUI.getWorkbench().getEditorRegistry().getEditors(uri.getPath());
 				

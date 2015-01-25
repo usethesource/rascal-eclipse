@@ -1,5 +1,7 @@
 package org.rascalmpl.eclipse.navigator;
 
+import java.net.URI;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.ISelection;
@@ -13,13 +15,14 @@ import org.eclipse.ui.navigator.ICommonMenuConstants;
 import org.eclipse.ui.navigator.ICommonViewerSite;
 import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 import org.rascalmpl.eclipse.editor.EditorUtil;
-import org.rascalmpl.eclipse.uri.URIStorage;
+import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class NavigatorActionProvider extends CommonActionProvider {
 
   public class OpenFileStoreAction extends Action {
     private final ISelectionProvider sp;
-    private URIStorage store;
+    private URI store;
 
     public OpenFileStoreAction(ISelectionProvider selectionProvider) {
       this.sp = selectionProvider;
@@ -33,8 +36,8 @@ public class NavigatorActionProvider extends CommonActionProvider {
     @Override
     public void run() {
       if (store != null) {
-        if (!store.isDirectory()) {
-        	EditorUtil.openAndSelectURI(store.getURI(), store.getRegistry());
+        if (!URIResolverRegistry.getInstance().isDirectory(store)) {
+        	EditorUtil.openAndSelectURI(store);
         }
       }
     }
@@ -43,8 +46,8 @@ public class NavigatorActionProvider extends CommonActionProvider {
       ISelection selection = sp.getSelection();
       if (!selection.isEmpty()) {
         IStructuredSelection sSelection = (IStructuredSelection) selection;
-        if(sSelection.size() == 1 && sSelection.getFirstElement() instanceof URIStorage) {
-          store = (URIStorage) sSelection.getFirstElement();
+        if(sSelection.size() == 1 && sSelection.getFirstElement() instanceof URIContent) {
+          store = ((URIContent) sSelection.getFirstElement()).getURI();
           return true;
         }
       }

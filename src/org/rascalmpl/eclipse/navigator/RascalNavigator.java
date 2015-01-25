@@ -1,8 +1,10 @@
 package org.rascalmpl.eclipse.navigator;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -11,7 +13,9 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.navigator.CommonNavigator;
-import org.rascalmpl.eclipse.uri.URIStorage;
+import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.SearchPath;
+import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
+import org.rascalmpl.uri.URIUtil;
 
 public class RascalNavigator extends CommonNavigator {
 	
@@ -43,11 +47,25 @@ public class RascalNavigator extends CommonNavigator {
 				}
 			}
 			
-			elementMem = childMem.getChildren("storage");
+			elementMem = childMem.getChildren("uri");
 			for (int i = 0; i < elementMem.length; i++) {
-				Object element = container.findMember(elementMem[i].getString("uri"));
-				if (element != null) {
-					elements.add(element);
+				String strURI = elementMem[i].getString("uri");
+				String strProject = elementMem[i].getString("project");
+		
+				if (strURI != null && strProject != null) {
+					URI element = URIUtil.assumeCorrect(strURI);
+					IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(strProject);			
+					elements.add(new URIContent(element, project, false));
+				}
+			}
+			
+			elementMem = childMem.getChildren("searchpath");
+			for (int i = 0; i < elementMem.length; i++) {
+				String strProject = elementMem[i].getString("project");
+		
+				if (strProject != null) {
+					IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(strProject);			
+					elements.add(new SearchPath(project));
 				}
 			}
 		}
@@ -65,18 +83,19 @@ public class RascalNavigator extends CommonNavigator {
 					IMemento elementMem = expandedMem.createChild("element");
 					elementMem.putString("path", ((IResource) expandedElements[i]).getFullPath().toString());
 				}
-				else if (expandedElements[i] instanceof URIStorage) {
-					IMemento elementMem = expandedMem.createChild("storage");
-					elementMem.putString("uri", ((URIStorage) expandedElements[i]).getURI().toString());
-					// TODO: we need to find the project name with this in order to restore the
-					// URIResolverRegistry properly with this.
+				else if (expandedElements[i] instanceof URIContent) {
+					IMemento elementMem = expandedMem.createChild("uri");
+					elementMem.putString("uri", ((URIContent) expandedElements[i]).getURI().toString());
+					elementMem.putString("project", ((URIContent) expandedElements[i]).getProject().getName());
+				}
+				else if (expandedElements[i] instanceof SearchPath) {
+					IMemento elementMem = expandedMem.createChild("searchpath");
+					elementMem.putString("project", ((SearchPath) expandedElements[i]).getProject().getName());
 				}
 				else if (expandedElements[i] instanceof IWorkingSet) {
 					IMemento elementMem = expandedMem.createChild("ws_element");
 					elementMem.putString("name", ((IWorkingSet) expandedElements[i]).getName());
 				}
-				// TODO: store the search path content, and save the
-				// associated project name with it. This should help.
 			}
 		}
 	}
