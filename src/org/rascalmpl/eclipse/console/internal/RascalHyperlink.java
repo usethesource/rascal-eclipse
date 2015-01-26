@@ -5,17 +5,13 @@ import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.ui.console.IHyperlink;
 import org.rascalmpl.eclipse.editor.EditorUtil;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIUtil;
 
 public class RascalHyperlink implements IHyperlink {
 	private static final int INVALID_OFFSET = -1;
 	private String target;
-	private IEvaluatorContext ctx;
 	private final InteractiveInterpreterConsole console;
 	private final int srcOffset;
 	private final int srcLen;
@@ -28,8 +24,7 @@ public class RascalHyperlink implements IHyperlink {
 		return srcLen;
 	}
 
-	public RascalHyperlink(InteractiveInterpreterConsole console, int srcOffset, int srcLen, String target, IEvaluatorContext ctx, PrintWriter err) {
-		this.ctx = ctx;
+	public RascalHyperlink(InteractiveInterpreterConsole console, int srcOffset, int srcLen, String target, PrintWriter err) {
 		this.srcOffset = srcOffset;
 		this.srcLen = srcLen;
 		this.console = console;
@@ -86,20 +81,6 @@ public class RascalHyperlink implements IHyperlink {
 					offset = Integer.parseInt(m.group(2));
 					length = Integer.parseInt(m.group(3));
 				}
-			}
-
-			IValueFactory vf = ctx.getValueFactory();
-			ISourceLocation loc;
-			if (offset != INVALID_OFFSET) {
-				loc = ctx.getHeap().resolveSourceLocation(vf.sourceLocation(vf.sourceLocation(uri), offset, length));
-			}
-			else {
-				loc = ctx.getHeap().resolveSourceLocation(vf.sourceLocation(uri));
-			}
-			uri = loc.getURI();
-			if (loc.hasOffsetLength()) {
-				offset = loc.getOffset(); 
-				length = loc.getLength();
 			}
 		}
 	}
