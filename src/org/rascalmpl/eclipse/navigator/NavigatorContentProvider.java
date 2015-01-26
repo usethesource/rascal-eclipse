@@ -125,7 +125,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
     	  return storage.listEntries();
       }
     } catch (CoreException e) {
-      Activator.log(e.getMessage(), e);
+    	Activator.log(e.getMessage(), e);
     }
 
     return new Object[] {};
@@ -194,11 +194,17 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		  return project;
 	  }
 	  
-	  public ISourceLocation[] listEntries() {
+	  public URIContent[] listEntries() {
 		  try {
-			  return URIResolverRegistry.getInstance().list(uri);
+			  ISourceLocation[] entries = URIResolverRegistry.getInstance().list(uri);
+			  URIContent[] list = new URIContent[entries.length];
+	    	  int i = 0;
+	    	  for (ISourceLocation loc : entries) {
+	    		  list[i++] = new URIContent(loc, project, false);
+	    	  }
+	    	  return list;
 		  } catch (IOException e) {
-			  return new ISourceLocation[0];
+			  return new URIContent[0];
 		  }
 	  }
 

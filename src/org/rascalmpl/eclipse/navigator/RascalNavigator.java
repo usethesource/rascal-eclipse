@@ -86,7 +86,7 @@ public class RascalNavigator extends CommonNavigator {
 				}
 				else if (expandedElements[i] instanceof URIContent) {
 					IMemento elementMem = expandedMem.createChild("uri");
-					elementMem.putString("uri", ((URIContent) expandedElements[i]).getURI().toString());
+					elementMem.putString("uri", ((URIContent) expandedElements[i]).getURI().getURI().toString());
 					elementMem.putString("project", ((URIContent) expandedElements[i]).getProject().getName());
 				}
 				else if (expandedElements[i] instanceof SearchPath) {
