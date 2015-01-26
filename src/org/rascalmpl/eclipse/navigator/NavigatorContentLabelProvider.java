@@ -7,13 +7,10 @@ import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.SearchPath;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
 
 public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
-  private final WorkbenchLabelProvider wbProvider = new WorkbenchLabelProvider();
-  
   @Override
   public String getText(Object element) {
     if (element instanceof URIContent) {
@@ -63,6 +60,6 @@ public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
 		  return PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FILE);
 	  }
     
-	  return wbProvider.getImage(element);
+	  return super.getImage(element);
   }
 }
