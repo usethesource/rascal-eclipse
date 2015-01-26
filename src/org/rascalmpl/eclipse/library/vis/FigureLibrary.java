@@ -58,7 +58,7 @@ public class FigureLibrary {
 					public void run() {
 						OutputStream out = null;
 						try{
-							out =  URIResolverRegistry.getInstance().getOutputStream(loc.getURI(), false);
+							out =  URIResolverRegistry.getInstance().getOutputStream(loc, false);
 							env.saveImage(out);
 						} catch(IOException f){
 							ctx.getStdErr().printf("Could not save figure " + f.getMessage() + "\n");

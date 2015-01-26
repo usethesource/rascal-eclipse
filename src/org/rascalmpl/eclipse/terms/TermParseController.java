@@ -14,7 +14,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.terms;
 
-import java.net.URI;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.Assert;
@@ -111,7 +110,7 @@ public class TermParseController implements IParseController {
 		TermLanguageRegistry reg = TermLanguageRegistry.getInstance();
 		this.language = reg.getLanguage(path.getFileExtension());
 
-		URI location = null;
+		ISourceLocation location = null;
 
 		if (project != null) {
 			location = ProjectURIResolver.constructProjectURI(project, path);
@@ -119,7 +118,7 @@ public class TermParseController implements IParseController {
 			location = FileURIResolver.constructFileURI(path.toOSString());
 		}
 
-		this.job = new ParseJob(language.getName() + " parser", VF.sourceLocation(location), handler);
+		this.job = new ParseJob(language.getName() + " parser", location, handler);
 	}
 	
 	public IDocument getDocument() {
@@ -147,7 +146,7 @@ public class TermParseController implements IParseController {
 			
 			this.loc = loc;
 			this.handler = handler;
-			this.warnings = new WarningsToMessageHandler(loc.getURI(), handler);
+			this.warnings = new WarningsToMessageHandler(loc, handler);
 		}
 		
 		public void initialize(String input) {

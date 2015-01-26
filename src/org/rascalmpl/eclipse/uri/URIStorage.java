@@ -2,21 +2,21 @@ package org.rascalmpl.eclipse.uri;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 public class URIStorage implements IStorage {
-	private final URI uri;
+	private final ISourceLocation uri;
 
-	public URIStorage(URI store) {
+	public URIStorage(ISourceLocation store) {
 		this.uri = store;
 	}
 	
@@ -33,7 +33,7 @@ public class URIStorage implements IStorage {
 		return uri.hashCode();
 	}
 	
-	public URI getURI() {
+	public ISourceLocation getLocation() {
 		return uri;
 	}
 	
@@ -54,7 +54,7 @@ public class URIStorage implements IStorage {
 	}
 
 	public String getName() {
-		return URIUtil.getURIName(uri);
+		return URIUtil.getLocationName(uri);
 	}
 
 	public boolean isReadOnly() {

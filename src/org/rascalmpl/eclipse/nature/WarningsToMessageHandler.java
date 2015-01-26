@@ -1,6 +1,5 @@
 package org.rascalmpl.eclipse.nature;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,10 +8,10 @@ import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public class WarningsToMessageHandler implements IWarningHandler {
-  private final URI uri;
+  private final ISourceLocation uri;
   private final IMessageHandler handler;
 
-  public WarningsToMessageHandler(URI uri, IMessageHandler handler) {
+  public WarningsToMessageHandler(ISourceLocation uri, IMessageHandler handler) {
     this.uri = uri;
     this.handler = handler;
   }

@@ -1,7 +1,6 @@
 package org.rascalmpl.eclipse.navigator;
 
-import java.net.URI;
-
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.ISelection;
@@ -22,7 +21,7 @@ public class NavigatorActionProvider extends CommonActionProvider {
 
   public class OpenFileStoreAction extends Action {
     private final ISelectionProvider sp;
-    private URI store;
+    private ISourceLocation store;
 
     public OpenFileStoreAction(ISelectionProvider selectionProvider) {
       this.sp = selectionProvider;

@@ -44,7 +44,7 @@ public class URIEditorInput implements IStorageEditorInput {
     }
     
     public String getToolTipText() {
-       return storage.getURI().toString();
+       return storage.getLocation().toString();
     }
     
     public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {

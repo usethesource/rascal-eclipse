@@ -221,7 +221,7 @@ public class ProjectEvaluatorFactory {
 				if (libs != null) {
 					for (String required : libs) {
 						try {
-							JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(bundle.getEntry(required).toURI());
+							JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(ValueFactoryFactory.getValueFactory().sourceLocation(bundle.getEntry(required).toURI()));
 							URIResolverRegistry.getInstance().registerInput(resolver);
 							addJarToSearchPath(resolver, eval);
 						} catch (IOException e) {
@@ -292,7 +292,7 @@ public class ProjectEvaluatorFactory {
     
     for (String root : roots) {
       // TODO: add check to see if library is referenced in RASCAL.MF
-      evaluator.addRascalSearchPath(URIUtil.assumeCorrect("plugin", bundle.getSymbolicName(), "/" + root));
+      evaluator.addRascalSearchPath(URIUtil.correctLocation("plugin", bundle.getSymbolicName(), "/" + root));
     }
     
     evaluator.addClassLoader(new BundleClassLoader(bundle));
@@ -367,7 +367,7 @@ public class ProjectEvaluatorFactory {
 			throws URISyntaxException {
 		RascalEclipseManifest mf = new RascalEclipseManifest();
 		for (String root : mf.getSourceRoots(project)) {
-			eval.addRascalSearchPath(URIUtil.create("project", project.getName(), "/" + root.trim()));
+			eval.addRascalSearchPath(URIUtil.correctLocation("project", project.getName(), "/" + root.trim()));
 		}
 		
 		List<String> requiredBundles = mf.getRequiredBundles(project);
@@ -380,7 +380,7 @@ public class ProjectEvaluatorFactory {
 		List<String> requiredLibraries = mf.getRequiredLibraries(project);
 		if (requiredLibraries != null) {
 			for (String lib : requiredLibraries) {
-				JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(project.getFile(lib).getLocationURI());
+				JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(ValueFactoryFactory.getValueFactory().sourceLocation(project.getFile(lib).getLocationURI()));
 				URIResolverRegistry.getInstance().registerInput(resolver);
 				
 				try {
@@ -398,7 +398,7 @@ public class ProjectEvaluatorFactory {
 
 		  if (roots != null) {
 			  for (String root : roots) {
-				  eval.addRascalSearchPath(URIUtil.create(resolver.scheme(), "", "/" + root));
+				  eval.addRascalSearchPath(URIUtil.correctLocation(resolver.scheme(), "", "/" + root));
 			  }
 		  }
 	  }
@@ -410,11 +410,11 @@ public class ProjectEvaluatorFactory {
 
 	  if (srcs != null) {
 		  for (String root : srcs) {
-			  eval.addRascalSearchPath(URIUtil.assumeCorrect("plugin", bundle.getSymbolicName(), "/" + root.trim()));
+			  eval.addRascalSearchPath(URIUtil.correctLocation("plugin", bundle.getSymbolicName(), "/" + root.trim()));
 		  }
 	  }
 	  else {
-		  eval.addRascalSearchPath(URIUtil.assumeCorrect("plugin", bundle.getSymbolicName(), "/"));
+		  eval.addRascalSearchPath(URIUtil.correctLocation("plugin", bundle.getSymbolicName(), "/"));
 	  }
   }
 

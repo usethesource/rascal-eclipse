@@ -117,7 +117,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		this.handler = handler;
 		this.project = project;
 
-		URI location = null;
+		ISourceLocation location = null;
 		
 		if (project != null) {
 			location = ProjectURIResolver.constructProjectURI(project, path);
@@ -144,13 +144,13 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	}
 	
 	private class ParseJob extends Job {
-		private final URI uri;
+		private final ISourceLocation uri;
 		private Set<IResource> markedFiles;
 
 		private String input;
 		public IConstructor parseTree = null;
 
-		public ParseJob(String name, URI uri, IMessageHandler handler) {
+		public ParseJob(String name, ISourceLocation uri, IMessageHandler handler) {
 			super(name);
 			
 			this.uri = uri;

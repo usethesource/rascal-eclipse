@@ -8,53 +8,57 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-*******************************************************************************/
+ *******************************************************************************/
 package org.rascalmpl.eclipse.uri;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.rascalmpl.uri.IURIInputOutputResolver;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
 
-public class BundleURIResolver implements  IURIInputOutputResolver {
+public class BundleURIResolver implements  ISourceLocationInputOutput {
 	private URIResolverRegistry registry;
 
 	public BundleURIResolver(URIResolverRegistry registry) {
 		this.registry = registry;
 	}
-	
-	public OutputStream getOutputStream(URI uri, boolean append)
+
+	@Override
+	public OutputStream getOutputStream(ISourceLocation uri, boolean append)
 			throws IOException {
-		URI parent = resolve(URIUtil.getParentURI(uri));
+		ISourceLocation parent = resolve(URIUtil.getParentLocation(uri));
 		parent = resolve(parent);
-		return registry.getOutputStream(URIUtil.getChildURI(parent, URIUtil.getURIName(uri)), append);
+		return registry.getOutputStream(URIUtil.getChildLocation(parent, URIUtil.getLocationName(uri)), append);
 	}
 
 	@Override
-  public void mkDirectory(URI uri) throws IOException {
-		URI parent = resolve(URIUtil.getParentURI(uri));
+	public void mkDirectory(ISourceLocation uri) throws IOException {
+		ISourceLocation parent = resolve(URIUtil.getParentLocation(uri));
 		parent = resolve(parent);
-		registry.mkDirectory(URIUtil.getChildURI(parent, URIUtil.getURIName(uri)));
+		registry.mkDirectory(URIUtil.getChildLocation(parent, URIUtil.getLocationName(uri)));
 	}
-  
-  @Override
-  public void remove(URI uri) throws IOException {
-    registry.remove(resolve(uri));
-  }
 
+	@Override
+	public void remove(ISourceLocation uri) throws IOException {
+		registry.remove(resolve(uri));
+	}
+
+	@Override
 	public String scheme() {
 		return "bundleresource";
 	}
 
-	public boolean exists(URI uri) {
+	@Override
+	public boolean exists(ISourceLocation uri) {
 		try {
 			return registry.exists(resolve(uri));
 		} catch (IOException e) {
@@ -62,16 +66,17 @@ public class BundleURIResolver implements  IURIInputOutputResolver {
 		}
 	}
 
-	public InputStream getInputStream(URI uri) throws IOException {
+	@Override
+	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 		return registry.getInputStream(resolve(uri));
 	}
 
-	protected URI resolve(URI uri) throws IOException {
+	protected ISourceLocation resolve(ISourceLocation uri) throws IOException {
 		try {
-			URL resolved = FileLocator.resolve(uri.toURL());
-			URI result = null;
+			URL resolved = FileLocator.resolve(uri.getURI().toURL());
+			ISourceLocation result = null;
 			try {
-				result = URIUtil.fixUnicode(resolved.toURI()); 
+				result = ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.fixUnicode(resolved.toURI())); 
 			}
 			catch (URISyntaxException e) {
 				// lets try to make a URI out of the URL.
@@ -79,19 +84,20 @@ public class BundleURIResolver implements  IURIInputOutputResolver {
 				if (path.startsWith("file:")) {
 					path = path.substring(5);
 				}
-				result = URIUtil.create(resolved.getProtocol(), resolved.getAuthority(), path);
+				result = ValueFactoryFactory.getValueFactory().sourceLocation(resolved.getProtocol(), resolved.getAuthority(), path);
 			}
 			if (result == uri) {
 				throw new IOException("could not resolve " + uri);
 			}
-			
+
 			return result;
 		} catch (URISyntaxException e) {
 			throw new IOException("unexpected URI syntax exception: " + e.getMessage(), e);
 		}
 	}
 
-	public boolean isDirectory(URI uri) {
+	@Override
+	public boolean isDirectory(ISourceLocation uri) {
 		try {
 			return registry.isDirectory(resolve(uri));
 		} catch (IOException e) {
@@ -99,7 +105,8 @@ public class BundleURIResolver implements  IURIInputOutputResolver {
 		}
 	}
 
-	public boolean isFile(URI uri) {
+	@Override
+	public boolean isFile(ISourceLocation uri) {
 		try {
 			return registry.isFile(resolve(uri));
 		} catch (IOException e) {
@@ -107,12 +114,14 @@ public class BundleURIResolver implements  IURIInputOutputResolver {
 		}
 	}
 
-	public long lastModified(URI uri) throws IOException {
+	@Override
+	public long lastModified(ISourceLocation uri) throws IOException {
 		return registry.lastModified(resolve(uri));
 	}
 
-	public String[] listEntries(URI uri) throws IOException {
-		return registry.listEntries(resolve(uri));
+	@Override
+	public ISourceLocation[] list(ISourceLocation uri) throws IOException {
+		return registry.list(resolve(uri));
 	}
 
 	@Override
@@ -121,7 +130,7 @@ public class BundleURIResolver implements  IURIInputOutputResolver {
 	}
 
 	@Override
-	public Charset getCharset(URI uri) {
+	public Charset getCharset(ISourceLocation uri) {
 		return Charset.defaultCharset(); // TODO
 	}
 }
