@@ -1,5 +1,6 @@
 package org.rascalmpl.eclipse.editor;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 
 import org.eclipse.core.resources.IFile;
@@ -19,12 +20,20 @@ import org.rascalmpl.eclipse.uri.URIEditorInput;
 import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.eclipse.uri.URIStorage;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class EditorUtil {
 	
 	public static boolean openAndSelectURI(ISourceLocation uri) {
 		try {
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			
+			try {
+				uri = URIResolverRegistry.getInstance().logicalToPhysical(uri);
+			} catch (IOException e) {
+				// in case file not found logically
+			}
+			
 			IResource res = URIResourceResolver.getResource(uri);
 			if (res != null && res instanceof IFile) {
 				IEditorPart part = IDE.openEditor(page, (IFile)res);

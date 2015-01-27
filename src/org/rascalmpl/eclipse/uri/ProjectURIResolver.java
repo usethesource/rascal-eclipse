@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
@@ -81,7 +82,7 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 			throw new IOException("project " + uri.getAuthority() + " does not exist");
 		}
 		
-		return project.getFile(uri.getPath());
+		return project.getFile(new Path(uri.getPath()));
 	}
 	
 	private IContainer resolveFolder(ISourceLocation uri) throws IOException, MalformedURLException {

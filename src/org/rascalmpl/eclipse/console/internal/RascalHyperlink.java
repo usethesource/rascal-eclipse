@@ -5,7 +5,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.ui.console.IHyperlink;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -86,20 +85,6 @@ public class RascalHyperlink implements IHyperlink {
 					offset = Integer.parseInt(m.group(2));
 					length = Integer.parseInt(m.group(3));
 				}
-			}
-
-			IValueFactory vf = ctx.getValueFactory();
-			ISourceLocation loc;
-			if (offset != INVALID_OFFSET) {
-				loc = ctx.getHeap().resolveSourceLocation(vf.sourceLocation(uri, offset, length));
-			}
-			else {
-				loc = ctx.getHeap().resolveSourceLocation(uri);
-			}
-			
-			if (loc.hasOffsetLength()) {
-				offset = loc.getOffset(); 
-				length = loc.getLength();
 			}
 		}
 	}
