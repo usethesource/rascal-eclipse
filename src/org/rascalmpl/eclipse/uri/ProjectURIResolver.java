@@ -36,7 +36,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResourceResolver {
@@ -185,23 +184,19 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	}
 
 	@Override
-	public ISourceLocation[] list(ISourceLocation uri) {
+	public String[] list(ISourceLocation uri) throws IOException {
 		try {
 			IContainer folder = resolveFolder(uri);
 			IResource[] members = folder.members();
-			ISourceLocation[] result = new ISourceLocation[members.length];
+			String[] result = new String[members.length];
 			
 			for (int i = 0; i < members.length; i++) {
-				result[i] = URIUtil.getChildLocation(uri, members[i].getName());
+				result[i] = members[i].getName();
 			}
 			
 			return result;
 		} catch (CoreException e) {
-			return new ISourceLocation[0];
-		} catch (MalformedURLException e) {
-			return new ISourceLocation[0];
-		} catch (IOException e) {
-			return new ISourceLocation[0];
+			throw new IOException(e);
 		}
 	}
 

@@ -120,8 +120,8 @@ public class BundleURIResolver implements  ISourceLocationInputOutput {
 	}
 
 	@Override
-	public ISourceLocation[] list(ISourceLocation uri) throws IOException {
-		return registry.list(resolve(uri));
+	public String[] list(ISourceLocation uri) throws IOException {
+		return registry.listEntries(resolve(uri));
 	}
 
 	@Override
