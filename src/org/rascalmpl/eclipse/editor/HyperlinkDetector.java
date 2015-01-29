@@ -43,10 +43,10 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 			return getTreeLinks(tree, region);
 		}
 		
-		return null;
+		return null; 
 	}
 
-	private IHyperlink[] getTreeLinks(IConstructor tree, IRegion region, IEvaluatorContext eval, String currentProject) {
+	private IHyperlink[] getTreeLinks(IConstructor tree, IRegion region) {
 		IValue xref = tree.asWithKeywordParameters().getParameter("hyperlinks");
 		if (xref != null) {
 			if (xref.getType().isSet() && xref.getType().getElementType().isTuple() 
