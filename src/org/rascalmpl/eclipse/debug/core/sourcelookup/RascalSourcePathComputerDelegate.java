@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
-import java.net.URI;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -22,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
@@ -41,11 +41,11 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 		if (configurationUtility.hasAssociatedProject()) {
 			IProject associatedProject = configurationUtility.getAssociatedProject();
 			Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(associatedProject);
-			List<URI> path = eval.getRascalResolver().collect();
+			List<ISourceLocation> path = eval.getRascalResolver().collect();
 			ISourceContainer[] result = new ISourceContainer[path.size() + 1];
 			
 			int i = 0;
-			for (URI elem : path) {
+			for (ISourceLocation elem : path) {
 				result[i++] = new URISourceContainer(elem);
 			}
 			

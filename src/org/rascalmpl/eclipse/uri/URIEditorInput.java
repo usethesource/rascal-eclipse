@@ -44,7 +44,7 @@ public class URIEditorInput implements IStorageEditorInput {
     }
     
     public String getToolTipText() {
-       return storage.getURI().toString();
+       return storage.getLocation().toString();
     }
     
     public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
@@ -54,7 +54,7 @@ public class URIEditorInput implements IStorageEditorInput {
     @Override
     public boolean equals(Object obj) {
     	if (obj instanceof URIEditorInput) {
-    		return ((URIEditorInput) obj).storage.equals(storage);
+    		return ((URIEditorInput) obj).storage.getLocation().getURI().equals(storage.getLocation().getURI());
     	}
     	return false;
     }

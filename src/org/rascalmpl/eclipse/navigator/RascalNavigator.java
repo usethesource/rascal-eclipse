@@ -16,6 +16,7 @@ import org.eclipse.ui.navigator.CommonNavigator;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.SearchPath;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalNavigator extends CommonNavigator {
 	
@@ -55,7 +56,7 @@ public class RascalNavigator extends CommonNavigator {
 				if (strURI != null && strProject != null) {
 					URI element = URIUtil.assumeCorrect(strURI);
 					IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(strProject);			
-					elements.add(new URIContent(element, project, false));
+					elements.add(new URIContent(ValueFactoryFactory.getValueFactory().sourceLocation(element), project, false));
 				}
 			}
 			
@@ -85,7 +86,7 @@ public class RascalNavigator extends CommonNavigator {
 				}
 				else if (expandedElements[i] instanceof URIContent) {
 					IMemento elementMem = expandedMem.createChild("uri");
-					elementMem.putString("uri", ((URIContent) expandedElements[i]).getURI().toString());
+					elementMem.putString("uri", ((URIContent) expandedElements[i]).getURI().getURI().toString());
 					elementMem.putString("project", ((URIContent) expandedElements[i]).getProject().getName());
 				}
 				else if (expandedElements[i] instanceof SearchPath) {

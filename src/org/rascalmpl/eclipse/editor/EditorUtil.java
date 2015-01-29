@@ -1,7 +1,7 @@
 package org.rascalmpl.eclipse.editor;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -20,34 +20,32 @@ import org.rascalmpl.eclipse.uri.URIEditorInput;
 import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.eclipse.uri.URIStorage;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class EditorUtil {
 	
-	public static boolean openAndSelectURI(ISourceLocation loc) {
-		if (loc.hasOffsetLength()) {
-			return openAndSelectURI(loc.getURI(), loc.getOffset(), loc.getLength());
-		}
-		return openAndSelectURI(loc.getURI());
-	}
-
-	public static boolean openAndSelectURI(URI uri) {
-		return openAndSelectURI(uri, -1, 0);
-	}
-
-	public static boolean openAndSelectURI(URI uri, int offset, int length) {
+	public static boolean openAndSelectURI(ISourceLocation uri) {
 		try {
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			
+			try {
+				uri = URIResolverRegistry.getInstance().logicalToPhysical(uri);
+			} catch (IOException e) {
+				// in case file not found logically
+			}
+			
 			IResource res = URIResourceResolver.getResource(uri);
 			if (res != null && res instanceof IFile) {
 				IEditorPart part = IDE.openEditor(page, (IFile)res);
-				if (offset > -1 && part instanceof ITextEditor) {
-					((ITextEditor)part).selectAndReveal(offset, length);
+				
+				if (uri.hasOffsetLength() && part instanceof ITextEditor) {
+					((ITextEditor)part).selectAndReveal(uri.getOffset(), uri.getLength());
 				}
 				return true;
 			}
 			else if (uri.getScheme().equals("http")) {
 				try {
-					PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(uri.toURL());
+					PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(uri.getURI().toURL());
 					return true;
 				} catch (PartInitException e) {
 					Activator.log("Cannot get editor part", e);
@@ -65,8 +63,8 @@ public class EditorUtil {
 				}
 				if (ids != null && ids.length > 0) {
 					IEditorPart part = IDE.openEditor(page, input, ids[0].getId(), true);
-					if (offset > -1 && part instanceof ITextEditor) {
-						((ITextEditor)part).selectAndReveal(offset, length);
+					if (uri.hasOffsetLength() && part instanceof ITextEditor) {
+						((ITextEditor)part).selectAndReveal(uri.getOffset(), uri.getLength());
 					}
 					return true;
 				}

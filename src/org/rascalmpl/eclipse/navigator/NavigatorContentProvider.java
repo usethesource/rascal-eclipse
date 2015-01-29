@@ -1,7 +1,6 @@
 package org.rascalmpl.eclipse.navigator;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,6 +18,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -122,17 +122,12 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
       }
       else if (parentElement instanceof URIContent) {
     	  URIContent storage = (URIContent) parentElement;
-    	  String[] entries = storage.listEntries();
-    	  Object[] result = new Object[entries.length];
-
-    	  for (int i = 0; i < entries.length; i++) {
-    		  result[i] = storage.makeChild(entries[i]);
+    	  if (storage.isDirectory()) {
+    		  return storage.listEntries();
     	  }
-
-    	  return result;
       }
     } catch (CoreException e) {
-      Activator.log(e.getMessage(), e);
+    	Activator.log(e.getMessage(), e);
     }
 
     return new Object[] {};
@@ -150,7 +145,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		  RascalSearchPath resolver = eval.getRascalResolver();
 		  List<URIContent> result = new LinkedList<>();
 		  
-		  for (URI root : resolver.collect()) {
+		  for (ISourceLocation root : resolver.collect()) {
 			  result.add(new URIContent(root, project, true));
 		  }
 
@@ -175,11 +170,11 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
   }
   
   public static class URIContent {
-	  private final URI uri;
+	  private final ISourceLocation uri;
 	  private final IProject project;
 	  private final boolean isRoot;
 	  
-	  public URIContent(URI uri, IProject project, boolean isRoot) {
+	  public URIContent(ISourceLocation uri, IProject project, boolean isRoot) {
 		  this.uri = uri;
 		  this.project = project;
 		  this.isRoot = isRoot;
@@ -190,10 +185,10 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	  }
 	  
 	  public String getName() {
-		  return URIUtil.getURIName(uri);
+		  return URIUtil.getLocationName(uri);
 	  }
 
-	  public URI getURI() {
+	  public ISourceLocation getURI() {
 		  return uri;
 	  }
 
@@ -201,11 +196,17 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		  return project;
 	  }
 	  
-	  public String[] listEntries() {
+	  public URIContent[] listEntries() {
 		  try {
-			  return URIResolverRegistry.getInstance().listEntries(uri);
+			  ISourceLocation[] entries = URIResolverRegistry.getInstance().list(uri);
+			  URIContent[] list = new URIContent[entries.length];
+	    	  int i = 0;
+	    	  for (ISourceLocation loc : entries) {
+	    		  list[i++] = new URIContent(loc, project, false);
+	    	  }
+	    	  return list;
 		  } catch (IOException e) {
-			  return new String[0];
+			  return new URIContent[0];
 		  }
 	  }
 
@@ -218,7 +219,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	  }
 
 	  public URIContent makeChild(String child) {
-		  return new URIContent(URIUtil.getChildURI(uri, child), project, false);
+		  return new URIContent(URIUtil.getChildLocation(uri, child), project, false);
 	  }
 	  
 	  @Override

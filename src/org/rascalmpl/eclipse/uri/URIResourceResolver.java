@@ -1,7 +1,6 @@
 package org.rascalmpl.eclipse.uri;
 
 import java.io.IOException;
-import java.net.URI;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -9,6 +8,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
 
 public class URIResourceResolver {
@@ -21,7 +21,7 @@ public class URIResourceResolver {
    * @param projectName the context of the URI, can be null
    * @return null if no IURIResourceResolved could resolve the URI to a resource, or an IResource handle.
    */
-  public static IResource getResource(URI uri) {
+  public static IResource getResource(ISourceLocation uri) {
     IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint("rascal_eclipse", "uriResolver");
 
     for (IExtension element : extensionPoint.getExtensions()) {

@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console.internal;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -103,11 +102,7 @@ public class TestReporter implements ITestResultListener {
 		reports = new HashMap<IFile,List<Report>>();
 	}	
 	
-	private IFile getFile(ISourceLocation loc) {
-		return getFile(loc.getURI());
-	}
-	
-	private IFile getFile(URI uri) {
+	private IFile getFile(ISourceLocation uri) {
 		IResource res = URIResourceResolver.getResource(uri);
 		
 		if (res instanceof IFile) {

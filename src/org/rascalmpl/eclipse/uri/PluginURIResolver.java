@@ -12,12 +12,13 @@ package org.rascalmpl.eclipse.uri;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class PluginURIResolver extends BundleURIResolver {
 
@@ -31,7 +32,7 @@ public class PluginURIResolver extends BundleURIResolver {
 	}
 	
 	@Override
-	protected URI resolve(URI uri) throws IOException {
+	protected ISourceLocation resolve(ISourceLocation uri) throws IOException {
 		try {
 			String authority = uri.getAuthority();
 			
@@ -43,7 +44,8 @@ public class PluginURIResolver extends BundleURIResolver {
 			if (entry == null) {
 				throw new FileNotFoundException(uri.toString());
 			}
-			return super.resolve(entry.toURI());
+			
+			return super.resolve(ValueFactoryFactory.getValueFactory().sourceLocation(entry.toURI()));
 		} catch (URISyntaxException e) {
 			throw new IOException(e);
 		}

@@ -1,10 +1,10 @@
 package org.rascalmpl.eclipse.uri;
 
 import java.io.IOException;
-import java.net.URI;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 public interface IURIResourceResolver {
-	IResource getResource(URI uri) throws IOException;
+	IResource getResource(ISourceLocation uri) throws IOException;
 }
