@@ -122,7 +122,9 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
       }
       else if (parentElement instanceof URIContent) {
     	  URIContent storage = (URIContent) parentElement;
-    	  return storage.listEntries();
+    	  if (storage.isDirectory()) {
+    		  return storage.listEntries();
+    	  }
       }
     } catch (CoreException e) {
     	Activator.log(e.getMessage(), e);
