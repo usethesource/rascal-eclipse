@@ -7,18 +7,15 @@ import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.SearchPath;
-import org.rascalmpl.eclipse.uri.URIStorage;
+import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
 
 public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
-  private final WorkbenchLabelProvider wbProvider = new WorkbenchLabelProvider();
-  
   @Override
   public String getText(Object element) {
-    if (element instanceof URIStorage) {
-      URIStorage store = (URIStorage) element;
-      return store.isRoot() ? store.getURI().toString() : store.getName();
+    if (element instanceof URIContent) {
+    	URIContent store = (URIContent) element;
+    	return store.isRoot() ? store.getURI().toString() : store.getName();
     }
     else if (element instanceof SearchPath) {
     	return "search path";
@@ -33,7 +30,7 @@ public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
     if (element instanceof IFileStore) {
       return new StyledString(getText(element));
     }
-    else if (element instanceof URIStorage) {
+    else if (element instanceof URIContent) {
         return new StyledString(getText(element));
     }  
     else if (element instanceof SearchPath) {
@@ -48,8 +45,8 @@ public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
 	  if (element instanceof SearchPath) {
 		  return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_JAR_WITH_SOURCE);
 	  }
-	  if (element instanceof URIStorage) {
-		  URIStorage curr = (URIStorage) element;
+	  if (element instanceof URIContent) {
+		  URIContent curr = (URIContent) element;
 
 		  if (curr.isDirectory()) {
 			  if (curr.isRoot()) {
@@ -63,6 +60,6 @@ public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
 		  return PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FILE);
 	  }
     
-	  return wbProvider.getImage(element);
+	  return super.getImage(element);
   }
 }

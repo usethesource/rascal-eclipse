@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console.internal;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +18,6 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -34,7 +32,6 @@ import org.rascalmpl.interpreter.ITestResultListener;
 
 public class TestReporter implements ITestResultListener {
 	private Map<IFile,List<Report>> reports;
-	private final IProject project;
 	
 	private static class Report {
 		public boolean successful;
@@ -47,10 +44,6 @@ public class TestReporter implements ITestResultListener {
 			this.message = message;
 		}
 		
-	}
-
-	public TestReporter(IProject project) {
-		this.project = project;
 	}
 
 	@Override
@@ -109,11 +102,7 @@ public class TestReporter implements ITestResultListener {
 		reports = new HashMap<IFile,List<Report>>();
 	}	
 	
-	private IFile getFile(ISourceLocation loc) {
-		return getFile(loc.getURI());
-	}
-	
-	private IFile getFile(URI uri) {
+	private IFile getFile(ISourceLocation uri) {
 		IResource res = URIResourceResolver.getResource(uri);
 		
 		if (res instanceof IFile) {

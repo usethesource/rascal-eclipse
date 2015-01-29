@@ -1,7 +1,7 @@
 package org.rascalmpl.eclipse.editor;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -24,41 +24,28 @@ import org.rascalmpl.uri.URIResolverRegistry;
 
 public class EditorUtil {
 	
-	public static boolean openAndSelectURI(ISourceLocation loc, URIResolverRegistry eval) {
-		return openAndSelectURI(loc, eval, null);
-	}
-	public static boolean openAndSelectURI(ISourceLocation loc, URIResolverRegistry eval, String projectName) {
-		if (loc.hasOffsetLength()) {
-			return openAndSelectURI(loc.getURI(), loc.getOffset(), loc.getLength(), eval, projectName);
-		}
-		return openAndSelectURI(loc.getURI(), eval, projectName);
-	}
-
-	public static boolean openAndSelectURI(URI uri, URIResolverRegistry eval) {
-		return openAndSelectURI(uri, eval, null);
-	}
-	
-	public static boolean openAndSelectURI(URI uri, URIResolverRegistry eval, String projectName ) {
-		return openAndSelectURI(uri, -1, 0, eval, projectName);
-	}
-	public static boolean openAndSelectURI(URI uri, int offset, int length, URIResolverRegistry eval) {
-		return openAndSelectURI(uri, offset, length, eval, null);
-	}
-
-	public static boolean openAndSelectURI(URI uri, int offset, int length, URIResolverRegistry eval, String projectName ) {
+	public static boolean openAndSelectURI(ISourceLocation uri) {
 		try {
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			
+			try {
+				uri = URIResolverRegistry.getInstance().logicalToPhysical(uri);
+			} catch (IOException e) {
+				// in case file not found logically
+			}
+			
 			IResource res = URIResourceResolver.getResource(uri);
 			if (res != null && res instanceof IFile) {
 				IEditorPart part = IDE.openEditor(page, (IFile)res);
-				if (offset > -1 && part instanceof ITextEditor) {
-					((ITextEditor)part).selectAndReveal(offset, length);
+				
+				if (uri.hasOffsetLength() && part instanceof ITextEditor) {
+					((ITextEditor)part).selectAndReveal(uri.getOffset(), uri.getLength());
 				}
 				return true;
 			}
 			else if (uri.getScheme().equals("http")) {
 				try {
-					PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(uri.toURL());
+					PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(uri.getURI().toURL());
 					return true;
 				} catch (PartInitException e) {
 					Activator.log("Cannot get editor part", e);
@@ -66,8 +53,8 @@ public class EditorUtil {
 					Activator.log("Cannot resolve link", e);
 				}
 			}
-			else if (eval != null) {
-				URIStorage storage = new URIStorage(eval, uri, false);
+			else {
+				URIStorage storage = new URIStorage(uri);
 				IEditorInput input = new URIEditorInput(storage);
 				IEditorDescriptor[] ids = PlatformUI.getWorkbench().getEditorRegistry().getEditors(uri.getPath());
 				
@@ -76,8 +63,8 @@ public class EditorUtil {
 				}
 				if (ids != null && ids.length > 0) {
 					IEditorPart part = IDE.openEditor(page, input, ids[0].getId(), true);
-					if (offset > -1 && part instanceof ITextEditor) {
-						((ITextEditor)part).selectAndReveal(offset, length);
+					if (uri.hasOffsetLength() && part instanceof ITextEditor) {
+						((ITextEditor)part).selectAndReveal(uri.getOffset(), uri.getLength());
 					}
 					return true;
 				}

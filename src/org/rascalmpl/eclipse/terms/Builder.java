@@ -96,7 +96,7 @@ public class Builder extends BuilderBase {
 			RascalMonitor rmonitor = new RascalMonitor(monitor, warnings);
 			IValueFactory VF = parser.getEval().getValueFactory();
 			ISourceProject project = ModelFactory.open(file.getProject());
-			ISourceLocation loc = VF.sourceLocation(ProjectURIResolver.constructProjectURI(project, file.getProjectRelativePath()));
+			ISourceLocation loc = ProjectURIResolver.constructProjectURI(project, file.getProjectRelativePath());
 			contents = file.getContents();
 			input = new String(InputConverter.toChar(contents, Charset.forName(file.getCharset())));
 

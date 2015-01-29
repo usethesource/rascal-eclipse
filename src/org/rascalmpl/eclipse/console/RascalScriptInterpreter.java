@@ -56,20 +56,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Command.Shell;
@@ -92,12 +86,12 @@ import org.rascalmpl.eclipse.console.internal.PausableOutput;
 import org.rascalmpl.eclipse.console.internal.TerminationException;
 import org.rascalmpl.eclipse.console.internal.TestReporter;
 import org.rascalmpl.eclipse.console.internal.TimedBufferedPipe;
+import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.nature.IWarningHandler;
 import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
-import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IRascalMonitor;
@@ -253,7 +247,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			try {
 				eval.overrideDefaultWriters(consoleStdOut, consoleStdErr);
 				IConstructor tree = eval.parseCommand(rm, command,
-						URIUtil.rootScheme("stdin"));
+						URIUtil.rootLocation("stdin"));
 				reloader.updateModules(monitor);
 				rm.event("running command");
 				execCommand(rm, tree);
@@ -467,7 +461,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 
 					@Override
 					public Result<IValue> visitShellCommandTest(final Test x) {
-						eval.setTestResultListener(new TestReporter(project));
+						eval.setTestResultListener(new TestReporter());
 						x.interpret(eval);
 						return ResultFactory.nothing();
 					}
@@ -545,26 +539,14 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		UIJob job = new UIJob("start editor") {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				try {
-					String module = Names.fullName(x.getName());
-					URI uri = ResourcesToModules.uriFromModule(
-							eval.getRascalResolver(), module);
-					IWorkbench wb = PlatformUI.getWorkbench();
-					IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-					final IWorkbenchPage page = win.getActivePage();
-					IDE.openEditor(page, uri, UniversalEditor.EDITOR_ID, true);
-				} catch (PartInitException e) {
-					Activator.log("edit", e);
-				} catch (NullPointerException e) {
-					// The above code could easily throw null pointer exceptions
-					// at every
-					// turn, so instead of checking 5 times for null, we catch
-					// it here and
-					// ignore it.
-					eval.getStdErr().print("Could not open " + x.getName());
+				String module = Names.fullName(x.getName());
+				ISourceLocation uri = eval.getRascalResolver().resolveModule(module);
+				if (uri != null) {
+					EditorUtil.openAndSelectURI(uri);
+					return Status.OK_STATUS;
 				}
-
-				return Status.OK_STATUS;
+				
+				return Status.CANCEL_STATUS;
 			}
 		};
 

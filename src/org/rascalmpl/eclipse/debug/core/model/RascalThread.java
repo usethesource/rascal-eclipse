@@ -104,7 +104,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 			// for the top, use the current AST location
 			ISourceLocation currentLoc = eval.getCurrentAST() != null ? 
 			    eval.getCurrentAST().getLocation()
-			    : eval.getValueFactory().sourceLocation(URIUtil.rootScheme("stdin"));
+			    : URIUtil.rootLocation("stdin");
 			theFrames[0] = new RascalStackFrame(this, callStack.get(size-1), currentLoc, null);
 			for (int i = 1; i < size; i++) { 
 				theFrames[i] = new RascalStackFrame(this, callStack.get(size-i-1), callStack.get(size-i).getCallerLocation(), theFrames[i-1]);
@@ -121,31 +121,6 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 			return theFrames;
 		}
 		return new IStackFrame[0];
-	}
-	
-//	@Override
-//	public int hashCode() {
-//	  return 1;
-//	}
-//	
-//	@Override
-//	public boolean equals(Object obj) {
-//	  if (obj instanceof RascalThread) {
-//	    RascalThread o = (RascalThread) obj;
-//	    
-//	    try {
-//        return Arrays.equals(o.getStackFrames(), getStackFrames());
-//      } catch (DebugException e) {
-//        Activator.log("this debug exception should not happen", e);
-//        return false;
-//      }
-//	  }
-//	  
-//	  return false;
-//	}
-
-	public ISourceLocation resolveLocation(ISourceLocation loc) {
-	  return getRascalDebugTarget().getConsole().getRascalInterpreter().getEval().getHeap().resolveSourceLocation(loc);
 	}
 	
 	/* (non-Javadoc)
@@ -395,7 +370,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
        */
 //      sendRequest(requestResumption());
 		  setSuspended(true);
-	    fireSuspendEvent(DebugEvent.BREAKPOINT | DebugEvent.STEP_END); // BREAKPOINT is essential to trigger viewer updates
+		  fireSuspendEvent(DebugEvent.BREAKPOINT | DebugEvent.STEP_END); // BREAKPOINT is essential to trigger viewer updates
 			break;
 			
 		case TERMINATE:

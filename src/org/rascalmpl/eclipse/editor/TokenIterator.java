@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
@@ -59,7 +60,7 @@ public class TokenIterator implements Iterator<Token>{
 			location = 0;
 		}
 		
-		public IConstructor visitTreeAmb(IConstructor arg) {
+		public ITree visitTreeAmb(ITree arg) {
 			if (showAmb) {
 				int offset = location;
 				ISourceLocation ambLoc = TreeAdapter.getLocation(arg);
@@ -75,7 +76,7 @@ public class TokenIterator implements Iterator<Token>{
 			
 		}
 		
-		public IConstructor visitTreeAppl(IConstructor arg){
+		public ITree visitTreeAppl(IConstructor arg){
 			IValue catAnno = arg.asWithKeywordParameters().getParameter("category");
 			String category = null;
 			
@@ -95,11 +96,19 @@ public class TokenIterator implements Iterator<Token>{
 			
 			// short cut, if we have source locations and a category we found a long token
 			ISourceLocation loc = TreeAdapter.getLocation(arg);
+			
+			// Always sync location with locs because of concrete syntax stuff in Rascal.
+			if (loc != null) {
+				location = loc.getOffset();
+			}
+			
+			
 			if (category != null && loc != null) {
 				tokenList.add(new Token(category, location, loc.getLength()));
 				location += loc.getLength();
 				return arg;
 			}
+			
 			
 			// now we go down in the tree to find more tokens
 			int offset = location;
@@ -117,7 +126,7 @@ public class TokenIterator implements Iterator<Token>{
 					category = TokenColorer.META_KEYWORD;
 
 					for (IValue child : TreeAdapter.getArgs(arg)) {
-						int c = TreeAdapter.getCharacter((IConstructor) child);
+						int c = TreeAdapter.getCharacter((ITree) child);
 						if (c != '-' && !Character.isJavaIdentifierPart(c)){
 							category = null;
 						}
@@ -130,19 +139,24 @@ public class TokenIterator implements Iterator<Token>{
 			}
 			
 			if (category != null) {
-				tokenList.add(new Token(category, offset, location - offset));
+				tokenList.add(new Token(category, loc != null ? loc.getOffset() : offset, loc != null ? loc.getLength() : location - offset));
 			}
 
+			// let locs be leading, not character count in visitChar
+//			if (loc != null) {
+//				location = loc.getOffset() + loc.getLength();
+//			}
+			
 			return arg;
 		}
 		
-		public IConstructor visitTreeChar(IConstructor arg){
+		public ITree visitTreeChar(ITree arg){
 			++location;
 			
 			return arg;
 		}
 		
-		public IConstructor visitTreeCycle(IConstructor arg){
+		public ITree visitTreeCycle(ITree arg){
 			return arg;
 		}
 	}

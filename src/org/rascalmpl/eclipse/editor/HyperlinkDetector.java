@@ -12,11 +12,11 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -28,7 +28,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class HyperlinkDetector implements ISourceHyperlinkDetector {
@@ -39,61 +39,56 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 			return null;
 		}
 		
-		IConstructor tree = (IConstructor) parseController.getCurrentAst();
+		ITree tree = (ITree) parseController.getCurrentAst();
 		
 		if (tree != null) {
-			IEvaluatorContext eval = null;
-			String currentProject = null;
-			if (parseController instanceof ParseController) {
-				eval = ((ParseController)parseController).getEvaluator();
-				ISourceProject proj = ((ParseController)parseController).getProject();
-				if (proj != null) {
-					currentProject = proj.getName();
-				}
-			}
-			return getTreeLinks(tree, region, eval, currentProject);
+			return getTreeLinks(tree, region);
 		}
 		
-		return null;
+		return null; 
 	}
 
-	private IHyperlink[] getTreeLinks(IConstructor tree, IRegion region, IEvaluatorContext eval, String currentProject) {
+	private IHyperlink[] getTreeLinks(ITree tree, IRegion region) {
 		IValue xref = tree.asWithKeywordParameters().getParameter("hyperlinks");
-		if (xref != null) {
+		
+                if (xref != null) {
 			if (xref.getType().isSet() && xref.getType().getElementType().isTuple() 
 					&& xref.getType().getElementType().getFieldType(0).isSourceLocation()
 					&& xref.getType().getElementType().getFieldType(1).isSourceLocation()
 					) {
-				List<IHyperlink> links = new ArrayList<IHyperlink>();
-				ISet rel = ((ISet)xref);
+				
+				List<IHyperlink> links = new ArrayList<>();
+				
+				ISet rel = ((ISet)xref); 
 				for (IValue v: rel) {
 					ITuple t = ((ITuple)v);
 					ISourceLocation loc = (ISourceLocation)t.get(0);
 					if (region.getOffset() >= loc.getOffset() && region.getOffset() < loc.getOffset() + loc.getLength()) {
 						ISourceLocation to = (ISourceLocation)t.get(1);
 						if (xref.getType().getElementType().getArity() == 3 && xref.getType().getElementType().getFieldType(2).isString()) {
-							links.add(new SourceLocationHyperlink(loc, to, ((IString)t.get(2)).getValue(), eval, currentProject));
+							links.add(new SourceLocationHyperlink(loc, to, ((IString)t.get(2)).getValue()));
 						}
 						else {
-							links.add(new SourceLocationHyperlink(loc, to, to.toString(), eval, currentProject));
+							links.add(new SourceLocationHyperlink(loc, to, to.toString()));
 						}
 					}
 				}
 				if (links.isEmpty()) {
 					return null;
 				}
-				return links.toArray(new IHyperlink[] {});
+				
+				return sortAndFilterHyperlinks(links); //.toArray(new IHyperlink[] {});
 			}
 		}
 		
 		
-		IConstructor ref = TreeAdapter.locateAnnotatedTree(tree, "link", region.getOffset());
+		ITree ref = TreeAdapter.locateAnnotatedTree(tree, "link", region.getOffset());
 		
 		if (ref != null) {
 			IValue link = ref.asWithKeywordParameters().getParameter("link");
 			
 			if (link != null && link.getType().isSourceLocation()) { 
-				return new IHyperlink[] { new SourceLocationHyperlink(TreeAdapter.getLocation(ref), (ISourceLocation) link, eval, currentProject) };
+				return new IHyperlink[] { new SourceLocationHyperlink(TreeAdapter.getLocation(ref), (ISourceLocation) link) };
 			}
 			
 			
@@ -105,15 +100,16 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 				IHyperlink[] a = new IHyperlink[((ISet) links).size()];
 				int i = 0;
 				for (IValue l : ((ISet) links)) {
-					a[i++] = new SourceLocationHyperlink(TreeAdapter.getLocation(ref), (ISourceLocation) l, eval, currentProject);
+					a[i++] = new SourceLocationHyperlink(TreeAdapter.getLocation(ref), (ISourceLocation) l);
 				}
 				return a;
 			}
 		}
 		
 		IValue docLinksMapValue = tree.asWithKeywordParameters().getParameter("docLinks");
-		IConstructor subtree = TreeAdapter.locateAnnotatedTree(tree, "src", region.getOffset());
-		if (docLinksMapValue != null && docLinksMapValue.getType().isMap() && subtree != null) {
+		ITree subtree = TreeAdapter.locateAnnotatedTree(tree, "src", region.getOffset());
+		
+                if (docLinksMapValue != null && docLinksMapValue.getType().isMap() && subtree != null) {
 			ISourceLocation loc = TreeAdapter.getLocation(subtree);
 			if (loc != null) {
 				IMap docLinksMap = (IMap)docLinksMapValue;
@@ -123,7 +119,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 						IHyperlink[] a = new IHyperlink[((ISet) links).size()];
 						int i = 0;
 						for (IValue l : ((ISet) links)) {
-							a[i++] = new SourceLocationHyperlink(loc, (ISourceLocation) l, eval, currentProject);
+							a[i++] = new SourceLocationHyperlink(loc, (ISourceLocation) l);
 						}
 						return a;
 					}
@@ -132,5 +128,24 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		}
 
 		return null;
+	}
+	
+	private IHyperlink[] sortAndFilterHyperlinks(List<IHyperlink> hyperlinks) {
+		Collections.sort(hyperlinks, new Comparator<IHyperlink>() {
+			@Override
+			public int compare(IHyperlink o1, IHyperlink o2) {
+				// Always show the smallest offset link first, this is the link under the mouse cursor
+				return o2.getHyperlinkRegion().getOffset() - o1.getHyperlinkRegion().getOffset();
+			}
+		});
+		
+		List<IHyperlink> filteredLinks = new ArrayList<>();
+		for (IHyperlink link : hyperlinks) {
+			if (filteredLinks.isEmpty() || filteredLinks.get(0).getHyperlinkRegion().equals(link.getHyperlinkRegion())) {
+				filteredLinks.add(link);
+			}
+		}
+		
+		return filteredLinks.toArray(new IHyperlink[] {});
 	}
 }

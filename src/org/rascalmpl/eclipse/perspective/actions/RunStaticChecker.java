@@ -32,6 +32,7 @@ import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.editor.ParseController;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RunStaticChecker extends AbstractEditorAction {
@@ -49,8 +50,8 @@ public class RunStaticChecker extends AbstractEditorAction {
 		if (editor != null) {
 			WorkspaceModifyOperation wmo = new WorkspaceModifyOperation(ResourcesPlugin.getWorkspace().getRoot()) {
 				public void execute(IProgressMonitor monitor) {
-					IConstructor toCheck = (IConstructor)editor.getParseController().getCurrentAst();
-					IConstructor res = check(toCheck,editor.getParseController(), handler);
+					ITree toCheck = (ITree)editor.getParseController().getCurrentAst();
+					ITree res = check(toCheck,editor.getParseController(), handler);
 					((ParseController) editor.getParseController()).setCurrentAst(res);
 				}
 			};
@@ -65,18 +66,18 @@ public class RunStaticChecker extends AbstractEditorAction {
 		}
 	}
 
-	public IConstructor check(IConstructor parseTree, final IParseController parseController, final IMessageHandler handler) {
+	public ITree check(ITree parseTree, final IParseController parseController, final IMessageHandler handler) {
 		if (parseTree == null) return null;
 						
 		try {
 			StaticChecker checker = helper.createCheckerIfNeeded(parseController.getProject());
 			
 			if (checker != null) {
-				IConstructor newTree = checker.checkModule(null, (IConstructor) TreeAdapter.getArgs(parseTree).get(1));
+				IConstructor newTree = checker.checkModule(null, (ITree) TreeAdapter.getArgs(parseTree).get(1));
 				if (newTree != null) {
-					IConstructor treeTop = parseTree;
+					ITree treeTop = parseTree;
 					IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
-					IConstructor newTreeTop = TreeAdapter.setLocation(TreeAdapter.setArgs(treeTop, treeArgs), TreeAdapter.getLocation(treeTop)).asWithKeywordParameters().setParameter("docStrings", newTree.asWithKeywordParameters().getParameter("docStrings")).asWithKeywordParameters().setParameter("docLinks", newTree.asWithKeywordParameters().getParameter("docLinks"));
+					ITree newTreeTop = TreeAdapter.setLocation(TreeAdapter.setArgs(treeTop, treeArgs), TreeAdapter.getLocation(treeTop)).asWithKeywordParameters().setParameter("docStrings", newTree.asWithKeywordParameters().getParameter("docStrings")).asWithKeywordParameters().setParameter("docLinks", newTree.asWithKeywordParameters().getParameter("docLinks"));
 					parseTree = newTreeTop;
 					handler.clearMessages();
 					marker.process(parseTree, handler);

@@ -7,31 +7,31 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourceContainerType;
 import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
-import org.rascalmpl.eclipse.uri.URIStorage;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class URISourceContainer implements ISourceContainer {
-  private URIStorage fRootFile = null;
+  private ISourceLocation fRootFile = null;
 
-  public URISourceContainer(URIStorage root) {
+  public URISourceContainer(ISourceLocation root) {
     fRootFile = root;
   }
   
-  public URIStorage getStorage() {
+  public ISourceLocation getURI() {
 	  return fRootFile;
   }
   
   public Object[] findSourceElements(String name) throws CoreException {
 	  try {
 		  URI uri = URIUtil.createFromEncoded(name);
-		  URI root = fRootFile.getURI();
+		  ISourceLocation root = fRootFile;
 		  
 		  if (root.getScheme().equals(uri.getScheme())
 				  && root.getAuthority().equals(uri.getAuthority())
 				  && uri.getPath() != null 
 				  && uri.getPath().startsWith(root.getPath())) {
-			  URIStorage storage = new URIStorage(fRootFile.getRegistry(), uri, false);
-			  return new Object[] {new URISourceContainer(storage)};
+			  return new Object[] {new URISourceContainer(ValueFactoryFactory.getValueFactory().sourceLocation(uri))};
 		  }
 		  
 		  return new Object[0];
@@ -41,7 +41,7 @@ public class URISourceContainer implements ISourceContainer {
   }     
   
   public String getName() {   
-    return fRootFile.getName(); 
+    return URIUtil.getLocationName(fRootFile); 
   }
 
   public boolean equals(Object obj) {

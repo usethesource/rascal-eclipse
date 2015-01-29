@@ -18,6 +18,7 @@ import org.eclipse.debug.ui.ISourcePresentation;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.ui.IEditorInput;
 import org.rascalmpl.eclipse.uri.URIEditorInput;
+import org.rascalmpl.eclipse.uri.URIStorage;
 
 public class RascalSourceLookupDirector extends AbstractSourceLookupDirector implements ISourcePresentation {
 	/* (non-Javadoc)
@@ -32,7 +33,8 @@ public class RascalSourceLookupDirector extends AbstractSourceLookupDirector imp
 	@Override
 	public IEditorInput getEditorInput(Object element) {
 		if (element instanceof URISourceContainer) {
-			return new URIEditorInput(((URISourceContainer) element).getStorage());
+			URIStorage storage = new URIStorage(((URISourceContainer) element).getURI());
+			return new URIEditorInput(storage);
 		}
 		return null;
 	}
