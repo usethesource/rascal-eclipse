@@ -14,7 +14,6 @@ package org.rascalmpl.eclipse.editor;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -28,7 +27,6 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class HyperlinkDetector implements ISourceHyperlinkDetector {
@@ -42,16 +40,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		IConstructor tree = (IConstructor) parseController.getCurrentAst();
 		
 		if (tree != null) {
-			IEvaluatorContext eval = null;
-			String currentProject = null;
-			if (parseController instanceof ParseController) {
-				eval = ((ParseController)parseController).getEvaluator();
-				ISourceProject proj = ((ParseController)parseController).getProject();
-				if (proj != null) {
-					currentProject = proj.getName();
-				}
-			}
-			return getTreeLinks(tree, region, eval, currentProject);
+			return getTreeLinks(tree, region);
 		}
 		
 		return null;
@@ -65,17 +54,17 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 					&& xref.getType().getElementType().getFieldType(1).isSourceLocation()
 					) {
 				List<IHyperlink> links = new ArrayList<IHyperlink>();
-				ISet rel = ((ISet)xref);
+				ISet rel = ((ISet)xref); 
 				for (IValue v: rel) {
 					ITuple t = ((ITuple)v);
 					ISourceLocation loc = (ISourceLocation)t.get(0);
 					if (region.getOffset() >= loc.getOffset() && region.getOffset() < loc.getOffset() + loc.getLength()) {
 						ISourceLocation to = (ISourceLocation)t.get(1);
 						if (xref.getType().getElementType().getArity() == 3 && xref.getType().getElementType().getFieldType(2).isString()) {
-							links.add(new SourceLocationHyperlink(loc, to, ((IString)t.get(2)).getValue(), eval, currentProject));
+							links.add(new SourceLocationHyperlink(loc, to, ((IString)t.get(2)).getValue()));
 						}
 						else {
-							links.add(new SourceLocationHyperlink(loc, to, to.toString(), eval, currentProject));
+							links.add(new SourceLocationHyperlink(loc, to, to.toString()));
 						}
 					}
 				}
@@ -93,7 +82,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 			IValue link = ref.asWithKeywordParameters().getParameter("link");
 			
 			if (link != null && link.getType().isSourceLocation()) { 
-				return new IHyperlink[] { new SourceLocationHyperlink(TreeAdapter.getLocation(ref), (ISourceLocation) link, eval, currentProject) };
+				return new IHyperlink[] { new SourceLocationHyperlink(TreeAdapter.getLocation(ref), (ISourceLocation) link) };
 			}
 			
 			
@@ -105,7 +94,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 				IHyperlink[] a = new IHyperlink[((ISet) links).size()];
 				int i = 0;
 				for (IValue l : ((ISet) links)) {
-					a[i++] = new SourceLocationHyperlink(TreeAdapter.getLocation(ref), (ISourceLocation) l, eval, currentProject);
+					a[i++] = new SourceLocationHyperlink(TreeAdapter.getLocation(ref), (ISourceLocation) l);
 				}
 				return a;
 			}
@@ -123,7 +112,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 						IHyperlink[] a = new IHyperlink[((ISet) links).size()];
 						int i = 0;
 						for (IValue l : ((ISet) links)) {
-							a[i++] = new SourceLocationHyperlink(loc, (ISourceLocation) l, eval, currentProject);
+							a[i++] = new SourceLocationHyperlink(loc, (ISourceLocation) l);
 						}
 						return a;
 					}

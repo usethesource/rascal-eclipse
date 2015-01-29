@@ -15,24 +15,21 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 
 public class SourceLocationHyperlink implements IHyperlink {
 	private final ISourceLocation from;
-	private ISourceLocation to;
-	private String text = null;
-	private IEvaluatorContext eval;
-	private String project;
+	private final ISourceLocation to;
+	private final String text;
 
-	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to, IEvaluatorContext eval, String project) {
+	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to) {
 		this.from = from;
 		this.to = to;
-		this.eval = eval;
-		this.project = project;
+		this.text = null;
 	}
 
-	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to, String text, IEvaluatorContext eval, String project) {
-		this(from, to, eval, project);
+	public SourceLocationHyperlink(ISourceLocation from, ISourceLocation to, String text) {
+		this.from = from;
+		this.to = to;
 		this.text  = text;
 	}
 
@@ -55,7 +52,7 @@ public class SourceLocationHyperlink implements IHyperlink {
 		if (to == null) {
 			return;
 		}
-		EditorUtil.openAndSelectURI(to, eval.getResolverRegistry(), project);
+		EditorUtil.openAndSelectURI(to);
 	}
 
 }

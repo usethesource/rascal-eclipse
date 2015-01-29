@@ -36,6 +36,7 @@ import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class HtmlDisplay {
 	
@@ -76,7 +77,7 @@ public class HtmlDisplay {
 		
 		URI resourceUri = loc.getURI();
 		
-		URI uri= inputUri.getScheme().equals("project")?inputUri:resourceUri;
+		URI uri = inputUri.getScheme().equals("project")?inputUri:resourceUri;
 		IPath path = new Path(uri.getPath());
 		if (path.getFileExtension() == null
 				|| !path.getFileExtension().equals("html")
@@ -90,7 +91,7 @@ public class HtmlDisplay {
 		// System.err.println("getHtmlOutputLoc:"+path);
 		if (uri.getScheme().equals("project")) {
 			try {
-				IResource res = URIResourceResolver.getResource(uri);
+				IResource res = URIResourceResolver.getResource(ValueFactoryFactory.getValueFactory().sourceLocation(uri));
 				// System.err.println("Test File:"+res);
 				if (res==null || res.getType()!=IResource.FILE) {
 					throw new IOException("Invalid uri:" + loc.getURI());

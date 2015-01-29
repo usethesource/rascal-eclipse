@@ -15,6 +15,7 @@ package org.rascalmpl.eclipse.library.vis;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -26,6 +27,7 @@ import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.swt.FigureExecutionEnvironment;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class FigureLibrary {
 	
@@ -56,7 +58,7 @@ public class FigureLibrary {
 					public void run() {
 						OutputStream out = null;
 						try{
-							out =  ctx.getResolverRegistry().getOutputStream(loc.getURI(), false);
+							out =  URIResolverRegistry.getInstance().getOutputStream(loc, false);
 							env.saveImage(out);
 						} catch(IOException f){
 							ctx.getStdErr().printf("Could not save figure " + f.getMessage() + "\n");

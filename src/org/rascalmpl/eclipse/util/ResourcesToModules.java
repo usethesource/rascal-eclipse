@@ -7,6 +7,7 @@ import java.net.URI;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 
@@ -39,7 +40,7 @@ public class ResourcesToModules {
 	}
 	
 	public static URI uriFromModule(RascalSearchPath resolver, String module) {
-		URI uri = resolver.resolveModule(module);
+		ISourceLocation uri = resolver.resolveModule(module);
 
 		if (uri.getScheme().equals("project")) {
 		  try {
@@ -53,6 +54,6 @@ public class ResourcesToModules {
 		  }
 		}
 
-		return uri;
+		return uri.getURI();
 	}
 }

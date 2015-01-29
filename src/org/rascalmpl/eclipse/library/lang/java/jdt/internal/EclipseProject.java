@@ -46,10 +46,9 @@ public class EclipseProject {
       for (IPackageFragmentRoot root : jProject.getAllPackageFragmentRoots()) {
         if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
           IResource resource = root.getResource();
-          IPath path = resource.getProjectRelativePath();
           IProject thisProject = resource.getProject();
           if (thisProject == project) {
-            result.insert(VF.sourceLocation(loc.getScheme(), loc.getAuthority(), path.toPortableString()));  
+            result.insert(VF.sourceLocation("file", "", resource.getLocation().toString()));  
           }
         }
       }
@@ -82,10 +81,9 @@ public class EclipseProject {
         }
         if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
         	IResource resource = root.getResource();
-            IPath path = resource.getProjectRelativePath();
             IProject thisProject = resource.getProject();
             if (thisProject != project) {
-          	  result.insert(VF.sourceLocation("project", thisProject.getName(), "/"+path.toPortableString()));
+          	  result.insert(VF.sourceLocation("file", "", resource.getLocation().toString()));
             }
         }
       }

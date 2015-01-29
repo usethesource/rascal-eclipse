@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 
@@ -32,33 +31,37 @@ import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.uri.BadURIException;
-import org.rascalmpl.uri.IURIInputOutputResolver;
-import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.ISourceLocationInputOutput;
+import org.rascalmpl.values.ValueFactoryFactory;
 
-public class ProjectURIResolver implements IURIInputOutputResolver, IURIResourceResolver {
+public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResourceResolver {
 	
-	public static URI constructProjectURI(ISourceProject project, IPath path){
+	public static ISourceLocation constructProjectURI(ISourceProject project, IPath path){
 		return constructProjectURI(project.getName(), path);
 	}
 
-	private static URI constructProjectURI(String project, IPath path){
+	private static ISourceLocation constructProjectURI(String project, IPath path){
 		try{
-			return URIUtil.create("project", project, "/" + path.toString());
-		}catch(URISyntaxException usex){
+			return ValueFactoryFactory.getValueFactory().sourceLocation("project", project, "/" + path.toString());
+		}
+		catch(URISyntaxException usex){
 			throw new BadURIException(usex);
 		}
 	}
 	
-	public static URI constructProjectURI(IPath workspaceAbsolutePath){
+	public static ISourceLocation constructProjectURI(IPath workspaceAbsolutePath){
 		String projectName        = workspaceAbsolutePath.segment(0);
 		IPath projectAbsolutePath = workspaceAbsolutePath.removeFirstSegments(1);
 		return constructProjectURI(projectName, projectAbsolutePath);
 	}		
 	
-	public InputStream getInputStream(URI uri) throws IOException {
+	@Override
+	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 		try {
 			return resolveFile(uri).getContents();
 		} catch (CoreException e) {
@@ -72,17 +75,17 @@ public class ProjectURIResolver implements IURIInputOutputResolver, IURIResource
 		}
 	}
 
-	public IFile resolveFile(URI uri) throws IOException, MalformedURLException {
+	public IFile resolveFile(ISourceLocation uri) throws IOException, MalformedURLException {
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		
 		if (project == null) {
 			throw new IOException("project " + uri.getAuthority() + " does not exist");
 		}
 		
-		return project.getFile(uri.getPath());
+		return project.getFile(new Path(uri.getPath()));
 	}
 	
-	private IContainer resolveFolder(URI uri) throws IOException, MalformedURLException {
+	private IContainer resolveFolder(ISourceLocation uri) throws IOException, MalformedURLException {
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		if (project == null) {
 			throw new IOException("project " + uri.getAuthority() + " does not exist");
@@ -96,7 +99,7 @@ public class ProjectURIResolver implements IURIInputOutputResolver, IURIResource
 		}
 	}
 
-	private IResource resolve(URI uri) throws IOException, MalformedURLException {
+	private IResource resolve(ISourceLocation uri) throws IOException, MalformedURLException {
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		
 		if (project == null || !project.exists()) {
@@ -118,7 +121,7 @@ public class ProjectURIResolver implements IURIInputOutputResolver, IURIResource
 		throw new IOException(uri+" refers to a resource that does not exist.");
 	}
 	
-	public OutputStream getOutputStream(final URI uri, boolean append) throws IOException {
+	public OutputStream getOutputStream(final ISourceLocation uri, boolean append) throws IOException {
 		return new FileOutputStream(resolveFile(uri).getRawLocation().toOSString(), append) {
 			@Override
 			public void close() throws IOException {
@@ -136,7 +139,8 @@ public class ProjectURIResolver implements IURIInputOutputResolver, IURIResource
 		return "project";
 	}
 
-	public boolean exists(URI uri) {
+	@Override
+	public boolean exists(ISourceLocation uri) {
 		try {
 			return resolve(uri).exists();
 		} catch (MalformedURLException e) {
@@ -146,10 +150,10 @@ public class ProjectURIResolver implements IURIInputOutputResolver, IURIResource
 		} catch (AssertionFailedException e) {
 			return false;
 		}
-	
 	}
 
-	public boolean isDirectory(URI uri) {
+	@Override
+	public boolean isDirectory(ISourceLocation uri) {
 		try {
 			return resolveFolder(uri).exists();
 		} catch (MalformedURLException e) {
@@ -159,7 +163,7 @@ public class ProjectURIResolver implements IURIInputOutputResolver, IURIResource
 		}
 	}
 
-	public boolean isFile(URI uri) {
+	public boolean isFile(ISourceLocation uri) {
 		try {
 			return resolveFile(uri).exists();
 		} catch (MalformedURLException e) {
@@ -169,7 +173,8 @@ public class ProjectURIResolver implements IURIInputOutputResolver, IURIResource
 		}
 	}
 
-	public long lastModified(URI uri) {
+	@Override
+	public long lastModified(ISourceLocation uri) {
 		try {
 			return resolve(uri).getModificationStamp();
 		} catch (MalformedURLException e) {
@@ -179,7 +184,8 @@ public class ProjectURIResolver implements IURIInputOutputResolver, IURIResource
 		}
 	}
 
-	public String[] listEntries(URI uri) {
+	@Override
+	public String[] list(ISourceLocation uri) throws IOException {
 		try {
 			IContainer folder = resolveFolder(uri);
 			IResource[] members = folder.members();
@@ -191,25 +197,21 @@ public class ProjectURIResolver implements IURIInputOutputResolver, IURIResource
 			
 			return result;
 		} catch (CoreException e) {
-			return new String[0];
-		} catch (MalformedURLException e) {
-			return new String[0];
-		} catch (IOException e) {
-			return new String[0];
+			throw new IOException(e);
 		}
 	}
 
 	@Override
-	public void remove(URI uri) throws IOException {
-	  try {
-      resolve(uri).delete(true, new NullProgressMonitor());
-    } catch (CoreException e) {
-      throw new IOException("could not remove file", e);
-    }
+	public void remove(ISourceLocation uri) throws IOException {
+		try {
+			resolve(uri).delete(true, new NullProgressMonitor());
+		} catch (CoreException e) {
+			throw new IOException("could not remove file", e);
+		}
 	}
-	
+
 	@Override
-	public void mkDirectory(URI uri) throws IOException {
+	public void mkDirectory(ISourceLocation uri) throws IOException {
 		IContainer resolved = resolveFolder(uri);
 		NullProgressMonitor pm = new NullProgressMonitor();
 		
@@ -239,7 +241,7 @@ public class ProjectURIResolver implements IURIInputOutputResolver, IURIResource
 	}
 
 	@Override
-	public Charset getCharset(URI uri) throws IOException {
+	public Charset getCharset(ISourceLocation uri) throws IOException {
 		IFile file;
 		try {
 			file = resolveFile(uri);
@@ -259,7 +261,7 @@ public class ProjectURIResolver implements IURIInputOutputResolver, IURIResource
 	}
 
 	@Override
-	public IResource getResource(URI uri) throws IOException {
+	public IResource getResource(ISourceLocation uri) throws IOException {
 		return resolve(uri);
 	}
 }

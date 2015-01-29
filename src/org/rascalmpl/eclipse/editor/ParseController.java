@@ -49,7 +49,6 @@ import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -64,7 +63,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	private IDocument document;
 	private ParseJob job;
 	private Evaluator parser;
-  private IWarningHandler warnings;
+	private IWarningHandler warnings;
 	
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
 		return null;
@@ -109,10 +108,6 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		return parseTree != null ? new TokenIterator(false, parseTree) : null;
 	}
 	
-	public IEvaluatorContext getEvaluator() {
-		return parser;
-	}
-
 	@Override
 	public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {
 		Assert.isTrue(filePath.isAbsolute() && project == null
@@ -122,7 +117,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		this.handler = handler;
 		this.project = project;
 
-		URI location = null;
+		ISourceLocation location = null;
 		
 		if (project != null) {
 			location = ProjectURIResolver.constructProjectURI(project, path);
@@ -149,13 +144,13 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	}
 	
 	private class ParseJob extends Job {
-		private final URI uri;
+		private final ISourceLocation uri;
 		private Set<IResource> markedFiles;
 
 		private String input;
 		public IConstructor parseTree = null;
 
-		public ParseJob(String name, URI uri, IMessageHandler handler) {
+		public ParseJob(String name, ISourceLocation uri, IMessageHandler handler) {
 			super(name);
 			
 			this.uri = uri;
