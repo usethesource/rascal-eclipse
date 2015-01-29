@@ -512,6 +512,8 @@ public class ProjectEvaluatorFactory {
 		List<URL> classPath = new LinkedList<URL>();
 		List<String> compilerClassPath = new LinkedList<String>();
 		collectClassPathForProject(project, classPath, compilerClassPath);
+		Bundle rascalBundle = Activator.getInstance().getBundle();
+		collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
 		configureClassPath(parser, classPath, compilerClassPath);
 	}
 	
@@ -519,6 +521,10 @@ public class ProjectEvaluatorFactory {
 	  List<URL> classPath = new LinkedList<URL>();
 	  List<String> compilerClassPath = new LinkedList<String>();
 	  collectClassPathForBundle(bundle, classPath, compilerClassPath);
+	  Bundle rascalBundle = Activator.getInstance().getBundle();
+	  if (!bundle.getSymbolicName().equals(rascalBundle.getSymbolicName())) {
+		  collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
+	  }
 	  configureClassPath(evaluator, classPath, compilerClassPath);
 	}
 	
@@ -534,6 +540,8 @@ public class ProjectEvaluatorFactory {
 		for (String elem : compilerClassPath) {
 			ccp += File.pathSeparatorChar + elem;
 		}
+		
+
 		
 		parser.getConfiguration().setRascalJavaClassPathProperty(ccp.substring(1));
 	}
