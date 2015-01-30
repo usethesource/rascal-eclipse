@@ -12,6 +12,7 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.imp.parser.IParseController;
@@ -45,7 +46,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		
 		return null;
 	}
-
+	
 	private IHyperlink[] getTreeLinks(IConstructor tree, IRegion region) {
 		IValue xref = tree.asAnnotatable().getAnnotation("hyperlinks");
 		if (xref != null) {
@@ -53,7 +54,9 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 					&& xref.getType().getElementType().getFieldType(0).isSourceLocation()
 					&& xref.getType().getElementType().getFieldType(1).isSourceLocation()
 					) {
-				List<IHyperlink> links = new ArrayList<IHyperlink>();
+				
+				List<IHyperlink> links = new ArrayList<>();
+				
 				ISet rel = ((ISet)xref); 
 				for (IValue v: rel) {
 					ITuple t = ((ITuple)v);
@@ -71,7 +74,8 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 				if (links.isEmpty()) {
 					return null;
 				}
-				return links.toArray(new IHyperlink[] {});
+				
+				return sortAndFilterHyperlinks(links); //.toArray(new IHyperlink[] {});
 			}
 		}
 		
@@ -121,5 +125,24 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		}
 
 		return null;
+	}
+	
+	private IHyperlink[] sortAndFilterHyperlinks(List<IHyperlink> hyperlinks) {
+		hyperlinks.sort(new Comparator<IHyperlink>() {
+			@Override
+			public int compare(IHyperlink o1, IHyperlink o2) {
+				// Always show the smallest offset link first, this is the link under the mouse cursor
+				return o2.getHyperlinkRegion().getOffset() - o1.getHyperlinkRegion().getOffset();
+			}
+		});
+		
+		List<IHyperlink> filteredLinks = new ArrayList<>();
+		for (IHyperlink link : hyperlinks) {
+			if (filteredLinks.isEmpty() || filteredLinks.get(0).getHyperlinkRegion().equals(link.getHyperlinkRegion())) {
+				filteredLinks.add(link);
+			}
+		}
+		
+		return filteredLinks.toArray(new IHyperlink[] {});
 	}
 }
