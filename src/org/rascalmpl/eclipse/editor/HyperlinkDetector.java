@@ -12,6 +12,7 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -128,7 +129,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 	}
 	
 	private IHyperlink[] sortAndFilterHyperlinks(List<IHyperlink> hyperlinks) {
-		hyperlinks.sort(new Comparator<IHyperlink>() {
+		Collections.sort(hyperlinks, new Comparator<IHyperlink>() {
 			@Override
 			public int compare(IHyperlink o1, IHyperlink o2) {
 				// Always show the smallest offset link first, this is the link under the mouse cursor
