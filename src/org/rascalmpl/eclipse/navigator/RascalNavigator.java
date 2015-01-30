@@ -7,14 +7,20 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.navigator.CommonNavigator;
+import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.SearchPath;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
+import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -105,5 +111,29 @@ public class RascalNavigator extends CommonNavigator {
 	public void createPartControl(Composite aParent) {
 		super.createPartControl(aParent);
 		restoreState();
+	}
+
+	public void reveal(ISourceLocation uri) {
+		try {
+			IResource handle = URIResourceResolver.getResource(uri);
+			
+			if (handle != null) {
+				getCommonViewer().reveal(handle);
+				getCommonViewer().setSelection(new StructuredSelection(handle));
+			}
+			else {
+				for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+					if (project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
+						URIContent content = new URIContent(uri, project, false);
+						getCommonViewer().reveal(content);
+						getCommonViewer().setSelection(new StructuredSelection(content));
+						break;
+					}
+				}
+			}
+		}
+		catch (CoreException e) {
+			Activator.log("could not reveal " + uri, e);
+		}
 	}
 }
