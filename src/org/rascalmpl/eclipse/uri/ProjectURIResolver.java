@@ -127,7 +127,7 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 			public void close() throws IOException {
 				super.close();
 				try {
-					resolveFile(uri).refreshLocal(0, new NullProgressMonitor());
+					resolveFile(uri).refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
 				} catch (CoreException e) {
 					Activator.getInstance().logException("could not refresh " + uri, e);
 				}
