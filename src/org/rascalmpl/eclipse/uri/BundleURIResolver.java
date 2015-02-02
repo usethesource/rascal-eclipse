@@ -73,24 +73,26 @@ public class BundleURIResolver implements  ISourceLocationInputOutput {
 
 	protected ISourceLocation resolve(ISourceLocation uri) throws IOException {
 		try {
-			URL resolved = FileLocator.resolve(uri.getURI().toURL());
-			ISourceLocation result = null;
-			try {
-				result = ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.fixUnicode(resolved.toURI())); 
+			URL url = uri.getURI().toURL();
+			URL resolved = FileLocator.resolve(url);
+			
+			if (resolved == url) {
+				throw new IOException("could not resolve " + uri);
 			}
-			catch (URISyntaxException e) {
-				// lets try to make a URI out of the URL.
+			
+			if (resolved.getProtocol().equals("jar")) {
 				String path = resolved.getPath();
+				
 				if (path.startsWith("file:")) {
 					path = path.substring(5);
 				}
-				result = ValueFactoryFactory.getValueFactory().sourceLocation(resolved.getProtocol(), resolved.getAuthority(), path);
+				
+				// TODO: this does not respect offsets
+				return ValueFactoryFactory.getValueFactory().sourceLocation(resolved.getProtocol(), resolved.getAuthority(), path);
 			}
-			if (result == uri) {
-				throw new IOException("could not resolve " + uri);
+			else {
+				return ValueFactoryFactory.getValueFactory().sourceLocation(resolved.toURI());
 			}
-
-			return result;
 		} catch (URISyntaxException e) {
 			throw new IOException("unexpected URI syntax exception: " + e.getMessage(), e);
 		}
