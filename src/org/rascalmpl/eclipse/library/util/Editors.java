@@ -242,11 +242,6 @@ public class Editors {
 				}
 
 				Activator.getInstance().logException("file " + uri + " not found", new RuntimeException());
-			} else if (scheme.equals("rascal-library")) {
-				IFile[] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(uri);
-				if (files.length > 0) {
-					return new FileEditorInput(files[0]);
-				}
 			}
 
 			Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
