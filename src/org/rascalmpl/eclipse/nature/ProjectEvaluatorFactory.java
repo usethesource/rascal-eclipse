@@ -511,9 +511,12 @@ public class ProjectEvaluatorFactory {
 	public void configureClassPath(IProject project, Evaluator parser) {
 		List<URL> classPath = new LinkedList<URL>();
 		List<String> compilerClassPath = new LinkedList<String>();
-		collectClassPathForProject(project, classPath, compilerClassPath);
 		Bundle rascalBundle = Activator.getInstance().getBundle();
+		
+		// order is important
 		collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
+		collectClassPathForProject(project, classPath, compilerClassPath);
+		
 		configureClassPath(parser, classPath, compilerClassPath);
 	}
 	
