@@ -10,6 +10,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.util;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IFile;
@@ -33,6 +34,7 @@ import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class ResourceMarkers {
 	
@@ -41,6 +43,12 @@ public class ResourceMarkers {
 	}
 
 	public void removeMessageMarkers(ISourceLocation loc, IEvaluatorContext ctx) {
+	  try { 
+	    loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
+	  }
+	  catch (IOException _) {
+		  // couldn't resolve it, must be a physical one already.
+	  }
 	  IResource resource = URIResourceResolver.getResource(loc);
 	  if (resource instanceof IFile) {
 	    IFile file = (IFile) resource;
@@ -77,6 +85,12 @@ public class ResourceMarkers {
 					if (! marker.getType().getName().equals("Message"))
 					  throw RuntimeExceptionFactory.illegalArgument(marker, null, null);
 					ISourceLocation loc = (ISourceLocation)marker.get(1);
+					try { 
+						loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
+					}
+					catch (IOException _) {
+						// couldn't resolve it, must be a physical one already.
+					}
 					IResource resource = URIResourceResolver.getResource(loc);
 					if (resource instanceof IFile) {
 					  IFile file = (IFile) resource;
