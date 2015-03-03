@@ -467,9 +467,9 @@ public class ProjectEvaluatorFactory {
 				String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
 				compilerClassPath.add(binLoc);
 				
-				URL url = new URL("file", "",  binLoc + "/");
-				parser.addClassLoader(new URLClassLoader(new URL[] {url}, getClass().getClassLoader()));
-				classPath.add(url);
+				URL binURL = new URL("file", "",  binLoc + "/");
+				parser.addClassLoader(new URLClassLoader(new URL[] {binURL}, getClass().getClassLoader()));
+				classPath.add(binURL);
 				
 				if (!jProject.isOpen()) {
 					return;
