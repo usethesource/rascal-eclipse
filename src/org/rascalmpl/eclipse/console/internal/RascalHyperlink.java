@@ -14,7 +14,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class RascalHyperlink implements IHyperlink {
 	private static final int INVALID_OFFSET = -1;
 	private String target;
-	private IEvaluatorContext ctx;
 	private final InteractiveInterpreterConsole console;
 	private final int srcOffset;
 	private final int srcLen;
@@ -27,8 +26,7 @@ public class RascalHyperlink implements IHyperlink {
 		return srcLen;
 	}
 
-	public RascalHyperlink(InteractiveInterpreterConsole console, int srcOffset, int srcLen, String target, IEvaluatorContext ctx, PrintWriter err) {
-		this.ctx = ctx;
+	public RascalHyperlink(InteractiveInterpreterConsole console, int srcOffset, int srcLen, String target, PrintWriter err) {
 		this.srcOffset = srcOffset;
 		this.srcLen = srcLen;
 		this.console = console;

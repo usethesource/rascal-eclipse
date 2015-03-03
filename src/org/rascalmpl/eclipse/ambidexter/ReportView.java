@@ -28,7 +28,6 @@ import nl.cwi.sen1.AmbiDexter.grammar.SymbolString;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -45,7 +44,6 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.UIPlugin;
 import org.eclipse.ui.part.ViewPart;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.values.ValueFactoryFactory;

@@ -275,6 +275,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			} catch (Ambiguous e) {
 				Activator.getInstance().logException(e.getMessage(), e);
 				content = ambiguousMessage(e) + "\n";
+				ReportView.listAmbiguities(project.getName(), "console", e.getTree(), monitor);
 				command = "";
 			} catch (StaticError e) {
 				content = staticErrorMessage(e) + "\n";

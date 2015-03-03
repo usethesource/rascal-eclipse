@@ -16,7 +16,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import java.net.URI;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -49,18 +48,12 @@ import org.rascalmpl.eclipse.nature.IWarningHandler;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
-import org.rascalmpl.eclipse.perspective.actions.ListAmbiguities;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
-import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
-import org.rascalmpl.parser.uptr.UPTRNodeFactory;
-import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.FileURIResolver;
 
 public class ParseController implements IParseController, IMessageHandlerProvider {
@@ -250,8 +243,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 				ISourceLocation loc = e.getLocation();
 				setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), e.getMessage());
 				// reparse with raw rascal parser to get the full forest
-				parseTree = new RascalParser().parse(Parser.START_MODULE, uri.getURI(), input.toCharArray(), new NoActionExecutor(), new DefaultNodeFlattener<IConstructor, IConstructor, ISourceLocation>(), new UPTRNodeFactory());
-				ReportView.listAmbiguities(project.getName(), "editor", parseTree, new NullProgressMonitor());
+				ReportView.listAmbiguities(project.getName(), "editor", e.getTree(), new NullProgressMonitor());
 				Activator.log("unexpected ambiguity during parsing of Rascal module", e);
 			}
 			finally {
