@@ -12,6 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.perspective.actions;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -35,8 +37,10 @@ public class ListAmbiguities extends AbstractEditorAction {
 			editor.doSave(new NullProgressMonitor());
 		}
 		
-		// TODO create job for getting grammar
-		
+		listAmbiguities(editor, project, file);
+	}
+
+	public static void listAmbiguities(UniversalEditor editor, IProject project, IFile file) {
 		String moduleName = ResourcesToModules.moduleFromFile(file);
 		
 		try {
@@ -54,6 +58,4 @@ public class ListAmbiguities extends AbstractEditorAction {
 			RuntimePlugin.getInstance().logException("could not parse module", e);
 		}
 	}
-	
-	
 }

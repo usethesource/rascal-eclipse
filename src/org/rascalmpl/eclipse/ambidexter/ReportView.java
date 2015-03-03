@@ -28,6 +28,7 @@ import nl.cwi.sen1.AmbiDexter.grammar.SymbolString;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -42,7 +43,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.UIPlugin;
 import org.eclipse.ui.part.ViewPart;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -183,6 +186,24 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 		return b.toString();
 	}
 
+	public static void listAmbiguities(final String project, final String module, final IConstructor parseTree, final IProgressMonitor monitor) {
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					ReportView part = (ReportView) PlatformUI.getWorkbench()
+				    .getActiveWorkbenchWindow()
+				    .getActivePage()
+					.showView(ID);
+					 
+					part.list(project, module, parseTree, monitor);
+				} catch (PartInitException e) {
+					RuntimePlugin.getInstance().logException("could not parse module", e);
+				}
+			}
+		});
+	}
+	
 	public void list(final String project, final String module, IConstructor parseTree, final IProgressMonitor monitor) {
 		table.removeAll();
 		
