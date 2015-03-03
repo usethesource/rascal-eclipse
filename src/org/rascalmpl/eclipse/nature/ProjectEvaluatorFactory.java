@@ -453,11 +453,11 @@ public class ProjectEvaluatorFactory {
     } 
   }
   
-	private void collectClassPathForProject(IProject project, List<URL> classPath, List<String> compilerClassPath) {
+	private void collectClassPathForProject(IProject project, List<URL> classPath, List<String> compilerClassPath, Evaluator parser) {
 		try {
 			if (!project.hasNature(JavaCore.NATURE_ID)) {
 				for (IProject ref : project.getReferencedProjects()) {
-					collectClassPathForProject(ref, classPath, compilerClassPath);
+					collectClassPathForProject(ref, classPath, compilerClassPath, parser);
 				}
 			}
 			else {
@@ -466,7 +466,10 @@ public class ProjectEvaluatorFactory {
 				IPath binFolder = jProject.getOutputLocation();
 				String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
 				compilerClassPath.add(binLoc);
-				classPath.add(new URL("file", "",  binLoc + "/"));
+				
+				URL url = new URL("file", "",  binLoc + "/");
+				parser.addClassLoader(new URLClassLoader(new URL[] {url}, getClass().getClassLoader()));
+				classPath.add(url);
 				
 				if (!jProject.isOpen()) {
 					return;
@@ -494,7 +497,7 @@ public class ProjectEvaluatorFactory {
 						}
 						break;
 					case IClasspathEntry.CPE_PROJECT:
-						collectClassPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath, compilerClassPath);
+						collectClassPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath, compilerClassPath, parser);
 						break;
 					}
 				}
@@ -514,8 +517,8 @@ public class ProjectEvaluatorFactory {
 		Bundle rascalBundle = Activator.getInstance().getBundle();
 		
 		// order is important
-		collectClassPathForProject(project, classPath, compilerClassPath);
 		collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
+		collectClassPathForProject(project, classPath, compilerClassPath, parser);
 		
 		configureClassPath(parser, classPath, compilerClassPath);
 	}
