@@ -514,8 +514,8 @@ public class ProjectEvaluatorFactory {
 		Bundle rascalBundle = Activator.getInstance().getBundle();
 		
 		// order is important
-		collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
 		collectClassPathForProject(project, classPath, compilerClassPath);
+		collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
 		
 		configureClassPath(parser, classPath, compilerClassPath);
 	}
