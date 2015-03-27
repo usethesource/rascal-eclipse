@@ -327,7 +327,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 						int fragmentOffsetStart = doc.getLength() - linkedLine.getString().length();
 						for (int i = 0; i < linkedLine.linkCount(); i++) {
 							String target = linkedLine.linkTarget(i);
-							if (target.startsWith("|stdin")) continue; // do not make a link out of the stdin console loc
+							if (target.startsWith("|stdin") || target.startsWith("|unknown")) continue; // do not make a link out of the stdin/unknown console loc
 							IHyperlink h;
 							int offset = fragmentOffsetStart + linkedLine.linkOffset(i);
 							int length = linkedLine.linkLength(i) - 1;
