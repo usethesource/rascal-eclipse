@@ -61,17 +61,16 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 		private int completionOffset;
 		private int completionPreviousLength;
 		private final int COMPLETION_FORWARD = 18000001;
+		//private final int COMPLETION_BACKWARD = 18000002;
+		private final int HISTORY_FORWARD = 18000011;
+		private final int HISTORY_BACKWARD = 18000012;
 
 		public InterpreterConsoleStyledText(Composite parent, int style){
 			super(parent, style);
-			String platform = SWT.getPlatform();
-			boolean isMac = "carbon".equals(platform) || "cocoa".equals(platform);
-			if (isMac) {
-				setKeyBinding(SWT.SPACE | SWT.MOD4, COMPLETION_FORWARD);
-			}
-			else {
-				setKeyBinding(SWT.SPACE | SWT.MOD1, COMPLETION_FORWARD);
-			}
+			setKeyBinding(SWT.MOD1 + 'R', HISTORY_BACKWARD);
+			setKeyBinding(SWT.MOD1 + SWT.MOD3 + 'R', HISTORY_FORWARD);
+			setKeyBinding(SWT.TAB, COMPLETION_FORWARD);
+			//setKeyBinding(SWT.TAB + SWT.SHIFT, COMPLETION_BACKWARD); // not yet possible with the possible framework
 			enable();
 		}
 		
@@ -105,23 +104,20 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 				case ST.LINE_START:
 					setCaretOffset(console.getInputOffset());
 					return;
-				case ST.TEXT_START:
+				case HISTORY_FORWARD:
+				case HISTORY_BACKWARD:
 				  if (history.isSearching()) {
-				    console.historyCommand(history.findNextCommand());
+				    if (action == HISTORY_BACKWARD) {
+				      console.historyCommand(history.findNextCommand());
+				    }
+				    else {
+				      console.historyCommand(history.findPreviousCommand());
+				    }
 				  }
 				  else {
 				    console.historyCommand(history.findCommand(console.getCurrentConsoleInput()));
 				  }
 				  return;
-				case ST.TEXT_END:
-          if (history.isSearching()) {
-            console.historyCommand(history.findPreviousCommand());
-          }
-          else {
-            console.historyCommand(history.findCommand(console.getCurrentConsoleInput()));
-          }
-          return;  
-				  
 			}
 
 			super.invokeAction(action);
