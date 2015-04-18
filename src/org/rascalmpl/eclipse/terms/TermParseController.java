@@ -115,7 +115,7 @@ public class TermParseController implements IParseController {
 		if (project != null) {
 			location = ProjectURIResolver.constructProjectURI(project, path);
 		} else {
-			location = FileURIResolver.constructFileURI(path.toOSString());
+			location = FileURIResolver.constructFileURI(path.toString());
 		}
 
 		this.job = new ParseJob(language.getName() + " parser", location, handler);

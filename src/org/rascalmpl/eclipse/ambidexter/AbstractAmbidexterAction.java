@@ -17,10 +17,12 @@ import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.library.lang.java.annotations.Analysis;
 
+@Analysis(fun="x")                                 
 public abstract class AbstractAmbidexterAction extends Action implements SelectionListener  {
 	protected String sentence;
-	protected IConstructor nonterminal;
+	protected IConstructor nonterminal; 
 	protected String project;
 	protected String module;
 	protected IConstructor tree;
