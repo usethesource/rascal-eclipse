@@ -47,7 +47,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
@@ -130,7 +130,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 	@Override
 	public void ambiguousString(final AmbiDexterConfig cfg, final SymbolString s, final NonTerminal n, String messagePrefix) {
 		try {
-			final IConstructor sym = (IConstructor) reader.read(VF, Factory.uptr, Factory.Symbol, new StringReader(n.prettyPrint()));
+			final IConstructor sym = (IConstructor) reader.read(VF, RascalValueFactory.uptr, RascalValueFactory.Symbol, new StringReader(n.prettyPrint()));
 			final String ascii = toascci(s);
 			final String module = getModuleName(cfg.filename);
 			final String project = getProjectName(cfg.filename);

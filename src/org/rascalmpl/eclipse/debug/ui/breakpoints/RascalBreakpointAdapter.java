@@ -43,7 +43,7 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint;
 import org.rascalmpl.interpreter.debug.DebugUpdater;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * Adapter to create line breakpoints in Rascal files.
@@ -193,7 +193,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 			}
 			
 			public IValue visitConstructor(IConstructor o) throws Exception{
-				IValue locationAnnotation = o.asAnnotatable().getAnnotation(Factory.Location);
+				IValue locationAnnotation = o.asAnnotatable().getAnnotation(RascalValueFactory.Location);
 				
 				if(locationAnnotation != null){
 					ISourceLocation sourceLocation = ((ISourceLocation) locationAnnotation);

@@ -32,7 +32,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -72,7 +72,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 			return "<uninitialized>";
 		}
 		
-		if (value.getType().isSubtypeOf(Factory.Tree)) {
+		if (value.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 			return getTreeValueString();
 		}
 		
@@ -227,7 +227,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 
 			@Override
 			public IVariable[] visitConstructor(Type type) {
-				if (type.isSubtypeOf(Factory.Tree)) {
+				if (type.isSubtypeOf(RascalValueFactory.Tree)) {
 					return visitTree();
 				}
 				

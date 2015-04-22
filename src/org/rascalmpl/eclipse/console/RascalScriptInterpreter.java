@@ -112,7 +112,7 @@ import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class RascalScriptInterpreter extends Job implements IInterpreter {
 	private ModuleReloader reloader;
@@ -514,7 +514,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			return;
 		}
 
-		if (result.getType().isSubtypeOf(Factory.Tree)) {
+		if (result.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 			new UIJob("Reporting Ambiguities") {
 				@Override
 				public IStatus runInUIThread(IProgressMonitor monitor) {

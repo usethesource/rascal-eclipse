@@ -27,7 +27,7 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class TermQuickFixAssistant implements IQuickFixAssistant {
 	
@@ -123,7 +123,7 @@ public class TermQuickFixAssistant implements IQuickFixAssistant {
 			
 			@Override
 			public void apply(IDocument document) {
-				Type[] argTypes = new Type[] { Factory.Tree, TypeFactory.getInstance().sourceLocationType() };
+				Type[] argTypes = new Type[] { RascalValueFactory.Tree, TypeFactory.getInstance().sourceLocationType() };
 				IString newSrc = (IString)f.call(argTypes, new IValue[] {ast, loc},  Collections.<String,IValue>emptyMap()).getValue();
 				document.set(newSrc.getValue());
 			}

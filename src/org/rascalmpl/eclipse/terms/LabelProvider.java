@@ -35,7 +35,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class LabelProvider implements ILabelProvider, ILanguageService {
@@ -141,7 +141,7 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 		}
 		
 		if (element instanceof IConstructor) {
-			if (((IConstructor) element).getType() == Factory.Tree){
+			if (((IConstructor) element).getType().isSubtypeOf(RascalValueFactory.Tree)) {
 				return TreeAdapter.getSortName((IConstructor) element);
 			}
 		}

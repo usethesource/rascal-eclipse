@@ -32,7 +32,7 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class TermLanguageRegistry {
@@ -126,7 +126,7 @@ public class TermLanguageRegistry {
 	}
 
 	public Language getLanguage(IConstructor parseTree) {
-		if (parseTree.getType() == Factory.Tree) {
+		if (parseTree.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 			return getLanguage(TreeAdapter.getLocation(parseTree));
 		}
 		return null;

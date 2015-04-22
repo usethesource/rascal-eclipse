@@ -29,7 +29,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 
@@ -73,9 +73,9 @@ public class GrammarBuilder {
 		
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		String start = config.alternativeStartSymbol;
-		String lex = vf.constructor(Factory.Symbol_Lex, vf.string(start)).toString();
-		String cf = vf.constructor(Factory.Symbol_Sort, vf.string(start)).toString();
-		String startCf = vf.constructor(Factory.Symbol_Start_Sort, vf.constructor(Factory.Symbol_Sort, vf.string(start))).toString();
+		String lex = vf.constructor(RascalValueFactory.Symbol_Lex, vf.string(start)).toString();
+		String cf = vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(start)).toString();
+		String startCf = vf.constructor(RascalValueFactory.Symbol_Start_Sort, vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(start))).toString();
     if (g.nonTerminals.containsKey(lex)) {
 		  g.setNewStartSymbol(lex);
     }
@@ -118,22 +118,22 @@ public class GrammarBuilder {
 //		| regular(Symbol def)
 
 		Type name = prod.getConstructorType();
-		if (name == Factory.Production_Choice) {
+		if (name == RascalValueFactory.Production_Choice) {
 			ISet alts = (ISet) prod.get("alternatives");
 			for (IValue e : alts) {
 				addProd(nt, (IConstructor) e, prodMap);
 			}			
-		} else if (name == Factory.Production_Priority) {
+		} else if (name == RascalValueFactory.Production_Priority) {
 			IList choices = (IList) prod.get("choices");
 			for (IValue e : choices) {
 				addProd(nt, (IConstructor) e, prodMap);
 			}
-		} else if (name == Factory.Production_Associativity) {
+		} else if (name == RascalValueFactory.Production_Associativity) {
 			ISet alts = (ISet) prod.get("alternatives");
 			for (IValue e : alts) {
 				addProd(nt, (IConstructor) e, prodMap);
 			}
-		} else if (name == Factory.Production_Default) {
+		} else if (name == RascalValueFactory.Production_Default) {
 			Production p = g.newProduction(nt); 
 			
 			IList lhs = (IList) prod.get("symbols");
@@ -143,7 +143,7 @@ public class GrammarBuilder {
 			
 			g.addProduction(p);
 			prodMap.put(prod, p);
-		} else if (name == Factory.Production_Regular) {
+		} else if (name == RascalValueFactory.Production_Regular) {
 			// do nothing, the regular symbols are expanded already
 		} else {
 			throw new ImplementationError("Unknown Production constructor " + name);
@@ -190,9 +190,9 @@ public class GrammarBuilder {
 		Symbol s = null;
 		
 		Type name = symbol.getConstructorType();
-		if (name == Factory.Symbol_Label) {
+		if (name == RascalValueFactory.Symbol_Label) {
 			s = getSymbol((IConstructor) symbol.get(1));
-		} else if (name == Factory.Symbol_CharClass) {
+		} else if (name == RascalValueFactory.Symbol_CharClass) {
 			IList ranges = (IList) symbol.get("ranges");
 			CharacterClass cc = new CharacterClass(ranges.length() * 2, 0);
 //			data CharRange = range(int begin, int end);
@@ -201,7 +201,7 @@ public class GrammarBuilder {
 				cc.append(((IInteger) r.get("begin")).intValue(), ((IInteger) r.get("end")).intValue());
 			}
 			s = cc;
-		} else if (name == Factory.Symbol_Conditional) {
+		} else if (name == RascalValueFactory.Symbol_Conditional) {
 			s = g.nonTerminals.get(symbol.toString());
 			if (s == null) {
 				s = g.getNonTerminal(symbol.toString());
@@ -211,7 +211,7 @@ public class GrammarBuilder {
 				
 				conditionals.add(symbol);
 			}
-		} else if (name == Factory.Symbol_LayoutX) {
+		} else if (name == RascalValueFactory.Symbol_LayoutX) {
 			NonTerminal n = g.getNonTerminal(symbol.toString());
 			n.layout = true;
 			s = n;
@@ -249,27 +249,27 @@ public class GrammarBuilder {
 			for (IValue e : (ISet) symbol.get("conditions")) {
 				IConstructor cond = (IConstructor) e;
 				Type cname = cond.getConstructorType();
-				if (cname == Factory.Condition_NotFollow) {
+				if (cname == RascalValueFactory.Condition_NotFollow) {
 					FollowRestrictions fr = getFollowRestrictions(cond, false);
 					n.addFollowRestrictions(fr);
-				} else if (cname == Factory.Condition_Follow) {
+				} else if (cname == RascalValueFactory.Condition_Follow) {
 					FollowRestrictions fr = getMustFollow(cond, false);
 					n.addFollowRestrictions(fr);
-				} else if (cname == Factory.Condition_Delete) { // reject
+				} else if (cname == RascalValueFactory.Condition_Delete) { // reject
 					Production reject = g.newProduction(n);
 					reject.reject  = true;
 					reject.addSymbol(getSymbol((IConstructor) cond.get("symbol")));
 					g.addProduction(reject);
-				} else if (cname == Factory.Condition_NotPrecede) {
+				} else if (cname == RascalValueFactory.Condition_NotPrecede) {
 					FollowRestrictions fr = getFollowRestrictions(cond, true);
 					n.addPrecedeRestrictions(fr);
-				} else if (cname == Factory.Condition_Precede) {
+				} else if (cname == RascalValueFactory.Condition_Precede) {
 					FollowRestrictions fr = getMustFollow(cond, true);
 					n.addPrecedeRestrictions(fr);
-				} else if (cname == Factory.Condition_EndOfLine) {
+				} else if (cname == RascalValueFactory.Condition_EndOfLine) {
 					// TODO: if find this suspect that it is the same as the next condition...
 					n.addPrecedeRestrictions(getNewLineMustFollow());
-				} else if (cname == Factory.Condition_EndOfLine) {
+				} else if (cname == RascalValueFactory.Condition_EndOfLine) {
 					n.addFollowRestrictions(getNewLineMustFollow());
 				}
 			}
@@ -283,7 +283,7 @@ public class GrammarBuilder {
 		// For the derivation generation it does produce some spurious ambiguous strings.
 		FollowRestrictions fr = new FollowRestrictions();
 		IConstructor r = (IConstructor) cond.get("symbol");
-		if (r.getConstructorType() == Factory.Symbol_CharClass) {
+		if (r.getConstructorType() == RascalValueFactory.Symbol_CharClass) {
 			CharacterClass cc = (CharacterClass) getSymbol(r);
 			fr.add(new LinkedList<CharacterClass>(cc.invert()));
 			fr.mustFollowLength = 1;
@@ -313,7 +313,7 @@ public class GrammarBuilder {
 	private FollowRestrictions getFollowRestrictions(IConstructor cond, boolean reverse) {
 		FollowRestrictions fr = new FollowRestrictions();
 		IConstructor r = (IConstructor) cond.get("symbol");
-		if (r.getConstructorType() == Factory.Symbol_CharClass) {
+		if (r.getConstructorType() == RascalValueFactory.Symbol_CharClass) {
 			CharacterClass cc = (CharacterClass) getSymbol(r);
 			fr.add(new LinkedList<CharacterClass>(cc));
 		} else {

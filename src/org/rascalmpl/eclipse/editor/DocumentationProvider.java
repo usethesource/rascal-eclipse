@@ -18,7 +18,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.services.IDocumentationProvider;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /*
  * Assuming the innermost lexical node in the parse tree is given,  we simply return the annotation labeled
@@ -29,7 +29,7 @@ public class DocumentationProvider  implements IDocumentationProvider {
 	public String getDocumentation(Object target,
 			IParseController parseController) {
 		if (target instanceof IConstructor) {
-			if (((IConstructor) target).getType() == Factory.Tree) {
+			if (((IConstructor) target).getType().isSubtypeOf(RascalValueFactory.Tree)) {
 				return getDocString((IConstructor) target, (IConstructor) parseController.getCurrentAst());
 			}
 		}
@@ -44,7 +44,7 @@ public class DocumentationProvider  implements IDocumentationProvider {
 				return ((IString) val).getValue();
 		}
 		
-		if (top != null && top.getType() == Factory.Tree) {
+		if (top != null && top.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 			IValue vals = arg.asAnnotatable().getAnnotation("docs");
 			
 			if (vals != null 

@@ -23,7 +23,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class NodeLocator implements ISourcePositionLocator {
@@ -31,7 +31,7 @@ public class NodeLocator implements ISourcePositionLocator {
 	public Object findNode(Object ast, int offset) {
 		if (ast instanceof IConstructor) {
 			IConstructor cons = (IConstructor) ast;
-			if (cons.getType() == Factory.Tree && TreeAdapter.getLocation(cons) != null) {
+			if (cons.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.getLocation(cons) != null) {
 				return TreeAdapter.locateLexical((IConstructor) ast, offset);
 			}
 		}
@@ -47,7 +47,7 @@ public class NodeLocator implements ISourcePositionLocator {
 	public Object findNode(Object ast, int startOffset, int endOffset) {
 		if (ast instanceof IConstructor) {
 			IConstructor cons = (IConstructor) ast;
-			if (cons.getType() == Factory.Tree) {
+			if (cons.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 				return TreeAdapter.locateLexical((IConstructor) ast, startOffset);
 			}
 		}

@@ -22,7 +22,7 @@ import org.eclipse.imp.services.base.FolderBase;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
@@ -50,10 +50,10 @@ public class FoldingUpdater extends FolderBase {
 						IConstructor prod = TreeAdapter.getProduction(arg);
 						IValueFactory VF = ValueFactoryFactory.getValueFactory();
 						
-						if (ProductionAdapter.hasAttribute(prod, VF.constructor(Factory.Attr_Tag, VF.node("Foldable")))) {
+						if (ProductionAdapter.hasAttribute(prod, VF.constructor(RascalValueFactory.Attr_Tag, VF.node("Foldable")))) {
 							makeAnnotation(arg, false);	
 						}
-						else if (ProductionAdapter.hasAttribute(prod, VF.constructor(Factory.Attr_Tag, VF.node("Folded")))) {
+						else if (ProductionAdapter.hasAttribute(prod, VF.constructor(RascalValueFactory.Attr_Tag, VF.node("Folded")))) {
 							makeAnnotation(arg, true);	
 						}
 						else if (arg.asAnnotatable().getAnnotation("foldable") != null) {
