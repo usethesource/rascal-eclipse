@@ -176,7 +176,7 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	@Override
 	public long lastModified(ISourceLocation uri) {
 		try {
-			return resolve(uri).getModificationStamp();
+			return resolve(uri).getLocalTimeStamp();
 		} catch (MalformedURLException e) {
 			return 0L;
 		} catch (IOException e) {
