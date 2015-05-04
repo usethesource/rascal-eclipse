@@ -6,7 +6,7 @@
 		<relativePath>../rascal-pom-parent/pom.xml</relativePath>
 		<groupId>org.rascalmpl</groupId>
 		<artifactId>rascal-pom-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.1.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>rascal_eclipse</artifactId>
@@ -45,5 +45,5 @@
 			<version>1.2.0.qualifier</version>
 		</dependency>
 	</dependencies>
- 
+
 </project>
