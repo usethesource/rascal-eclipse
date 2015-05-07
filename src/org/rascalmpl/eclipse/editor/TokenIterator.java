@@ -101,6 +101,10 @@ public class TokenIterator implements Iterator<Token>{
 				return arg;
 			}
 			
+			if (loc != null) {
+				location = loc.getOffset();
+			}
+			
 			// now we go down in the tree to find more tokens
 			int offset = location;
 			
@@ -133,6 +137,11 @@ public class TokenIterator implements Iterator<Token>{
 				tokenList.add(new Token(category, offset, location - offset));
 			}
 
+			// let locs be leading, not character count in visitChar
+			if (loc != null) {
+				location = loc.getOffset() + loc.getLength();
+			}
+			
 			return arg;
 		}
 		
