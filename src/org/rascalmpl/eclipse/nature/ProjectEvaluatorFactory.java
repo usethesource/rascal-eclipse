@@ -380,10 +380,9 @@ public class ProjectEvaluatorFactory {
 		List<String> requiredLibraries = mf.getRequiredLibraries(project);
 		if (requiredLibraries != null) {
 			for (String lib : requiredLibraries) {
-				JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(ValueFactoryFactory.getValueFactory().sourceLocation(project.getFile(lib).getLocationURI()));
-				URIResolverRegistry.getInstance().registerInput(resolver);
-				
 				try {
+					JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(ValueFactoryFactory.getValueFactory().sourceLocation(project.getFile(lib).getLocationURI()));
+					URIResolverRegistry.getInstance().registerInput(resolver);
 					addJarToSearchPath(resolver, eval);
 				} catch (IOException e) {
 					Activator.log("ignoring lib " + lib, e);
