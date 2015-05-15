@@ -28,6 +28,7 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
@@ -43,9 +44,9 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class AnnotatorExecutor {
 	private final MessagesToAnnotations marker = new MessagesToAnnotations();
 	
-	public synchronized IConstructor annotate(ICallableValue func, IConstructor parseTree, IMessageHandler handler) {
+	public synchronized Tree annotate(ICallableValue func, Tree parseTree, IMessageHandler handler) {
 		try {
-			IConstructor top = parseTree;
+			Tree top = parseTree;
 			boolean start = false;
 			IConstructor tree;
 			if (TreeAdapter.isAppl(top) && TreeAdapter.getSortName(top).equals("<START>")) {
@@ -57,16 +58,16 @@ public class AnnotatorExecutor {
 			}
 			
 			Type type = RascalTypeFactory.getInstance().nonTerminalType(tree);
-			IConstructor newTree;
+			Tree newTree;
 			synchronized(func.getEval()){
 				func.getEval().__setInterrupt(false);
-				newTree = (IConstructor) func.call(new Type[] {type}, new IValue[] {tree}, null).getValue();
+				newTree = (Tree) func.call(new Type[] {type}, new IValue[] {tree}, null).getValue();
 			}
 			
 			if (newTree != null) {
 				if (start) {
 					IList newArgs = TreeAdapter.getArgs(top).put(1, newTree);
-					newTree = top.set("args", newArgs).asAnnotatable().setAnnotation("loc", top.asAnnotatable().getAnnotation("loc"));
+					newTree = (Tree) top.set("args", newArgs).asAnnotatable().setAnnotation("loc", top.asAnnotatable().getAnnotation("loc"));
 				}
 				marker.process(newTree, handler);
 				return newTree;

@@ -48,6 +48,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
@@ -209,7 +210,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 			parseTree.accept(new IdentityTreeVisitor<Exception>() {
 				int ambTreesSeen = 0;
 				@Override
-				public IConstructor visitTreeAppl(IConstructor arg)
+				public Tree visitTreeAppl(Tree arg)
 						throws Exception {
 					if (monitor.isCanceled()) {
 						throw new Exception("interrupted");
@@ -224,7 +225,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 				}
 				
 				@Override
-				public IConstructor visitTreeAmb(IConstructor arg)
+				public Tree visitTreeAmb(Tree arg)
 						throws Exception {
 					ambTreesSeen++;
 					if (ambTreesSeen > 100) {
@@ -234,7 +235,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 					String sentence = TreeAdapter.yield(arg);
 					
 					for (IValue child : TreeAdapter.getAlternatives(arg)) {
-						sym = TreeAdapter.getType((IConstructor) child);
+						sym = TreeAdapter.getType((Tree) child);
 						child.accept(this);
 					}
 					

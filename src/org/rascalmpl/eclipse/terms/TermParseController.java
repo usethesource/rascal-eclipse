@@ -52,6 +52,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.FileURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 
 public class TermParseController implements IParseController {
 	private ISourceProject project;
@@ -139,7 +140,7 @@ public class TermParseController implements IParseController {
 		private final ISourceLocation loc;
 		
 		private String input;
-		public IConstructor parseTree = null;
+		public Tree parseTree = null;
 
 		public ParseJob(String name, ISourceLocation loc, IMessageHandler handler) {
 			super(name);
@@ -164,12 +165,12 @@ public class TermParseController implements IParseController {
 				ICallableValue parser = getParser();
 				if (parser != null) {
 					synchronized (parser.getEval()) {
-						parseTree = (IConstructor) parser.call(rm, new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}, null).getValue();
+						parseTree = (Tree) parser.call(rm, new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}, null).getValue();
 					}
 					ICallableValue annotator = getAnnotator();
 					if (parseTree != null && annotator != null) {
 						rm.event("annotating", 5);
-						IConstructor newTree = executor.annotate(annotator, parseTree, handler);
+						Tree newTree = executor.annotate(annotator, parseTree, handler);
 						if (newTree != null) {
 							parseTree = newTree;
 						}

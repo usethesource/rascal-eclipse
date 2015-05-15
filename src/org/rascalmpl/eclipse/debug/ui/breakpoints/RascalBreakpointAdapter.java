@@ -44,6 +44,7 @@ import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoi
 import org.rascalmpl.interpreter.debug.DebugUpdater;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 
 /**
  * Adapter to create line breakpoints in Rascal files.
@@ -56,8 +57,8 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 	 * @param editor the current IMP editor
 	 * @return debugging enriched AST
 	 */
-	private IConstructor getAST(IASTFindReplaceTarget editor) {
-		final IConstructor currentAST = (IConstructor) editor.getParseController().getCurrentAst();		
+	private Tree getAST(IASTFindReplaceTarget editor) {
+		final Tree currentAST = (Tree) editor.getParseController().getCurrentAst();		
 		return DebugUpdater.pushDownAttributes(currentAST);
 	}
 	
