@@ -24,7 +24,7 @@ import org.eclipse.jface.text.source.Annotation;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
@@ -34,20 +34,20 @@ public class FoldingUpdater extends FolderBase {
 	protected void sendVisitorToAST(
 			HashMap<Annotation, Position> newAnnotations,
 			List<Annotation> annotations, Object ast) {
-		if (ast instanceof Tree) {
-				((Tree) ast).accept(new TreeVisitor<RuntimeException>() {
-					public Tree visitTreeCycle(Tree arg)
+		if (ast instanceof ITree) {
+				((ITree) ast).accept(new TreeVisitor<RuntimeException>() {
+					public ITree visitTreeCycle(ITree arg)
 							 {
 						return null;
 					}
 					
 					@Override
-					public Tree visitTreeChar(Tree arg)  {
+					public ITree visitTreeChar(ITree arg)  {
 						return null;
 					}
 					
 					@Override
-					public Tree visitTreeAppl(Tree arg)  {
+					public ITree visitTreeAppl(ITree arg)  {
 						IConstructor prod = TreeAdapter.getProduction(arg);
 						IValueFactory VF = ValueFactoryFactory.getValueFactory();
 						
@@ -73,7 +73,7 @@ public class FoldingUpdater extends FolderBase {
 						return null;
 					}
 					
-					public Tree visitTreeAmb(Tree arg)  {
+					public ITree visitTreeAmb(ITree arg)  {
 						return null;
 					}
 				});
@@ -82,7 +82,7 @@ public class FoldingUpdater extends FolderBase {
 	
 	@Override
 	public void makeAnnotation(Object arg, boolean folded) {
-		Tree c = (Tree) arg;
+		ITree c = (ITree) arg;
 		ISourceLocation l = TreeAdapter.getLocation(c);
 		
 		if (l != null && l.getBeginLine() != l.getEndLine()) {

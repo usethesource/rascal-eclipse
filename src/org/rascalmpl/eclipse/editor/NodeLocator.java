@@ -22,14 +22,14 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class NodeLocator implements ISourcePositionLocator {
 
 	public Object findNode(Object ast, int offset) {
-		if (ast instanceof Tree) {
-			return TreeAdapter.locateLexical((Tree) ast, offset);
+		if (ast instanceof ITree) {
+			return TreeAdapter.locateLexical((ITree) ast, offset);
 		}
 		else if (ast instanceof AbstractAST) {
 			return ((AbstractAST) ast).findNode(offset);
@@ -41,8 +41,8 @@ public class NodeLocator implements ISourcePositionLocator {
 	}
 
 	public Object findNode(Object ast, int startOffset, int endOffset) {
-		if (ast instanceof Tree) {
-			return TreeAdapter.locateLexical((Tree) ast, startOffset);
+		if (ast instanceof ITree) {
+			return TreeAdapter.locateLexical((ITree) ast, startOffset);
 		}
 		else if (ast instanceof AbstractAST) {
 			return ((AbstractAST) ast).findNode(startOffset);
@@ -79,8 +79,8 @@ public class NodeLocator implements ISourcePositionLocator {
 	}
 	
 	private ISourceLocation getLocation(Object node){
-		if (node instanceof Tree){
-			return TreeAdapter.getLocation((Tree) node);
+		if (node instanceof ITree){
+			return TreeAdapter.getLocation((ITree) node);
 		}
 		
 		if (node instanceof INode) {

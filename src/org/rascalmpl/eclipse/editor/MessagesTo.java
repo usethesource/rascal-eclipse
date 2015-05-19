@@ -12,7 +12,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class MessagesTo {
@@ -27,13 +27,13 @@ public class MessagesTo {
 	
 
 	
-	public void process(final Tree parseTree, IMessageHandler handler) {
+	public void process(final ITree parseTree, IMessageHandler handler) {
 		if (parseTree != null) {
 			processMarkers(parseTree, handler); 
 		}
 }
 
-	private void processMarkers(Tree tree, IMessageHandler handler) {
+	private void processMarkers(ITree tree, IMessageHandler handler) {
 		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isLexical(tree)) {
 			IValue anno = tree.asAnnotatable().getAnnotation("message");
 			if (anno != null && anno.getType().isAbstractData() && anno.getType().getName().equals("Message")) {
@@ -50,12 +50,12 @@ public class MessagesTo {
 			}
 			
 			for (IValue child : TreeAdapter.getArgs(tree)) {
-				processMarkers((Tree) child, handler);
+				processMarkers((ITree) child, handler);
 			}
 		}
 		else if (TreeAdapter.isAmb(tree)) {
 			for (IValue alt : TreeAdapter.getAlternatives(tree)) {
-				processMarkers((Tree) alt, handler);
+				processMarkers((ITree) alt, handler);
 			}
 		}
 	}

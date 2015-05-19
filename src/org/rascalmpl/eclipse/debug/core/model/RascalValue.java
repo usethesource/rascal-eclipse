@@ -34,8 +34,8 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RascalValue extends RascalDebugElement implements IValue {
@@ -95,7 +95,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 
 	private String getTreeValueString() {
 		StringBuilder b = new StringBuilder();
-		Tree tree = (Tree) value;
+		ITree tree = (ITree) value;
 		
 		if (TreeAdapter.isChar(tree)) {
 		  return TreeAdapter.yield(tree, MAX_VALUE_STRING);
@@ -241,7 +241,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 			}
 
 			private IVariable[] visitTree() {
-				Tree tree = (Tree) value;
+				ITree tree = (ITree) value;
 
 				if (TreeAdapter.isList(tree)) {
 					IList elems = TreeAdapter.getListASTArgs(tree);

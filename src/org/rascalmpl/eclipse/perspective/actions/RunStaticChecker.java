@@ -32,7 +32,7 @@ import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.editor.ParseController;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RunStaticChecker extends AbstractEditorAction {
@@ -50,8 +50,8 @@ public class RunStaticChecker extends AbstractEditorAction {
 		if (editor != null) {
 			WorkspaceModifyOperation wmo = new WorkspaceModifyOperation(ResourcesPlugin.getWorkspace().getRoot()) {
 				public void execute(IProgressMonitor monitor) {
-					Tree toCheck = (Tree)editor.getParseController().getCurrentAst();
-					Tree res = check(toCheck,editor.getParseController(), handler);
+					ITree toCheck = (ITree)editor.getParseController().getCurrentAst();
+					ITree res = check(toCheck,editor.getParseController(), handler);
 					((ParseController) editor.getParseController()).setCurrentAst(res);
 				}
 			};
@@ -66,18 +66,18 @@ public class RunStaticChecker extends AbstractEditorAction {
 		}
 	}
 
-	public Tree check(Tree parseTree, final IParseController parseController, final IMessageHandler handler) {
+	public ITree check(ITree parseTree, final IParseController parseController, final IMessageHandler handler) {
 		if (parseTree == null) return null;
 						
 		try {
 			StaticChecker checker = helper.createCheckerIfNeeded(parseController.getProject());
 			
 			if (checker != null) {
-				IConstructor newTree = checker.checkModule(null, (Tree) TreeAdapter.getArgs(parseTree).get(1));
+				IConstructor newTree = checker.checkModule(null, (ITree) TreeAdapter.getArgs(parseTree).get(1));
 				if (newTree != null) {
-					Tree treeTop = parseTree;
+					ITree treeTop = parseTree;
 					IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
-					Tree newTreeTop = (Tree) treeTop.set("args", treeArgs).asAnnotatable().setAnnotation("loc", treeTop.asAnnotatable().getAnnotation("loc")).asAnnotatable().setAnnotation("docStrings", newTree.asAnnotatable().getAnnotation("docStrings")).asAnnotatable().setAnnotation("docLinks", newTree.asAnnotatable().getAnnotation("docLinks"));
+					ITree newTreeTop = (ITree) treeTop.set("args", treeArgs).asAnnotatable().setAnnotation("loc", treeTop.asAnnotatable().getAnnotation("loc")).asAnnotatable().setAnnotation("docStrings", newTree.asAnnotatable().getAnnotation("docStrings")).asAnnotatable().setAnnotation("docLinks", newTree.asAnnotatable().getAnnotation("docLinks"));
 					parseTree = newTreeTop;
 					handler.clearMessages();
 					marker.process(parseTree, handler);

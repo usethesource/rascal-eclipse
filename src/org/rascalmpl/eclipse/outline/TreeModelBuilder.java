@@ -45,7 +45,7 @@ import org.rascalmpl.ast.Toplevel.GivenVisibility;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.semantics.dynamic.FunctionDeclaration;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class TreeModelBuilder extends TreeModelBuilderBase {
@@ -77,16 +77,16 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			return;
 		}
 		
-		if(!(root instanceof Tree)) 
+		if(!(root instanceof ITree)) 
 			return;
 		
-		Tree tree = (Tree) root;
+		ITree tree = (ITree) root;
 		if(!TreeAdapter.isAppl(tree)) 
 			return;
 		
 		ASTBuilder builder = new ASTBuilder();
 		try {
-			Module mod = builder.buildModule((Tree) root);
+			Module mod = builder.buildModule((ITree) root);
 			if(mod == null) return;
 
 			loc = mod.getLocation();

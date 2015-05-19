@@ -113,7 +113,7 @@ import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory.Tree;
+import org.rascalmpl.values.uptr.ITree;
 
 public class RascalScriptInterpreter extends Job implements IInterpreter {
 	private ModuleReloader reloader;
@@ -247,7 +247,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		synchronized (eval) {
 			try {
 				eval.overrideDefaultWriters(consoleStdOut, consoleStdErr);
-				Tree tree = eval.parseCommand(rm, command,
+				ITree tree = eval.parseCommand(rm, command,
 						URIUtil.rootLocation("stdin"));
 				reloader.updateModules(monitor);
 				rm.event("running command");
@@ -432,7 +432,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 	}
 
-	private void execCommand(IRascalMonitor monitor, Tree tree) {
+	private void execCommand(IRascalMonitor monitor, ITree tree) {
 		Command stat = new ASTBuilder().buildCommand(tree);
 
 		if (stat == null) {
