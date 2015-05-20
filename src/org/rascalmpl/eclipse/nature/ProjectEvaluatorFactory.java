@@ -384,7 +384,8 @@ public class ProjectEvaluatorFactory {
 					JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(ValueFactoryFactory.getValueFactory().sourceLocation(project.getFile(lib).getLocationURI()));
 					URIResolverRegistry.getInstance().registerInput(resolver);
 					addJarToSearchPath(resolver, eval);
-				} catch (IOException e) {
+				} 
+				catch (IOException e) {
 					Activator.log("ignoring lib " + lib, e);
 				}
 			}

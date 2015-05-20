@@ -265,6 +265,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		} catch (InterruptedException e) {
 			Activator.getInstance().logException("parser interrupted", e);
 		}
+		
 		return null;
 	}
 	
