@@ -123,7 +123,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		
 		if (project != null) {
 			location = ProjectURIResolver.constructProjectURI(project, path);
-			this.parser = ProjectEvaluatorFactory.getInstance().createProjectEvaluator(project.getRawProject());
+			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(project.getRawProject());
 		} else {
 			location = FileURIResolver.constructFileURI(path.toString());
 			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(null);
