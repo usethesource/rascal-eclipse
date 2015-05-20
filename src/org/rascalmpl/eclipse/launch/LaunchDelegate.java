@@ -112,7 +112,9 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			// construct the corresponding module name
 			int index = configurationUtility.getPathOfMainModule().indexOf('/', 1);
 			String moduleFullName = configurationUtility.getPathOfMainModule().substring(index+1);
-			if(moduleFullName.startsWith("src/")) {
+			if(moduleFullName.startsWith("src/org/rascalmpl/library/")) {
+				moduleFullName = moduleFullName.replaceFirst("src/org/rascalmpl/library/", "");	
+			} else if(moduleFullName.startsWith("src/")) {
 				moduleFullName = moduleFullName.replaceFirst("src/", "");		
 			} else if(moduleFullName.startsWith("std/")) {
 				moduleFullName = moduleFullName.replaceFirst("std/", "");

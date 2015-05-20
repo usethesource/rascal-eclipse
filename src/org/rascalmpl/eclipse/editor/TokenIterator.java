@@ -96,11 +96,19 @@ public class TokenIterator implements Iterator<Token>{
 			
 			// short cut, if we have source locations and a category we found a long token
 			ISourceLocation loc = TreeAdapter.getLocation(arg);
+			
+			// Always sync location with locs because of concrete syntax stuff in Rascal.
+			if (loc != null) {
+				location = loc.getOffset();
+			}
+			
+			
 			if (category != null && loc != null) {
 				tokenList.add(new Token(category, location, loc.getLength()));
 				location += loc.getLength();
 				return arg;
 			}
+			
 			
 			// now we go down in the tree to find more tokens
 			int offset = location;
@@ -131,9 +139,14 @@ public class TokenIterator implements Iterator<Token>{
 			}
 			
 			if (category != null) {
-				tokenList.add(new Token(category, offset, location - offset));
+				tokenList.add(new Token(category, loc != null ? loc.getOffset() : offset, loc != null ? loc.getLength() : location - offset));
 			}
 
+			// let locs be leading, not character count in visitChar
+//			if (loc != null) {
+//				location = loc.getOffset() + loc.getLength();
+//			}
+			
 			return arg;
 		}
 		

@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -46,9 +48,10 @@ public class ResourceMarkers {
 	  try { 
 	    loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
 	  }
-	  catch (IOException _) {
+	  catch (IOException e) {
 		  // couldn't resolve it, must be a physical one already.
 	  }
+	  
 	  IResource resource = URIResourceResolver.getResource(loc);
 	  if (resource instanceof IFile) {
 	    IFile file = (IFile) resource;
@@ -57,6 +60,24 @@ public class ResourceMarkers {
 	    } catch (CoreException ce) {
 	      throw RuntimeExceptionFactory.javaException(ce, null, null);
 	    }
+	  }
+	  else if (resource instanceof IFolder) {
+		  try {
+			resource.accept(new IResourceVisitor() {
+				@Override
+				public boolean visit(IResource resource) throws CoreException {
+					if (resource instanceof IFile) {
+						IFile file = (IFile) resource;
+						file.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, false, IResource.DEPTH_ZERO);
+						return false;
+					}
+					
+					return true;
+				}
+			}, IResource.DEPTH_INFINITE, false);
+		} catch (CoreException e) {
+			Activator.log("could not remove markers", e);
+		}
 	  }
 	}
 
@@ -88,7 +109,7 @@ public class ResourceMarkers {
 					try { 
 						loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
 					}
-					catch (IOException _) {
+					catch (IOException e) {
 						// couldn't resolve it, must be a physical one already.
 					}
 					IResource resource = URIResourceResolver.getResource(loc);

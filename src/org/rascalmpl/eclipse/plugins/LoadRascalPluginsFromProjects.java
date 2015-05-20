@@ -58,32 +58,9 @@ public class LoadRascalPluginsFromProjects implements ILanguageRegistrar {
 		}
 	}
 	
-	public static void registerTermLanguagePlugin(final IProject project, IEvaluatorContext eval) {
-		try {
-			if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
-			  RascalEclipseManifest mf = new RascalEclipseManifest();
-			  
-			  if (mf.hasManifest(project)) {
-			    String mainModule = mf.getMainModule(project);
-			    String mainFunction = mf.getMainFunction(project);
-
-			    if (mainModule != null && mainFunction != null) {
-			      runPluginMain(project, mainModule, mainFunction, eval);
-			    }
-			  }
-			}
-		}
-		catch (CoreException e) {
-			Activator.getInstance().logException("could not register any term language plugins", e);
-		}
-	}
-
 	private static void runPluginMain(final IProject project, String mainModule, String mainFunction) {
-		runPluginMain(project, mainModule, mainFunction, initializeEvaluator(project));
-	}
-	
-	private static void runPluginMain(final IProject project, String mainModule, String mainFunction, IEvaluatorContext ctx) {
-		Evaluator eval = (Evaluator) ctx.getEvaluator();
+		Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project); 
+		
 		try {
 			synchronized(eval){
 				eval.doImport(null, mainModule);
@@ -92,14 +69,10 @@ public class LoadRascalPluginsFromProjects implements ILanguageRegistrar {
 		}
 		catch (ParseError | StaticError | Throw e) {
 		  eval.getStdErr().println("Could not run Plugin.rsc main of " + project.getName());
-      eval.getStdErr().println(ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(e));
+		  eval.getStdErr().println(ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(e));
 		}
 		catch (Throwable e) {
 			Activator.getInstance().logException("could not run Plugin.rsc main of " + project.getName(), e);
 		}
-	}
-
-	private static Evaluator initializeEvaluator(final IProject project) {
-		return ProjectEvaluatorFactory.getInstance().createProjectEvaluator(project);
 	}
 }
