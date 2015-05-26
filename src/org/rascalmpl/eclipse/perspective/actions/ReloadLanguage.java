@@ -27,22 +27,24 @@ public class ReloadLanguage  implements IWorkbenchWindowActionDelegate {
 	public void run(IAction action) {
 		if (activeWindow != null) {
 			IWorkbenchPage activePage = activeWindow.getActivePage();
+			
 			if (activePage != null) {
 				IEditorPart activeEditor = activePage.getActiveEditor();
+				
 				if (activeEditor != null && activeEditor instanceof UniversalEditor) {
 					UniversalEditor ued = (UniversalEditor) activeEditor;
 					IFileEditorInput input = (IFileEditorInput)ued.getEditorInput() ;
 					IFile file = input.getFile();
 					IProject activeProject = file.getProject();
 
-					Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(activeProject);
-					LoadRascalPluginsFromProjects.registerTermLanguagePlugin(activeProject, eval);
+					LoadRascalPluginsFromProjects.registerTermLanguagePlugin(activeProject);
 
 					for (IEditorReference editorRef: activePage.getEditorReferences()) {
 						// mark all editor containing term language dirty
 						IEditorPart editor = editorRef.getEditor(false);
 						if (editor != null && editor instanceof UniversalEditor) {
 							UniversalEditor uniEditor = (UniversalEditor)editor;
+							
 							if (TermLanguageRegistry.getInstance().getParser(uniEditor.getLanguage()) != null) {
 								IDocumentProvider documentProvider = uniEditor.getDocumentProvider();
 								IFileEditorInput edInput = (IFileEditorInput)uniEditor.getEditorInput() ;
