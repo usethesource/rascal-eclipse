@@ -33,6 +33,7 @@ import org.eclipse.imp.services.base.TreeModelBuilderBase;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.values.uptr.ITree;
 
 public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageService{
 	private Language lang;
@@ -184,8 +185,8 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 
 	private Language initLanguage(Object root) {
 		if (lang == null) {
-			if (root instanceof IConstructor) {
-				lang = TermLanguageRegistry.getInstance().getLanguage((IConstructor) root);
+			if (root instanceof ITree) {
+				lang = TermLanguageRegistry.getInstance().getLanguage((ITree) root);
 			}
 		}
 		return lang;

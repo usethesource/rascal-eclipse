@@ -17,7 +17,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.services.base.TreeModelBuilderBase;
 import org.rascalmpl.ast.AbstractAST;
@@ -46,6 +45,7 @@ import org.rascalmpl.ast.Toplevel.GivenVisibility;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.semantics.dynamic.FunctionDeclaration;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class TreeModelBuilder extends TreeModelBuilderBase {
@@ -77,13 +77,16 @@ public class TreeModelBuilder extends TreeModelBuilderBase {
 			return;
 		}
 		
-		if(!(root instanceof IConstructor)) return;
-		IConstructor tree = (IConstructor) root;
-		if(!TreeAdapter.isAppl(tree)) return;
+		if(!(root instanceof ITree)) 
+			return;
+		
+		ITree tree = (ITree) root;
+		if(!TreeAdapter.isAppl(tree)) 
+			return;
 		
 		ASTBuilder builder = new ASTBuilder();
 		try {
-			Module mod = builder.buildModule((IConstructor) root);
+			Module mod = builder.buildModule((ITree) root);
 			if(mod == null) return;
 
 			loc = mod.getLocation();

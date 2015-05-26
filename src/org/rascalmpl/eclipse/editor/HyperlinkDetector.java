@@ -17,7 +17,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.imp.parser.IParseController;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -29,6 +28,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class HyperlinkDetector implements ISourceHyperlinkDetector {
@@ -39,7 +39,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 			return null;
 		}
 		
-		IConstructor tree = (IConstructor) parseController.getCurrentAst();
+		ITree tree = (ITree) parseController.getCurrentAst();
 		
 		if (tree != null) {
 			return getTreeLinks(tree, region);
@@ -48,7 +48,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		return null;
 	}
 	
-	private IHyperlink[] getTreeLinks(IConstructor tree, IRegion region) {
+	private IHyperlink[] getTreeLinks(ITree tree, IRegion region) {
 		IValue xref = tree.asAnnotatable().getAnnotation("hyperlinks");
 		if (xref != null) {
 			if (xref.getType().isSet() && xref.getType().getElementType().isTuple() 
@@ -81,7 +81,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		}
 		
 		
-		IConstructor ref = TreeAdapter.locateAnnotatedTree(tree, "link", region.getOffset());
+		ITree ref = TreeAdapter.locateAnnotatedTree(tree, "link", region.getOffset());
 		
 		if (ref != null) {
 			IValue link = ref.asAnnotatable().getAnnotation("link");
@@ -106,7 +106,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		}
 		
 		IValue docLinksMapValue = tree.asAnnotatable().getAnnotation("docLinks");
-		IConstructor subtree = TreeAdapter.locateAnnotatedTree(tree, "loc", region.getOffset());
+		ITree subtree = TreeAdapter.locateAnnotatedTree(tree, "loc", region.getOffset());
 		if (docLinksMapValue != null && docLinksMapValue.getType().isMap() && subtree != null) {
 			ISourceLocation loc = TreeAdapter.getLocation(subtree);
 			if (loc != null) {

@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
@@ -59,7 +60,7 @@ public class TokenIterator implements Iterator<Token>{
 			location = 0;
 		}
 		
-		public IConstructor visitTreeAmb(IConstructor arg) {
+		public ITree visitTreeAmb(ITree arg) {
 			if (showAmb) {
 				int offset = location;
 				ISourceLocation ambLoc = TreeAdapter.getLocation(arg);
@@ -75,7 +76,7 @@ public class TokenIterator implements Iterator<Token>{
 			
 		}
 		
-		public IConstructor visitTreeAppl(IConstructor arg){
+		public ITree visitTreeAppl(ITree arg){
 			IValue catAnno = arg.asAnnotatable().getAnnotation("category");
 			String category = null;
 			
@@ -125,7 +126,7 @@ public class TokenIterator implements Iterator<Token>{
 					category = TokenColorer.META_KEYWORD;
 
 					for (IValue child : TreeAdapter.getArgs(arg)) {
-						int c = TreeAdapter.getCharacter((IConstructor) child);
+						int c = TreeAdapter.getCharacter((ITree) child);
 						if (c != '-' && !Character.isJavaIdentifierPart(c)){
 							category = null;
 						}
@@ -149,13 +150,13 @@ public class TokenIterator implements Iterator<Token>{
 			return arg;
 		}
 		
-		public IConstructor visitTreeChar(IConstructor arg){
+		public ITree visitTreeChar(ITree arg){
 			++location;
 			
 			return arg;
 		}
 		
-		public IConstructor visitTreeCycle(IConstructor arg){
+		public ITree visitTreeCycle(ITree arg){
 			return arg;
 		}
 	}

@@ -22,8 +22,9 @@ import org.eclipse.imp.services.base.FolderBase;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
@@ -33,27 +34,27 @@ public class FoldingUpdater extends FolderBase {
 	protected void sendVisitorToAST(
 			HashMap<Annotation, Position> newAnnotations,
 			List<Annotation> annotations, Object ast) {
-		if (ast instanceof IConstructor) {
-				((IConstructor) ast).accept(new TreeVisitor<RuntimeException>() {
-					public IConstructor visitTreeCycle(IConstructor arg)
+		if (ast instanceof ITree) {
+				((ITree) ast).accept(new TreeVisitor<RuntimeException>() {
+					public ITree visitTreeCycle(ITree arg)
 							 {
 						return null;
 					}
 					
 					@Override
-					public IConstructor visitTreeChar(IConstructor arg)  {
+					public ITree visitTreeChar(ITree arg)  {
 						return null;
 					}
 					
 					@Override
-					public IConstructor visitTreeAppl(IConstructor arg)  {
+					public ITree visitTreeAppl(ITree arg)  {
 						IConstructor prod = TreeAdapter.getProduction(arg);
 						IValueFactory VF = ValueFactoryFactory.getValueFactory();
 						
-						if (ProductionAdapter.hasAttribute(prod, VF.constructor(Factory.Attr_Tag, VF.node("Foldable")))) {
+						if (ProductionAdapter.hasAttribute(prod, VF.constructor(RascalValueFactory.Attr_Tag, VF.node("Foldable")))) {
 							makeAnnotation(arg, false);	
 						}
-						else if (ProductionAdapter.hasAttribute(prod, VF.constructor(Factory.Attr_Tag, VF.node("Folded")))) {
+						else if (ProductionAdapter.hasAttribute(prod, VF.constructor(RascalValueFactory.Attr_Tag, VF.node("Folded")))) {
 							makeAnnotation(arg, true);	
 						}
 						else if (arg.asAnnotatable().getAnnotation("foldable") != null) {
@@ -72,7 +73,7 @@ public class FoldingUpdater extends FolderBase {
 						return null;
 					}
 					
-					public IConstructor visitTreeAmb(IConstructor arg)  {
+					public ITree visitTreeAmb(ITree arg)  {
 						return null;
 					}
 				});
@@ -81,7 +82,7 @@ public class FoldingUpdater extends FolderBase {
 	
 	@Override
 	public void makeAnnotation(Object arg, boolean folded) {
-		IConstructor c = (IConstructor) arg;
+		ITree c = (ITree) arg;
 		ISourceLocation l = TreeAdapter.getLocation(c);
 		
 		if (l != null && l.getBeginLine() != l.getEndLine()) {

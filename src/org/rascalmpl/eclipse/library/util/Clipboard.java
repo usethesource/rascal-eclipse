@@ -8,7 +8,7 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Clipboard {
@@ -40,7 +40,7 @@ public class Clipboard {
 				if (content.getType().isString()) {
 					str = ((IString) content).getValue();
 				}
-				else if (content.getType().isSubtypeOf(Factory.Tree)) {
+				else if (content.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 					str = TreeAdapter.yield((IConstructor) content);
 				}
 				else {
