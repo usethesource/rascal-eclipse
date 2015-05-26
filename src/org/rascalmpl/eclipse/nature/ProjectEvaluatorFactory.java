@@ -51,7 +51,6 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.JarInputStreamURIResolver;
 import org.rascalmpl.uri.JarURIResolver;
@@ -99,21 +98,28 @@ public class ProjectEvaluatorFactory {
 		return eval.getRascalResolver();
 	}
 	
+	public Evaluator getEvaluator(IProject project) {
+		Evaluator parser = getOrCreateEvaluator(project);
+		assert reloaderForProject.get(project) != null;
+		reloaderForProject.get(project).updateModules(new NullProgressMonitor(), new WarningsToPrintWriter(parser.getStdErr()));
+		return parser;
+	}
 	/**
 	 * This method returns and shares a single evaluator for each project
 	 */
-	public Evaluator getEvaluator(IProject project) {
+	public Evaluator getEvaluator(IProject project, IWarningHandler warnings) {
 		Evaluator parser = getOrCreateEvaluator(project);
-		
-		try {
-			reloaderForProject.get(project).updateModules(new NullProgressMonitor());
-		}
-		catch (StaticError e) {
-			// things may go wrong while reloading modules, simply because the modules still have parse errors in them.
-			// these are safely ignored here, the user will have had feedback on those errors elsewhere
-		}
-		
+		assert reloaderForProject.get(project) != null;
+		reloaderForProject.get(project).updateModules(new NullProgressMonitor(), warnings);
 		return parser;
+	}
+	
+	public void reloadProject(IProject project, IWarningHandler handler) {
+		ModuleReloader reloader = reloaderForProject.get(project);
+		
+		if (reloader != null) {
+			reloader.updateModules(new NullProgressMonitor(), handler);
+		}
 	}
 
 	private Evaluator getOrCreateEvaluator(IProject project) {
@@ -121,7 +127,7 @@ public class ProjectEvaluatorFactory {
 		
 		if (parser == null) {
 			parser = createProjectEvaluator(project);
-			reloaderForProject.put(project, new ModuleReloader(parser));
+			reloaderForProject.put(project, new ModuleReloader(parser, new WarningsToPrintWriter(parser.getStdErr())));
 			parserForProject.put(project, parser);
 		}
 		

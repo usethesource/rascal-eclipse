@@ -15,10 +15,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.plugins.LoadRascalPluginsFromProjects;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
-import org.rascalmpl.interpreter.Evaluator;
 
 public class ReloadLanguage  implements IWorkbenchWindowActionDelegate {
 	private IWorkbenchWindow activeWindow;

@@ -31,6 +31,9 @@ public class RascalMonitor implements IRascalMonitor {
 	
 	@Override
 	public int endJob(boolean succeeded) {
+		if (subMon == null) {
+			throw new UnsupportedOperationException("endJob without startJob");
+		}
 		int worked = subMon.getWorkDone();
 		subMon = subMon.endJob();
 		monitor.setTaskName(topName);

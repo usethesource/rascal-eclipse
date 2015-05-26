@@ -91,6 +91,8 @@ import org.rascalmpl.eclipse.nature.IWarningHandler;
 import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
+import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
+import org.rascalmpl.eclipse.nature.WarningsToMarkers;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
@@ -152,8 +154,8 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			eval.doImport(null, "ParseTree");
 		}
 		this.eval = eval;
-		this.reloader = new ModuleReloader(eval);
 		this.warnings = new WarningsToPrintWriter(eval.getStdErr());
+		this.reloader = new ModuleReloader(eval, warnings);
 
 		getEventTrigger().fireCreationEvent();
 	}
@@ -249,7 +251,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				eval.overrideDefaultWriters(consoleStdOut, consoleStdErr);
 				ITree tree = eval.parseCommand(rm, command,
 						URIUtil.rootLocation("stdin"));
-				reloader.updateModules(monitor);
+				reloader.updateModules(monitor, warnings);
 				rm.event("running command");
 				execCommand(rm, tree);
 			} catch (ParseError e) {

@@ -25,9 +25,12 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.URIUtil;
 
 public class ModuleReloader{
@@ -36,17 +39,17 @@ public class ModuleReloader{
 	
 	private boolean destroyed;
 	
-	public ModuleReloader(Evaluator eval) {
+	public ModuleReloader(Evaluator eval, IWarningHandler warnings) {
 		super();
 		
-		moduleChangeListener = new RascalModuleChangeListener(eval);
+		moduleChangeListener = new RascalModuleChangeListener(eval, warnings);
 		resourceChangeListener = new RascalModuleUpdateListener(moduleChangeListener);
 		
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(resourceChangeListener);
 	}
 	
-	public void updateModules(IProgressMonitor monitor){
-		moduleChangeListener.updateModules(monitor);
+	public void updateModules(IProgressMonitor monitor, IWarningHandler handler){
+		moduleChangeListener.updateModules(monitor, handler);
 	}
 
 	public synchronized void destroy(){
@@ -125,11 +128,10 @@ public class ModuleReloader{
 		private final Evaluator eval;
 		private final IWarningHandler warnings;
 		
-		public RascalModuleChangeListener(Evaluator eval){
+		public RascalModuleChangeListener(Evaluator eval, IWarningHandler warnings) {
 			super();
-			
 			this.eval = eval;
-			this.warnings = new WarningsToPrintWriter(eval.getStdErr());
+			this.warnings = warnings;
 		}
 		
 		public void moduleChanged(String name) {
@@ -138,17 +140,11 @@ public class ModuleReloader{
 			}
 		}
 		
-		public void updateModules(IProgressMonitor monitor) {
+		public void updateModules(IProgressMonitor monitor, IWarningHandler handler) {
 			synchronized (dirtyModules) {
-				try {
-					synchronized(eval){
-						eval.reloadModules(new RascalMonitor(monitor, warnings) , Collections.unmodifiableSet(dirtyModules), URIUtil.rootLocation("console"));
-					}
-				}
-				catch (Throwable x) {
-					// reloading modules may trigger many issues, however, these should be visible
-					// already in the editors for the respective modules, so we ignore them here
-					// to prevent redundant error messages
+				synchronized(eval){
+					eval.reloadModules(new RascalMonitor(monitor, handler == null ? warnings : handler) , Collections.unmodifiableSet(dirtyModules), URIUtil.rootLocation("console"));
+					dirtyModules.clear();
 				}
 			}
 		}
