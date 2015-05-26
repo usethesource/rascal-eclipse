@@ -30,7 +30,6 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.uri.URIStorage;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -141,8 +140,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	  }
 	  
 	  public List<URIContent> getSearchPath() {
-		  Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(project);
-		  RascalSearchPath resolver = eval.getRascalResolver();
+		  RascalSearchPath resolver =  ProjectEvaluatorFactory.getInstance().getProjectSearchPath(project);
 		  List<URIContent> result = new LinkedList<>();
 		  
 		  for (ISourceLocation root : resolver.collect()) {

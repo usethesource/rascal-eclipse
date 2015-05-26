@@ -50,6 +50,7 @@ import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.JarInputStreamURIResolver;
@@ -93,18 +94,16 @@ public class ProjectEvaluatorFactory {
 		reloaderForProject.remove(project);
 	}
 	
+	public RascalSearchPath getProjectSearchPath(IProject project) {
+		Evaluator eval = getOrCreateEvaluator(project);
+		return eval.getRascalResolver();
+	}
+	
 	/**
 	 * This method returns and shares a single evaluator for each project
 	 */
 	public Evaluator getEvaluator(IProject project) {
-		Evaluator parser = parserForProject.get(project);
-		
-		if (parser == null) {
-			parser = createProjectEvaluator(project);
-			reloaderForProject.put(project, new ModuleReloader(parser));
-			parserForProject.put(project, parser);
-			return parser;
-		}
+		Evaluator parser = getOrCreateEvaluator(project);
 		
 		try {
 			reloaderForProject.get(project).updateModules(new NullProgressMonitor());
@@ -112,6 +111,18 @@ public class ProjectEvaluatorFactory {
 		catch (StaticError e) {
 			// things may go wrong while reloading modules, simply because the modules still have parse errors in them.
 			// these are safely ignored here, the user will have had feedback on those errors elsewhere
+		}
+		
+		return parser;
+	}
+
+	private Evaluator getOrCreateEvaluator(IProject project) {
+		Evaluator parser = parserForProject.get(project);
+		
+		if (parser == null) {
+			parser = createProjectEvaluator(project);
+			reloaderForProject.put(project, new ModuleReloader(parser));
+			parserForProject.put(project, parser);
 		}
 		
 		return parser;
