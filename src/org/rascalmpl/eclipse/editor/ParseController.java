@@ -16,7 +16,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import java.net.URI;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.language.Language;
@@ -43,16 +44,21 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.ambidexter.ReportView;
 import org.rascalmpl.eclipse.nature.IWarningHandler;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.utils.Modules;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ParseController implements IParseController, IMessageHandlerProvider {
 	private IMessageHandler handler;
@@ -121,7 +127,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		
 		if (project != null) {
 			location = ProjectURIResolver.constructProjectURI(project, path);
-			this.parser = ProjectEvaluatorFactory.getInstance().createProjectEvaluator(project.getRawProject());
+			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(project.getRawProject(), new WarningsToMessageHandler(location, handler));
 		} else {
 			location = FileURIResolver.constructFileURI(path.toString());
 			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(null);
@@ -148,7 +154,9 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		private Set<IResource> markedFiles;
 
 		private String input;
-		public IConstructor parseTree = null;
+		public ITree parseTree = null;
+		private String name = null;
+		private final Set<String> ignore = new HashSet<>();
 
 		public ParseJob(String name, ISourceLocation uri, IMessageHandler handler) {
 			super(name);
@@ -187,9 +195,15 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			
 			try {
 				synchronized (parser) {
+					ProjectEvaluatorFactory.getInstance().reloadProject(project.getRawProject(), new WarningsToMessageHandler(uri, getMessageHandler()), ignore);
 					parseTree = parser.parseModule(rm, input.toCharArray(), uri);
+					
+					// this makes sure we do not reload the current module and who depends on it 
+					// while we are editing it.
+					name = Modules.getName(TreeAdapter.getStartTop(parseTree));
+					ignore.clear();
+					ignore.add(name);
 				}
-				
 			}
 			catch (FactTypeUseException ftue) {
 				Activator.getInstance().logException("parsing rascal failed", ftue);
@@ -237,6 +251,13 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 				
 				setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), t.getMessage());
 			}
+			catch (Ambiguous e) {
+				ISourceLocation loc = e.getLocation();
+				setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), e.getMessage());
+				// reparse with raw rascal parser to get the full forest
+				ReportView.listAmbiguities(project.getName(), "editor", e.getTree(), new NullProgressMonitor());
+				Activator.log("unexpected ambiguity during parsing of Rascal module", e);
+			}
 			finally {
 				rm.endJob(true);
 			}
@@ -256,6 +277,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		} catch (InterruptedException e) {
 			Activator.getInstance().logException("parser interrupted", e);
 		}
+		
 		return null;
 	}
 	

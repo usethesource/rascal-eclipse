@@ -112,10 +112,13 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 			Environment e = callStack.peek();
 			for (String s:imports) {
 				ModuleEnvironment module = callStack.peek().getHeap().getModule(s);
-				Map<String, Result<IValue>> variables = module.getVariables();
-				for (String v:variables.keySet()) {
-					 Result<IValue> w = variables.get(v);
-				     e.storeVariable(s+"::"+v, w);
+				
+				if (module != null) {
+					Map<String, Result<IValue>> variables = module.getVariables();
+					for (String v:variables.keySet()) {
+						Result<IValue> w = variables.get(v);
+						e.storeVariable(s+"::"+v, w);
+					}
 				}
 			}
 			return theFrames;

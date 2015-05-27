@@ -19,8 +19,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
@@ -76,7 +76,7 @@ public class TokenIterator implements Iterator<Token>{
 			
 		}
 		
-		public ITree visitTreeAppl(IConstructor arg){
+		public ITree visitTreeAppl(ITree arg){
 			IValue catAnno = arg.asWithKeywordParameters().getParameter("category");
 			String category = null;
 			

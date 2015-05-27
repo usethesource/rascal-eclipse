@@ -6,7 +6,6 @@ import java.util.List;
 import org.eclipse.imp.editor.ErrorProposal;
 import org.eclipse.imp.editor.SourceProposal;
 import org.eclipse.imp.parser.IParseController;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.services.IContentProposer;
 import org.eclipse.jface.text.ITextViewer;
@@ -14,6 +13,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.values.uptr.ITree;
 
 /**
  * Content proposer for Rascal.
@@ -209,7 +209,7 @@ public class ContentProposer implements IContentProposer {
 		int currentDocumentHash = parseController.getDocument().get().hashCode();
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 
-		IConstructor tree = (IConstructor) parseController.getCurrentAst();
+		ITree tree = (ITree) parseController.getCurrentAst();
 		Point selection = textViewer.getSelectedRange();
 
 		Prefix prefix = Prefix.getPrefix(parseController.getDocument(), selection.x, selection.y, identifier_allowed_chars);

@@ -19,12 +19,14 @@ public class WarningsToMarkers implements IWarningHandler {
     try {
       IResource res = URIResourceResolver.getResource(src);
 
-      Map<String,Object> attrs = new HashMap<String,Object>();
-      attrs.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-      attrs.put(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+      if (res != null) {
+    	  Map<String,Object> attrs = new HashMap<String,Object>();
+    	  attrs.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+    	  attrs.put(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 
-      if (res instanceof IFile) {
-        new MarkerCreator((IFile) res, IRascalResources.ID_RASCAL_MARKER).handleSimpleMessage(msg, src.getOffset(), src.getOffset() + src.getLength(), src.getBeginColumn(), src.getEndColumn(), src.getBeginLine(), src.getEndLine(), attrs);
+    	  if (res instanceof IFile) {
+    		  new MarkerCreator((IFile) res, IRascalResources.ID_RASCAL_MARKER).handleSimpleMessage(msg, src.getOffset(), src.getOffset() + src.getLength(), src.getBeginColumn(), src.getEndColumn(), src.getBeginLine(), src.getEndLine(), attrs);
+    	  }
       }
     }
     catch (Throwable e) {

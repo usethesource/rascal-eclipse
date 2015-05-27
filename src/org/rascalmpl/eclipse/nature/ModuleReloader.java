@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -36,17 +37,17 @@ public class ModuleReloader{
 	
 	private boolean destroyed;
 	
-	public ModuleReloader(Evaluator eval) {
+	public ModuleReloader(IProject project, Evaluator eval, IWarningHandler warnings) {
 		super();
 		
-		moduleChangeListener = new RascalModuleChangeListener(eval);
+		moduleChangeListener = new RascalModuleChangeListener(eval, project, warnings);
 		resourceChangeListener = new RascalModuleUpdateListener(moduleChangeListener);
 		
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(resourceChangeListener);
 	}
 	
-	public void updateModules(IProgressMonitor monitor){
-		moduleChangeListener.updateModules(monitor);
+	public void updateModules(IProgressMonitor monitor, IWarningHandler handler, Set<String> ignored){
+		moduleChangeListener.updateModules(monitor, handler, ignored);
 	}
 
 	public synchronized void destroy(){
@@ -125,11 +126,10 @@ public class ModuleReloader{
 		private final Evaluator eval;
 		private final IWarningHandler warnings;
 		
-		public RascalModuleChangeListener(Evaluator eval){
+		public RascalModuleChangeListener(Evaluator eval, IProject project, IWarningHandler warnings) {
 			super();
-			
 			this.eval = eval;
-			this.warnings = new WarningsToPrintWriter(eval.getStdErr());
+			this.warnings = warnings;
 		}
 		
 		public void moduleChanged(String name) {
@@ -138,17 +138,17 @@ public class ModuleReloader{
 			}
 		}
 		
-		public void updateModules(IProgressMonitor monitor) {
+		public void updateModules(IProgressMonitor monitor, IWarningHandler handler, Set<String> ignored) {
 			synchronized (dirtyModules) {
-				try {
-					synchronized(eval){
-						eval.reloadModules(new RascalMonitor(monitor, warnings) , Collections.unmodifiableSet(dirtyModules), URIUtil.rootLocation("console"));
+				synchronized(eval){
+					Set<String> todo = new HashSet<>();
+					todo.addAll(dirtyModules);
+					boolean changed = todo.removeAll(ignored);
+					eval.reloadModules(new RascalMonitor(monitor, handler == null ? warnings : handler) , Collections.unmodifiableSet(todo), URIUtil.rootLocation("console"));
+					dirtyModules.clear();
+					if (changed) {
+						dirtyModules.addAll(ignored);
 					}
-				}
-				catch (Throwable x) {
-					// reloading modules may trigger many issues, however, these should be visible
-					// already in the editors for the respective modules, so we ignore them here
-					// to prevent redundant error messages
 				}
 			}
 		}

@@ -13,8 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.ui.breakpoints;
 
-import java.util.Map;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -41,11 +39,9 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint;
-import org.rascalmpl.interpreter.debug.DebugUpdater;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
  * Adapter to create line breakpoints in Rascal files.
@@ -59,8 +55,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 	 * @return debugging enriched AST
 	 */
 	private ITree getAST(IASTFindReplaceTarget editor) {
-		final ITree currentAST = (ITree) editor.getParseController().getCurrentAst();		
-		return DebugUpdater.pushDownAttributes(currentAST);
+		return (ITree) editor.getParseController().getCurrentAst();		
 	}
 	
 	/* (non-Javadoc)

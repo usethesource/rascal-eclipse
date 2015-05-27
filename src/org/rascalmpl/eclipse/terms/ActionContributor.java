@@ -46,6 +46,7 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -106,7 +107,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 	private static final class RascalAction extends Job {
 		private final ICallableValue func;
 		private final WarningsToErrorLog warnings;
-		private IConstructor tree;
+		private ITree tree;
 		private Point selection;
 		public IString result = null;
     
@@ -119,7 +120,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 		}
 		
 		public void init(UniversalEditor editor) {
-			this.tree = (IConstructor) editor.getParseController().getCurrentAst();
+			this.tree = (ITree) editor.getParseController().getCurrentAst();
 			this.selection = editor.getSelection();
 		}
 

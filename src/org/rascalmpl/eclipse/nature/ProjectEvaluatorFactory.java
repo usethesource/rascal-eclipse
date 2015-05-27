@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -50,7 +51,7 @@ import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.JarInputStreamURIResolver;
 import org.rascalmpl.uri.JarURIResolver;
@@ -93,25 +94,42 @@ public class ProjectEvaluatorFactory {
 		reloaderForProject.remove(project);
 	}
 	
+	public RascalSearchPath getProjectSearchPath(IProject project) {
+		Evaluator eval = getOrCreateEvaluator(project);
+		return eval.getRascalResolver();
+	}
+	
+	public Evaluator getEvaluator(IProject project) {
+		Evaluator parser = getOrCreateEvaluator(project);
+		assert reloaderForProject.get(project) != null;
+		reloaderForProject.get(project).updateModules(new NullProgressMonitor(), new WarningsToPrintWriter(parser.getStdErr()), Collections.emptySet());
+		return parser;
+	}
 	/**
 	 * This method returns and shares a single evaluator for each project
 	 */
-	public Evaluator getEvaluator(IProject project) {
+	public Evaluator getEvaluator(IProject project, IWarningHandler warnings) {
+		Evaluator parser = getOrCreateEvaluator(project);
+		assert reloaderForProject.get(project) != null;
+		reloaderForProject.get(project).updateModules(new NullProgressMonitor(), warnings, Collections.emptySet());
+		return parser;
+	}
+	
+	public void reloadProject(IProject project, IWarningHandler handler, Set<String> ignored) {
+		ModuleReloader reloader = reloaderForProject.get(project);
+		
+		if (reloader != null) {
+			reloader.updateModules(new NullProgressMonitor(), handler, ignored);
+		}
+	}
+
+	private Evaluator getOrCreateEvaluator(IProject project) {
 		Evaluator parser = parserForProject.get(project);
 		
 		if (parser == null) {
 			parser = createProjectEvaluator(project);
-			reloaderForProject.put(project, new ModuleReloader(parser));
+			reloaderForProject.put(project, new ModuleReloader(project, parser, new WarningsToPrintWriter(parser.getStdErr())));
 			parserForProject.put(project, parser);
-			return parser;
-		}
-		
-		try {
-			reloaderForProject.get(project).updateModules(new NullProgressMonitor());
-		}
-		catch (StaticError e) {
-			// things may go wrong while reloading modules, simply because the modules still have parse errors in them.
-			// these are safely ignored here, the user will have had feedback on those errors elsewhere
 		}
 		
 		return parser;
@@ -380,12 +398,12 @@ public class ProjectEvaluatorFactory {
 		List<String> requiredLibraries = mf.getRequiredLibraries(project);
 		if (requiredLibraries != null) {
 			for (String lib : requiredLibraries) {
-				JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(ValueFactoryFactory.getValueFactory().sourceLocation(project.getFile(lib).getLocationURI()));
-				URIResolverRegistry.getInstance().registerInput(resolver);
-				
 				try {
+					JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(ValueFactoryFactory.getValueFactory().sourceLocation(project.getFile(lib).getLocationURI()));
+					URIResolverRegistry.getInstance().registerInput(resolver);
 					addJarToSearchPath(resolver, eval);
-				} catch (IOException e) {
+				} 
+				catch (IOException e) {
 					Activator.log("ignoring lib " + lib, e);
 				}
 			}
@@ -453,11 +471,11 @@ public class ProjectEvaluatorFactory {
     } 
   }
   
-	private void collectClassPathForProject(IProject project, List<URL> classPath, List<String> compilerClassPath) {
+	private void collectClassPathForProject(IProject project, List<URL> classPath, List<String> compilerClassPath, Evaluator parser) {
 		try {
 			if (!project.hasNature(JavaCore.NATURE_ID)) {
 				for (IProject ref : project.getReferencedProjects()) {
-					collectClassPathForProject(ref, classPath, compilerClassPath);
+					collectClassPathForProject(ref, classPath, compilerClassPath, parser);
 				}
 			}
 			else {
@@ -466,7 +484,10 @@ public class ProjectEvaluatorFactory {
 				IPath binFolder = jProject.getOutputLocation();
 				String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
 				compilerClassPath.add(binLoc);
-				classPath.add(new URL("file", "",  binLoc + "/"));
+				
+				URL binURL = new URL("file", "",  binLoc + "/");
+				parser.addClassLoader(new URLClassLoader(new URL[] {binURL}, getClass().getClassLoader()));
+				classPath.add(binURL);
 				
 				if (!jProject.isOpen()) {
 					return;
@@ -494,7 +515,7 @@ public class ProjectEvaluatorFactory {
 						}
 						break;
 					case IClasspathEntry.CPE_PROJECT:
-						collectClassPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath, compilerClassPath);
+						collectClassPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath, compilerClassPath, parser);
 						break;
 					}
 				}
@@ -511,9 +532,13 @@ public class ProjectEvaluatorFactory {
 	public void configureClassPath(IProject project, Evaluator parser) {
 		List<URL> classPath = new LinkedList<URL>();
 		List<String> compilerClassPath = new LinkedList<String>();
-		collectClassPathForProject(project, classPath, compilerClassPath);
 		Bundle rascalBundle = Activator.getInstance().getBundle();
+		
+		// order is important
+		collectClassPathForProject(project, classPath, compilerClassPath, parser);
 		collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
+	
+		
 		configureClassPath(parser, classPath, compilerClassPath);
 	}
 	

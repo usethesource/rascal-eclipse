@@ -21,7 +21,6 @@ import org.eclipse.imp.builder.MarkerCreator;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IParseController;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
@@ -73,14 +72,14 @@ public class RunStaticChecker extends AbstractEditorAction {
 			StaticChecker checker = helper.createCheckerIfNeeded(parseController.getProject());
 			
 			if (checker != null) {
-				IConstructor newTree = checker.checkModule(null, (ITree) TreeAdapter.getArgs(parseTree).get(1));
+				ITree newTree = checker.checkModule(null, (ITree) TreeAdapter.getArgs(parseTree).get(1));
 				if (newTree != null) {
 					ITree treeTop = parseTree;
 					IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
 					ITree newTreeTop = TreeAdapter.setLocation(TreeAdapter.setArgs(treeTop, treeArgs), TreeAdapter.getLocation(treeTop)).asWithKeywordParameters().setParameter("docStrings", newTree.asWithKeywordParameters().getParameter("docStrings")).asWithKeywordParameters().setParameter("docLinks", newTree.asWithKeywordParameters().getParameter("docLinks"));
 					parseTree = newTreeTop;
 					handler.clearMessages();
-					marker.process(parseTree, handler);
+					marker.process(parseTree, handler); 
 					handler.endMessages();
 				}
 			} else {

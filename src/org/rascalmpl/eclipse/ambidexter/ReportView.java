@@ -42,11 +42,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
@@ -129,7 +131,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 	@Override
 	public void ambiguousString(final AmbiDexterConfig cfg, final SymbolString s, final NonTerminal n, String messagePrefix) {
 		try {
-			final IConstructor sym = (IConstructor) reader.read(VF, Factory.uptr, Factory.Symbol, new StringReader(n.prettyPrint()));
+			final IConstructor sym = (IConstructor) reader.read(VF, RascalValueFactory.uptr, RascalValueFactory.Symbol, new StringReader(n.prettyPrint()));
 			final String ascii = toascci(s);
 			final String module = getModuleName(cfg.filename);
 			final String project = getProjectName(cfg.filename);
@@ -183,6 +185,24 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 		return b.toString();
 	}
 
+	public static void listAmbiguities(final String project, final String module, final IConstructor parseTree, final IProgressMonitor monitor) {
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					ReportView part = (ReportView) PlatformUI.getWorkbench()
+				    .getActiveWorkbenchWindow()
+				    .getActivePage()
+					.showView(ID);
+					 
+					part.list(project, module, parseTree, monitor);
+				} catch (PartInitException e) {
+					RuntimePlugin.getInstance().logException("could not parse module", e);
+				}
+			}
+		});
+	}
+	
 	public void list(final String project, final String module, IConstructor parseTree, final IProgressMonitor monitor) {
 		table.removeAll();
 		
@@ -190,7 +210,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 			parseTree.accept(new IdentityTreeVisitor<Exception>() {
 				int ambTreesSeen = 0;
 				@Override
-				public IConstructor visitTreeAppl(IConstructor arg)
+				public ITree visitTreeAppl(ITree arg)
 						throws Exception {
 					if (monitor.isCanceled()) {
 						throw new Exception("interrupted");
@@ -205,7 +225,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 				}
 				
 				@Override
-				public IConstructor visitTreeAmb(IConstructor arg)
+				public ITree visitTreeAmb(ITree arg)
 						throws Exception {
 					ambTreesSeen++;
 					if (ambTreesSeen > 100) {
@@ -215,7 +235,7 @@ public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 					String sentence = TreeAdapter.yield(arg);
 					
 					for (IValue child : TreeAdapter.getAlternatives(arg)) {
-						sym = TreeAdapter.getType((IConstructor) child);
+						sym = TreeAdapter.getType((ITree) child);
 						child.accept(this);
 					}
 					

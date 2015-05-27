@@ -13,6 +13,9 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.perspective;
 
+import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_NEW_FILE_WIZARD;
+import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_NEW_PROJECT_WIZARD;
+
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
@@ -21,8 +24,6 @@ import org.eclipse.ui.console.IConsoleConstants;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.eclipse.perspective.views.Tutor;
-
-import static org.rascalmpl.eclipse.IRascalResources.*;
 
 public class Factory implements IPerspectiveFactory {
 

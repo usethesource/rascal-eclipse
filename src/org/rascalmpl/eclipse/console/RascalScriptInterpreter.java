@@ -38,6 +38,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -112,7 +113,8 @@ import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class RascalScriptInterpreter extends Job implements IInterpreter {
 	private ModuleReloader reloader;
@@ -151,8 +153,8 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			eval.doImport(null, "ParseTree");
 		}
 		this.eval = eval;
-		this.reloader = new ModuleReloader(eval);
 		this.warnings = new WarningsToPrintWriter(eval.getStdErr());
+		this.reloader = new ModuleReloader(project, eval, warnings);
 
 		getEventTrigger().fireCreationEvent();
 	}
@@ -246,9 +248,9 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		synchronized (eval) {
 			try {
 				eval.overrideDefaultWriters(consoleStdOut, consoleStdErr);
-				IConstructor tree = eval.parseCommand(rm, command,
+				ITree tree = eval.parseCommand(rm, command,
 						URIUtil.rootLocation("stdin"));
-				reloader.updateModules(monitor);
+				reloader.updateModules(monitor, warnings, Collections.emptySet());
 				rm.event("running command");
 				execCommand(rm, tree);
 			} catch (ParseError e) {
@@ -275,6 +277,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			} catch (Ambiguous e) {
 				Activator.getInstance().logException(e.getMessage(), e);
 				content = ambiguousMessage(e) + "\n";
+				ReportView.listAmbiguities(project.getName(), "console", e.getTree(), monitor);
 				command = "";
 			} catch (StaticError e) {
 				content = staticErrorMessage(e) + "\n";
@@ -430,7 +433,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 	}
 
-	private void execCommand(IRascalMonitor monitor, IConstructor tree) {
+	private void execCommand(IRascalMonitor monitor, ITree tree) {
 		Command stat = new ASTBuilder().buildCommand(tree);
 
 		if (stat == null) {
@@ -513,7 +516,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 			return;
 		}
 
-		if (result.getType().isSubtypeOf(Factory.Tree)) {
+		if (result.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 			new UIJob("Reporting Ambiguities") {
 				@Override
 				public IStatus runInUIThread(IProgressMonitor monitor) {

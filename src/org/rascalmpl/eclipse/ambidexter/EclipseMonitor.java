@@ -1,11 +1,11 @@
 package org.rascalmpl.eclipse.ambidexter;
 
-import org.eclipse.imp.runtime.RuntimePlugin;
-
 import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
 import nl.cwi.sen1.AmbiDexter.IAmbiDexterMonitor;
 import nl.cwi.sen1.AmbiDexter.grammar.NonTerminal;
 import nl.cwi.sen1.AmbiDexter.grammar.SymbolString;
+
+import org.eclipse.imp.runtime.RuntimePlugin;
 
 public class EclipseMonitor implements IAmbiDexterMonitor {
 

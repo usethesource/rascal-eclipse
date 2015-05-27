@@ -13,6 +13,9 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.breakpoints;
 
+import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestDeleteBreakpoint;
+import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestSetBreakpoint;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -38,8 +41,6 @@ import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.InterpreterEvent;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
-
-import static org.rascalmpl.interpreter.debug.DebugMessageFactory.*;
 
 /**
  * A generalized Rascal source location breakpoint.

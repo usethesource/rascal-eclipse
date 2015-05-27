@@ -11,11 +11,13 @@ import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.navigator.RascalNavigator;
 import org.rascalmpl.eclipse.uri.URIEditorInput;
 import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.eclipse.uri.URIStorage;
@@ -27,11 +29,22 @@ public class EditorUtil {
 	public static boolean openAndSelectURI(ISourceLocation uri) {
 		try {
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			URIResolverRegistry reg = URIResolverRegistry.getInstance();
 			
 			try {
-				uri = URIResolverRegistry.getInstance().logicalToPhysical(uri);
+				uri = reg.logicalToPhysical(uri);
 			} catch (IOException e) {
 				// in case file not found logically
+			}
+			
+			if (reg.isDirectory(uri)) {
+				IWorkbenchWindow wbw = Activator.getInstance().getWorkbench().getActiveWorkbenchWindow();
+				RascalNavigator nav = (RascalNavigator) wbw.getActivePage().findView("rascal.navigator");
+				if (nav != null) {
+					nav.reveal(uri);
+				}
+				
+				return true;
 			}
 			
 			IResource res = URIResourceResolver.getResource(uri);

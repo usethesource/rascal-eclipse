@@ -327,14 +327,14 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 						int fragmentOffsetStart = doc.getLength() - linkedLine.getString().length();
 						for (int i = 0; i < linkedLine.linkCount(); i++) {
 							String target = linkedLine.linkTarget(i);
-							if (target.startsWith("|stdin")) continue; // do not make a link out of the stdin console loc
+							if (target.startsWith("|stdin") || target.startsWith("|unknown")) continue; // do not make a link out of the stdin/unknown console loc
 							IHyperlink h;
 							int offset = fragmentOffsetStart + linkedLine.linkOffset(i);
 							int length = linkedLine.linkLength(i) - 1;
               
 							if (target.startsWith("|")) {
 								// source location
-								h = new RascalHyperlink(InteractiveInterpreterConsole.this, offset, length, target, getInterpreter().getEval(), getInterpreter().getEval().getStdErr());
+								h = new RascalHyperlink(InteractiveInterpreterConsole.this, offset, length, target, getInterpreter().getEval().getStdErr());
 							}
 							else {
 								h = new WebHyperlink(target);

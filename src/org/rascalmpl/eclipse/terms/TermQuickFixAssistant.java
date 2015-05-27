@@ -6,7 +6,6 @@ import java.util.Collections;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.editor.hover.ProblemLocation;
-import org.eclipse.imp.pdb.facts.IAnnotatable;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -27,7 +26,7 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.values.uptr.Factory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class TermQuickFixAssistant implements IQuickFixAssistant {
 	
@@ -62,7 +61,7 @@ public class TermQuickFixAssistant implements IQuickFixAssistant {
 			ISourceLocation fixLoc = (ISourceLocation)cons.get("at");
 			
 			if (isProblemLocInQuickFixLoc(problemOffset, fixLoc)) {
-				IWithKeywordParameters<IConstructor> withKeywords = cons.asWithKeywordParameters();
+				IWithKeywordParameters<? extends IConstructor> withKeywords = cons.asWithKeywordParameters();
 			
 				if (withKeywords.hasParameter(KEYWORD_QUICKFIX)) {
 					IList quickFixes = (IList) withKeywords.getParameter(KEYWORD_QUICKFIX);
@@ -123,7 +122,7 @@ public class TermQuickFixAssistant implements IQuickFixAssistant {
 			
 			@Override
 			public void apply(IDocument document) {
-				Type[] argTypes = new Type[] { Factory.Tree, TypeFactory.getInstance().sourceLocationType() };
+				Type[] argTypes = new Type[] { RascalValueFactory.Tree, TypeFactory.getInstance().sourceLocationType() };
 				IString newSrc = (IString)f.call(argTypes, new IValue[] {ast, loc},  Collections.<String,IValue>emptyMap()).getValue();
 				document.set(newSrc.getValue());
 			}
