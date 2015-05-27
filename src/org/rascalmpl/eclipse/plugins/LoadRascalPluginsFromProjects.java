@@ -23,7 +23,9 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.staticErrors.ModuleImport;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 
@@ -66,6 +68,14 @@ public class LoadRascalPluginsFromProjects implements ILanguageRegistrar {
 				eval.doImport(null, mainModule);
 				eval.call(new NullRascalMonitor(), mainFunction);
 			}
+		}
+		catch (ModuleImport e) {
+			if (e.getLocation().getScheme().equals("import")) {
+				// we can ignore because this is just the main Plugin module not existing
+				return;
+			}
+			eval.getStdErr().println("Could not run Plugin.rsc main of " + project.getName());
+			eval.getStdErr().println(ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(e));
 		}
 		catch (ParseError | StaticError | Throw e) {
 		  eval.getStdErr().println("Could not run Plugin.rsc main of " + project.getName());

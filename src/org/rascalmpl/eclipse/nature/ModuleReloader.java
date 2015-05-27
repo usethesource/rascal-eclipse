@@ -125,13 +125,11 @@ public class ModuleReloader{
 		private final Set<String> dirtyModules = new HashSet<String>();
 		private final Evaluator eval;
 		private final IWarningHandler warnings;
-		private final IProject project;
 		
 		public RascalModuleChangeListener(Evaluator eval, IProject project, IWarningHandler warnings) {
 			super();
 			this.eval = eval;
 			this.warnings = warnings;
-			this.project = project;
 		}
 		
 		public void moduleChanged(String name) {
