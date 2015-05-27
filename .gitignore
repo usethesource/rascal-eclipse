@@ -8,19 +8,10 @@ tmp/**/*
 *.swp
 *~.nib
 local.properties
-.classpath
 .settings/
 .loadpath
 
 # maven stuff
 target/
 launch/
-/bin
-/bin
-/bin
-/bin
-/bin
-/bin
-/bin
-/bin
 /bin
