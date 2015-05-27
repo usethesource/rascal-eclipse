@@ -16,6 +16,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -49,12 +50,16 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
+import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.utils.Modules;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ParseController implements IParseController, IMessageHandlerProvider {
 	private IMessageHandler handler;
@@ -150,7 +155,9 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		private Set<IResource> markedFiles;
 
 		private String input;
-		public IConstructor parseTree = null;
+		public ITree parseTree = null;
+		private String name = null;
+		private final Set<String> ignore = new HashSet<>();
 
 		public ParseJob(String name, ISourceLocation uri, IMessageHandler handler) {
 			super(name);
@@ -189,10 +196,15 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			
 			try {
 				synchronized (parser) {
-					ProjectEvaluatorFactory.getInstance().reloadProject(project.getRawProject(), new WarningsToMessageHandler(uri, getMessageHandler()));
+					ProjectEvaluatorFactory.getInstance().reloadProject(project.getRawProject(), new WarningsToMessageHandler(uri, getMessageHandler()), ignore);
 					parseTree = parser.parseModule(rm, input.toCharArray(), uri);
+					
+					// this makes sure we do not reload the current module and who depends on it 
+					// while we are editing it.
+					name = Modules.getName(TreeAdapter.getStartTop(parseTree));
+					ignore.clear();
+					ignore.add(name);
 				}
-				
 			}
 			catch (FactTypeUseException ftue) {
 				Activator.getInstance().logException("parsing rascal failed", ftue);

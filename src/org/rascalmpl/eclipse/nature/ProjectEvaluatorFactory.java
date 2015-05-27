@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -101,7 +102,7 @@ public class ProjectEvaluatorFactory {
 	public Evaluator getEvaluator(IProject project) {
 		Evaluator parser = getOrCreateEvaluator(project);
 		assert reloaderForProject.get(project) != null;
-		reloaderForProject.get(project).updateModules(new NullProgressMonitor(), new WarningsToPrintWriter(parser.getStdErr()));
+		reloaderForProject.get(project).updateModules(new NullProgressMonitor(), new WarningsToPrintWriter(parser.getStdErr()), Collections.emptySet());
 		return parser;
 	}
 	/**
@@ -110,15 +111,15 @@ public class ProjectEvaluatorFactory {
 	public Evaluator getEvaluator(IProject project, IWarningHandler warnings) {
 		Evaluator parser = getOrCreateEvaluator(project);
 		assert reloaderForProject.get(project) != null;
-		reloaderForProject.get(project).updateModules(new NullProgressMonitor(), warnings);
+		reloaderForProject.get(project).updateModules(new NullProgressMonitor(), warnings, Collections.emptySet());
 		return parser;
 	}
 	
-	public void reloadProject(IProject project, IWarningHandler handler) {
+	public void reloadProject(IProject project, IWarningHandler handler, Set<String> ignored) {
 		ModuleReloader reloader = reloaderForProject.get(project);
 		
 		if (reloader != null) {
-			reloader.updateModules(new NullProgressMonitor(), handler);
+			reloader.updateModules(new NullProgressMonitor(), handler, ignored);
 		}
 	}
 
@@ -127,7 +128,7 @@ public class ProjectEvaluatorFactory {
 		
 		if (parser == null) {
 			parser = createProjectEvaluator(project);
-			reloaderForProject.put(project, new ModuleReloader(parser, new WarningsToPrintWriter(parser.getStdErr())));
+			reloaderForProject.put(project, new ModuleReloader(project, parser, new WarningsToPrintWriter(parser.getStdErr())));
 			parserForProject.put(project, parser);
 		}
 		

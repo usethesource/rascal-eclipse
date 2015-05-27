@@ -38,6 +38,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -155,7 +156,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		}
 		this.eval = eval;
 		this.warnings = new WarningsToPrintWriter(eval.getStdErr());
-		this.reloader = new ModuleReloader(eval, warnings);
+		this.reloader = new ModuleReloader(project, eval, warnings);
 
 		getEventTrigger().fireCreationEvent();
 	}
@@ -251,7 +252,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				eval.overrideDefaultWriters(consoleStdOut, consoleStdErr);
 				ITree tree = eval.parseCommand(rm, command,
 						URIUtil.rootLocation("stdin"));
-				reloader.updateModules(monitor, warnings);
+				reloader.updateModules(monitor, warnings, Collections.emptySet());
 				rm.event("running command");
 				execCommand(rm, tree);
 			} catch (ParseError e) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -25,12 +26,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.URIUtil;
 
 public class ModuleReloader{
@@ -39,17 +37,17 @@ public class ModuleReloader{
 	
 	private boolean destroyed;
 	
-	public ModuleReloader(Evaluator eval, IWarningHandler warnings) {
+	public ModuleReloader(IProject project, Evaluator eval, IWarningHandler warnings) {
 		super();
 		
-		moduleChangeListener = new RascalModuleChangeListener(eval, warnings);
+		moduleChangeListener = new RascalModuleChangeListener(eval, project, warnings);
 		resourceChangeListener = new RascalModuleUpdateListener(moduleChangeListener);
 		
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(resourceChangeListener);
 	}
 	
-	public void updateModules(IProgressMonitor monitor, IWarningHandler handler){
-		moduleChangeListener.updateModules(monitor, handler);
+	public void updateModules(IProgressMonitor monitor, IWarningHandler handler, Set<String> ignored){
+		moduleChangeListener.updateModules(monitor, handler, ignored);
 	}
 
 	public synchronized void destroy(){
@@ -127,11 +125,13 @@ public class ModuleReloader{
 		private final Set<String> dirtyModules = new HashSet<String>();
 		private final Evaluator eval;
 		private final IWarningHandler warnings;
+		private final IProject project;
 		
-		public RascalModuleChangeListener(Evaluator eval, IWarningHandler warnings) {
+		public RascalModuleChangeListener(Evaluator eval, IProject project, IWarningHandler warnings) {
 			super();
 			this.eval = eval;
 			this.warnings = warnings;
+			this.project = project;
 		}
 		
 		public void moduleChanged(String name) {
@@ -140,11 +140,17 @@ public class ModuleReloader{
 			}
 		}
 		
-		public void updateModules(IProgressMonitor monitor, IWarningHandler handler) {
+		public void updateModules(IProgressMonitor monitor, IWarningHandler handler, Set<String> ignored) {
 			synchronized (dirtyModules) {
 				synchronized(eval){
-					eval.reloadModules(new RascalMonitor(monitor, handler == null ? warnings : handler) , Collections.unmodifiableSet(dirtyModules), URIUtil.rootLocation("console"));
+					Set<String> todo = new HashSet<>();
+					todo.addAll(dirtyModules);
+					boolean changed = todo.removeAll(ignored);
+					eval.reloadModules(new RascalMonitor(monitor, handler == null ? warnings : handler) , Collections.unmodifiableSet(todo), URIUtil.rootLocation("console"));
 					dirtyModules.clear();
+					if (changed) {
+						dirtyModules.addAll(ignored);
+					}
 				}
 			}
 		}
