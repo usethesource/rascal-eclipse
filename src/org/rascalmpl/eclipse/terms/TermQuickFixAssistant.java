@@ -62,7 +62,7 @@ public class TermQuickFixAssistant implements IQuickFixAssistant {
 			ISourceLocation fixLoc = (ISourceLocation)cons.get("at");
 			
 			if (isProblemLocInQuickFixLoc(problemOffset, fixLoc)) {
-				IWithKeywordParameters<IConstructor> withKeywords = cons.asWithKeywordParameters();
+				IWithKeywordParameters<? extends IConstructor> withKeywords = cons.asWithKeywordParameters();
 			
 				if (withKeywords.hasParameter(KEYWORD_QUICKFIX)) {
 					IList quickFixes = (IList) withKeywords.getParameter(KEYWORD_QUICKFIX);
