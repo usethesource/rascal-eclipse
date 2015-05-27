@@ -42,6 +42,7 @@ import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoi
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * Adapter to create line breakpoints in Rascal files.
