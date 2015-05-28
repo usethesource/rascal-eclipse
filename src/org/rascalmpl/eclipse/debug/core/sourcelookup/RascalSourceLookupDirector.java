@@ -11,13 +11,18 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.sourcelookup;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.core.sourcelookup.AbstractSourceLookupDirector;
 import org.eclipse.debug.core.sourcelookup.ISourceLookupParticipant;
 import org.eclipse.debug.ui.ISourcePresentation;
 import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.uri.URIEditorInput;
+import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.eclipse.uri.URIStorage;
 
 public class RascalSourceLookupDirector extends AbstractSourceLookupDirector implements ISourcePresentation {
@@ -33,7 +38,12 @@ public class RascalSourceLookupDirector extends AbstractSourceLookupDirector imp
 	@Override
 	public IEditorInput getEditorInput(Object element) {
 		if (element instanceof URISourceContainer) {
-			URIStorage storage = new URIStorage(((URISourceContainer) element).getURI());
+			ISourceLocation uri = ((URISourceContainer) element).getURI();
+			IResource resource = URIResourceResolver.getResource(uri);
+			if (resource != null && resource instanceof IFile) {
+				return new FileEditorInput((IFile) resource);
+			}
+			URIStorage storage = new URIStorage(uri);
 			return new URIEditorInput(storage);
 		}
 		return null;

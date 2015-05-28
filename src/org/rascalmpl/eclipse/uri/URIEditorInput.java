@@ -10,6 +10,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.uri;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IPersistableElement;
@@ -48,7 +49,10 @@ public class URIEditorInput implements IStorageEditorInput {
     }
     
     public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-      return null;
+    	if (adapter == IResource.class) {
+    		return URIResourceResolver.getResource(storage.getLocation());
+    	}
+    	return null;
     }
     
     @Override

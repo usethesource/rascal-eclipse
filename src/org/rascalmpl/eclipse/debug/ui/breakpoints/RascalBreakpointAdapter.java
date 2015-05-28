@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.ui.breakpoints;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -22,15 +23,11 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTargetExtension;
 import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.visitors.NullVisitor;
 import org.eclipse.imp.services.IASTFindReplaceTarget;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
@@ -43,6 +40,11 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.uptr.visitors.TreeVisitor;
+>>>>>>> master
 
 /**
  * Adapter to create line breakpoints in Rascal files.
@@ -74,7 +76,11 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 	public void toggleLineBreakpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
 		ITextEditor textEditor = getEditor(part);
 		if (textEditor != null) {
-			IResource resource = (IResource) textEditor.getEditorInput().getAdapter(IResource.class);
+		    IResource resource = (IResource) textEditor.getEditorInput().getAdapter(IResource.class);
+			if (resource == null || !resource.exists()) {
+				return;
+			}
+			
 			ITextSelection textSelection = (ITextSelection) selection;
 			int lineNumber = textSelection.getStartLine();
 			IBreakpoint[] breakpoints = DebugPlugin.getDefault().getBreakpointManager().getBreakpoints(IRascalResources.ID_RASCAL_DEBUG_MODEL);
@@ -180,7 +186,7 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 	 * Query the closest (i.e. first) source location of a 'breakable' parse tree node associated with a line number?
 	 */
 	private static ISourceLocation calculateClosestLocation(final IConstructor parseTree, final int lineNumber){
-		class OffsetFinder extends NullVisitor<IValue, Exception>{
+		class OffsetFinder extends TreeVisitor<Exception> {
 	
 			private IValueFactory VF = ValueFactoryFactory.getValueFactory(); 
 			
@@ -190,69 +196,60 @@ public class RascalBreakpointAdapter implements IToggleBreakpointsTargetExtensio
 				return location;
 			}
 			
-			public IValue visitConstructor(IConstructor o) throws Exception{
-				IValue locationAnnotation = TreeAdapter.getLocation(o);
+			@Override
+			public ITree visitTreeAppl(ITree arg) throws Exception {
+				if (location != null) {
+					return arg; // found already something so we are done
+				}
 				
-				if(locationAnnotation != null){
+				IValue locationAnnotation = TreeAdapter.getLocation(arg);
+				
+				if (locationAnnotation != null) {
 					ISourceLocation sourceLocation = ((ISourceLocation) locationAnnotation);
 					
-					if(sourceLocation.getBeginLine() == lineNumber){
-						IValue br = o.asWithKeywordParameters().getParameter("breakable");
+					if (sourceLocation.getBeginLine() == lineNumber) {
+						IConstructor prod = TreeAdapter.getProduction(arg);
 						
-						if (br != null && br.equals(VF.bool(true))) {
+						if (ProductionAdapter.hasAttribute(prod, VF.constructor(RascalValueFactory.Attr_Tag, VF.node("breakable")))) {
 							location = sourceLocation;
-							throw new Exception("Stop");
+							return arg;
 						}
 					}
 				}
 				
-				for(IValue child : o){
-					child.accept(this);
+				if (TreeAdapter.isLexical(arg)) {
+					return null;
+				}
+				
+				for (IValue child : TreeAdapter.getASTArgs(arg)) {
+					ITree tree = (ITree) child;
+					ISourceLocation treeLoc = TreeAdapter.getLocation(tree);
+					if (treeLoc == null) {
+						continue; // we are below annotated structure, no use continuing
+					}
+					
+					// dive only into the tree which may contain the line
+					if (treeLoc.getBeginLine() <= lineNumber && lineNumber <= treeLoc.getEndLine()) {
+						tree.accept(this);
+					}
 				}
 				
 				return null;
 			}
 			
-			public IValue visitNode(INode o) throws Exception{
-				for(IValue child : o){
-					child.accept(this);
-				}
-				
+			@Override
+			public ITree visitTreeAmb(ITree arg) throws Exception {
+				// for robustness sake, but this should not happen
+				return ((ITree) arg.getAlternatives().iterator().next()).accept(this);
+			}
+			
+			@Override
+			public ITree visitTreeChar(ITree arg) throws Exception {
 				return null;
 			}
 			
-			public IValue visitList(IList o) throws Exception{
-				for(IValue v : o){
-					v.accept(this);
-				}
-				return null;
-			}
-			
-			public IValue visitSet(ISet o) throws Exception{
-				for(IValue v : o){
-					v.accept(this);
-				}
-				return null;
-			}
-			
-			public IValue visitRelation(ISet o) throws Exception{
-				for(IValue v : o){
-					v.accept(this);
-				}
-				return null;
-			}
-			
-			public IValue visitListRelation(IList o) throws Exception{
-				for(IValue v : o){
-					v.accept(this);
-				}
-				return null;
-			}
-			
-			public IValue visitMap(IMap o) throws Exception{
-				for(IValue v : o){
-					v.accept(this);
-				}
+			@Override
+			public ITree visitTreeCycle(ITree arg) throws Exception {
 				return null;
 			}
 		}

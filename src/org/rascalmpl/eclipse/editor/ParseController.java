@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,7 +50,6 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
-import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -196,7 +195,11 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			
 			try {
 				synchronized (parser) {
-					ProjectEvaluatorFactory.getInstance().reloadProject(project.getRawProject(), new WarningsToMessageHandler(uri, getMessageHandler()), ignore);
+					if (project != null) {
+						// if this is a source file in a Rascal project then
+						// reload other modules to find out about new syntax definitions
+						ProjectEvaluatorFactory.getInstance().reloadProject(project.getRawProject(), new WarningsToMessageHandler(uri, getMessageHandler()), ignore);
+					}
 					parseTree = parser.parseModule(rm, input.toCharArray(), uri);
 					
 					// this makes sure we do not reload the current module and who depends on it 
