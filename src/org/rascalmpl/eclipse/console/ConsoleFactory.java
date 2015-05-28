@@ -183,7 +183,7 @@ public final class ConsoleFactory{
 			evaluator.setEventTrigger(eventTrigger);
 
 			if (isDebug) {
-				this.debugHandler = new DebugHandler();
+				this.debugHandler = new DebugHandler(evaluator);
 				this.debugHandler.setEventTrigger(eventTrigger);
 				// add termination action to debugging handler
 				this.debugHandler.setTerminateAction(new Runnable() {
