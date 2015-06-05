@@ -131,7 +131,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 			if (tree != null) {
 				Type[] actualTypes = new Type[] { RTF.nonTerminalType(ProductionAdapter.getType(TreeAdapter.getProduction(tree))), TF.sourceLocationType() };
 				ISourceLocation loc = TreeAdapter.getLocation(tree);
-				IValue[] actuals = new IValue[] { tree, VF.sourceLocation(VF.sourceLocation(loc.getURI()), selection.x, selection.y)};
+				IValue[] actuals = new IValue[] { tree, VF.sourceLocation(loc, selection.x, selection.y)};
 				try {
 					rascalMonitor.startJob("Executing " + getName(), 10000);
 					IValue result;

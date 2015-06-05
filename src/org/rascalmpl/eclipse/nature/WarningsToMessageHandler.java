@@ -19,7 +19,7 @@ public class WarningsToMessageHandler implements IWarningHandler {
   
   @Override
   public void warning(String msg, ISourceLocation src) {
-    if (src.getURI().equals(uri.getURI())) {
+    if (src.top().isEqual(uri.top())) {
 
       Map<String,Object> attrs = new HashMap<String,Object>();
       attrs.put(IMarker.SEVERITY, IStatus.WARNING);

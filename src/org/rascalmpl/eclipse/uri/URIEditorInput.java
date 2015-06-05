@@ -58,7 +58,7 @@ public class URIEditorInput implements IStorageEditorInput {
     @Override
     public boolean equals(Object obj) {
     	if (obj instanceof URIEditorInput) {
-    		return ((URIEditorInput) obj).storage.getLocation().getURI().equals(storage.getLocation().getURI());
+    		return ((URIEditorInput) obj).storage.getLocation().top().equals(storage.getLocation().top());
     	}
     	return false;
     }

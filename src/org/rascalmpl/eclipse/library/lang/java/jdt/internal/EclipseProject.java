@@ -96,10 +96,9 @@ public class EclipseProject {
   }
   
   public IMap getProjectOptions(ISourceLocation loc) {
-    URI uri = loc.getURI();
-    IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
+    IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(loc.getAuthority());
     if (project == null || !project.isOpen()) {
-      throw RuntimeExceptionFactory.io(VF.string("project " + uri.getAuthority() + " could not be opened."), null, null);
+      throw RuntimeExceptionFactory.io(VF.string("project " + loc.getAuthority() + " could not be opened."), null, null);
     }
 
     IJavaProject jProject = JavaCore.create(project);

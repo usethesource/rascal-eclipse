@@ -287,10 +287,9 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				ISourceLocation location = e.getLocation();
 
 				if (location != null
-						&& !location.getURI().getScheme().equals("stdin")) {
+						&& !location.getScheme().equals("stdin")) {
 					if (location.hasOffsetLength()) {
-						setMarker(e.getMessage(), location.getURI(),
-								location.getOffset(), location.getLength());
+						setMarker(e.getMessage(), location);
 					}
 					error = new CommandExecutionException(content);
 				} else if (location != null
@@ -308,8 +307,7 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 				if (location != null
 						&& !location.getURI().getScheme().equals("stdin")
 						&& location.hasOffsetLength()) {
-					setMarker(e.getMessage(), location.getURI(),
-							location.getOffset(), location.getLength());
+					setMarker(e.getMessage(), location);
 					error = new CommandExecutionException(content,
 							location.getOffset(), location.getLength());
 				} else {
@@ -387,8 +385,8 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 		return true;
 	}
 
-	private void setMarker(final String message, final URI location,
-			final int offset, final int length) {
+	private void setMarker(final String message, final ISourceLocation location) {
+	    assert location.hasOffsetLength();
 		// This code makes sure that if files are read or written during Rascal
 		// execution, the build
 		// infra-structure of Eclipse is not triggered
@@ -410,8 +408,8 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 									.createMarker(IRascalResources.ID_RASCAL_MARKER);
 
 							m.setAttribute(IMarker.TRANSIENT, true);
-							m.setAttribute(IMarker.CHAR_START, offset);
-							m.setAttribute(IMarker.CHAR_END, offset + length);
+							m.setAttribute(IMarker.CHAR_START, location.getOffset());
+							m.setAttribute(IMarker.CHAR_END, location.getOffset() + location.getLength());
 							m.setAttribute(IMarker.MESSAGE, message);
 							m.setAttribute(IMarker.PRIORITY,
 									IMarker.PRIORITY_HIGH);

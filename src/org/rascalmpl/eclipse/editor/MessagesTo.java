@@ -69,7 +69,7 @@ public class MessagesTo {
 				IConstructor message = (IConstructor)messagev;
 				ISourceLocation loc = (ISourceLocation) message.get(1);
 				
-				if (loc.getURI().getPath().equals(treeLoc.getURI().getPath()))
+				if (loc.getPath().equals(treeLoc.getPath()))
 					processMessage(message, loc, handler);
 			}
 		}

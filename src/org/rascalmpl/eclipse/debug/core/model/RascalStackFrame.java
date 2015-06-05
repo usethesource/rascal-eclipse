@@ -278,7 +278,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 	 */
 	public String getSourceName() {
 		assert hasSourceName();
-		return location.getURI().toString();
+		return location.top().toString();
 	}
 
 	/* (non-Javadoc)

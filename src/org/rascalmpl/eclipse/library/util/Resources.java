@@ -69,7 +69,7 @@ public class Resources {
 	}
 	
 	public  ISet references(ISourceLocation loc) {
-		IProject project = getIProject(loc.getURI().getAuthority());
+		IProject project = getIProject(loc.getAuthority());
 		ISetWriter w = VF.setWriter();
 		
 		try {
@@ -85,7 +85,7 @@ public class Resources {
 	}
 	
 	public void openProject(ISourceLocation name) {
-		IProject project = getIProject(name.getURI().getAuthority());
+		IProject project = getIProject(name.getAuthority());
 		try {
 			project.open(new NullProgressMonitor());
 		} catch (CoreException e) {
@@ -94,7 +94,7 @@ public class Resources {
 	}
 	
 	public void closeProject(ISourceLocation name) {
-		IProject project = getIProject(name.getURI().getHost());
+		IProject project = getIProject(name.getAuthority());
 		try {
 			project.close(new NullProgressMonitor());
 		} catch (CoreException e) {
@@ -104,7 +104,7 @@ public class Resources {
 
 	public  ISourceLocation makeProject(IProject r) {
 		try {
-			return VF.sourceLocation(URIUtil.create("project", r.getName(), ""));
+			return VF.sourceLocation("project", r.getName(), "");
 		} catch (URISyntaxException e) {
 			// won't happen
 			throw RuntimeExceptionFactory.malformedURI("project://" + r.getName(), null, null);
@@ -112,8 +112,8 @@ public class Resources {
 	}
 	
 	public  ISourceLocation location(ISourceLocation name) {
-		IProject project = getIProject(name.getURI().getAuthority());
-		String path = name.getURI().getPath();
+		IProject project = getIProject(name.getAuthority());
+		String path = name.getPath();
 		
 		if (path != null && path.length() != 0) {
 			IFile file = project.getFile(path);
@@ -124,7 +124,7 @@ public class Resources {
 	}
 	
 	public  ISet files(ISourceLocation name) {
-		final String projectName = name.getURI().getHost();
+		final String projectName = name.getAuthority();
 		IProject project = getIProject(projectName);
 		final ISetWriter w = VF.setWriter();
 		try {
@@ -194,7 +194,7 @@ public class Resources {
 	}
 	
 	public  IConstructor getProject(ISourceLocation projectName) {
-		IProject p = getIProject(projectName.getURI().getAuthority());
+		IProject p = getIProject(projectName.getAuthority());
 		ISet contents = getProjectContents(p);
 		return VF.constructor(project, projectName, contents);
 	}

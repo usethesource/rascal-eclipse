@@ -95,7 +95,7 @@ public class Editors {
 			// to avoid looping due to events fired by a editor part activation
 			// we want to avoid that except for the first time.
 			if (cachedEditorPart == null) {
-				IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(loc.getURI().getPath());
+				IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(loc.getPath());
 
 				if (desc != null) {
 					cachedEditorPart = page.openEditor(getEditorInput(loc.getURI()), desc.getId());

@@ -114,7 +114,7 @@ public class TermLanguageRegistry {
 	}
 	
 	public Language getLanguage(ISourceLocation loc) {
-		String path = loc.getURI().getPath();
+		String path = loc.getPath();
 		if (path != null) {
 			int i = path.lastIndexOf('.');
 			if (i != -1 && i != path.length() - 1) {
