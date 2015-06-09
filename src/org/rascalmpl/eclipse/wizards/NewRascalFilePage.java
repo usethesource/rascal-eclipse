@@ -170,24 +170,26 @@ public class NewRascalFilePage extends WizardPage {
 	 */
 
 	private void dialogChanged() {
-		IResource container = ResourcesPlugin.getWorkspace().getRoot()
-				.findMember(new Path(getContainerName()));
+		Path path = new Path(getContainerName());
+		IResource container = path.segmentCount() > 1 ? 
+				ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0)).getFolder(path.removeFirstSegments(1))
+		: ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
 		String fileName = getFileName();
 
 		if (getContainerName().length() == 0) {
 			updateStatus("Folder must be specified");
 			return;
 		}
-		if (container == null
-				|| (container.getType() & (IResource.PROJECT | IResource.FOLDER)) == 0) {
-			updateStatus("Folder must exist");
-			return;
-		}
 		
+        if (container == null || (container.getType() & (IResource.PROJECT | IResource.FOLDER)) == 0) {
+        	updateStatus("Folder must exist");
+        	return;
+		}
+        
 		List<String> sourceRoots = new RascalEclipseManifest().getSourceRoots(container.getProject());
 		List<IResource> rootPaths = new LinkedList<>();
 		for (String root : sourceRoots) {
-		  rootPaths.add(container.getProject().findMember(root));
+		  rootPaths.add(container.getProject().getFolder(root));
 		}
 		
 		IResource runner = container;
@@ -205,14 +207,14 @@ public class NewRascalFilePage extends WizardPage {
     }
 		
 		String srcPath = rootPaths.get(0).getFullPath().toString();
-    if (!found && !containerText.equals(srcPath)) {
+		if (!found && !containerText.equals(srcPath)) {
 		  containerText.setText(srcPath);
 		}
 		
-		if (!container.isAccessible()) {
-			updateStatus("Project must be writable");
-			return;
-		}
+//		if (!container.isAccessible()) {
+//			updateStatus("Project must be writable");
+//			return;
+//		}
 		if (fileName.length() == 0) {
 			updateStatus("Module name must be specified");
 			return;
