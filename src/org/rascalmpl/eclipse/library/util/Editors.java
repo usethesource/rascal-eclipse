@@ -66,7 +66,6 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.util.RascalInvoker;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
@@ -374,7 +373,7 @@ public class Editors {
 	 *            Code is cloned from SourceLocationHyperlink (but heavily
 	 *            adapted)
 	 */
-	public void edit(ISourceLocation loc, final IList lineInfo, IEvaluatorContext ctx) {
+	public void edit(ISourceLocation loc, final IList lineInfo) {
 		IWorkbenchWindow win = getWorkbenchWindow();
 		if (win != null) {
 			IWorkbenchPage page = win.getActivePage();
