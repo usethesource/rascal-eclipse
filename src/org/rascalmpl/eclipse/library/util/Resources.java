@@ -115,7 +115,7 @@ public class Resources {
 		IProject project = getIProject(name.getAuthority());
 		String path = name.getPath();
 		
-		if (path != null && path.length() != 0) {
+		if (path != null && path.length() != 0 && !"/".equals(path)) {
 			IFile file = project.getFile(path);
 			return VF.sourceLocation(file.getLocation().toString().replaceAll(" ", "%20"));
 		}
