@@ -117,7 +117,7 @@ public class Resources {
 		
 		if (path != null && path.length() != 0 && !"/".equals(path)) {
 			IFile file = project.getFile(path);
-			return VF.sourceLocation(file.getLocation().toString().replaceAll(" ", "%20"));
+			return VF.sourceLocation(file.getLocation().toString());
 		}
 		
 		return VF.sourceLocation(project.getLocationURI());
