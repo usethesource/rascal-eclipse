@@ -68,7 +68,11 @@ public class NewRascalFile extends Wizard implements INewWizard {
 	
 	@Override
 	public boolean performFinish() {
-		final String containerName = page.getContainerName();
+		String container = page.getContainerName();
+		if (container.endsWith("/")) {
+		  container = container.substring(0, container.length() - 1);
+		}
+		final String containerName = container;
 		final String filename = page.getFileName();
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			@Override
