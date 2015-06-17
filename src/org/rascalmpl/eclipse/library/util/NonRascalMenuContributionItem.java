@@ -2,7 +2,6 @@ package org.rascalmpl.eclipse.library.util;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;

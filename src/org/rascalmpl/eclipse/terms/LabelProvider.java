@@ -35,7 +35,6 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 

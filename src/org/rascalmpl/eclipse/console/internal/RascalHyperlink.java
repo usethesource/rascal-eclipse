@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.ui.console.IHyperlink;
 import org.rascalmpl.eclipse.editor.EditorUtil;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 

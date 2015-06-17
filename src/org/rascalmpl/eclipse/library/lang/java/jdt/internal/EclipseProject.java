@@ -1,6 +1,5 @@
 package org.rascalmpl.eclipse.library.lang.java.jdt.internal;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Map.Entry;
