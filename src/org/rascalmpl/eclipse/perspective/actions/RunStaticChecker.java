@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,14 +15,13 @@ package org.rascalmpl.eclipse.perspective.actions;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.builder.MarkerCreator;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.parser.IMessageHandler;
-import org.eclipse.imp.parser.IParseController;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.progress.IProgressService;
@@ -30,10 +29,12 @@ import org.rascalmpl.checker.StaticChecker;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.editor.ParseController;
+import org.rascalmpl.eclipse.nature.RascalMonitor;
+import org.rascalmpl.eclipse.nature.WarningsToMarkers;
+import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RunStaticChecker extends AbstractEditorAction {
 	private final MessagesToMarkers marker = new MessagesToMarkers();
@@ -45,44 +46,44 @@ public class RunStaticChecker extends AbstractEditorAction {
 
 	@Override
 	public void run() {
-		final IMessageHandler handler = new MarkerCreator(file);
-		
 		if (editor != null) {
+			final IMessageHandler handler = new MarkerCreator(file);
+			
 			WorkspaceModifyOperation wmo = new WorkspaceModifyOperation(ResourcesPlugin.getWorkspace().getRoot()) {
 				public void execute(IProgressMonitor monitor) {
-					ITree toCheck = (ITree)editor.getParseController().getCurrentAst();
-					ITree res = check(toCheck,editor.getParseController(), handler);
-					((ParseController) editor.getParseController()).setCurrentAst(res);
+					ITree res = check(monitor, file.getProject(), ProjectURIResolver.constructProjectURI(file.getFullPath()), handler);
+					if (res != null) {
+						// for highlighting and such
+						((ParseController) editor.getParseController()).setCurrentAst(res);
+					}
 				}
 			};
+			
 			IProgressService ips = PlatformUI.getWorkbench().getProgressService();
 			try {
 				ips.run(true, true, wmo);
-			} catch (InvocationTargetException e) {
-				Activator.getInstance().logException("??", e);
-			} catch (InterruptedException e) {
-				Activator.getInstance().logException("??", e);
-			}
+			} catch (InvocationTargetException | InterruptedException e) {
+				Activator.getInstance().logException("unexpected error while running static checker", e);
+			} 
 		}
 	}
 
-	public ITree check(ITree parseTree, final IParseController parseController, final IMessageHandler handler) {
-		if (parseTree == null) return null;
+	public ITree check(IProgressMonitor monitor, IProject project, final ISourceLocation source, final IMessageHandler handler) {
 						
 		try {
-			StaticChecker checker = helper.createCheckerIfNeeded(parseController.getProject());
+			RascalMonitor mon = new RascalMonitor(monitor, new WarningsToMarkers());
+			StaticChecker checker = helper.createCheckerIfNeeded(mon, project);
 			
 			if (checker != null) {
-				IConstructor newTree = checker.checkModule(null, (ITree) TreeAdapter.getArgs(parseTree).get(1));
+				
+				ITree newTree = checker.checkModule(mon, source);
 				if (newTree != null) {
-					ITree treeTop = parseTree;
-					IList treeArgs = TreeAdapter.getArgs(treeTop).put(1, newTree);
-					ITree newTreeTop = (ITree) treeTop.set("args", treeArgs).asAnnotatable().setAnnotation("loc", treeTop.asAnnotatable().getAnnotation("loc")).asAnnotatable().setAnnotation("docStrings", newTree.asAnnotatable().getAnnotation("docStrings")).asAnnotatable().setAnnotation("docLinks", newTree.asAnnotatable().getAnnotation("docLinks"));
-					parseTree = newTreeTop;
 					handler.clearMessages();
-					marker.process(parseTree, handler);
+					marker.process(newTree, handler);
 					handler.endMessages();
 				}
+				
+				return newTree;
 			} else {
 				Activator.getInstance().logException("static checker could not be created", new RuntimeException());
 			}
@@ -98,7 +99,6 @@ public class RunStaticChecker extends AbstractEditorAction {
 			Activator.getInstance().logException("static checker failed", e);
 		}
 		
-		return parseTree;
+		return null;
 	}	
-
 }

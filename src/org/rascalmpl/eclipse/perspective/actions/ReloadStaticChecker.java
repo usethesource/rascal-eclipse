@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ public class ReloadStaticChecker extends AbstractEditorAction {
 	public void run() {
 		WorkspaceModifyOperation wmo = new WorkspaceModifyOperation(ResourcesPlugin.getWorkspace().getRoot()) {
 			public void execute(IProgressMonitor monitor) {
-				helper.reloadChecker(editor.getParseController().getProject());
+				helper.reloadChecker(monitor, editor.getParseController().getProject().getRawProject());
 			}
 		};
 		IProgressService ips = PlatformUI.getWorkbench().getProgressService();
