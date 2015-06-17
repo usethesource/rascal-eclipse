@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
@@ -147,25 +148,28 @@ public class NewRascalFile extends Wizard implements INewWizard {
 		IContainer container = (IContainer) resource;
 		final IFile file = container.getFile(new Path(fileName));
 		ISourceLocation loc = ProjectURIResolver.constructProjectURI(file.getFullPath());
-		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, true)) {
+		
+		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
 			out.write(("module "+moduleName).getBytes(Charset.forName("UTF8")));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		monitor.worked(1);
-		monitor.setTaskName("Opening file for editing...");
-		getShell().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				IWorkbenchPage page =
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-				try {
-					IDE.openEditor(page, file, true);
-				} catch (PartInitException e) {
+			
+			monitor.worked(1);
+			monitor.setTaskName("Opening file for editing...");
+			getShell().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					IWorkbenchPage page =
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+					try {
+						IDE.openEditor(page, file, true);
+					} catch (PartInitException e) {
+					}
 				}
-			}
-		});
-		monitor.worked(1);
+			});
+			monitor.worked(1);
+		} 
+		catch (IOException e) {
+			Activator.log("could not create new Rascal module", e);
+		}
 	}
 	
 	private void throwCoreException(String message) throws CoreException {

@@ -12,7 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.uri;
 
-import java.io.FileNotFoundException;
+import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -122,17 +122,31 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	}
 	
 	public OutputStream getOutputStream(final ISourceLocation uri, boolean append) throws IOException {
-		return new FileOutputStream(resolveFile(uri).getRawLocation().toOSString(), append) {
-			@Override
-			public void close() throws IOException {
-				super.close();
-				try {
-					resolveFile(uri).refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-				} catch (CoreException e) {
-					Activator.getInstance().logException("could not refresh " + uri, e);
-				}
+		try {
+			IFile file = resolveFile(uri);
+			
+			// this is necessary to also flush possible parent folders to disk first
+			if (!file.exists()) {
+				file.create(new ByteArrayInputStream(new byte[0]), true, new NullProgressMonitor());
 			}
-		};
+			
+			
+			// if the above is not done, then the parent folder does not exist.
+			return new FileOutputStream(file.getRawLocation().toOSString(), append) {
+				@Override
+				public void close() throws IOException {
+					super.close();
+					try {
+						file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+					} catch (CoreException e) {
+						Activator.getInstance().logException("could not refresh " + uri, e);
+					}
+				}
+			};
+		}
+		catch (CoreException e) {
+			throw new IOException(e);
+		}
 	}
 
 	public String scheme() {
@@ -217,22 +231,22 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 		
 		if (!resolved.exists()) {
 			try { 
-			  if (resolved instanceof IFolder) {
-			    ((IFolder) resolved).create(true, true, pm);
-			    resolved.refreshLocal(0, pm);
-			  }
-			  else if (resolved instanceof IProject) {
-			    IProject project = (IProject) resolved;
-          project.create(pm);
-			    project.open(pm);
-			  }
+				if (resolved instanceof IFolder) {
+					((IFolder) resolved).create(false, true, pm);
+					resolved.refreshLocal(IResource.DEPTH_ZERO, pm);
+				}
+				else if (resolved instanceof IProject) {
+					IProject project = (IProject) resolved;
+					project.create(pm);
+					project.open(pm);
+				}
 				return;
 			} catch (CoreException e) {
 				throw new IOException(e.getMessage(), e);
 			}
 		}
 
-		throw new FileNotFoundException(uri.toString());
+		return;
 	}
 
 	@Override
