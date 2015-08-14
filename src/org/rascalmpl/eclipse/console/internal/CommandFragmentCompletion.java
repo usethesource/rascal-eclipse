@@ -10,11 +10,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 public class CommandFragmentCompletion {
 	private String originalTerm;
 	private Iterator<String> suggestions;
-	private IEvaluatorContext eval;
-	
-	public CommandFragmentCompletion(IEvaluatorContext eval) {
-		this.eval = eval;
-	}
 
 	public void resetSearch() {
 		suggestions = null;
@@ -37,7 +32,7 @@ public class CommandFragmentCompletion {
 	}
 	private final static Pattern getIdentifier = Pattern.compile(".*?([\\\\]?[_a-zA-Z][\\-_a-zA-Z0-9]*)\\s*$");
 
-	public Pair<Integer, Integer> start(int currentCursorPosition, String currentConsoleInput) {
+	public Pair<Integer, Integer> start(int currentCursorPosition, String currentConsoleInput, IEvaluatorContext eval) {
 		int split = findSplitPoint(currentCursorPosition, currentConsoleInput);
 		if (split < currentConsoleInput.length()) {
 			currentConsoleInput = currentConsoleInput.substring(0, split + 1);

@@ -81,7 +81,7 @@ public class InterpreterConsoleViewer extends TextConsoleViewer{
 			switch(action){
 				case COMPLETION_FORWARD:
 					if (!completion.isCompleting()) {
-						Pair<Integer, Integer> offsetLength = completion.start(console.getCurrentCursorPosition(), console.getCurrentConsoleInput());
+						Pair<Integer, Integer> offsetLength = completion.start(console.getCurrentCursorPosition(), console.getCurrentConsoleInput(), console.getInterpreter().getEval());
 						this.completionOffset = offsetLength.first ;
 						this.completionPreviousLength = offsetLength.second ;
 					}

@@ -650,6 +650,9 @@ public class RascalScriptInterpreter extends Job implements IInterpreter {
 
 	@Override
 	public Evaluator getEval() {
+	  if (eval == null) {
+	    throw new RuntimeException("Interpreter is not fully initialize yet");
+	  }
 		return eval;
 	}
 
