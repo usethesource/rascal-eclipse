@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 
 import org.eclipse.imp.utils.Pair;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.utils.StringUtils;
+import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 
 public class CommandFragmentCompletion {
 	private String originalTerm;
@@ -30,36 +32,15 @@ public class CommandFragmentCompletion {
 		}
 		return originalTerm;
 	}
-	private final static Pattern getIdentifier = Pattern.compile(".*?([\\\\]?[_a-zA-Z][\\-_a-zA-Z0-9]*)\\s*$");
 
 	public Pair<Integer, Integer> start(int currentCursorPosition, String currentConsoleInput, IEvaluatorContext eval) {
-		int split = findSplitPoint(currentCursorPosition, currentConsoleInput);
-		if (split < currentConsoleInput.length()) {
-			currentConsoleInput = currentConsoleInput.substring(0, split + 1);
-		}
-		Matcher m = getIdentifier.matcher(currentConsoleInput);
-		if (m.matches()) {
-			originalTerm = m.group(1).trim();
-			suggestions =  eval.completePartialIdentifier(originalTerm).iterator();
-			return new Pair<>(m.start(1), originalTerm.length());
+	  OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(currentConsoleInput, currentCursorPosition);
+	  if (identifier != null) {
+	    originalTerm = identifier.term;
+			suggestions = eval.completePartialIdentifier(originalTerm).iterator();
+			return new Pair<>(identifier.offset, identifier.length);
 		}
 		return new Pair<>(0, 0);
-	}
-	
-	private boolean validRascalIdentifier(char c) {
-		return (c >= 'A' && c <= 'Z') 
-			|| (c >= 'a' && c <= 'z')
-			|| (c >= '0' && c <= '9')
-			|| c == '_' || c == '-'
-			;
-	}
-
-	private int findSplitPoint(int currentCursorPosition, String currentConsoleInput) {
-		for (int i = currentCursorPosition; i < currentConsoleInput.length(); i++) {
-			if (!validRascalIdentifier(currentConsoleInput.charAt(i)))
-				return i - 1;
-		}
-		return currentConsoleInput.length();
 	}
 
 }
