@@ -5,14 +5,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.imp.utils.Pair;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 
 public class CommandFragmentCompletion {
 	private String originalTerm;
 	private Iterator<String> suggestions;
-	private IInterpreter interpreter;
+	private IEvaluatorContext eval;
 	
-	public CommandFragmentCompletion(IInterpreter interpreter) {
-		this.interpreter = interpreter;
+	public CommandFragmentCompletion(IEvaluatorContext eval) {
+		this.eval = eval;
 	}
 
 	public void resetSearch() {
@@ -44,7 +45,7 @@ public class CommandFragmentCompletion {
 		Matcher m = getIdentifier.matcher(currentConsoleInput);
 		if (m.matches()) {
 			originalTerm = m.group(1).trim();
-			suggestions =  interpreter.findIdentifiers(originalTerm).iterator();
+			suggestions =  eval.completePartialIdentifier(originalTerm).iterator();
 			return new Pair<>(m.start(1), originalTerm.length());
 		}
 		return new Pair<>(0, 0);

@@ -11,8 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console.internal;
 
-import java.util.Collection;
-
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.StackTrace;
 
@@ -87,6 +85,4 @@ public interface IInterpreter{
 	Evaluator getEval();
 	
 	String getProjectName();
-
-	Collection<String> findIdentifiers(String originalTerm);
 }

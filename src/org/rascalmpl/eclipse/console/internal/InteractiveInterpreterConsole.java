@@ -111,7 +111,7 @@ public class InteractiveInterpreterConsole extends TextConsole implements IInter
 		this.continuationPrompt = continuationPrompt;
 		
 		commandHistory = new CommandHistory();
-		completion = new CommandFragmentCompletion(interpreter);
+		completion = new CommandFragmentCompletion(interpreter.getEval());
 		documentListener = new ConsoleDocumentListener(this);
 		documentListener.registerListener();
 		
