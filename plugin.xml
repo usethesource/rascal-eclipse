@@ -953,4 +953,21 @@
          <supportedMarkerType></supportedMarkerType>
       </quickFixAssistant>
    </extension>
+   <extension
+         point="org.eclipse.tm.terminal.control.connectors">
+      <connector
+            class="org.rascalmpl.eclipse.repl.ReplConnector"
+            hidden="false"
+            id="rascal-eclipse.connector1"
+            name="Rascal REPL">
+      </connector>
+   </extension>
+   <extension
+         point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
+      <delegate
+            class="org.rascalmpl.eclipse.repl.LauncherDelegate"
+            id="rascal-eclipse.delegate1"
+            label="Rascal REPL">
+      </delegate>
+   </extension>
 </plugin>
