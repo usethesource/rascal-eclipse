@@ -73,6 +73,9 @@ public class ReplConnector extends TerminalConnectorImpl {
           catch (IOException e) {
             e.printStackTrace();
           }
+          finally {
+            control.setState(TerminalState.CLOSED);
+          }
         }
       }.start();
       control.setState(TerminalState.CONNECTED);
