@@ -60,6 +60,7 @@ public class ReplConnector extends TerminalConnectorImpl {
       control.setVT100LineWrapping(false);
       VT100Emulator text = ((VT100TerminalControl)control).getTerminalText();
       text.setCrAfterNewLine(true);
+       ((VT100TerminalControl)control).setBufferLineLimit(10_000);
       shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, tm) {
         @Override
         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
