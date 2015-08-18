@@ -3,15 +3,17 @@ package org.rascalmpl.eclipse.repl;
 import java.util.Map;
 
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.tm.internal.terminal.connector.TerminalConnector;
+import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalConnector;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalConnectorExtension;
+import org.eclipse.tm.terminal.connector.process.ProcessSettings;
 import org.eclipse.tm.terminal.view.core.TerminalServiceFactory;
 import org.eclipse.tm.terminal.view.core.interfaces.ITerminalService;
 import org.eclipse.tm.terminal.view.core.interfaces.ITerminalService.Done;
 import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
 import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanel;
 import org.eclipse.tm.terminal.view.ui.interfaces.IConfigurationPanelContainer;
+import org.eclipse.tm.terminal.view.ui.internal.SettingsStore;
 import org.eclipse.tm.terminal.view.ui.launcher.AbstractLauncherDelegate;
 import org.eclipse.tm.terminal.view.ui.panels.AbstractExtendedConfigurationPanel;
 
@@ -72,7 +74,30 @@ public class LauncherDelegate extends AbstractLauncherDelegate {
 
   @Override
   public ITerminalConnector createTerminalConnector(Map<String, Object> properties) {
-    return TerminalConnectorExtension.makeTerminalConnector("rascal-eclipse.connector1");
+		// Construct the terminal settings store
+		ISettingsStore store = new SettingsStore();
+
+		// Construct the process settings
+		ProcessSettings processSettings = new ProcessSettings();
+		processSettings.setLocalEcho(true);
+		processSettings.setLineSeparator("\n");
+		//processSettings.setWorkingDir(workingDir);
+		//processSettings.setEnvironment(envp);
+		processSettings.setMergeWithNativeEnvironment(false);
+
+		// And save the settings to the store
+		processSettings.save(store);
+
+		// Construct the terminal connector instance
+		ITerminalConnector connector = TerminalConnectorExtension.makeTerminalConnector("rascal-eclipse.connector1");
+		if (connector != null) {
+			// Apply default settings
+			connector.setDefaultSettings();
+			// And load the real settings
+			connector.load(store);
+		}
+
+    return connector;
   }
 
 }

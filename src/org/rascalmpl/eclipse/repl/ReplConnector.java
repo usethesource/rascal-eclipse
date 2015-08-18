@@ -7,12 +7,14 @@ import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 
+import jline.Terminal;
 import jline.TerminalFactory;
-import jline.UnsupportedTerminal;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
+import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnectorImpl;
+import org.eclipse.tm.terminal.view.ui.streams.InputStreamMonitor;
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -30,8 +32,10 @@ public class ReplConnector extends TerminalConnectorImpl {
   }
 
   private RascalInterpreterREPL shell;
-  private REPLPipedInputStream stdIn;
-  private REPLPipedOutputStream stdInUI;
+  private PipedInputStream stdIn;
+  private OutputStream stdInUI;
+//  private REPLPipedInputStream stdIn;
+//  private REPLPipedOutputStream stdInUI;
 
   @SuppressWarnings("restriction")
   @Override
@@ -39,10 +43,15 @@ public class ReplConnector extends TerminalConnectorImpl {
     super.connect(control);
     try {
 
-      stdIn = new REPLPipedInputStream();
-      stdInUI = new REPLPipedOutputStream(stdIn);
+//      stdIn = new REPLPipedInputStream();
+//      stdInUI = new REPLPipedOutputStream(stdIn);
+      stdIn = new PipedInputStream(8*1024);
+      stdInUI = new PipedOutputStream(stdIn);
+      //stdInUI = new InputStreamMonitor(control, new PipedOutputStream(stdIn), true, "\n"); 
 
-      shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, TerminalFactory.get()) {
+      Terminal tm = TerminalFactory.get();
+      tm.setEchoEnabled(true);
+      shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, tm) {
         @Override
         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
           GlobalEnvironment heap = new GlobalEnvironment();
@@ -54,6 +63,7 @@ public class ReplConnector extends TerminalConnectorImpl {
           return evaluator;
         }
       };
+
       
       new Thread() {
         public void run() {
@@ -65,6 +75,7 @@ public class ReplConnector extends TerminalConnectorImpl {
           }
         }
       }.start();
+      control.setState(TerminalState.CONNECTED);
     }
     catch (IOException e) {
       e.printStackTrace();
