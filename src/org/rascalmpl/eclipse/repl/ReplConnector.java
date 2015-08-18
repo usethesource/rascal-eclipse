@@ -32,7 +32,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ReplConnector extends TerminalConnectorImpl {
 
-  
   @Override
   public OutputStream getTerminalToRemoteStream() {
     return stdInUI;
@@ -53,70 +52,67 @@ public class ReplConnector extends TerminalConnectorImpl {
   @Override
   public void connect(ITerminalControl control) {
     super.connect(control);
-    try {
+    Terminal tm = TerminalFactory.get();
+    tm.setEchoEnabled(false);
 
-      Terminal tm = TerminalFactory.get();
-      tm.setEchoEnabled(false);
-
-      control.setVT100LineWrapping(false);
-      VT100Emulator text = ((VT100TerminalControl)control).getTerminalText();
-      text.setCrAfterNewLine(true);
-      ((VT100TerminalControl)control).setBufferLineLimit(10_000);
-      addMouseHandler(((VT100TerminalControl)control), new ITerminalMouseListener() {
-        
-        @Override
-        public void mouseUp(String line, int offset) {
-          System.err.println(line + "  offset:" + offset);
-        }
-        
-        @Override
-        public void mouseDown(String line, int offset) {
-          // TODO Auto-generated method stub
-          
-        }
-        
-        @Override
-        public void mouseDoubleClick(String line, int offset) {
-          // TODO Auto-generated method stub
-          
-        }
-      });
-
-      stdIn = new REPLPipedInputStream();
-      stdInUI = new REPLPipedOutputStream(stdIn);
-
-      shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, tm) {
-        @Override
-        protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
-          GlobalEnvironment heap = new GlobalEnvironment();
-          ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
-          IValueFactory vf = ValueFactoryFactory.getValueFactory();
-          Evaluator evaluator = new Evaluator(vf, new PrintWriter(stderr), new PrintWriter(stdout), root, heap);
-          evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-          evaluator.setMonitor(new ConsoleRascalMonitor());
-          return evaluator;
-        }
-      };
-
+    control.setVT100LineWrapping(false);
+    VT100Emulator text = ((VT100TerminalControl)control).getTerminalText();
+    text.setCrAfterNewLine(true);
+    ((VT100TerminalControl)control).setBufferLineLimit(10_000);
+    addMouseHandler(((VT100TerminalControl)control), new ITerminalMouseListener() {
       
-      new Thread() {
-        public void run() {
-          try {
-            shell.run();
-          }
-          catch (IOException e) {
-            e.printStackTrace();
-          }
-          finally {
-            control.setState(TerminalState.CLOSED);
-          }
+      @Override
+      public void mouseUp(String line, int offset) {
+        System.err.println(line + "  offset:" + offset);
+      }
+      
+      @Override
+      public void mouseDown(String line, int offset) {
+        // TODO Auto-generated method stub
+        
+      }
+      
+      @Override
+      public void mouseDoubleClick(String line, int offset) {
+        // TODO Auto-generated method stub
+        
+      }
+    });
+
+    stdIn = new REPLPipedInputStream();
+    stdInUI = new REPLPipedOutputStream(stdIn);
+
+    control.setState(TerminalState.CONNECTING);
+
+    
+    Thread t = new Thread() {
+      public void run() {
+        try {
+          shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, tm) {
+            @Override
+            protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
+              GlobalEnvironment heap = new GlobalEnvironment();
+              ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
+              IValueFactory vf = ValueFactoryFactory.getValueFactory();
+              Evaluator evaluator = new Evaluator(vf, new PrintWriter(stderr), new PrintWriter(stdout), root, heap);
+              evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+              evaluator.setMonitor(new ConsoleRascalMonitor());
+              return evaluator;
+            }
+          };
+          control.setState(TerminalState.CONNECTED);
+          shell.run();
         }
-      }.start();
-      control.setState(TerminalState.CONNECTED);
-    }
-    catch (IOException e) {
-      e.printStackTrace();
-    }
+        catch (IOException e) {
+          e.printStackTrace();
+        }
+        finally {
+          control.setState(TerminalState.CLOSED);
+        }
+      }
+    };
+    t.setName("Rascal REPL Runner");
+    t.start();
     
   }
   
