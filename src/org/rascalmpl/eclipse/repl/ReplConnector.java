@@ -37,6 +37,11 @@ public class ReplConnector extends TerminalConnectorImpl {
 //  private REPLPipedInputStream stdIn;
 //  private REPLPipedOutputStream stdInUI;
 
+  @Override
+  public boolean isLocalEcho() {
+    return false;
+  }
+
   @SuppressWarnings("restriction")
   @Override
   public void connect(ITerminalControl control) {
@@ -50,7 +55,7 @@ public class ReplConnector extends TerminalConnectorImpl {
       //stdInUI = new InputStreamMonitor(control, new PipedOutputStream(stdIn), true, "\n"); 
 
       Terminal tm = TerminalFactory.get();
-      tm.setEchoEnabled(true);
+      tm.setEchoEnabled(false);
       shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, tm) {
         @Override
         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {

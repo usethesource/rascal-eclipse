@@ -74,30 +74,7 @@ public class LauncherDelegate extends AbstractLauncherDelegate {
 
   @Override
   public ITerminalConnector createTerminalConnector(Map<String, Object> properties) {
-		// Construct the terminal settings store
-		ISettingsStore store = new SettingsStore();
-
-		// Construct the process settings
-		ProcessSettings processSettings = new ProcessSettings();
-		processSettings.setLocalEcho(true);
-		processSettings.setLineSeparator("\n");
-		//processSettings.setWorkingDir(workingDir);
-		//processSettings.setEnvironment(envp);
-		processSettings.setMergeWithNativeEnvironment(false);
-
-		// And save the settings to the store
-		processSettings.save(store);
-
-		// Construct the terminal connector instance
-		ITerminalConnector connector = TerminalConnectorExtension.makeTerminalConnector("rascal-eclipse.connector1");
-		if (connector != null) {
-			// Apply default settings
-			connector.setDefaultSettings();
-			// And load the real settings
-			connector.load(store);
-		}
-
-    return connector;
+		 return TerminalConnectorExtension.makeTerminalConnector("rascal-eclipse.connector1");
   }
 
 }
