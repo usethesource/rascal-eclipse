@@ -11,10 +11,11 @@ import jline.Terminal;
 import jline.TerminalFactory;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.tm.internal.terminal.emulator.VT100Emulator;
+import org.eclipse.tm.internal.terminal.emulator.VT100TerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnectorImpl;
-import org.eclipse.tm.terminal.view.ui.streams.InputStreamMonitor;
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -56,6 +57,9 @@ public class ReplConnector extends TerminalConnectorImpl {
 
       Terminal tm = TerminalFactory.get();
       tm.setEchoEnabled(false);
+      control.setVT100LineWrapping(false);
+      VT100Emulator text = ((VT100TerminalControl)control).getTerminalText();
+      text.setCrAfterNewLine(true);
       shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, tm) {
         @Override
         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
