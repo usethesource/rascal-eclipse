@@ -2,8 +2,6 @@ package org.rascalmpl.eclipse.repl;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
@@ -41,7 +39,7 @@ public class ReplConnector extends TerminalConnectorImpl {
   }
 
   private RascalInterpreterREPL shell;
-  private PipedInputStream stdIn;
+  private REPLPipedInputStream stdIn;
   private OutputStream stdInUI;
 //  private REPLPipedInputStream stdIn;
 //  private REPLPipedOutputStream stdInUI;
@@ -57,19 +55,14 @@ public class ReplConnector extends TerminalConnectorImpl {
     super.connect(control);
     try {
 
-//      stdIn = new REPLPipedInputStream();
-//      stdInUI = new REPLPipedOutputStream(stdIn);
-      stdIn = new PipedInputStream(8*1024);
-      stdInUI = new PipedOutputStream(stdIn);
-      //stdInUI = new InputStreamMonitor(control, new PipedOutputStream(stdIn), true, "\n"); 
-
       Terminal tm = TerminalFactory.get();
       tm.setEchoEnabled(false);
+
       control.setVT100LineWrapping(false);
       VT100Emulator text = ((VT100TerminalControl)control).getTerminalText();
       text.setCrAfterNewLine(true);
-       ((VT100TerminalControl)control).setBufferLineLimit(10_000);
-       addMouseHandler(((VT100TerminalControl)control), new ITerminalMouseListener() {
+      ((VT100TerminalControl)control).setBufferLineLimit(10_000);
+      addMouseHandler(((VT100TerminalControl)control), new ITerminalMouseListener() {
         
         @Override
         public void mouseUp(String line, int offset) {
@@ -88,6 +81,10 @@ public class ReplConnector extends TerminalConnectorImpl {
           
         }
       });
+
+      stdIn = new REPLPipedInputStream();
+      stdInUI = new REPLPipedOutputStream(stdIn);
+
       shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, tm) {
         @Override
         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {

@@ -5,24 +5,28 @@ import java.io.OutputStream;
 
 public class REPLPipedOutputStream extends OutputStream {
   
+  private final REPLPipedInputStream otherSide;
 
-  private final REPLPipedInputStream stdIn;
+  public REPLPipedOutputStream(REPLPipedInputStream otherSide) {
+    this.otherSide = otherSide;
+  }
 
-  public REPLPipedOutputStream(REPLPipedInputStream stdIn) {
-    this.stdIn = stdIn;
+  @Override
+  public void write(byte[] b, int off, int len) throws IOException {
+		if (b == null) {
+		    throw new NullPointerException();
+		} else if ((off < 0) || (off > b.length) || (len < 0) ||
+			   ((off + len) > b.length) || ((off + len) < 0)) {
+		    throw new IndexOutOfBoundsException();
+		} else if (len == 0) {
+		    return;
+		}
+		otherSide.write(b, off, len);
   }
 
   @Override
   public void write(int b) throws IOException {
-    stdIn.write(b);
-  }
-  @Override
-  public void write(byte[] b) throws IOException {
-    write(b, 0, b.length);
-  }
-  @Override
-  public void write(byte[] b, int off, int len) throws IOException {
-    stdIn.write(b, off, len);
+    otherSide.write((byte)b);
   }
 
 }
