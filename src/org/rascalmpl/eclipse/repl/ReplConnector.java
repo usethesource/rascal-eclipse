@@ -152,11 +152,20 @@ public class ReplConnector extends TerminalConnectorImpl {
 
         private String getLine(MouseEvent e) {
           Point pt = screenPointToCell(e.x, e.y);
-          return new String(model.getTerminalText().getChars(pt.y));
+          if (pt != null) {
+            char[] chars = model.getTerminalText().getChars(pt.y);
+            if (chars != null) {
+              return new String(chars);
+            }
+          }
+          return ""; 
         }
         private int getOffset(MouseEvent e) {
           Point pt = screenPointToCell(e.x, e.y);
-          return pt.x;
+          if (pt != null) {
+            return pt.x;
+          }
+          return -1;
         }
         
         @Override
@@ -176,13 +185,9 @@ public class ReplConnector extends TerminalConnectorImpl {
       });
     }
     catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | NoSuchMethodException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
+      throw new RuntimeException(e);
     }
-    finally {
-      
-    }
-    
   }
 
   @Override
