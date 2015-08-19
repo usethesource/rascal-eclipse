@@ -31,21 +31,9 @@ import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class TokenColorer implements ITokenColorer {
-	public static final String NORMAL = "Normal";
-	public static final String TYPE = "Type";
-	public static final String IDENTIFIER = "Identifier";
-	public static final String VARIABLE = "Variable";
-	public static final String CONSTANT = "Constant";
-	public static final String COMMENT = "Comment";
-	public static final String TODO = "Todo";
-	public static final String QUOTE = "Quote";
-	public static final String META_AMBIGUITY = "MetaAmbiguity";
-	public static final String META_VARIABLE = "MetaVariable";
-	public static final String META_KEYWORD = "MetaKeyword";
-	public static final String META_SKIPPED = "MetaSkipped";
-	public static final String NONTERMINAL_LABEL = "NonterminalLabel";
 	private Boolean firstUse = true;
 
 	private final Map<String,TextAttribute> map = new HashMap<String,TextAttribute>();
@@ -53,20 +41,20 @@ public class TokenColorer implements ITokenColorer {
 	public TokenColorer() {
 		super();
 		
-		map.put(NORMAL, new TextAttribute(null, null, SWT.NONE));
+		map.put(TreeAdapter.NORMAL, new TextAttribute(null, null, SWT.NONE));
 		
-		map.put(NONTERMINAL_LABEL, new TextAttribute(new Color(Display.getDefault(), 0x80, 0x80, 0x80), null, SWT.ITALIC));
-		map.put(META_KEYWORD, new TextAttribute(new Color(Display.getDefault(), 123, 0, 82), null, SWT.BOLD));
-		map.put(META_VARIABLE, new TextAttribute(new Color(Display.getDefault(), 0x29,0x5F,0x94), null, SWT.ITALIC));
-		map.put(META_AMBIGUITY,  new TextAttribute(new Color(Display.getDefault(), 186, 29, 29), null, SWT.BOLD));
-		map.put(META_SKIPPED,  new TextAttribute(null, new Color(Display.getDefault(), 255, 180, 180), SWT.ITALIC)); //82, 141, 115
-		map.put(TODO,new TextAttribute(new Color(Display.getDefault(), 123, 157, 198), null, SWT.BOLD));
-		map.put(COMMENT,new TextAttribute(new Color(Display.getDefault(), 82, 141, 115), null, SWT.ITALIC));
-		map.put(CONSTANT,new TextAttribute(new Color(Display.getDefault(), 139, 0, 139), null, SWT.NONE));
-		map.put(VARIABLE,new TextAttribute(new Color(Display.getDefault(), 0x55,0xaa,0x55), null, SWT.NONE));
-		map.put(IDENTIFIER,new TextAttribute(new Color(Display.getDefault(), 0x2C,0x57,0x7C), null, SWT.NONE));
-		map.put(QUOTE,new TextAttribute(new Color(Display.getDefault(), 255, 69, 0), new Color(Display.getDefault(), 32,178,170), SWT.NONE));
-		map.put(TYPE,new TextAttribute(new Color(Display.getDefault(), 0xAB,0x25,0x25), null, SWT.NONE));
+		map.put(TreeAdapter.NONTERMINAL_LABEL, new TextAttribute(new Color(Display.getDefault(), 0x80, 0x80, 0x80), null, SWT.ITALIC));
+		map.put(TreeAdapter.META_KEYWORD, new TextAttribute(new Color(Display.getDefault(), 123, 0, 82), null, SWT.BOLD));
+		map.put(TreeAdapter.META_VARIABLE, new TextAttribute(new Color(Display.getDefault(), 0x29,0x5F,0x94), null, SWT.ITALIC));
+		map.put(TreeAdapter.META_AMBIGUITY,  new TextAttribute(new Color(Display.getDefault(), 186, 29, 29), null, SWT.BOLD));
+		map.put(TreeAdapter.META_SKIPPED,  new TextAttribute(null, new Color(Display.getDefault(), 255, 180, 180), SWT.ITALIC)); //82, 141, 115
+		map.put(TreeAdapter.TODO,new TextAttribute(new Color(Display.getDefault(), 123, 157, 198), null, SWT.BOLD));
+		map.put(TreeAdapter.COMMENT,new TextAttribute(new Color(Display.getDefault(), 82, 141, 115), null, SWT.ITALIC));
+		map.put(TreeAdapter.CONSTANT,new TextAttribute(new Color(Display.getDefault(), 139, 0, 139), null, SWT.NONE));
+		map.put(TreeAdapter.VARIABLE,new TextAttribute(new Color(Display.getDefault(), 0x55,0xaa,0x55), null, SWT.NONE));
+		map.put(TreeAdapter.IDENTIFIER,new TextAttribute(new Color(Display.getDefault(), 0x2C,0x57,0x7C), null, SWT.NONE));
+		map.put(TreeAdapter.QUOTE,new TextAttribute(new Color(Display.getDefault(), 255, 69, 0), new Color(Display.getDefault(), 32,178,170), SWT.NONE));
+		map.put(TreeAdapter.TYPE,new TextAttribute(new Color(Display.getDefault(), 0xAB,0x25,0x25), null, SWT.NONE));
 	} 
 
 	public IRegion calculateDamageExtent(IRegion seed, IParseController ctlr) {

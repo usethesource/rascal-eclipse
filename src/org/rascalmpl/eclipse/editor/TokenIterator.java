@@ -67,7 +67,7 @@ public class TokenIterator implements Iterator<Token>{
 				int length = ambLoc != null ? ambLoc.getLength() : TreeAdapter.yield(arg).length();
 
 				location += length;
-				tokenList.add(new Token(TokenColorer.META_AMBIGUITY, offset, length));
+				tokenList.add(new Token(TreeAdapter.META_AMBIGUITY, offset, length));
 			}
 			else {
 				TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
@@ -90,8 +90,8 @@ public class TokenIterator implements Iterator<Token>{
 			}
 			
 			// It's not so nice to link the sort name to the token color constant ...
-			if(TokenColorer.NONTERMINAL_LABEL.equals(ProductionAdapter.getSortName(prod))){
-				category = TokenColorer.NONTERMINAL_LABEL;
+			if(TreeAdapter.NONTERMINAL_LABEL.equals(ProductionAdapter.getSortName(prod))){
+				category = TreeAdapter.NONTERMINAL_LABEL;
 			}
 			
 			// short cut, if we have source locations and a category we found a long token
@@ -118,12 +118,12 @@ public class TokenIterator implements Iterator<Token>{
 			}
 
 			if (ProductionAdapter.isSkipped(prod)) {
-				category = TokenColorer.META_SKIPPED;
+				category = TreeAdapter.META_SKIPPED;
 			}
 			
 			if (ProductionAdapter.isDefault(prod) && (TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg))) {
 				if (category == null){
-					category = TokenColorer.META_KEYWORD;
+					category = TreeAdapter.META_KEYWORD;
 
 					for (IValue child : TreeAdapter.getArgs(arg)) {
 						int c = TreeAdapter.getCharacter((ITree) child);
@@ -133,7 +133,7 @@ public class TokenIterator implements Iterator<Token>{
 					}
 					
 					if (category == null) {
-						category = TokenColorer.NORMAL;
+						category = TreeAdapter.NORMAL;
 					}
 				}
 			}
