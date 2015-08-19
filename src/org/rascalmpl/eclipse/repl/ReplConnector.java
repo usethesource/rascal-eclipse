@@ -3,6 +3,7 @@ package org.rascalmpl.eclipse.repl;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -11,7 +12,11 @@ import java.lang.reflect.Method;
 import jline.Terminal;
 import jline.TerminalFactory;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Point;
@@ -22,12 +27,14 @@ import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnectorImpl;
 import org.eclipse.tm.internal.terminal.textcanvas.ITextCanvasModel;
 import org.eclipse.tm.internal.terminal.textcanvas.TextCanvas;
+import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.repl.RascalInterpreterREPL;
+import org.rascalmpl.uri.LinkifiedString;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ReplConnector extends TerminalConnectorImpl {
@@ -60,22 +67,39 @@ public class ReplConnector extends TerminalConnectorImpl {
     text.setCrAfterNewLine(true);
     ((VT100TerminalControl)control).setBufferLineLimit(10_000);
     addMouseHandler(((VT100TerminalControl)control), new ITerminalMouseListener() {
-      
+
+      private String currentLine = "";
+      private int currentOffset = -1;
+
       @Override
       public void mouseUp(String line, int offset) {
-        System.err.println(line + "  offset:" + offset);
+        if (offset == currentOffset &&  line.equals(currentLine)) {
+          LinkifiedString lineWithLinks = new LinkifiedString(line);
+          String link = lineWithLinks.getLinkAt(offset);
+          if (link != null) {
+            try {
+              IValue loc = new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), new StringReader(link));
+              if (loc instanceof ISourceLocation) {
+                EditorUtil.openAndSelectURI((ISourceLocation)loc);
+              }
+            }
+            catch (FactTypeUseException | IOException e) {
+            }
+          }
+        }
+        offset = -1;
+        currentLine = "";
       }
-      
+
       @Override
       public void mouseDown(String line, int offset) {
-        // TODO Auto-generated method stub
-        
+        currentLine = line;
+        currentOffset = offset;
       }
-      
+
       @Override
       public void mouseDoubleClick(String line, int offset) {
-        // TODO Auto-generated method stub
-        
+
       }
     });
 
@@ -89,6 +113,7 @@ public class ReplConnector extends TerminalConnectorImpl {
       public void run() {
         try {
           shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, tm) {
+
             @Override
             protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
               GlobalEnvironment heap = new GlobalEnvironment();
@@ -100,6 +125,7 @@ public class ReplConnector extends TerminalConnectorImpl {
               return evaluator;
             }
           };
+          
           control.setState(TerminalState.CONNECTED);
           shell.run();
         }
