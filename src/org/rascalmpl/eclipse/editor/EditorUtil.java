@@ -2,6 +2,7 @@ package org.rascalmpl.eclipse.editor;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -18,6 +19,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.navigator.RascalNavigator;
+import org.rascalmpl.eclipse.perspective.views.Tutor;
 import org.rascalmpl.eclipse.uri.URIEditorInput;
 import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.eclipse.uri.URIStorage;
@@ -95,4 +97,27 @@ public class EditorUtil {
 		}
 		return false;
 	}
+
+  private static final String tutorPrefix = "http://tutor.rascal-mpl.org";
+
+  public static void openWebURI(ISourceLocation loc) {
+    try {
+      String link = loc.getURI().toString();
+
+      if (link.startsWith(tutorPrefix)) {
+        Tutor t = (Tutor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(Tutor.ID);
+        t.gotoPage(link.substring(tutorPrefix.length()));
+      }
+      else {
+        // open a link in an external browser
+        PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(link));
+      }
+    }
+    catch (PartInitException e) {
+      Activator.log("Couldn't open weblink", e);
+    }
+    catch (MalformedURLException e) {
+      Activator.log("Couldn't open weblink", e);
+    }
+  }
 }
