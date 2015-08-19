@@ -15,6 +15,7 @@ import jline.TerminalFactory;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.swt.events.MouseEvent;
@@ -34,7 +35,9 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.repl.RascalInterpreterREPL;
-import org.rascalmpl.uri.LinkifiedString;
+import org.rascalmpl.uri.LinkDetector;
+import org.rascalmpl.uri.LinkDetector.Type;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ReplConnector extends TerminalConnectorImpl {
@@ -74,17 +77,19 @@ public class ReplConnector extends TerminalConnectorImpl {
       @Override
       public void mouseUp(String line, int offset) {
         if (offset == currentOffset &&  line.equals(currentLine)) {
-          LinkifiedString lineWithLinks = new LinkifiedString(line);
-          String link = lineWithLinks.getLinkAt(offset);
-          if (link != null) {
+          String link = LinkDetector.findAt(line, offset);
+          if (link != null && LinkDetector.typeOf(link) == Type.SOURCE_LOCATION) {
             try {
               IValue loc = new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), new StringReader(link));
               if (loc instanceof ISourceLocation) {
                 EditorUtil.openAndSelectURI((ISourceLocation)loc);
               }
             }
-            catch (FactTypeUseException | IOException e) {
+            catch (FactTypeUseException | FactParseError | IOException e) {
             }
+          }
+          else if (link != null && LinkDetector.typeOf(link) == Type.HYPERLINK) {
+            EditorUtil.openWebURI(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect(link)));
           }
         }
         offset = -1;
