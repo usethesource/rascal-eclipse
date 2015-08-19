@@ -40,7 +40,7 @@ public class REPLPipedInputStream extends InputStream {
 
 		// now consume the rest of the available bytes
 		Byte current;
-		while ((current = queue.poll()) != null) {
+		while ((current = queue.poll()) != null && (index < off + len)) {
 		  b[index++] = current;
 		}
 		return index - off;
