@@ -943,6 +943,15 @@
                </iterate>
             </visibleWhen>
          </dynamic>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.eclipse.ui.main.menu?after=window">
+         <command
+               commandId="org.rascalmpl.eclipse.repl.command.launch"
+               label="Rascal REPL"
+               style="push">
+         </command>
       </menuContribution> 
 </extension>
    <extension
@@ -966,8 +975,29 @@
          point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
       <delegate
             class="org.rascalmpl.eclipse.repl.LauncherDelegate"
-            id="rascal-eclipse.delegate1"
+            id="org.rascalmpl.eclipse.repl.launcher"
             label="Rascal REPL">
       </delegate>
+   </extension>
+   <extension point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.eclipse.tm.terminal.view.ui.commands.category"
+            defaultHandler="org.rascalmpl.eclipse.repl.ReplLaunchHandler"
+            helpContextId="org.eclipse.tm.terminal.connector.rascal.repl.command_Launch"
+            id="org.rascalmpl.eclipse.repl.command.launch"
+            name="%command.launch.name">
+      </command>
+   </extension>
+   <extension point="org.eclipse.ui.commandImages">
+      <image
+            commandId="org.rascalmpl.eclipse.repl.command.launch"
+            icon="icons/rascal3D_2-16px.gif">
+      </image>
+   </extension>
+   <extension point="org.eclipse.ui.handlers">
+      <handler
+            class="org.rascalmpl.eclipse.repl.ReplLaunchHandler"
+            commandId="org.rascalmpl.eclipse.repl.command.launch">
+      </handler>
    </extension>
 </plugin>
