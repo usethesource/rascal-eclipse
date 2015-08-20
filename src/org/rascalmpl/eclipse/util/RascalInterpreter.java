@@ -152,16 +152,9 @@ public class RascalInterpreter extends JavaToRascal {
 						- Configuration.RASCAL_FILE_EXT.length());
 	}
 
-	public RascalInterpreter(IProject project, PrintWriter stdout,
-			PrintWriter stderr) {
+	public RascalInterpreter(IProject project, PrintWriter stdout,	PrintWriter stderr) {
 		super(stdout, stderr);
-		ProjectEvaluatorFactory.getInstance().configure(
-				project, getEvaluator());
-	}
-
-	public RascalInterpreter(IProject project) {
-		super(ProjectEvaluatorFactory.getInstance().createProjectEvaluator(
-				project));
+		ProjectEvaluatorFactory.getInstance().configure(project, getEvaluator());
 	}
 
 	/* An example of use: */
@@ -169,7 +162,7 @@ public class RascalInterpreter extends JavaToRascal {
 	public static void test(IProject project) {
 		// IProject project =
 		// ResourcesPlugin.getWorkspace().getRoot().getProject("aap");
-		final RascalInterpreter jr = new RascalInterpreter(project);
+		final RascalInterpreter jr = new RascalInterpreter(project, new PrintWriter(System.err), new PrintWriter(System.out));
 		System.out.println(jr.stringValue("import List;"));
 		System.out.println(jr.stringValue("\"<2+3>\";"));
 		System.out.println(jr.stringValue("\"aap:<size([2,3])>\";"));

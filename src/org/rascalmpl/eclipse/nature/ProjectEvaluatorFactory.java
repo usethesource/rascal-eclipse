@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -127,7 +128,7 @@ public class ProjectEvaluatorFactory {
 		Evaluator parser = parserForProject.get(project);
 		
 		if (parser == null) {
-			parser = createProjectEvaluator(project);
+			parser = createProjectEvaluator(project, err, out);
 			reloaderForProject.put(project, new ModuleReloader(project, parser, new WarningsToPrintWriter(parser.getStdErr())));
 			parserForProject.put(project, parser);
 		}
@@ -138,10 +139,10 @@ public class ProjectEvaluatorFactory {
 	/**
 	 * This method creates a fresh evaluator every time you call it.
 	 */
-	public Evaluator createProjectEvaluator(IProject project) {
+	public Evaluator createProjectEvaluator(IProject project, Writer err, Writer out) {
 		Activator.getInstance().checkRascalRuntimePreconditions(project);
 		GlobalEnvironment heap = new GlobalEnvironment();
-		Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, new ModuleEnvironment("***parser***", heap), heap);
+		Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(err), new PrintWriter(out), new ModuleEnvironment("***parser***", heap), heap);
 		configure(project, parser);
 		return parser;
 	}

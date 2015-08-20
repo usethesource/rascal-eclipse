@@ -12,6 +12,8 @@ import java.lang.reflect.Method;
 import jline.Terminal;
 import jline.TerminalFactory;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -23,13 +25,16 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.tm.internal.terminal.emulator.VT100Emulator;
 import org.eclipse.tm.internal.terminal.emulator.VT100TerminalControl;
+import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnectorImpl;
 import org.eclipse.tm.internal.terminal.textcanvas.ITextCanvasModel;
 import org.eclipse.tm.internal.terminal.textcanvas.TextCanvas;
 import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
+import org.eclipse.ui.internal.e4.compatibility.SelectionService;
 import org.rascalmpl.eclipse.editor.EditorUtil;
+import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -51,6 +56,7 @@ public class ReplConnector extends TerminalConnectorImpl {
   private RascalInterpreterREPL shell;
   private REPLPipedInputStream stdIn;
   private OutputStream stdInUI;
+  private String project;
 //  private REPLPipedInputStream stdIn;
 //  private REPLPipedOutputStream stdInUI;
 
@@ -58,7 +64,12 @@ public class ReplConnector extends TerminalConnectorImpl {
   public boolean isLocalEcho() {
     return false;
   }
-
+  
+  @Override
+	public void load(ISettingsStore store) {
+	  this.project = store.get("project");
+	}
+  
   @SuppressWarnings("restriction")
   @Override
   public void connect(ITerminalControl control) {
@@ -123,22 +134,15 @@ public class ReplConnector extends TerminalConnectorImpl {
     stdInUI = new REPLPipedOutputStream(stdIn);
 
     control.setState(TerminalState.CONNECTING);
-
-    
+   
     Thread t = new Thread() {
       public void run() {
         try {
           shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, tm) {
-
             @Override
             protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
-              GlobalEnvironment heap = new GlobalEnvironment();
-              ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
-              IValueFactory vf = ValueFactoryFactory.getValueFactory();
-              Evaluator evaluator = new Evaluator(vf, new PrintWriter(stderr), new PrintWriter(stdout), root, heap);
-              evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-              evaluator.setMonitor(new ConsoleRascalMonitor());
-              return evaluator;
+            	 IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
+            	 return ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
             }
           };
           
