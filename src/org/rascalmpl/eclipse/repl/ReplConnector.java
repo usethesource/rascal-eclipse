@@ -2,21 +2,16 @@ package org.rascalmpl.eclipse.repl;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import jline.Terminal;
-import jline.TerminalFactory;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
@@ -32,206 +27,204 @@ import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnect
 import org.eclipse.tm.internal.terminal.textcanvas.ITextCanvasModel;
 import org.eclipse.tm.internal.terminal.textcanvas.TextCanvas;
 import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
-import org.eclipse.ui.internal.e4.compatibility.SelectionService;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
-import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.uri.LinkDetector;
 import org.rascalmpl.uri.LinkDetector.Type;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import jline.Terminal;
+import jline.TerminalFactory;
+
+@SuppressWarnings("restriction")
 public class ReplConnector extends TerminalConnectorImpl {
 
-  @Override
-  public OutputStream getTerminalToRemoteStream() {
-    return stdInUI;
-  }
+    @Override
+    public OutputStream getTerminalToRemoteStream() {
+        return stdInUI;
+    }
 
-  private RascalInterpreterREPL shell;
-  private REPLPipedInputStream stdIn;
-  private OutputStream stdInUI;
-  private String project;
-//  private REPLPipedInputStream stdIn;
-//  private REPLPipedOutputStream stdInUI;
+    private RascalInterpreterREPL shell;
+    private REPLPipedInputStream stdIn;
+    private OutputStream stdInUI;
+    private String project;
+    //  private REPLPipedInputStream stdIn;
+    //  private REPLPipedOutputStream stdInUI;
 
-  @Override
-  public boolean isLocalEcho() {
-    return false;
-  }
-  
-  @Override
-	public void load(ISettingsStore store) {
-	  this.project = store.get("project");
-	}
-  
-  @SuppressWarnings("restriction")
-  @Override
-  public void connect(ITerminalControl control) {
-    super.connect(control);
-    Terminal tm = TerminalFactory.get();
-    tm.setEchoEnabled(false);
+    @Override
+    public boolean isLocalEcho() {
+        return false;
+    }
 
-    control.setVT100LineWrapping(false);
-    VT100Emulator text = ((VT100TerminalControl)control).getTerminalText();
-    text.setCrAfterNewLine(true);
-    ((VT100TerminalControl)control).setBufferLineLimit(10_000);
-    addMouseHandler(((VT100TerminalControl)control), new ITerminalMouseListener() {
+    @Override
+    public void load(ISettingsStore store) {
+        this.project = store.get("project");
+    }
 
-      private int currentLine = -1;
-      private int currentOffset = -1;
+    @Override
+    public void connect(ITerminalControl control) {
+        super.connect(control);
+        Terminal tm = TerminalFactory.get();
+        tm.setEchoEnabled(false);
 
-      private String safeToString(char[] ch) {
-        if (ch == null) {
-          return "";
-        }
-        return new String(ch);
-      }
-      
-      @Override
-      public void mouseUp(ITerminalTextDataReadOnly model, int line, int offset) {
-        if (line == currentLine && offset == currentOffset) {
-          // concat the line before and after to make sure we can get wrapped lines
-          String lineBefore = line > 0 && model.isWrappedLine(line - 1) ? safeToString(model.getChars(line - 1)) : "";
-          String lineAfter = model.isWrappedLine(line) ? safeToString(model.getChars(line + 1)) : "";
-          String fullLine = lineBefore + safeToString(model.getChars(line)) + lineAfter;
+        control.setVT100LineWrapping(false);
+        VT100Emulator text = ((VT100TerminalControl)control).getTerminalText();
+        text.setCrAfterNewLine(true);
+        ((VT100TerminalControl)control).setBufferLineLimit(10_000);
+        addMouseHandler(((VT100TerminalControl)control), new ITerminalMouseListener() {
 
-          String link = LinkDetector.findAt(fullLine, lineBefore.length() + offset);
-          if (link != null && LinkDetector.typeOf(link) == Type.SOURCE_LOCATION) {
-            try {
-              IValue loc = new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), new StringReader(link));
-              if (loc instanceof ISourceLocation) {
-                EditorUtil.openAndSelectURI((ISourceLocation)loc);
-              }
+            private int currentLine = -1;
+            private int currentOffset = -1;
+
+            private String safeToString(char[] ch) {
+                if (ch == null) {
+                    return "";
+                }
+                return new String(ch);
             }
-            catch (FactTypeUseException | FactParseError | IOException e) {
-            }
-          }
-          else if (link != null && LinkDetector.typeOf(link) == Type.HYPERLINK) {
-            EditorUtil.openWebURI(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect(link)));
-          }
-        }
-        offset = -1;
-        currentLine = -1;
-      }
 
-      @Override
-      public void mouseDown(ITerminalTextDataReadOnly model, int line, int offset) {
-        currentLine = line;
-        currentOffset = offset;
-      }
-      @Override
-      public void mouseDoubleClick(ITerminalTextDataReadOnly model, int line, int offset) {
-      }
-    });
-
-    stdIn = new REPLPipedInputStream();
-    stdInUI = new REPLPipedOutputStream(stdIn);
-
-    control.setState(TerminalState.CONNECTING);
-   
-    Thread t = new Thread() {
-      public void run() {
-        try {
-          shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, tm) {
             @Override
-            protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
-            	 IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
-            	 return ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
+            public void mouseUp(ITerminalTextDataReadOnly model, int line, int offset) {
+                if (line == currentLine && offset == currentOffset) {
+                    // concat the line before and after to make sure we can get wrapped lines
+                    String lineBefore = line > 0 && model.isWrappedLine(line - 1) ? safeToString(model.getChars(line - 1)) : "";
+                    String lineAfter = model.isWrappedLine(line) ? safeToString(model.getChars(line + 1)) : "";
+                    String fullLine = lineBefore + safeToString(model.getChars(line)) + lineAfter;
+
+                    String link = LinkDetector.findAt(fullLine, lineBefore.length() + offset);
+                    if (link != null && LinkDetector.typeOf(link) == Type.SOURCE_LOCATION) {
+                        try {
+                            IValue loc = new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), new StringReader(link));
+                            if (loc instanceof ISourceLocation) {
+                                EditorUtil.openAndSelectURI((ISourceLocation)loc);
+                            }
+                        }
+                        catch (FactTypeUseException | FactParseError | IOException e) {
+                        }
+                    }
+                    else if (link != null && LinkDetector.typeOf(link) == Type.HYPERLINK) {
+                        EditorUtil.openWebURI(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect(link)));
+                    }
+                }
+                offset = -1;
+                currentLine = -1;
             }
-          };
-          
-          control.setState(TerminalState.CONNECTED);
-          shell.run();
-        }
-        catch (IOException e) {
-          e.printStackTrace();
-        }
-        finally {
-          control.setState(TerminalState.CLOSED);
-        }
-      }
-    };
-    t.setName("Rascal REPL Runner");
-    t.start();
-    
-  }
-  
-  
-  private void addMouseHandler(VT100TerminalControl control, final ITerminalMouseListener listener) {
-    try {
-      Field textCanvasField = control.getClass().getDeclaredField("fCtlText");
-      textCanvasField.setAccessible(true);
-      final TextCanvas textCanvas = (TextCanvas)textCanvasField.get(control);
 
-      Field modelField = textCanvas.getClass().getDeclaredField("fCellCanvasModel");
-      modelField.setAccessible(true);
-      final ITextCanvasModel model = (ITextCanvasModel) modelField.get(textCanvas);
-      
-      final Method screenPointToCellMethod = textCanvas.getClass().getSuperclass().getDeclaredMethod("screenPointToCell", int.class, int.class);
-      screenPointToCellMethod.setAccessible(true);
-      
+            @Override
+            public void mouseDown(ITerminalTextDataReadOnly model, int line, int offset) {
+                currentLine = line;
+                currentOffset = offset;
+            }
+            @Override
+            public void mouseDoubleClick(ITerminalTextDataReadOnly model, int line, int offset) {
+            }
+        });
 
-      textCanvas.addMouseListener(new MouseListener() {
-        
-        private Point screenPointToCell(int x, int y) {
-          try {
-            return (Point) screenPointToCellMethod.invoke(textCanvas, x, y);
-          }
-          catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        stdIn = new REPLPipedInputStream();
+        stdInUI = new REPLPipedOutputStream(stdIn);
+
+        control.setState(TerminalState.CONNECTING);
+
+        Thread t = new Thread() {
+            public void run() {
+                try {
+                    shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, tm) {
+                        @Override
+                        protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
+                            IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
+                            return ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
+                        }
+                    };
+
+                    control.setState(TerminalState.CONNECTED);
+                    shell.run();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    control.setState(TerminalState.CLOSED);
+                }
+            }
+        };
+        t.setName("Rascal REPL Runner");
+        t.start();
+
+    }
+
+
+    private void addMouseHandler(VT100TerminalControl control, final ITerminalMouseListener listener) {
+        try {
+            Field textCanvasField = control.getClass().getDeclaredField("fCtlText");
+            textCanvasField.setAccessible(true);
+            final TextCanvas textCanvas = (TextCanvas)textCanvasField.get(control);
+
+            Field modelField = textCanvas.getClass().getDeclaredField("fCellCanvasModel");
+            modelField.setAccessible(true);
+            final ITextCanvasModel model = (ITextCanvasModel) modelField.get(textCanvas);
+
+            final Method screenPointToCellMethod = textCanvas.getClass().getSuperclass().getDeclaredMethod("screenPointToCell", int.class, int.class);
+            screenPointToCellMethod.setAccessible(true);
+
+
+            textCanvas.addMouseListener(new MouseListener() {
+
+                private Point screenPointToCell(int x, int y) {
+                    try {
+                        return (Point) screenPointToCellMethod.invoke(textCanvas, x, y);
+                    }
+                    catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                @Override
+                public void mouseUp(MouseEvent e) {
+                    Point pt = screenPointToCell(e.x, e.y);
+                    if (pt != null) {
+                        listener.mouseUp(model.getTerminalText(), pt.y, pt.x);
+                    }
+                }
+
+                @Override
+                public void mouseDown(MouseEvent e) {
+                    Point pt = screenPointToCell(e.x, e.y);
+                    if (pt != null) {
+                        listener.mouseDown(model.getTerminalText(), pt.y, pt.x);
+                    }
+                }
+
+                @Override
+                public void mouseDoubleClick(MouseEvent e) {
+                    Point pt = screenPointToCell(e.x, e.y);
+                    if (pt != null) {
+                        listener.mouseDoubleClick(model.getTerminalText(), pt.y, pt.x);
+                    }
+                }
+            });
+        }
+        catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | NoSuchMethodException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
-          }
         }
-        
-        @Override
-        public void mouseUp(MouseEvent e) {
-          Point pt = screenPointToCell(e.x, e.y);
-          if (pt != null) {
-            listener.mouseUp(model.getTerminalText(), pt.y, pt.x);
-          }
-        }
-
-        @Override
-        public void mouseDown(MouseEvent e) {
-          Point pt = screenPointToCell(e.x, e.y);
-          if (pt != null) {
-            listener.mouseDown(model.getTerminalText(), pt.y, pt.x);
-          }
-        }
-        
-        @Override
-        public void mouseDoubleClick(MouseEvent e) {
-          Point pt = screenPointToCell(e.x, e.y);
-          if (pt != null) {
-            listener.mouseDoubleClick(model.getTerminalText(), pt.y, pt.x);
-          }
-        }
-      });
     }
-    catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | NoSuchMethodException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
-  }
 
-  @Override
-  protected void doDisconnect() {
-    super.doDisconnect();
-    if (shell != null) {
-      shell.stop();
-      shell = null;
+    @Override
+    protected void doDisconnect() {
+        super.doDisconnect();
+        if (shell != null) {
+            shell.stop();
+            shell = null;
+        }
     }
-  }
 
-  @Override
-  public String getSettingsSummary() {
-    return "Hooi jong";
-  }
+    @Override
+    public String getSettingsSummary() {
+        return "Hooi jong";
+    }
 
 
 }
