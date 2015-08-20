@@ -946,12 +946,15 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="menu:org.eclipse.ui.main.menu?after=window">
-         <command
-               commandId="org.rascalmpl.eclipse.repl.command.launch"
-               label="Rascal REPL"
-               style="push">
-         </command>
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="rascal-eclipse.toolbar1">
+            <command
+                  commandId="org.rascalmpl.eclipse.repl.command.launch"
+                  label="Rascal REPL"
+                  style="push">
+            </command>
+         </toolbar>
       </menuContribution> 
 </extension>
    <extension
