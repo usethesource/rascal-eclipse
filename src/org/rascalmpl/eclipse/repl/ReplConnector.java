@@ -42,6 +42,56 @@ import jline.TerminalFactory;
 @SuppressWarnings("restriction")
 public class ReplConnector extends TerminalConnectorImpl {
 
+    private static final class LinkMouseListener implements ITerminalMouseListener {
+        private int currentLine = -1;
+        private int currentOffset = -1;
+
+        private String safeToString(char[] ch) {
+            if (ch == null) {
+                return "";
+            }
+            return new String(ch);
+        }
+
+        @Override
+        public void mouseUp(ITerminalTextDataReadOnly model, int line, int offset) {
+            if (line == currentLine && offset == currentOffset) {
+                // concat the line before and after to make sure we can get wrapped lines
+                String lineBefore = line > 0 && model.isWrappedLine(line - 1) ? safeToString(model.getChars(line - 1)) : "";
+                String lineAfter = model.isWrappedLine(line) ? safeToString(model.getChars(line + 1)) : "";
+                String fullLine = lineBefore + safeToString(model.getChars(line)) + lineAfter;
+
+                String link = LinkDetector.findAt(fullLine, lineBefore.length() + offset);
+                if (link != null && LinkDetector.typeOf(link) == Type.SOURCE_LOCATION) {
+                    try {
+                        IValue loc = new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), new StringReader(link));
+                        if (loc instanceof ISourceLocation) {
+                            EditorUtil.openAndSelectURI((ISourceLocation)loc);
+                        }
+                    }
+                    catch (FactTypeUseException | FactParseError | IOException e) {
+                    }
+                }
+                else if (link != null && LinkDetector.typeOf(link) == Type.HYPERLINK) {
+                    EditorUtil.openWebURI(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect(link)));
+                }
+            }
+            offset = -1;
+            currentLine = -1;
+        }
+
+        @Override
+        public void mouseDown(ITerminalTextDataReadOnly model, int line, int offset) {
+            currentLine = line;
+            currentOffset = offset;
+        }
+
+        @Override
+        public void mouseDoubleClick(ITerminalTextDataReadOnly model, int line, int offset) {
+            // TODO: copy source loc to clipboard
+        }
+    }
+
     @Override
     public OutputStream getTerminalToRemoteStream() {
         return stdInUI;
@@ -51,8 +101,6 @@ public class ReplConnector extends TerminalConnectorImpl {
     private REPLPipedInputStream stdIn;
     private OutputStream stdInUI;
     private String project;
-    //  private REPLPipedInputStream stdIn;
-    //  private REPLPipedOutputStream stdInUI;
 
     @Override
     public boolean isLocalEcho() {
@@ -67,61 +115,10 @@ public class ReplConnector extends TerminalConnectorImpl {
     @Override
     public void connect(ITerminalControl control) {
         super.connect(control);
-        Terminal tm = TerminalFactory.get();
-        tm.setEchoEnabled(false);
-
-        control.setVT100LineWrapping(false);
-        VT100Emulator text = ((VT100TerminalControl)control).getTerminalText();
-        text.setCrAfterNewLine(true);
-        ((VT100TerminalControl)control).setBufferLineLimit(10_000);
-        addMouseHandler(((VT100TerminalControl)control), new ITerminalMouseListener() {
-
-            private int currentLine = -1;
-            private int currentOffset = -1;
-
-            private String safeToString(char[] ch) {
-                if (ch == null) {
-                    return "";
-                }
-                return new String(ch);
-            }
-
-            @Override
-            public void mouseUp(ITerminalTextDataReadOnly model, int line, int offset) {
-                if (line == currentLine && offset == currentOffset) {
-                    // concat the line before and after to make sure we can get wrapped lines
-                    String lineBefore = line > 0 && model.isWrappedLine(line - 1) ? safeToString(model.getChars(line - 1)) : "";
-                    String lineAfter = model.isWrappedLine(line) ? safeToString(model.getChars(line + 1)) : "";
-                    String fullLine = lineBefore + safeToString(model.getChars(line)) + lineAfter;
-
-                    String link = LinkDetector.findAt(fullLine, lineBefore.length() + offset);
-                    if (link != null && LinkDetector.typeOf(link) == Type.SOURCE_LOCATION) {
-                        try {
-                            IValue loc = new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), new StringReader(link));
-                            if (loc instanceof ISourceLocation) {
-                                EditorUtil.openAndSelectURI((ISourceLocation)loc);
-                            }
-                        }
-                        catch (FactTypeUseException | FactParseError | IOException e) {
-                        }
-                    }
-                    else if (link != null && LinkDetector.typeOf(link) == Type.HYPERLINK) {
-                        EditorUtil.openWebURI(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect(link)));
-                    }
-                }
-                offset = -1;
-                currentLine = -1;
-            }
-
-            @Override
-            public void mouseDown(ITerminalTextDataReadOnly model, int line, int offset) {
-                currentLine = line;
-                currentOffset = offset;
-            }
-            @Override
-            public void mouseDoubleClick(ITerminalTextDataReadOnly model, int line, int offset) {
-            }
-        });
+        
+        Terminal tm = configure(control);
+        
+        addMouseHandler(((VT100TerminalControl)control), new LinkMouseListener());
 
         stdIn = new REPLPipedInputStream();
         stdInUI = new REPLPipedOutputStream(stdIn);
@@ -137,8 +134,8 @@ public class ReplConnector extends TerminalConnectorImpl {
                             IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
                             return ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
                         }
-                    };
-
+                        
+                    };;
                     control.setState(TerminalState.CONNECTED);
                     shell.run();
                 }
@@ -155,7 +152,22 @@ public class ReplConnector extends TerminalConnectorImpl {
 
     }
 
+    private Terminal configure(ITerminalControl control) {
+        Terminal tm = TerminalFactory.get();
+        tm.setEchoEnabled(false);
+        control.setVT100LineWrapping(false);
+        VT100Emulator text = ((VT100TerminalControl)control).getTerminalText();
+        text.setCrAfterNewLine(true);
+        ((VT100TerminalControl)control).setBufferLineLimit(10_000);
+        return tm;
+    }
 
+
+    /**
+     * Caveat. We use reflection to get around access restrictions here. An issue
+     * has been created to ask for public API to register mouse handlers with the terminal 
+     * view.
+     */
     private void addMouseHandler(VT100TerminalControl control, final ITerminalMouseListener listener) {
         try {
             Field textCanvasField = control.getClass().getDeclaredField("fCtlText");
@@ -223,8 +235,6 @@ public class ReplConnector extends TerminalConnectorImpl {
 
     @Override
     public String getSettingsSummary() {
-        return "Hooi jong";
+        return project != null ? "REPL for " + project : "no project associated";
     }
-
-
 }
