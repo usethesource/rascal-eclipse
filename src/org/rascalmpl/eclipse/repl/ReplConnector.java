@@ -28,6 +28,7 @@ import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnectorImpl;
 import org.eclipse.tm.internal.terminal.textcanvas.ITextCanvasModel;
 import org.eclipse.tm.internal.terminal.textcanvas.TextCanvas;
+import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
@@ -71,13 +72,25 @@ public class ReplConnector extends TerminalConnectorImpl {
     ((VT100TerminalControl)control).setBufferLineLimit(10_000);
     addMouseHandler(((VT100TerminalControl)control), new ITerminalMouseListener() {
 
-      private String currentLine = "";
+      private int currentLine = -1;
       private int currentOffset = -1;
 
+      private String safeToString(char[] ch) {
+        if (ch == null) {
+          return "";
+        }
+        return new String(ch);
+      }
+      
       @Override
-      public void mouseUp(String line, int offset) {
-        if (offset == currentOffset &&  line.equals(currentLine)) {
-          String link = LinkDetector.findAt(line, offset);
+      public void mouseUp(ITerminalTextDataReadOnly model, int line, int offset) {
+        if (line == currentLine && offset == currentOffset) {
+          // concat the line before and after to make sure we can get wrapped lines
+          String lineBefore = line > 0 && model.isWrappedLine(line - 1) ? safeToString(model.getChars(line - 1)) : "";
+          String lineAfter = model.isWrappedLine(line) ? safeToString(model.getChars(line + 1)) : "";
+          String fullLine = lineBefore + safeToString(model.getChars(line)) + lineAfter;
+
+          String link = LinkDetector.findAt(fullLine, lineBefore.length() + offset);
           if (link != null && LinkDetector.typeOf(link) == Type.SOURCE_LOCATION) {
             try {
               IValue loc = new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), new StringReader(link));
@@ -93,18 +106,16 @@ public class ReplConnector extends TerminalConnectorImpl {
           }
         }
         offset = -1;
-        currentLine = "";
+        currentLine = -1;
       }
 
       @Override
-      public void mouseDown(String line, int offset) {
+      public void mouseDown(ITerminalTextDataReadOnly model, int line, int offset) {
         currentLine = line;
         currentOffset = offset;
       }
-
       @Override
-      public void mouseDoubleClick(String line, int offset) {
-
+      public void mouseDoubleClick(ITerminalTextDataReadOnly model, int line, int offset) {
       }
     });
 
@@ -169,42 +180,32 @@ public class ReplConnector extends TerminalConnectorImpl {
             return (Point) screenPointToCellMethod.invoke(textCanvas, x, y);
           }
           catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
           }
-        }
-
-        private String getLine(MouseEvent e) {
-          Point pt = screenPointToCell(e.x, e.y);
-          if (pt != null) {
-            char[] chars = model.getTerminalText().getChars(pt.y);
-            if (chars != null) {
-              return new String(chars);
-            }
-          }
-          return ""; 
-        }
-        private int getOffset(MouseEvent e) {
-          Point pt = screenPointToCell(e.x, e.y);
-          if (pt != null) {
-            return pt.x;
-          }
-          return -1;
         }
         
         @Override
         public void mouseUp(MouseEvent e) {
-          listener.mouseUp(getLine(e), getOffset(e));
+          Point pt = screenPointToCell(e.x, e.y);
+          if (pt != null) {
+            listener.mouseUp(model.getTerminalText(), pt.y, pt.x);
+          }
         }
 
         @Override
         public void mouseDown(MouseEvent e) {
-          listener.mouseDown(getLine(e), getOffset(e));
+          Point pt = screenPointToCell(e.x, e.y);
+          if (pt != null) {
+            listener.mouseDown(model.getTerminalText(), pt.y, pt.x);
+          }
         }
         
         @Override
         public void mouseDoubleClick(MouseEvent e) {
-          listener.mouseDoubleClick(getLine(e), getOffset(e));
+          Point pt = screenPointToCell(e.x, e.y);
+          if (pt != null) {
+            listener.mouseDoubleClick(model.getTerminalText(), pt.y, pt.x);
+          }
         }
       });
     }
