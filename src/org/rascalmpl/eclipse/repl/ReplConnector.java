@@ -1,5 +1,6 @@
 package org.rascalmpl.eclipse.repl;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
@@ -7,6 +8,9 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import jline.Terminal;
+import jline.TerminalFactory;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -35,9 +39,6 @@ import org.rascalmpl.uri.LinkDetector;
 import org.rascalmpl.uri.LinkDetector.Type;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
-
-import jline.Terminal;
-import jline.TerminalFactory;
 
 @SuppressWarnings("restriction")
 public class ReplConnector extends TerminalConnectorImpl {
@@ -112,6 +113,19 @@ public class ReplConnector extends TerminalConnectorImpl {
         this.project = store.get("project");
     }
 
+    private File getHistoryFile() throws IOException {
+        File home = new File(System.getProperty("user.home"));
+        File rascal = new File(home, ".rascal");
+        if (!rascal.exists()) {
+            rascal.mkdirs();
+        }
+        File historyFile = new File(rascal, ".repl-history-rascal");
+        if (!historyFile.exists()) {
+            historyFile.createNewFile();
+        }
+        return historyFile;
+    }
+
     @Override
     public void connect(ITerminalControl control) {
         super.connect(control);
@@ -128,7 +142,7 @@ public class ReplConnector extends TerminalConnectorImpl {
         Thread t = new Thread() {
             public void run() {
                 try {
-                    shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, tm) {
+                    shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), tm) {
                         @Override
                         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
                             IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
