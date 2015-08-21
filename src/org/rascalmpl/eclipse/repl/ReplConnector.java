@@ -142,7 +142,7 @@ public class ReplConnector extends TerminalConnectorImpl {
         Thread t = new Thread() {
             public void run() {
                 try {
-                    shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, /* getHistoryFile(), */ tm) {
+                    shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), tm) {
                         @Override
                         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
                             IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
