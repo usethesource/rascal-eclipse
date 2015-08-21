@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.perspective.actions;
+package org.rascalmpl.eclipse.actions;
 
 import java.net.URI;
 import java.net.URISyntaxException;

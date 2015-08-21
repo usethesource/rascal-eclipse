@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.perspective.actions.highlight;
+package org.rascalmpl.eclipse.editor.highlight;
 
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.parser.IParseController;
@@ -8,8 +8,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.actions.AbstractEditorAction;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
-import org.rascalmpl.eclipse.perspective.actions.AbstractEditorAction;
 import org.rascalmpl.interpreter.Evaluator;
 
 abstract class HighlightAction extends AbstractEditorAction {

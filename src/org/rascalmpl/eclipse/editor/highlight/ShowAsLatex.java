@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.perspective.actions.highlight;
+package org.rascalmpl.eclipse.editor.highlight;
 
 import org.eclipse.imp.editor.UniversalEditor;
 

@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.perspective.actions;
+package org.rascalmpl.eclipse.actions;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;

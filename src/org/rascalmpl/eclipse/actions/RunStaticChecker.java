@@ -11,7 +11,7 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.eclipse.perspective.actions;
+package org.rascalmpl.eclipse.actions;
 
 import java.lang.reflect.InvocationTargetException;
 

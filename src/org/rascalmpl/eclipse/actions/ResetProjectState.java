@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.perspective.actions;
+package org.rascalmpl.eclipse.actions;
 
 import org.eclipse.imp.editor.UniversalEditor;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;

@@ -18,20 +18,20 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
-import org.rascalmpl.eclipse.perspective.actions.BrowseTree;
-import org.rascalmpl.eclipse.perspective.actions.CopyToConsole;
-import org.rascalmpl.eclipse.perspective.actions.ImportInConsole;
-import org.rascalmpl.eclipse.perspective.actions.ListAmbiguities;
-import org.rascalmpl.eclipse.perspective.actions.ReloadStaticChecker;
-import org.rascalmpl.eclipse.perspective.actions.ResetProjectState;
-import org.rascalmpl.eclipse.perspective.actions.RunAmbiDexter;
-import org.rascalmpl.eclipse.perspective.actions.RunStaticChecker;
-import org.rascalmpl.eclipse.perspective.actions.RunTests;
-import org.rascalmpl.eclipse.perspective.actions.StartConsole;
-import org.rascalmpl.eclipse.perspective.actions.SubMenu;
-import org.rascalmpl.eclipse.perspective.actions.TextTree;
-import org.rascalmpl.eclipse.perspective.actions.highlight.ShowAsHTML;
-import org.rascalmpl.eclipse.perspective.actions.highlight.ShowAsLatex;
+import org.rascalmpl.eclipse.actions.BrowseTree;
+import org.rascalmpl.eclipse.actions.CopyToConsole;
+import org.rascalmpl.eclipse.actions.ImportInConsole;
+import org.rascalmpl.eclipse.actions.ListAmbiguities;
+import org.rascalmpl.eclipse.actions.ReloadStaticChecker;
+import org.rascalmpl.eclipse.actions.ResetProjectState;
+import org.rascalmpl.eclipse.actions.RunAmbiDexter;
+import org.rascalmpl.eclipse.actions.RunStaticChecker;
+import org.rascalmpl.eclipse.actions.RunTests;
+import org.rascalmpl.eclipse.actions.StartConsole;
+import org.rascalmpl.eclipse.actions.SubMenu;
+import org.rascalmpl.eclipse.actions.TextTree;
+import org.rascalmpl.eclipse.editor.highlight.ShowAsHTML;
+import org.rascalmpl.eclipse.editor.highlight.ShowAsLatex;
 
 public class ActionsContributor implements ILanguageActionsContributor {
 

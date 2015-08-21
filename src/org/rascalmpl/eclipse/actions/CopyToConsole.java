@@ -9,7 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.eclipse.perspective.actions;
+package org.rascalmpl.eclipse.actions;
 
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.ui.console.ConsolePlugin;
@@ -18,17 +18,16 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
-import org.rascalmpl.eclipse.util.ResourcesToModules;
 
-public class RunTests extends AbstractEditorAction {
+public class CopyToConsole extends AbstractEditorAction {
 	
-	public RunTests(UniversalEditor editor) {
-		super(editor, "Run Tests");
+	public CopyToConsole(UniversalEditor editor) {
+		super(editor, "Execute Selected Text in Console");
 	}
 
 	@Override
 	public void run() {
-		String mod = ResourcesToModules.moduleFromFile(file);
+		String cmd = editor.getSelectionText();
 		IConsoleManager man = ConsolePlugin.getDefault().getConsoleManager();
 		
 		for (IConsole console : man.getConsoles()) {
@@ -37,15 +36,11 @@ public class RunTests extends AbstractEditorAction {
 
 				try {
 					rascal.activate();
-					rascal.executeCommand("import " + mod + ";");
-					rascal.executeCommand(":test");
-					return;
+					rascal.executeCommand(cmd);
 				} catch (Throwable e) {
-					Activator.getInstance().logException("run tests", e);
+					Activator.getInstance().logException("copyToConsole", e);
 				}
 			}
 		}
-
-		Activator.log("no console to run tests in was started yet", new NullPointerException());
 	}
 }

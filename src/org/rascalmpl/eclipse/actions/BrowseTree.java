@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.perspective.actions;
+package org.rascalmpl.eclipse.actions;
 
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -7,10 +7,10 @@ import org.rascalmpl.eclipse.editor.ParseController;
 import org.rascalmpl.eclipse.library.util.ValueUI;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class TextTree extends AbstractEditorAction {
+public class BrowseTree extends AbstractEditorAction {
 
-	public TextTree(UniversalEditor editor) {
-		super(editor, "Show textual parse tree");
+	public BrowseTree(UniversalEditor editor) {
+		super(editor, "Browse parse tree");
 	}
 	
 	@Override
@@ -19,7 +19,7 @@ public class TextTree extends AbstractEditorAction {
 
 		if (tree != null) {
 			IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
-			new ValueUI(valueFactory).text(tree, valueFactory.integer(2));
+			new ValueUI(valueFactory).tree(tree);
 		}
 	}
 }

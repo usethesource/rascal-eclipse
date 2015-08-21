@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.perspective.actions.highlight;
+package org.rascalmpl.eclipse.editor.highlight;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

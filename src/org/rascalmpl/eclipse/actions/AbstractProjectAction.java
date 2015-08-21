@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.perspective.actions;
+package org.rascalmpl.eclipse.actions;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.model.ISourceProject;

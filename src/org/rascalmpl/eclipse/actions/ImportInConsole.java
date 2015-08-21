@@ -10,7 +10,7 @@
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
  *   * Anya Helene Bagge - anya@ii.uib.no - UiB
  *******************************************************************************/
-package org.rascalmpl.eclipse.perspective.actions;
+package org.rascalmpl.eclipse.actions;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.imp.editor.UniversalEditor;
