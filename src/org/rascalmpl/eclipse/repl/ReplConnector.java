@@ -9,6 +9,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import jline.Terminal;
+import jline.TerminalFactory;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -36,9 +39,6 @@ import org.rascalmpl.uri.LinkDetector;
 import org.rascalmpl.uri.LinkDetector.Type;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
-
-import jline.Terminal;
-import jline.TerminalFactory;
 
 @SuppressWarnings("restriction")
 public class ReplConnector extends TerminalConnectorImpl {
@@ -142,7 +142,7 @@ public class ReplConnector extends TerminalConnectorImpl {
         Thread t = new Thread() {
             public void run() {
                 try {
-                    shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, tm) {
+                    shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, /* getHistoryFile(), */ tm) {
                         @Override
                         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
                             IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
