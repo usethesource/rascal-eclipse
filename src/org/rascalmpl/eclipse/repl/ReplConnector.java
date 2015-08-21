@@ -228,6 +228,12 @@ public class ReplConnector extends TerminalConnectorImpl {
     protected void doDisconnect() {
         super.doDisconnect();
         if (shell != null) {
+            try {
+              stdIn.close();
+            }
+            catch (IOException e) {
+              e.printStackTrace();
+            }
             shell.stop();
             shell = null;
         }

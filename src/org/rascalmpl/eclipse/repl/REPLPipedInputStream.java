@@ -3,16 +3,19 @@ package org.rascalmpl.eclipse.repl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class REPLPipedInputStream extends InputStream {
   
   private final ConcurrentLinkedQueue<Byte> queue;
-  private final AtomicBoolean closed;
+  private volatile boolean closed;
+  private final Semaphore newData = new Semaphore(0);
 
   public REPLPipedInputStream() {
     this.queue = new ConcurrentLinkedQueue<Byte>();
-    this.closed = new AtomicBoolean(false);
+    this.closed = false;
   }
   
   @Override
@@ -50,13 +53,13 @@ public class REPLPipedInputStream extends InputStream {
   public int read() throws IOException {
     Byte result = null;
     while ((result = queue.poll()) == null) {
-     if (closed.get()) {
-       return -1;
-     }
      try {
-       Thread.sleep(10);
+       newData.tryAcquire(10, TimeUnit.MILLISECONDS);
      }
      catch (InterruptedException e) {
+       return -1;
+     }
+     if (closed) {
        return -1;
      }
     }
@@ -65,16 +68,18 @@ public class REPLPipedInputStream extends InputStream {
 
   @Override
   public void close() throws IOException {
-    closed.set(true);
+    closed = true;
   }
   
   public void write(byte[] b, int off, int len) {
     for (int i = off; i < off + len; i++) {
      queue.add(b[i]); 
     }
+    newData.release();
   }
   public void write(byte b) {
-     queue.add(b); 
+    queue.add(b); 
+    newData.release();
   }
 
 }
