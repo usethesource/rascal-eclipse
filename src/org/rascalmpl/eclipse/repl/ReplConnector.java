@@ -166,6 +166,21 @@ public class ReplConnector extends TerminalConnectorImpl {
 
     }
 
+    public char ctrl(char ch) {
+      assert 'A' <= ch && ch <= 'Z'; 
+      return (char)((((int)ch) - 'A') + 1);
+    }
+
+    public void queueCommands(String commands) {
+      shell.queueCommand(commands);
+      try {
+        // let's flush it
+        stdInUI.write(new byte[]{(byte)ctrl('K'),(byte)ctrl('U'),(byte)'\n'});
+      }
+      catch (IOException e) {
+      }
+    }
+
     private Terminal configure(ITerminalControl control) {
         Terminal tm = TerminalFactory.get();
         tm.setEchoEnabled(false);
