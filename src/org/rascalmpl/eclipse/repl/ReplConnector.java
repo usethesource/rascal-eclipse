@@ -31,6 +31,7 @@ import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnect
 import org.eclipse.tm.internal.terminal.textcanvas.ITextCanvasModel;
 import org.eclipse.tm.internal.terminal.textcanvas.TextCanvas;
 import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
+import org.eclipse.tm.terminal.view.ui.launcher.LauncherDelegateManager;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
@@ -139,6 +140,8 @@ public class ReplConnector extends TerminalConnectorImpl {
 
         control.setState(TerminalState.CONNECTING);
 
+        ReplManager.getInstance().register(this);
+        
         Thread t = new Thread() {
             public void run() {
                 try {
@@ -266,10 +269,23 @@ public class ReplConnector extends TerminalConnectorImpl {
             shell.stop();
             shell = null;
         }
+        ReplManager.getInstance().unregister(this);
     }
 
+    public void setFocus() {
+        ((VT100TerminalControl)fControl).setFocus();
+    }
+    
     @Override
     public String getSettingsSummary() {
         return project != null ? "REPL for " + project : "no project associated";
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public void queueCommand(String cmd) {
+        shell.queueCommand(cmd);
     }
 }

@@ -93,6 +93,8 @@ public class LauncherDelegate extends AbstractLauncherDelegate {
 			}
 		}
 		
+		
+		
 		conn.load(store);
 		return conn;
 	}

@@ -12,12 +12,8 @@
 package org.rascalmpl.eclipse.actions;
 
 import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.IConsoleManager;
-import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.console.ConsoleFactory;
-import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
+import org.rascalmpl.eclipse.repl.ReplConnector;
+import org.rascalmpl.eclipse.repl.ReplManager;
 
 public class CopyToConsole extends AbstractEditorAction {
 	
@@ -28,19 +24,11 @@ public class CopyToConsole extends AbstractEditorAction {
 	@Override
 	public void run() {
 		String cmd = editor.getSelectionText();
-		IConsoleManager man = ConsolePlugin.getDefault().getConsoleManager();
 		
-		for (IConsole console : man.getConsoles()) {
-			if (console.getType().equals(ConsoleFactory.INTERACTIVE_CONSOLE_ID)) {
-				IRascalConsole rascal = (IRascalConsole) console;
-
-				try {
-					rascal.activate();
-					rascal.executeCommand(cmd);
-				} catch (Throwable e) {
-					Activator.getInstance().logException("copyToConsole", e);
-				}
-			}
+		ReplConnector connector = ReplManager.getInstance().findByProject(editor.getParseController().getProject().getRawProject().getName());
+		if (connector != null) {
+		    connector.queueCommand(cmd);
+		    connector.setFocus();
 		}
 	}
 }
