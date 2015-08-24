@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 
 import jline.Terminal;
 import jline.TerminalFactory;
@@ -31,7 +33,6 @@ import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnect
 import org.eclipse.tm.internal.terminal.textcanvas.ITextCanvasModel;
 import org.eclipse.tm.internal.terminal.textcanvas.TextCanvas;
 import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
-import org.eclipse.tm.terminal.view.ui.launcher.LauncherDelegateManager;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
@@ -191,6 +192,12 @@ public class ReplConnector extends TerminalConnectorImpl {
         VT100Emulator text = ((VT100TerminalControl)control).getTerminalText();
         text.setCrAfterNewLine(true);
         ((VT100TerminalControl)control).setBufferLineLimit(10_000);
+        try {
+          control.setEncoding(StandardCharsets.UTF_8.name());
+        }
+        catch (UnsupportedEncodingException e) {
+          throw new RuntimeException("UTF8 not available???", e);
+        }
         return tm;
     }
 
