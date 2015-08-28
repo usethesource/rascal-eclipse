@@ -5,7 +5,11 @@ import java.util.Map;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalConnector;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalConnectorExtension;
@@ -37,7 +41,20 @@ public class RascalLauncherDelegate extends AbstractLauncherDelegate {
 
 			@Override
 			public void setupPanel(Composite parent) {
-				// TODO Auto-generated method stub
+			  Composite panel = new Composite(parent, SWT.NONE);
+			  panel.setLayout(new GridLayout());
+			  panel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+
+			  // Fill the rest of the panel with a label to be able to
+			  // set a height and width hint for the dialog
+			  Label label = new Label(panel, SWT.HORIZONTAL);
+			  GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+			  layoutData.widthHint = 300;
+			  layoutData.heightHint = 80;
+			  label.setLayoutData(layoutData);
+
+			  setControl(panel);
 
 			}
 
