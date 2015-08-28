@@ -245,6 +245,15 @@
       </launchConfigurationTabGroup>
    </extension>
    <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="org.rascalmpl.eclipse.repl.JavaTerminalTabGroup"
+            description="Specify and launch a Java program in a terminal"
+            id="rascal.repl.tabGroup"
+            type="rascal-eclipse.java.terminal">
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
             icon="icons/rascal3D_2-16px.gif"
@@ -266,6 +275,27 @@
                   <iterate>
                      <test
                            value="*.rsc"
+                           property="org.eclipse.debug.ui.matchesPattern"/>
+                  </iterate>
+               </with>
+            </enablement>
+         </contextualLaunch>
+      </shortcut>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            label="Java Terminal"
+            class="org.rascalmpl.eclipse.repl.JavaTerminalLaunchShortcut"
+            modes="run, debug"
+            id="rascal.replJavaShortcut">
+         <contextualLaunch>
+            <enablement>
+               <with variable="selection">
+                  <count value="1"/>
+                  <iterate>
+                     <test
+                           value="*.java"
                            property="org.eclipse.debug.ui.matchesPattern"/>
                   </iterate>
                </with>
@@ -1002,5 +1032,16 @@
             class="org.rascalmpl.eclipse.commands.ReplLaunchHandler"
             commandId="org.rascalmpl.eclipse.repl.command.launch">
       </handler>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="org.rascalmpl.eclipse.repl.JavaTerminalLauncher"
+            delegateDescription="Run Java main commandline program in a VT100 terminal"
+            delegateName="Run as REPL"
+            id="rascal-eclipse.java.terminal"
+            modes="run, debug"
+            name="Run in terminal">
+      </launchConfigurationType>
    </extension>
 </plugin>
