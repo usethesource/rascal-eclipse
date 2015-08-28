@@ -1007,7 +1007,7 @@
    <extension
          point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
       <delegate
-            class="org.rascalmpl.eclipse.repl.LauncherDelegate"
+            class="org.rascalmpl.eclipse.repl.RascalLauncherDelegate"
             id="org.rascalmpl.eclipse.repl.launcher"
             label="Rascal REPL">
       </delegate>
