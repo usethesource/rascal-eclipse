@@ -20,9 +20,9 @@ import org.eclipse.tm.terminal.view.ui.launcher.AbstractLauncherDelegate;
 import org.eclipse.tm.terminal.view.ui.panels.AbstractExtendedConfigurationPanel;
 
 @SuppressWarnings("restriction")
-public class LauncherDelegate extends AbstractLauncherDelegate {
+public class RascalLauncherDelegate extends AbstractLauncherDelegate {
 
-	public LauncherDelegate() {
+	public RascalLauncherDelegate() {
 		// TODO Auto-generated constructor stub
 	}
 
