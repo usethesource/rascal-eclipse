@@ -6,6 +6,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.JavaLaunchDelegate;
+import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 
 public class JavaTerminalLauncher extends JavaLaunchDelegate implements ILaunchConfigurationDelegate {
 
@@ -13,16 +14,16 @@ public class JavaTerminalLauncher extends JavaLaunchDelegate implements ILaunchC
     @Override
     public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor)
             throws CoreException {
-        launch.getProcesses()[0].getStreamsProxy();
+        JavaTerminalConnector connector = (JavaTerminalConnector) configuration.getAttributes().get("connector");
+        
+        connector.getControl().setState(TerminalState.CONNECTED);
+        
         // TODO: somehow connect a terminal here
         super.launch(configuration, mode, launch, monitor);
+        
+        
+        launch.getProcesses()[0].getStreamsProxy();
     }
     
-    @Override
-    public boolean preLaunchCheck(ILaunchConfiguration configuration, String mode, IProgressMonitor monitor)
-            throws CoreException {
-        // TODO Auto-generated method stub
-        return super.preLaunchCheck(configuration, mode, monitor);
-    }
 
 }

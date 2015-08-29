@@ -1003,14 +1003,29 @@
             id="rascal-eclipse.connector1"
             name="Rascal REPL">
       </connector>
-   </extension>
+   </extension><!--
+    <extension
+         point="org.eclipse.tm.terminal.control.connectors">
+      <connector
+            class="org.rascalmpl.eclipse.repl.JavaTerminalConnector"
+            hidden="false"
+            id="rascal-eclipse.java.connector"
+            name="Java Terminal">
+      </connector>
+   </extension> -->
    <extension
          point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
       <delegate
-            class="org.rascalmpl.eclipse.repl.RascalLauncherDelegate"
-            id="org.rascalmpl.eclipse.repl.launcher"
-            label="Rascal REPL">
+            class="org.rascalmpl.eclipse.repl.JavaLauncherDelegate"
+            id="org.rascalmpl.eclipse.xxx.launcher"
+            label="Java REPL">
       </delegate>
+      <!--
+      <delegate
+            class="org.rascalmpl.eclipse.repl.JavaLauncherDelegate"
+            id="org.rascalmpl.eclipse.java.launcher"
+            label="Java Terminal">
+      </delegate> -->
    </extension>
    <extension point="org.eclipse.ui.commands">
       <command
@@ -1033,7 +1048,7 @@
             commandId="org.rascalmpl.eclipse.repl.command.launch">
       </handler>
    </extension>
-   <extension
+  <!-- <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
             delegate="org.rascalmpl.eclipse.repl.JavaTerminalLauncher"
@@ -1043,5 +1058,5 @@
             modes="run, debug"
             name="Run in terminal">
       </launchConfigurationType>
-   </extension>
+   </extension> -->
 </plugin>

@@ -24,8 +24,8 @@ public class CopyToConsole extends AbstractEditorAction {
 	@Override
 	public void run() {
 		String cmd = editor.getSelectionText();
-		
-		ReplConnector connector = ReplManager.getInstance().findByProject(editor.getParseController().getProject().getRawProject().getName());
+		String projectName = editor.getParseController().getProject().getRawProject().getName();
+        ReplConnector connector = ReplManager.getInstance().findByProject(projectName);
 		if (connector != null) {
 		    connector.queueCommand(cmd);
 		    connector.setFocus();
