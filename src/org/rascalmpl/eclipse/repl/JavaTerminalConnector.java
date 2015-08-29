@@ -64,6 +64,24 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
         ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         ILaunchConfigurationType type = launchManager.getLaunchConfigurationType("rascal-eclipse.java.terminal");
         
+        // this code can find existing launch configs.
+        
+//      try {
+//      ILaunchConfiguration[] configurations = launchManager.getLaunchConfigurations(type);
+//      for (int i = 0; i < configurations.length; i++) {
+//          ILaunchConfiguration configuration = configurations[i];
+//          String attribute = configuration.getAttribute("class", (String)null);
+//          if (resourceFullPath.equals(attribute)) {
+//              DebugUITools.launch(configuration, mode);
+//              return;
+//          }
+//      }
+//  } catch (CoreException e) {
+//      IStatus message = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
+//      Activator.getInstance().getLog().log(message);
+//      return;
+//  }
+//  
         try {
             // create a new configuration for the rascal file
             ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null,  file);

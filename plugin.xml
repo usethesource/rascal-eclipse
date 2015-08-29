@@ -245,15 +245,6 @@
       </launchConfigurationTabGroup>
    </extension>
    <extension
-         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
-      <launchConfigurationTabGroup
-            class="org.rascalmpl.eclipse.repl.JavaTerminalTabGroup"
-            description="Specify and launch a Java program in a terminal"
-            id="rascal.repl.tabGroup"
-            type="rascal-eclipse.java.terminal">
-      </launchConfigurationTabGroup>
-   </extension>
-   <extension
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
             icon="icons/rascal3D_2-16px.gif"
@@ -282,27 +273,7 @@
          </contextualLaunch>
       </shortcut>
    </extension>
-   <extension
-         point="org.eclipse.debug.ui.launchShortcuts">
-      <shortcut
-            label="Java Terminal"
-            class="org.rascalmpl.eclipse.repl.JavaTerminalLaunchShortcut"
-            modes="run, debug"
-            id="rascal.replJavaShortcut">
-         <contextualLaunch>
-            <enablement>
-               <with variable="selection">
-                  <count value="1"/>
-                  <iterate>
-                     <test
-                           value="*.java"
-                           property="org.eclipse.debug.ui.matchesPattern"/>
-                  </iterate>
-               </with>
-            </enablement>
-         </contextualLaunch>
-      </shortcut>
-   </extension>
+  
      <extension
          point="org.eclipse.debug.ui.debugModelPresentations">
       <debugModelPresentation
@@ -1003,7 +974,7 @@
             id="rascal-eclipse.connector1"
             name="Rascal REPL">
       </connector>
-   </extension><!--
+   </extension>
     <extension
          point="org.eclipse.tm.terminal.control.connectors">
       <connector
@@ -1012,7 +983,7 @@
             id="rascal-eclipse.java.connector"
             name="Java Terminal">
       </connector>
-   </extension> -->
+   </extension> 
    <extension
          point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
       <delegate
@@ -1020,12 +991,11 @@
             id="org.rascalmpl.eclipse.xxx.launcher"
             label="Java REPL">
       </delegate>
-      <!--
       <delegate
             class="org.rascalmpl.eclipse.repl.JavaLauncherDelegate"
             id="org.rascalmpl.eclipse.java.launcher"
             label="Java Terminal">
-      </delegate> -->
+      </delegate> 
    </extension>
    <extension point="org.eclipse.ui.commands">
       <command
@@ -1048,15 +1018,4 @@
             commandId="org.rascalmpl.eclipse.repl.command.launch">
       </handler>
    </extension>
-  <!-- <extension
-         point="org.eclipse.debug.core.launchConfigurationTypes">
-      <launchConfigurationType
-            delegate="org.rascalmpl.eclipse.repl.JavaTerminalLauncher"
-            delegateDescription="Run Java main commandline program in a VT100 terminal"
-            delegateName="Run as REPL"
-            id="rascal-eclipse.java.terminal"
-            modes="run, debug"
-            name="Run in terminal">
-      </launchConfigurationType>
-   </extension> -->
 </plugin>

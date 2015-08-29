@@ -3,7 +3,6 @@ package org.rascalmpl.eclipse.repl;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
@@ -89,7 +88,6 @@ public class JavaLauncherDelegate extends AbstractLauncherDelegate {
 		if (terminal != null) {
 			terminal.openConsole(properties, done);
 		}
-
 	}
 
 	@Override
