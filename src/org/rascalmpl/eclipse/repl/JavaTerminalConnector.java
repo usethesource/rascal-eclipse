@@ -34,7 +34,6 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
         return stdInUI;
     }
 
-    private REPLPipedInputStream stdIn;
     private OutputStream stdInUI;
     private String file;
     private ILaunchConfiguration config;
@@ -61,9 +60,6 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
     public void connect(ITerminalControl control) {
         super.connect(control);
         Terminal tm = configure(control);
-        
-        stdIn = new REPLPipedInputStream();
-        stdInUI = new REPLPipedOutputStream(stdIn);
 
         control.setState(TerminalState.CONNECTING);
         
@@ -73,18 +69,40 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
             ILaunchConfiguration configuration = workingCopy.doSave();
             ILaunch launch = configuration.launch("run", new NullProgressMonitor(), true /*build first*/);
             
-            IStreamsProxy streamsProxy = launch.getProcesses()[0].getStreamsProxy();
-            
-            streamsProxy.getOutputStreamMonitor().addListener(new IStreamListener() {
+
+            if (launch.getProcesses().length == 1) {
+              final IStreamsProxy proxy = launch.getProcesses()[0].getStreamsProxy();
+              stdInUI = new OutputStream() {
+                //private final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
+                @Override
+                public void write(int b) throws IOException {
+                  // todo handle multi byte utf8 stuff (anything not ASCII breaks here)
+                  proxy.write(new String(new byte[]{(byte)b}, StandardCharsets.UTF_8));
+                }
+                @Override
+                public void write(byte[] b, int off, int len) throws IOException {
+                  proxy.write(new String(b, off, len, StandardCharsets.UTF_8));
+                }
+                @Override
+                public void write(byte[] b) throws IOException {
+                  write(b, 0, b.length);
+                }
+
+              };
+              proxy.getOutputStreamMonitor().addListener(new IStreamListener() {
+                
                 @Override
                 public void streamAppended(String text, IStreamMonitor monitor) {
-                    try {
-                        stdInUI.write(text.getBytes());
-                    } catch (IOException e) {
-                        // does not happen
-                    }
+                  try {
+                    control.getRemoteToTerminalOutputStream().write(text.getBytes(StandardCharsets.UTF_8));
+                  }
+                  catch (IOException e) {
+                    e.printStackTrace();
+                  }
                 }
-            });
+              });
+              
+            }
             control.setState(TerminalState.CONNECTED);
         } catch (CoreException e1) {
             Activator.log(e1.getMessage(), e1);
@@ -126,4 +144,5 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
     public String getSettingsSummary() {
         return file != null ? "Running Java program " + file : "no file associated";
     }
+
 }
