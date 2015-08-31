@@ -1,13 +1,19 @@
 package org.rascalmpl.eclipse.repl;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.IStreamListener;
+import org.eclipse.debug.core.model.IStreamMonitor;
+import org.eclipse.debug.core.model.IStreamsProxy;
+import org.eclipse.debug.internal.ui.DebugUIPlugin;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.tm.internal.terminal.emulator.VT100Emulator;
 import org.eclipse.tm.internal.terminal.emulator.VT100TerminalControl;
@@ -65,7 +71,20 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
             // create a new configuration for the rascal file
             ILaunchConfigurationWorkingCopy workingCopy = config.getWorkingCopy();
             ILaunchConfiguration configuration = workingCopy.doSave();
-            DebugUITools.launch(configuration, "run");
+            ILaunch launch = configuration.launch("run", new NullProgressMonitor(), true /*build first*/);
+            
+            IStreamsProxy streamsProxy = launch.getProcesses()[0].getStreamsProxy();
+            
+            streamsProxy.getOutputStreamMonitor().addListener(new IStreamListener() {
+                @Override
+                public void streamAppended(String text, IStreamMonitor monitor) {
+                    try {
+                        stdInUI.write(text.getBytes());
+                    } catch (IOException e) {
+                        // does not happen
+                    }
+                }
+            });
             control.setState(TerminalState.CONNECTED);
         } catch (CoreException e1) {
             Activator.log(e1.getMessage(), e1);
