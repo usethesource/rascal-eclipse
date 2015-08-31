@@ -4,17 +4,11 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.tm.internal.terminal.emulator.VT100Emulator;
 import org.eclipse.tm.internal.terminal.emulator.VT100TerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
@@ -33,14 +27,12 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
     public OutputStream getTerminalToRemoteStream() {
         return stdInUI;
     }
-   public JavaTerminalConnector() {
-       System.err.println("Jello");
-   }
 
     private REPLPipedInputStream stdIn;
     private OutputStream stdInUI;
     private String file;
-
+    private ILaunchConfiguration config;
+    
     @Override
     public boolean isLocalEcho() {
         return false;
@@ -48,7 +40,15 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
 
     @Override
     public void load(ISettingsStore store) {
-        this.file = store.get("file");
+        String label = store.get("launchConfiguration");
+        
+        if (label != null) {
+            for (ILaunchConfiguration config : JavaLauncherDelegate.getJavaLaunchConfigs()) {
+                if (config.getName().equals(label)) {
+                    this.config = config;
+                }
+            }
+        }
     }
 
     @Override
@@ -61,37 +61,15 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
 
         control.setState(TerminalState.CONNECTING);
         
-        ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-        ILaunchConfigurationType type = launchManager.getLaunchConfigurationType("rascal-eclipse.java.terminal");
-        
-        // this code can find existing launch configs.
-        
-//      try {
-//      ILaunchConfiguration[] configurations = launchManager.getLaunchConfigurations(type);
-//      for (int i = 0; i < configurations.length; i++) {
-//          ILaunchConfiguration configuration = configurations[i];
-//          String attribute = configuration.getAttribute("class", (String)null);
-//          if (resourceFullPath.equals(attribute)) {
-//              DebugUITools.launch(configuration, mode);
-//              return;
-//          }
-//      }
-//  } catch (CoreException e) {
-//      IStatus message = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
-//      Activator.getInstance().getLog().log(message);
-//      return;
-//  }
-//  
         try {
             // create a new configuration for the rascal file
-            ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null,  file);
-            workingCopy.setAttribute("class", file);
+            ILaunchConfigurationWorkingCopy workingCopy = config.getWorkingCopy();
             ILaunchConfiguration configuration = workingCopy.doSave();
-            configuration.getAttributes().put("connector", this);
             DebugUITools.launch(configuration, "run");
+            control.setState(TerminalState.CONNECTED);
         } catch (CoreException e1) {
-            IStatus message = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e1.getMessage(), e1);
-            Activator.getInstance().getLog().log(message);
+            Activator.log(e1.getMessage(), e1);
+            control.setState(TerminalState.CLOSED);
         }
     }
 
@@ -122,7 +100,7 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
     }
 
     public void setFocus() {
-        ((VT100TerminalControl)fControl).setFocus();
+        ((VT100TerminalControl) fControl).setFocus();
     }
     
     @Override
