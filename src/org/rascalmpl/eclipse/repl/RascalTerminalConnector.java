@@ -284,18 +284,21 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
 
     @Override
     protected void doDisconnect() {
-        super.doDisconnect();
-        if (shell != null) {
-            try {
-              stdIn.close();
+        try {
+            super.doDisconnect();
+            if (shell != null) {
+                try {
+                    stdIn.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                shell.stop();
+                shell = null;
             }
-            catch (IOException e) {
-              e.printStackTrace();
-            }
-            shell.stop();
-            shell = null;
+        } finally {
+            ReplManager.getInstance().unregister(this);
         }
-        ReplManager.getInstance().unregister(this);
     }
 
     public void setFocus() {
