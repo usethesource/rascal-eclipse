@@ -36,6 +36,8 @@ import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.uri.LinkDetector;
 import org.rascalmpl.uri.LinkDetector.Type;
@@ -104,6 +106,8 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
     private REPLPipedInputStream stdIn;
     private OutputStream stdInUI;
     private String project;
+    private String module;
+    private String mode;
 
     @Override
     public boolean isLocalEcho() {
@@ -113,6 +117,8 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
     @Override
     public void load(ISettingsStore store) {
         this.project = store.get("project");
+        this.module = store.get("module");
+        this.mode = store.get("mode");
     }
 
     private File getHistoryFile() throws IOException {
@@ -150,7 +156,20 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                         @Override
                         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
                             IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
-                            return ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
+                            Evaluator eval = ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
+                            
+                            if (module != null) {
+                                eval.doImport(null, module);
+                                Result<IValue> mainFunc = eval.getCurrentEnvt().getVariable("main");
+
+                                // do not move this queue before the mainFunc initializer
+                                super.queueCommand("import " + module + ";");
+                                if (mainFunc != null && mainFunc instanceof ICallableValue) {
+                                    super.queueCommand("main()");
+                                }
+                            }
+                            
+                            return eval;
                         }
                         public char ctrl(char ch) {
                           assert 'A' <= ch && ch <= 'Z'; 

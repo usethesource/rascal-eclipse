@@ -24,6 +24,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
+import org.rascalmpl.eclipse.commands.ReplLaunchHandler;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
@@ -36,53 +37,40 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 		LaunchConfigurationPropertyCache configurationUtility = new LaunchConfigurationPropertyCache(configuration);
+		String moduleFullName = null;
 		
-		/*
-		 * Launching console in either run or debug configuration
-		 */
-		ConsoleFactory consoleFactory = ConsoleFactory.getInstance();
-		IRascalConsole console = null;
+		if(configurationUtility.hasPathOfMainModule()) {
+            // FIXME: centralize URI schema <-> module / file name conversion.
+            // construct the corresponding module name
+            int index = configurationUtility.getPathOfMainModule().indexOf('/', 1);
+            moduleFullName = configurationUtility.getPathOfMainModule().substring(index+1);
+            
+            if (moduleFullName.startsWith("src/org/rascalmpl/library/")) {
+                moduleFullName = moduleFullName.replaceFirst("src/org/rascalmpl/library/", ""); 
+            } 
+            else if(moduleFullName.startsWith("src/")) {
+                moduleFullName = moduleFullName.replaceFirst("src/", "");       
+            } 
+            else if(moduleFullName.startsWith("std/")) {
+                moduleFullName = moduleFullName.replaceFirst("std/", "");
+            }
+            moduleFullName = moduleFullName.replaceAll("/", "::");
+            moduleFullName = moduleFullName.substring(0, moduleFullName.length()-Configuration.RASCAL_FILE_EXT.length());
+        }
 		
-		if (mode.equals(ILaunchManager.RUN_MODE)) {
-	
-			if (configurationUtility.hasAssociatedProject()) {
-				console = consoleFactory.openRunConsole(configurationUtility.getAssociatedProject());
-			} else {
-				console = consoleFactory.openRunConsole();				
-			}
+		if (configurationUtility.hasAssociatedProject()) {
+		    ReplLaunchHandler.terminalForProject(configurationUtility.getAssociatedProject().getName(), mode, moduleFullName);
+		} else {
+		    ReplLaunchHandler.terminalForProject(null, "run", moduleFullName);
+		}
+			
 
-			// create a new run session
-			IProcess runProcess = new RascalConsoleProcess(launch, console.getEventTrigger(), console);			
-			launch.addProcess(runProcess);
 		
-			/*
-			 * TODO: Sending of an additional creation event here instead of in
-			 * runtime. Hidden chicken / egg problem: The runtime sends the
-			 * event before the debug model registers with a listener. But the
-			 * the event trigger that takes subscriptions from the debug model
-			 * still has to be created.
-			 * See {@link RascalScriptInterpreter#initialize(Evaluator)}.
-			 * 
-			 * TODO: Use publish/subscribe infrastructure?!
-			 */			
-			console.getEventTrigger().fireCreationEvent();
-			
-		} else if (mode.equals(ILaunchManager.DEBUG_MODE)) {
-			
-			if (configurationUtility.hasAssociatedProject()) {
-				console = consoleFactory.openDebuggableConsole(configurationUtility.getAssociatedProject());
-				
-			} else {
-				console = consoleFactory.openDebuggableConsole();				
-			}
-			
-			
-			
 			// create a new debug session
-			RascalDebugTarget debugTarget = new RascalDebugTarget(launch,
-					console.getEventTrigger(), console.getDebugHandler());
-			debugTarget.setConsole(console);
-			launch.addDebugTarget(debugTarget);
+//			RascalDebugTarget debugTarget = new RascalDebugTarget(launch,
+//					console.getEventTrigger(), console.getDebugHandler());
+//			debugTarget.setConsole(console);
+//			launch.addDebugTarget(debugTarget);
 
 			/*
 			 * TODO: Sending of an additional creation event here instead of in
@@ -94,39 +82,13 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 			 * 
 			 * TODO: Use publish/subscribe infrastructure?!
 			 */
-			console.getEventTrigger().fireCreationEvent();
+//			console.getEventTrigger().fireCreationEvent();
 			
-		} else {
-			throw new RuntimeException("Unknown or unsupported launch mode: " + mode);
-		}
-		
-		assert console != null;
-		
 		
 		/* 
 		 * If a main module is present, import it and launch its main() function.
 		 */
-		if(configurationUtility.hasPathOfMainModule()) {
-			
-			// FIXME: centralize URI schema <-> module / file name conversion.
-			// construct the corresponding module name
-			int index = configurationUtility.getPathOfMainModule().indexOf('/', 1);
-			String moduleFullName = configurationUtility.getPathOfMainModule().substring(index+1);
-			if(moduleFullName.startsWith("src/org/rascalmpl/library/")) {
-				moduleFullName = moduleFullName.replaceFirst("src/org/rascalmpl/library/", "");	
-			} else if(moduleFullName.startsWith("src/")) {
-				moduleFullName = moduleFullName.replaceFirst("src/", "");		
-			} else if(moduleFullName.startsWith("std/")) {
-				moduleFullName = moduleFullName.replaceFirst("std/", "");
-			}
-			moduleFullName = moduleFullName.replaceAll("/", "::");
-			moduleFullName = moduleFullName.substring(0, moduleFullName.length()-Configuration.RASCAL_FILE_EXT.length());
-
-			console.activate();
-			console.executeCommand("import " + moduleFullName + ";");
-			console.executeCommand("main();");
-			
-		}
+		
 		
 	}
 	

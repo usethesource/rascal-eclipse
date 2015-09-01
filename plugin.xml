@@ -952,7 +952,7 @@
                id="rascal-eclipse.toolbar1">
             <command
                   commandId="org.rascalmpl.eclipse.repl.command.launch"
-                  label="Rascal REPL"
+                  label="Rascal Terminal"
                   style="push">
             </command>
          </toolbar>
@@ -988,7 +988,7 @@
          point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
       <delegate
             class="org.rascalmpl.eclipse.repl.RascalLauncherDelegate"
-            id="org.rascalmpl.eclipse.xxx.launcher"
+            id="org.rascalmpl.eclipse.rascal.launcher"
             label="Rascal Terminal">
       </delegate>
       <delegate
