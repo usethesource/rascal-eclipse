@@ -15,7 +15,9 @@ import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.debug.core.model.IStreamsProxy;
 import org.eclipse.debug.internal.ui.DebugUIPlugin;
+import org.eclipse.debug.internal.ui.preferences.IDebugPreferenceConstants;
 import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.tm.internal.terminal.emulator.VT100Emulator;
 import org.eclipse.tm.internal.terminal.emulator.VT100TerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
@@ -65,11 +67,18 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
         control.setState(TerminalState.CONNECTING);
 
         try {
-          // create a new configuration for the rascal file
           ILaunchConfigurationWorkingCopy workingCopy = config.getWorkingCopy();
+          
+          // this is necessary to enable the test for ATTR_CAPTURE_IN_FILE:
+          workingCopy.setAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_FILE, System.getProperty("os.name").startsWith("Windows") ? "NUL:" : "/dev/null");
+          
+          // this makes sure the terminal does not echo the characters to the normal console as well:
+          workingCopy.setAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, false);
+          
           ILaunchConfiguration configuration = workingCopy.doSave();
-          launch = configuration.launch("run", new NullProgressMonitor(), true /*build first*/, false /*don't register*/);
+          launch = configuration.launch("debug", new NullProgressMonitor(), true /*build first*/, true /*do register for debug*/);
 
+          
           if (launch.getProcesses().length == 1) {
             final IStreamsProxy proxy = launch.getProcesses()[0].getStreamsProxy();
             stdInUI = new OutputStream() {
