@@ -13,19 +13,19 @@ public class ReplManager {
         return Instance.manager;
     }
     
-    private static final List<ReplConnector> connectors = new LinkedList<>();
+    private static final List<RascalTerminalConnector> connectors = new LinkedList<>();
     
-    public void register(ReplConnector connector) {
+    public void register(RascalTerminalConnector connector) {
         if (!connectors.contains(connector)) {
             connectors.add(connector);
         }
     }
     
-    public void unregister(ReplConnector connector) {
+    public void unregister(RascalTerminalConnector connector) {
         connectors.remove(connector);
     }
     
-    public ReplConnector findByProject(String project) {
+    public RascalTerminalConnector findByProject(String project) {
         assert project != null;
         return connectors.stream().filter(x -> project.equals(x.getProject())).findFirst().orElse(null);
     }

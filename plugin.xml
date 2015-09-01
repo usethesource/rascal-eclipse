@@ -969,10 +969,10 @@
    <extension
          point="org.eclipse.tm.terminal.control.connectors">
       <connector
-            class="org.rascalmpl.eclipse.repl.ReplConnector"
+            class="org.rascalmpl.eclipse.repl.RascalTerminalConnector"
             hidden="false"
             id="rascal-eclipse.connector1"
-            name="Rascal REPL">
+            name="Rascal Terminal">
       </connector>
    </extension>
     <extension
@@ -987,9 +987,9 @@
    <extension
          point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
       <delegate
-            class="org.rascalmpl.eclipse.repl.JavaLauncherDelegate"
+            class="org.rascalmpl.eclipse.repl.RascalLauncherDelegate"
             id="org.rascalmpl.eclipse.xxx.launcher"
-            label="Java REPL">
+            label="Rascal Terminal">
       </delegate>
       <delegate
             class="org.rascalmpl.eclipse.repl.JavaLauncherDelegate"

@@ -43,7 +43,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 @SuppressWarnings("restriction")
-public class ReplConnector extends TerminalConnectorImpl {
+public class RascalTerminalConnector extends TerminalConnectorImpl {
 
     private static final class LinkMouseListener implements ITerminalMouseListener {
         private int currentLine = -1;

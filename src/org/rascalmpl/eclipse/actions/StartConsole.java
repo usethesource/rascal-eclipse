@@ -23,7 +23,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
-import org.rascalmpl.eclipse.repl.ReplConnector;
+import org.rascalmpl.eclipse.repl.RascalTerminalConnector;
 
 public class StartConsole extends AbstractEditorAction implements IWorkbenchWindowActionDelegate, IObjectActionDelegate, IViewActionDelegate {
 	public StartConsole() {

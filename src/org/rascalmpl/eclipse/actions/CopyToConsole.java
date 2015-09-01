@@ -12,7 +12,7 @@
 package org.rascalmpl.eclipse.actions;
 
 import org.eclipse.imp.editor.UniversalEditor;
-import org.rascalmpl.eclipse.repl.ReplConnector;
+import org.rascalmpl.eclipse.repl.RascalTerminalConnector;
 import org.rascalmpl.eclipse.repl.ReplManager;
 
 public class CopyToConsole extends AbstractEditorAction {
@@ -25,7 +25,7 @@ public class CopyToConsole extends AbstractEditorAction {
 	public void run() {
 		String cmd = editor.getSelectionText();
 		String projectName = editor.getParseController().getProject().getRawProject().getName();
-        ReplConnector connector = ReplManager.getInstance().findByProject(projectName);
+        RascalTerminalConnector connector = ReplManager.getInstance().findByProject(projectName);
 		if (connector != null) {
 		    connector.queueCommand(cmd);
 		    connector.setFocus();
