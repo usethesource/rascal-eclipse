@@ -2,7 +2,6 @@ package org.rascalmpl.eclipse.repl;
 
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -10,13 +9,9 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.debug.ui.DebugUITools;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -38,7 +33,8 @@ import org.rascalmpl.eclipse.Activator;
 
 @SuppressWarnings("restriction")
 public class JavaLauncherDelegate extends AbstractLauncherDelegate {
-    ILaunchConfiguration selected = null;
+    private String selected = null;
+    private String runMode = "run";
     
 	@Override
 	public boolean needsUserConfiguration() {
@@ -51,26 +47,48 @@ public class JavaLauncherDelegate extends AbstractLauncherDelegate {
             @Override
             public void setupPanel(Composite parent) {
               Composite panel = new Composite(parent, SWT.NONE);
-              panel.setLayout(new RowLayout());
-
+              panel.setLayout(new GridLayout(2, false));
+              
               // Fill the rest of the panel with a label to be able to
               // set a height and width hint for the dialog
               Label label = new Label(panel, SWT.HORIZONTAL);
-              label.setText("Choose a run configuration:");
+              label.setText("Run configuration:");
               
-              Combo configs = new Combo(panel, SWT.DROP_DOWN | SWT.BORDER);
+              Combo configs = new Combo(panel, SWT.DROP_DOWN | SWT.BORDER | SWT.READ_ONLY | SWT.FILL);
 
               ILaunchConfiguration[] launches = getJavaLaunchConfigs();
               for (ILaunchConfiguration config : launches) {
                   configs.add(config.getName());
               }
+              
+              if (selected != null && !selected.isEmpty()) {
+                  configs.setText(selected);
+              }
+              else if (launches.length > 0) {
+                  configs.setText(launches[0].getName());
+              }
 
               configs.addSelectionListener(new SelectionAdapter() {
                   public void widgetSelected(SelectionEvent e) {
-                      selected = launches[e.x];
+                      selected = ((Combo) e.getSource()).getText();
                   }
               });
 
+              Label modeLabel = new Label(panel, SWT.HORIZONTAL);
+              modeLabel.setText("Mode:");
+              
+              Combo mode = new Combo(panel, SWT.DROP_DOWN | SWT.BORDER  | SWT.READ_ONLY | SWT.FILL); 
+              mode.add("Run");
+              mode.add("Debug");
+              mode.setText("debug".equals(runMode) ? "Debug" : "Run");
+              
+              mode.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                      runMode = ((Combo) e.getSource()).getText().toLowerCase();
+                }
+              });
+              
               setControl(panel);
             }
             
@@ -93,7 +111,6 @@ public class JavaLauncherDelegate extends AbstractLauncherDelegate {
 	public void execute(Map<String, Object> properties, Done done) {
 		properties.put(ITerminalsConnectorConstants.PROP_TITLE, "Java Terminal");
 		properties.put(ITerminalsConnectorConstants.PROP_FORCE_NEW, Boolean.TRUE);
-		properties.put("launchConfiguration", selected);
 		ITerminalService terminal = TerminalServiceFactory.getService();
 		if (terminal != null) {
 			terminal.openConsole(properties, done);
@@ -117,7 +134,8 @@ public class JavaLauncherDelegate extends AbstractLauncherDelegate {
 	public ITerminalConnector createTerminalConnector(Map<String, Object> properties) {
 		ITerminalConnector conn = TerminalConnectorExtension.makeTerminalConnector("rascal-eclipse.java.connector");
 		ISettingsStore store = new SettingsStore();
-		store.put("launchConfiguration", selected.getName());
+		store.put("launchConfiguration", selected);
+		store.put("mode", runMode);
 		conn.load(store);
 		return conn;
 	}

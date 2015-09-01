@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
@@ -14,20 +13,15 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.debug.core.model.IStreamsProxy;
-import org.eclipse.debug.internal.ui.DebugUIPlugin;
-import org.eclipse.debug.internal.ui.preferences.IDebugPreferenceConstants;
-import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugUIConstants;
-import org.eclipse.tm.internal.terminal.emulator.VT100Emulator;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.tm.internal.terminal.emulator.VT100TerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnectorImpl;
+import org.eclipse.ui.internal.UIPlugin;
 import org.rascalmpl.eclipse.Activator;
-
-import jline.Terminal;
-import jline.TerminalFactory;
 
 @SuppressWarnings("restriction")
 public class JavaTerminalConnector extends TerminalConnectorImpl {
@@ -40,6 +34,7 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
     private OutputStream stdInUI;
     private String file;
     private ILaunchConfiguration config;
+    private String mode = "run";
     private ILaunch launch;
     
     @Override
@@ -58,6 +53,8 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
                 }
             }
         }
+        
+        mode = store.get("mode");
     }
 
     @Override
@@ -76,9 +73,9 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
           workingCopy.setAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, false);
           
           ILaunchConfiguration configuration = workingCopy.doSave();
-          launch = configuration.launch("debug", new NullProgressMonitor(), true /*build first*/, true /*do register for debug*/);
-
           
+          launch = configuration.launch(mode, new NullProgressMonitor(), true /*build first*/, true /*do register for debug*/);
+
           if (launch.getProcesses().length == 1) {
             final IStreamsProxy proxy = launch.getProcesses()[0].getStreamsProxy();
             stdInUI = new OutputStream() {
@@ -99,10 +96,20 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
 
             };
             proxy.getOutputStreamMonitor().addListener(new IStreamListener() {
-
+                private boolean firstPrint = true;
+                
               @Override
               public void streamAppended(String text, IStreamMonitor monitor) {
                 try {
+                    if (firstPrint) {
+                        Display.getDefault().asyncExec(new Runnable() {
+                            public void run() {
+                                setFocus();
+                            };
+                        });
+                        
+                        firstPrint = false;
+                    }
                   control.getRemoteToTerminalOutputStream().write(text.getBytes(StandardCharsets.UTF_8));
                 }
                 catch (IOException e) {
@@ -111,6 +118,7 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
               }
             });
             control.setState(TerminalState.CONNECTED);
+            setFocus();
           }
           else {
             control.setState(TerminalState.CLOSED);
