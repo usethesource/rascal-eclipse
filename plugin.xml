@@ -587,7 +587,7 @@
    </view>
    <view
          allowMultiple="false"
-         class="org.rascalmpl.eclipse.perspective.views.Tutor"
+         class="org.rascalmpl.eclipse.views.Tutor"
          icon="icons/rascal-tutor-small.png"
          id="rascal_eclipse.tutorBrowser"
          name="Tutor"

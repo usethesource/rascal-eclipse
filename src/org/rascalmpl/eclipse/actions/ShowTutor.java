@@ -6,7 +6,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PartInitException;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.perspective.views.Tutor;
+import org.rascalmpl.eclipse.views.Tutor;
 
 public class ShowTutor implements IWorkbenchWindowActionDelegate {
 	private IWorkbenchWindow activeWindow;

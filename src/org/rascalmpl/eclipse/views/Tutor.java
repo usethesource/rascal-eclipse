@@ -10,7 +10,7 @@
  *   * Various members of the Software Analysis and Transformation Group - CWI
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
  *******************************************************************************/
-package org.rascalmpl.eclipse.perspective.views;
+package org.rascalmpl.eclipse.views;
 
 import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_TUTOR_VIEW_PART;
 
