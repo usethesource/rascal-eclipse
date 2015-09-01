@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -37,6 +38,7 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
     private OutputStream stdInUI;
     private String file;
     private ILaunchConfiguration config;
+    private ILaunch launch;
     
     @Override
     public boolean isLocalEcho() {
@@ -59,54 +61,55 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
     @Override
     public void connect(ITerminalControl control) {
         super.connect(control);
-        Terminal tm = configure(control);
-
+        configure((VT100TerminalControl)control);
         control.setState(TerminalState.CONNECTING);
-        
+
         try {
-            // create a new configuration for the rascal file
-            ILaunchConfigurationWorkingCopy workingCopy = config.getWorkingCopy();
-            ILaunchConfiguration configuration = workingCopy.doSave();
-            ILaunch launch = configuration.launch("run", new NullProgressMonitor(), true /*build first*/);
-            
+          // create a new configuration for the rascal file
+          ILaunchConfigurationWorkingCopy workingCopy = config.getWorkingCopy();
+          ILaunchConfiguration configuration = workingCopy.doSave();
+          launch = configuration.launch("run", new NullProgressMonitor(), true /*build first*/, false /*don't register*/);
 
-            if (launch.getProcesses().length == 1) {
-              final IStreamsProxy proxy = launch.getProcesses()[0].getStreamsProxy();
-              stdInUI = new OutputStream() {
-                //private final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
-                @Override
-                public void write(int b) throws IOException {
-                  // todo handle multi byte utf8 stuff (anything not ASCII breaks here)
-                  proxy.write(new String(new byte[]{(byte)b}, StandardCharsets.UTF_8));
-                }
-                @Override
-                public void write(byte[] b, int off, int len) throws IOException {
-                  proxy.write(new String(b, off, len, StandardCharsets.UTF_8));
-                }
-                @Override
-                public void write(byte[] b) throws IOException {
-                  write(b, 0, b.length);
-                }
+          if (launch.getProcesses().length == 1) {
+            final IStreamsProxy proxy = launch.getProcesses()[0].getStreamsProxy();
+            stdInUI = new OutputStream() {
+              //private final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
+              @Override
+              public void write(int b) throws IOException {
+                // todo handle multi byte utf8 stuff (anything not ASCII breaks here)
+                proxy.write(new String(new byte[]{(byte)b}, StandardCharsets.UTF_8));
+              }
+              @Override
+              public void write(byte[] b, int off, int len) throws IOException {
+                proxy.write(new String(b, off, len, StandardCharsets.UTF_8));
+              }
+              @Override
+              public void write(byte[] b) throws IOException {
+                write(b, 0, b.length);
+              }
 
-              };
-              proxy.getOutputStreamMonitor().addListener(new IStreamListener() {
-                
-                @Override
-                public void streamAppended(String text, IStreamMonitor monitor) {
-                  try {
-                    control.getRemoteToTerminalOutputStream().write(text.getBytes(StandardCharsets.UTF_8));
-                  }
-                  catch (IOException e) {
-                    e.printStackTrace();
-                  }
+            };
+            proxy.getOutputStreamMonitor().addListener(new IStreamListener() {
+
+              @Override
+              public void streamAppended(String text, IStreamMonitor monitor) {
+                try {
+                  control.getRemoteToTerminalOutputStream().write(text.getBytes(StandardCharsets.UTF_8));
                 }
-              });
-              
-            }
+                catch (IOException e) {
+                  e.printStackTrace();
+                }
+              }
+            });
             control.setState(TerminalState.CONNECTED);
-        } catch (CoreException e1) {
-            Activator.log(e1.getMessage(), e1);
+          }
+          else {
             control.setState(TerminalState.CLOSED);
+          }
+        } 
+        catch (Throwable e1) {
+          Activator.log(e1.getMessage(), e1);
+          control.setState(TerminalState.CLOSED);
         }
     }
 
@@ -114,26 +117,31 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
         return fControl;
     }
 
-    private Terminal configure(ITerminalControl control) {
-        Terminal tm = TerminalFactory.get();
-        tm.setEchoEnabled(false);
+    private void configure(VT100TerminalControl control) {
+        control.setConnectOnEnterIfClosed(false);
         control.setVT100LineWrapping(false);
-        VT100Emulator text = ((VT100TerminalControl)control).getTerminalText();
-        text.setCrAfterNewLine(true);
-        ((VT100TerminalControl)control).setBufferLineLimit(10_000);
+        control.setBufferLineLimit(10_000);
         try {
           control.setEncoding(StandardCharsets.UTF_8.name());
         }
         catch (UnsupportedEncodingException e) {
           throw new RuntimeException("UTF8 not available???", e);
         }
-        return tm;
+        control.getTerminalText().setCrAfterNewLine(true);
     }
 
 
     @Override
     protected void doDisconnect() {
         super.doDisconnect();
+        if (launch != null) {
+          try {
+            launch.terminate();
+          }
+          catch (DebugException e) {
+            Activator.log(e.getMessage(), e);
+          }
+        }
     }
 
     public void setFocus() {
