@@ -8,7 +8,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.actions.AbstractEditorAction;
+import org.rascalmpl.eclipse.editor.commands.AbstractEditorAction;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
 

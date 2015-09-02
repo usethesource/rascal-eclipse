@@ -10,7 +10,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.eclipse.actions;
+package org.rascalmpl.eclipse.editor.commands;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -21,6 +21,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.progress.IProgressService;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.editor.commands.RunStaticChecker.StaticCheckerHelper;
 
 public class ReloadStaticChecker extends AbstractEditorAction {
 	private final StaticCheckerHelper helper = new StaticCheckerHelper();

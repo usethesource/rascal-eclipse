@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.actions;
 
 import org.eclipse.imp.editor.UniversalEditor;
+import org.rascalmpl.eclipse.editor.commands.AbstractEditorAction;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 
 public class ResetProjectState extends AbstractEditorAction {

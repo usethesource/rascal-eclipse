@@ -9,7 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.eclipse.actions;
+package org.rascalmpl.eclipse.editor.commands;
 
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.ui.console.ConsolePlugin;

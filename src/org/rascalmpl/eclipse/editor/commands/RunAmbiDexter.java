@@ -10,7 +10,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.eclipse.actions;
+package org.rascalmpl.eclipse.editor.commands;
 
 import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
 

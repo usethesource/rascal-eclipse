@@ -11,9 +11,12 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.eclipse.actions;
+package org.rascalmpl.eclipse.editor.commands;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -22,6 +25,7 @@ import org.eclipse.imp.builder.MarkerCreator;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.progress.IProgressService;
@@ -29,6 +33,7 @@ import org.rascalmpl.checker.StaticChecker;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.editor.ParseController;
+import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMarkers;
 import org.rascalmpl.eclipse.uri.ProjectURIResolver;
@@ -101,4 +106,42 @@ public class RunStaticChecker extends AbstractEditorAction {
 		
 		return null;
 	}	
+	
+	public static class StaticCheckerHelper {
+	    private static HashMap<IProject, StaticChecker> checkerMap = new HashMap<>();
+	    
+	    public void initChecker(RascalMonitor mon, StaticChecker checker, final IProject sourceProject) {
+	        checker.init();
+	        ProjectEvaluatorFactory.getInstance().configure(sourceProject, checker.getEvaluator());
+	        checker.enableChecker(mon);
+	    }
+	    
+	    public StaticChecker createChecker(RascalMonitor mon, IProject sourceProject) {
+	        PrintStream consoleStream = RuntimePlugin.getInstance().getConsoleStream();
+	        StaticChecker checker = new StaticChecker(new PrintWriter(consoleStream), new PrintWriter(consoleStream));
+	        checkerMap.put(sourceProject, checker);
+	        initChecker(mon, checker, sourceProject);
+	        return checker;
+	    }
+
+	    public StaticChecker createCheckerIfNeeded(RascalMonitor mon, IProject sourceProject) {
+	        StaticChecker checker = null;
+	        if (checkerMap.containsKey(sourceProject)) {
+	            checker = checkerMap.get(sourceProject);
+	        }
+	        if (checker == null) {
+	            checker = createChecker(mon, sourceProject);
+	        }
+	        return checker;
+	    }
+	    
+	    public StaticChecker reloadChecker(IProgressMonitor monitor, IProject sourceProject) {
+	        StaticChecker checker = null;
+	        if (checkerMap.containsKey(sourceProject)) {
+	            checkerMap.remove(sourceProject);
+	        }
+	        checker = createChecker(new RascalMonitor(monitor, new WarningsToMarkers()), sourceProject);
+	        return checker;
+	    }
+	}
 }

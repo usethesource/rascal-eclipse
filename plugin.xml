@@ -872,7 +872,7 @@
          id="rascal.navigator.contributions"
          targetID="rascal.navigator">
    <action
-         class="org.rascalmpl.eclipse.actions.ImportInConsole"
+         class="org.rascalmpl.eclipse.editor.commands.ImportInConsole"
          enablesFor="1"
          icon="icons/rascal3D_2-16px.gif"
          id="rascal.navigator.contributions.importInConsole"
