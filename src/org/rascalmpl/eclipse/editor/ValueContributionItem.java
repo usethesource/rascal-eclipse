@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.actions;
+package org.rascalmpl.eclipse.editor;
 
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;

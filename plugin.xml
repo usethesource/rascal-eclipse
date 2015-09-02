@@ -910,7 +910,7 @@
       <menuContribution
          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
       <dynamic
-            class="org.rascalmpl.eclipse.actions.ValueContributionItem"
+            class="org.rascalmpl.eclipse.editor.ValueContributionItem"
             id="rascal-eclipse.valueContributionItem">
          <visibleWhen
                checkEnabled="false">
