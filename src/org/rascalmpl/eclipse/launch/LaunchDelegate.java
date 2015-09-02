@@ -24,7 +24,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
-import org.rascalmpl.eclipse.commands.ReplLaunchHandler;
+import org.rascalmpl.eclipse.commands.RascalTerminalLaunchHandler;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
@@ -59,9 +59,9 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
         }
 		
 		if (configurationUtility.hasAssociatedProject()) {
-		    ReplLaunchHandler.terminalForProject(configurationUtility.getAssociatedProject().getName(), mode, moduleFullName);
+		    RascalTerminalLaunchHandler.terminalForProject(configurationUtility.getAssociatedProject().getName(), mode, moduleFullName);
 		} else {
-		    ReplLaunchHandler.terminalForProject(null, "run", moduleFullName);
+		    RascalTerminalLaunchHandler.terminalForProject(null, "run", moduleFullName);
 		}
 			
 
