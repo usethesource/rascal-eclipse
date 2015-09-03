@@ -75,7 +75,7 @@ public class RascalLauncherDelegate extends AbstractLauncherDelegate {
 
 	@Override
 	public void execute(Map<String, Object> properties, Done done) {
-		properties.put(ITerminalsConnectorConstants.PROP_TITLE, "Rascal Terminal");
+		properties.put(ITerminalsConnectorConstants.PROP_TITLE, computeTitle(properties));
 		properties.put(ITerminalsConnectorConstants.PROP_FORCE_NEW, Boolean.TRUE);
 		ITerminalService terminal = TerminalServiceFactory.getService();
 		// If not available, we cannot fulfill this request
@@ -85,7 +85,11 @@ public class RascalLauncherDelegate extends AbstractLauncherDelegate {
 
 	}
 
-	@Override
+	private String computeTitle(Map<String, Object> properties) {
+	    return "Rascal [project: " + properties.get("project") + ", mode: " + properties.get("mode") + "]";
+    }
+
+    @Override
 	public ITerminalConnector createTerminalConnector(Map<String, Object> properties) {
 		ITerminalConnector conn = TerminalConnectorExtension.makeTerminalConnector("rascal-eclipse.connector1");
 		ISettingsStore store = new SettingsStore();

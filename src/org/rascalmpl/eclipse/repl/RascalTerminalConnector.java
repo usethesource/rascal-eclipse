@@ -305,6 +305,7 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
 
     public void setFocus() {
         ((VT100TerminalControl)fControl).setFocus();
+        RascalTerminalRegistry.getInstance().setActive(this);
     }
     
     @Override
