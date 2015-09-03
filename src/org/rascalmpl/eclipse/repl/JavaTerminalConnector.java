@@ -113,7 +113,16 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
                   control.getRemoteToTerminalOutputStream().write(text.getBytes(StandardCharsets.UTF_8));
                 }
                 catch (IOException e) {
-                  e.printStackTrace();
+                }
+              }
+            });
+            proxy.getErrorStreamMonitor().addListener(new IStreamListener() {
+              @Override
+              public void streamAppended(String text, IStreamMonitor monitor) {
+                try {
+                  control.getRemoteToTerminalOutputStream().write(text.getBytes(StandardCharsets.UTF_8));
+                }
+                catch (IOException e) {
                 }
               }
             });
