@@ -23,12 +23,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.IConsoleManager;
-import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.console.ConsoleFactory;
-import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
+import org.rascalmpl.eclipse.repl.RascalTerminalRegistry;
 import org.rascalmpl.eclipse.util.RascalKeywords;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
 
@@ -44,21 +39,7 @@ public class ImportInConsole extends AbstractEditorAction implements IWorkbenchW
 	@Override
 	public void run() {
 		String mod = RascalKeywords.escapeName(ResourcesToModules.moduleFromFile(file));
-		IConsoleManager man = ConsolePlugin.getDefault().getConsoleManager();
-
-		
-		for (IConsole console : man.getConsoles()) {
-			if (console.getType().equals(ConsoleFactory.INTERACTIVE_CONSOLE_ID)) {
-				IRascalConsole rascal = (IRascalConsole) console;
-
-				try {
-					rascal.activate();
-					rascal.executeCommand("import " + mod + ";");
-				} catch (Throwable e) {
-					Activator.getInstance().logException("importInConsole", e);
-				}
-			}
-		}
+		RascalTerminalRegistry.getInstance().queueCommand(project.getName(), "import " + mod + ";");
 	}
 
 	@Override

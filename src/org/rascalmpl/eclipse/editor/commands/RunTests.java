@@ -11,13 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor.commands;
 
+import java.util.Arrays;
+
 import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.IConsoleManager;
-import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.console.ConsoleFactory;
-import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
+import org.rascalmpl.eclipse.repl.RascalTerminalRegistry;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
 
 public class RunTests extends AbstractEditorAction {
@@ -26,26 +23,12 @@ public class RunTests extends AbstractEditorAction {
 		super(editor, "Run Tests");
 	}
 
-	@Override
+    @Override
 	public void run() {
-		String mod = ResourcesToModules.moduleFromFile(file);
-		IConsoleManager man = ConsolePlugin.getDefault().getConsoleManager();
-		
-		for (IConsole console : man.getConsoles()) {
-			if (console.getType().equals(ConsoleFactory.INTERACTIVE_CONSOLE_ID)) {
-				IRascalConsole rascal = (IRascalConsole) console;
-
-				try {
-					rascal.activate();
-					rascal.executeCommand("import " + mod + ";");
-					rascal.executeCommand(":test");
-					return;
-				} catch (Throwable e) {
-					Activator.getInstance().logException("run tests", e);
-				}
-			}
-		}
-
-		Activator.log("no console to run tests in was started yet", new NullPointerException());
+	    String mod = ResourcesToModules.moduleFromFile(file);
+	    RascalTerminalRegistry.getInstance().queueCommands(project.getName(), Arrays.asList( 
+	        "import " + mod + ";", 
+	        ":test"
+	    ));
 	}
 }

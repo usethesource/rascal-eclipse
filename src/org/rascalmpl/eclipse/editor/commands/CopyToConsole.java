@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,8 +12,7 @@
 package org.rascalmpl.eclipse.editor.commands;
 
 import org.eclipse.imp.editor.UniversalEditor;
-import org.rascalmpl.eclipse.repl.RascalTerminalConnector;
-import org.rascalmpl.eclipse.repl.ReplManager;
+import org.rascalmpl.eclipse.repl.RascalTerminalRegistry;
 
 public class CopyToConsole extends AbstractEditorAction {
 	
@@ -25,10 +24,6 @@ public class CopyToConsole extends AbstractEditorAction {
 	public void run() {
 		String cmd = editor.getSelectionText();
 		String projectName = editor.getParseController().getProject().getRawProject().getName();
-        RascalTerminalConnector connector = ReplManager.getInstance().findByProject(projectName);
-		if (connector != null) {
-		    connector.queueCommand(cmd);
-		    connector.setFocus();
-		}
+        RascalTerminalRegistry.getInstance().queueCommand(projectName, cmd);
 	}
 }

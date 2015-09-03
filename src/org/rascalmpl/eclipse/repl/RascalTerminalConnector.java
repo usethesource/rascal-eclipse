@@ -21,6 +21,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Point;
@@ -147,7 +149,7 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
 
         control.setState(TerminalState.CONNECTING);
 
-        ReplManager.getInstance().register(this);
+        RascalTerminalRegistry.getInstance().register(this);
         
         Thread t = new Thread() {
             public void run() {
@@ -297,7 +299,7 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                 shell = null;
             }
         } finally {
-            ReplManager.getInstance().unregister(this);
+            RascalTerminalRegistry.getInstance().unregister(this);
         }
     }
 
