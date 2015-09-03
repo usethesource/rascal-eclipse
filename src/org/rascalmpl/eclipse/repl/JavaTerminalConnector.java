@@ -6,11 +6,15 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.IStreamListener;
+import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.debug.core.model.IStreamsProxy;
 import org.eclipse.debug.ui.IDebugUIConstants;
@@ -20,7 +24,6 @@ import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnectorImpl;
-import org.eclipse.ui.internal.UIPlugin;
 import org.rascalmpl.eclipse.Activator;
 
 @SuppressWarnings("restriction")
@@ -36,6 +39,7 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
     private ILaunchConfiguration config;
     private String mode = "run";
     private ILaunch launch;
+    private IDebugEventSetListener detectTerminated;
     
     @Override
     public boolean isLocalEcho() {
@@ -77,7 +81,9 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
           launch = configuration.launch(mode, new NullProgressMonitor(), true /*build first*/, true /*do register for debug*/);
 
           if (launch.getProcesses().length == 1) {
-            final IStreamsProxy proxy = launch.getProcesses()[0].getStreamsProxy();
+            final IProcess currentProcess = launch.getProcesses()[0];
+
+            final IStreamsProxy proxy = currentProcess.getStreamsProxy();
             stdInUI = new OutputStream() {
               //private final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
               @Override
@@ -126,6 +132,20 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
                 }
               }
             });
+            detectTerminated = new IDebugEventSetListener() {
+              @Override
+              public void handleDebugEvents(DebugEvent[] events) {
+                for (int i = 0; i < events.length; i++) {
+                  if (events[i].getSource() == currentProcess && events[i].getKind() == DebugEvent.TERMINATE) {
+                    control.setState(TerminalState.CLOSED);
+                    DebugPlugin.getDefault().removeDebugEventListener(detectTerminated);
+                    break;
+                  }
+                }
+              }
+            };
+            DebugPlugin.getDefault().addDebugEventListener(detectTerminated);
+            
             control.setState(TerminalState.CONNECTED);
             setFocus();
           }
