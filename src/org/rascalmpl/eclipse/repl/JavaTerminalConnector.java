@@ -67,7 +67,7 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
           ILaunchConfigurationWorkingCopy workingCopy = config.getWorkingCopy();
           
           // this is necessary to enable the test for ATTR_CAPTURE_IN_FILE:
-          workingCopy.setAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_FILE, System.getProperty("os.name").startsWith("Windows") ? "NUL:" : "/dev/null");
+          workingCopy.setAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_FILE, System.getProperty("os.name").startsWith("Windows") ? "nul" : "/dev/null");
           
           // this makes sure the terminal does not echo the characters to the normal console as well:
           workingCopy.setAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, false);
