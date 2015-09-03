@@ -1,10 +1,10 @@
 package org.rascalmpl.eclipse.repl;
 
+import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.commands.RascalTerminalLaunchHandler;
 
 public class RascalTerminalRegistry {
 
@@ -16,44 +16,45 @@ public class RascalTerminalRegistry {
         return Instance.manager;
     }
     
-    private final List<RascalTerminalConnector> connectors = new LinkedList<>();
-    private RascalTerminalConnector focussed = null;
+    private final List<WeakReference<RascalTerminalConnector>> connectors = new LinkedList<>();
+    private WeakReference<RascalTerminalConnector> focussed = null;
     
     public void register(RascalTerminalConnector connector) {
-        if (!connectors.contains(connector)) {
-            connectors.add(connector);
+        if (!connectors.stream().anyMatch(x -> x.get() == connector)) {
+            connectors.add(new WeakReference<>(connector));
         }
     }
     
     public void unregister(RascalTerminalConnector connector) {
-        connectors.remove(connector);
+        for (int i = 0; i < connectors.size(); i++) {
+            if (connectors.get(i).get() == connector) {
+                connectors.remove(i);
+                break;
+            }
+        }
     }
     
     public RascalTerminalConnector findByProject(String project) {
         assert project != null;
-        return connectors.stream().filter(x -> project.equals(x.getProject())).findFirst().orElse(null);
+        return connectors.stream().map(x -> x.get()).filter(x -> x != null && project.equals(x.getProject())).findFirst().orElse(null);
     }
 
     public void setActive(RascalTerminalConnector connector) {
-        this.focussed = connector;
+        this.focussed = new WeakReference<>(connector);
     }
     
     public RascalTerminalConnector getActiveConnector(String project) {
         if (project != null) {
-            if (connectors.contains(focussed) && focussed.getProject().equals(project)) {
-                return focussed;
+            RascalTerminalConnector f = focussed != null ? focussed.get() : null;
+            
+            if (f != null && connectors.stream().anyMatch(x -> x.get() == f) && f.getProject().equals(project)) {
+                return f;
             }
             
-            RascalTerminalConnector connector = findByProject(project);
-            
-            if (connector != null) {
-                return connector;
-            }
-            
-            return null;
+            return findByProject(project);
         }
         else if (connectors.size() > 0) {
-            return connectors.get(0);
+            return connectors.stream().map(x -> x.get()).filter(x -> x != null).findFirst().orElse(null);
         }
         else {
             return null;
@@ -63,8 +64,8 @@ public class RascalTerminalRegistry {
     public void queueCommand(String project, String cmd) {
         RascalTerminalConnector connector = RascalTerminalRegistry.getInstance().getActiveConnector(project);
         if (connector != null) {
-            connector.queueCommand(cmd);
             connector.setFocus();
+            connector.queueCommand(cmd);
         }
         else {
             Activator.log("No terminal available for project " + project, new NullPointerException());
@@ -74,10 +75,13 @@ public class RascalTerminalRegistry {
     public void queueCommands(String project, Iterable<String> cmds) {
         RascalTerminalConnector connector = RascalTerminalRegistry.getInstance().getActiveConnector(project);
         if (connector != null) {
-            for (String cmd : cmds) {
-                connector.queueCommand(cmd);
-            }
             connector.setFocus();
+            StringBuilder b = new StringBuilder();
+            for (String cmd : cmds) {
+                b.append(cmd);
+                b.append('\n');
+            }
+            connector.queueCommand(b.toString());
         }
         else {
             Activator.log("No terminal available for project " + project, new NullPointerException());

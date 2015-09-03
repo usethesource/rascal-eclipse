@@ -11,9 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 
-import jline.Terminal;
-import jline.TerminalFactory;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -21,8 +18,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Point;
@@ -45,6 +40,9 @@ import org.rascalmpl.uri.LinkDetector;
 import org.rascalmpl.uri.LinkDetector.Type;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
+
+import jline.Terminal;
+import jline.TerminalFactory;
 
 @SuppressWarnings("restriction")
 public class RascalTerminalConnector extends TerminalConnectorImpl {

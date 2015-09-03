@@ -29,9 +29,9 @@ public class RascalTerminalLaunchHandler extends AbstractHandler {
 		    if (r instanceof IResource) {
 		        project = ((IResource) r).getProject().getName();
 		    }
+		    
+		    terminalForProject(project, "debug", null);
 		}
-
-		terminalForProject(project, "debug", null);
 
 		return null;
 	}
