@@ -1,11 +1,25 @@
 package org.rascalmpl.eclipse.repl;
 
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.window.Window;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
+import org.eclipse.tm.terminal.view.ui.interfaces.ILauncherDelegate;
+import org.eclipse.tm.terminal.view.ui.internal.dialogs.LaunchTerminalSettingsDialog;
+import org.eclipse.tm.terminal.view.ui.launcher.LauncherDelegateManager;
 import org.rascalmpl.eclipse.Activator;
 
+@SuppressWarnings("restriction")
 public class RascalTerminalRegistry {
 
     private static final class Instance {
@@ -87,4 +101,32 @@ public class RascalTerminalRegistry {
             Activator.log("No terminal available for project " + project, new NullPointerException());
         }
     }
+    
+    /**
+     * @param project
+     * @param mode
+     * @param module
+     */
+    public static void terminalForProject(String project, String mode, String module) {
+        ILauncherDelegate delegate = LauncherDelegateManager.getInstance().getLauncherDelegate("org.rascalmpl.eclipse.rascal.launcher", false);
+
+        if (delegate != null) {
+            Map<String, Object> properties = new HashMap<String, Object>();
+            properties.put(ITerminalsConnectorConstants.PROP_DELEGATE_ID, delegate.getId());
+            properties.put("project", project);
+            properties.put("mode", mode);
+            properties.put("module", module);
+            delegate.execute(properties, null);
+        }
+    }
+
+    public static void terminal(ISelection selection) {
+        terminalForProject(null, "debug", null);
+        // TODO: start a terminal based on the current selection
+    }
+    
+    public static void terminal() {
+        terminalForProject(null, "debug", null);
+    }
+
 }

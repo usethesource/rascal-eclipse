@@ -1,7 +1,6 @@
 package org.rascalmpl.eclipse.commands;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.rascalmpl.eclipse.repl.RascalTerminalRegistry.terminalForProject;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -9,9 +8,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
-import org.eclipse.tm.terminal.view.ui.interfaces.ILauncherDelegate;
-import org.eclipse.tm.terminal.view.ui.launcher.LauncherDelegateManager;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 public class RascalTerminalLaunchHandler extends AbstractHandler {
@@ -36,17 +32,5 @@ public class RascalTerminalLaunchHandler extends AbstractHandler {
 		return null;
 	}
 
-    public static void terminalForProject(String project, String mode, String module) {
-        ILauncherDelegate delegate = LauncherDelegateManager.getInstance().getLauncherDelegate("org.rascalmpl.eclipse.rascal.launcher", false);
-
-		if (delegate != null) {
-			Map<String, Object> properties = new HashMap<String, Object>();
-			properties.put(ITerminalsConnectorConstants.PROP_DELEGATE_ID, delegate.getId());
-			properties.put("project", project);
-			properties.put("mode", mode);
-			properties.put("module", module);
-			delegate.execute(properties, null);
-		}
-    }
-
+    
 }

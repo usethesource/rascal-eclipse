@@ -15,8 +15,10 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.editor.commands.AbstractEditorAction;
+import org.rascalmpl.eclipse.repl.RascalTerminalRegistry;
+import org.rascalmpl.eclipse.util.RascalKeywords;
+import org.rascalmpl.eclipse.util.ResourcesToModules;
 
 public class StartConsole extends AbstractEditorAction implements IWorkbenchWindowActionDelegate, IObjectActionDelegate, IViewActionDelegate {
 	public StartConsole() {
@@ -35,10 +37,16 @@ public class StartConsole extends AbstractEditorAction implements IWorkbenchWind
 	@Override
 	public void run() {
 		if (project == null) {
-			ConsoleFactory.getInstance().openRunConsole();
+			RascalTerminalRegistry.terminal();
 		}
 		else {
-			ConsoleFactory.getInstance().launchConsole(project, ILaunchManager.DEBUG_MODE);
+		    if (file == null) {
+		        RascalTerminalRegistry.terminalForProject(project.getName(), ILaunchManager.DEBUG_MODE, null);
+		    }
+		    else {
+		        String mod = RascalKeywords.escapeName(ResourcesToModules.moduleFromFile(file));
+		        RascalTerminalRegistry.terminalForProject(project.getName(), ILaunchManager.DEBUG_MODE, mod);
+		    }
 		}
 	}
 

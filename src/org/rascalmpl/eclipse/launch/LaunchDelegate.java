@@ -20,14 +20,11 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
-import org.rascalmpl.eclipse.commands.RascalTerminalLaunchHandler;
-import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
-import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
+import org.rascalmpl.eclipse.repl.RascalTerminalRegistry;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.IInterpreterEventTrigger;
@@ -59,9 +56,9 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
         }
 		
 		if (configurationUtility.hasAssociatedProject()) {
-		    RascalTerminalLaunchHandler.terminalForProject(configurationUtility.getAssociatedProject().getName(), mode, moduleFullName);
-		} else {
-		    RascalTerminalLaunchHandler.terminalForProject(null, "run", moduleFullName);
+		    RascalTerminalRegistry.terminalForProject(configurationUtility.getAssociatedProject().getName(), mode, moduleFullName);
+		} else {  
+		    RascalTerminalRegistry.terminalForProject(null, "run", moduleFullName);
 		}
 			
 
