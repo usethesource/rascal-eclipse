@@ -57,11 +57,11 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 		
 		if (configurationUtility.hasAssociatedProject()) {
 		    RascalTerminalRegistry.terminalForProject(configurationUtility.getAssociatedProject().getName(), mode, moduleFullName);
-		} else {  
-		    RascalTerminalRegistry.terminalForProject(null, "run", moduleFullName);
+		} 
+		else {  
+		    RascalTerminalRegistry.terminal();
 		}
 			
-
 		
 			// create a new debug session
 //			RascalDebugTarget debugTarget = new RascalDebugTarget(launch,

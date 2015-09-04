@@ -1,5 +1,7 @@
 package org.rascalmpl.eclipse.repl;
 
+import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newInterpreterEventTrigger;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,6 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -32,7 +35,10 @@ import org.eclipse.tm.internal.terminal.textcanvas.TextCanvas;
 import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
+import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IInterpreterEventListener;
+import org.rascalmpl.interpreter.debug.DebugHandler;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.RascalInterpreterREPL;
@@ -153,10 +159,27 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
             public void run() {
                 try {
                     shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), tm) {
+                        private AbstractInterpreterEventTrigger eventTrigger;
+                        private DebugHandler debugHandler;
+                        
                         @Override
                         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
                             IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
                             Evaluator eval = ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
+                            
+                            if ("debug".equals(mode)) {
+                                eventTrigger = newInterpreterEventTrigger(this, new CopyOnWriteArrayList<IInterpreterEventListener>());
+                                debugHandler = new DebugHandler();
+                                debugHandler.setEventTrigger(eventTrigger);
+                                debugHandler.setTerminateAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        doDisconnect();
+                                    }
+                                });         
+
+                                eval.addSuspendTriggerListener(debugHandler);      
+                            }
                             
                             if (module != null) {
                                 eval.doImport(null, module);

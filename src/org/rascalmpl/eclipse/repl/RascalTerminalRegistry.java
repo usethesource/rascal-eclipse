@@ -1,25 +1,17 @@
 package org.rascalmpl.eclipse.repl;
 
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.jface.window.Window;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
 import org.eclipse.tm.terminal.view.ui.interfaces.ILauncherDelegate;
-import org.eclipse.tm.terminal.view.ui.internal.dialogs.LaunchTerminalSettingsDialog;
 import org.eclipse.tm.terminal.view.ui.launcher.LauncherDelegateManager;
 import org.rascalmpl.eclipse.Activator;
 
-@SuppressWarnings("restriction")
 public class RascalTerminalRegistry {
 
     private static final class Instance {

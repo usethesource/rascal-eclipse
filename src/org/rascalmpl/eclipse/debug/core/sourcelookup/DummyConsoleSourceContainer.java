@@ -18,8 +18,8 @@ import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
 public class DummyConsoleSourceContainer implements ISourceContainer {
 
   @Override
-  public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-    return null;
+  public <T> T getAdapter(Class<T> adapter) {
+      return null;
   }
 
   @Override
@@ -31,8 +31,8 @@ public class DummyConsoleSourceContainer implements ISourceContainer {
       return new Object[] { new IFileStore() {
         
         @Override
-        public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-          return null;
+        public <T> T getAdapter(Class<T> adapter) {
+            return null;
         }
         
         @Override

@@ -61,8 +61,8 @@ public class URISourceContainer implements ISourceContainer {
   }
 
   @Override
-  public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-    return null;
+  public <T> T getAdapter(Class<T> adapter) {
+      return null;
   }
 
   @Override
