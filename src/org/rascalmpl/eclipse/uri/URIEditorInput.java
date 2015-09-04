@@ -48,10 +48,13 @@ public class URIEditorInput implements IStorageEditorInput {
        return storage.getLocation().toString();
     }
     
-    public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getAdapter(Class<T> adapter) {
     	if (adapter == IResource.class) {
-    		return URIResourceResolver.getResource(storage.getLocation());
+    		return (T) URIResourceResolver.getResource(storage.getLocation());
     	}
+    	
     	return null;
     }
     

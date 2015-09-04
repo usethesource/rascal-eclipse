@@ -106,7 +106,7 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
 		}
 		
 		@Override
-		public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+		public <T> T getAdapter(Class<T> adapter) {
 			return null;
 		}
 
