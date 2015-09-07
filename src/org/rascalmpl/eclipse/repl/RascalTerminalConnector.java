@@ -125,7 +125,7 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                             Evaluator eval = ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
                             launch = RascalTerminalRegistry.getInstance().getLaunch();
                             
-                            if ("debug".equals(mode)) {
+                            if (debug()) {
                                 initializeRascalDebugMode(eval);      
                                 connectToEclipseDebugAPI(eval);
                             }
@@ -183,25 +183,25 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                           catch (IOException e) {
                           }
                         }
-                    };;
+                    };
+                    
                     control.setState(TerminalState.CONNECTED);
                     shell.run();
                 }
                 catch (IOException e) {
-                    e.printStackTrace();
-                }
+                    Activator.log("terminal not connected", e);
+                } 
                 finally {
                     control.setState(TerminalState.CLOSED);
                     
-                    if ("debug".equals(mode)) {
+                    if (debug()) {
                         try {
                             launch.getDebugTarget().terminate();
                             launch.removeDebugTarget(launch.getDebugTarget());
                             ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
                             launchManager.removeLaunch(launch);
                         } catch (DebugException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            Activator.log("problem disconnecting from debugger", e);
                         }
                     }
                 }
@@ -328,6 +328,10 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
 
     public void queueCommand(String cmd) {
         shell.queueCommand(cmd);
+    }
+
+    private boolean debug() {
+        return "debug".equals(mode);
     }
 
     private static final class LinkMouseListener implements ITerminalMouseListener {
