@@ -17,7 +17,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.internal.core.LaunchManager;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
@@ -189,6 +193,18 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                 }
                 finally {
                     control.setState(TerminalState.CLOSED);
+                    
+                    if ("debug".equals(mode)) {
+                        try {
+                            launch.getDebugTarget().terminate();
+                            launch.removeDebugTarget(launch.getDebugTarget());
+                            ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+                            launchManager.removeLaunch(launch);
+                        } catch (DebugException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         };
