@@ -45,8 +45,10 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
+import org.rascalmpl.interpreter.InterpreterEvent.Detail;
 import org.rascalmpl.interpreter.debug.DebugHandler;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.uri.LinkDetector;
@@ -128,6 +130,7 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                             if (debug()) {
                                 initializeRascalDebugMode(eval);      
                                 connectToEclipseDebugAPI(eval);
+                                eventTrigger.fireSuspendByClientRequestEvent();
                             }
                             
                             if (module != null) {
@@ -142,6 +145,22 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                             }
                             
                             return eval;
+                        }
+                        
+                        @Override
+                        protected IRascalResult evalStatement(String statement, String lastLine)
+                                throws InterruptedException {
+                            try {
+                                if (debug()) {
+                                    eventTrigger.fireResumeByClientRequestEvent();
+                                }
+                                return super.evalStatement(statement, lastLine);
+                            }
+                            finally {
+                                if (debug()) {
+                                    eventTrigger.fireSuspendByClientRequestEvent();
+                                }
+                            }
                         }
                         
                         private void connectToEclipseDebugAPI(Evaluator eval) {
