@@ -13,6 +13,9 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.launch;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.DebugEvent;
@@ -23,8 +26,11 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
+import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
+import org.eclipse.tm.terminal.view.ui.interfaces.ILauncherDelegate;
+import org.eclipse.tm.terminal.view.ui.launcher.LauncherDelegateManager;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
-import org.rascalmpl.eclipse.repl.RascalTerminalRegistry;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.IInterpreterEventTrigger;
@@ -55,38 +61,17 @@ public class LaunchDelegate implements ILaunchConfigurationDelegate{
             moduleFullName = moduleFullName.substring(0, moduleFullName.length()-Configuration.RASCAL_FILE_EXT.length());
         }
 		
-		if (configurationUtility.hasAssociatedProject()) {
-		    RascalTerminalRegistry.terminalForProject(configurationUtility.getAssociatedProject().getName(), mode, moduleFullName);
-		} 
-		else {  
-		    RascalTerminalRegistry.terminal();
-		}
-			
-		
-			// create a new debug session
-//			RascalDebugTarget debugTarget = new RascalDebugTarget(launch,
-//					console.getEventTrigger(), console.getDebugHandler());
-//			debugTarget.setConsole(console);
-//			launch.addDebugTarget(debugTarget);
+		ILauncherDelegate delegate = LauncherDelegateManager.getInstance().getLauncherDelegate("org.rascalmpl.eclipse.rascal.launcher", false);
 
-			/*
-			 * TODO: Sending of an additional creation event here instead of in
-			 * runtime. Hidden chicken / egg problem: The runtime sends the
-			 * event before the debug model registers with a listener. But the
-			 * the event trigger that takes subscriptions from the debug model
-			 * still has to be created.
-			 * See {@link RascalScriptInterpreter#initialize(Evaluator)}.
-			 * 
-			 * TODO: Use publish/subscribe infrastructure?!
-			 */
-//			console.getEventTrigger().fireCreationEvent();
-			
-		
-		/* 
-		 * If a main module is present, import it and launch its main() function.
-		 */
-		
-		
+		if (delegate != null) {
+		    Map<String, Object> properties = new HashMap<String, Object>();
+		    properties.put(ITerminalsConnectorConstants.PROP_DELEGATE_ID, delegate.getId());
+		    properties.put("project", launch.getLaunchConfiguration().getAttribute(IRascalResources.ATTR_RASCAL_PROJECT, (String) null));
+		    properties.put("mode", launch.getLaunchMode());
+		    properties.put("module", launch.getLaunchConfiguration().getAttribute(IRascalResources.ATTR_RASCAL_PROGRAM, (String) null));
+		    properties.put("launch", launch);
+		    delegate.execute(properties, null);
+		}
 	}
 	
 	protected class RascalConsoleProcess implements IProcess, IInterpreterEventListener {

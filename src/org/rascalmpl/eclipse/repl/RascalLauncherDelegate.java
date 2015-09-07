@@ -23,10 +23,6 @@ import org.eclipse.tm.terminal.view.ui.panels.AbstractExtendedConfigurationPanel
 @SuppressWarnings("restriction")
 public class RascalLauncherDelegate extends AbstractLauncherDelegate {
 
-	public RascalLauncherDelegate() {
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public boolean needsUserConfiguration() {
 		return false;
@@ -66,7 +62,6 @@ public class RascalLauncherDelegate extends AbstractLauncherDelegate {
 			protected String getHostFromSettings() {
 				return null;
 			}
-
 		};
 	}
 
@@ -75,6 +70,8 @@ public class RascalLauncherDelegate extends AbstractLauncherDelegate {
 		properties.put(ITerminalsConnectorConstants.PROP_TITLE, computeTitle(properties));
 		properties.put(ITerminalsConnectorConstants.PROP_FORCE_NEW, Boolean.TRUE);
 		ITerminalService terminal = TerminalServiceFactory.getService();
+		
+		
 		// If not available, we cannot fulfill this request
 		if (terminal != null) {
 			terminal.openConsole(properties, done);
@@ -96,8 +93,13 @@ public class RascalLauncherDelegate extends AbstractLauncherDelegate {
 		store.put("project", project);
 		store.put("mode", mode);
 		store.put("module", module);
+		
+		// note that an ILaunch reference is kept by the RascalTerminalRegistry
+		
 		conn.load(store);
 		return conn;
 	}
+    
+    
 
 }

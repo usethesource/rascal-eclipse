@@ -198,5 +198,7 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
     public String getSettingsSummary() {
         return file != null ? "Running Java program " + file : "no file associated";
     }
+    
+   
 
 }

@@ -1,11 +1,12 @@
 package org.rascalmpl.eclipse.commands;
 
-import static org.rascalmpl.eclipse.repl.RascalTerminalRegistry.terminalForProject;
+import static org.rascalmpl.eclipse.repl.RascalTerminalRegistry.launchTerminal;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -25,8 +26,11 @@ public class RascalTerminalLaunchHandler extends AbstractHandler {
 		    if (r instanceof IResource) {
 		        project = ((IResource) r).getProject().getName();
 		    }
+		    else if (r instanceof IJavaProject) {
+		        project = ((IJavaProject) r).getResource().getProject().getName();
+		    }
 		    
-		    terminalForProject(project, "debug", null);
+		    launchTerminal(project, "debug");
 		}
 
 		return null;

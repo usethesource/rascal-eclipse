@@ -1,16 +1,24 @@
 package org.rascalmpl.eclipse.repl;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
-import org.eclipse.tm.terminal.view.ui.interfaces.ILauncherDelegate;
-import org.eclipse.tm.terminal.view.ui.launcher.LauncherDelegateManager;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfigurationType;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.debug.ui.IDebugUIConstants;
+import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
 
 public class RascalTerminalRegistry {
 
@@ -24,6 +32,11 @@ public class RascalTerminalRegistry {
     
     private final List<WeakReference<RascalTerminalConnector>> connectors = new LinkedList<>();
     private WeakReference<RascalTerminalConnector> focussed = null;
+    private WeakReference<ILaunch> launch;
+    
+    public ILaunch getLaunch() {
+        return launch.get();
+    }
     
     public void register(RascalTerminalConnector connector) {
         if (!connectors.stream().anyMatch(x -> x.get() == connector)) {
@@ -94,31 +107,30 @@ public class RascalTerminalRegistry {
         }
     }
     
-    /**
-     * @param project
-     * @param mode
-     * @param module
-     */
-    public static void terminalForProject(String project, String mode, String module) {
-        ILauncherDelegate delegate = LauncherDelegateManager.getInstance().getLauncherDelegate("org.rascalmpl.eclipse.rascal.launcher", false);
-
-        if (delegate != null) {
-            Map<String, Object> properties = new HashMap<String, Object>();
-            properties.put(ITerminalsConnectorConstants.PROP_DELEGATE_ID, delegate.getId());
-            properties.put("project", project);
-            properties.put("mode", mode);
-            properties.put("module", module);
-            delegate.execute(properties, null);
-        }
-    }
-
-    public static void terminal(ISelection selection) {
-        terminalForProject(null, "debug", null);
-        // TODO: start a terminal based on the current selection
+    public static void launchTerminal(String project, String mode) {
+        Job job = new UIJob("Launching console") {
+            @Override
+            public IStatus runInUIThread(IProgressMonitor monitor) {
+                try {
+                    ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+                    ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(IRascalResources.LAUNCHTYPE);
+                    ILaunchConfigurationWorkingCopy launch = type.newInstance(null, "Rascal Project Terminal Launch [" + project + "]");
+                    DebugUITools.setLaunchPerspective(type, mode, IDebugUIConstants.PERSPECTIVE_NONE);
+                    launch.setAttribute(IRascalResources.ATTR_RASCAL_PROJECT, project);
+                    getInstance().setLaunch(launch.launch(mode, monitor));
+                } 
+                catch (CoreException e) {
+                    Activator.getInstance().logException("could not start a terminal for " + project, e);
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        
+        job.setUser(true);
+        job.schedule();
     }
     
-    public static void terminal() {
-        terminalForProject(null, "debug", null);
+    private void setLaunch(ILaunch launch) {
+       this.launch = new WeakReference<ILaunch>(launch);
     }
-
 }

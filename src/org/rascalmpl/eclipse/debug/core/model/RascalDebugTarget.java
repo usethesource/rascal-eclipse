@@ -24,10 +24,8 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
-import org.rascalmpl.eclipse.console.ConsoleFactory.IRascalConsole;
-import org.rascalmpl.eclipse.console.RascalScriptInterpreter;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint;
-import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
 import org.rascalmpl.interpreter.IInterpreterEventTrigger;
 import org.rascalmpl.interpreter.InterpreterEvent;
@@ -40,9 +38,6 @@ import org.rascalmpl.interpreter.debug.IDebugSupport;
  */
 public class RascalDebugTarget extends RascalDebugElement implements IDebugTarget, IBreakpointManagerListener, IInterpreterEventListener {
 
-	// associated Rascal console
-	private volatile IRascalConsole console;
-	
 	// containing launch object
 	private final ILaunch fLaunch;
 
@@ -60,6 +55,9 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	private IThread[] fThreads;
 	private RascalThread fThread;
 
+    private final Evaluator fEvaluator;
+	
+
 	/**
 	 * Constructs a new debug target in the given launch for the 
 	 * associated Rascal console.
@@ -67,9 +65,10 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @param console Rascal console
 	 * @exception CoreException if unable to connect to host
 	 */
-	public RascalDebugTarget(ILaunch launch, IInterpreterEventTrigger eventTrigger, IDebugSupport debugSupport) throws CoreException {
+	public RascalDebugTarget(Evaluator eval, ILaunch launch, IInterpreterEventTrigger eventTrigger, IDebugSupport debugSupport) throws CoreException {
 		super(null);
 
+		fEvaluator = eval;
 		fInterpreterEventTrigger = eventTrigger;
 		fDebugSupport = debugSupport;
 		addEventListener(this);
@@ -305,22 +304,6 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 		}
 	}	
 	
-	public void setConsole(IRascalConsole console){
-		this.console = console;
-	}
-
-	public IRascalConsole getConsole() {
-		return console;
-	}
-
-	public IEvaluator<?> getEvaluator() {
-		return getInterpreter() != null ? getInterpreter().getEval() : null;
-	}
-
-	public RascalScriptInterpreter getInterpreter() {
-		return console != null ? console.getRascalInterpreter() : null;
-	}
-	
 	/* (non-Javadoc)
 	 * @see org.rascalmpl.eclipse.debug.core.model.RascalDebugElement#sendRequest(org.rascalmpl.interpreter.debug.IDebugMessage)
 	 */
@@ -402,5 +385,11 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	    break;
 	  }
 	}
+
+
+
+    public Evaluator getEvaluator() {
+        return fEvaluator;
+    }
 	
 }

@@ -16,6 +16,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
@@ -33,6 +35,8 @@ import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnect
 import org.eclipse.tm.internal.terminal.textcanvas.ITextCanvasModel;
 import org.eclipse.tm.internal.terminal.textcanvas.TextCanvas;
 import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
+import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
@@ -52,68 +56,18 @@ import jline.TerminalFactory;
 
 @SuppressWarnings("restriction")
 public class RascalTerminalConnector extends TerminalConnectorImpl {
-
-    private static final class LinkMouseListener implements ITerminalMouseListener {
-        private int currentLine = -1;
-        private int currentOffset = -1;
-
-        private String safeToString(char[] ch) {
-            if (ch == null) {
-                return "";
-            }
-            return new String(ch);
-        }
-
-        @Override
-        public void mouseUp(ITerminalTextDataReadOnly model, int line, int offset) {
-            if (line == currentLine && offset == currentOffset) {
-                // concat the line before and after to make sure we can get wrapped lines
-                String lineBefore = line > 0 && model.isWrappedLine(line - 1) ? safeToString(model.getChars(line - 1)) : "";
-                String lineAfter = model.isWrappedLine(line) ? safeToString(model.getChars(line + 1)) : "";
-                String fullLine = lineBefore + safeToString(model.getChars(line)) + lineAfter;
-
-                String link = LinkDetector.findAt(fullLine, lineBefore.length() + offset);
-                if (link != null && LinkDetector.typeOf(link) == Type.SOURCE_LOCATION) {
-                    try {
-                        IValue loc = new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), new StringReader(link));
-                        if (loc instanceof ISourceLocation) {
-                            EditorUtil.openAndSelectURI((ISourceLocation)loc);
-                        }
-                    }
-                    catch (FactTypeUseException | FactParseError | IOException e) {
-                    }
-                }
-                else if (link != null && LinkDetector.typeOf(link) == Type.HYPERLINK) {
-                    EditorUtil.openWebURI(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect(link)));
-                }
-            }
-            offset = -1;
-            currentLine = -1;
-        }
-
-        @Override
-        public void mouseDown(ITerminalTextDataReadOnly model, int line, int offset) {
-            currentLine = line;
-            currentOffset = offset;
-        }
-
-        @Override
-        public void mouseDoubleClick(ITerminalTextDataReadOnly model, int line, int offset) {
-            // TODO: copy source loc to clipboard
-        }
-    }
-
-    @Override
-    public OutputStream getTerminalToRemoteStream() {
-        return stdInUI;
-    }
-
     private RascalInterpreterREPL shell;
     private REPLPipedInputStream stdIn;
     private OutputStream stdInUI;
     private String project;
     private String module;
     private String mode;
+    private ILaunch launch;
+   
+    @Override
+    public OutputStream getTerminalToRemoteStream() {
+        return stdInUI;
+    }
 
     @Override
     public boolean isLocalEcho() {
@@ -166,19 +120,11 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
                             IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
                             Evaluator eval = ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
+                            launch = RascalTerminalRegistry.getInstance().getLaunch();
                             
                             if ("debug".equals(mode)) {
-                                eventTrigger = newInterpreterEventTrigger(this, new CopyOnWriteArrayList<IInterpreterEventListener>());
-                                debugHandler = new DebugHandler();
-                                debugHandler.setEventTrigger(eventTrigger);
-                                debugHandler.setTerminateAction(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        doDisconnect();
-                                    }
-                                });         
-
-                                eval.addSuspendTriggerListener(debugHandler);      
+                                initializeRascalDebugMode(eval);      
+                                connectToEclipseDebugAPI(eval);
                             }
                             
                             if (module != null) {
@@ -194,6 +140,31 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                             
                             return eval;
                         }
+                        
+                        private void connectToEclipseDebugAPI(Evaluator eval) {
+                            try {
+                                RascalDebugTarget  debugTarget = new RascalDebugTarget(eval, launch, eventTrigger, debugHandler);
+                                launch.addDebugTarget(debugTarget);
+                            } catch (CoreException e) {
+                                Activator.log("could not connect to debugger", e);
+                                // otherwise no harm done, can continue
+                            }
+                         
+                        }
+                        
+                        private void initializeRascalDebugMode(Evaluator eval) {
+                            eventTrigger = newInterpreterEventTrigger(this, new CopyOnWriteArrayList<IInterpreterEventListener>());
+                            debugHandler = new DebugHandler();
+                            debugHandler.setEventTrigger(eventTrigger);
+                            debugHandler.setTerminateAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    doDisconnect();
+                                }
+                            });         
+                            eval.addSuspendTriggerListener(debugHandler);
+                        }
+                        
                         public char ctrl(char ch) {
                           assert 'A' <= ch && ch <= 'Z'; 
                           return (char)((((int)ch) - 'A') + 1);
@@ -331,9 +302,11 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
     
     @Override
     public String getSettingsSummary() {
-        return project != null ? "REPL for " + project : "no project associated";
+        return project != null ? "Rascal Terminal [project: " + project + "]" : "Rascal Terminal [no project]";
     }
 
+  
+    
     public String getProject() {
         return project;
     }
@@ -341,4 +314,55 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
     public void queueCommand(String cmd) {
         shell.queueCommand(cmd);
     }
+
+    private static final class LinkMouseListener implements ITerminalMouseListener {
+        private int currentLine = -1;
+        private int currentOffset = -1;
+
+        private String safeToString(char[] ch) {
+            if (ch == null) {
+                return "";
+            }
+            return new String(ch);
+        }
+
+        @Override
+        public void mouseUp(ITerminalTextDataReadOnly model, int line, int offset) {
+            if (line == currentLine && offset == currentOffset) {
+                // concat the line before and after to make sure we can get wrapped lines
+                String lineBefore = line > 0 && model.isWrappedLine(line - 1) ? safeToString(model.getChars(line - 1)) : "";
+                String lineAfter = model.isWrappedLine(line) ? safeToString(model.getChars(line + 1)) : "";
+                String fullLine = lineBefore + safeToString(model.getChars(line)) + lineAfter;
+
+                String link = LinkDetector.findAt(fullLine, lineBefore.length() + offset);
+                if (link != null && LinkDetector.typeOf(link) == Type.SOURCE_LOCATION) {
+                    try {
+                        IValue loc = new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), new StringReader(link));
+                        if (loc instanceof ISourceLocation) {
+                            EditorUtil.openAndSelectURI((ISourceLocation)loc);
+                        }
+                    }
+                    catch (FactTypeUseException | FactParseError | IOException e) {
+                    }
+                }
+                else if (link != null && LinkDetector.typeOf(link) == Type.HYPERLINK) {
+                    EditorUtil.openWebURI(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect(link)));
+                }
+            }
+            offset = -1;
+            currentLine = -1;
+        }
+
+        @Override
+        public void mouseDown(ITerminalTextDataReadOnly model, int line, int offset) {
+            currentLine = line;
+            currentOffset = offset;
+        }
+
+        @Override
+        public void mouseDoubleClick(ITerminalTextDataReadOnly model, int line, int offset) {
+            // TODO: copy source loc to clipboard
+        }
+    }
+
 }

@@ -44,21 +44,8 @@ import org.rascalmpl.uri.URIUtil;
  * A Rascal thread. Rascal programs are currently modelled single threaded.
  */
 public class RascalThread extends RascalDebugElement implements IThread, IInterpreterEventListener {
-
-	/**
-	 * Breakpoint this thread is suspended at or <code>null</code>
-	 * if none.
-	 */
-	private IBreakpoint fBreakpoint;
-	
-	/**
-	 * Whether this thread is stepping
-	 */
+	private IBreakpoint fBreakpoint = null;
 	private boolean fStepping = false;
-	
-	/**
-	 * Whether this thread is suspended
-	 */
 	private boolean fSuspended = false;
 	
 	public RascalThread(IDebugTarget target) {
@@ -66,23 +53,17 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 		getRascalDebugTarget().addEventListener(this);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.IThread#getName()
-	 */
+	@Override
 	public String getName() throws DebugException {
 		return "Rascal Thread";
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.IThread#getPriority()
-	 */
+	@Override
 	public int getPriority() throws DebugException {
 		return 0;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.IThread#getBreakpoints()
-	 */
+	@Override
 	public IBreakpoint[] getBreakpoints() {
 		if (fBreakpoint == null) {
 			return new IBreakpoint[0];
@@ -90,12 +71,10 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 		return new IBreakpoint[]{fBreakpoint};
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.IThread#getStackFrames()
-	 */
+	@Override
 	public IStackFrame[] getStackFrames() throws DebugException {
 		if (isSuspended()) {
-			Evaluator eval = getRascalDebugTarget().getConsole().getRascalInterpreter().getEval();
+			Evaluator eval = getRascalDebugTarget().getEvaluator();
 			Stack<Environment> callStack = eval.getCallStack();
 			
 			int size = callStack.size();
@@ -126,9 +105,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 		return new IStackFrame[0];
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.IThread#getTopStackFrame()
-	 */
+	@Override
 	public IStackFrame getTopStackFrame() throws DebugException {
 		IStackFrame[] frames = getStackFrames();
 		if (frames.length > 0) {
@@ -137,117 +114,85 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.IThread#hasStackFrames()
-	 */
+	@Override
 	public boolean hasStackFrames() throws DebugException {
-	  Evaluator eval = getRascalDebugTarget().getConsole().getRascalInterpreter().getEval();
+	    Evaluator eval = getRascalDebugTarget().getEvaluator();
 		return isSuspended() || eval.getCurrentEnvt().isRootStackFrame();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.ISuspendResume#canResume()
-	 */
+	@Override
 	public boolean canResume() {
 		return isSuspended();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.ISuspendResume#canSuspend()
-	 */
+	@Override
 	public boolean canSuspend() {
 		return !isSuspended() && !isTerminated();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.ISuspendResume#isSuspended()
-	 */
+	@Override
 	public boolean isSuspended() {
 		return fSuspended && !isTerminated();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.ISuspendResume#resume()
-	 */
+	@Override
 	public void resume() throws DebugException {
 		sendRequest(requestResumption());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.ISuspendResume#suspend()
-	 */
+	@Override
 	public void suspend() throws DebugException {
 		sendRequest(requestSuspension());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.IStep#canStepInto()
-	 */
+	@Override
 	public boolean canStepInto() {
 		return !isTerminated() && isSuspended();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.IStep#canStepOver()
-	 */
+	@Override
 	public boolean canStepOver() {
 		return !isTerminated() && isSuspended();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.IStep#canStepReturn()
-	 */
+	@Override
 	public boolean canStepReturn() {
 		return false;
 	}	
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.IStep#isStepping()
-	 */
+
+	@Override
 	public boolean isStepping() {
 		return fStepping;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.IStep#stepInto()
-	 */
+	@Override
 	public void stepInto() throws DebugException {
 		sendRequest(requestStepInto());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.IStep#stepOver()
-	 */
+	@Override
 	public void stepOver() throws DebugException {
 		sendRequest(requestStepOver());
 	}
 		
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.IStep#stepReturn()
-	 */
+	@Override
 	public void stepReturn() throws DebugException {
 		/** 
 		 * not used, see {@link #canStepReturn()} 
 		 * */
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.ITerminate#canTerminate()
-	 */
+
+	@Override
 	public boolean canTerminate(){
 		return !isTerminated();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.ITerminate#isTerminated()
-	 */
+	@Override
 	public boolean isTerminated(){
 		return getDebugTarget().isTerminated();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.debug.core.model.ITerminate#terminate()
-	 */
+	@Override
 	public synchronized void terminate() throws DebugException{
 		sendRequest(requestTermination());
 	}
@@ -366,20 +311,19 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 			
 		case CREATE:
 		case IDLE:
-		  /*
-       * sending a request of resumption to the runtime cleans the state,
-       * if it the last operation before IDLE was a step over or step
-       * into. (JV: but I commented this out to get a variables view for the console frame.)
-       */
-//      sendRequest(requestResumption());
-		  setSuspended(true);
-		  fireSuspendEvent(DebugEvent.BREAKPOINT | DebugEvent.STEP_END); // BREAKPOINT is essential to trigger viewer updates
-			break;
-			
+		    /*
+		     * sending a request of resumption to the runtime cleans the state,
+		     * if it the last operation before IDLE was a step over or step
+		     * into. (JV: but I commented this out to get a variables view for the console frame.)
+		     */
+		    //      sendRequest(requestResumption());
+		    setSuspended(true);
+		    fireSuspendEvent(DebugEvent.BREAKPOINT | DebugEvent.STEP_END); // BREAKPOINT is essential to trigger viewer updates
+		    break;
+
 		case TERMINATE:
 		  setSuspended(true);
 		  fireSuspendEvent(DebugEvent.TERMINATE);
 		}
 	}
-
 }
