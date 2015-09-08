@@ -173,6 +173,7 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                             try {
                                 RascalDebugTarget  debugTarget = new RascalDebugTarget(eval, launch, eventTrigger, debugHandler);
                                 launch.addDebugTarget(debugTarget);
+                                debugTarget.breakpointManagerEnablementChanged(true);
                             } catch (CoreException e) {
                                 Activator.log("could not connect to debugger", e);
                                 // otherwise no harm done, can continue
