@@ -358,7 +358,9 @@ public class RascalValue extends RascalDebugElement implements IValue {
 	/* (non-Javadoc)
 	 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
 	 */
-	public <T> T getAdapter(Class<T> adapter) {
+	@SuppressWarnings("rawtypes")
+    @Override
+	public Object getAdapter(Class adapter) {
 		return target.getAdapter(adapter);
 	}
 

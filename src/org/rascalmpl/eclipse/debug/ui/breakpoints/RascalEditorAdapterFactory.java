@@ -20,12 +20,12 @@ import org.rascalmpl.eclipse.IRascalResources;
 
 public class RascalEditorAdapterFactory implements IAdapterFactory {
 
-	@SuppressWarnings("unchecked")
-    public <T> T getAdapter(Object adaptableObject, Class<T> adapterType) {
+	@SuppressWarnings("rawtypes")
+    public Object getAdapter(Object adaptableObject, Class adapterType) {
 	  if (adaptableObject instanceof UniversalEditor) {
 			if (((UniversalEditor) adaptableObject).getParseController().getPath().getFileExtension().equals(IRascalResources.RASCAL_EXT)) {
 			  if (adapterType.equals(IToggleBreakpointsTarget.class)) {
-			      return (T) new RascalBreakpointAdapter();
+			      return new RascalBreakpointAdapter();
 			  }
 			}
 		}
