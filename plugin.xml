@@ -945,18 +945,6 @@
             </visibleWhen>
          </dynamic>
       </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
-         <toolbar
-               id="rascal-eclipse.toolbar1">
-            <command
-                  commandId="org.rascalmpl.eclipse.repl.command.launch"
-                  label="Rascal Terminal"
-                  style="push">
-            </command>
-         </toolbar>
-      </menuContribution> 
 </extension>
    <extension
          point="org.eclipse.imp.runtime.quickFixAssistant">
