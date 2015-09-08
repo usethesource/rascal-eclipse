@@ -15,7 +15,7 @@ package org.rascalmpl.eclipse.nature;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.rascalmpl.interpreter.IRascalMonitor;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 public class RascalMonitor implements IRascalMonitor {

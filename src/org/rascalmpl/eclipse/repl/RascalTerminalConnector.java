@@ -1,6 +1,6 @@
 package org.rascalmpl.eclipse.repl;
 
-import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newInterpreterEventTrigger;
+import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newInterpreterEventTrigger;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,16 +44,16 @@ import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnect
 import org.eclipse.tm.internal.terminal.textcanvas.ITextCanvasModel;
 import org.eclipse.tm.internal.terminal.textcanvas.TextCanvas;
 import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
+import org.rascalmpl.debug.AbstractInterpreterEventTrigger;
+import org.rascalmpl.debug.DebugHandler;
+import org.rascalmpl.debug.IRascalEventListener;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
-import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IInterpreterEventListener;
-import org.rascalmpl.interpreter.debug.DebugHandler;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
@@ -206,7 +206,7 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                         }
                         
                         private void initializeRascalDebugMode(Evaluator eval) {
-                            eventTrigger = newInterpreterEventTrigger(this, new CopyOnWriteArrayList<IInterpreterEventListener>());
+                            eventTrigger = newInterpreterEventTrigger(this, new CopyOnWriteArrayList<IRascalEventListener>());
                             debugHandler = new DebugHandler();
                             debugHandler.setEventTrigger(eventTrigger);
                             debugHandler.setTerminateAction(new Runnable() {

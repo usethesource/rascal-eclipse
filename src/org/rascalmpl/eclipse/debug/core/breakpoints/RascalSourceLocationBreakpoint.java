@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.breakpoints;
 
+import static org.rascalmpl.debug.DebugMessageFactory.*;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -30,23 +32,21 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.LineBreakpoint;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.debug.IRascalEventListener;
+import org.rascalmpl.debug.RascalEvent;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.debug.core.model.RascalThread;
-import org.rascalmpl.interpreter.IInterpreterEventListener;
-import org.rascalmpl.interpreter.InterpreterEvent;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
-
-import static org.rascalmpl.interpreter.debug.DebugMessageFactory.*;
 
 /**
  * A generalized Rascal source location breakpoint.
  * 
  * TODO: create an own RascalLineBreakpoint class inheriting from this class.
  */
-public class RascalSourceLocationBreakpoint extends LineBreakpoint implements IInterpreterEventListener {
+public class RascalSourceLocationBreakpoint extends LineBreakpoint implements IRascalEventListener {
 	
 	/**
 	 * Type of the marker.
@@ -294,7 +294,7 @@ public class RascalSourceLocationBreakpoint extends LineBreakpoint implements II
      * 
      * @param event breakpoint event
      */
-    private void handleHit(InterpreterEvent event) {
+    private void handleHit(RascalEvent event) {
 		ISourceLocation hitLocation = (ISourceLocation) event.getData();
 
 		if (hitLocation.equals(getSourceLocation())) {
@@ -303,9 +303,9 @@ public class RascalSourceLocationBreakpoint extends LineBreakpoint implements II
     }
     
 	@Override
-	public void handleInterpreterEvent(InterpreterEvent event) {
-		if (event.getKind() == InterpreterEvent.Kind.SUSPEND
-				&& event.getDetail() == InterpreterEvent.Detail.BREAKPOINT) {
+	public void handleRascalEvent(RascalEvent event) {
+		if (event.getKind() == RascalEvent.Kind.SUSPEND
+				&& event.getDetail() == RascalEvent.Detail.BREAKPOINT) {
 			handleHit(event);
 		}		
 	}

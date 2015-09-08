@@ -16,8 +16,8 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.model.DebugElement;
 import org.eclipse.debug.core.model.IDebugTarget;
+import org.rascalmpl.debug.IDebugMessage;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.interpreter.debug.IDebugMessage;
 
 /**
  * Common function for debug elements.

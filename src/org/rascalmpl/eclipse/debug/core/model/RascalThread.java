@@ -14,11 +14,11 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.model;
 
-import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestResumption;
-import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestStepInto;
-import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestStepOver;
-import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestSuspension;
-import static org.rascalmpl.interpreter.debug.DebugMessageFactory.requestTermination;
+import static org.rascalmpl.debug.DebugMessageFactory.requestResumption;
+import static org.rascalmpl.debug.DebugMessageFactory.requestStepInto;
+import static org.rascalmpl.debug.DebugMessageFactory.requestStepOver;
+import static org.rascalmpl.debug.DebugMessageFactory.requestSuspension;
+import static org.rascalmpl.debug.DebugMessageFactory.requestTermination;
 
 import java.util.Map;
 import java.util.Set;
@@ -32,9 +32,9 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.debug.IRascalEventListener;
+import org.rascalmpl.debug.RascalEvent;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IInterpreterEventListener;
-import org.rascalmpl.interpreter.InterpreterEvent;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
@@ -43,7 +43,7 @@ import org.rascalmpl.uri.URIUtil;
 /**
  * A Rascal thread. Rascal programs are currently modelled single threaded.
  */
-public class RascalThread extends RascalDebugElement implements IThread, IInterpreterEventListener {
+public class RascalThread extends RascalDebugElement implements IThread, IRascalEventListener {
 	private IBreakpoint fBreakpoint = null;
 	private boolean fStepping = false;
 	private boolean fSuspended = false;
@@ -256,7 +256,7 @@ public class RascalThread extends RascalDebugElement implements IThread, IInterp
 	}
 
 	@Override
-	public void handleInterpreterEvent(InterpreterEvent event) {
+	public void handleRascalEvent(RascalEvent event) {
 		// clear previous state
 		fBreakpoint = null;
 		setStepping(false);

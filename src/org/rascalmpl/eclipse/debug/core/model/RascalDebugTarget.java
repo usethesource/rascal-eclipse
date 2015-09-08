@@ -24,26 +24,26 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
+import org.rascalmpl.debug.IDebugMessage;
+import org.rascalmpl.debug.IDebugSupport;
+import org.rascalmpl.debug.IRascalEventListener;
+import org.rascalmpl.debug.IRascalEventTrigger;
+import org.rascalmpl.debug.RascalEvent;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IInterpreterEventListener;
-import org.rascalmpl.interpreter.IInterpreterEventTrigger;
-import org.rascalmpl.interpreter.InterpreterEvent;
-import org.rascalmpl.interpreter.debug.IDebugMessage;
-import org.rascalmpl.interpreter.debug.IDebugSupport;
 
 
 /**
  *  Rascal Debug Target
  */
-public class RascalDebugTarget extends RascalDebugElement implements IDebugTarget, IBreakpointManagerListener, IInterpreterEventListener {
+public class RascalDebugTarget extends RascalDebugElement implements IDebugTarget, IBreakpointManagerListener, IRascalEventListener {
 
 	// containing launch object
 	private final ILaunch fLaunch;
 
 	// associated interpreter event trigger to receive 
 	// notifications from the runtime
-	private IInterpreterEventTrigger fInterpreterEventTrigger;
+	private IRascalEventTrigger fInterpreterEventTrigger;
 	
 	// associated debug support interface
 	private final IDebugSupport fDebugSupport;
@@ -65,7 +65,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @param console Rascal console
 	 * @exception CoreException if unable to connect to host
 	 */
-	public RascalDebugTarget(Evaluator eval, ILaunch launch, IInterpreterEventTrigger eventTrigger, IDebugSupport debugSupport) throws CoreException {
+	public RascalDebugTarget(Evaluator eval, ILaunch launch, IRascalEventTrigger eventTrigger, IDebugSupport debugSupport) throws CoreException {
 		super(null);
 
 		fEvaluator = eval;
@@ -318,8 +318,8 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 *  
 	 * @param listener event listener
 	 */
-	public void addEventListener(IInterpreterEventListener listener) {
-		fInterpreterEventTrigger.addInterpreterEventListener(listener);
+	public void addEventListener(IRascalEventListener listener) {
+		fInterpreterEventTrigger.addRascalEventListener(listener);
 	}
 	
 	/**
@@ -328,8 +328,8 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 *  
 	 * @param listener event listener
 	 */
-	public void removeEventListener(IInterpreterEventListener listener) {
-		fInterpreterEventTrigger.removeInterpreterEventListener(listener);
+	public void removeEventListener(IRascalEventListener listener) {
+		fInterpreterEventTrigger.removeRascalEventListener(listener);
 	}
 	
 	/**
@@ -371,7 +371,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	}
 
 	@Override
-	public void handleInterpreterEvent(InterpreterEvent event) {
+	public void handleRascalEvent(RascalEvent event) {
 	  switch (event.getKind()) {
 	  case CREATE:
 	    started();

@@ -14,7 +14,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console;
 
-import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newInterpreterEventTrigger;
+import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newInterpreterEventTrigger;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -42,17 +42,17 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.progress.UIJob;
+import org.rascalmpl.debug.AbstractInterpreterEventTrigger;
+import org.rascalmpl.debug.DebugHandler;
+import org.rascalmpl.debug.IDebugHandler;
+import org.rascalmpl.debug.IRascalEventListener;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.internal.IInterpreter;
 import org.rascalmpl.eclipse.console.internal.IInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.InteractiveInterpreterConsole;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
-import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IInterpreterEventListener;
-import org.rascalmpl.interpreter.debug.DebugHandler;
-import org.rascalmpl.interpreter.debug.IDebugHandler;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
@@ -165,7 +165,7 @@ public final class ConsoleFactory{
 
 	private class InteractiveRascalConsole extends InteractiveInterpreterConsole implements IRascalConsole{	
 		
-		private final AbstractInterpreterEventTrigger eventTrigger = newInterpreterEventTrigger(this, new CopyOnWriteArrayList<IInterpreterEventListener>());
+		private final AbstractInterpreterEventTrigger eventTrigger = newInterpreterEventTrigger(this, new CopyOnWriteArrayList<IRascalEventListener>());
 		
 		private final DebugHandler debugHandler;
 		

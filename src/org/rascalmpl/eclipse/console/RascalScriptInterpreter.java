@@ -16,7 +16,7 @@
  *******************************************************************************/
 package org.rascalmpl.eclipse.console;
 
-import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newNullEventTrigger;
+import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newNullEventTrigger;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.ambiguousMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.interruptedExceptionMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.parseErrorMessage;
@@ -64,6 +64,8 @@ import org.rascalmpl.ast.ShellCommand.Edit;
 import org.rascalmpl.ast.ShellCommand.History;
 import org.rascalmpl.ast.ShellCommand.Quit;
 import org.rascalmpl.ast.ShellCommand.Test;
+import org.rascalmpl.debug.AbstractInterpreterEventTrigger;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
@@ -83,9 +85,7 @@ import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
-import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IRascalMonitor;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
