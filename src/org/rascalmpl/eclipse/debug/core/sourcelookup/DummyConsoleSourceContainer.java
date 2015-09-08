@@ -27,7 +27,7 @@ public class DummyConsoleSourceContainer implements ISourceContainer {
 
   @Override
   public Object[] findSourceElements(String name) throws CoreException {
-    if (name.equals("rascal.console.dummy") || name.startsWith("stdin:") || name.startsWith("prompt:")) {
+    if (name.equals(RascalSourceLookupParticipant.RASCAL_CONSOLE_DUMMY) || name.startsWith("stdin:") || name.startsWith("prompt:")) {
       return new Object[] { new IFileStore() {
         
         @Override

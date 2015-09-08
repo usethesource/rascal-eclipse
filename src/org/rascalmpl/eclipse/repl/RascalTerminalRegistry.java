@@ -35,7 +35,7 @@ public class RascalTerminalRegistry {
     private WeakReference<ILaunch> launch;
     
     public ILaunch getLaunch() {
-        return launch.get();
+        return launch != null ? launch.get() : null;
     }
     
     public void register(RascalTerminalConnector connector) {
@@ -108,6 +108,10 @@ public class RascalTerminalRegistry {
     }
     
     public static void launchTerminal(String project, String mode) {
+        launchTerminal(project, null, mode);
+    }
+    
+    public static void launchTerminal(String project, String module, String mode) {
         Job job = new UIJob("Launching console") {
             @Override
             public IStatus runInUIThread(IProgressMonitor monitor) {
@@ -117,6 +121,7 @@ public class RascalTerminalRegistry {
                     ILaunchConfigurationWorkingCopy launch = type.newInstance(null, "Rascal Project Terminal Launch [" + project + "]");
                     DebugUITools.setLaunchPerspective(type, mode, IDebugUIConstants.PERSPECTIVE_NONE);
                     launch.setAttribute(IRascalResources.ATTR_RASCAL_PROJECT, project);
+                    launch.setAttribute(IRascalResources.ATTR_RASCAL_PROGRAM, module);
                     getInstance().setLaunch(launch.launch(mode, monitor));
                 } 
                 catch (CoreException e) {

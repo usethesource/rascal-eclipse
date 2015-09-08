@@ -161,7 +161,7 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                                 return super.evalStatement(statement, lastLine);
                             }
                             finally {
-                                if (debug()) {
+                                if (debug() && !":quit".equals(statement.trim())) {
                                     synchronized(eval) {
                                         eventTrigger.fireSuspendByClientRequestEvent();
                                     }

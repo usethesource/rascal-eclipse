@@ -23,19 +23,19 @@ import org.rascalmpl.eclipse.debug.core.model.RascalStackFrame;
 public class RascalSourceLookupParticipant extends AbstractSourceLookupParticipant {
 	public static final String RASCAL_CONSOLE_DUMMY = "rascal.console.dummy";
 
-  public String getSourceName(Object object) throws CoreException {
-		if (object instanceof RascalStackFrame) {
-			RascalStackFrame stackFrame = (RascalStackFrame)object;
-			
-			if (stackFrame.hasSourceName()) { 
-			  return stackFrame.getSourceName(); 
-			}
-			else {
-			  return RASCAL_CONSOLE_DUMMY;
-			}
-		}
-		
-		return null;
+	public String getSourceName(Object object) throws CoreException {
+	    if (object instanceof RascalStackFrame) {
+	        RascalStackFrame stackFrame = (RascalStackFrame)object;
+
+	        if (stackFrame.hasSourceName()) { 
+	            return stackFrame.getSourceName(); 
+	        }
+	        else {
+	            return RASCAL_CONSOLE_DUMMY;
+	        }
+	    }
+
+	    return RASCAL_CONSOLE_DUMMY;
 	}
-	
+
 }
