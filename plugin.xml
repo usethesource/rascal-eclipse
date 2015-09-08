@@ -273,6 +273,7 @@
          </contextualLaunch>
       </shortcut>
    </extension>
+  
      <extension
          point="org.eclipse.debug.ui.debugModelPresentations">
       <debugModelPresentation
@@ -586,7 +587,7 @@
    </view>
    <view
          allowMultiple="false"
-         class="org.rascalmpl.eclipse.perspective.views.Tutor"
+         class="org.rascalmpl.eclipse.views.Tutor"
          icon="icons/rascal-tutor-small.png"
          id="rascal_eclipse.tutorBrowser"
          name="Tutor"
@@ -688,7 +689,7 @@
     <separator name="consoles"/>
       </menu>
       <action
-            class="org.rascalmpl.eclipse.perspective.actions.StartConsole"
+            class="org.rascalmpl.eclipse.actions.StartConsole"
             icon="icons/rascal3D_2-16px.gif"
             id="StartConsoleAction"
             label="Start Console"
@@ -696,7 +697,7 @@
             toolbarPath="Normal"
             tooltip="Press to start a Rascal console"/>
       <action
-            class="org.rascalmpl.eclipse.perspective.actions.ShowTutor"
+            class="org.rascalmpl.eclipse.actions.ShowTutor"
             icon="icons/rascal-tutor-small.png"
             id="StartTutorAction"
             label="Show Tutor"
@@ -705,7 +706,7 @@
             tooltip="Press to show the Rascal tutor">
       </action>
       <action
-            class="org.rascalmpl.eclipse.perspective.actions.ReloadLanguage"
+            class="org.rascalmpl.eclipse.actions.ReloadLanguage"
             id="ReloadTermLanguage"
             icon="icons/refresh-icon.png"
             label="Reload Language"
@@ -720,7 +721,7 @@
          id="rascal_eclipse.packageExplorer"
          targetID="org.eclipse.jdt.ui.PackageExplorer"> 
    <action
-         class="org.rascalmpl.eclipse.perspective.actions.StartConsole"
+         class="org.rascalmpl.eclipse.actions.StartConsole"
          enablesFor="?"
          icon="icons/rascal3D_2-16px.gif"
          id="rascal_eclipse.packageExplorer.console"
@@ -871,7 +872,7 @@
          id="rascal.navigator.contributions"
          targetID="rascal.navigator">
    <action
-         class="org.rascalmpl.eclipse.perspective.actions.ImportInConsole"
+         class="org.rascalmpl.eclipse.editor.commands.ImportInConsole"
          enablesFor="1"
          icon="icons/rascal3D_2-16px.gif"
          id="rascal.navigator.contributions.importInConsole"
@@ -884,7 +885,7 @@
       </selection>
    </action> 
    <action
-         class="org.rascalmpl.eclipse.perspective.actions.StartConsole"
+         class="org.rascalmpl.eclipse.actions.StartConsole"
          enablesFor="?"
          icon="icons/rascal3D_2-16px.gif"
          id="rascal.navigator.contributions.console"
@@ -909,7 +910,7 @@
       <menuContribution
          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
       <dynamic
-            class="org.rascalmpl.eclipse.perspective.actions.ValueContributionItem"
+            class="org.rascalmpl.eclipse.editor.ValueContributionItem"
             id="rascal-eclipse.valueContributionItem">
          <visibleWhen
                checkEnabled="false">
@@ -932,7 +933,7 @@
       <menuContribution
             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
          <dynamic
-               class="org.rascalmpl.eclipse.perspective.actions.ResourceContributionItem"
+               class="org.rascalmpl.eclipse.actions.ResourceContributionItem"
                id="rascal-eclipse.valueContributionItem">
             <visibleWhen
                   checkEnabled="false">
@@ -943,7 +944,7 @@
                </iterate>
             </visibleWhen>
          </dynamic>
-      </menuContribution> 
+      </menuContribution>
 </extension>
    <extension
          point="org.eclipse.imp.runtime.quickFixAssistant">
@@ -952,5 +953,36 @@
             language="Terms">
          <supportedMarkerType></supportedMarkerType>
       </quickFixAssistant>
+   </extension>
+   <extension
+         point="org.eclipse.tm.terminal.control.connectors">
+      <connector
+            class="org.rascalmpl.eclipse.repl.RascalTerminalConnector"
+            hidden="false"
+            id="rascal-eclipse.connector1"
+            name="Rascal Terminal">
+      </connector>
+   </extension>
+    <extension
+         point="org.eclipse.tm.terminal.control.connectors">
+      <connector
+            class="org.rascalmpl.eclipse.repl.JavaTerminalConnector"
+            hidden="false"
+            id="rascal-eclipse.java.connector"
+            name="Java Terminal">
+      </connector>
+   </extension> 
+   <extension
+         point="org.eclipse.tm.terminal.view.ui.launcherDelegates">
+      <delegate
+            class="org.rascalmpl.eclipse.repl.RascalLauncherDelegate"
+            id="org.rascalmpl.eclipse.rascal.launcher"
+            label="Rascal Terminal">
+      </delegate>
+      <delegate
+            class="org.rascalmpl.eclipse.repl.JavaLauncherDelegate"
+            id="org.rascalmpl.eclipse.java.launcher"
+            label="Java Terminal">
+      </delegate> 
    </extension>
 </plugin>

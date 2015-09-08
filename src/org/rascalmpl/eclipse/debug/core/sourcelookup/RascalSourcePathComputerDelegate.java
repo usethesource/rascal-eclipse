@@ -16,13 +16,14 @@ package org.rascalmpl.eclipse.debug.core.sourcelookup;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.rascalmpl.eclipse.launch.LaunchConfigurationPropertyCache;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
 
@@ -32,14 +33,10 @@ public class RascalSourcePathComputerDelegate implements ISourcePathComputerDele
 	 * @see org.eclipse.debug.internal.core.sourcelookup.ISourcePathComputerDelegate#computeSourceContainers(org.eclipse.debug.core.ILaunchConfiguration, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public ISourceContainer[] computeSourceContainers(ILaunchConfiguration configuration, IProgressMonitor monitor) throws CoreException {
-	
-		LaunchConfigurationPropertyCache configurationUtility = new LaunchConfigurationPropertyCache(configuration);
-				
-		/*
-		 * Calculating the final set of source containers.
-		 */
-		if (configurationUtility.hasAssociatedProject()) {
-			IProject associatedProject = configurationUtility.getAssociatedProject();
+	    String project = configuration.getAttribute(IRascalResources.ATTR_RASCAL_PROJECT, (String) null);
+		
+		if (project != null) {
+			IProject associatedProject = ResourcesPlugin.getWorkspace().getRoot().getProject(project);
 			Evaluator eval = ProjectEvaluatorFactory.getInstance().getEvaluator(associatedProject);
 			List<ISourceLocation> path = eval.getRascalResolver().collect();
 			ISourceContainer[] result = new ISourceContainer[path.size() + 1];

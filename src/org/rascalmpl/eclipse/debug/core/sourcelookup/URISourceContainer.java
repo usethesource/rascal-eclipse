@@ -60,9 +60,10 @@ public class URISourceContainer implements ISourceContainer {
     return false;
   }
 
+  @SuppressWarnings("rawtypes")
   @Override
-  public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-    return null;
+  public Object getAdapter(Class adapter) {
+      return null;
   }
 
   @Override

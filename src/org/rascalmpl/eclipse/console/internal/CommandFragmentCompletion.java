@@ -1,8 +1,6 @@
 package org.rascalmpl.eclipse.console.internal;
 
 import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.imp.utils.Pair;
 import org.rascalmpl.interpreter.IEvaluatorContext;

@@ -37,7 +37,9 @@ public class URIStorage implements IStorage {
 		return uri;
 	}
 	
-	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+	@SuppressWarnings("rawtypes")
+    @Override
+	public Object getAdapter(Class adapter) {
 		return null;
 	}
 

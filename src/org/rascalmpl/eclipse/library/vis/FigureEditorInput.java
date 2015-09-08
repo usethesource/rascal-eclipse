@@ -64,7 +64,7 @@ public class FigureEditorInput implements IEditorInput {
 	}
 
 	@SuppressWarnings("rawtypes")
-  @Override
+    @Override
 	public Object getAdapter(Class adapter) {
 		return null;
 	}

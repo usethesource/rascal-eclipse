@@ -17,9 +17,10 @@ import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
 
 public class DummyConsoleSourceContainer implements ISourceContainer {
 
+  @SuppressWarnings("rawtypes")
   @Override
-  public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-    return null;
+  public Object getAdapter(Class adapter) {
+      return null;
   }
 
   @Override
@@ -27,12 +28,13 @@ public class DummyConsoleSourceContainer implements ISourceContainer {
 
   @Override
   public Object[] findSourceElements(String name) throws CoreException {
-    if (name.equals("rascal.console.dummy") || name.startsWith("stdin:")) {
+    if (name.equals(RascalSourceLookupParticipant.RASCAL_CONSOLE_DUMMY) || name.startsWith("stdin:") || name.startsWith("prompt:")) {
       return new Object[] { new IFileStore() {
         
+        @SuppressWarnings("rawtypes")
         @Override
-        public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-          return null;
+        public Object getAdapter(Class adapter) {
+            return null;
         }
         
         @Override

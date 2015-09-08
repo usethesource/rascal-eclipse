@@ -1,12 +1,9 @@
 package org.rascalmpl.eclipse.console.internal;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IHyperlink;
-import org.rascalmpl.eclipse.perspective.views.Tutor;
+import org.rascalmpl.eclipse.editor.EditorUtil;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class WebHyperlink implements IHyperlink {
 
@@ -25,25 +22,9 @@ public class WebHyperlink implements IHyperlink {
 	public void linkExited() {
 	}
 
-	private static final String tutorPrefix = "http://tutor.rascal-mpl.org";
 	@Override
 	public void linkActivated() {
-		try {
-			
-			if (link.startsWith(tutorPrefix)) {
-				Tutor t = (Tutor)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView(Tutor.ID);
-				t.gotoPage(link.substring(tutorPrefix.length()));
-			}
-			else {
-				// open a link in an external browser
-				PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(link));
-			}
-		} catch (PartInitException e) {
-			e.printStackTrace();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
+    EditorUtil.openWebURI(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect(link)));
 	}
 
 }

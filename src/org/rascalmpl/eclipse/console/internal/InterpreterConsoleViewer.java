@@ -18,7 +18,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.console.TextConsoleViewer;
 
-public class InterpreterConsoleViewer extends TextConsoleViewer{
+public class InterpreterConsoleViewer extends TextConsoleViewer {
 	private final InteractiveInterpreterConsole console;
 	private final CommandHistory history;
 	
