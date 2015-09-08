@@ -997,25 +997,4 @@
             label="Java Terminal">
       </delegate> 
    </extension>
-   <extension point="org.eclipse.ui.commands">
-      <command
-            categoryId="org.eclipse.tm.terminal.view.ui.commands.category"
-            defaultHandler="org.rascalmpl.eclipse.commands.RascalTerminalLaunchHandler"
-            helpContextId="org.eclipse.tm.terminal.connector.rascal.repl.command_Launch"
-            id="org.rascalmpl.eclipse.repl.command.launch"
-            name="%command.launch.name">
-      </command>
-   </extension>
-   <extension point="org.eclipse.ui.commandImages">
-      <image
-            commandId="org.rascalmpl.eclipse.repl.command.launch"
-            icon="icons/rascal3D_2-16px.gif">
-      </image>
-   </extension>
-   <extension point="org.eclipse.ui.handlers">
-      <handler
-            class="org.rascalmpl.eclipse.commands.RascalTerminalLaunchHandler"
-            commandId="org.rascalmpl.eclipse.repl.command.launch">
-      </handler>
-   </extension>
 </plugin>
