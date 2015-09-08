@@ -5,6 +5,7 @@ import static org.rascalmpl.interpreter.AbstractInterpreterEventTrigger.newInter
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -12,11 +13,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -26,6 +32,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Point;
@@ -38,10 +45,14 @@ import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnect
 import org.eclipse.tm.internal.terminal.textcanvas.ITextCanvasModel;
 import org.eclipse.tm.internal.terminal.textcanvas.TextCanvas;
 import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
+import org.eclipse.ui.internal.UIPlugin;
+import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.editor.EditorUtil;
+import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
+import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
@@ -67,6 +78,9 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
     private String module;
     private String mode;
     private ILaunch launch;
+    private WarningsToPrintWriter warnings;
+    private ModuleReloader reloader;
+  
    
     @Override
     public OutputStream getTerminalToRemoteStream() {
@@ -128,7 +142,9 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                             // TODO: this is a workaround to get access to a launch, but we'd rather
                             // just get it from the terminal's properties
                             launch = RascalTerminalRegistry.getInstance().getLaunch();
-                            
+                            warnings = new WarningsToPrintWriter(new PrintWriter(stderr));
+                            reloader = new ModuleReloader(ipr, eval, warnings);
+
                             if (debug()) {
                                 initializeRascalDebugMode(eval);      
                                 connectToEclipseDebugAPI(eval);
@@ -158,6 +174,17 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                                         eventTrigger.fireResumeByClientRequestEvent();
                                     }
                                 }
+                                
+                                Job job = new Job("Reloading modules") {
+                                    @Override
+                                    protected IStatus run(IProgressMonitor monitor) {
+                                        reloader.updateModules(monitor, warnings, Collections.emptySet());
+                                        return Status.OK_STATUS;
+                                    }
+                                };
+                                job.schedule();
+                                job.join();
+                             
                                 return super.evalStatement(statement, lastLine);
                             }
                             finally {
@@ -219,6 +246,7 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                 } 
                 finally {
                     control.setState(TerminalState.CLOSED);
+                    reloader.destroy();
                     
                     if (debug()) {
                         try {
