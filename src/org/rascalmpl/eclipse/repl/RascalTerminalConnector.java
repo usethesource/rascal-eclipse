@@ -32,7 +32,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Point;
@@ -45,8 +44,6 @@ import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnect
 import org.eclipse.tm.internal.terminal.textcanvas.ITextCanvasModel;
 import org.eclipse.tm.internal.terminal.textcanvas.TextCanvas;
 import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
-import org.eclipse.ui.internal.UIPlugin;
-import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.editor.EditorUtil;
@@ -248,15 +245,15 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                     control.setState(TerminalState.CLOSED);
                     reloader.destroy();
                     
-                    if (debug()) {
-                        try {
+                    try {
+                        if (debug()) {
                             launch.getDebugTarget().terminate();
                             launch.removeDebugTarget(launch.getDebugTarget());
-                            ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-                            launchManager.removeLaunch(launch);
-                        } catch (DebugException e) {
-                            Activator.log("problem disconnecting from debugger", e);
                         }
+                        ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+                        launchManager.removeLaunch(launch);
+                    } catch (DebugException e) {
+                        Activator.log("problem disconnecting from debugger", e);
                     }
                 }
             }
@@ -273,6 +270,7 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
         control.setVT100LineWrapping(false);
         VT100Emulator text = ((VT100TerminalControl)control).getTerminalText();
         text.setCrAfterNewLine(true);
+        ((VT100TerminalControl)control).setConnectOnEnterIfClosed(false);
         ((VT100TerminalControl)control).setBufferLineLimit(10_000);
         try {
           control.setEncoding(StandardCharsets.UTF_8.name());
@@ -374,8 +372,6 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
         return project != null ? "Rascal Terminal [project: " + project + "]" : "Rascal Terminal [no project]";
     }
 
-  
-    
     public String getProject() {
         return project;
     }
