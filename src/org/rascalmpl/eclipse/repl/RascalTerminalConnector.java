@@ -45,7 +45,6 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.AbstractInterpreterEventTrigger;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IInterpreterEventListener;
-import org.rascalmpl.interpreter.InterpreterEvent.Detail;
 import org.rascalmpl.interpreter.debug.DebugHandler;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.IRascalResult;
@@ -125,6 +124,9 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
                             IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
                             Evaluator eval = ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
+                            
+                            // TODO: this is a workaround to get access to a launch, but we'd rather
+                            // just get it from the terminal's properties
                             launch = RascalTerminalRegistry.getInstance().getLaunch();
                             
                             if (debug()) {
@@ -152,13 +154,17 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                                 throws InterruptedException {
                             try {
                                 if (debug()) {
-                                    eventTrigger.fireResumeByClientRequestEvent();
+                                    synchronized(eval) {
+                                        eventTrigger.fireResumeByClientRequestEvent();
+                                    }
                                 }
                                 return super.evalStatement(statement, lastLine);
                             }
                             finally {
                                 if (debug()) {
-                                    eventTrigger.fireSuspendByClientRequestEvent();
+                                    synchronized(eval) {
+                                        eventTrigger.fireSuspendByClientRequestEvent();
+                                    }
                                 }
                             }
                         }
