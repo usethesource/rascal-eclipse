@@ -142,16 +142,16 @@ public class ProjectEvaluatorFactory {
 	public Evaluator createProjectEvaluator(IProject project, Writer err, Writer out) {
 		Activator.getInstance().checkRascalRuntimePreconditions(project);
 		GlobalEnvironment heap = new GlobalEnvironment();
-		Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(err), new PrintWriter(out), new ModuleEnvironment("***parser***", heap), heap);
+		Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(err), new PrintWriter(out), new ModuleEnvironment("$root$", heap), heap);
 		configure(project, parser);
 		return parser;
 	}
 	
 	public Evaluator getBundleEvaluator(Bundle bundle) {
-	  GlobalEnvironment heap = new GlobalEnvironment();
-    Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, new ModuleEnvironment("***parser***", heap), heap);
-    initializeBundleEvaluator(bundle, parser);
-    return parser;
+	    GlobalEnvironment heap = new GlobalEnvironment();
+	    Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, new ModuleEnvironment("$parser$", heap), heap);
+	    initializeBundleEvaluator(bundle, parser);
+	    return parser;
 	}
 	
 	/**
