@@ -20,7 +20,6 @@ import static org.rascalmpl.debug.DebugMessageFactory.requestStepOver;
 import static org.rascalmpl.debug.DebugMessageFactory.requestSuspension;
 import static org.rascalmpl.debug.DebugMessageFactory.requestTermination;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
@@ -31,13 +30,10 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.debug.IRascalEventListener;
+import org.rascalmpl.debug.IRascalFrame;
+import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.debug.RascalEvent;
-import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.uri.URIUtil;
 
 /**
@@ -74,32 +70,21 @@ public class RascalThread extends RascalDebugElement implements IThread, IRascal
 	@Override
 	public IStackFrame[] getStackFrames() throws DebugException {
 		if (isSuspended()) {
-			Evaluator eval = getRascalDebugTarget().getEvaluator();
-			Stack<Environment> callStack = eval.getCallStack();
+			IRascalRuntimeInspection eval = getRascalDebugTarget().getEvaluator();
+			Stack<IRascalFrame> callStack = eval.getCurrentStack();
 			
 			int size = callStack.size();
 			Set<String> imports = callStack.get(size-1).getImports();
 			IStackFrame[] theFrames = new IStackFrame[callStack.size()+imports.size()];
 			// for the top, use the current AST location
-			ISourceLocation currentLoc = eval.getCurrentAST() != null ? 
-			    eval.getCurrentAST().getLocation()
+			ISourceLocation currentLoc = eval.getCurrentPointOfExecution() != null ? 
+			    eval.getCurrentPointOfExecution()
 			    : URIUtil.rootLocation("stdin");
 			theFrames[0] = new RascalStackFrame(this, callStack.get(size-1), currentLoc, null);
 			for (int i = 1; i < size; i++) { 
 				theFrames[i] = new RascalStackFrame(this, callStack.get(size-i-1), callStack.get(size-i).getCallerLocation(), theFrames[i-1]);
 			}
-			Environment e = callStack.peek();
-			for (String s:imports) {
-				ModuleEnvironment module = callStack.peek().getHeap().getModule(s);
-				
-				if (module != null) {
-					Map<String, Result<IValue>> variables = module.getVariables();
-					for (String v:variables.keySet()) {
-						Result<IValue> w = variables.get(v);
-						e.storeVariable(s+"::"+v, w);
-					}
-				}
-			}
+			
 			return theFrames;
 		}
 		return new IStackFrame[0];
@@ -116,8 +101,8 @@ public class RascalThread extends RascalDebugElement implements IThread, IRascal
 
 	@Override
 	public boolean hasStackFrames() throws DebugException {
-	    Evaluator eval = getRascalDebugTarget().getEvaluator();
-		return isSuspended() || eval.getCurrentEnvt().isRootStackFrame();
+	    IRascalRuntimeInspection eval = getRascalDebugTarget().getEvaluator();
+		return isSuspended() || eval.getTopFrame().getCallerLocation() != null;
 	}
 
 	@Override

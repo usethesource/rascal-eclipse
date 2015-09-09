@@ -44,8 +44,8 @@ public class RascalValue extends RascalDebugElement implements IValue {
 	private final static int MAX_VALUE_STRING = 1000;
 	private final RascalStackFrame target;
 	private final org.eclipse.imp.pdb.facts.IValue value;
-  private final Type decl;
-  private IVariable[] children = null;
+	private final Type decl;
+	private IVariable[] children = null;
 
 	public RascalValue(RascalStackFrame target, Type decl, org.eclipse.imp.pdb.facts.IValue value) {
 		super(target.getRascalDebugTarget());

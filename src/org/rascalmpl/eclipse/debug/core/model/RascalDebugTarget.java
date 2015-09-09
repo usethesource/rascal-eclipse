@@ -28,9 +28,9 @@ import org.rascalmpl.debug.IDebugMessage;
 import org.rascalmpl.debug.IDebugSupport;
 import org.rascalmpl.debug.IRascalEventListener;
 import org.rascalmpl.debug.IRascalEventTrigger;
+import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.debug.RascalEvent;
 import org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint;
-import org.rascalmpl.interpreter.Evaluator;
 
 
 /**
@@ -55,7 +55,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	private IThread[] fThreads;
 	private RascalThread fThread;
 
-    private final Evaluator fEvaluator;
+    private final IRascalRuntimeInspection fEvaluator;
 	
 
 	/**
@@ -65,7 +65,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	 * @param console Rascal console
 	 * @exception CoreException if unable to connect to host
 	 */
-	public RascalDebugTarget(Evaluator eval, ILaunch launch, IRascalEventTrigger eventTrigger, IDebugSupport debugSupport) throws CoreException {
+	public RascalDebugTarget(IRascalRuntimeInspection eval, ILaunch launch, IRascalEventTrigger eventTrigger, IDebugSupport debugSupport) throws CoreException {
 		super(null);
 
 		fEvaluator = eval;
@@ -386,10 +386,7 @@ public class RascalDebugTarget extends RascalDebugElement implements IDebugTarge
 	  }
 	}
 
-
-
-    public Evaluator getEvaluator() {
+    public IRascalRuntimeInspection getEvaluator() {
         return fEvaluator;
     }
-	
 }

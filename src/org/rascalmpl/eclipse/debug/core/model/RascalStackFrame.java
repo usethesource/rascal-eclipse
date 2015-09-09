@@ -25,9 +25,8 @@ import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.debug.IRascalFrame;
+import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 public class RascalStackFrame extends RascalDebugElement implements IStackFrame {
@@ -51,7 +50,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 
   private final String name; 
 
-	public RascalStackFrame(RascalThread thread, Environment environment, ISourceLocation location, IStackFrame parent) {
+	public RascalStackFrame(RascalThread thread, IRascalFrame environment, ISourceLocation location, IStackFrame parent) {
 		super(thread.getDebugTarget());
 		this.parent = parent;
 		this.thread = thread;
@@ -61,22 +60,33 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 		this.name = environment.getName();
 	}
 	
-	private IVariable[] initVariables(Environment environment) {
+	private IVariable[] initVariables(IRascalFrame environment) {
 	  //manage the list of variables local to the current module
-    Set<String> keys = environment.getVariables().keySet();
+    Set<String> keys = environment.getFrameVariables();
     List<String> vars = new ArrayList<>(keys.size());
     vars.addAll(keys);
     Collections.sort(vars);
 
-    IVariable[] ivars = new IVariable[vars.size()];
-    int i = 0;
+    ArrayList<IVariable> ivars = new ArrayList<>(vars.size() * 2);
 
     for (String v : vars) {
-      Result<IValue> var = environment.getVariable(v);
-      ivars[i++] = new RascalVariable(this, v, var.getType(), var.getValue());
+      IRascalResult var = environment.getFrameVariable(v);
+      ivars.add(new RascalVariable(this, v, var.getType(), var.getValue()));
     }
     
-    return ivars;
+    for (String s:environment.getImports()) {
+        IRascalFrame module = thread.getRascalDebugTarget().getEvaluator().getModule(s);
+        
+        if (module != null) {
+            Set<String> variables = module.getFrameVariables();
+            for (String v:variables) {
+                IRascalResult w = module.getFrameVariable(v);
+                ivars.add(new RascalVariable(this, s + "::" + v, w.getType(), w.getValue()));
+            }
+        }
+    }
+    
+    return ivars.toArray(new IVariable[ivars.size()]);
   }
 
   /* (non-Javadoc)

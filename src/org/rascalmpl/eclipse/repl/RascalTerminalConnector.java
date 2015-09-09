@@ -47,6 +47,7 @@ import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
 import org.rascalmpl.debug.AbstractInterpreterEventTrigger;
 import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.IRascalEventListener;
+import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.editor.EditorUtil;
@@ -150,7 +151,7 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                             
                             if (module != null) {
                                 eval.doImport(null, module);
-                                Result<IValue> mainFunc = eval.getCurrentEnvt().getVariable("main");
+                                Result<IValue> mainFunc = eval.getCurrentEnvt().getFrameVariable("main");
 
                                 // do not move this queue before the mainFunc initializer
                                 super.queueCommand("import " + module + ";");
@@ -193,7 +194,7 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                             }
                         }
                         
-                        private void connectToEclipseDebugAPI(Evaluator eval) {
+                        private void connectToEclipseDebugAPI(IRascalRuntimeInspection eval) {
                             try {
                                 RascalDebugTarget  debugTarget = new RascalDebugTarget(eval, launch, eventTrigger, debugHandler);
                                 launch.addDebugTarget(debugTarget);
