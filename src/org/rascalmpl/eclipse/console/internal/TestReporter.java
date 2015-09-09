@@ -47,6 +47,11 @@ public class TestReporter implements ITestResultListener {
 	}
 
 	@Override
+	public void ignored(String test, ISourceLocation loc) {
+	    // ignore
+	}
+	
+	@Override
 	public void done() {
 		for (IFile file : reports.keySet()) {
 			reportForFile(file, reports.get(file));
@@ -98,7 +103,7 @@ public class TestReporter implements ITestResultListener {
 	
 
 	@Override
-	public void start(int count) {
+	public void start(String context, int count) {
 		reports = new HashMap<IFile,List<Report>>();
 	}	
 	
