@@ -41,6 +41,7 @@ import org.osgi.framework.Version;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.console.ConsoleFactory;
+import org.rascalmpl.eclipse.repl.RascalTerminalRegistry;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 
 public class RascalProjectWizard extends BasicNewProjectResourceWizard {
@@ -70,7 +71,7 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 						project.setDefaultCharset("UTF-8", monitor); // now let's just force new rascal projects to be UTF-8.
 						initializeProjectAsRascalProject(project, monitor, service, plugin);
 						initializeProjectAsJavaProject(project);
-						ConsoleFactory.getInstance().launchConsole(project, ILaunchManager.DEBUG_MODE);
+						RascalTerminalRegistry.launchTerminal(project.getName(), ILaunchManager.DEBUG_MODE);
 					}
 					finally {
 						context.ungetService(ref);
@@ -92,7 +93,7 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 						service.newRequiredBundle("rascal", null, false, false)
 						});
 				plugin.setBundleVersion(Version.parseVersion("1.0.0"));
-				plugin.setExecutionEnvironments(new String[] { "JavaSE-1.6"}); // TODO: Is this a constant defined somewhere?
+				plugin.setExecutionEnvironments(new String[] { "JavaSE-1.8"}); // TODO: Is this a constant defined somewhere?
 
 				IProjectDescription description = project.getDescription();
 				description.setBuildConfigs(new String[] { "org.eclipse.jdt.core.javabuilder", "org.eclipse.pde.ManifestBuilder", "org.eclipse.pde.SchemaBuilder" });
