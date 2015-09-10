@@ -78,6 +78,8 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
     private ILaunch launch;
     private WarningsToPrintWriter warnings;
     private ModuleReloader reloader;
+    private int terminalHeight = 24;
+    private int terminalWidth = 80;
   
    
     @Override
@@ -266,13 +268,13 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
 
 
     private Terminal configure(ITerminalControl control) {
-        Terminal tm = TerminalFactory.get();
-        tm.setEchoEnabled(false);
-        control.setVT100LineWrapping(false);
-        VT100Emulator text = ((VT100TerminalControl)control).getTerminalText();
+        VT100TerminalControl vtControl = (VT100TerminalControl) control;
+        Terminal tm = new TMTerminalTerminal(vtControl, this);
+        vtControl.setVT100LineWrapping(false);
+        VT100Emulator text = vtControl.getTerminalText();
         text.setCrAfterNewLine(true);
-        ((VT100TerminalControl)control).setConnectOnEnterIfClosed(false);
-        ((VT100TerminalControl)control).setBufferLineLimit(10_000);
+        vtControl.setConnectOnEnterIfClosed(false);
+        vtControl.setBufferLineLimit(10_000);
         try {
           control.setEncoding(StandardCharsets.UTF_8.name());
         }
@@ -433,6 +435,21 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
         public void mouseDoubleClick(ITerminalTextDataReadOnly model, int line, int offset) {
             // TODO: copy source loc to clipboard
         }
+    }
+    
+    @Override
+    public void setTerminalSize(int newWidth, int newHeight) {
+        super.setTerminalSize(newWidth, newHeight);
+        terminalHeight = newHeight;
+        terminalWidth = newWidth;
+    }
+
+    public int getHeight() {
+        return terminalHeight;
+    }
+
+    public int getWidth() {
+        return terminalWidth;
     }
 
 }
