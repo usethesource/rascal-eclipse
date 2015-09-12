@@ -21,7 +21,6 @@ import java.nio.charset.Charset;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
