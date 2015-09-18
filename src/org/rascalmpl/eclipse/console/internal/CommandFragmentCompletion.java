@@ -35,7 +35,7 @@ public class CommandFragmentCompletion {
 	  OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(currentConsoleInput, currentCursorPosition);
 	  if (identifier != null) {
 	    originalTerm = identifier.term;
-			suggestions = eval.completePartialIdentifier(originalTerm).iterator();
+			suggestions = eval.completePartialIdentifier("",originalTerm).iterator();
 			return new Pair<>(identifier.offset, identifier.length);
 		}
 		return new Pair<>(0, 0);
