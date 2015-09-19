@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 
@@ -277,5 +278,31 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	@Override
 	public IResource getResource(ISourceLocation uri) throws IOException {
 		return resolve(uri);
+	}
+
+	@Override
+	public boolean supportsToFileURI() {
+		return true;
+	}
+
+	@Override
+	public URI toFileURI(ISourceLocation uri) {
+		if (isDirectory(uri)) {
+			try {
+				return resolveFolder(uri).getRawLocationURI();
+			} catch (IOException e) {
+				// should not happen
+				e.printStackTrace();
+			}
+		}
+		if (isFile(uri)) {
+			try {
+				return resolveFile(uri).getRawLocationURI();
+			} catch (IOException e) {
+				// should not happen
+				e.printStackTrace();
+			}
+		}
+		throw new IllegalArgumentException("Can only convert files and directories to File URI, not workspaces and projects");
 	}
 }

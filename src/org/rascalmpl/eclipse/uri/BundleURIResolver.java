@@ -14,6 +14,7 @@ package org.rascalmpl.eclipse.uri;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -134,5 +135,15 @@ public class BundleURIResolver implements  ISourceLocationInputOutput {
 	@Override
 	public Charset getCharset(ISourceLocation uri) {
 		return Charset.defaultCharset(); // TODO
+	}
+	
+	@Override
+	public boolean supportsToFileURI() {
+		return false;
+	}
+
+	@Override
+	public URI toFileURI(ISourceLocation uri) {
+		throw new UnsupportedOperationException("Cannot convert bundle to File URI");
 	}
 }
