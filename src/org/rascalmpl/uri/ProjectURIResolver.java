@@ -10,7 +10,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.eclipse.uri;
+package org.rascalmpl.uri;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;

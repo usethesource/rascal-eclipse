@@ -32,13 +32,13 @@ Require-Bundle: org.eclipse.imp.pdb.ui,
  org.eclipse.tm.terminal.view.core,
  org.eclipse.tm.terminal.view.ui,
  org.eclipse.tm.terminal.connector.process
-Export-Package: org.rascalmpl.eclipse.nature,
-  org.rascalmpl.eclipse.console,
-  org.rascalmpl.eclipse.editor,
-  org.rascalmpl.eclipse.launch,
-  org.rascalmpl.eclipse.outline,
-  org.rascalmpl.eclipse.perspective,
-  org.rascalmpl.eclipse.terms,
-  org.rascalmpl.eclipse.uri,
-  org.rascalmpl.eclipse.wizards
+Export-Package: org.rascalmpl.eclipse.console,
+ org.rascalmpl.eclipse.editor,
+ org.rascalmpl.eclipse.launch,
+ org.rascalmpl.eclipse.nature,
+ org.rascalmpl.eclipse.outline,
+ org.rascalmpl.eclipse.perspective,
+ org.rascalmpl.eclipse.terms,
+ org.rascalmpl.eclipse.wizards,
+ org.rascalmpl.uri
 Import-Package: org.eclipse.core.expressions

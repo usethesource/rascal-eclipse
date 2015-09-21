@@ -764,7 +764,7 @@
           name="projectURIResolver"
           point="rascal_eclipse.uriResolver">
         <uriResolver
-              class="org.rascalmpl.eclipse.uri.ProjectURIResolver"
+              class="org.rascalmpl.uri.ProjectURIResolver"
               scheme="project"> </uriResolver>
     </extension>
     <extension
@@ -772,7 +772,7 @@
           name="projectURIResolver"
           point="rascal_eclipse.uriResolver">
         <uriResolver
-              class="org.rascalmpl.eclipse.uri.FileURIResourceResolver"
+              class="org.rascalmpl.uri.FileURIResourceResolver"
               scheme="file"> </uriResolver>
     </extension>
     <extension

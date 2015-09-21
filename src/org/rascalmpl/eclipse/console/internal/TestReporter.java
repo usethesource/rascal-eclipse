@@ -27,8 +27,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.uri.URIResourceResolver;
 
 public class TestReporter implements ITestResultListener {
 	private Map<IFile,List<Report>> reports;

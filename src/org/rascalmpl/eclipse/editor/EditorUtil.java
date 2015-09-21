@@ -19,12 +19,12 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.navigator.RascalNavigator;
-import org.rascalmpl.eclipse.uri.URIEditorInput;
-import org.rascalmpl.eclipse.uri.URIResourceResolver;
-import org.rascalmpl.eclipse.uri.URIStorage;
 import org.rascalmpl.eclipse.views.Tutor;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.uri.URIEditorInput;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIResourceResolver;
+import org.rascalmpl.uri.URIStorage;
 
 public class EditorUtil {
 	

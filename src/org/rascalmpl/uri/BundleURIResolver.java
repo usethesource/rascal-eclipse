@@ -9,7 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *******************************************************************************/
-package org.rascalmpl.eclipse.uri;
+package org.rascalmpl.uri;
 
 import java.io.IOException;
 import java.io.InputStream;

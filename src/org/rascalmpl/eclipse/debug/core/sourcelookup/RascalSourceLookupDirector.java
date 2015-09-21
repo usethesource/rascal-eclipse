@@ -21,9 +21,9 @@ import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
-import org.rascalmpl.eclipse.uri.URIEditorInput;
-import org.rascalmpl.eclipse.uri.URIResourceResolver;
-import org.rascalmpl.eclipse.uri.URIStorage;
+import org.rascalmpl.uri.URIEditorInput;
+import org.rascalmpl.uri.URIResourceResolver;
+import org.rascalmpl.uri.URIStorage;
 
 public class RascalSourceLookupDirector extends AbstractSourceLookupDirector implements ISourcePresentation {
 	/* (non-Javadoc)

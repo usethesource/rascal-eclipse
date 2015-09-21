@@ -36,9 +36,9 @@ import org.rascalmpl.eclipse.editor.ParseController;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMarkers;
-import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.values.uptr.ITree;
 
 public class RunStaticChecker extends AbstractEditorAction {
