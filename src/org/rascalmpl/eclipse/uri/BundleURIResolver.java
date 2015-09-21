@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,11 +26,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BundleURIResolver implements  ISourceLocationInputOutput {
-	private URIResolverRegistry registry;
-
-	public BundleURIResolver(URIResolverRegistry registry) {
-		this.registry = registry;
-	}
+	private final URIResolverRegistry registry = URIResolverRegistry.getInstance();
 
 	@Override
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append)

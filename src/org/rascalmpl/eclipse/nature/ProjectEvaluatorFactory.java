@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -37,6 +38,7 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -54,10 +56,10 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.uri.JarInputStreamURIResolver;
-import org.rascalmpl.uri.JarURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.jar.JarInputStreamURIResolver;
+import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ProjectEvaluatorFactory {
@@ -238,11 +240,15 @@ public class ProjectEvaluatorFactory {
 				
 				List<String> libs = mf.getRequiredLibraries(bundle);
 				if (libs != null) {
+				    
 					for (String required : libs) {
 						try {
-							JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(ValueFactoryFactory.getValueFactory().sourceLocation(bundle.getEntry(required).toURI()));
+						    URI entryURI = bundle.getEntry(required).toURI();
+						    
+						    
+							JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(ValueFactoryFactory.getValueFactory().sourceLocation();
 							URIResolverRegistry.getInstance().registerInput(resolver);
-							addJarToSearchPath(resolver, eval);
+							addJarToSearchPath(bundle.getEntry(required)., eval);
 						} catch (IOException e) {
 							Activator.log("ignoring lib " + required, e);
 						}
@@ -399,28 +405,20 @@ public class ProjectEvaluatorFactory {
 		List<String> requiredLibraries = mf.getRequiredLibraries(project);
 		if (requiredLibraries != null) {
 			for (String lib : requiredLibraries) {
-				try {
-					JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(ValueFactoryFactory.getValueFactory().sourceLocation(project.getFile(lib).getLocationURI()));
-					URIResolverRegistry.getInstance().registerInput(resolver);
-					addJarToSearchPath(resolver, eval);
-				} 
-				catch (IOException e) {
-					Activator.log("ignoring lib " + lib, e);
-				}
+			    addJarToSearchPath(eval.getValueFactory().sourceLocation("jar", "", project.getFile(lib).getFullPath().makeAbsolute().toString() + "!/"), eval);
 			}
 		}
 	}
   
-  public static void addJarToSearchPath(JarInputStreamURIResolver resolver, Evaluator eval) throws URISyntaxException, IOException {
-	  try (JarInputStream jarStream = new JarInputStream(resolver.getJarStream())) {
-		  List<String> roots = new RascalManifest().getSourceRoots(jarStream);
+  public static void addJarToSearchPath(ISourceLocation jar, Evaluator eval) {
+      RascalManifest mf = new RascalManifest();
+      List<String> roots = mf.getManifestSourceRoots(mf.manifest(jar));
 
-		  if (roots != null) {
-			  for (String root : roots) {
-				  eval.addRascalSearchPath(URIUtil.correctLocation(resolver.scheme(), "", "/" + root));
-			  }
-		  }
-	  }
+      if (roots != null) {
+          for (String root : roots) {
+              eval.addRascalSearchPath(URIUtil.getChildLocation(jar, root));
+          }
+      }
   }
   
   public static void addBundleToSearchPath(Bundle bundle, Evaluator eval) throws URISyntaxException {

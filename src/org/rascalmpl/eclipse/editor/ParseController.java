@@ -56,7 +56,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Modules;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.uri.file.FileURIResolver;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
