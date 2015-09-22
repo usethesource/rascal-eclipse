@@ -77,6 +77,7 @@ public class ProjectEvaluatorFactory {
 	}
 	
 	public static ProjectEvaluatorFactory getInstance() {
+//	    Thread.currentThread().setContextClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
 		return InstanceHolder.sInstance;
 	}
 	
