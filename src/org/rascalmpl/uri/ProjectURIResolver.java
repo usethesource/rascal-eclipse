@@ -76,6 +76,10 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	}
 
 	public IFile resolveFile(ISourceLocation uri) throws IOException, MalformedURLException {
+	    if ("".equals(uri.getAuthority())) {
+            throw new IOException("location needs a project name as authority" + uri);
+        }
+	    
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		
 		if (project == null) {
@@ -86,6 +90,10 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	}
 	
 	private IContainer resolveFolder(ISourceLocation uri) throws IOException, MalformedURLException {
+	    if ("".equals(uri.getAuthority())) {
+	        throw new IOException("location needs a project name as authority" + uri);
+	    }
+	    
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		if (project == null) {
 			throw new IOException("project " + uri.getAuthority() + " does not exist");
@@ -100,6 +108,10 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	}
 
 	private IResource resolve(ISourceLocation uri) throws IOException, MalformedURLException {
+	    if ("".equals(uri.getAuthority())) {
+	        throw new IOException("location needs a project name as authority" + uri);
+	    }
+	    
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		
 		if (project == null || !project.exists()) {
