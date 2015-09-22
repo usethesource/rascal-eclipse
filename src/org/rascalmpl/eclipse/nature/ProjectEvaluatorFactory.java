@@ -28,7 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.jar.JarInputStream;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -47,19 +46,13 @@ import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
-import org.rascalmpl.eclipse.uri.BundleURIResolver;
-import org.rascalmpl.eclipse.uri.PluginURIResolver;
-import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.jar.JarInputStreamURIResolver;
-import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ProjectEvaluatorFactory {
@@ -161,23 +154,10 @@ public class ProjectEvaluatorFactory {
 	 */
 	public static void configure(Evaluator evaluator) {
 		// NB. the code in this method is order dependent because it constructs a rascal module path in a particular order
-		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
-
-		ProjectURIResolver resolver = new ProjectURIResolver();
-		resolverRegistry.registerInput(resolver);
-		resolverRegistry.registerOutput(resolver);
-
-		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
-		resolverRegistry.registerInput(bundleResolver);
-		resolverRegistry.registerOutput(bundleResolver);
-
-		resolverRegistry.registerInput(new JarURIResolver());
-		resolverRegistry.registerInput(new PluginURIResolver(resolverRegistry));
-		
 		evaluator.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
-
 		configureRascalLibraryPlugins(evaluator);
 	}
+	
 	/**
 	 * This method configures an evaluator for use in an eclipse context. 
 	 * @param project context to run the evaluator in, may be null
@@ -240,18 +220,9 @@ public class ProjectEvaluatorFactory {
 				
 				List<String> libs = mf.getRequiredLibraries(bundle);
 				if (libs != null) {
-				    
 					for (String required : libs) {
-						try {
-						    URI entryURI = bundle.getEntry(required).toURI();
-						    
-						    
-							JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(ValueFactoryFactory.getValueFactory().sourceLocation();
-							URIResolverRegistry.getInstance().registerInput(resolver);
-							addJarToSearchPath(bundle.getEntry(required)., eval);
-						} catch (IOException e) {
-							Activator.log("ignoring lib " + required, e);
-						}
+					    URI entryURI = bundle.getEntry(required).toURI();
+					    addJarToSearchPath(eval.getValueFactory().sourceLocation(entryURI), eval);
 					}
 				}
 			} 
@@ -405,20 +376,26 @@ public class ProjectEvaluatorFactory {
 		List<String> requiredLibraries = mf.getRequiredLibraries(project);
 		if (requiredLibraries != null) {
 			for (String lib : requiredLibraries) {
-			    addJarToSearchPath(eval.getValueFactory().sourceLocation("jar", "", project.getFile(lib).getFullPath().makeAbsolute().toString() + "!/"), eval);
+			    addJarToSearchPath(eval.getValueFactory().sourceLocation("jar", "", project.getFile(lib).getFullPath().makeAbsolute().toString()), eval);
 			}
 		}
 	}
   
   public static void addJarToSearchPath(ISourceLocation jar, Evaluator eval) {
-      RascalManifest mf = new RascalManifest();
-      List<String> roots = mf.getManifestSourceRoots(mf.manifest(jar));
+      try {
+          String path = jar.getPath().endsWith("!/") ? jar.getPath() : jar.getPath() + "!/";
+          ISourceLocation prefix = URIUtil.changePath(jar, path);
+          RascalManifest mf = new RascalManifest();
+          List<String> roots = mf.getManifestSourceRoots(mf.manifest(jar));
 
-      if (roots != null) {
-          for (String root : roots) {
-              eval.addRascalSearchPath(URIUtil.getChildLocation(jar, root));
+          if (roots != null) {
+              for (String root : roots) {
+                  eval.addRascalSearchPath(URIUtil.getChildLocation(prefix, root));
+              }
           }
-      }
+      } catch (URISyntaxException e) {
+        Activator.log("could not add jar to search path " + jar, e);
+      } 
   }
   
   public static void addBundleToSearchPath(Bundle bundle, Evaluator eval) throws URISyntaxException {
