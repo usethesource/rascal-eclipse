@@ -155,6 +155,7 @@ public class ProjectEvaluatorFactory {
 	 */
 	public static void configure(Evaluator evaluator) {
 		// NB. the code in this method is order dependent because it constructs a rascal module path in a particular order
+	    evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
 		evaluator.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
 		configureRascalLibraryPlugins(evaluator);
 	}
@@ -167,6 +168,7 @@ public class ProjectEvaluatorFactory {
 	public void configure(IProject project, Evaluator evaluator) {
 		if (project != null) {
 			try {
+			    
 				addProjectToSearchPath(project, evaluator);
 				
 				IProject[] projects = project.getReferencedProjects();
