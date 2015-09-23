@@ -31,10 +31,8 @@ import org.eclipse.ui.progress.WorkbenchJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
-import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.tutor.RascalTutor;
-import org.rascalmpl.uri.URIResolverRegistry;
 
 public class Tutor extends ViewPart {
 	public static final String ID = ID_RASCAL_TUTOR_VIEW_PART;
@@ -131,10 +129,6 @@ public class Tutor extends ViewPart {
 						Evaluator eval = tutor.getRascalEvaluator();
 						
 						eval.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
-						ProjectURIResolver resolver = new ProjectURIResolver();
-						URIResolverRegistry reg = URIResolverRegistry.getInstance();
-						reg.registerInput(resolver);
-						reg.registerOutput(resolver);
 						
 						// This is to make parser generation work (a JDK classpath has to be constructed)
 						ProjectEvaluatorFactory.configureClassPath(Activator.getInstance().getBundle(), eval);						

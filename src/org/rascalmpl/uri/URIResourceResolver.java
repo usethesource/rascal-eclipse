@@ -1,4 +1,4 @@
-package org.rascalmpl.eclipse.uri;
+package org.rascalmpl.uri;
 
 import java.io.IOException;
 

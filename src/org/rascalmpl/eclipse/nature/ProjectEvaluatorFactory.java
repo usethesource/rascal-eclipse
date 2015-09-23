@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -27,7 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.jar.JarInputStream;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -37,6 +37,7 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -45,18 +46,13 @@ import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
-import org.rascalmpl.eclipse.uri.BundleURIResolver;
-import org.rascalmpl.eclipse.uri.PluginURIResolver;
-import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.uri.JarInputStreamURIResolver;
-import org.rascalmpl.uri.JarURIResolver;
-import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -159,23 +155,11 @@ public class ProjectEvaluatorFactory {
 	 */
 	public static void configure(Evaluator evaluator) {
 		// NB. the code in this method is order dependent because it constructs a rascal module path in a particular order
-		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
-
-		ProjectURIResolver resolver = new ProjectURIResolver();
-		resolverRegistry.registerInput(resolver);
-		resolverRegistry.registerOutput(resolver);
-
-		BundleURIResolver bundleResolver = new BundleURIResolver(resolverRegistry);
-		resolverRegistry.registerInput(bundleResolver);
-		resolverRegistry.registerOutput(bundleResolver);
-
-		resolverRegistry.registerInput(new JarURIResolver());
-		resolverRegistry.registerInput(new PluginURIResolver(resolverRegistry));
-		
+	    evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
 		evaluator.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
-
 		configureRascalLibraryPlugins(evaluator);
 	}
+	
 	/**
 	 * This method configures an evaluator for use in an eclipse context. 
 	 * @param project context to run the evaluator in, may be null
@@ -184,6 +168,7 @@ public class ProjectEvaluatorFactory {
 	public void configure(IProject project, Evaluator evaluator) {
 		if (project != null) {
 			try {
+			    
 				addProjectToSearchPath(project, evaluator);
 				
 				IProject[] projects = project.getReferencedProjects();
@@ -239,13 +224,8 @@ public class ProjectEvaluatorFactory {
 				List<String> libs = mf.getRequiredLibraries(bundle);
 				if (libs != null) {
 					for (String required : libs) {
-						try {
-							JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(ValueFactoryFactory.getValueFactory().sourceLocation(bundle.getEntry(required).toURI()));
-							URIResolverRegistry.getInstance().registerInput(resolver);
-							addJarToSearchPath(resolver, eval);
-						} catch (IOException e) {
-							Activator.log("ignoring lib " + required, e);
-						}
+					    URI entryURI = bundle.getEntry(required).toURI();
+					    addJarToSearchPath(eval.getValueFactory().sourceLocation(entryURI), eval);
 					}
 				}
 			} 
@@ -386,7 +366,7 @@ public class ProjectEvaluatorFactory {
 			throws URISyntaxException {
 		RascalEclipseManifest mf = new RascalEclipseManifest();
 		for (String root : mf.getSourceRoots(project)) {
-			eval.addRascalSearchPath(URIUtil.correctLocation("project", project.getName(), "/" + root.trim()));
+			eval.addRascalSearchPath(ProjectURIResolver.constructProjectURI(project, project.getFile(root).getProjectRelativePath()));
 		}
 		
 		List<String> requiredBundles = mf.getRequiredBundles(project);
@@ -399,28 +379,28 @@ public class ProjectEvaluatorFactory {
 		List<String> requiredLibraries = mf.getRequiredLibraries(project);
 		if (requiredLibraries != null) {
 			for (String lib : requiredLibraries) {
-				try {
-					JarInputStreamURIResolver resolver = new JarInputStreamURIResolver(ValueFactoryFactory.getValueFactory().sourceLocation(project.getFile(lib).getLocationURI()));
-					URIResolverRegistry.getInstance().registerInput(resolver);
-					addJarToSearchPath(resolver, eval);
-				} 
-				catch (IOException e) {
-					Activator.log("ignoring lib " + lib, e);
-				}
+			    addJarToSearchPath(ProjectURIResolver.constructProjectURI(project, project.getFile(lib).getProjectRelativePath()), eval);
 			}
 		}
 	}
   
-  public static void addJarToSearchPath(JarInputStreamURIResolver resolver, Evaluator eval) throws URISyntaxException, IOException {
-	  try (JarInputStream jarStream = new JarInputStream(resolver.getJarStream())) {
-		  List<String> roots = new RascalManifest().getSourceRoots(jarStream);
+  public static void addJarToSearchPath(ISourceLocation jar, Evaluator eval) {
+      try {
+          String scheme = "jar+" + jar.getScheme();
+          String path = jar.getPath().endsWith("!/") ? jar.getPath() : jar.getPath() + "!/";
+          ISourceLocation prefix = URIUtil.changeScheme(URIUtil.changePath(jar, path), scheme);
+          
+          RascalManifest mf = new RascalManifest();
+          List<String> roots = mf.getManifestSourceRoots(mf.manifest(jar));
 
-		  if (roots != null) {
-			  for (String root : roots) {
-				  eval.addRascalSearchPath(URIUtil.correctLocation(resolver.scheme(), "", "/" + root));
-			  }
-		  }
-	  }
+          if (roots != null) {
+              for (String root : roots) {
+                  eval.addRascalSearchPath(URIUtil.getChildLocation(prefix, root));
+              }
+          }
+      } catch (URISyntaxException e) {
+        Activator.log("could not add jar to search path " + jar, e);
+      } 
   }
   
   public static void addBundleToSearchPath(Bundle bundle, Evaluator eval) throws URISyntaxException {

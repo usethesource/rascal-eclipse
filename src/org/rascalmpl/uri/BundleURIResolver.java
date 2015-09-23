@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,7 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *******************************************************************************/
-package org.rascalmpl.eclipse.uri;
+package org.rascalmpl.uri;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,30 +26,25 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BundleURIResolver implements  ISourceLocationInputOutput {
-	private URIResolverRegistry registry;
-
-	public BundleURIResolver(URIResolverRegistry registry) {
-		this.registry = registry;
-	}
 
 	@Override
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append)
 			throws IOException {
 		ISourceLocation parent = resolve(URIUtil.getParentLocation(uri));
 		parent = resolve(parent);
-		return registry.getOutputStream(URIUtil.getChildLocation(parent, URIUtil.getLocationName(uri)), append);
+		return URIResolverRegistry.getInstance().getOutputStream(URIUtil.getChildLocation(parent, URIUtil.getLocationName(uri)), append);
 	}
 
 	@Override
 	public void mkDirectory(ISourceLocation uri) throws IOException {
 		ISourceLocation parent = resolve(URIUtil.getParentLocation(uri));
 		parent = resolve(parent);
-		registry.mkDirectory(URIUtil.getChildLocation(parent, URIUtil.getLocationName(uri)));
+		URIResolverRegistry.getInstance().mkDirectory(URIUtil.getChildLocation(parent, URIUtil.getLocationName(uri)));
 	}
 
 	@Override
 	public void remove(ISourceLocation uri) throws IOException {
-		registry.remove(resolve(uri));
+	    URIResolverRegistry.getInstance().remove(resolve(uri));
 	}
 
 	@Override
@@ -60,7 +55,7 @@ public class BundleURIResolver implements  ISourceLocationInputOutput {
 	@Override
 	public boolean exists(ISourceLocation uri) {
 		try {
-			return registry.exists(resolve(uri));
+			return URIResolverRegistry.getInstance().exists(resolve(uri));
 		} catch (IOException e) {
 			return false;
 		}
@@ -68,7 +63,7 @@ public class BundleURIResolver implements  ISourceLocationInputOutput {
 
 	@Override
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {
-		return registry.getInputStream(resolve(uri));
+		return URIResolverRegistry.getInstance().getInputStream(resolve(uri));
 	}
 
 	protected ISourceLocation resolve(ISourceLocation uri) throws IOException {
@@ -101,7 +96,7 @@ public class BundleURIResolver implements  ISourceLocationInputOutput {
 	@Override
 	public boolean isDirectory(ISourceLocation uri) {
 		try {
-			return registry.isDirectory(resolve(uri));
+			return URIResolverRegistry.getInstance().isDirectory(resolve(uri));
 		} catch (IOException e) {
 			return false;
 		}
@@ -110,7 +105,7 @@ public class BundleURIResolver implements  ISourceLocationInputOutput {
 	@Override
 	public boolean isFile(ISourceLocation uri) {
 		try {
-			return registry.isFile(resolve(uri));
+			return URIResolverRegistry.getInstance().isFile(resolve(uri));
 		} catch (IOException e) {
 			return false;
 		}
@@ -118,12 +113,12 @@ public class BundleURIResolver implements  ISourceLocationInputOutput {
 
 	@Override
 	public long lastModified(ISourceLocation uri) throws IOException {
-		return registry.lastModified(resolve(uri));
+		return URIResolverRegistry.getInstance().lastModified(resolve(uri));
 	}
 
 	@Override
 	public String[] list(ISourceLocation uri) throws IOException {
-		return registry.listEntries(resolve(uri));
+		return URIResolverRegistry.getInstance().listEntries(resolve(uri));
 	}
 
 	@Override

@@ -8,7 +8,7 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.eclipse.uri;
+package org.rascalmpl.uri;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,15 +17,10 @@ import java.net.URL;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class PluginURIResolver extends BundleURIResolver {
 
-	public PluginURIResolver(URIResolverRegistry registry) {
-		super(registry);
-	}
-	
 	@Override
 	public String scheme() {
 		return "plugin";

@@ -20,7 +20,7 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.SearchPath;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
-import org.rascalmpl.eclipse.uri.URIResourceResolver;
+import org.rascalmpl.uri.URIResourceResolver;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 

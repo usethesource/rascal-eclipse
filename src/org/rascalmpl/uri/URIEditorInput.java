@@ -8,7 +8,7 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.eclipse.uri;
+package org.rascalmpl.uri;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;

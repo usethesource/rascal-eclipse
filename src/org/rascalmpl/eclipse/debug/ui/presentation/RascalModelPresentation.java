@@ -33,8 +33,8 @@ import org.rascalmpl.eclipse.debug.core.model.RascalStackFrame;
 import org.rascalmpl.eclipse.debug.core.model.RascalThread;
 import org.rascalmpl.eclipse.debug.core.model.RascalValue;
 import org.rascalmpl.eclipse.debug.core.model.RascalVariable;
-import org.rascalmpl.eclipse.uri.URIEditorInput;
-import org.rascalmpl.eclipse.uri.URIStorage;
+import org.rascalmpl.uri.URIEditorInput;
+import org.rascalmpl.uri.URIStorage;
 
 /**
  * Renders Rascal debug elements

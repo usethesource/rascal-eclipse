@@ -40,7 +40,6 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
-import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -50,6 +49,7 @@ import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.uri.ProjectURIResolver;
 
 public class Builder extends BuilderBase {
 	private static final TermLanguageRegistry registry = TermLanguageRegistry.getInstance();
@@ -96,7 +96,7 @@ public class Builder extends BuilderBase {
 			RascalMonitor rmonitor = new RascalMonitor(monitor, warnings);
 			IValueFactory VF = parser.getEval().getValueFactory();
 			ISourceProject project = ModelFactory.open(file.getProject());
-			ISourceLocation loc = ProjectURIResolver.constructProjectURI(project, file.getProjectRelativePath());
+			ISourceLocation loc = ProjectURIResolver.constructProjectURI(project.getRawProject(), file.getProjectRelativePath());
 			contents = file.getContents();
 			input = new String(InputConverter.toChar(contents, Charset.forName(file.getCharset())));
 

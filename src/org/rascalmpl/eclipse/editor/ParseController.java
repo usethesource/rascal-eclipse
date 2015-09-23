@@ -49,14 +49,14 @@ import org.rascalmpl.eclipse.nature.IWarningHandler;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
-import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Modules;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.uri.ProjectURIResolver;
+import org.rascalmpl.uri.file.FileURIResolver;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -126,7 +126,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		ISourceLocation location = null;
 		
 		if (project != null) {
-			location = ProjectURIResolver.constructProjectURI(project, path);
+			location = ProjectURIResolver.constructProjectURI(project.getRawProject(), path);
 			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(project.getRawProject(), new WarningsToMessageHandler(location, handler));
 		} else {
 			location = FileURIResolver.constructFileURI(path.toString());

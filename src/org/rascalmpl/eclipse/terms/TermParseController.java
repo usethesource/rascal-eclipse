@@ -45,12 +45,12 @@ import org.rascalmpl.eclipse.editor.TokenIterator;
 import org.rascalmpl.eclipse.nature.IWarningHandler;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
-import org.rascalmpl.eclipse.uri.ProjectURIResolver;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.uri.FileURIResolver;
+import org.rascalmpl.uri.ProjectURIResolver;
+import org.rascalmpl.uri.file.FileURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 
@@ -114,7 +114,7 @@ public class TermParseController implements IParseController {
 		ISourceLocation location = null;
 
 		if (project != null) {
-			location = ProjectURIResolver.constructProjectURI(project, path);
+			location = ProjectURIResolver.constructProjectURI(project.getRawProject(), path);
 		} else {
 			location = FileURIResolver.constructFileURI(path.toOSString());
 		}

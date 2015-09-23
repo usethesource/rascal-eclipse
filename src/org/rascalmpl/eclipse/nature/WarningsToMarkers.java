@@ -10,7 +10,7 @@ import org.eclipse.imp.builder.MarkerCreator;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.uri.URIResourceResolver;
+import org.rascalmpl.uri.URIResourceResolver;
 
 public class WarningsToMarkers implements IWarningHandler {
 

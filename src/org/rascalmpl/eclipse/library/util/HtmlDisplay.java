@@ -33,8 +33,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
-import org.rascalmpl.eclipse.uri.URIResourceResolver;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.uri.URIResourceResolver;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 

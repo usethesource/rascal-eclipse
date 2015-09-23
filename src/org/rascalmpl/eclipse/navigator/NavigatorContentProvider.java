@@ -29,9 +29,9 @@ import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
-import org.rascalmpl.eclipse.uri.URIStorage;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIStorage;
 import org.rascalmpl.uri.URIUtil;
 
 public class NavigatorContentProvider implements ITreeContentProvider, IResourceChangeListener,

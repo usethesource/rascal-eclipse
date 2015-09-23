@@ -10,7 +10,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.eclipse.uri;
+package org.rascalmpl.uri;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
@@ -32,16 +32,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.uri.BadURIException;
-import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResourceResolver {
 	
-	public static ISourceLocation constructProjectURI(ISourceProject project, IPath path){
+	public static ISourceLocation constructProjectURI(IProject project, IPath path){
 		return constructProjectURI(project.getName(), path);
 	}
 
@@ -76,6 +73,10 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	}
 
 	public IFile resolveFile(ISourceLocation uri) throws IOException, MalformedURLException {
+	    if ("".equals(uri.getAuthority())) {
+            throw new IOException("location needs a project name as authority" + uri);
+        }
+	    
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		
 		if (project == null) {
@@ -86,6 +87,10 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	}
 	
 	private IContainer resolveFolder(ISourceLocation uri) throws IOException, MalformedURLException {
+	    if ("".equals(uri.getAuthority())) {
+	        throw new IOException("location needs a project name as authority" + uri);
+	    }
+	    
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		if (project == null) {
 			throw new IOException("project " + uri.getAuthority() + " does not exist");
@@ -100,6 +105,10 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	}
 
 	private IResource resolve(ISourceLocation uri) throws IOException, MalformedURLException {
+	    if ("".equals(uri.getAuthority())) {
+	        throw new IOException("location needs a project name as authority" + uri);
+	    }
+	    
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		
 		if (project == null || !project.exists()) {

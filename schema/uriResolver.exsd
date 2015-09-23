@@ -55,7 +55,7 @@
                   
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn=":org.rascalmpl.eclipse.uri.IURIResourceResolver"/>
+                  <meta.attribute kind="java" basedOn=":org.rascalmpl.uri.IURIResourceResolver"/>
                </appInfo>
             </annotation>
          </attribute>
@@ -88,7 +88,7 @@
           name=&quot;projectURIResolver&quot;
           point=&quot;rascal_eclipse.uriResolver&quot;&gt;
         &lt;uriResolver
-              class=&quot;org.rascalmpl.eclipse.uri.ProjectResourceResolver&quot;
+              class=&quot;org.rascalmpl.uri.ProjectResourceResolver&quot;
               scheme=&quot;project&quot;&gt; &lt;/uriResolver&gt;
       </documentation>
    </annotation>
