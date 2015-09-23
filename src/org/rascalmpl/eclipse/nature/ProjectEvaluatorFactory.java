@@ -52,6 +52,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -363,7 +364,7 @@ public class ProjectEvaluatorFactory {
 			throws URISyntaxException {
 		RascalEclipseManifest mf = new RascalEclipseManifest();
 		for (String root : mf.getSourceRoots(project)) {
-			eval.addRascalSearchPath(URIUtil.correctLocation("project", project.getName(), "/" + root.trim()));
+			eval.addRascalSearchPath(ProjectURIResolver.constructProjectURI(project, project.getFile(root).getProjectRelativePath()));
 		}
 		
 		List<String> requiredBundles = mf.getRequiredBundles(project);
@@ -376,15 +377,17 @@ public class ProjectEvaluatorFactory {
 		List<String> requiredLibraries = mf.getRequiredLibraries(project);
 		if (requiredLibraries != null) {
 			for (String lib : requiredLibraries) {
-			    addJarToSearchPath(eval.getValueFactory().sourceLocation("jar", "", project.getFile(lib).getFullPath().makeAbsolute().toString()), eval);
+			    addJarToSearchPath(ProjectURIResolver.constructProjectURI(project, project.getFile(lib).getProjectRelativePath()), eval);
 			}
 		}
 	}
   
   public static void addJarToSearchPath(ISourceLocation jar, Evaluator eval) {
       try {
+          String scheme = "jar+" + jar.getScheme();
           String path = jar.getPath().endsWith("!/") ? jar.getPath() : jar.getPath() + "!/";
-          ISourceLocation prefix = URIUtil.changePath(jar, path);
+          ISourceLocation prefix = URIUtil.changeScheme(URIUtil.changePath(jar, path), scheme);
+          
           RascalManifest mf = new RascalManifest();
           List<String> roots = mf.getManifestSourceRoots(mf.manifest(jar));
 

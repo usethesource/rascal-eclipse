@@ -32,16 +32,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.uri.BadURIException;
-import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResourceResolver {
 	
-	public static ISourceLocation constructProjectURI(ISourceProject project, IPath path){
+	public static ISourceLocation constructProjectURI(IProject project, IPath path){
 		return constructProjectURI(project.getName(), path);
 	}
 

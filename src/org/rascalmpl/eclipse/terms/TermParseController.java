@@ -114,7 +114,7 @@ public class TermParseController implements IParseController {
 		ISourceLocation location = null;
 
 		if (project != null) {
-			location = ProjectURIResolver.constructProjectURI(project, path);
+			location = ProjectURIResolver.constructProjectURI(project.getRawProject(), path);
 		} else {
 			location = FileURIResolver.constructFileURI(path.toOSString());
 		}

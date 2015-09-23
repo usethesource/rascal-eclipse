@@ -126,7 +126,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		ISourceLocation location = null;
 		
 		if (project != null) {
-			location = ProjectURIResolver.constructProjectURI(project, path);
+			location = ProjectURIResolver.constructProjectURI(project.getRawProject(), path);
 			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(project.getRawProject(), new WarningsToMessageHandler(location, handler));
 		} else {
 			location = FileURIResolver.constructFileURI(path.toString());
