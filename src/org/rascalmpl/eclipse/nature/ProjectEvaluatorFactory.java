@@ -187,7 +187,7 @@ public class ProjectEvaluatorFactory {
 		configure(evaluator);
 
 		try {
-		  if (project != null && project.hasNature(JavaCore.NATURE_ID)) {
+		  if (project != null && project.isOpen() && project.hasNature(JavaCore.NATURE_ID)) {
 		    configureClassPath(project, evaluator); 
 		  }
 		}

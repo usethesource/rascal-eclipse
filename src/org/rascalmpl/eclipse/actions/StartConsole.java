@@ -36,7 +36,7 @@ public class StartConsole extends AbstractEditorAction implements IWorkbenchWind
 	public void run() {
 		if (project == null) {
 		    // TODO: set up a terminal with a configuration window
-		    RascalTerminalRegistry.launchTerminal(project.getName(), ILaunchManager.DEBUG_MODE);
+		    RascalTerminalRegistry.launchTerminal(null, ILaunchManager.DEBUG_MODE);
 		}
 		else {
 		    RascalTerminalRegistry.launchTerminal(project.getName(), ILaunchManager.DEBUG_MODE);

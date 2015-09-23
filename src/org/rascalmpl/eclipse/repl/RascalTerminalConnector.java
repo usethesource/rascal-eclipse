@@ -137,6 +137,9 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                         @Override
                         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
                             IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
+                            if (ipr != null && !ipr.isOpen()) {
+                                ipr = null;
+                            }
                             Evaluator eval = ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
                             
                             // TODO: this is a workaround to get access to a launch, but we'd rather
