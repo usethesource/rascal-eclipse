@@ -13,6 +13,9 @@ package org.rascalmpl.eclipse.library.util;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -59,6 +62,14 @@ public class Prompt {
 				label.setLayoutData (data);
 
 				final Text valueText = new Text(shell, SWT.BORDER);
+
+				Listener enterListener = new Listener() {
+					public void handleEvent(Event event) {
+						value[0] = valueText.getText();
+						shell.close();
+					}	
+				};
+
 				if (value[0] != null) valueText.setText(value[0]);
 				data = new GridData();
 				width = valueText.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
@@ -66,6 +77,7 @@ public class Prompt {
 				data.horizontalAlignment = GridData.FILL;
 				data.grabExcessHorizontalSpace = true;
 				valueText.setLayoutData(data);
+				valueText.addListener(SWT.DefaultSelection, enterListener);
 
 				Composite composite = new Composite(shell, SWT.NONE);
 				data = new GridData();
@@ -76,12 +88,8 @@ public class Prompt {
 				Button button = new Button(composite, SWT.PUSH);
 				button.setText("OK");
 				button.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-				button.addListener(SWT.Selection, new Listener() {
-					public void handleEvent(Event event) {
-						value[0] = valueText.getText();
-						shell.close();
-					}	
-				});
+				
+				button.addListener(SWT.Selection, enterListener);
 
 				shell.pack();
 				shell.open();
