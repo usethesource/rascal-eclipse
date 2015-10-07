@@ -4,11 +4,10 @@ Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: CWI
 Bundle-SymbolicName: rascal_eclipse;singleton:=true
-Bundle-Version: 0.7.3.qualifier
+Bundle-Version: 0.8.0.qualifier
 Bundle-Activator: org.rascalmpl.eclipse.Activator
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.eclipse.imp.pdb.ui,
- org.eclipse.imp.pdb.values,
+Require-Bundle: org.eclipse.imp.pdb.values,
  impulse,
  ambidexter,
  org.eclipse.core.runtime,
@@ -40,6 +39,8 @@ Export-Package: org.rascalmpl.eclipse.console,
  org.rascalmpl.eclipse.outline,
  org.rascalmpl.eclipse.perspective,
  org.rascalmpl.eclipse.terms,
+ org.rascalmpl.eclipse.views.values.text,
+ org.rascalmpl.eclipse.views.values.tree,
  org.rascalmpl.eclipse.wizards,
  org.rascalmpl.uri
 Import-Package: org.eclipse.core.expressions

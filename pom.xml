@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>rascal_eclipse</artifactId>
-	<version>0.7.3.qualifier</version>
+	<version>0.8.0.qualifier</version>
 	<packaging>eclipse-plugin</packaging>
 
 	<scm>
@@ -19,11 +19,6 @@
 
 	<!-- Used to trigger upstream projects in Jenkins  -->
 	<dependencies>
-		<dependency>
-			<groupId>org.eclipse.imp</groupId>
-			<artifactId>org.eclipse.imp.pdb.ui</artifactId>
-			<version>0.4.0.qualifier</version>
-		</dependency>
 		<dependency>
 			<groupId>org.eclipse.imp</groupId>
 			<artifactId>org.eclipse.imp.pdb.values</artifactId>
