@@ -11,13 +11,13 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import org.eclipse.imp.parser.IParseController;
+import io.usethesource.impulse.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.services.IDocumentationProvider;
+import io.usethesource.impulse.services.IDocumentationProvider;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /*

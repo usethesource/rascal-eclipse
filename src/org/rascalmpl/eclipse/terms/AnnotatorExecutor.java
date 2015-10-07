@@ -15,7 +15,7 @@ package org.rascalmpl.eclipse.terms;
  
 import java.io.PrintWriter;
 
-import org.eclipse.imp.parser.IMessageHandler;
+import io.usethesource.impulse.parser.IMessageHandler;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;

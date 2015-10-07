@@ -18,7 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.services.base.TreeModelBuilderBase;
+import io.usethesource.impulse.services.base.TreeModelBuilderBase;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Declaration.Alias;
 import org.rascalmpl.ast.Declaration.Annotation;

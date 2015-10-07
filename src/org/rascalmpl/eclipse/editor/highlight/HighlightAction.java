@@ -1,7 +1,7 @@
 package org.rascalmpl.eclipse.editor.highlight;
 
-import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.parser.IParseController;
+import io.usethesource.impulse.editor.UniversalEditor;
+import io.usethesource.impulse.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.ui.IWorkbenchPage;

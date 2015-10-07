@@ -5,7 +5,7 @@ import nl.cwi.sen1.AmbiDexter.grammar.Grammar;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.runtime.RuntimePlugin;
+import io.usethesource.impulse.runtime.RuntimePlugin;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;

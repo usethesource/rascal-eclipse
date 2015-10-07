@@ -14,8 +14,8 @@ import java.io.PrintWriter;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.imp.editor.ModelTreeNode;
-import org.eclipse.imp.editor.UniversalEditor;
+import io.usethesource.impulse.editor.ModelTreeNode;
+import io.usethesource.impulse.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.jface.viewers.ISelection;

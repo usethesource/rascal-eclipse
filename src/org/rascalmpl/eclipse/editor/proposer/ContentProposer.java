@@ -3,11 +3,11 @@ package org.rascalmpl.eclipse.editor.proposer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.imp.editor.ErrorProposal;
-import org.eclipse.imp.editor.SourceProposal;
-import org.eclipse.imp.parser.IParseController;
+import io.usethesource.impulse.editor.ErrorProposal;
+import io.usethesource.impulse.editor.SourceProposal;
+import io.usethesource.impulse.parser.IParseController;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.services.IContentProposer;
+import io.usethesource.impulse.services.IContentProposer;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Point;

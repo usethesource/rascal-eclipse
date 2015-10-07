@@ -11,8 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import org.eclipse.imp.parser.IParseController;
-import org.eclipse.imp.services.ILanguageSyntaxProperties;
+import io.usethesource.impulse.parser.IParseController;
+import io.usethesource.impulse.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
 
 public class RascalSyntaxProperties implements ILanguageSyntaxProperties {

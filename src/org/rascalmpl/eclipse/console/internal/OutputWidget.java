@@ -13,8 +13,8 @@ package org.rascalmpl.eclipse.console.internal;
 
 import java.io.IOException;
 
-import org.eclipse.imp.preferences.PreferenceConstants;
-import org.eclipse.imp.runtime.RuntimePlugin;
+import io.usethesource.impulse.preferences.PreferenceConstants;
+import io.usethesource.impulse.runtime.RuntimePlugin;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.swt.SWT;

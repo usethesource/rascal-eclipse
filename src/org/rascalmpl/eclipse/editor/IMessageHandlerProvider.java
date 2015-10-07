@@ -10,7 +10,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import org.eclipse.imp.parser.IMessageHandler;
+import io.usethesource.impulse.parser.IMessageHandler;
 
 public interface IMessageHandlerProvider {
 	IMessageHandler getMessageHandler();

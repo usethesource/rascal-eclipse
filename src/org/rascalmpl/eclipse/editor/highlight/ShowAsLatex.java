@@ -1,6 +1,6 @@
 package org.rascalmpl.eclipse.editor.highlight;
 
-import org.eclipse.imp.editor.UniversalEditor;
+import io.usethesource.impulse.editor.UniversalEditor;
 
 public class ShowAsLatex extends HighlightAction {
 

@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.imp.parser.IMessageHandler;
-import org.eclipse.imp.parser.IModelListener;
+import io.usethesource.impulse.parser.IMessageHandler;
+import io.usethesource.impulse.parser.IModelListener;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;

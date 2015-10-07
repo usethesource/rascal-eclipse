@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.console.internal;
 
-import org.eclipse.imp.utils.Pair;
+import io.usethesource.impulse.utils.Pair;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
