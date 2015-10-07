@@ -23,7 +23,7 @@
    <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
-            adaptableType="org.eclipse.imp.editor.UniversalEditor"
+            adaptableType="io.usethesource.impulse.editor.UniversalEditor"
             class="org.rascalmpl.eclipse.debug.ui.breakpoints.RascalEditorAdapterFactory">
          <adapter
                type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget">
@@ -44,8 +44,8 @@
       </builder> -->
    </extension>
 
-   <extension
-         point="org.eclipse.imp.runtime.languageDescription">
+   <extension 
+         point="impulse.languageDescription">
       <language
             description="Source analysis and manipulation language"
             extensions="rsc"
@@ -58,49 +58,49 @@
    <extension
          id="rascal_eclipse.parserWrapper"
          name="Rascal Parser Wrapper"
-         point="org.eclipse.imp.runtime.parser">
+         point="impulse.parser">
       <parser
             class="org.rascalmpl.eclipse.editor.ParseController"
             language="Rascal">
       </parser>
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.tokenColorer">
+         point="impulse.tokenColorer">
       <tokenColorer
             class="org.rascalmpl.eclipse.editor.TokenColorer"
             language="Rascal">
       </tokenColorer>
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.labelProvider">
+         point="impulse.labelProvider">
       <labelProvider
             class="org.rascalmpl.eclipse.outline.LabelProvider"
             language="Rascal">
       </labelProvider>
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.modelTreeBuilder">
+         point="impulse.modelTreeBuilder">
       <treeBuilder
             class="org.rascalmpl.eclipse.outline.TreeModelBuilder"
             language="Rascal">
       </treeBuilder>
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.documentationProvider">
+         point="impulse.documentationProvider">
       <docProvider
             class="org.rascalmpl.eclipse.editor.DocumentationProvider"
             language="Rascal">
       </docProvider>
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.parser">
+         point="impulse.parser">
       <parser
             class="org.rascalmpl.eclipse.terms.TermParseController"
             language="Terms">
       </parser>
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.languageDescription">
+         point="impulse.languageDescription">
       <language
             description="Abstract language which all Rascal-based implementations of languages are derived from to allow on-the-fly extension of the Eclipse IDE"
             extensions="trm"
@@ -109,14 +109,14 @@
       </language>
    </extension>
    <extension 
-         point="org.eclipse.imp.runtime.hyperLink">
+         point="impulse.hyperLink">
       <hyperlinkDetector
             class="org.rascalmpl.eclipse.editor.HyperlinkDetector"
             language="Rascal">
       </hyperlinkDetector>
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.documentationProvider">
+         point="impulse.documentationProvider">
       <docProvider
             class="org.rascalmpl.eclipse.editor.DocumentationProvider"
             language="Terms">
@@ -124,14 +124,14 @@
    </extension>
   
    <extension
-         point="org.eclipse.imp.runtime.hyperLink">
+         point="impulse.hyperLink">
       <hyperlinkDetector
             class="org.rascalmpl.eclipse.editor.HyperlinkDetector"
             language="Terms">
       </hyperlinkDetector>
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.tokenColorer">
+         point="impulse.tokenColorer">
       <tokenColorer
             class="org.rascalmpl.eclipse.editor.TokenColorer"
             language="Terms">
@@ -290,7 +290,7 @@
   
   
   <extension
-        point="org.eclipse.imp.runtime.languageRegistrar">
+        point="impulse.languageRegistrar">
         <languageRegistrar   
               class="org.rascalmpl.eclipse.plugins.LoadRascalPluginsFromProjects"
               id="rascalStarter"></languageRegistrar>
@@ -518,28 +518,28 @@
     </super>
  </extension>
  <extension
-       point="org.eclipse.imp.runtime.modelTreeBuilder">
+       point="impulse.modelTreeBuilder">
     <treeBuilder
           class="org.rascalmpl.eclipse.terms.TreeModelBuilder"
           language="Terms">
     </treeBuilder>
  </extension>
  <extension
-       point="org.eclipse.imp.runtime.labelProvider">
+       point="impulse.labelProvider">
     <labelProvider
           class="org.rascalmpl.eclipse.terms.LabelProvider"
           language="Terms">
     </labelProvider>
  </extension>
  <extension
-       point="org.eclipse.imp.runtime.foldingUpdater">
+       point="impulse.foldingUpdater">
     <foldingUpdater
           class="org.rascalmpl.eclipse.terms.FoldingUpdater"
           language="Terms">
     </foldingUpdater>
  </extension>
  <extension
-       point="org.eclipse.imp.runtime.editorActionContributions">
+       point="impulse.editorActionContributions">
     <editorActionContributor
           class="org.rascalmpl.eclipse.terms.ActionContributor"
           language="Terms">
@@ -561,7 +561,7 @@
    </renameParticipant>
 </extension>
 <extension
-      point="org.eclipse.imp.runtime.foldingUpdater">
+      point="impulse.foldingUpdater">
    <foldingUpdater
          class="org.rascalmpl.eclipse.terms.FoldingUpdater"
          language="rascal">
@@ -595,7 +595,7 @@
    </view>
 </extension>
 <extension
-      point="org.eclipse.imp.runtime.editorActionContributions">
+      point="impulse.editorActionContributions">
    <editorActionContributor
          class="org.rascalmpl.eclipse.editor.ActionsContributor"
          language="rascal">
@@ -744,7 +744,7 @@
     <extension
           id="rascal_proposer"
           name="rascal_proposer"
-          point="org.eclipse.imp.runtime.contentProposer">
+          point="impulse.contentProposer">
        <proposer
              class="org.rascalmpl.eclipse.editor.proposer.ContentProposer"
              language="Rascal">
@@ -753,7 +753,7 @@
     <extension
           id="terms_proposer"
           name="terms_proposer"
-          point="org.eclipse.imp.runtime.contentProposer">
+          point="impulse.contentProposer">
        <proposer
              class="org.rascalmpl.eclipse.terms.TermContentProposer"
              language="Terms">
@@ -776,7 +776,7 @@
               scheme="file"> </uriResolver>
     </extension>
     <extension
-          point="org.eclipse.imp.runtime.languageRegistrar">
+          point="impulse.languageRegistrar">
        <languageRegistrar
              class="org.rascalmpl.eclipse.plugins.LoadRascalPluginsFromBundles">
        </languageRegistrar>
@@ -946,8 +946,8 @@
          </dynamic>
       </menuContribution>
 </extension>
-   <extension
-         point="org.eclipse.imp.runtime.quickFixAssistant">
+   <extension 
+         point="impulse.quickFixAssistant">
       <quickFixAssistant
             class="org.rascalmpl.eclipse.terms.TermQuickFixAssistant"
             language="Terms">

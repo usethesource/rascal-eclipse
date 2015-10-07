@@ -2,13 +2,13 @@ package org.rascalmpl.eclipse.preferences;
 
 import static org.rascalmpl.eclipse.preferences.RascalPreferences.enableStaticChecker;
 
-import org.eclipse.imp.preferences.ConfigurationPreferencesTab;
-import org.eclipse.imp.preferences.IPreferencesService;
-import org.eclipse.imp.preferences.PreferencesInitializer;
-import org.eclipse.imp.preferences.PreferencesTab;
-import org.eclipse.imp.preferences.TabbedPreferencesPage;
-import org.eclipse.imp.preferences.fields.BooleanFieldEditor;
-import org.eclipse.imp.preferences.fields.FieldEditor;
+import io.usethesource.impulse.preferences.ConfigurationPreferencesTab;
+import io.usethesource.impulse.preferences.IPreferencesService;
+import io.usethesource.impulse.preferences.PreferencesInitializer;
+import io.usethesource.impulse.preferences.PreferencesTab;
+import io.usethesource.impulse.preferences.TabbedPreferencesPage;
+import io.usethesource.impulse.preferences.fields.BooleanFieldEditor;
+import io.usethesource.impulse.preferences.fields.FieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TabFolder;
 import org.rascalmpl.eclipse.Activator;

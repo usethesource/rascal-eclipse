@@ -14,8 +14,8 @@ package org.rascalmpl.eclipse.nature;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.imp.builder.ProjectNatureBase;
-import org.eclipse.imp.runtime.IPluginLog;
+import io.usethesource.impulse.builder.ProjectNatureBase;
+import io.usethesource.impulse.runtime.IPluginLog;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;

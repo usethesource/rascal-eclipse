@@ -12,8 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.services.ILanguageActionsContributor;
+import io.usethesource.impulse.editor.UniversalEditor;
+import io.usethesource.impulse.services.ILanguageActionsContributor;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;

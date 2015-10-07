@@ -2,7 +2,7 @@ package org.rascalmpl.eclipse.console.internal;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.utils.Pair;
+import io.usethesource.impulse.utils.Pair;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;

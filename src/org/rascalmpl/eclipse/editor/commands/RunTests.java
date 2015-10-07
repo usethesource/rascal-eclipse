@@ -13,7 +13,7 @@ package org.rascalmpl.eclipse.editor.commands;
 
 import java.util.Arrays;
 
-import org.eclipse.imp.editor.UniversalEditor;
+import io.usethesource.impulse.editor.UniversalEditor;
 import org.rascalmpl.eclipse.repl.RascalTerminalRegistry;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
 

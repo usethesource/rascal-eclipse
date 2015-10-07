@@ -14,7 +14,7 @@ package org.rascalmpl.eclipse.debug.ui.breakpoints;
 
 import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
-import org.eclipse.imp.editor.UniversalEditor;
+import io.usethesource.impulse.editor.UniversalEditor;
 import org.rascalmpl.eclipse.IRascalResources;
 
 

@@ -15,8 +15,8 @@ package org.rascalmpl.eclipse.editor;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.imp.editor.ModelTreeNode;
-import org.eclipse.imp.parser.ISourcePositionLocator;
+import io.usethesource.impulse.editor.ModelTreeNode;
+import io.usethesource.impulse.parser.ISourcePositionLocator;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
