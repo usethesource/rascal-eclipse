@@ -1,6 +1,6 @@
 package org.rascalmpl.eclipse.preferences;
 
-import org.eclipse.imp.preferences.IPreferencesService;
+import io.usethesource.impulse.preferences.IPreferencesService;
 import org.rascalmpl.eclipse.Activator;
 
 public class RascalPreferences {

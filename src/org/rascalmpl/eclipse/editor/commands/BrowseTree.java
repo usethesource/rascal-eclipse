@@ -1,6 +1,6 @@
 package org.rascalmpl.eclipse.editor.commands;
 
-import org.eclipse.imp.editor.UniversalEditor;
+import io.usethesource.impulse.editor.UniversalEditor;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.eclipse.editor.ParseController;

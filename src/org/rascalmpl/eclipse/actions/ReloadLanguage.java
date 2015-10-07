@@ -3,7 +3,7 @@ package org.rascalmpl.eclipse.actions;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.imp.editor.UniversalEditor;
+import io.usethesource.impulse.editor.UniversalEditor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;

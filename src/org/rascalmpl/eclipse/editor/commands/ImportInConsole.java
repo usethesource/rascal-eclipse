@@ -13,7 +13,7 @@
 package org.rascalmpl.eclipse.editor.commands;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.imp.editor.UniversalEditor;
+import io.usethesource.impulse.editor.UniversalEditor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;

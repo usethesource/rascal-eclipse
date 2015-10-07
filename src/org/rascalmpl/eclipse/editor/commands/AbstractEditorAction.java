@@ -5,8 +5,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.model.ISourceProject;
+import io.usethesource.impulse.editor.UniversalEditor;
+import io.usethesource.impulse.model.ISourceProject;
 import org.eclipse.jface.action.Action;
 
 public abstract class AbstractEditorAction extends Action {

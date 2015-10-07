@@ -18,10 +18,10 @@ public class ValueUI {
 	public ValueUI(IValueFactory vf) { }
 
 	public void text(IValue v, IInteger tabsize) {
-		org.eclipse.imp.pdb.ui.text.Editor.edit(v, true, tabsize.intValue());
+		org.rascalmpl.eclipse.views.values.text.Editor.edit(v, true, tabsize.intValue());
 	}
 
 	public void tree(IValue v) {
-		org.eclipse.imp.pdb.ui.tree.Editor.open(v);
+		org.rascalmpl.eclipse.views.values.tree.Editor.open(v);
 	}
 }

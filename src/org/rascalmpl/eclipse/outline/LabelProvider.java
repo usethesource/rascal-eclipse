@@ -17,10 +17,10 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.imp.editor.ModelTreeNode;
-import org.eclipse.imp.language.ILanguageService;
+import io.usethesource.impulse.editor.ModelTreeNode;
+import io.usethesource.impulse.language.ILanguageService;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.services.ILabelProvider;
+import io.usethesource.impulse.services.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.rascalmpl.ast.AbstractAST;

@@ -24,7 +24,7 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.imp.runtime.RuntimePlugin;
+import io.usethesource.impulse.runtime.RuntimePlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;

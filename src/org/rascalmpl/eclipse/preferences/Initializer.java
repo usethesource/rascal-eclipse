@@ -1,7 +1,7 @@
 package org.rascalmpl.eclipse.preferences;
 
-import org.eclipse.imp.preferences.IPreferencesService;
-import org.eclipse.imp.preferences.PreferencesInitializer;
+import io.usethesource.impulse.preferences.IPreferencesService;
+import io.usethesource.impulse.preferences.PreferencesInitializer;
 import org.rascalmpl.eclipse.Activator;
 
 public class Initializer extends PreferencesInitializer {

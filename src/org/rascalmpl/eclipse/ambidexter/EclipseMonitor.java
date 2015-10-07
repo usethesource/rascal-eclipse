@@ -1,6 +1,6 @@
 package org.rascalmpl.eclipse.ambidexter;
 
-import org.eclipse.imp.runtime.RuntimePlugin;
+import io.usethesource.impulse.runtime.RuntimePlugin;
 
 import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
 import nl.cwi.sen1.AmbiDexter.IAmbiDexterMonitor;

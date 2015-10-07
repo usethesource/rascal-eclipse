@@ -19,8 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.imp.language.Language;
-import org.eclipse.imp.language.LanguageRegistry;
+import io.usethesource.impulse.language.Language;
+import io.usethesource.impulse.language.LanguageRegistry;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;

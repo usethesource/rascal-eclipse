@@ -14,7 +14,7 @@ package org.rascalmpl.eclipse.plugins;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.imp.language.ILanguageRegistrar;
+import io.usethesource.impulse.language.ILanguageRegistrar;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;

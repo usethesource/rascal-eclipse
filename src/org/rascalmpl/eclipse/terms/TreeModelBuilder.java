@@ -10,8 +10,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.terms;
 
-import org.eclipse.imp.language.ILanguageService;
-import org.eclipse.imp.language.Language;
+import io.usethesource.impulse.language.ILanguageService;
+import io.usethesource.impulse.language.Language;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDateTime;
@@ -29,7 +29,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.services.base.TreeModelBuilderBase;
+import io.usethesource.impulse.services.base.TreeModelBuilderBase;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;

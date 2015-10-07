@@ -14,7 +14,7 @@ package org.rascalmpl.eclipse.editor;
 
 import java.util.HashMap;
 
-import org.eclipse.imp.editor.quickfix.IAnnotation;
+import io.usethesource.impulse.editor.quickfix.IAnnotation;
 
 public class MessagesToAnnotations extends MessagesTo{
 

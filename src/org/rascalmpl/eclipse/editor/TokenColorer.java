@@ -15,14 +15,14 @@ package org.rascalmpl.eclipse.editor;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.imp.parser.IParseController;
+import io.usethesource.impulse.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.services.ITokenColorer;
+import io.usethesource.impulse.services.ITokenColorer;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
