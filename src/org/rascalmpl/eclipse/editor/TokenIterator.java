@@ -139,14 +139,9 @@ public class TokenIterator implements Iterator<Object>{
 			}
 			
 			if (category != null) {
-				tokenList.add(new Token(category, loc != null ? loc.getOffset() : offset, loc != null ? loc.getLength() : location - offset));
+				tokenList.add(new Token(category, offset, loc != null ? loc.getLength() : location - offset));
 			}
 
-			// let locs be leading, not character count in visitChar
-//			if (loc != null) {
-//				location = loc.getOffset() + loc.getLength();
-//			}
-			
 			return arg;
 		}
 		
