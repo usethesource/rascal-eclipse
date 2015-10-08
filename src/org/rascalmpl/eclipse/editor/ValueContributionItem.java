@@ -18,7 +18,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.eclipse.debug.core.model.RascalValue;
 import org.rascalmpl.eclipse.debug.core.model.RascalVariable;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
@@ -28,6 +27,8 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+
+import io.usethesource.impulse.runtime.RuntimePlugin;
 
 public class ValueContributionItem extends ContributionItem {
   private static final class FunctionAction extends Action {
@@ -65,8 +66,8 @@ public class ValueContributionItem extends ContributionItem {
   
   private static void init() {
     try {
-      out = new PrintWriter(new OutputStreamWriter(StdAndErrorViewPart.getStdOut(), "UTF16"));
-      err = new PrintWriter(new OutputStreamWriter(StdAndErrorViewPart.getStdErr(), "UTF16"), true);
+      out = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"));
+      err = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
       eval = new JavaToRascal(out, err).getEvaluator();
       eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
       ProjectEvaluatorFactory.configure(eval);

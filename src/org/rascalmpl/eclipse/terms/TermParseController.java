@@ -96,7 +96,7 @@ public class TermParseController implements IParseController {
 		return null;
 	}
 
-	public Iterator<Token> getTokenIterator(IRegion region) {
+	public Iterator<Object> getTokenIterator(IRegion region) {
 		return new TokenIterator(true, parseTree);
 	}
 

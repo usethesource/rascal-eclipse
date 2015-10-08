@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,7 +45,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -56,6 +55,8 @@ import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.impulse.runtime.RuntimePlugin;
+
 public class ProjectEvaluatorFactory {
 	
 	private final WeakHashMap<IProject, Evaluator> parserForProject = new WeakHashMap<IProject, Evaluator>();
@@ -65,8 +66,8 @@ public class ProjectEvaluatorFactory {
 	
 	private ProjectEvaluatorFactory() {
 		try {
-			out = new PrintWriter(new OutputStreamWriter(StdAndErrorViewPart.getStdOut(), "UTF16"));
-			err = new PrintWriter(new OutputStreamWriter(StdAndErrorViewPart.getStdErr(), "UTF16"), true);
+			out = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"));
+			err = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
 		} catch (UnsupportedEncodingException e) {
 			Activator.getInstance().logException("internal error", e);
 			throw new RuntimeException("???", e);

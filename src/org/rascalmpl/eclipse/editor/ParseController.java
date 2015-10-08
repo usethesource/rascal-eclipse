@@ -110,7 +110,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		return new RascalSyntaxProperties();
 	}
 	
-	public Iterator<Token> getTokenIterator(IRegion region) {
+	public Iterator<Object> getTokenIterator(IRegion region) {
 		return parseTree != null ? new TokenIterator(false, parseTree) : null;
 	}
 	

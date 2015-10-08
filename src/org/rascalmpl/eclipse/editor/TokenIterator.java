@@ -24,7 +24,7 @@ import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
-public class TokenIterator implements Iterator<Token>{
+public class TokenIterator implements Iterator<Object>{
 	private final List<Token> tokenList;
 	private final Iterator<Token> tokenIterator;
 	private boolean showAmb;

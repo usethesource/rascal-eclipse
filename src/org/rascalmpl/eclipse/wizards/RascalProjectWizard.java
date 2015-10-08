@@ -40,7 +40,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.console.ConsoleFactory;
 import org.rascalmpl.eclipse.repl.RascalTerminalRegistry;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 

@@ -21,7 +21,6 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
-import org.rascalmpl.eclipse.console.internal.StdAndErrorViewPart;
 import org.rascalmpl.eclipse.views.Tutor;
 
 public class Factory implements IPerspectiveFactory {
@@ -37,7 +36,6 @@ public class Factory implements IPerspectiveFactory {
 		IFolderLayout replFolder = layout.createFolder("bottom", IPageLayout.LEFT, 0.25f, "bottom"); 
 		
 		replFolder.addView("org.eclipse.tm.terminal.view.ui.TerminalsView");
-		replFolder.addView(StdAndErrorViewPart.ID);
 		replFolder.addView(IPageLayout.ID_PROGRESS_VIEW);
 		replFolder.addView(IPageLayout.ID_PROBLEM_VIEW);
 		replFolder.addView(Tutor.ID);
@@ -53,7 +51,6 @@ public class Factory implements IPerspectiveFactory {
 		layout.addShowViewShortcut(JavaUI.ID_PACKAGES);
 		layout.addShowViewShortcut(JavaUI.ID_SOURCE_VIEW);
 		layout.addShowViewShortcut("org.eclipse.tm.terminal.view.ui.TerminalsView");
-		layout.addShowViewShortcut(StdAndErrorViewPart.ID);
 
 		layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
 		layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
