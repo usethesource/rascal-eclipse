@@ -3,9 +3,6 @@ package org.rascalmpl.eclipse.terms;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.parser.IModelListener;
-import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -13,7 +10,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.services.IEditorService;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.DocumentRewriteSessionType;
@@ -28,6 +24,11 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
+import io.usethesource.impulse.editor.UniversalEditor;
+import io.usethesource.impulse.parser.IModelListener;
+import io.usethesource.impulse.parser.IParseController;
+import io.usethesource.impulse.services.IEditorService;
+
 /*
  * NB: this might end up in an infinite loop when the function used to compute patches
  * does not reach a fixpoint.
@@ -36,10 +37,10 @@ public class EditorUpdater implements IModelListener, IEditorService {
 	public EditorUpdater() {
 	}
 
-	@Override
-	public AnalysisRequired getAnalysisRequired() {
-		return AnalysisRequired.SYNTACTIC_ANALYSIS;
-	}
+//	@Override
+//	public AnalysisRequired getAnalysisRequired() {
+//		return AnalysisRequired.SYNTACTIC_ANALYSIS;
+//	}
 	
 	class Job extends UIJob {
 
