@@ -92,7 +92,7 @@ public class TermLanguageRegistry {
 		parsers.put(name, parser);
 		LanguageRegistry.registerLanguage(l);
 	}
-	
+
 	public void registerAnnotator(String lang, ICallableValue function) {
 		analyses.put(lang, function);
 	}
@@ -236,5 +236,18 @@ public class TermLanguageRegistry {
 		return null;
 	}
 
+	public ICallableValue getLiveUpdater(Language lang) {
+		ISet updaters = getContributions(lang, "liveUpdater");
+
+		if (updaters.size() > 1) {
+			Activator.getInstance().logException("ignoring multiple updater! for " + lang, new UnsupportedOperationException());
+		}
+		
+		if (updaters.size() > 0) {
+			IConstructor tree = (IConstructor) updaters.iterator().next();
+			return (ICallableValue) tree.get("updater");
+		}
+		return null;
+	}
 	
 }

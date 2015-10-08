@@ -977,4 +977,11 @@
             label="Java Terminal">
       </delegate> 
    </extension>
+   <extension
+         point="org.eclipse.imp.runtime.editorService">
+      <editorService
+            class="org.rascalmpl.eclipse.terms.EditorUpdater"
+            language="Terms">
+      </editorService>
+   </extension>
 </plugin>

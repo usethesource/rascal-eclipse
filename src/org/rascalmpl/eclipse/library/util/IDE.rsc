@@ -83,6 +83,7 @@ data Contribution
      | categories(map[str categoryName, FontProperties fontStyle] styleMap)
      | builder(set[Message] ((&T<:Tree) tree) messages)
      | annotator((&T<:Tree) (&T<:Tree input) annotator)
+     | liveUpdater(lrel[loc,str] (&T<:Tree input) updater)
      | outliner(node (&T<:Tree input) outliner)
      | proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int requestOffset) proposer, str legalPrefixChars)
      ;

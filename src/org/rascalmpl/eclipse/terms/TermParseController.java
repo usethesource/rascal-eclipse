@@ -185,10 +185,10 @@ public class TermParseController implements IParseController {
 			} 
 			catch (Throw e) {
 				IValue exc = e.getException();
-				
 				if (exc.getType() == RuntimeExceptionFactory.Exception) {
 					if (((IConstructor) exc).getConstructorType() == RuntimeExceptionFactory.ParseError) {
 						ISourceLocation loc = (ISourceLocation) ((IConstructor) e.getException()).get(0);
+						parseTree = null;
 						handler.handleSimpleMessage("parse error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 					}
 					else {
@@ -215,6 +215,7 @@ public class TermParseController implements IParseController {
 		private ICallableValue getAnnotator() {
 			return TermLanguageRegistry.getInstance().getAnnotator(language);
 		}
+		
 
 		private ICallableValue getParser() {
 			return TermLanguageRegistry.getInstance().getParser(language);

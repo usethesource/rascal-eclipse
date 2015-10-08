@@ -27,7 +27,7 @@ public class IDE {
 	public void registerLanguage(IString name, IString extension, IValue parser, IEvaluatorContext ctx) {
 		TermLanguageRegistry.getInstance().registerLanguage(name.getValue(), extension.getValue(), (ICallableValue) parser, ctx);
 	}
-	
+
 	public void registerAnnotator(IString name, IValue function) {
 		TermLanguageRegistry.getInstance().registerAnnotator(name.getValue(), (ICallableValue) function);
 	}
