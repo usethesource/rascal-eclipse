@@ -74,7 +74,7 @@ public class EditorUpdater implements IEditorService {
 							return Status.OK_STATUS;
 						}
 						
-				        DocumentRewriteSession session = ((IDocumentExtension4)doc).startRewriteSession(DocumentRewriteSessionType.SEQUENTIAL);
+				        DocumentRewriteSession session = ((IDocumentExtension4)doc).startRewriteSession(DocumentRewriteSessionType.UNRESTRICTED_SMALL);
 				        try {
 				        	int offset = 0;
 					        for (IValue v: patch) {
