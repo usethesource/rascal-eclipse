@@ -978,7 +978,7 @@
       </delegate> 
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.editorService">
+         point="impulse.editorService">
       <editorService
             class="org.rascalmpl.eclipse.terms.EditorUpdater"
             language="Terms">
