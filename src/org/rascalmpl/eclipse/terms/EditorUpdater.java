@@ -25,7 +25,6 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 
 import io.usethesource.impulse.editor.UniversalEditor;
-import io.usethesource.impulse.parser.IModelListener;
 import io.usethesource.impulse.parser.IParseController;
 import io.usethesource.impulse.services.IEditorService;
 
@@ -33,15 +32,10 @@ import io.usethesource.impulse.services.IEditorService;
  * NB: this might end up in an infinite loop when the function used to compute patches
  * does not reach a fixpoint.
  */
-public class EditorUpdater implements IModelListener, IEditorService {
+public class EditorUpdater implements IEditorService {
 	public EditorUpdater() {
 	}
 
-//	@Override
-//	public AnalysisRequired getAnalysisRequired() {
-//		return AnalysisRequired.SYNTACTIC_ANALYSIS;
-//	}
-	
 	class Job extends UIJob {
 
 		private IParseController parseController;
