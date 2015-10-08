@@ -40,7 +40,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.NodeLocator;
-import org.rascalmpl.eclipse.editor.Token;
 import org.rascalmpl.eclipse.editor.TokenIterator;
 import org.rascalmpl.eclipse.nature.IWarningHandler;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
