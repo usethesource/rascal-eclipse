@@ -55,6 +55,10 @@ public class TokenColorer implements ITokenColorer {
 		map.put(TreeAdapter.IDENTIFIER,new TextAttribute(new Color(Display.getDefault(), 0x2C,0x57,0x7C), null, SWT.NONE));
 		map.put(TreeAdapter.QUOTE,new TextAttribute(new Color(Display.getDefault(), 255, 69, 0), new Color(Display.getDefault(), 32,178,170), SWT.NONE));
 		map.put(TreeAdapter.TYPE,new TextAttribute(new Color(Display.getDefault(), 0xAB,0x25,0x25), null, SWT.NONE));
+		map.put(TreeAdapter.RESULT, new TextAttribute(new Color(Display.getDefault(), 0x74,0x8B,0x00), new Color(Display.getDefault(), 0xEC, 0xEC, 0xEC), SWT.ITALIC));
+		map.put(TreeAdapter.STDOUT, new TextAttribute(new Color(Display.getDefault(), 0xB3,0xB3,0xB3), null, SWT.ITALIC));
+		map.put(TreeAdapter.STDERR, new TextAttribute(new Color(Display.getDefault(), 0xAF,0x00,0x00), null, SWT.NONE));
+		
 	} 
 
 	public IRegion calculateDamageExtent(IRegion seed, IParseController ctlr) {
