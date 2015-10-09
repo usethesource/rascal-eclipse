@@ -224,11 +224,6 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                             });         
                             eval.addSuspendTriggerListener(debugHandler);
                         }
-                        
-                        public char ctrl(char ch) {
-                          assert 'A' <= ch && ch <= 'Z'; 
-                          return (char)((((int)ch) - 'A') + 1);
-                        }
 
                         @Override
                         public void queueCommand(String command) {
