@@ -208,6 +208,7 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 					String old = "";
 					int j = i + 2;
 					while (j < args.length() && TreeAdapter.getConstructorName((ITree) args.get(j)).equals("output")) {
+						// TODO: do not eliminate comments!
 						old += TreeAdapter.yield((IConstructor) args.get(j - 1)) + TreeAdapter.yield((IConstructor) args.get(j));
 						j += 2;
 					}
@@ -305,6 +306,10 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 					IString txt = (IString) subst.get(1);
 					doc.replace(loc.getOffset() + offset, loc.getLength(), txt.getValue());
 					offset += txt.length() - loc.getLength();
+				}
+				String lastChar = doc.get(doc.getLength() - 1, 1);
+				if (!lastChar.equals("\n")) {
+					doc.replace(doc.getLength(), 0, "\n");
 				}
 			} catch (UnsupportedOperationException e) {
 				e.printStackTrace();
