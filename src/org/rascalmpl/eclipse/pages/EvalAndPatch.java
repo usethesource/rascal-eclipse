@@ -18,7 +18,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.DocumentRewriteSessionType;
@@ -26,15 +25,11 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
 import org.rascalmpl.values.uptr.ITree;
@@ -162,17 +157,22 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 			if (x.contains("origin=")) {
 				x = x.substring(0, x.indexOf(":"));
 			}
-			code += " ⇨ " + x.replaceAll("\\n", " ") + "\n";
+			if (x.contains("`") && x.contains("Tree: ")) {
+				x = x.substring(0, x.indexOf("Tree: "));
+			}
+			code += " ⇨ " + x.replaceAll("\n", " ") + "\n";
 			addedSpace[0] = true;
 		}
 		
-		if (out.length() > 0) {
+		if (out.length() > 0) {			
 			if (!code.endsWith("\n")) {
 				code += "\n";
 			}
-			String txt = out.getValue().replaceAll("\\n", "\n≫ ");
-			int ind = txt.lastIndexOf("≫ ");
-			txt = txt.substring(0, ind) + txt.substring(ind + 2, txt.length()); 
+			String txt = out.getValue().replaceAll("\n", "\n≫ ");
+			int ind = txt.lastIndexOf("\n≫ ");
+			if (ind == txt.length() - 3) {
+				txt = txt.substring(0, ind) + txt.substring(ind + 2, txt.length());
+			}
 			code += "≫ " + txt;
 		}
 		
@@ -184,7 +184,7 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 			if (x.contains("")) {
 				x = x.substring(0, x.indexOf(""));
 			}
-			code += "⚠ " + x.trim().replaceAll("\\n", "\n⚠ ");
+			code += "⚠ " + x.trim().replaceAll("\n", "\n⚠ ");
 		}
 		return code;
 	}
