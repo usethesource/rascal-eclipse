@@ -984,4 +984,26 @@
             language="Terms">
       </editorService>
    </extension>
+   <extension
+         point="impulse.languageDescription">
+      <language
+            description="Rascal Scrapbook Pages"
+            extensions=".rpage"
+            language="RascalPage">
+      </language>
+   </extension>
+   <extension
+         point="impulse.parser">
+      <parser
+            class="org.rascalmpl.eclipse.pages.ParseController"
+            language="RascalPage">
+      </parser>
+   </extension>
+   <extension
+         point="impulse.tokenColorer">
+      <tokenColorer
+            class="org.rascalmpl.eclipse.editor.TokenColorer"
+            language="RascalPage">
+      </tokenColorer>
+   </extension>
 </plugin>

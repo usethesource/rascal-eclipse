@@ -61,15 +61,15 @@ import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ParseController implements IParseController, IMessageHandlerProvider {
-	private IMessageHandler handler;
-	private ISourceProject project;
-	private IConstructor parseTree;
-	private IPath path;
-	private Language language;
-	private IDocument document;
-	private ParseJob job;
-	private Evaluator parser;
-	private IWarningHandler warnings;
+	protected IMessageHandler handler;
+	protected ISourceProject project;
+	protected IConstructor parseTree;
+	protected ParseJob job;
+	protected IPath path;
+	protected Language language;
+	protected IDocument document;
+	protected Evaluator parser;
+	protected IWarningHandler warnings;
 	
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
 		return null;
@@ -134,6 +134,10 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		}
 
 		this.warnings = new WarningsToMessageHandler(location, handler);
+		initParseJob(handler, location);
+	}
+
+	protected void initParseJob(IMessageHandler handler, ISourceLocation location) {
 		this.job = new ParseJob("Rascal parser", location, handler);
 	}
 	
@@ -149,14 +153,16 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		return parse(doc.get(), monitor);
 	}
 	
-	private class ParseJob extends Job {
-		private final ISourceLocation uri;
+	
+	
+	public class ParseJob extends Job {
+		protected final ISourceLocation uri;
 		private Set<IResource> markedFiles;
 
-		private String input;
+		protected String input;
 		public ITree parseTree = null;
 		private String name = null;
-		private final Set<String> ignore = new HashSet<>();
+		protected final Set<String> ignore = new HashSet<>();
 
 		public ParseJob(String name, ISourceLocation uri, IMessageHandler handler) {
 			super(name);
@@ -168,7 +174,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			this.input = input;
 		}
 		
-		private void clearMarkers() {
+		protected void clearMarkers() {
       try {
         if (markedFiles != null) {
           for (IResource res : markedFiles) {
@@ -268,8 +274,10 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			
 			return Status.OK_STATUS;
 		}
+
 	}
 	
+	@Override
 	public Object parse(String input, IProgressMonitor monitor) {
 		parseTree = null;
 		try {
@@ -285,7 +293,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		return null;
 	}
 	
-	private void setParseError(int offset, int length, int beginLine, int beginColumn, int endLine, int endColumn, String message){
+	protected void setParseError(int offset, int length, int beginLine, int beginColumn, int endLine, int endColumn, String message){
 		if(offset >= 0){
 			handler.handleSimpleMessage(message, offset, offset + ((length == 0) ? 0 : length - 1), beginColumn, endColumn, beginLine, endLine);
 		}else{
