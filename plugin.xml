@@ -1006,4 +1006,11 @@
             language="RascalPage">
       </tokenColorer>
    </extension>
+   <extension
+         point="impulse.editorService">
+      <editorService
+            class="org.rascalmpl.eclipse.pages.EvalAndPatch"
+            language="RascalPage">
+      </editorService>
+   </extension>
 </plugin>

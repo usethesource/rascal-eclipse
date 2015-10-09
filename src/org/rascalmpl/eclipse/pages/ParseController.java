@@ -27,6 +27,7 @@ import org.rascalmpl.eclipse.ambidexter.ReportView;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -35,6 +36,10 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import io.usethesource.impulse.parser.IMessageHandler;
 
 public class ParseController extends org.rascalmpl.eclipse.editor.ParseController {
+	
+	Evaluator getEvaluator() {
+		return parser;
+	}
 	
 	private class ParseJob extends org.rascalmpl.eclipse.editor.ParseController.ParseJob {
 		public ParseJob(String name, ISourceLocation uri, IMessageHandler handler) {
