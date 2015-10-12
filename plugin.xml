@@ -988,7 +988,8 @@
          point="impulse.languageDescription">
       <language
             description="Rascal Scrapbook Pages"
-            extensions=".rpage"
+            extensions="rpage"
+            icon="icons/rascal3D_2-16px.gif"
             language="RascalPage">
       </language>
    </extension>
