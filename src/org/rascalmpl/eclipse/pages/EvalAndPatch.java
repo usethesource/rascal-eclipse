@@ -272,7 +272,7 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 		@Override
 		public IStatus runInUIThread(IProgressMonitor monitor) {
 			DocumentRewriteSession session = ((IDocumentExtension4) doc)
-					.startRewriteSession(DocumentRewriteSessionType.UNRESTRICTED_SMALL);
+					.startRewriteSession(DocumentRewriteSessionType.STRICTLY_SEQUENTIAL);
 			try {
 				int offset = 0;
 				for (IValue v : patch) {
