@@ -93,7 +93,7 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 		return sw.toString();
 	}
 
-	public IList evalCommands(IValueFactory values, IList commands, ISourceLocation loc, Evaluator eval) {
+	private IList evalCommands(IValueFactory values, IList commands, ISourceLocation loc, Evaluator eval) {
 		StringWriter out = new StringWriter();
 		StringWriter err = new StringWriter();
 		IListWriter result = values.listWriter();
@@ -257,11 +257,13 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 	
 	class Job extends UIJob {
 
-		private IParseController parseController;
+		private IList patch;
+		private IDocument doc;
 
-		public Job(IParseController parseController) {
+		public Job(IList patch, IDocument doc) {
 			super("updating editor");
-			this.parseController = parseController;
+			this.patch = patch;
+			this.doc = doc;
 		}
 		
 		
@@ -269,33 +271,6 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 
 		@Override
 		public IStatus runInUIThread(IProgressMonitor monitor) {
-			IDocument doc = parseController.getDocument();
-
-			ITree pt = (ITree) parseController.getCurrentAst();
-			if (pt == null) {
-				return Status.CANCEL_STATUS;
-			}
-
-			IList commands = TreeAdapter.getASTArgs((ITree) TreeAdapter.getASTArgs(TreeAdapter.getArg(pt, "top")).get(0));
-			Evaluator evaluator = ((ParseController)parseController).getEvaluator();
-			Environment env = evaluator.getCurrentEnvt();
-			IList results = null;
-			try {
-				evaluator.setCurrentEnvt(new ModuleEnvironment("Scrapbook", evaluator.getHeap()));
-				results = evalCommands(evaluator.getValueFactory(), commands, TreeAdapter.getLocation(pt), evaluator);
-			}
-			finally {
-				evaluator.setCurrentEnvt(env);
-			}
-			if (results == null) {
-				return Status.CANCEL_STATUS;
-			}
-			IList patch = patch(evaluator.getValueFactory(), TreeAdapter.getArgs((ITree) TreeAdapter.getASTArgs(TreeAdapter.getArg(pt, "top")).get(0)), results);
-
-			if (patch.isEmpty()) {
-				return Status.OK_STATUS;
-			}
-
 			DocumentRewriteSession session = ((IDocumentExtension4) doc)
 					.startRewriteSession(DocumentRewriteSessionType.UNRESTRICTED_SMALL);
 			try {
@@ -327,25 +302,45 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "EvalAndPatch";
 	}
 
 	@Override
 	public void setEditor(UniversalEditor editor) {
-		// TODO Auto-generated method stub
-
+		// unused
 	}
 
 	@Override
 	public void update(IParseController parseController, IProgressMonitor monitor) {
-		try {
-			Job job = new Job(parseController);
-			job.schedule();
-			job.join();
-		} catch (InterruptedException e) {
-			Activator.getInstance().logException("RPage updater interrupted", e);
+		ITree pt = (ITree) parseController.getCurrentAst();
+		if (pt == null) {
+			return;
 		}
+
+		IList commands = TreeAdapter.getASTArgs((ITree) TreeAdapter.getASTArgs(TreeAdapter.getArg(pt, "top")).get(0));
+		Evaluator evaluator = ((ParseController)parseController).getEvaluator();
+		IList results = null;
+		synchronized (evaluator) {
+			Environment env = evaluator.getCurrentEnvt();
+			try {
+				evaluator.setCurrentEnvt(new ModuleEnvironment("Scrapbook", evaluator.getHeap()));
+				results = evalCommands(evaluator.getValueFactory(), commands, TreeAdapter.getLocation(pt), evaluator);
+			}
+			finally {
+				evaluator.setCurrentEnvt(env);
+			}
+		}
+		if (results == null) {
+			return;
+		}
+		IList patch = patch(evaluator.getValueFactory(), TreeAdapter.getArgs((ITree) TreeAdapter.getASTArgs(TreeAdapter.getArg(pt, "top")).get(0)), results);
+
+		if (patch.isEmpty()) {
+			return;
+		}
+
+		Job job = new Job(patch, parseController.getDocument());
+		job.schedule();
 	}
 
 }
