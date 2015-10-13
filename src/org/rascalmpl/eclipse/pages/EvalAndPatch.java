@@ -30,6 +30,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
 import org.rascalmpl.values.uptr.ITree;
@@ -112,7 +113,7 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 			PrintWriter stderr = eval.getStdErr();
 			try {
 				eval.overrideDefaultWriters(new PrintWriter(out), new PrintWriter(err));
-				x = eval.eval(eval.getMonitor(), TreeAdapter.yield(cmd), loc);
+				x = new ASTBuilder().buildValue(cmd).interpret(eval);
 			} catch (Throwable e) {
 				errOut = err.getBuffer().substring(errOffset);
 				errOffset += errOut.length();

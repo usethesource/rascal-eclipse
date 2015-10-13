@@ -20,7 +20,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
@@ -30,8 +36,20 @@ import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.interpreter.utils.Modules;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.semantics.dynamic.Import;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.impulse.parser.IMessageHandler;
 
@@ -59,13 +77,78 @@ public class ParseController extends org.rascalmpl.eclipse.editor.ParseControlle
 			}
 			
 			try {
+				ModuleEnvironment env;
 				synchronized (parser) {
 					if (project != null) {
 						// if this is a source file in a Rascal project then
 						// reload other modules to find out about new syntax definitions
 						ProjectEvaluatorFactory.getInstance().reloadProject(project.getRawProject(), new WarningsToMessageHandler(uri, getMessageHandler()), ignore);
 					}
-					parseTree = parser.parseCommands(rm, input, uri);
+					parseTree = new RascalParser().parse(Parser.START_COMMANDS, uri.getURI(), input.toCharArray(), new NoActionExecutor() , new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+					//parseTree = parser.parseCommands(rm, input, uri);
+					
+					GlobalEnvironment heap = parser.getHeap();
+					env = new ModuleEnvironment("Scrapbook", heap);
+					Environment oldEnv = parser.getCurrentEnvt();
+					try {
+						parser.setCurrentEnvt(env);
+//						parser.event("defining syntax");
+				        IValueFactory vf = parser.getValueFactory();
+				        ISetWriter rulesWriter = vf.setWriter();  
+				        ISetWriter importsWriter = vf.setWriter();  
+				        ISetWriter extendsWriter = vf.setWriter();  
+				        ISetWriter externalsWriter = vf.setWriter();  
+				        
+				        for (IValue v: TreeAdapter.getASTArgs(TreeAdapter.getArg(TreeAdapter.getArg(parseTree, "top"), "commands"))) {
+				        	ITree cmd = (ITree) v;
+				        	if (TreeAdapter.getConstructorName(cmd).equals("import")) {
+				        		ITree imp = TreeAdapter.getArg(cmd, "imported");
+				        		if (TreeAdapter.getConstructorName(imp).equals("syntax")) {
+				        			rulesWriter.insert(imp);
+				        		}
+				        		else if (TreeAdapter.getConstructorName(imp).equals("default")) {
+				        			importsWriter.insert(imp);
+				        		}
+				        		else if (TreeAdapter.getConstructorName(imp).equals("extend")) {
+				        			extendsWriter.insert(imp);
+				        		}
+				        		else if (TreeAdapter.getConstructorName(imp).equals("external")) {
+				        			externalsWriter.insert(imp);
+				        		}
+				        	}
+				        }
+				        
+				        ISet rules = rulesWriter.done();
+				        for (IValue rule : rules) {
+				          Import.evalImport(parser, (IConstructor) rule);
+				        }
+
+//				        parser.event("importing modules");
+				        ISet imports = importsWriter.done();
+				        for (IValue mod : imports) {
+				          Import.evalImport(parser, (IConstructor) mod);
+				        }
+
+//				        parser.event("extending modules");
+				        ISet extend = extendsWriter.done();
+				        for (IValue mod : extend) {
+				          Import.evalImport(parser, (IConstructor) mod);
+				        }
+
+//				        parser.event("generating modules");
+				       ISet externals = externalsWriter.done();
+				        for (IValue mod : externals) {
+				          Import.evalImport(parser, (IConstructor) mod);
+				        }
+				        
+				        
+				        if (env.definesSyntax() && input.indexOf('`') > -1) {
+				        	parseTree = Import.parseFragments(parser, parseTree, uri, env);
+				        }
+					}
+					finally {
+						parser.setCurrentEnvt(oldEnv);
+					}
 				}
 			}
 			catch (FactTypeUseException ftue) {
