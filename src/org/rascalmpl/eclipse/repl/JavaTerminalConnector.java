@@ -174,6 +174,7 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
           throw new RuntimeException("UTF8 not available???", e);
         }
         control.getTerminalText().setCrAfterNewLine(true);
+        RascalTerminalConnector.addRascalLinkMouseHandler(control);
     }
 
 

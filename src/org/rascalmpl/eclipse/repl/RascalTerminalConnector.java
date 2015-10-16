@@ -119,7 +119,6 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
         
         Terminal tm = configure(control);
         
-        addMouseHandler(((VT100TerminalControl)control), new LinkMouseListener());
 
         stdIn = new REPLPipedInputStream();
         stdInUI = new REPLPipedOutputStream(stdIn);
@@ -280,16 +279,21 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
         catch (UnsupportedEncodingException e) {
           throw new RuntimeException("UTF8 not available???", e);
         }
+        addRascalLinkMouseHandler(vtControl);
         return tm;
     }
 
+    public static void addRascalLinkMouseHandler(VT100TerminalControl control) {
+        addMouseHandler(control, new LinkMouseListener());
+    }
+    
 
     /**
      * Caveat. We use reflection to get around access restrictions here. An issue
      * has been created to ask for public API to register mouse handlers with the terminal 
      * view.
      */
-    private void addMouseHandler(VT100TerminalControl control, final ITerminalMouseListener listener) {
+    private static void addMouseHandler(VT100TerminalControl control, final ITerminalMouseListener listener) {
         try {
             Field textCanvasField = control.getClass().getDeclaredField("fCtlText");
             textCanvasField.setAccessible(true);
