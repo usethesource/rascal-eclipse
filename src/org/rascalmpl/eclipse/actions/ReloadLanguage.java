@@ -3,7 +3,6 @@ package org.rascalmpl.eclipse.actions;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import io.usethesource.impulse.editor.UniversalEditor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -17,6 +16,8 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.rascalmpl.eclipse.plugins.LoadRascalPluginsFromProjects;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
+
+import io.usethesource.impulse.editor.UniversalEditor;
 
 public class ReloadLanguage  implements IWorkbenchWindowActionDelegate {
 	private IWorkbenchWindow activeWindow;

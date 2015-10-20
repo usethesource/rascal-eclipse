@@ -16,7 +16,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class PluginURIResolver extends BundleURIResolver {

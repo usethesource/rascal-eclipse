@@ -11,8 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor.commands;
 
-import io.usethesource.impulse.editor.UniversalEditor;
 import org.rascalmpl.eclipse.repl.RascalTerminalRegistry;
+
+import io.usethesource.impulse.editor.UniversalEditor;
 
 public class CopyToConsole extends AbstractEditorAction {
 	

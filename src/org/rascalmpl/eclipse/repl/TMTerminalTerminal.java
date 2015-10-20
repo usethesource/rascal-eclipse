@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import jline.Terminal;
-
 import org.eclipse.tm.internal.terminal.emulator.VT100TerminalControl;
+
+import jline.Terminal;
 
 @SuppressWarnings("restriction")
 public class TMTerminalTerminal implements Terminal {

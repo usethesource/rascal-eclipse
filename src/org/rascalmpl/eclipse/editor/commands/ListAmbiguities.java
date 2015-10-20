@@ -15,15 +15,16 @@ package org.rascalmpl.eclipse.editor.commands;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import io.usethesource.impulse.editor.UniversalEditor;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import io.usethesource.impulse.runtime.RuntimePlugin;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.ambidexter.ReportView;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
+import org.rascalmpl.value.IConstructor;
+
+import io.usethesource.impulse.editor.UniversalEditor;
+import io.usethesource.impulse.runtime.RuntimePlugin;
 
 public class ListAmbiguities extends AbstractEditorAction {
 	public ListAmbiguities(UniversalEditor editor) {

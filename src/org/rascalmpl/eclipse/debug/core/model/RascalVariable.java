@@ -16,7 +16,7 @@ package org.rascalmpl.eclipse.debug.core.model;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
-import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.value.type.Type;
 
 /**
  *  Model for the local variable of a module. 
@@ -24,13 +24,13 @@ import org.eclipse.imp.pdb.facts.type.Type;
 public class RascalVariable extends RascalDebugElement implements IVariable {
 	private final String name;
 	
-	private final org.eclipse.imp.pdb.facts.IValue value;
+	private final org.rascalmpl.value.IValue value;
 
 	private final RascalStackFrame frame;
 
   private final Type declaredType;
 
-	protected RascalVariable(RascalStackFrame frame, String name, Type declaredType, org.eclipse.imp.pdb.facts.IValue value) {
+	protected RascalVariable(RascalStackFrame frame, String name, Type declaredType, org.rascalmpl.value.IValue value) {
 		super(frame.getRascalDebugTarget());
 		this.name = name;
 		this.frame = frame;
@@ -38,7 +38,7 @@ public class RascalVariable extends RascalDebugElement implements IVariable {
 		this.declaredType = declaredType;
 	}
 
-	public org.eclipse.imp.pdb.facts.IValue getRuntimeValue() {
+	public org.rascalmpl.value.IValue getRuntimeValue() {
 	  return value;
 	}
 	

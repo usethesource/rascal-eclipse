@@ -1,7 +1,8 @@
 package org.rascalmpl.eclipse.preferences;
 
-import io.usethesource.impulse.preferences.IPreferencesService;
 import org.rascalmpl.eclipse.Activator;
+
+import io.usethesource.impulse.preferences.IPreferencesService;
 
 public class RascalPreferences {
   public static final String enableStaticChecker = "enableStaticChecker";

@@ -12,12 +12,12 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.vis;
 
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
 
 public class FigureEditorInput implements IEditorInput {
 	

@@ -15,11 +15,6 @@ package org.rascalmpl.eclipse.terms;
  
 import java.io.PrintWriter;
 
-import io.usethesource.impulse.parser.IMessageHandler;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.MessagesToAnnotations;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -28,8 +23,14 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
+
+import io.usethesource.impulse.parser.IMessageHandler;
 
 /**
  * This class connects the Eclipse IDE with Rascal functions that annotate parse trees.

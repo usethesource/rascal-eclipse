@@ -12,16 +12,11 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor.commands;
 
-import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import io.usethesource.impulse.editor.UniversalEditor;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.eclipse.Activator;
@@ -31,6 +26,11 @@ import org.rascalmpl.eclipse.ambidexter.AmbiDexterWizard;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISet;
+
+import io.usethesource.impulse.editor.UniversalEditor;
+import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
 
 public class RunAmbiDexter extends AbstractEditorAction {
 	

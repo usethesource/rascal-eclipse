@@ -6,11 +6,12 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import io.usethesource.impulse.builder.MarkerCreator;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.uri.URIResourceResolver;
+import org.rascalmpl.value.ISourceLocation;
+
+import io.usethesource.impulse.builder.MarkerCreator;
 
 public class WarningsToMarkers implements IWarningHandler {
 

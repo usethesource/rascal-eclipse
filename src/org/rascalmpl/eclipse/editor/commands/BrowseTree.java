@@ -1,11 +1,12 @@
 package org.rascalmpl.eclipse.editor.commands;
 
-import io.usethesource.impulse.editor.UniversalEditor;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.eclipse.editor.ParseController;
 import org.rascalmpl.eclipse.library.util.ValueUI;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+
+import io.usethesource.impulse.editor.UniversalEditor;
 
 public class BrowseTree extends AbstractEditorAction {
 

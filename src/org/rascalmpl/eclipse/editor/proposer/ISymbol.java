@@ -1,6 +1,6 @@
 package org.rascalmpl.eclipse.editor.proposer;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.ISourceLocation;
 
 public interface ISymbol {
 	public <T> T accept(SymbolVisitor<T> visitor);

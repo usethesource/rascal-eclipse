@@ -17,10 +17,6 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import io.usethesource.impulse.editor.ModelTreeNode;
-import io.usethesource.impulse.language.ILanguageService;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import io.usethesource.impulse.services.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.rascalmpl.ast.AbstractAST;
@@ -45,7 +41,12 @@ import org.rascalmpl.ast.Variant.NAryConstructor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.values.uptr.TreeAdapter;
+
+import io.usethesource.impulse.editor.ModelTreeNode;
+import io.usethesource.impulse.language.ILanguageService;
+import io.usethesource.impulse.services.ILabelProvider;
 
 public class LabelProvider implements ILabelProvider, ILanguageService  {
 	private Set<ILabelProviderListener> fListeners = new HashSet<ILabelProviderListener>();

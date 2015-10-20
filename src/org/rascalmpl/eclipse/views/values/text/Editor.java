@@ -1,6 +1,5 @@
 package org.rascalmpl.eclipse.views.values.text;
 
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IWorkbench;
@@ -9,6 +8,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.views.values.ValueEditorInput;
+import org.rascalmpl.value.IValue;
 
 public class Editor {
 	public static void edit(final IValue v, boolean indent, int tabsize) {

@@ -8,7 +8,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
@@ -22,6 +21,7 @@ import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.SearchPath;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
 import org.rascalmpl.uri.URIResourceResolver;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalNavigator extends CommonNavigator {

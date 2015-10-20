@@ -16,9 +16,9 @@ import java.io.PrintWriter;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.value.ISourceLocation;
 
 public class RascalMonitor implements IRascalMonitor {
 	private SubRascalMonitor subMon = null;

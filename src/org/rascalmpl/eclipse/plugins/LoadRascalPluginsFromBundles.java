@@ -1,7 +1,8 @@
 package org.rascalmpl.eclipse.plugins;
 
-import io.usethesource.impulse.language.ILanguageRegistrar;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
+
+import io.usethesource.impulse.language.ILanguageRegistrar;
 
 public class LoadRascalPluginsFromBundles implements ILanguageRegistrar {
   @Override

@@ -1,6 +1,5 @@
 package org.rascalmpl.eclipse.navigator;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.ISelection;
@@ -16,6 +15,7 @@ import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.ISourceLocation;
 
 public class NavigatorActionProvider extends CommonActionProvider {
 

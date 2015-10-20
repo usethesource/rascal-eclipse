@@ -15,15 +15,16 @@ package org.rascalmpl.eclipse.editor;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IPath;
-import io.usethesource.impulse.editor.ModelTreeNode;
-import io.usethesource.impulse.parser.ISourcePositionLocator;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
+
+import io.usethesource.impulse.editor.ModelTreeNode;
+import io.usethesource.impulse.parser.ISourcePositionLocator;
 
 public class NodeLocator implements ISourcePositionLocator {
 

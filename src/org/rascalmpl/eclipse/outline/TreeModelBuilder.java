@@ -17,8 +17,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import io.usethesource.impulse.services.base.TreeModelBuilderBase;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Declaration.Alias;
 import org.rascalmpl.ast.Declaration.Annotation;
@@ -45,8 +43,11 @@ import org.rascalmpl.ast.Toplevel.GivenVisibility;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.semantics.dynamic.FunctionDeclaration;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
+
+import io.usethesource.impulse.services.base.TreeModelBuilderBase;
 
 public class TreeModelBuilder extends TreeModelBuilderBase {
 	public static final int CATEGORY_ALIAS = 1;

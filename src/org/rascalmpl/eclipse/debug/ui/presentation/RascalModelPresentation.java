@@ -22,7 +22,6 @@ import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.IValueDetailListener;
-import io.usethesource.impulse.editor.UniversalEditor;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
@@ -35,6 +34,8 @@ import org.rascalmpl.eclipse.debug.core.model.RascalValue;
 import org.rascalmpl.eclipse.debug.core.model.RascalVariable;
 import org.rascalmpl.uri.URIEditorInput;
 import org.rascalmpl.uri.URIStorage;
+
+import io.usethesource.impulse.editor.UniversalEditor;
 
 /**
  * Renders Rascal debug elements

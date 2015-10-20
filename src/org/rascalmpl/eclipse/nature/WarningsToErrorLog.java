@@ -1,7 +1,7 @@
 package org.rascalmpl.eclipse.nature;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.value.ISourceLocation;
 
 public class WarningsToErrorLog implements IWarningHandler {
   @Override

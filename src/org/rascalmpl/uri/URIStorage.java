@@ -8,10 +8,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 
 public class URIStorage implements IStorage {
 	private final ISourceLocation uri;

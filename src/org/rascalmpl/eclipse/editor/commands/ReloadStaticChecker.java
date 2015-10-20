@@ -16,12 +16,13 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
-import io.usethesource.impulse.editor.UniversalEditor;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.progress.IProgressService;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.commands.RunStaticChecker.StaticCheckerHelper;
+
+import io.usethesource.impulse.editor.UniversalEditor;
 
 public class ReloadStaticChecker extends AbstractEditorAction {
 	private final StaticCheckerHelper helper = new StaticCheckerHelper();

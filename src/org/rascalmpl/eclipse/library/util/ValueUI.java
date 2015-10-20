@@ -10,9 +10,9 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.util;
 
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 
 public class ValueUI {
 	public ValueUI(IValueFactory vf) { }

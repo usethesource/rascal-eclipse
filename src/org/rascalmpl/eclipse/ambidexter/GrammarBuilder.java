@@ -8,6 +8,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+
 import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
 import nl.cwi.sen1.AmbiDexter.grammar.CharacterClass;
 import nl.cwi.sen1.AmbiDexter.grammar.FollowRestrictions;
@@ -16,21 +31,6 @@ import nl.cwi.sen1.AmbiDexter.grammar.NonTerminal;
 import nl.cwi.sen1.AmbiDexter.grammar.Production;
 import nl.cwi.sen1.AmbiDexter.grammar.Symbol;
 import nl.cwi.sen1.AmbiDexter.util.LinkedList;
-
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 
 
 public class GrammarBuilder {

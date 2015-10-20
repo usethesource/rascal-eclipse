@@ -7,7 +7,6 @@ import java.net.URL;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -25,6 +24,7 @@ import org.rascalmpl.uri.URIEditorInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIResourceResolver;
 import org.rascalmpl.uri.URIStorage;
+import org.rascalmpl.value.ISourceLocation;
 
 public class EditorUtil {
 	

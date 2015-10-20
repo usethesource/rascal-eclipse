@@ -11,13 +11,17 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.breakpoints;
 
+import static org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint.MARKER_ATTRIBUTE_BEGIN_COLUMN;
+import static org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint.MARKER_ATTRIBUTE_BEGIN_LINE;
+import static org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint.MARKER_ATTRIBUTE_END_COLUMN;
+import static org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint.MARKER_ATTRIBUTE_END_LINE;
+import static org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint.MARKER_TYPE;
+
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 import org.eclipse.ui.texteditor.IMarkerUpdater;
-
-import static org.rascalmpl.eclipse.debug.core.breakpoints.RascalSourceLocationBreakpoint.*;
+import org.rascalmpl.value.ISourceLocation;
 
 
 /**

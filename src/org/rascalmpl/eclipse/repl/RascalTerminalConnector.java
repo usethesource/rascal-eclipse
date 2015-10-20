@@ -27,11 +27,6 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Point;
@@ -53,7 +48,6 @@ import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
-import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -63,10 +57,14 @@ import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.uri.LinkDetector;
 import org.rascalmpl.uri.LinkDetector.Type;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.exceptions.FactParseError;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import jline.Terminal;
-import jline.TerminalFactory;
 
 @SuppressWarnings("restriction")
 public class RascalTerminalConnector extends TerminalConnectorImpl {

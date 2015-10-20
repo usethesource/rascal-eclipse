@@ -14,10 +14,9 @@
  *******************************************************************************/
 package org.rascalmpl.eclipse.library.vis;
 
+import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_FIGURE_VIEW_PART;
+
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -35,8 +34,9 @@ import org.eclipse.ui.part.EditorPart;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.vis.swt.FigureExecutionEnvironment;
-
-import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_FIGURE_VIEW_PART;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
 
 @SuppressWarnings("restriction")
 public class FigureViewer extends EditorPart {

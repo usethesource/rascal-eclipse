@@ -29,12 +29,12 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.debug.IRascalEventListener;
 import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.debug.RascalEvent;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 
 /**
  * A Rascal thread. Rascal programs are currently modelled single threaded.

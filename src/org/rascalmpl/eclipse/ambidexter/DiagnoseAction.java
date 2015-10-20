@@ -1,9 +1,9 @@
 package org.rascalmpl.eclipse.ambidexter;
 
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.library.util.ValueUI;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class DiagnoseAction extends AbstractAmbidexterAction {

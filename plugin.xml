@@ -909,7 +909,7 @@
                <iterate>
             <or>
                <instanceof
-                     value="org.eclipse.imp.pdb.facts.IValue">
+                     value="org.rascalmpl.value.IValue">
                </instanceof>
                <instanceof
                      value="org.rascalmpl.eclipse.debug.core.model.RascalValue">

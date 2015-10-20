@@ -17,13 +17,14 @@ import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.core.sourcelookup.AbstractSourceLookupDirector;
 import org.eclipse.debug.core.sourcelookup.ISourceLookupParticipant;
 import org.eclipse.debug.ui.ISourcePresentation;
-import io.usethesource.impulse.editor.UniversalEditor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.uri.URIEditorInput;
 import org.rascalmpl.uri.URIResourceResolver;
 import org.rascalmpl.uri.URIStorage;
+import org.rascalmpl.value.ISourceLocation;
+
+import io.usethesource.impulse.editor.UniversalEditor;
 
 public class RascalSourceLookupDirector extends AbstractSourceLookupDirector implements ISourcePresentation {
 	/* (non-Javadoc)

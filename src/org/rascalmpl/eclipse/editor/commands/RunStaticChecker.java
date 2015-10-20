@@ -21,11 +21,6 @@ import java.util.HashMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
-import io.usethesource.impulse.builder.MarkerCreator;
-import io.usethesource.impulse.editor.UniversalEditor;
-import io.usethesource.impulse.parser.IMessageHandler;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import io.usethesource.impulse.runtime.RuntimePlugin;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.progress.IProgressService;
@@ -39,7 +34,13 @@ import org.rascalmpl.eclipse.nature.WarningsToMarkers;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.ProjectURIResolver;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.values.uptr.ITree;
+
+import io.usethesource.impulse.builder.MarkerCreator;
+import io.usethesource.impulse.editor.UniversalEditor;
+import io.usethesource.impulse.parser.IMessageHandler;
+import io.usethesource.impulse.runtime.RuntimePlugin;
 
 public class RunStaticChecker extends AbstractEditorAction {
 	private final MessagesToMarkers marker = new MessagesToMarkers();

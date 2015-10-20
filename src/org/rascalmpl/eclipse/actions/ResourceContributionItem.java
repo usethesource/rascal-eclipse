@@ -4,7 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.ContributionItem;
@@ -17,6 +16,7 @@ import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.library.util.Clipboard;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ResourceContributionItem extends ContributionItem {

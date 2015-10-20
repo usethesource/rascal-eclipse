@@ -29,17 +29,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import io.usethesource.impulse.language.Language;
-import io.usethesource.impulse.language.LanguageRegistry;
-import io.usethesource.impulse.model.ISourceProject;
-import io.usethesource.impulse.parser.IMessageHandler;
-import io.usethesource.impulse.parser.IParseController;
-import io.usethesource.impulse.parser.ISourcePositionLocator;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import io.usethesource.impulse.services.IAnnotationTypeInfo;
-import io.usethesource.impulse.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
@@ -57,8 +46,20 @@ import org.rascalmpl.interpreter.utils.Modules;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.file.FileURIResolver;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
+
+import io.usethesource.impulse.language.Language;
+import io.usethesource.impulse.language.LanguageRegistry;
+import io.usethesource.impulse.model.ISourceProject;
+import io.usethesource.impulse.parser.IMessageHandler;
+import io.usethesource.impulse.parser.IParseController;
+import io.usethesource.impulse.parser.ISourcePositionLocator;
+import io.usethesource.impulse.services.IAnnotationTypeInfo;
+import io.usethesource.impulse.services.ILanguageSyntaxProperties;
 
 public class ParseController implements IParseController, IMessageHandlerProvider {
 	protected IMessageHandler handler;

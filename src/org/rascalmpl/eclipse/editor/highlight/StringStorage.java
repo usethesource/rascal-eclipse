@@ -7,6 +7,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+
 import io.usethesource.impulse.editor.UniversalEditor;
 
 class StringStorage implements IStorage {

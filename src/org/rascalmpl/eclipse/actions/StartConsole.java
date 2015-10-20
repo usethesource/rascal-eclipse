@@ -4,7 +4,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.debug.core.ILaunchManager;
-import io.usethesource.impulse.editor.UniversalEditor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -17,6 +16,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.rascalmpl.eclipse.editor.commands.AbstractEditorAction;
 import org.rascalmpl.eclipse.repl.RascalTerminalRegistry;
+
+import io.usethesource.impulse.editor.UniversalEditor;
 
 public class StartConsole extends AbstractEditorAction implements IWorkbenchWindowActionDelegate, IObjectActionDelegate, IViewActionDelegate {
 	public StartConsole() {

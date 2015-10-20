@@ -18,24 +18,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
 
-import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
-import nl.cwi.sen1.AmbiDexter.IAmbiDexterMonitor;
-import nl.cwi.sen1.AmbiDexter.Main;
-import nl.cwi.sen1.AmbiDexter.grammar.Character;
-import nl.cwi.sen1.AmbiDexter.grammar.Grammar;
-import nl.cwi.sen1.AmbiDexter.grammar.NonTerminal;
-import nl.cwi.sen1.AmbiDexter.grammar.SymbolString;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import io.usethesource.impulse.runtime.RuntimePlugin;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -46,12 +32,26 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
+
+import io.usethesource.impulse.runtime.RuntimePlugin;
+import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
+import nl.cwi.sen1.AmbiDexter.IAmbiDexterMonitor;
+import nl.cwi.sen1.AmbiDexter.Main;
+import nl.cwi.sen1.AmbiDexter.grammar.Character;
+import nl.cwi.sen1.AmbiDexter.grammar.Grammar;
+import nl.cwi.sen1.AmbiDexter.grammar.NonTerminal;
+import nl.cwi.sen1.AmbiDexter.grammar.SymbolString;
 
 public class ReportView extends ViewPart implements IAmbiDexterMonitor {
 	public static final String ID = ID_AMBIDEXTER_REPORT_VIEW_PART;

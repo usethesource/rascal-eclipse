@@ -13,7 +13,6 @@
 package org.rascalmpl.eclipse.editor.commands;
 
 import org.eclipse.core.resources.IFile;
-import io.usethesource.impulse.editor.UniversalEditor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -26,6 +25,8 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.rascalmpl.eclipse.repl.RascalTerminalRegistry;
 import org.rascalmpl.eclipse.util.RascalKeywords;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
+
+import io.usethesource.impulse.editor.UniversalEditor;
 
 public class ImportInConsole extends AbstractEditorAction implements IWorkbenchWindowActionDelegate, IObjectActionDelegate, IViewActionDelegate {
 	public ImportInConsole() {

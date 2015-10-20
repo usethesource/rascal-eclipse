@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
-
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.jface.wizard.Wizard;
+import org.rascalmpl.value.IConstructor;
+
+import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
 
 public class AmbiDexterWizard extends Wizard {
 

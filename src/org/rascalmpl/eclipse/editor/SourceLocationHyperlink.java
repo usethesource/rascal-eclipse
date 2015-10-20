@@ -11,10 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
+import org.rascalmpl.value.ISourceLocation;
 
 public class SourceLocationHyperlink implements IHyperlink {
 	private final ISourceLocation from;

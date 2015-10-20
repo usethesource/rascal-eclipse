@@ -1,8 +1,5 @@
 package org.rascalmpl.eclipse.ambidexter;
 
-import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
-import nl.cwi.sen1.AmbiDexter.AmbiguityDetector.DetectionMethod;
-
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -15,6 +12,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
+
+import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
+import nl.cwi.sen1.AmbiDexter.AmbiguityDetector.DetectionMethod;
 
 public class AmbiDexterWizardPage extends WizardPage {
 	private final static String title = "AmbiDexter ambiguity detection";

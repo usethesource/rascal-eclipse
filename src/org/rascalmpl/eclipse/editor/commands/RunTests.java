@@ -13,9 +13,10 @@ package org.rascalmpl.eclipse.editor.commands;
 
 import java.util.Arrays;
 
-import io.usethesource.impulse.editor.UniversalEditor;
 import org.rascalmpl.eclipse.repl.RascalTerminalRegistry;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
+
+import io.usethesource.impulse.editor.UniversalEditor;
 
 public class RunTests extends AbstractEditorAction {
 	

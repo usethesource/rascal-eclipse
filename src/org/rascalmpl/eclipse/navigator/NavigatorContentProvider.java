@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -33,6 +32,7 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIStorage;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 
 public class NavigatorContentProvider implements ITreeContentProvider, IResourceChangeListener,
 	IResourceDeltaVisitor {

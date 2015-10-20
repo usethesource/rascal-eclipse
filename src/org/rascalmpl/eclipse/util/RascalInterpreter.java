@@ -14,10 +14,6 @@ import java.io.PrintWriter;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import io.usethesource.impulse.editor.ModelTreeNode;
-import io.usethesource.impulse.editor.UniversalEditor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorPart;
@@ -30,6 +26,11 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.JavaToRascal;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+
+import io.usethesource.impulse.editor.ModelTreeNode;
+import io.usethesource.impulse.editor.UniversalEditor;
 
 public class RascalInterpreter extends JavaToRascal {
 

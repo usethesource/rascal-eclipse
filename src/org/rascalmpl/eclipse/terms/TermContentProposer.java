@@ -15,26 +15,27 @@ package org.rascalmpl.eclipse.terms;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.usethesource.impulse.editor.ErrorProposal;
-import io.usethesource.impulse.editor.SourceProposal;
-import io.usethesource.impulse.language.Language;
-import io.usethesource.impulse.parser.IParseController;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import io.usethesource.impulse.services.IContentProposer;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.eclipse.editor.proposer.Prefix;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
+
+import io.usethesource.impulse.editor.ErrorProposal;
+import io.usethesource.impulse.editor.SourceProposal;
+import io.usethesource.impulse.language.Language;
+import io.usethesource.impulse.parser.IParseController;
+import io.usethesource.impulse.services.IContentProposer;
 
 public class TermContentProposer implements IContentProposer {	
 	private IConstructor cachedTree = null;

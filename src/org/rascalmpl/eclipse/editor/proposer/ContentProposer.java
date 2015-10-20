@@ -3,17 +3,18 @@ package org.rascalmpl.eclipse.editor.proposer;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.usethesource.impulse.editor.ErrorProposal;
-import io.usethesource.impulse.editor.SourceProposal;
-import io.usethesource.impulse.parser.IParseController;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import io.usethesource.impulse.services.IContentProposer;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.values.uptr.ITree;
+
+import io.usethesource.impulse.editor.ErrorProposal;
+import io.usethesource.impulse.editor.SourceProposal;
+import io.usethesource.impulse.parser.IParseController;
+import io.usethesource.impulse.services.IContentProposer;
 
 /**
  * Content proposer for Rascal.

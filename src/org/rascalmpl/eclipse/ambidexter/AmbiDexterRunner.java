@@ -1,14 +1,14 @@
 package org.rascalmpl.eclipse.ambidexter;
 
-import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
-import nl.cwi.sen1.AmbiDexter.grammar.Grammar;
-
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISet;
-import io.usethesource.impulse.runtime.RuntimePlugin;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISet;
+
+import io.usethesource.impulse.runtime.RuntimePlugin;
+import nl.cwi.sen1.AmbiDexter.AmbiDexterConfig;
+import nl.cwi.sen1.AmbiDexter.grammar.Grammar;
 
 public class AmbiDexterRunner {
 	public static void run(AmbiDexterConfig cfg, IConstructor grammar, ISet nestingRestr) {

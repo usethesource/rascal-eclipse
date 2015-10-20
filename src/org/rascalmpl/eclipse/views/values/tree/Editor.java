@@ -1,23 +1,6 @@
 package org.rascalmpl.eclipse.views.values.tree;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IDateTime;
-import org.eclipse.imp.pdb.facts.IExternalValue;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IRational;
-import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -37,6 +20,23 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.views.values.ValueEditorInput;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IDateTime;
+import org.rascalmpl.value.IExternalValue;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.IRational;
+import org.rascalmpl.value.IReal;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.visitors.IValueVisitor;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Editor extends EditorPart {
 	public static final String EditorId = "org.rascalmpl.eclipse.views.values.tree.editor";
@@ -185,7 +185,7 @@ public class Editor extends EditorPart {
 						Object[] children = new Object[o.size()];
 						int i = 0;
 						for (IValue child : o) {
-							children[i++] = ValueFactory.getInstance().tuple(child, o.get(child));
+							children[i++] = ValueFactoryFactory.getValueFactory().tuple(child, o.get(child));
 						}
 						return children;
 					}

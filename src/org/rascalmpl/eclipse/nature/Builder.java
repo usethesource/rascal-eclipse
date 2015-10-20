@@ -3,12 +3,13 @@ package org.rascalmpl.eclipse.nature;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
-import io.usethesource.impulse.builder.BuilderBase;
-import io.usethesource.impulse.runtime.PluginBase;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
+
+import io.usethesource.impulse.builder.BuilderBase;
+import io.usethesource.impulse.runtime.PluginBase;
 
 public class Builder extends BuilderBase {
 

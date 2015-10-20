@@ -3,7 +3,6 @@ package org.rascalmpl.eclipse.editor.proposer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.BasicType.Bag;
 import org.rascalmpl.ast.BasicType.Bool;
@@ -60,6 +59,7 @@ import org.rascalmpl.ast.Variable.Initialized;
 import org.rascalmpl.ast.Variable.UnInitialized;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Variant.NAryConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public class SymbolTreeCreator extends NullASTVisitor<List<ISymbol>> {
 	private class AlgebraicDataTypeInfo extends NullASTVisitor<Boolean> {

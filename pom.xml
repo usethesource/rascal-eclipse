@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>rascal_eclipse</artifactId>
-	<version>0.8.0.qualifier</version>
+	<version>0.8.0-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
 
 	<scm>
@@ -20,24 +20,19 @@
 	<!-- Used to trigger upstream projects in Jenkins  -->
 	<dependencies>
 		<dependency>
-			<groupId>org.eclipse.imp</groupId>
-			<artifactId>org.eclipse.imp.pdb.values</artifactId>
-			<version>0.4.3.qualifier</version>
-		</dependency>
-		<dependency>
 			<groupId>io.usethesource</groupId>
 			<artifactId>impulse</artifactId>
-			<version>0.1.0.qualifier</version>
+			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
 			<artifactId>rascal</artifactId>
-			<version>0.8.0.qualifier</version>
+			<version>0.8.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
 			<artifactId>ambidexter</artifactId>
-			<version>1.2.1.qualifier</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

@@ -12,8 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import io.usethesource.impulse.editor.UniversalEditor;
-import io.usethesource.impulse.services.ILanguageActionsContributor;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -31,6 +29,9 @@ import org.rascalmpl.eclipse.editor.commands.RunTests;
 import org.rascalmpl.eclipse.editor.commands.TextTree;
 import org.rascalmpl.eclipse.editor.highlight.ShowAsHTML;
 import org.rascalmpl.eclipse.editor.highlight.ShowAsLatex;
+
+import io.usethesource.impulse.editor.UniversalEditor;
+import io.usethesource.impulse.services.ILanguageActionsContributor;
 
 public class ActionsContributor implements ILanguageActionsContributor {
 

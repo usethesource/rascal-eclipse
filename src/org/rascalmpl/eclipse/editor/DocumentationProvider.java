@@ -11,14 +11,15 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import io.usethesource.impulse.parser.IParseController;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import io.usethesource.impulse.services.IDocumentationProvider;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+
+import io.usethesource.impulse.parser.IParseController;
+import io.usethesource.impulse.services.IDocumentationProvider;
 
 /*
  * Assuming the innermost lexical node in the parse tree is given,  we simply return the annotation labeled

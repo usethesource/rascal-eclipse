@@ -7,7 +7,7 @@ Bundle-SymbolicName: rascal_eclipse;singleton:=true
 Bundle-Version: 0.8.0.qualifier
 Bundle-Activator: org.rascalmpl.eclipse.Activator
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.eclipse.imp.pdb.values,
+Require-Bundle: 
  impulse,
  ambidexter,
  org.eclipse.core.runtime,

@@ -22,10 +22,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.sourcelookup.ISourceContainer;
 import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.value.ISourceLocation;
 
 public class RascalSourcePathComputerDelegate implements ISourcePathComputerDelegate {
 

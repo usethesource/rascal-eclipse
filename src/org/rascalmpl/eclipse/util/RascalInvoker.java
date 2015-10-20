@@ -1,9 +1,9 @@
 package org.rascalmpl.eclipse.util;
 
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.value.IValue;
 
 public class RascalInvoker{
 	

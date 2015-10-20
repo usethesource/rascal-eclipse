@@ -13,7 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.debug.core.breakpoints;
 
-import static org.rascalmpl.debug.DebugMessageFactory.*;
+import static org.rascalmpl.debug.DebugMessageFactory.requestDeleteBreakpoint;
+import static org.rascalmpl.debug.DebugMessageFactory.requestSetBreakpoint;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,8 +31,6 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.LineBreakpoint;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.debug.IRascalEventListener;
 import org.rascalmpl.debug.RascalEvent;
 import org.rascalmpl.eclipse.Activator;
@@ -39,6 +38,8 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.debug.core.model.RascalThread;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**

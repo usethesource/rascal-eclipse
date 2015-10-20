@@ -1,9 +1,5 @@
 package org.rascalmpl.eclipse.editor.highlight;
 
-import io.usethesource.impulse.editor.UniversalEditor;
-import io.usethesource.impulse.parser.IParseController;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -11,6 +7,11 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.commands.AbstractEditorAction;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IString;
+
+import io.usethesource.impulse.editor.UniversalEditor;
+import io.usethesource.impulse.parser.IParseController;
 
 abstract class HighlightAction extends AbstractEditorAction {
 

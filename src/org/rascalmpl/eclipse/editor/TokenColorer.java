@@ -15,14 +15,6 @@ package org.rascalmpl.eclipse.editor;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.usethesource.impulse.parser.IParseController;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import io.usethesource.impulse.services.ITokenColorer;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
@@ -31,7 +23,16 @@ import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.values.uptr.TreeAdapter;
+
+import io.usethesource.impulse.parser.IParseController;
+import io.usethesource.impulse.services.ITokenColorer;
 
 public class TokenColorer implements ITokenColorer {
 	private Boolean firstUse = true;

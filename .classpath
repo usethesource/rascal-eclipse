@@ -8,5 +8,7 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/rascal/lib/jline-2.13-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/rascal/lib/value-api-0.5.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/rascal/lib/value-core-0.5.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
