@@ -12,6 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.nature;
 
+import java.io.PrintWriter;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -26,7 +28,7 @@ public class RascalMonitor implements IRascalMonitor {
 
 	public RascalMonitor(IProgressMonitor monitor, IWarningHandler handler) {
 		this.monitor = monitor;
-		this.handler = handler;
+		this.handler = handler == null ? new WarningsToPrintWriter(new PrintWriter(System.err)) : handler;
 	}
 	
 	@Override

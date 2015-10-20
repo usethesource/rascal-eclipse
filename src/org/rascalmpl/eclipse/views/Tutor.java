@@ -31,6 +31,7 @@ import org.eclipse.ui.progress.WorkbenchJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
+import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.tutor.RascalTutor;
 
@@ -141,7 +142,7 @@ public class Tutor extends ViewPart {
 							}
 						}
 						
-						tutor.start(new RascalMonitor(monitor, null));
+						tutor.start(new RascalMonitor(monitor, new WarningsToErrorLog()));
 					}
 					
 					monitor.worked(1);
