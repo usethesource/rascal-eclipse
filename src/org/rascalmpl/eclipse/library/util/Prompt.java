@@ -135,15 +135,19 @@ public class Prompt {
 				composite.setLayoutData (data);
 				composite.setLayout(new GridLayout(2, true));
 
-				Button button = new Button(composite, SWT.PUSH);
-				button.setText("OK");
-				button.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-				button.addListener(SWT.Selection, new Listener() {
+				Listener closePromtListener = new Listener() {
 					public void handleEvent(Event event) {
 						shell.close();
 					}	
-				});
-
+				};
+				
+				Button button = new Button(composite, SWT.PUSH);
+				button.setText("OK");
+				button.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+				button.addListener(SWT.Selection, closePromtListener);
+				button.addListener(SWT.DefaultSelection, closePromtListener);
+				button.setFocus();
+				
 				shell.pack();
 				shell.open();
 

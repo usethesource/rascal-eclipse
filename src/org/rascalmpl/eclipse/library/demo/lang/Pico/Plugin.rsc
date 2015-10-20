@@ -29,7 +29,7 @@ Tree parser(str x, loc l) {
 // /*3*/ Define connection with the Pico checkers
 // (includes type checking and uninitialized variables check)
 
-public Program checkPicoProgram(Program x) {
+public Tree checkPicoProgram(Tree x) {
 	p = implode(#PROGRAM, x);
 	env = checkProgram(p);
 	errors = { error(v, l) | <loc l, PicoId v> <- env.errors };
@@ -42,14 +42,14 @@ public Program checkPicoProgram(Program x) {
 
 // /*4*/ Define the connection with the Pico evaluator
 
-public void evalPicoProgram(Program x, loc selection) {
+public void evalPicoProgram(Tree x, loc selection) {
 	m = implode(#PROGRAM, x); 
 	text(evalProgram(m));
 }
 
 // /*5*/ Define connection with the Pico compiler
 
-public void compilePicoProgram(Program x, loc l){
+public void compilePicoProgram(Tree x, loc l){
     p = implode(#PROGRAM, x);
     asm = compileProgram(p);
 	text(asm);
@@ -57,7 +57,7 @@ public void compilePicoProgram(Program x, loc l){
 
 // /*6*/ Define connection with CFG visualization
 
-public void visualizePicoProgram(Program x, loc selection) {
+public void visualizePicoProgram(Tree x, loc selection) {
 	m = implode(#PROGRAM, x); 
 	CFG = cflowProgram(m);
 	render(visCFG(CFG.graph));
