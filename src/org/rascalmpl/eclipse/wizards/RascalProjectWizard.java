@@ -87,8 +87,7 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 					IBundleProjectDescription plugin) throws CoreException {
 				plugin.setSymbolicName(project.getName().replaceAll("[^a-zA-Z0-9_]", "_"));
 				plugin.setNatureIds(new String[] { IRascalResources.ID_RASCAL_NATURE, JavaCore.NATURE_ID, IBundleProjectDescription.PLUGIN_NATURE, IRascalResources.ID_TERM_NATURE});
-				plugin.setRequiredBundles(new IRequiredBundleDescription[] { 
-						service.newRequiredBundle("org.eclipse.imp.pdb.values", null, false, false),
+				plugin.setRequiredBundles(new IRequiredBundleDescription[] { 						
 						service.newRequiredBundle("rascal", null, false, false)
 						});
 				plugin.setBundleVersion(Version.parseVersion("1.0.0"));

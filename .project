@@ -4,8 +4,6 @@
 	<comment></comment>
 	<projects>
 		<project>ambidexter</project>
-		<project>pdb.ui</project>
-		<project>pdb.values</project>
 		<project>rascal</project>
 	</projects>
 	<buildSpec>
