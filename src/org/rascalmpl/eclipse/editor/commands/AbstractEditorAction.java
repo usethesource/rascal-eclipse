@@ -17,7 +17,7 @@ public abstract class AbstractEditorAction extends Action {
 
 	public AbstractEditorAction(UniversalEditor editor, String label) {
 	    super(label);
-		this.project = editor != null ? editor.getParseController().getProject().getRawProject() : null;
+		this.project = editor != null && editor.getParseController().getProject() != null ? editor.getParseController().getProject().getRawProject() : null;
 		this.file = initFile(editor, editor != null ? editor.getParseController().getProject() : null);
 		this.editor = editor;
 	}
