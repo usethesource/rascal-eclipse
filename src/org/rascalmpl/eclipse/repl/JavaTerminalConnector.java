@@ -58,11 +58,17 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
             }
         }
         
+        if (this.config == null) {
+        	throw new RuntimeException("unable to load configuration " + label);
+        }
+        
         mode = store.get("mode");
     }
 
     @Override
     public void connect(ITerminalControl control) {
+    	assert this.config != null;
+    	
         super.connect(control);
         configure((VT100TerminalControl)control);
         control.setState(TerminalState.CONNECTING);
