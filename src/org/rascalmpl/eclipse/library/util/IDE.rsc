@@ -95,8 +95,9 @@ data Contribution
 @doc{Extract the syntax properties from a declarative syntax definition.} 
 Contribution syntaxProperties(type[&N <: Tree] g) 
   = syntaxProperties(
-      fences={<b,c> | /prod(_,[lit(str b),*_,lit(str c)],{\tag("fences"()),*_}) := g.definitions}
-            +{<b,c> | /prod(_,[lit(str b),*_,lit(str c)],{\bracket(),*_}) := g.definitions},
+      fences= {<b,c> | /prod(_,[lit(str b),*_, lit(str c)],{\tag("fences"()), *_}) := g.definitions}
+            + {<b,c> | /prod(_,[*pre, lit(str b),*mid, lit(str c), *post],{\tag("fences"(<int i, int j>)), *_}) := g.definitions, size(pre) == i * 2, size(pre) + 1 + size(mid) == j * 2}
+            + {<b,c> | /prod(_,[lit(str b),*_,lit(str c)],{\bracket(),*_}) := g.definitions},
       lineComment="<if (/prod(_,[lit(b),*_,c],{\tag("lineComment"()),*_}) := g.definitions, (c == lit("\n") || lit(_) !:= c)){><b><}>",
       blockComment= (/prod(_,[lit(b),*_,lit(c)],{\tag("blockComment"()),*_}) := g.definitions && b != c && c != "\n") ? <b,"",c> : <"","","">
   );
