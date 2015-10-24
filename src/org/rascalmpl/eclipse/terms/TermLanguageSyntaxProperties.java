@@ -21,7 +21,13 @@ public class TermLanguageSyntaxProperties implements ILanguageSyntaxProperties {
 	@Override
 	public String getSingleLineCommentPrefix() {
 		IValue prop = properties.getParameter("lineComment");
-		return prop != null ? ((IString) prop).getValue() : null;
+		
+		if (prop != null) {
+			String val = ((IString) prop).getValue();
+			return val.length() != 0 ? val : null;
+		}
+		
+		return null;
 	}
 
 	@Override
