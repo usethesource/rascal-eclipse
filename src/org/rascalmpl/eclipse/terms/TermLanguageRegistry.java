@@ -28,6 +28,7 @@ import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
@@ -241,13 +242,27 @@ public class TermLanguageRegistry {
 		ISet updaters = getContributions(lang, "liveUpdater");
 
 		if (updaters.size() > 1) {
-			Activator.getInstance().logException("ignoring multiple updater! for " + lang, new UnsupportedOperationException());
+			Activator.getInstance().logException("ignoring multiple updater for " + lang, new UnsupportedOperationException());
 		}
 		
 		if (updaters.size() > 0) {
 			IConstructor tree = (IConstructor) updaters.iterator().next();
 			return (ICallableValue) tree.get("updater");
 		}
+		return null;
+	}
+
+	public IConstructor getSyntaxProperties(Language lang) {
+		ISet properties = getContributions(lang, "syntaxProperties");
+		
+		if (properties.size() > 1) {
+			Activator.getInstance().logException("ignoring multiple syntax properties for " + lang, new UnsupportedOperationException());
+		}
+		
+		if (properties.size() > 0) {
+			return (IConstructor) properties.iterator().next();
+		}
+		
 		return null;
 	}
 	

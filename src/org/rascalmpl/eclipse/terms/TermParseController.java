@@ -92,8 +92,10 @@ public class TermParseController implements IParseController {
 		return new NodeLocator();
 	}
 
+	
 	public ILanguageSyntaxProperties getSyntaxProperties() {
-		return null;
+		IConstructor syntaxProperties = TermLanguageRegistry.getInstance().getSyntaxProperties(getLanguage());
+		return syntaxProperties != null ? new TermLanguageSyntaxProperties(syntaxProperties) : null;
 	}
 
 	public Iterator<Object> getTokenIterator(IRegion region) {
