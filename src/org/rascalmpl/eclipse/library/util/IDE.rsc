@@ -86,8 +86,21 @@ data Contribution
      | liveUpdater(lrel[loc,str] (&T<:Tree input) updater)
      | outliner(node (&T<:Tree input) outliner)
      | proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int requestOffset) proposer, str legalPrefixChars)
+     | syntaxProperties(
+         rel[str,str] fences = {}, 
+         str lineComment = "", 
+         tuple[str prefix, str continuation, str end] blockComment = <"","","">)
      ;
-  
+
+@doc{Extract the syntax properties from a declarative syntax definition.} 
+Contribution syntaxProperties(type[&N <: Tree] g) 
+  = syntaxProperties(
+      fences={<b,c> | /prod(_,[lit(str b),*_,lit(str c)],{\tag("fences"()),*_}) := g.definitions}
+            +{<b,c> | /prod(_,[lit(str b),*_,lit(str c)],{\bracket(),*_}) := g.definitions},
+      lineComment="<if (/prod(_,[lit(b),*_,c],{\tag("lineComment"()),*_}) := g.definitions, (c == lit("\n") || lit(_) !:= c)){><b><}>",
+      blockComment= (/prod(_,[lit(b),*_,lit(c)],{\tag("blockComment"()),*_}) := g.definitions && b != c && c != "\n") ? <b,"",c> : <"","","">
+  );
+    
 data Menu 
      = action(str label, void (Tree tree, loc selection) action)
      | action(str label, void (str selStr, loc selLoc) handler) // for non rascal menu's
