@@ -65,7 +65,9 @@ module util::IDE
 // Especially annotations defined in this module are relevant for util::IDE
 import ParseTree;
 import vis::Figure;
+import lang::rascal::format::Grammar;
 import util::ContentCompletion;
+import String;
 extend Message;
 
 @doc{
@@ -92,18 +94,24 @@ data Contribution
          tuple[str prefix, str continuation, str end] blockComment = <"","","">)
      ;
 
-@doc{Extract the syntax properties from a declarative syntax definition.} 
-Contribution syntaxProperties(type[&N <: Tree] g) {
-  rules = { p | /p:prod(_,_,_) := g.definitions};
+@doc {
+Synopsis: Completion datatype returned to the editor.
 
-  return syntaxProperties(
-      fences= {<b,c> | prod(_,[lit(str b),*_, lit(str c)],{\tag("fences"()), *_}) <- rules}
-            + {<b,c> | prod(_,[*pre, lit(str b),*mid, lit(str c), *post],{\tag("fences"(<int i, int j>)), *_}) <- rules, size(pre) == i * 2, size(pre) + 1 + size(mid) == j * 2}
-            + {<b,c> | prod(_,[lit(str b),*_,lit(str c)],{\bracket(),*_}) <- rules},
-      lineComment="<if (prod(_,[lit(b),*_,c],{\tag("lineComment"()),*_}) <- rules, (c == lit("\n") || lit(_) !:= c)){><b><}>",
-      blockComment= (prod(_,[lit(b),*_,lit(c)],{\tag("blockComment"()),*_}) <- rules && b != c && c != "\n") ? <b,"",c> : <"","","">
-  );
+Description:
+Completion proposals are passed on to the editor.
+* A source proposal (/*1*/) is completed using the newText argument.
+* A source proposal with a proposal string (/*2*/) is also completed with the newText argument 
+    but the proposal string is displayed. This can be used to display extra information
+    such as type information.
+* An error proposal (/*3*/) is used to notify the user of problems encountered during the process of
+    creating proposals. By default the framework will display an errorProposal stating "no
+    propsals available" when you return no proposals.
 }
+data CompletionProposal 
+                = sourceProposal(str newText) /*1*/
+                | sourceProposal(str newText, str proposal) /*2*/
+                | errorProposal(str errorText) /*3*/
+                ;
     
 data Menu 
      = action(str label, void (Tree tree, loc selection) action)
@@ -126,6 +134,43 @@ Synopsis: Annotate an outline node with a link.
 }
 anno loc node@\loc;  // a link for an outline node
 
+@doc{create a proper based on a character class type literal} 
+Contribution proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int requestOffset) prop, type[Tree] cc) 
+  = proposer(prop, class2str(cc));
+  
+  
+@doc{Extract the syntax properties from a declarative syntax definition.} 
+Contribution syntaxProperties(type[&N <: Tree] g) {
+  rules = { p | /p:prod(_,_,_) := g.definitions};
+
+  return syntaxProperties(
+      fences= {<b,c> | prod(_,[lit(str b),*_, lit(str c)],{\tag("fences"()), *_}) <- rules}
+            + {<b,c> | prod(_,[*pre, lit(str b),*mid, lit(str c), *post],{\tag("fences"(<int i, int j>)), *_}) <- rules, size(pre) == i * 2, size(pre) + 1 + size(mid) == j * 2}
+            + {<b,c> | prod(_,[lit(str b),*_,lit(str c)],{\bracket(),*_}) <- rules},
+      lineComment="<if (prod(_,[lit(b),*_,c],{\tag("lineComment"()),*_}) <- rules, (c == lit("\n") || lit(_) !:= c)){><b><}>",
+      blockComment= (prod(_,[lit(b),*_,lit(c)],{\tag("blockComment"()),*_}) <- rules && b != c && c != "\n") ? <b,"",c> : <"","","">
+  );
+}
+
+@doc{Generate a syntax proposer from a grammar definition.}
+Contribution proposer(type[&N <: Tree] g) {
+  rules = {p | /p:prod(_,_,_) := g.definitions};
+  prefixrules = { <x,p> | p:prod(_,[lit(x),*_],_) <- rules};
+
+  str class2str(type[&T <: Tree] cc) = "<for (\char-class(rs) := cc.symbol, range(b,e) <- rs, ch <- [b..e+1]) {><char(ch)><}>";
+  
+  str sym(lit(z)) = z;
+  str sym(c:\char-class(_)) = class2str(cc);
+  str sym(layouts(_)) = " ";
+  default str sym(Symbol s) = "\<<symbol2rascal(s)>\>";
+  
+  CompletionProposal toProposal(Production p) = sourceProposal("<for(s <- p.symbols){><sym(s)><}>", replaceAll(prod2rascal(p[attributes={}]),"\n"," "));
+  
+  return proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int offset) {
+    return [toProposal(p) | <x,p> <- prefixrules, startsWith(x, prefix)];
+  }, "<for (x <- prefixrules<0>) {><x[0]><}>");
+}
+    
 
 @doc{
 Synopsis: Register a language extension and a parser for use in Eclipse.
