@@ -108,10 +108,10 @@ Completion proposals are passed on to the editor.
     propsals available" when you return no proposals.
 }
 data CompletionProposal 
-                = sourceProposal(str newText) /*1*/
-                | sourceProposal(str newText, str proposal) /*2*/
-                | errorProposal(str errorText) /*3*/
-                ;
+  = sourceProposal(str newText) /*1*/
+  | sourceProposal(str newText, str proposal) /*2*/
+  | errorProposal(str errorText) /*3*/
+  ;
     
 data Menu 
      = action(str label, void (Tree tree, loc selection) action)
@@ -178,6 +178,13 @@ Synopsis: Register a language extension and a parser for use in Eclipse.
 @reflect{Use the evaluator to parse editor contents and apply functions to parse trees}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public java void registerLanguage(str name, str extension, Tree (str input, loc origin) parse);
+
+@doc{
+Synopsis: Register a language extension and a parser for use in Eclipse.
+}
+@reflect{Use the evaluator to parse editor contents and apply functions to parse trees}
+@javaClass{org.rascalmpl.eclipse.library.util.IDE}
+public java void registerLanguage(str name, str extension, type[&T <: Tree] nonterminal);
 
 @doc{
 Synopsis: Register an annotator.
