@@ -188,9 +188,7 @@ public class ProjectEvaluatorFactory {
 		configure(evaluator);
 
 		try {
-		  if (project != null && project.isOpen() && project.hasNature(JavaCore.NATURE_ID)) {
-		    configureClassPath(project, evaluator); 
-		  }
+			configureClassPath(project, evaluator); 
 		}
 		catch (CoreException e) {
 		  Activator.getInstance().logException("exception while constructing classpath for evaluator", e);
@@ -511,13 +509,16 @@ public class ProjectEvaluatorFactory {
 		}
 	}
 	
-	public void configureClassPath(IProject project, Evaluator parser) {
+	public void configureClassPath(IProject project, Evaluator parser) throws CoreException {
 		List<URL> classPath = new LinkedList<URL>();
 		List<String> compilerClassPath = new LinkedList<String>();
 		Bundle rascalBundle = Activator.getInstance().getBundle();
 		
 		// order is important
-		collectClassPathForProject(project, classPath, compilerClassPath, parser);
+		if (project != null && project.isOpen() && project.hasNature(JavaCore.NATURE_ID)) {
+			collectClassPathForProject(project, classPath, compilerClassPath, parser);
+		}
+		
 		collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
 	
 		
