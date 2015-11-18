@@ -54,7 +54,7 @@ public class DocumentationProvider  implements IDocumentationProvider {
 					&& vals.getType().getValueType().isString()) {
 				IMap map = (IMap) vals;
 				ISourceLocation loc = (ISourceLocation) arg.asAnnotatable().getAnnotation("loc");
-				if (loc != null) {
+				if (loc != null && map.containsKey(loc)) {
 					return ((IString) map.get(loc)).getValue();
 				}
 			}
