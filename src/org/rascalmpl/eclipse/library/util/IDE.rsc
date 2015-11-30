@@ -65,8 +65,7 @@ module util::IDE
 // Especially annotations defined in this module are relevant for util::IDE
 import ParseTree;
 import vis::Figure;
-import lang::rascal::format::Grammar;
-import util::ContentCompletion;
+import lang::rascal::\format::Grammar;
 import String;
 extend Message;
 
