@@ -19,6 +19,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
@@ -81,6 +82,9 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 			try (Writer wrt = new LimitedWriter(out, CHAR_LIMIT)) {
 				singleLinePrettyPrinter.write(value, wrt);
 			}
+	    	catch (IOLimitReachedException e) {
+	    	    // ignore since this is what we wanted
+	    	}
 		} else {
 			out.print(type.toString());
 			out.print(": ");
@@ -88,6 +92,9 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 			try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
 				indentedPrettyPrinter.write(value, wrt);
 			}
+	    	catch (IOLimitReachedException e) {
+	    	    // ignore since this is what we wanted
+	    	}
 		}
 		out.flush();
 		return sw.toString();
