@@ -113,10 +113,10 @@ data CompletionProposal
   ;
     
 data Menu 
-     = action(str label, void (Tree tree, loc selection) action)
+     = action(str label, void ((&T<:Tree) tree, loc selection) action)
      | action(str label, void (str selStr, loc selLoc) handler) // for non rascal menu's
-     | toggle(str label, bool() state, void(Tree tree, loc selection) action)
-     | edit(str label, str (Tree tree, loc selection) edit)
+     | toggle(str label, bool() state, void((&T<:Tree) tree, loc selection) action)
+     | edit(str label, str ((&T<:Tree) tree, loc selection) edit)
      | group(str label, list[Menu] members)
      | menu(str label, list[Menu] members)
      ;
