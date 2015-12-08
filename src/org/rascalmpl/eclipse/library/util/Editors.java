@@ -61,7 +61,9 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
+import org.rascalmpl.uri.URIEditorInput;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIStorage;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
@@ -249,19 +251,18 @@ public class Editors {
 				}
 
 				Activator.getInstance().logException("project " + uri.getAuthority() + " does not exist", new RuntimeException());
-			} else if (scheme.equals("file")) {
+			} 
+			else if (scheme.equals("file")) {
 				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 				IFile[] cs = root.findFilesForLocationURI(uri);
 
 				if (cs != null && cs.length > 0) {
 					return new FileEditorInput(cs[0]);
 				}
-
-				Activator.getInstance().logException("file " + uri + " not found", new RuntimeException());
 			}
 
-			Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
-			return null;
+			URIStorage storage = new URIStorage(VF.sourceLocation(uri));
+			return new URIEditorInput(storage);
 		}
 	}
 
