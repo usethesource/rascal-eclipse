@@ -55,7 +55,6 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	private static PrintWriter out;
     private static PrintWriter err;
     private static IValueFactory vf;
-    private static RascalExecutionContext rex;
     private static List<String> binaryExtension = Arrays.asList("imps","rvm.gz", "tc","sig","sigs");
     
     private ISourceLocation projectLoc;

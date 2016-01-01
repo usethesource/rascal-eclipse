@@ -31,9 +31,13 @@ public class ProjectConfig {
         IListWriter libsWriter = vf.listWriter();
         IListWriter srcsWriter = vf.listWriter();
         
-        // TODO: this needs to be configured elsewhere
-        libsWriter.append(URIUtil.correctLocation("std", "", ""));
-        libsWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
+        
+        // we special-case the rascal project for bootstrapping purposes (avoiding confusing between source and bootstrapped library)
+        if (!"rascal".equals(project.getName())) {
+            // TODO: this needs to be configured elsewhere
+            libsWriter.append(URIUtil.correctLocation("std", "", ""));
+            libsWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
+        }
         
         // These are jar files which make contain compiled Rascal code to link to:
         for (String lib : manifest.getRequiredLibraries(project)) {
@@ -61,9 +65,13 @@ public class ProjectConfig {
             srcsWriter.append(src);
         }
         
+        
         // TODO this is necessary while the kernel does not hold a compiled standard library, so remove later:
-        srcsWriter.append(URIUtil.correctLocation("std", "", ""));
-        srcsWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
+        // We special-case the rascal project for bootstrapping purposes (avoiding confusing between source and bootstrapped library)
+        if ("rascal".equals(project.getName())) {
+            srcsWriter.append(URIUtil.correctLocation("std", "", ""));
+            srcsWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
+        }
         
         ISourceLocation bin = URIUtil.getChildLocation(projectLoc, BIN_FOLDER);
         ISourceLocation boot = URIUtil.correctLocation("boot", "", "");
