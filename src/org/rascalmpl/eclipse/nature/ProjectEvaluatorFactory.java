@@ -158,6 +158,9 @@ public class ProjectEvaluatorFactory {
 		// NB. the code in this method is order dependent because it constructs a rascal module path in a particular order
 	    evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
 		evaluator.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
+		evaluator.addClassLoader(Evaluator.class.getClassLoader());
+		//evaluator.addClassLoader(Type.class.getClassLoader());
+		evaluator.addRascalSearchPath(URIUtil.rootLocation("std"));
 		configureRascalLibraryPlugins(evaluator);
 	}
 	
