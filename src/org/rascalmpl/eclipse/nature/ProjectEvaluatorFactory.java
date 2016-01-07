@@ -159,7 +159,6 @@ public class ProjectEvaluatorFactory {
 	    evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
 		evaluator.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
 		evaluator.addClassLoader(Evaluator.class.getClassLoader());
-		//evaluator.addClassLoader(Type.class.getClassLoader());
 		evaluator.addRascalSearchPath(URIUtil.rootLocation("std"));
 		configureRascalLibraryPlugins(evaluator);
 	}
