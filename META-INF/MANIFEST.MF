@@ -25,7 +25,6 @@ Require-Bundle:
  org.eclipse.pde.core,
  org.eclipse.jdt.launching,
  org.eclipse.ui.views,
- rascal,
  org.eclipse.ui.navigator,
  org.eclipse.ui.navigator.resources,
  org.eclipse.tm.terminal.control,
@@ -43,3 +42,5 @@ Export-Package: org.rascalmpl.eclipse.editor,
  org.rascalmpl.eclipse.wizards,
  org.rascalmpl.uri
 Import-Package: org.eclipse.core.expressions
+Bundle-ClassPath: .,
+  lib/rascal-shell.jar

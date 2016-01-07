@@ -88,7 +88,7 @@ public class RascalProjectWizard extends BasicNewProjectResourceWizard {
 				plugin.setSymbolicName(project.getName().replaceAll("[^a-zA-Z0-9_]", "_"));
 				plugin.setNatureIds(new String[] { IRascalResources.ID_RASCAL_NATURE, JavaCore.NATURE_ID, IBundleProjectDescription.PLUGIN_NATURE, IRascalResources.ID_TERM_NATURE});
 				plugin.setRequiredBundles(new IRequiredBundleDescription[] { 						
-						service.newRequiredBundle("rascal", null, false, false)
+						service.newRequiredBundle("rascal_eclipse", null, false, false)
 						});
 				plugin.setBundleVersion(Version.parseVersion("1.0.0"));
 				plugin.setExecutionEnvironments(new String[] { "JavaSE-1.8"}); // TODO: Is this a constant defined somewhere?
