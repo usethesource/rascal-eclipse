@@ -539,20 +539,31 @@ public class ProjectEvaluatorFactory {
 	}
 	
 	private static void configureClassPath(Evaluator parser, List<URL> classPath, List<String> compilerClassPath) {
-		// this registers the run-time path:
-		URL[] urls = new URL[classPath.size()];
-		classPath.toArray(urls);
-		URLClassLoader classPathLoader = new URLClassLoader(urls, ProjectEvaluatorFactory.class.getClassLoader());
-		parser.addClassLoader(classPathLoader);
-		
-		// this registers the compile-time path:
-		String ccp = "";
-		for (String elem : compilerClassPath) {
-			ccp += File.pathSeparatorChar + elem;
-		}
-		
+        // this registers the run-time path:
+        URL[] urls = new URL[classPath.size()];
+        classPath.toArray(urls);
+        URLClassLoader classPathLoader = new URLClassLoader(urls, ProjectEvaluatorFactory.class.getClassLoader());
+        parser.addClassLoader(classPathLoader);
+        
+        try {
+            // The Java compiler does not extract classes from nested jars, therefore we try to find a file URL for the nested fat
+            // jar (probably extracted in a temp folder by OSGI) and add it to the Java compiler classpath which is used for compiling
+            // generated code by the Rascal parser generator:
+            Bundle rascalBundle = Activator.getInstance().getBundle();
+        	URL entry = FileLocator.toFileURL(rascalBundle.getEntry("lib/rascal-shell.jar"));
+        
+			// this registers the compile-time path:
+            String ccp = new File(entry.toURI()).getAbsolutePath();
+            for (String elem : compilerClassPath) {
+                ccp += File.pathSeparatorChar + elem;
+            }
 
-		
-		parser.getConfiguration().setRascalJavaClassPathProperty(ccp.substring(1));
-	}
+            parser.getConfiguration().setRascalJavaClassPathProperty(ccp);
+        } catch (URISyntaxException e) {
+            Activator.log("URL of rascal-shell is not a valid URI???", e);
+        } catch (IOException e1) {
+            Activator.log("could not find fat rascal-shell jar", e1);
+		}
+    }
 }
+
