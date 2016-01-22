@@ -25,9 +25,10 @@ myModel = createM3FromEclipseProject(|project://example-project|);
 </screen>
 }
 public M3 createM3FromEclipseProject(loc project) {
-  setEnvironmentOptions(classPathForProject(project), sourceRootsForProject(project));
+  classPath = classPathForProject(project);
+  sourcePaths = sourceRootsForProject(project);
   compliance = getProjectOptions(project)["org.eclipse.jdt.core.compiler.compliance"];
-  result = composeJavaM3(project, { createM3FromFile(f, javaVersion=compliance) | loc f <- sourceFilesForProject(project)});
+  result = composeJavaM3(project, { createM3FromFile(f, sourcePaths= sourcePaths, classPath=classPath, javaVersion=compliance) | loc f <- sourceFilesForProject(project)});
   registerProject(project, result);
   return result;
 }
@@ -51,9 +52,8 @@ Synopsis: Extract an M3 model for a file that is located in an eclipse project
 }
 public M3 createM3FromEclipseFile(loc file) {
    project = file[path=""];
-   setEnvironmentOptions(classPathForProject(file[path=""]), sourceRootsForProject(project));
    compliance = getProjectOptions(project)["org.eclipse.jdt.core.compiler.compliance"];
-   return createM3FromFile(file, javaVersion=compliance);
+   return createM3FromFile(file, sourcePath=sourceRootsForProject(project), classPath=classPathForProject(file[path=""]), javaVersion=compliance);
 }
 
 @doc{Experimental functionality to create M3 models from jar files}
