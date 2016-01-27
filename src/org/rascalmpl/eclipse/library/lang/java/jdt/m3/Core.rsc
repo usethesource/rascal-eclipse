@@ -16,7 +16,7 @@ import Node;
 
 @reflect
 @javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.m3.internal.EclipseJavaCompiler}
-private java set[M3] createM3sFromEclipseProject(loc project);
+private java set[M3] createM3sFromEclipseProject(loc project, bool errorRecovery = false);
 
 @doc{
 Synopsis: Extract a full m3 model from an Eclipse project
@@ -28,8 +28,8 @@ import lang::java::jdt::m3::Core;
 myModel = createM3FromEclipseProject(|project://example-project|);
 </screen>
 }
-public M3 createM3FromEclipseProject(loc project) {
-  result = composeJavaM3(project, createM3sFromEclipseProject(project));
+public M3 createM3FromEclipseProject(loc project, bool errorRecovery = false) {
+  result = composeJavaM3(project, createM3sFromEclipseProject(project, errorRecovery = errorRecovery));
   registerProject(project, result);
   return result;
 }
@@ -39,7 +39,7 @@ Synopsis: Extract an M3 model for a file that is located in an eclipse project
 }
 @reflect
 @javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.m3.internal.EclipseJavaCompiler}
-public java M3 createM3FromEclipseFile(loc file);
+public java M3 createM3FromEclipseFile(loc file, bool errorRecovery = false);
 
 @doc{Experimental functionality to create M3 models from jar files}
 public set[M3] createM3FromProjectJars(loc project) {

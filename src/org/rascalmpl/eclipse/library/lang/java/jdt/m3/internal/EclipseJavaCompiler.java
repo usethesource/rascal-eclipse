@@ -39,54 +39,54 @@ public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.inte
         super(vf);
     }
     
-    public ISet createAstsFromEclipseProject(ISourceLocation root, IBool collectBindings, IEvaluatorContext ctx) {
+    public ISet createAstsFromEclipseProject(ISourceLocation root, IBool collectBindings, IBool errorRecovery, IEvaluatorContext ctx) {
         TypeStore store = new TypeStore();
         store.extendStore(ctx.getHeap().getModule("lang::java::m3::AST").getStore());
 
         ISetWriter result = VF.setWriter();
         Map<String, ISourceLocation> cache = new HashMap<>();
-        compileAllFiles(root, collectBindings.getValue(), (loc, ast) -> {
+        compileAllFiles(root, collectBindings.getValue(), errorRecovery.getValue(), (loc, ast) -> {
             result.insert(convertToAST(collectBindings, cache, loc, ast, store));
         });
         return result.done();
     }
     
-    public ISet createM3sFromEclipseProject(ISourceLocation root, IEvaluatorContext ctx) {
+    public ISet createM3sFromEclipseProject(ISourceLocation root, IBool errorRecovery, IEvaluatorContext ctx) {
         TypeStore store = new TypeStore();
         store.extendStore(ctx.getHeap().getModule("lang::java::m3::Core").getStore());
         store.extendStore(ctx.getHeap().getModule("lang::java::m3::AST").getStore());
 
         ISetWriter result = VF.setWriter();
         Map<String, ISourceLocation> cache = new HashMap<>();
-        compileAllFiles(root, true, (loc, ast) -> {
+        compileAllFiles(root, true, errorRecovery.getValue(), (loc, ast) -> {
             result.insert(convertToM3(store, cache, loc, ast));
         });
         return result.done();
         
     }
 
-    public IValue createAstFromEclipseFile(ISourceLocation file, IBool collectBindings, IEvaluatorContext ctx) {
+    public IValue createAstFromEclipseFile(ISourceLocation file, IBool collectBindings, IBool errorRecovery, IEvaluatorContext ctx) {
         TypeStore store = new TypeStore();
         store.extendStore(ctx.getHeap().getModule("lang::java::m3::AST").getStore());
 
-        CompilationUnit cu = compileOneFile(file, collectBindings.getValue());
+        CompilationUnit cu = compileOneFile(file, collectBindings.getValue(), errorRecovery.getValue());
         Map<String, ISourceLocation> cache = new HashMap<>();
         return convertToAST(collectBindings, cache, file, cu, store);
     }
     
-    public IValue createM3FromEclipseFile(ISourceLocation file, IEvaluatorContext ctx) {
+    public IValue createM3FromEclipseFile(ISourceLocation file, IBool errorRecovery, IEvaluatorContext ctx) {
         TypeStore store = new TypeStore();
         store.extendStore(ctx.getHeap().getModule("lang::java::m3::Core").getStore());
         store.extendStore(ctx.getHeap().getModule("lang::java::m3::AST").getStore());
 
-        CompilationUnit cu = compileOneFile(file, true);
+        CompilationUnit cu = compileOneFile(file, true, errorRecovery.getValue());
         Map<String, ISourceLocation> cache = new HashMap<>();
         return convertToM3(store, cache, file, cu);
     }
     
-    private void compileAllFiles(ISourceLocation root, boolean collectBindings, BiConsumer<ISourceLocation, CompilationUnit> consumeCompiled) {
+    private void compileAllFiles(ISourceLocation root, boolean collectBindings, boolean errorRecovery, BiConsumer<ISourceLocation, CompilationUnit> consumeCompiled) {
         IJavaProject project = getProject(root);
-        ASTParser parser = constructASTParser(collectBindings, project); 
+        ASTParser parser = constructASTParser(collectBindings, project, errorRecovery); 
         parser.createASTs(getFiles(project), new String[0], new ASTRequestor() {
             @Override
             public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
@@ -95,7 +95,7 @@ public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.inte
         }, null);
     }
 
-    private CompilationUnit compileOneFile(ISourceLocation file, boolean collectBindings) {
+    private CompilationUnit compileOneFile(ISourceLocation file, boolean collectBindings, boolean errorRecovery) {
         IJavaProject project = getProject(file);
         IJavaElement path;
         try {
@@ -110,7 +110,7 @@ public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.inte
         catch (JavaModelException e) {
              throw RuntimeExceptionFactory.io(VF.string("Could not find " + file), null, null);
         }
-        ASTParser parser = constructASTParser(collectBindings, project); 
+        ASTParser parser = constructASTParser(collectBindings, project, errorRecovery); 
         CompilationUnit[] result = new CompilationUnit[] { null };
         parser.createASTs(getFiles(project), new String[0], new ASTRequestor() {
             @Override
@@ -171,9 +171,9 @@ public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.inte
         return JavaCore.create(project);
     }
     
-    protected ASTParser constructASTParser(boolean resolveBindings, IJavaProject project) {
+    protected ASTParser constructASTParser(boolean resolveBindings, IJavaProject project, boolean errorRecovery) {
         IString javaVersion = VF.string(project.getOption(JavaCore.COMPILER_COMPLIANCE, true));
-        ASTParser result = super.constructASTParser(resolveBindings, javaVersion, null, null);
+        ASTParser result = super.constructASTParser(resolveBindings, errorRecovery, javaVersion, null, null);
         result.setProject(project);
         return result;
     }

@@ -13,11 +13,11 @@ Synopsis: Creates ASTs from a project
 }
 @reflect
 @javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.m3.internal.EclipseJavaCompiler}
-public java Declaration createAstFromEclipseFile(loc file, bool collectBindings);
+public java Declaration createAstFromEclipseFile(loc file, bool collectBindings, bool errorRecovery = false);
 
 @doc{
 Synopsis: Creates ASTs from a project
 }
 @reflect
 @javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.m3.internal.EclipseJavaCompiler}
-public java set[Declaration] createAstsFromEclipseProject(loc project, bool collectBindings);
+public java set[Declaration] createAstsFromEclipseProject(loc project, bool collectBindings, bool errorRecovery = false);
