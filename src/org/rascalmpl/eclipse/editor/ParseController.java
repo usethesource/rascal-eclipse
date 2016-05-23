@@ -207,7 +207,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 						// reload other modules to find out about new syntax definitions
 						ProjectEvaluatorFactory.getInstance().reloadProject(project.getRawProject(), new WarningsToMessageHandler(uri, getMessageHandler()), ignore);
 					}
-					parseTree = parser.parseModule(rm, input.toCharArray(), uri);
+					parseTree = parser.parseModuleAndFragments(rm, input.toCharArray(), uri);
 					
 					// this makes sure we do not reload the current module and who depends on it 
 					// while we are editing it.

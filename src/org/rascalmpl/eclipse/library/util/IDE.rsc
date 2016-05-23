@@ -65,8 +65,7 @@ module util::IDE
 // Especially annotations defined in this module are relevant for util::IDE
 import ParseTree;
 import vis::Figure;
-import lang::rascal::format::Grammar;
-import util::ContentCompletion;
+import lang::rascal::\format::Grammar;
 import String;
 extend Message;
 
@@ -114,10 +113,10 @@ data CompletionProposal
   ;
     
 data Menu 
-     = action(str label, void (Tree tree, loc selection) action)
+     = action(str label, void ((&T<:Tree) tree, loc selection) action)
      | action(str label, void (str selStr, loc selLoc) handler) // for non rascal menu's
-     | toggle(str label, bool() state, void(Tree tree, loc selection) action)
-     | edit(str label, str (Tree tree, loc selection) edit)
+     | toggle(str label, bool() state, void((&T<:Tree) tree, loc selection) action)
+     | edit(str label, str ((&T<:Tree) tree, loc selection) edit)
      | group(str label, list[Menu] members)
      | menu(str label, list[Menu] members)
      ;

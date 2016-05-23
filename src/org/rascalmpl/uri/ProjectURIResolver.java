@@ -119,6 +119,9 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 			throw new IOException("project " + uri.getAuthority() + " is closed.");
 		}
 		
+		if (uri.getPath().isEmpty() || uri.getPath().equals("/")) {
+		    return project;
+		}
 		if(isDirectory(uri)){
 			return project.getFolder(uri.getPath());
 		}

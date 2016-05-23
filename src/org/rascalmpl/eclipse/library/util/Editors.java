@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.rascalmpl.eclipse.library.util;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -60,6 +61,9 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
+import org.rascalmpl.uri.URIEditorInput;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIStorage;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
@@ -97,7 +101,15 @@ public class Editors {
 				IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(loc.getPath());
 
 				if (desc != null) {
-					cachedEditorPart = page.openEditor(getEditorInput(loc.getURI()), desc.getId());
+					URIResolverRegistry reg = URIResolverRegistry.getInstance();
+					ISourceLocation theLoc;
+					
+					try {
+						theLoc = reg.logicalToPhysical(loc);
+					} catch (IOException e) {
+						theLoc = loc;
+					}
+					cachedEditorPart = page.openEditor(getEditorInput(theLoc.getURI()), desc.getId());
 				} else {
 					IFileStore fileStore = EFS.getLocalFileSystem().getStore(loc.getURI());
 					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
@@ -129,6 +141,12 @@ public class Editors {
 
 						IEditorInput input = editor.getEditorInput();
 						IResource inputResource = ResourceUtil.getResource(input);
+						
+						if (inputResource == null) {
+							Activator.log("can not show markers because file is not in the Eclipse workspace: " + input, new NullPointerException());
+							return; 
+						}
+						
 						for (IMarker marker : inputResource.findMarkers(RASCAL_MARKER, true, IResource.DEPTH_INFINITE)) {
 							if (marker.exists()) {
 								marker.delete();
@@ -223,6 +241,7 @@ public class Editors {
 
 		private IEditorInput getEditorInput(URI uri) {
 			String scheme = uri.getScheme();
+			
 
 			if (scheme.equals("project")) {
 				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
@@ -232,19 +251,18 @@ public class Editors {
 				}
 
 				Activator.getInstance().logException("project " + uri.getAuthority() + " does not exist", new RuntimeException());
-			} else if (scheme.equals("file")) {
+			} 
+			else if (scheme.equals("file")) {
 				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 				IFile[] cs = root.findFilesForLocationURI(uri);
 
 				if (cs != null && cs.length > 0) {
 					return new FileEditorInput(cs[0]);
 				}
-
-				Activator.getInstance().logException("file " + uri + " not found", new RuntimeException());
 			}
 
-			Activator.getInstance().logException("scheme " + uri.getScheme() + " not supported", new RuntimeException());
-			return null;
+			URIStorage storage = new URIStorage(VF.sourceLocation(uri));
+			return new URIEditorInput(storage);
 		}
 	}
 

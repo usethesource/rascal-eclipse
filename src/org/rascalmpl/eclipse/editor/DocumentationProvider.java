@@ -46,7 +46,7 @@ public class DocumentationProvider  implements IDocumentationProvider {
 		}
 		
 		if (top != null && top.getType().isSubtypeOf(RascalValueFactory.Tree)) {
-			IValue vals = arg.asAnnotatable().getAnnotation("docs");
+			IValue vals = top.asAnnotatable().getAnnotation("docs");
 			
 			if (vals != null 
 					&& vals.getType().isMap() 
@@ -54,18 +54,8 @@ public class DocumentationProvider  implements IDocumentationProvider {
 					&& vals.getType().getValueType().isString()) {
 				IMap map = (IMap) vals;
 				ISourceLocation loc = (ISourceLocation) arg.asAnnotatable().getAnnotation("loc");
-				if (loc != null) {
+				if (loc != null && map.containsKey(loc)) {
 					return ((IString) map.get(loc)).getValue();
-				}
-			}
-
-			IValue docStringsMapValue = top.asAnnotatable().getAnnotation("docStrings");
-			IValue loc = arg.asAnnotatable().getAnnotation("loc");
-			if (docStringsMapValue != null && docStringsMapValue.getType().isMap() && loc != null && loc.getType().isSourceLocation()) {
-				IMap docStringsMap = (IMap)docStringsMapValue;
-				if (docStringsMap.containsKey(loc)) { 
-					IValue docString = docStringsMap.get(loc);
-					if (docString.getType().isString()) return ((IString)docString).getValue();
 				}
 			}
 		}

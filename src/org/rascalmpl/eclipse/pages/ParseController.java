@@ -82,7 +82,8 @@ public class ParseController extends org.rascalmpl.eclipse.editor.ParseControlle
 						// reload other modules to find out about new syntax definitions
 						ProjectEvaluatorFactory.getInstance().reloadProject(project.getRawProject(), new WarningsToMessageHandler(uri, getMessageHandler()), ignore);
 					}
-					parseTree = new RascalParser().parse(Parser.START_COMMANDS, uri.getURI(), input.toCharArray(), new NoActionExecutor() , new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+
+					parseTree = new RascalParser().parse(Parser.START_COMMANDS, uri.getURI(), input.toCharArray(), new NoActionExecutor() , new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 					//parseTree = parser.parseCommands(rm, input, uri);
 					
 					GlobalEnvironment heap = parser.getHeap();
