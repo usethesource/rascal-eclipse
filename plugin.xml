@@ -609,7 +609,7 @@
       point="org.eclipse.core.resources.builders">
    <builder>
       <run
-            class="org.rascalmpl.eclipse.builder.RascalChecker">
+            class="org.rascalmpl.eclipse.builder.IncrementalRascalBuilder">
       </run>
    </builder>
 </extension>
