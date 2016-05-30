@@ -12,6 +12,7 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -237,7 +238,7 @@ public class RascalTerminalConnector extends TerminalConnectorImpl {
                     control.setState(TerminalState.CONNECTED);
                     shell.run();
                 }
-                catch (IOException e) {
+                catch (IOException | URISyntaxException e) {
                     Activator.log("terminal not connected", e);
                 } 
                 finally {
