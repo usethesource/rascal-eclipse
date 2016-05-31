@@ -8,6 +8,10 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Davy Landman - Davy.Landman@cwi.nl - CWI}
+@doc{
+.Synopsis
+Eclipse editing facilties.
+}
 module util::Editors
 
 // needed for colors
@@ -22,11 +26,17 @@ public data LineDecoration =
   ;
 
 
-@doc{Set custom colors for errors}
+@doc{
+.Synopsis
+Set custom colors for errors
+}
 @javaClass{org.rascalmpl.eclipse.library.util.Editors}
 public java void setErrorColors(list[Color] colors);
 
-@doc{Set custom colors for line highlights}
+@doc{
+.Synopsis
+Set custom colors for line highlights.
+}
 @javaClass{org.rascalmpl.eclipse.library.util.Editors}
 public java void setHighlightColors(list[Color] colors);
 
@@ -35,7 +45,10 @@ public void edit(loc file){
 	edit(file,"Here");
 }
 
-@doc{Open a source editor (using annotations from location)}
+@doc{
+.Synopsis
+Open a source editor (using annotations from location).
+}
 public void edit(loc file,str msg){
 	list[LineDecoration] ld = [];
 	if (file.begin?) {
@@ -47,12 +60,18 @@ public void edit(loc file,str msg){
 	edit(file, ld);
 }
 
-@doc{Open a source editor (using annotations from location)}
+@doc{
+.Synopsis
+Open a source editor (using annotations from location).
+}
 public void edit(loc file,LineDecoration (int,str) decorator,str msg){
 	edit(file,[decorator(i,msg) | i <- [file.begin[0]..file.end[0]+1]]);
 }
 	
-@doc{Open a source editor}
+@doc{
+.Synopsis
+Open a source editor.
+}
 @javaClass{org.rascalmpl.eclipse.library.util.Editors}
 public java void edit(loc file, list[LineDecoration] lineInfo);
 
@@ -61,6 +80,13 @@ alias ComputedLineDecorations = list[LineDecoration] ();
 @javaClass{org.rascalmpl.eclipse.library.util.Editors}
 public java void edit(loc file,  ComputedLineDecorations lineInfo);
 
-@doc{Provide a closure to add line decorations for file not opened using the edit method, but of a certain extensions (such as .java)}
+@doc{
+.Synopsis
+Provide a closure to add line decorations for file not opened using the edit method.
+
+.Description
+Provide a closure to add line decorations for file not opened using the edit method,
+but of a certain extensions (such as .java).
+}
 @javaClass{org.rascalmpl.eclipse.library.util.Editors}
 public java void provideDefaultLineDecorations(str extension,  ComputedLineDecorations (loc newFile) handleNewFile);
