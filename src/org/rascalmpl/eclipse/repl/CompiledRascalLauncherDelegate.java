@@ -111,7 +111,7 @@ public class CompiledRascalLauncherDelegate extends AbstractLauncherDelegate {
 	}
 
 	private String computeTitle(Map<String, Object> properties) {
-	    return "Rascal [project: " + properties.get("project") + "]";
+	    return "Compiled Rascal [project: " + properties.get("project") + "]";
     }
 
     @Override

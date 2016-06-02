@@ -9,12 +9,12 @@ public class Initializer extends PreferencesInitializer {
 	@Override
 	public void initializeDefaultPreferences() {
 		IPreferencesService service = Activator.getInstance().getPreferencesService();
-		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.enableStaticChecker, false);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.enableRascalCompiler, true);
 	}
 
 	@Override
 	public void clearPreferencesOnLevel(String level) {
 		IPreferencesService service = Activator.getInstance().getPreferencesService();
-		service.clearPreferenceAtLevel(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.enableStaticChecker);
+		service.clearPreferenceAtLevel(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.enableRascalCompiler);
 	}
 }

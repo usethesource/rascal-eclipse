@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
+import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
@@ -178,6 +179,10 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     }
 
     private void buildIncremental(IResourceDelta delta, IProgressMonitor monitor) {
+        if (!RascalPreferences.isRascalCompilerEnabled()) {
+            return;
+        }
+        
 	    try {
             delta.accept(new IResourceDeltaVisitor() {
                 @Override

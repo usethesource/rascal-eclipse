@@ -34,6 +34,8 @@ import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.LinkDetector;
 import org.rascalmpl.uri.LinkDetector.Type;
 import org.rascalmpl.uri.URIUtil;
@@ -46,6 +48,7 @@ import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import jline.Terminal;
+import jline.TerminalFactory;
 
 @SuppressWarnings("restriction")
 public class CompiledRascalTerminalConnector extends SizedTerminalConnector {
@@ -117,7 +120,10 @@ public class CompiledRascalTerminalConnector extends SizedTerminalConnector {
                         
                         @Override
                         protected CommandExecutor constructCommandExecutor(PrintWriter stdout, PrintWriter stderr) throws IOException ,org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction ,URISyntaxException {
-                            return new CommandExecutor(stdout, stderr);
+                            CommandExecutor exec = new CommandExecutor(stdout, stderr);
+//                            exec.setDebugObserver(new DebugREPLFrameObserver(reader.getInput(), control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), TerminalFactory.get(), new ProjectConfig(vf).getPathConfig(ipr)));
+                            setMeasureCommandTime(true);
+                            return exec;
                         }
                         
                         @Override
