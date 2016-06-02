@@ -23,19 +23,16 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
+import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
-import org.rascalmpl.interpreter.load.RascalSearchPath;
-import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
@@ -50,22 +47,19 @@ import io.usethesource.impulse.runtime.RuntimePlugin;
  * It also interacts with Project Clean actions to clear up files and markers on request.  
  */
 public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
-	private static final String BIN_FOLDER = "bin";
+	
     private final Kernel kernel;
 	private final String checkerModuleName = "RascalIDEChecker";
 	private final PrintWriter out;
     private final PrintWriter err;
     private final IValueFactory vf;
     
-    // compiler config
     private ISourceLocation projectLoc;
-    private IList srcPath;
-    private ISourceLocation bootDir;
-    private IList libPath;
-    private ISourceLocation binDir;
+    private PathConfig pathConfig;
     
     private final List<String> binaryExtension = Arrays.asList("imps","rvm.gz", "tc","sig","sigs");
     private RascalExecutionContext rex;
+
 
     public IncrementalRascalBuilder() throws IOException, NoSuchRascalFunction, URISyntaxException {
         out = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
@@ -109,7 +103,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     }
 
     private void cleanBinFiles(IProgressMonitor monitor) throws CoreException {
-        getProject().findMember(BIN_FOLDER).accept(new IResourceVisitor() {
+        getProject().findMember(ProjectConfig.BIN_FOLDER).accept(new IResourceVisitor() {
             @Override
             public boolean visit(IResource resource) throws CoreException {
                 if (binaryExtension.contains(resource.getFileExtension())) {
@@ -172,8 +166,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    }
 	    
 	    try {
-	            
-	        IConstructor result = kernel.compileAndLink(vf.string(main), srcPath, libPath, bootDir, binDir, vf.mapWriter().done());
+	        IConstructor result = kernel.compileAndLink(vf.string(main), pathConfig.getSourcePath(), pathConfig.getLibPath(), pathConfig.getBootDir(), pathConfig.getBinDir(), vf.mapWriter().done());
             markErrors(module, result);
 	    }
 	    catch (Throwable e) {
@@ -206,7 +199,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                             file.deleteMarkers(IMarker.PROBLEM, true, 1);
                             String module = ResourcesToModules.moduleFromFile(file);
                             initializeParameters(false);
-                            IConstructor result = kernel.compile(vf.string(module), srcPath, libPath, bootDir, binDir, vf.mapWriter().done());
+                            IConstructor result = kernel.compile(vf.string(module), pathConfig.getSourcePath(), pathConfig.getLibPath(), pathConfig.getBootDir(), pathConfig.getBinDir(), vf.mapWriter().done());
                             markErrors(loc, result);
                         }
                         catch (Throwable e) {
@@ -219,7 +212,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                         return false;
                     }
                     
-                    return !BIN_FOLDER.equals(path.toPortableString());
+                    return !ProjectConfig.BIN_FOLDER.equals(path.toPortableString());
                 }
 
                
@@ -248,47 +241,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         
         IProject project = getProject();
         projectLoc = ProjectURIResolver.constructProjectURI(project.getFullPath());
-        
-        RascalEclipseManifest manifest = new RascalEclipseManifest();
-        
-        IListWriter libPathWriter = vf.listWriter();
-        
-        // TODO: this needs to be configured elsewhere
-        libPathWriter.append(URIUtil.correctLocation("std", "", ""));
-        libPathWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
-        
-        // These are jar files which make contain compiled Rascal code to link to:
-        for (String lib : manifest.getRequiredLibraries(project)) {
-            libPathWriter.append(URIUtil.getChildLocation(projectLoc, lib));
-        }
-        
-        // These are other projects referenced by the current project for which we add
-        // the bin folder to the lib path
-        for (IProject ref : project.getReferencedProjects()) {
-            libPathWriter.append(URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), BIN_FOLDER));
-        }
-        
-        libPath = libPathWriter.done();
-        
-        IListWriter srcPathWriter = vf.listWriter();
-        RascalSearchPath rascalSearchPath = rex.getRascalSearchPath();
-        
-        for (String src : manifest.getSourceRoots(project)) {
-            ISourceLocation srcLoc = URIUtil.getChildLocation(projectLoc, src);
-            srcPathWriter.append(srcLoc);
-            
-            // TODO: interesting duplication of features, srcPath of compiler and RascalSearchPath?
-            rascalSearchPath.addPathContributor(new URIContributor(srcLoc));
-        }
-        
-        // TODO this is necessary while the kernel does not hold a compiled standard library, so remove later:
-        srcPathWriter.append(URIUtil.correctLocation("std", "", ""));
-        srcPathWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
-        
-        srcPath = srcPathWriter.done();
-        
-        binDir = URIUtil.getChildLocation(projectLoc, BIN_FOLDER);
-        bootDir = URIUtil.correctLocation("boot", "", "");
-        manifest.getSourceRoots(project);
+        pathConfig = new ProjectConfig(vf).getPathConfig(project);
+        rex.getRascalSearchPath().addPathContributor(pathConfig.getSourcePathContributor());
     }
 }
