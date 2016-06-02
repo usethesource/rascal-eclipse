@@ -3,12 +3,14 @@ package org.rascalmpl.eclipse.builder;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
@@ -16,12 +18,15 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
+import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
@@ -32,10 +37,12 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.impulse.builder.MarkerCreator;
 import io.usethesource.impulse.runtime.RuntimePlugin;
 
 /** 
@@ -58,6 +65,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     private ISourceLocation binDir;
     
     private final List<String> binaryExtension = Arrays.asList("imps","rvm.gz", "tc","sig","sigs");
+    private RascalExecutionContext rex;
 
     public IncrementalRascalBuilder() throws IOException, NoSuchRascalFunction, URISyntaxException {
         out = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
@@ -67,13 +75,12 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         IMapWriter moduleTags = vf.mapWriter();
         moduleTags.put(vf.string(checkerModuleName), vf.mapWriter().done());
         
-	    RascalExecutionContext rex = 
-                RascalExecutionContextBuilder.normalContext(vf, out, err)
-                    .withModuleTags(moduleTags.done())
-                    .forModule(checkerModuleName)
-                    .setJVM(true)         
-                    .build();
-        
+	    rex = RascalExecutionContextBuilder.normalContext(vf, out, err)
+            .withModuleTags(moduleTags.done())
+            .forModule(checkerModuleName)
+            .setJVM(true)         
+            .build();
+	    
         kernel = new Kernel(vf, rex);
 	}
 
@@ -90,7 +97,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             getProject().findMember(src).accept(new IResourceVisitor() {
                 @Override
                 public boolean visit(IResource resource) throws CoreException {
-                    if (resource.getFileExtension().equals(IRascalResources.RASCAL_EXT)) {
+                    if (IRascalResources.RASCAL_EXT.equals(resource.getFileExtension())) {
                         resource.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, true, IResource.DEPTH_ONE);
                         return false;
                     }
@@ -121,25 +128,38 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    case INCREMENTAL_BUILD:
 	    case AUTO_BUILD:
 	        buildIncremental(getDelta(getProject()), monitor);
+	        break;
 	    case FULL_BUILD:
 	        buildMain(monitor);
+	        break;
 	    }
 	    
 	    // TODO: return project this project depends on?
 		return new IProject[0];
 	}
 
-	private void buildMain(IProgressMonitor monitor) {
-	    String main = new RascalEclipseManifest().getMainModule(getProject());
-
+	private void buildMain(IProgressMonitor monitor) throws CoreException {
+	    RascalEclipseManifest mf = new RascalEclipseManifest();
+        String main = mf.getMainModule(getProject());
+        
 	    if (main == null) {
-	        Activator.log("no main module defined in RASCAL.MF to compile", new NullPointerException());
+	        // no main defined in the RASCAL.MF file is fine
+	        return;
+	    }
+	    
+	    initializeParameters(true);
+	    ISourceLocation module = rex.getRascalSearchPath().resolveModule(main);
+	    
+	    if (module == null) {
+	        // TODO: this should be a marker on RASCAL.MF
+	        Activator.log("Main module does not exist " + main, new IllegalArgumentException());
 	        return;
 	    }
 	    
 	    try {
+	            
 	        IConstructor result = kernel.compileAndLink(vf.string(main), srcPath, libPath, bootDir, binDir, vf.mapWriter().done());
-	        markErrors(result);
+            markErrors(module, result);
 	    }
 	    catch (Throwable e) {
 	        Activator.log("error during compilation of " + main, e);
@@ -154,19 +174,24 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             delta.accept(new IResourceDeltaVisitor() {
                 @Override
                 public boolean visit(IResourceDelta delta) throws CoreException {
-                    if (delta.getProjectRelativePath().lastSegment().equals("RASCAL.MF")) {
+                    IPath path = delta.getProjectRelativePath();
+                    
+                    if ("/META-INF/RASCAL.MF".equals(path.toPortableString())) {
                         // if the meta information has changed, we need to recompile everything
                         clean(monitor);
-                        initializeParameters();
+                        initializeParameters(true);
                         return false;
                     }
-                    else if (delta.getProjectRelativePath().getFileExtension().equals(IRascalResources.RASCAL_EXT)) {
+                    else if (IRascalResources.RASCAL_EXT.equals(path.getFileExtension() /* could be null */)) {
                         ISourceLocation loc = ProjectURIResolver.constructProjectURI(delta.getFullPath());
                         monitor.beginTask("Compiling " + loc, 100);
                         try {
-                            String module = ResourcesToModules.moduleFromFile((IFile) delta.getResource());
+                            IFile file = (IFile) delta.getResource();
+                            file.deleteMarkers(IMarker.PROBLEM, true, 1);
+                            String module = ResourcesToModules.moduleFromFile(file);
+                            initializeParameters(true);
                             IConstructor result = kernel.compile(vf.string(module), srcPath, libPath, bootDir, binDir, vf.mapWriter().done());
-                            markErrors(result);
+                            markErrors(loc, result);
                         }
                         catch (Throwable e) {
                             Activator.log("Error during compilation of " + loc, e);
@@ -178,7 +203,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                         return false;
                     }
                     
-                    return true;
+                    return !BIN_FOLDER.equals(path.toPortableString());
                 }
 
                
@@ -188,24 +213,32 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         }
     }
     
-    private void markErrors(IConstructor result) {
-        // TODO Auto-generated method stub
+    private void markErrors(ISourceLocation loc, IConstructor result) throws MalformedURLException, IOException {
+        if (result.has("main_module")) {
+            result = (IConstructor) result.get("main_module");
+        }
+        
+        if (!result.has("messages")) {
+            Activator.log("Unexpected Rascal compiler result: " + result, new IllegalArgumentException());
+        }
+        
+        new MessagesToMarkers().process(loc, (ISet) result.get("messages"), new MarkerCreator(new ProjectURIResolver().resolveFile(loc)));
     }
-	
-	@Override
-	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
-	        throws CoreException {
-	    super.setInitializationData(config, propertyName, data);
-	    initializeParameters();
-	}
 
-    private void initializeParameters() throws CoreException {
+    private void initializeParameters(boolean force) throws CoreException {
+        if (projectLoc != null && !force) {
+            return;
+        }
+        
         IProject project = getProject();
         projectLoc = ProjectURIResolver.constructProjectURI(project.getFullPath());
         
         RascalEclipseManifest manifest = new RascalEclipseManifest();
         
         IListWriter libPathWriter = vf.listWriter();
+        
+        // this is always necessary
+        libPathWriter.append(URIUtil.correctLocation("std", "", ""));
         
         // These are jar files which make contain compiled Rascal code to link to:
         for (String lib : manifest.getRequiredLibraries(project)) {
@@ -221,9 +254,19 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         libPath = libPathWriter.done();
         
         IListWriter srcPathWriter = vf.listWriter();
+        RascalSearchPath rascalSearchPath = rex.getRascalSearchPath();
+        
         for (String src : manifest.getSourceRoots(project)) {
-            srcPathWriter.append(URIUtil.getChildLocation(projectLoc, src));
+            ISourceLocation srcLoc = URIUtil.getChildLocation(projectLoc, src);
+            srcPathWriter.append(srcLoc);
+            
+            // TODO: interesting duplication of features, srcPath of compiler and RascalSearchPath?
+            rascalSearchPath.addPathContributor(new URIContributor(srcLoc));
         }
+        
+        // TODO this is necessary while the kernel does not hold a compiled standard library, so remove later:
+        srcPathWriter.append(URIUtil.correctLocation("std", "", ""));
+        
         srcPath = srcPathWriter.done();
         
         binDir = URIUtil.getChildLocation(projectLoc, BIN_FOLDER);
