@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2016 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,10 +21,8 @@ import org.rascalmpl.eclipse.editor.commands.BrowseTree;
 import org.rascalmpl.eclipse.editor.commands.CopyToConsole;
 import org.rascalmpl.eclipse.editor.commands.ImportInConsole;
 import org.rascalmpl.eclipse.editor.commands.ListAmbiguities;
-import org.rascalmpl.eclipse.editor.commands.ReloadStaticChecker;
 import org.rascalmpl.eclipse.editor.commands.ResetProjectState;
 import org.rascalmpl.eclipse.editor.commands.RunAmbiDexter;
-import org.rascalmpl.eclipse.editor.commands.RunStaticChecker;
 import org.rascalmpl.eclipse.editor.commands.RunTests;
 import org.rascalmpl.eclipse.editor.commands.TextTree;
 import org.rascalmpl.eclipse.editor.highlight.ShowAsHTML;
@@ -46,8 +44,6 @@ public class ActionsContributor implements ILanguageActionsContributor {
 		exp.add(new RunTests(editor));
 		exp.add(new RunAmbiDexter(editor));
 		exp.add(new ListAmbiguities(editor));
-		exp.add(new RunStaticChecker(editor));
-		exp.add(new ReloadStaticChecker(editor));
 		exp.add(new ShowAsHTML(editor));
 		exp.add(new ShowAsLatex(editor));
 		

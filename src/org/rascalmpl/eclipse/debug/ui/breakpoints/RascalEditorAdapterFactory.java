@@ -17,6 +17,7 @@ import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
 import org.rascalmpl.eclipse.IRascalResources;
 
 import io.usethesource.impulse.editor.UniversalEditor;
+import io.usethesource.impulse.parser.IParseController;
 
 
 public class RascalEditorAdapterFactory implements IAdapterFactory {
@@ -24,7 +25,8 @@ public class RascalEditorAdapterFactory implements IAdapterFactory {
 	@SuppressWarnings("rawtypes")
     public Object getAdapter(Object adaptableObject, Class adapterType) {
 	  if (adaptableObject instanceof UniversalEditor) {
-			if (((UniversalEditor) adaptableObject).getParseController().getPath().getFileExtension().equals(IRascalResources.RASCAL_EXT)) {
+			IParseController pc = ((UniversalEditor) adaptableObject).getParseController();
+            if (pc != null && pc.getPath().getFileExtension().equals(IRascalResources.RASCAL_EXT)) {
 			  if (adapterType.equals(IToggleBreakpointsTarget.class)) {
 			      return new RascalBreakpointAdapter();
 			  }

@@ -604,6 +604,16 @@
    </builder>
 </extension>
 <extension
+      id="rascal_builder"
+      name="rascal_builder"
+      point="org.eclipse.core.resources.builders">
+   <builder>
+      <run
+            class="org.rascalmpl.eclipse.builder.IncrementalRascalBuilder">
+      </run>
+   </builder>
+</extension>
+<extension
       id="term_markers"
       name="term_markers"
       point="org.eclipse.core.resources.markers">
