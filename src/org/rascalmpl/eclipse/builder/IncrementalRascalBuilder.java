@@ -139,6 +139,16 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	}
 
 	private void buildMain(IProgressMonitor monitor) throws CoreException {
+	    IFile mfFile = getProject().getFile(RascalEclipseManifest.META_INF_RASCAL_MF);
+	    
+	    if (mfFile == null || !mfFile.exists()) {
+	        return; // fine; no meta file so we don't know what to compile.
+	    }
+	    else {
+	        // remove previous markers
+	        mfFile.deleteMarkers(IMarker.PROBLEM, true, 1);
+	    }
+	    
 	    RascalEclipseManifest mf = new RascalEclipseManifest();
         String main = mf.getMainModule(getProject());
         
@@ -147,12 +157,17 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	        return;
 	    }
 	    
-	    initializeParameters(true);
+	    initializeParameters(false);
 	    ISourceLocation module = rex.getRascalSearchPath().resolveModule(main);
 	    
 	    if (module == null) {
 	        // TODO: this should be a marker on RASCAL.MF
-	        Activator.log("Main module does not exist " + main, new IllegalArgumentException());
+	      
+            IMarker marker = mfFile.createMarker(IMarker.PROBLEM);
+	        marker.setAttribute(IMarker.MESSAGE, "Main module with name " + main + " does not exist.");
+	        marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+	        marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+	        marker.setAttribute(IMarker.LINE_NUMBER, 1);
 	        return;
 	    }
 	    
@@ -176,10 +191,11 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                 public boolean visit(IResourceDelta delta) throws CoreException {
                     IPath path = delta.getProjectRelativePath();
                     
-                    if ("/META-INF/RASCAL.MF".equals(path.toPortableString())) {
+                    if (RascalEclipseManifest.META_INF_RASCAL_MF.equals(path.toPortableString())) {
                         // if the meta information has changed, we need to recompile everything
                         clean(monitor);
                         initializeParameters(true);
+                        buildMain(monitor);
                         return false;
                     }
                     else if (IRascalResources.RASCAL_EXT.equals(path.getFileExtension() /* could be null */)) {
@@ -189,7 +205,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                             IFile file = (IFile) delta.getResource();
                             file.deleteMarkers(IMarker.PROBLEM, true, 1);
                             String module = ResourcesToModules.moduleFromFile(file);
-                            initializeParameters(true);
+                            initializeParameters(false);
                             IConstructor result = kernel.compile(vf.string(module), srcPath, libPath, bootDir, binDir, vf.mapWriter().done());
                             markErrors(loc, result);
                         }
