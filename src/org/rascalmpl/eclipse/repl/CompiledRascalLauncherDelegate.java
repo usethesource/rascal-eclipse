@@ -30,6 +30,7 @@ import org.rascalmpl.eclipse.IRascalResources;
 
 @SuppressWarnings("restriction")
 public class CompiledRascalLauncherDelegate extends AbstractLauncherDelegate {
+    private static String lastProject;
     private String project;
     
 	@Override
@@ -48,15 +49,12 @@ public class CompiledRascalLauncherDelegate extends AbstractLauncherDelegate {
 			        panel.setLayout(new GridLayout());
 			        panel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-
-			        // Fill the rest of the panel with a label to be able to
-			        // set a height and width hint for the dialog
-			        Label label = new Label(panel, SWT.HORIZONTAL);
-			        GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
-			        layoutData.widthHint = 300;
-			        layoutData.heightHint = 80;
-			        label.setLayoutData(layoutData);
+			        Label projectLabel = new Label(panel, SWT.HORIZONTAL);
+			        projectLabel.setText("Project");
 			        Combo combo = new Combo(panel, SWT.NONE);
+			        GridData comboLayout = new GridData(SWT.FILL, SWT.NONE, true, false);
+			        combo.setLayoutData(comboLayout);
+			        
 
 			        for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 			            if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
@@ -68,8 +66,13 @@ public class CompiledRascalLauncherDelegate extends AbstractLauncherDelegate {
 			            @Override
 			            public void widgetSelected(SelectionEvent e) {
 			                project = combo.getText();
+			                lastProject = project;
 			            }
                     });
+			        
+			        if (lastProject != null) {
+                        combo.setText(lastProject);
+                    }
 			        
 			        setControl(panel);
 
