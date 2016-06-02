@@ -237,8 +237,9 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         
         IListWriter libPathWriter = vf.listWriter();
         
-        // this is always necessary
+        // TODO: this needs to be configured elsewhere
         libPathWriter.append(URIUtil.correctLocation("std", "", ""));
+        libPathWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
         
         // These are jar files which make contain compiled Rascal code to link to:
         for (String lib : manifest.getRequiredLibraries(project)) {
@@ -266,6 +267,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         
         // TODO this is necessary while the kernel does not hold a compiled standard library, so remove later:
         srcPathWriter.append(URIUtil.correctLocation("std", "", ""));
+        srcPathWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
         
         srcPath = srcPathWriter.done();
         
