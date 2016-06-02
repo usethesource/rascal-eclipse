@@ -7,11 +7,14 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 
+/**
+ * ProjectConfig is a builder to produce a proper Rascal PathConfig for an Eclipse project.
+ * This is not yet complete.
+ */
 public class ProjectConfig {
     public static final String BIN_FOLDER = "bin";
     private final IValueFactory vf;
@@ -42,12 +45,12 @@ public class ProjectConfig {
             for (IProject ref : project.getReferencedProjects()) {
                 libPathWriter.append(URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), BIN_FOLDER));
             }
+            
+            //TODO add required libraries of referenced projects as well.
         }
         catch (CoreException e) {
             Activator.log(e.getMessage(), e);
         }
-        
-        IList libPath = libPathWriter.done();
         
         IListWriter srcPathWriter = vf.listWriter();
         
@@ -60,11 +63,9 @@ public class ProjectConfig {
         srcPathWriter.append(URIUtil.correctLocation("std", "", ""));
         srcPathWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
         
-        IList srcPath = srcPathWriter.done();
-        
         ISourceLocation binDir = URIUtil.getChildLocation(projectLoc, BIN_FOLDER);
         ISourceLocation bootDir = URIUtil.correctLocation("boot", "", "");
         
-        return new PathConfig(srcPath, libPath, binDir, bootDir);
+        return new PathConfig(srcPathWriter.done(), libPathWriter.done(), binDir, bootDir);
     }
 }
