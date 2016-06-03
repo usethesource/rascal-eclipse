@@ -116,11 +116,11 @@ public class CompiledRascalTerminalConnector extends SizedTerminalConnector {
                         return;
                     }
                     
-                    shell = new CompiledRascalREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), tm, new ProjectConfig(vf).getPathConfig(ipr)) {
+                    shell = new CompiledRascalREPL(new ProjectConfig(vf).getPathConfig(ipr), stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), tm) {
                         
                         @Override
-                        protected CommandExecutor constructCommandExecutor(PrintWriter stdout, PrintWriter stderr) throws IOException ,org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction ,URISyntaxException {
-                            CommandExecutor exec = new CommandExecutor(stdout, stderr);
+                        protected CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr) throws IOException ,org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction ,URISyntaxException {
+                            CommandExecutor exec = new CommandExecutor(pcfg, stdout, stderr);
 //                            exec.setDebugObserver(new DebugREPLFrameObserver(reader.getInput(), control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), TerminalFactory.get(), new ProjectConfig(vf).getPathConfig(ipr)));
                             setMeasureCommandTime(true);
                             return exec;

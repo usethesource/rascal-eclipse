@@ -167,7 +167,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    }
 	    
 	    try {
-	        IConstructor result = kernel.compileAndLink(vf.string(main), pathConfig.getSourcePath(), pathConfig.getLibPath(), pathConfig.getBootDir(), pathConfig.getBinDir(), vf.mapWriter().done());
+	        IConstructor result = kernel.compileAndLink(vf.string(main), pathConfig.getSrcPath(), pathConfig.getLibPath(), pathConfig.getBootDir(), pathConfig.getBinDir(), vf.mapWriter().done());
             markErrors(module, result);
 	    }
 	    catch (Throwable e) {
@@ -204,7 +204,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                             file.deleteMarkers(IMarker.PROBLEM, true, 1);
                             String module = ResourcesToModules.moduleFromFile(file);
                             initializeParameters(false);
-                            IConstructor result = kernel.compile(vf.string(module), pathConfig.getSourcePath(), pathConfig.getLibPath(), pathConfig.getBootDir(), pathConfig.getBinDir(), vf.mapWriter().done());
+                            IConstructor result = kernel.compile(vf.string(module), pathConfig.getSrcPath(), pathConfig.getLibPath(), pathConfig.getBootDir(), pathConfig.getBinDir(), vf.mapWriter().done());
                             markErrors(loc, result);
                         }
                         catch (Throwable e) {
