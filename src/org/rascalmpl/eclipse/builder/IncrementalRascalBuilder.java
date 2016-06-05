@@ -197,6 +197,11 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                         return false;
                     }
                     else if (IRascalResources.RASCAL_EXT.equals(path.getFileExtension() /* could be null */)) {
+                        if ((delta.getFlags() & IResourceDelta.CONTENT) == 0) {
+                            // if no content changed, we can bail out now.
+                            return false;
+                        }
+                        
                         ISourceLocation loc = ProjectURIResolver.constructProjectURI(delta.getFullPath());
                         monitor.beginTask("Compiling " + loc, 100);
                         try {
@@ -219,8 +224,6 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                     
                     return !ProjectConfig.BIN_FOLDER.equals(path.toPortableString());
                 }
-
-               
             });
         } catch (CoreException e) {
             Activator.log("error during Rascal compilation", e);
