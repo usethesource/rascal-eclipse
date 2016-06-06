@@ -135,9 +135,10 @@ Annotate an outline node with a link.
 anno loc node@\loc;  // a link for an outline node
 
 @doc{create a proper based on a character class type literal} 
-Contribution proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int requestOffset) prop, type[Tree] cc) 
+Contribution proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int requestOffset) prop, type[Tree] cc : type(\char-class(_),_))
   = proposer(prop, class2str(cc));
   
+private str class2str(type[&T <: Tree] cc) = "<for (\char-class(rs) := cc.symbol, range(b,e) <- rs, ch <- [b..e+1]) {><char(ch)><}>";  
   
 @doc{Extract the syntax properties from a declarative syntax definition.} 
 Contribution syntaxProperties(type[&N <: Tree] g) {
@@ -156,11 +157,9 @@ Contribution syntaxProperties(type[&N <: Tree] g) {
 Contribution proposer(type[&N <: Tree] g) {
   rules = {p | /p:prod(_,_,_) := g.definitions};
   prefixrules = { <x,p> | p:prod(_,[lit(x),*_],_) <- rules};
-
-  str class2str(type[&T <: Tree] cc) = "<for (\char-class(rs) := cc.symbol, range(b,e) <- rs, ch <- [b..e+1]) {><char(ch)><}>";
   
   str sym(lit(z)) = z;
-  str sym(c:\char-class(_)) = class2str(cc);
+  str sym(c:\char-class(_)) = class2str(c);
   str sym(layouts(_)) = " ";
   default str sym(Symbol s) = "\<<symbol2rascal(s)>\>";
   
