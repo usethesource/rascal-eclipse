@@ -48,35 +48,41 @@ import io.usethesource.impulse.runtime.RuntimePlugin;
  * It also interacts with Project Clean actions to clear up files and markers on request.  
  */
 public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
-	
-    private final Kernel kernel;
-	private final String checkerModuleName = "RascalIDEChecker";
-	private final PrintWriter out;
-    private final PrintWriter err;
-    private final IValueFactory vf;
+    // A kernel is 100Mb, so we can't have one for every project; that's why it's static:
+    private static Kernel kernel;
+	private static PrintWriter out;
+    private static PrintWriter err;
+    private static IValueFactory vf;
+    private static RascalExecutionContext rex;
+    private static List<String> binaryExtension = Arrays.asList("imps","rvm.gz", "tc","sig","sigs");
     
     private ISourceLocation projectLoc;
     private PathConfig pathConfig;
+
+    static {
+        synchronized(IncrementalRascalBuilder.class){ 
+            try {
+                out = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
+                err = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
+                vf = ValueFactoryFactory.getValueFactory();
+
+                IMapWriter moduleTags = vf.mapWriter();
+
+                rex = RascalExecutionContextBuilder.normalContext(vf, out, err)
+                        .withModuleTags(moduleTags.done())
+                        .forModule("lang::rascal::boot::Kernel")
+                        .setJVM(true)         
+                        .build();
+
+                kernel = new Kernel(vf, rex);
+            } catch (IOException | NoSuchRascalFunction | URISyntaxException e) {
+                Activator.log("could not initialize incremental Rascal builder", e);
+            }
+        }
+    }
     
-    private final List<String> binaryExtension = Arrays.asList("imps","rvm.gz", "tc","sig","sigs");
-    private RascalExecutionContext rex;
-
-
-    public IncrementalRascalBuilder() throws IOException, NoSuchRascalFunction, URISyntaxException {
-        out = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
-        err = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
-        vf = ValueFactoryFactory.getValueFactory();
+    public IncrementalRascalBuilder() {
         
-        IMapWriter moduleTags = vf.mapWriter();
-        moduleTags.put(vf.string(checkerModuleName), vf.mapWriter().done());
-        
-	    rex = RascalExecutionContextBuilder.normalContext(vf, out, err)
-            .withModuleTags(moduleTags.done())
-            .forModule(checkerModuleName)
-            .setJVM(true)         
-            .build();
-	    
-        kernel = new Kernel(vf, rex);
 	}
 
 	@Override
@@ -209,8 +215,10 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                             file.deleteMarkers(IMarker.PROBLEM, true, 1);
                             String module = ResourcesToModules.moduleFromFile(file);
                             initializeParameters(false);
-                            IConstructor result = kernel.compile(vf.string(module), pathConfig.getSrcPath(), pathConfig.getLibPath(), pathConfig.getBootDir(), pathConfig.getBinDir(), vf.mapWriter().done());
-                            markErrors(loc, result);
+                            synchronized (kernel) {
+                                IConstructor result = kernel.compile(vf.string(module), pathConfig.getSrcPath(), pathConfig.getLibPath(), pathConfig.getBootDir(), pathConfig.getBinDir(), vf.mapWriter().done());
+                                markErrors(loc, result);
+                            }
                         }
                         catch (Throwable e) {
                             Activator.log("Error during compilation of " + loc, e);
