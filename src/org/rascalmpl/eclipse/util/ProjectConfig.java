@@ -29,6 +29,7 @@ public class ProjectConfig {
         RascalEclipseManifest manifest = new RascalEclipseManifest();
         
         IListWriter libPathWriter = vf.listWriter();
+        IListWriter srcPathWriter = vf.listWriter();
         
         // TODO: this needs to be configured elsewhere
         libPathWriter.append(URIUtil.correctLocation("std", "", ""));
@@ -44,6 +45,9 @@ public class ProjectConfig {
         try {
             for (IProject ref : project.getReferencedProjects()) {
                 libPathWriter.append(URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), BIN_FOLDER));
+                
+                // TODO for now we also add the source paths; needs to be done more gracefully 
+                srcPathWriter.appendAll(new ProjectConfig(vf).getPathConfig(ref).getSrcPath());
             }
             
             //TODO add required libraries of referenced projects as well.
@@ -52,7 +56,7 @@ public class ProjectConfig {
             Activator.log(e.getMessage(), e);
         }
         
-        IListWriter srcPathWriter = vf.listWriter();
+      
         
         for (String src : manifest.getSourceRoots(project)) {
             ISourceLocation srcLoc = URIUtil.getChildLocation(projectLoc, src);
