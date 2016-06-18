@@ -47,7 +47,7 @@ public class ProjectConfig {
                 libPathWriter.append(URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), BIN_FOLDER));
                 
                 // TODO for now we also add the source paths; needs to be done more gracefully 
-                srcPathWriter.appendAll(new ProjectConfig(vf).getPathConfig(ref).getSrcPath());
+                srcPathWriter.appendAll(new ProjectConfig(vf).getPathConfig(ref).getSrcPaths());
             }
             
             //TODO add required libraries of referenced projects as well.
