@@ -67,9 +67,9 @@ public class ProjectConfig {
         srcPathWriter.append(URIUtil.correctLocation("std", "", ""));
         srcPathWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
         
-        ISourceLocation binDir = URIUtil.getChildLocation(projectLoc, BIN_FOLDER);
+        ISourceLocation binLoc = URIUtil.getChildLocation(projectLoc, BIN_FOLDER);
         ISourceLocation bootLoc = URIUtil.correctLocation("boot", "", "");
         
-        return new PathConfig(srcPathWriter.done(), libPathWriter.done(), binDir, bootLoc);
+        return new PathConfig(srcPathWriter.done(), libPathWriter.done(), binLoc, bootLoc);
     }
 }
