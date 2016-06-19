@@ -28,23 +28,23 @@ public class ProjectConfig {
         
         RascalEclipseManifest manifest = new RascalEclipseManifest();
         
-        IListWriter libPathWriter = vf.listWriter();
+        IListWriter libLocsWriter = vf.listWriter();
         IListWriter srcPathWriter = vf.listWriter();
         
         // TODO: this needs to be configured elsewhere
-        libPathWriter.append(URIUtil.correctLocation("std", "", ""));
-        libPathWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
+        libLocsWriter.append(URIUtil.correctLocation("std", "", ""));
+        libLocsWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
         
         // These are jar files which make contain compiled Rascal code to link to:
         for (String lib : manifest.getRequiredLibraries(project)) {
-            libPathWriter.append(URIUtil.getChildLocation(projectLoc, lib));
+            libLocsWriter.append(URIUtil.getChildLocation(projectLoc, lib));
         }
         
         // These are other projects referenced by the current project for which we add
         // the bin folder to the lib path
         try {
             for (IProject ref : project.getReferencedProjects()) {
-                libPathWriter.append(URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), BIN_FOLDER));
+                libLocsWriter.append(URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), BIN_FOLDER));
                 
                 // TODO for now we also add the source paths; needs to be done more gracefully 
                 srcPathWriter.appendAll(new ProjectConfig(vf).getPathConfig(ref).getSrcLocs());
@@ -70,6 +70,6 @@ public class ProjectConfig {
         ISourceLocation binLoc = URIUtil.getChildLocation(projectLoc, BIN_FOLDER);
         ISourceLocation bootLoc = URIUtil.correctLocation("boot", "", "");
         
-        return new PathConfig(srcPathWriter.done(), libPathWriter.done(), binLoc, bootLoc);
+        return new PathConfig(srcPathWriter.done(), libLocsWriter.done(), binLoc, bootLoc);
     }
 }
