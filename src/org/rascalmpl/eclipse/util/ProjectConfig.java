@@ -47,7 +47,7 @@ public class ProjectConfig {
                 libPathWriter.append(URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), BIN_FOLDER));
                 
                 // TODO for now we also add the source paths; needs to be done more gracefully 
-                srcPathWriter.appendAll(new ProjectConfig(vf).getPathConfig(ref).getSrcPaths());
+                srcPathWriter.appendAll(new ProjectConfig(vf).getPathConfig(ref).getSrcLocs());
             }
             
             //TODO add required libraries of referenced projects as well.
@@ -68,8 +68,8 @@ public class ProjectConfig {
         srcPathWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
         
         ISourceLocation binDir = URIUtil.getChildLocation(projectLoc, BIN_FOLDER);
-        ISourceLocation bootDir = URIUtil.correctLocation("boot", "", "");
+        ISourceLocation bootLoc = URIUtil.correctLocation("boot", "", "");
         
-        return new PathConfig(srcPathWriter.done(), libPathWriter.done(), binDir, bootDir);
+        return new PathConfig(srcPathWriter.done(), libPathWriter.done(), binDir, bootLoc);
     }
 }
