@@ -11,9 +11,9 @@ import jline.Terminal;
 @SuppressWarnings("restriction")
 public class TMTerminalTerminal implements Terminal {
     private final VT100TerminalControl ctx;
-    private RascalTerminalConnector rascalTerminalConnector;
+    private SizedTerminalConnector rascalTerminalConnector;
 
-    public TMTerminalTerminal(VT100TerminalControl ctx, RascalTerminalConnector rascalTerminalConnector) {
+    public TMTerminalTerminal(VT100TerminalControl ctx, SizedTerminalConnector rascalTerminalConnector) {
         this.ctx = ctx;
         this.rascalTerminalConnector = rascalTerminalConnector;
     }

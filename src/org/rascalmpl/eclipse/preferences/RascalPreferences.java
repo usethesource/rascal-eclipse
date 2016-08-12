@@ -5,10 +5,10 @@ import org.rascalmpl.eclipse.Activator;
 import io.usethesource.impulse.preferences.IPreferencesService;
 
 public class RascalPreferences {
-  public static final String enableStaticChecker = "enableStaticChecker";
+  public static final String enableRascalCompiler = "enableRascalCompiler";
   private static IPreferencesService service = Activator.getInstance().getPreferencesService();
 
-  public static boolean isStaticCheckerEnabled() {
-	  return service.getBooleanPreference(IPreferencesService.INSTANCE_LEVEL, enableStaticChecker);
+  public static boolean isRascalCompilerEnabled() {
+	  return service.getBooleanPreference(IPreferencesService.INSTANCE_LEVEL, enableRascalCompiler);
   }
 }

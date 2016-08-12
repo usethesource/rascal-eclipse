@@ -49,7 +49,7 @@ public class Builder extends BuilderBase {
 
 	@Override
 	protected void compile(IFile file, IProgressMonitor monitor) { 
-		if (RascalPreferences.isStaticCheckerEnabled()) {
+		if (RascalPreferences.isRascalCompilerEnabled()) {
 			System.err.println("should run the static checker on " + file);
 		}
 	}

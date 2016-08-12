@@ -9,13 +9,13 @@
 @contributor{Davy Landman - Davy.Landman@cwi.nl - CWI}
 
 @doc{
-Name: IDE
+.Synopsis
+Extend an IDE with interactive, language-specific, features (Eclipse only).
 
-Synopsis: Extend an IDE with interactive, language-specific, features (Eclipse only).
+.Usage
+import util::IDE;`
 
-Usage: `import util::IDE;`
-
-Description:
+.Description
 
 The IDE Meta-tooling Platform, [IMP](http://www.eclipse.org/imp/) for short, is a collection of API and tools to support constructing IDEs for programming languages and domain specific languages. Using the IDE library, you can instantiate the services that IMP provides for any language implemented in Rascal.
 
@@ -33,7 +33,7 @@ Now you can step-by-step extend the IDE for your language with additional featur
 To be able to reuse your IDE between runs of Eclipse, read about [Plugin]s.
 To add annotations to trees, just after parsing, you should register an `annotator` function.
 
-Examples:
+.Examples
 
 <screen>
 import util::IDE;
@@ -52,13 +52,11 @@ registerAnnotator("abc", Tree (Tree t) { return t[@doc="Hello!"]; });
 
 
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-
+.Questions
 }
 module util::IDE
 
@@ -70,10 +68,10 @@ import String;
 extend Message;
 
 @doc{
-Synopsis: Data type to describe contributions to the menus of the IDE.
+.Synopsis
+Data type to describe contributions to the menus of the IDE.
 
-Pitfalls:
-
+.Pitfalls
 This data type is not yet complete.
 
 The categories do not support changing the font name or the font size.
@@ -94,9 +92,10 @@ data Contribution
      ;
 
 @doc {
-Synopsis: Completion datatype returned to the editor.
+.Synopsis
+Completion datatype returned to the editor.
 
-Description:
+.Description
 Completion proposals are passed on to the editor.
 * A source proposal (/*1*/) is completed using the newText argument.
 * A source proposal with a proposal string (/*2*/) is also completed with the newText argument 
@@ -123,20 +122,23 @@ data Menu
   
 
 @doc{
-Synopsis: Annotate an outline node with a label.
+.Synopsis
+Annotate an outline node with a label.
 }
 
 anno str node@label;
 
 @doc{
-Synopsis: Annotate an outline node with a link.
+.Synopsis
+Annotate an outline node with a link.
 }
 anno loc node@\loc;  // a link for an outline node
 
 @doc{create a proper based on a character class type literal} 
-Contribution proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int requestOffset) prop, type[Tree] cc) 
+Contribution proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int requestOffset) prop, type[Tree] cc : type(\char-class(_),_))
   = proposer(prop, class2str(cc));
   
+private str class2str(type[&T <: Tree] cc) = "<for (\char-class(rs) := cc.symbol, range(b,e) <- rs, ch <- [b..e+1]) {><char(ch)><}>";  
   
 @doc{Extract the syntax properties from a declarative syntax definition.} 
 Contribution syntaxProperties(type[&N <: Tree] g) {
@@ -155,11 +157,9 @@ Contribution syntaxProperties(type[&N <: Tree] g) {
 Contribution proposer(type[&N <: Tree] g) {
   rules = {p | /p:prod(_,_,_) := g.definitions};
   prefixrules = { <x,p> | p:prod(_,[lit(x),*_],_) <- rules};
-
-  str class2str(type[&T <: Tree] cc) = "<for (\char-class(rs) := cc.symbol, range(b,e) <- rs, ch <- [b..e+1]) {><char(ch)><}>";
   
   str sym(lit(z)) = z;
-  str sym(c:\char-class(_)) = class2str(cc);
+  str sym(c:\char-class(_)) = class2str(c);
   str sym(layouts(_)) = " ";
   default str sym(Symbol s) = "\<<symbol2rascal(s)>\>";
   
@@ -172,39 +172,42 @@ Contribution proposer(type[&N <: Tree] g) {
     
 
 @doc{
-Synopsis: Register a language extension and a parser for use in Eclipse.
+.Synopsis
+Register a language extension and a parser for use in Eclipse.
 }
 @reflect{Use the evaluator to parse editor contents and apply functions to parse trees}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public java void registerLanguage(str name, str extension, Tree (str input, loc origin) parse);
 
 @doc{
-Synopsis: Register a language extension and a parser for use in Eclipse.
+.Synopsis
+Register a language extension and a parser for use in Eclipse.
 }
 @reflect{Use the evaluator to parse editor contents and apply functions to parse trees}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public java void registerLanguage(str name, str extension, type[&T <: Tree] nonterminal);
 
 @doc{
-Synopsis: Register an annotator.
+.Synopsis
+Register an annotator.
 
-Description:
+.Description
 
-  Register a tree processor for annotating a tree with [$ParseTree/doc],
-  [$ParseTree/link], or [$ParseTree/message]
-  annotations. See [ParseTree] for available annotations. The annotations are
-  processed by the editor to generate visual effects such as error markers, hyperlinks
-  and documentation hovers.
+Register a tree processor for annotating a tree with [$ParseTree/doc],
+[$ParseTree/link], or [$ParseTree/message]
+annotations. See [ParseTree] for available annotations. The annotations are
+processed by the editor to generate visual effects such as error markers, hyperlinks
+and documentation hovers.
 }
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
 @deprecated{use an annotator contribution instead}
 public java void registerAnnotator(str name, (&T<:Tree) (&T<:Tree input) annotator);
 
 @doc{
-Synopsis: Register an outliner.
+.Synopsis
+Register an outliner.
 
-Description:
-
+.Description
 Register an outliner function. An outliner maps a parse tree to a simpler
 tree that summarizes the contents of a file. This summary is used to generate the outline
 view in Eclipse. 
@@ -217,10 +220,10 @@ item is displayed, which item it links to and what image is displayed next to it
 public java void registerOutliner(str name, node (&T<:Tree input) outliner);
 
 @doc{
+.Synopsis
+Register contributions to Eclipse menus.
 
-Synopsis: Register contributions to Eclipse menus.
-
-Description:
+.Description
 
 Register a number of contributions to the menus of the IDE.
 }
@@ -228,29 +231,30 @@ Register a number of contributions to the menus of the IDE.
 public java void registerContributions(str name, set[Contribution] contributions);
 
 @doc{
-Synopsis: Clear all registered languages.
+.Synopsis
+Clear all registered languages.
 
-Description:
+.Description
 Remove all registered languages.
 
-Pitfalls:
+.Pitfalls
 Use with caution! This will clear all registered languages (for debugging purposes).
 }
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public java void clearLanguages();
 
 @doc{
-Synopsis: Clear a registered language.
+.Synopsis
+Clear a registered language.
 
-Description:
+.Description
 
 Remove a registered language.
 
-Benefits:
-
+.Benefits
 When in doubt about the state of your IDE additions, you can always remove the language, close all editors and check if everything is gone, then re-register your language again.
 
-Pitfalls:
+.Pitfalls
 
 Use with caution! This will clear a registered language (for debugging purposes).
 }
@@ -258,9 +262,10 @@ Use with caution! This will clear a registered language (for debugging purposes)
 public java void clearLanguage(str name);
 
 @doc{
-Synopsis: Register contributions to menus of a non-Rascal editor.
+.Synopsis
+Register contributions to menus of a non-Rascal editor.
 
-Description:
+.Description
 Register a number of contributions to the menus of a non-Rascal code editor:
 * `name`: eclipse editor id
 * `contributions`: (edit is not supported), and Tree parameter of the callback will be empty).
@@ -269,13 +274,15 @@ Register a number of contributions to the menus of a non-Rascal code editor:
 public java void registerNonRascalContributions(str name, set[Contribution] contributions);
 
 @doc{
-Synopsis: Clear all non-Rascal IDE contributions.
+.Synopsis
+Clear all non-Rascal IDE contributions.
 }
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public java void clearNonRascalContributions();
 
 @doc{
-Synopsis: Clear all non-Rascal IDE contributions for a specific editor.
+.Synopsis
+Clear all non-Rascal IDE contributions for a specific editor.
 
 Description:
 

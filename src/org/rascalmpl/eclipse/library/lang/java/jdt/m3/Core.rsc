@@ -14,6 +14,10 @@ import Set;
 import List;
 import Node;
 
+@reflect
+@javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.m3.internal.EclipseJavaCompiler}
+private java set[M3] createM3sFromEclipseProject(loc project, bool errorRecovery = false);
+
 @doc{
 Synopsis: Extract a full m3 model from an Eclipse project
 
@@ -24,37 +28,18 @@ import lang::java::jdt::m3::Core;
 myModel = createM3FromEclipseProject(|project://example-project|);
 </screen>
 }
-public M3 createM3FromEclipseProject(loc project) {
-  setEnvironmentOptions(classPathForProject(project), sourceRootsForProject(project));
-  compliance = getProjectOptions(project)["org.eclipse.jdt.core.compiler.compliance"];
-  result = composeJavaM3(project, { createM3FromFile(f, javaVersion=compliance) | loc f <- sourceFilesForProject(project)});
+public M3 createM3FromEclipseProject(loc project, bool errorRecovery = false) {
+  result = composeJavaM3(project, createM3sFromEclipseProject(project, errorRecovery = errorRecovery));
   registerProject(project, result);
   return result;
 }
 
 @doc{
-Synopsis: Create an AST for the given logical method location
-}
-public Declaration getMethodASTEclipse(loc methodLoc, M3 model = m3(|unknown:///|)) {
-  if (isEmpty(model)) {
-    model = getModelContaining(methodLoc);
-  }
-  if (model.id notin methodASTs) {
-    methodASTs[model.id] = ( d@decl : d |/Declaration d := createAstsFromEclipseProject(model.id, true), d is method || d is constructor);
-  }
-  try return methodASTs[model.id][methodLoc];
-  catch: throw "Method <methodLoc> not found in any model";
-}
-
-@doc{
 Synopsis: Extract an M3 model for a file that is located in an eclipse project
 }
-public M3 createM3FromEclipseFile(loc file) {
-   project = file[path=""];
-   setEnvironmentOptions(classPathForProject(file[path=""]), sourceRootsForProject(project));
-   compliance = getProjectOptions(project)["org.eclipse.jdt.core.compiler.compliance"];
-   return createM3FromFile(file, javaVersion=compliance);
-}
+@reflect
+@javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.m3.internal.EclipseJavaCompiler}
+public java M3 createM3FromEclipseFile(loc file, bool errorRecovery = false);
 
 @doc{Experimental functionality to create M3 models from jar files}
 public set[M3] createM3FromProjectJars(loc project) {

@@ -454,6 +454,10 @@ public class ProjectEvaluatorFactory {
   }
   
 	private void collectClassPathForProject(IProject project, List<URL> classPath, List<String> compilerClassPath, Evaluator parser) {
+	    if (project == null) {
+	        return;
+	    }
+	    
 		try {
 			if (!project.hasNature(JavaCore.NATURE_ID)) {
 				for (IProject ref : project.getReferencedProjects()) {

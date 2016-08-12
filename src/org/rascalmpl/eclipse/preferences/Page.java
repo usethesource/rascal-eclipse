@@ -1,6 +1,6 @@
 package org.rascalmpl.eclipse.preferences;
 
-import static org.rascalmpl.eclipse.preferences.RascalPreferences.enableStaticChecker;
+import static org.rascalmpl.eclipse.preferences.RascalPreferences.enableRascalCompiler;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TabFolder;
@@ -26,7 +26,7 @@ public class Page extends TabbedPreferencesPage {
 			@SuppressWarnings("deprecation")
 			BooleanFieldEditor enableStaticFieldEditor = fPrefUtils.makeNewBooleanField(
 					page, this, fPrefService,
-					IPreferencesService.INSTANCE_LEVEL, enableStaticChecker, "Enable static checker",
+					IPreferencesService.INSTANCE_LEVEL, enableRascalCompiler, "Enable Rascal Compiler",
 					"If checked, all changed or new Rascal files will be checked when a build is triggered.",
 					parent,
 					true, true,
