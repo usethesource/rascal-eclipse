@@ -4,7 +4,7 @@ Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: CWI
 Bundle-SymbolicName: rascal_eclipse;singleton:=true
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.8.3.qualifier
 Bundle-Activator: org.rascalmpl.eclipse.Activator
 Bundle-ActivationPolicy: lazy
 Require-Bundle: 
