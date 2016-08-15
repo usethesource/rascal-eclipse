@@ -14,12 +14,12 @@
 	<packaging>eclipse-plugin</packaging>
 
 	<scm>
-		<developerConnection>scm:git:https://github.com/cwi-swat/rascal-eclipse.git</developerConnection>
+		<developerConnection>scm:git:https://github.com/usethesource/rascal-eclipse.git</developerConnection>
 	</scm>
 
 	<dependencies>
 		<dependency>
-			<groupId>io.usethesource</groupId>
+			<groupId>org.rascalmpl</groupId>
 			<artifactId>impulse</artifactId>
 			<version>0.1.0-SNAPSHOT</version>
 		</dependency>
