@@ -14,7 +14,7 @@
 	<modules>
 		<module>rascal-eclipse</module>	
 		<module>rascal-feature</module>
-		<!-- <module>rascal-update-site</module> -->
+		<module>rascal-update-site</module>
 	</modules>
 
 	<!-- deployment configuration (usethesource) -->

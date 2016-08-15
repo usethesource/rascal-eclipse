@@ -7,13 +7,13 @@ node {
   checkout scm
 
   stage 'Build'
-  sh "mvn -DskipTest -B clean compile"
+  sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTest -B clean compile"
 
   stage 'Test'
-  sh "mvn -B test"
+  sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -B test"
 
   stage 'Packaging'
-  sh "mvn -DskipTest -B package"
+  sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTest -B package"
 
   stage 'Deploy'
   sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
