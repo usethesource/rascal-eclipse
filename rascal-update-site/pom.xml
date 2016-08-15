@@ -4,8 +4,8 @@
 
 	<parent>
 		<groupId>org.rascalmpl</groupId>
-		<artifactId>rascal-pom-parent</artifactId>
-		<version>1.1.0-SNAPSHOT</version>
+		<artifactId>rascal-osgi</artifactId>
+		<version>0.8.3-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>rascal-update-site</artifactId>
