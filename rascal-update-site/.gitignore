@@ -1,0 +1,24 @@
+*.class
+*.jar
+*.war
+*.ear
+
+# eclipse stuff
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+/features
+/plugins
+/logs.zip
+
+# maven stuff
+target/
