@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.navigator;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -196,13 +197,10 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	  
 	  public URIContent[] listEntries() {
 		  try {
-			  ISourceLocation[] entries = URIResolverRegistry.getInstance().list(uri);
-			  URIContent[] list = new URIContent[entries.length];
-	    	  int i = 0;
-	    	  for (ISourceLocation loc : entries) {
-	    		  list[i++] = new URIContent(loc, project, false);
-	    	  }
-	    	  return list;
+			  return Arrays.stream(URIResolverRegistry.getInstance().list(uri))
+			      .filter(loc -> loc.getPath() == null || !loc.getPath().endsWith(".class"))
+			      .map(loc -> new URIContent(loc, project, false))
+			      .toArray(i -> new URIContent[i]);			 
 		  } catch (IOException e) {
 			  return new URIContent[0];
 		  }

@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -9,31 +8,13 @@
 		<version>1.1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>rascal_eclipse</artifactId>
-	<version>0.8.0-SNAPSHOT</version>
-	<packaging>eclipse-plugin</packaging>
+	<artifactId>rascal-osgi</artifactId>
+	<version>0.8.3-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
-	<scm>
-		<developerConnection>scm:git:https://github.com/cwi-swat/rascal-eclipse.git</developerConnection>
-	</scm>
-
-	<!-- Used to trigger upstream projects in Jenkins  -->
-	<dependencies>
-		<dependency>
-			<groupId>io.usethesource</groupId>
-			<artifactId>impulse</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.rascalmpl</groupId>
-			<artifactId>rascal</artifactId>
-			<version>0.8.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.rascalmpl</groupId>
-			<artifactId>ambidexter</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
-		</dependency>
-	</dependencies>
-
+	<modules>
+		<module>rascal-eclipse</module>	
+		<module>rascal-feature</module>
+		<module>rascal-update-site</module>
+	</modules>
 </project>
