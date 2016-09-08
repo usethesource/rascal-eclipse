@@ -49,11 +49,6 @@
 
 	<!-- Used to trigger upstream projects in Jenkins CI -->
 	<dependencies>
-		<!-- <dependency>
-			<groupId>org.rascalmpl</groupId>
-			<artifactId>rascal-feature</artifactId>
-			<version>0.8.3-SNAPSHOT</version>
-		</dependency> -->
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
 			<artifactId>rascal_developers_feature</artifactId>

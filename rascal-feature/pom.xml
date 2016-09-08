@@ -16,13 +16,4 @@
 		<developerConnection>scm:git:https://github.com/usethesource/rascal-feature.git</developerConnection>
 	</scm>
 
-	<!-- Used to trigger upstream projects in Jenkins  -->
-	<!-- <dependencies>
-		<dependency>
-			<groupId>org.rascalmpl</groupId>
-			<artifactId>rascal_eclipse</artifactId>
-			<version>0.8.3-SNAPSHOT</version>
-		</dependency>
-	</dependencies> -->
-
 </project>

@@ -36,4 +36,13 @@
 			<url>http://nexus.rascal-mpl.org/repository/maven-public/</url>
 		</repository>
 	</repositories>
+
+	<!-- Used to trigger upstream projects in Jenkins CI -->
+	<dependencies>
+		<dependency>
+			<groupId>org.rascalmpl</groupId>
+			<artifactId>rascal</artifactId>
+			<version>0.8.3-SNAPSHOT</version>
+		</dependency>
+	</dependencies>	
 </project>
