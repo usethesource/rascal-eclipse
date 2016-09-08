@@ -9,11 +9,11 @@ node {
   stage 'Build'
   sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTest -B clean compile"
 
-  stage 'Test'
-  sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -B test"
-
-  stage 'Packaging'
-  sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTest -B package"
+  // NOTE: it seems that the multimodule structure causes a build error when invoking 
+  // 'test' without 'package', because the interdependencies between the modules are 
+  // not yet deployed to the maven repository.
+  stage 'Package and Test'
+  sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -B package test"
 
   stage 'Deploy'
   sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
