@@ -18,6 +18,11 @@ node {
   stage 'Deploy'
   sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
 
+  // stage 'Publish to p2 Update Site [unstable]'
+  // sshagent(['p2-update-site']) {
+  //   sh "scp -r rascal-update-site/target/repository/* rascal@update.rascal-mpl.org:/home/update.rascal-mpl.org/unstable"
+  // }
+
   stage 'Archive'
   step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
   // step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
