@@ -35,9 +35,12 @@ import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -69,7 +72,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 
                 IMapWriter moduleTags = vf.mapWriter();
 
-                rex = RascalExecutionContextBuilder.normalContext(vf, URIUtil.correctLocation("boot","",""), out, err)
+                rex = RascalExecutionContextBuilder.normalContext(vf, out, err)
                         .withModuleTags(moduleTags.done())
                         .forModule("lang::rascal::boot::Kernel")
                         .setJVM(true)         
@@ -174,7 +177,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    }
 	    
 	    try {
-	        IConstructor result = kernel.compileAndLink(vf.string(main), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getboot(), pathConfig.getBin(), URIUtil.correctLocation("noreloc","",""),vf.mapWriter().done());
+	        IConstructor result = kernel.compileAndLink(vf.string(main), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getboot(), pathConfig.getBin(),vf.mapWriter().done());
             markErrors(module, result);
 	    }
 	    catch (Throwable e) {
@@ -217,7 +220,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                             String module = ResourcesToModules.moduleFromFile(file);
                             initializeParameters(false);
                             synchronized (kernel) {
-                                IConstructor result = kernel.compile(vf.string(module), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getboot(), pathConfig.getBin(), URIUtil.correctLocation("noreloc","",""), vf.mapWriter().done());
+                                IConstructor result = kernel.compile(vf.string(module), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getboot(), pathConfig.getBin(), vf.mapWriter().done());
                                 markErrors(loc, result);
                             }
                         }
