@@ -14,13 +14,14 @@
 	<modules>
 		<module>rascal-eclipse</module>	
 		<module>rascal-feature</module>
+		<module>rascal-developers-feature</module>
 		<module>rascal-update-site</module>
 	</modules>
 
-	<properties>
+<!-- 	<properties>
 		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
-
+ -->
 	<!-- deployment configuration (usethesource) -->
 	<distributionManagement>
 		<repository>
@@ -42,11 +43,11 @@
 	</repositories>
 
 	<!-- Used to trigger upstream projects in Jenkins CI -->
-	<dependencies>
+<!-- 	<dependencies>
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
 			<artifactId>rascal</artifactId>
 			<version>0.8.3-SNAPSHOT</version>
 		</dependency>
-	</dependencies>	
+	</dependencies>	 -->
 </project>

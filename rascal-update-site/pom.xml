@@ -9,7 +9,6 @@
 	</parent>
 
 	<artifactId>rascal-update-site</artifactId>
-	<version>0.8.3-SNAPSHOT</version>
 	<packaging>eclipse-repository</packaging>
 
 	<scm>
@@ -17,42 +16,26 @@
 	</scm>
 
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-p2-director-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<executions>
-					<execution>
-						<id>materialize-products</id>
-						<goals>
-							<goal>materialize-products</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>archive-products</id>
-						<goals>
-							<goal>archive-products</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-p2-repository-plugin</artifactId>
-				<version>${tycho-version}</version>
-			</plugin>
-		</plugins>
-	</build>
+	<!-- <build> <plugins> <plugin> <groupId>org.eclipse.tycho</groupId> <artifactId>tycho-p2-director-plugin</artifactId> 
+		<version>${tycho-version}</version> <executions> <execution> <id>materialize-products</id> 
+		<goals> <goal>materialize-products</goal> </goals> </execution> <execution> 
+		<id>archive-products</id> <goals> <goal>archive-products</goal> </goals> 
+		</execution> </executions> </plugin> <plugin> <groupId>org.eclipse.tycho</groupId> 
+		<artifactId>tycho-p2-repository-plugin</artifactId> <version>${tycho-version}</version> 
+		</plugin> </plugins> </build> -->
 
 	<!-- Used to trigger upstream projects in Jenkins CI -->
 	<dependencies>
-		<dependency>
-			<groupId>org.rascalmpl</groupId>
+  		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>rascal-feature</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+ 		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>rascal_developers_feature</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 
