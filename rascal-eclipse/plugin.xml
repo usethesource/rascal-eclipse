@@ -571,14 +571,6 @@
       point="org.eclipse.ui.views">
    <view
          allowMultiple="false"
-         class="org.rascalmpl.eclipse.ambidexter.ReportView"
-         icon="icons/ambidexter-a-16.png"
-         id="rascal_eclipse.ambidexter.report"
-         name="Ambiguity reports"
-         restorable="true">
-   </view>
-   <view
-         allowMultiple="false"
          class="org.rascalmpl.eclipse.views.Tutor"
          icon="icons/rascal-tutor-small.png"
          id="rascal_eclipse.tutorBrowser"

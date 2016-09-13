@@ -9,7 +9,6 @@ Bundle-Activator: org.rascalmpl.eclipse.Activator
 Bundle-ActivationPolicy: lazy
 Require-Bundle: 
  impulse,
- ambidexter,
  org.eclipse.core.runtime,
  org.eclipse.debug.ui,
  org.eclipse.jdt.core,

@@ -20,7 +20,6 @@ import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.rascalmpl.eclipse.ambidexter.ReportView;
 import org.rascalmpl.eclipse.views.Tutor;
 
 public class Factory implements IPerspectiveFactory {
@@ -44,7 +43,6 @@ public class Factory implements IPerspectiveFactory {
 		
 		IFolderLayout outlineFolder = layout.createFolder("outline", IPageLayout.RIGHT, 0.75f, editorArea);
 		outlineFolder.addView(IPageLayout.ID_OUTLINE);
-		outlineFolder.addView(ReportView.ID);
 		outlineFolder.addView("org.eclipse.debug.ui.DebugView");
 		layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
 

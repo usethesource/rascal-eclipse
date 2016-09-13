@@ -72,7 +72,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 
                 IMapWriter moduleTags = vf.mapWriter();
 
-                rex = RascalExecutionContextBuilder.normalContext(vf, out, err)
+                rex = RascalExecutionContextBuilder.normalContext(vf, URIUtil.correctLocation("boot","",""), out, err)
                         .withModuleTags(moduleTags.done())
                         .forModule("lang::rascal::boot::Kernel")
                         .setJVM(true)         
@@ -177,7 +177,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    }
 	    
 	    try {
-	        IConstructor result = kernel.compileAndLink(vf.string(main), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getboot(), pathConfig.getBin(),vf.mapWriter().done());
+	        IConstructor result = kernel.compileAndLink(vf.string(main), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getboot(), pathConfig.getBin(), URIUtil.correctLocation("noreloc","",""),vf.mapWriter().done());
             markErrors(module, result);
 	    }
 	    catch (Throwable e) {
@@ -220,7 +220,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                             String module = ResourcesToModules.moduleFromFile(file);
                             initializeParameters(false);
                             synchronized (kernel) {
-                                IConstructor result = kernel.compile(vf.string(module), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getboot(), pathConfig.getBin(), vf.mapWriter().done());
+                                IConstructor result = kernel.compile(vf.string(module), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getboot(), pathConfig.getBin(), URIUtil.correctLocation("noreloc","",""), vf.mapWriter().done());
                                 markErrors(loc, result);
                             }
                         }

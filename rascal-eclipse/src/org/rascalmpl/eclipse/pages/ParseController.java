@@ -18,10 +18,8 @@ package org.rascalmpl.eclipse.pages;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.ambidexter.ReportView;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
@@ -200,7 +198,6 @@ public class ParseController extends org.rascalmpl.eclipse.editor.ParseControlle
 				ISourceLocation loc = e.getLocation();
 				setParseError(loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getBeginColumn(), loc.getEndLine(), loc.getEndColumn(), e.getMessage());
 				// reparse with raw rascal parser to get the full forest
-				ReportView.listAmbiguities(project.getName(), "editor", e.getTree(), new NullProgressMonitor());
 				Activator.log("unexpected ambiguity during parsing of Rascal module", e);
 			}
 			finally {
