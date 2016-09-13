@@ -12,7 +12,7 @@ local.properties
 .settings/
 .loadpath
 .project
-
+.DS_Store
 # maven stuff
 target/
 launch/
