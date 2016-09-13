@@ -1,3 +1,19 @@
+# eclipse stuff
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
 .project
-.settings
-bin/
+
+# maven stuff
+target/
+launch/
+lib/
