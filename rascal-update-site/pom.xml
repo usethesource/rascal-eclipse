@@ -15,28 +15,108 @@
 		<developerConnection>scm:git:https://github.com/usethesource/rascal-update-site.git</developerConnection>
 	</scm>
 
-
-	<!-- <build> <plugins> <plugin> <groupId>org.eclipse.tycho</groupId> <artifactId>tycho-p2-director-plugin</artifactId> 
-		<version>${tycho-version}</version> <executions> <execution> <id>materialize-products</id> 
-		<goals> <goal>materialize-products</goal> </goals> </execution> <execution> 
-		<id>archive-products</id> <goals> <goal>archive-products</goal> </goals> 
-		</execution> </executions> </plugin> <plugin> <groupId>org.eclipse.tycho</groupId> 
-		<artifactId>tycho-p2-repository-plugin</artifactId> <version>${tycho-version}</version> 
-		</plugin> </plugins> </build> -->
+	<properties>
+		<repo.path>${project.build.directory}/repository/</repo.path>
+		<unstable.url>dav:http://nexus.rascal-mpl.org/content/sites/rascal-update-site-unstable/</unstable.url>
+		<stable.url>dav:http://nexus.rascal-mpl.org/content/sites/rascal-update-site-stable/</stable.url>
+	</properties>
 
 	<!-- Used to trigger upstream projects in Jenkins CI -->
 	<dependencies>
-  		<dependency>
+		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>rascal-feature</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
- 		<dependency>
+		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>rascal_developers_feature</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 
+	<build>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-webdav-jackrabbit</artifactId>
+				<version>2.10</version>
+			</extension>
+		</extensions>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+				<configuration>
+					<!-- During release:perform, enable the "release" profile -->
+					<releaseProfiles>deploy-stable</releaseProfiles>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>deploy-unstable</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>wagon-maven-plugin</artifactId>
+						<version>1.0</version>
+						<executions>
+							<execution>
+								<id>unstable</id>
+								<phase>install</phase>
+								<goals>
+									<goal>upload</goal>
+								</goals>
+								<configuration>
+									<serverId>rascal-update-site-unstable</serverId>
+									<url>${unstable.url}</url>
+									<fromDir>${repo.path}</fromDir>
+									<toDir>./</toDir>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>deploy-stable</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>wagon-maven-plugin</artifactId>
+						<version>1.0</version>
+						<executions>
+							<execution>
+								<id>stable</id>
+								<phase>install</phase>
+								<goals>
+									<goal>upload</goal>
+								</goals>
+								<configuration>
+									<serverId>rascal-update-site-stable</serverId>
+									<url>${stable.url}</url>
+									<fromDir>${repo.path}</fromDir>
+									<toDir>./</toDir>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+	</profiles>
 </project>
