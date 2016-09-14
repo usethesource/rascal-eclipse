@@ -15,18 +15,7 @@
 		<developerConnection>scm:git:https://github.com/usethesource/rascal-update-site.git</developerConnection>
 	</scm>
 
-	<distributionManagement>
-		<site>
-			<id>rascal-update-site-unstable</id>
-			<url>dav:http://nexus.rascal-mpl.org/content/sites/rascal-update-site-unstable//</url>
-		</site>
-	</distributionManagement>
-
 	<properties>
-		<repo.path>${project.build.directory}/repository/</repo.path>
-		<unstable.url>dav:http://nexus.rascal-mpl.org/content/sites/rascal-update-site-unstable/</unstable.url>
-		<stable.url>dav:http://nexus.rascal-mpl.org/content/sites/rascal-update-site-stable/</stable.url>
-		
 		<maven.deploy.skip>false</maven.deploy.skip>
 	</properties>
 
@@ -45,83 +34,4 @@
 		</dependency>
 	</dependencies>
 
-	<build>
-		<extensions>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-webdav-jackrabbit</artifactId>
-				<version>2.10</version>
-			</extension>
-
-		</extensions>
-
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.3</version>
-				<configuration>
-					<!-- During release:perform, enable the "release" profile -->
-					<releaseProfiles>deploy-stable</releaseProfiles>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-
-	<profiles>
-		<profile>
-			<id>deploy-unstable</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>wagon-maven-plugin</artifactId>
-						<version>1.0</version>
-						<executions>
-							<execution>
-								<id>unstable</id>
-								<phase>install</phase>
-								<goals>
-									<goal>upload</goal>
-								</goals>
-								<configuration>
-									<serverId>rascal-update-site-unstable</serverId>
-									<url>${unstable.url}</url>
-									<fromDir>${repo.path}</fromDir>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-		<profile>
-			<id>deploy-stable</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>wagon-maven-plugin</artifactId>
-						<version>1.0</version>
-						<executions>
-							<execution>
-								<id>stable</id>
-								<phase>install</phase>
-								<goals>
-									<goal>upload</goal>
-								</goals>
-								<configuration>
-									<serverId>rascal-update-site-stable</serverId>
-									<url>${stable.url}</url>
-									<fromDir>${repo.path}</fromDir>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-	</profiles>
 </project>
