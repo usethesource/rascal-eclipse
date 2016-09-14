@@ -26,7 +26,7 @@
 			<artifactId>rascal-shell</artifactId>
 			<version>0.8.3-SNAPSHOT</version>
 		</dependency>
- 	</dependencies>
+	</dependencies>
 
 	<build>
 		<plugins>
@@ -59,22 +59,23 @@
 						<id>classpath</id>
 						<goals>
 							<goal>build-classpath</goal>
-						</goals> 
+						</goals>
 						<configuration>
 							<fileSeparator>/</fileSeparator>
 							<prefix>lib</prefix>
 							<outputFile>${project.build.directory}/classPath.txt</outputFile>
-              				<excludeTransitive>true</excludeTransitive>
+							<excludeTransitive>true</excludeTransitive>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
-	
+
 
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>

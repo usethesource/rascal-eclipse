@@ -1,54 +1,95 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.rascalmpl</groupId>
-		<artifactId>rascal-pom-parent</artifactId>
-		<version>1.1.1-SNAPSHOT</version>
-	</parent>
-
+	<groupId>org.rascalmpl</groupId>
 	<artifactId>rascal-eclipse-ide</artifactId>
 	<version>0.8.3-SNAPSHOT</version>
+
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>rascal-eclipse</module>	
+		<module>rascal-eclipse</module>
 		<module>rascal-feature</module>
 		<module>rascal-developers-feature</module>
 		<module>rascal-update-site</module>
 	</modules>
 
- 	<properties>
+	<properties>
 		<maven.deploy.skip>true</maven.deploy.skip>
+
+		<tycho-version>0.25.0</tycho-version>
 	</properties>
 
-	<!-- deployment configuration (usethesource) -->
-	<distributionManagement>
-		<repository>
-			<id>usethesource-releases</id>
-			<url>http://nexus.rascal-mpl.org/content/repositories/releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>usethesource-snapshots</id>
-			<url>http://nexus.rascal-mpl.org/content/repositories/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
-
-	<!-- dependency resolution configuration (usethesource) -->
 	<repositories>
 		<repository>
 			<id>usethesource</id>
 			<url>http://nexus.rascal-mpl.org/content/repositories/public/</url>
 		</repository>
+
+
+		<repository>
+			<id>neon</id>
+			<layout>p2</layout>
+			<!--<url>http://download.eclipse.org/releases/mars</url> -->
+			<url>http://nexus.rascal-mpl.org/content/repositories/eclipse-neon/</url>
+		</repository>
+		<repository>
+			<id>tm</id>
+			<layout>p2</layout>
+			<!--<url>http://download.eclipse.org/tm/terminal/marketplace</url> -->
+			<url>http://nexus.rascal-mpl.org/content/repositories/tm-terminal-marketplace/</url>
+		</repository>
+		<repository>
+			<id>orbit</id>
+			<layout>p2</layout>
+			<!--<url>http://download.eclipse.org/tools/orbit/downloads/drops/R20130827064939/repository</url> -->
+			<url>http://nexus.rascal-mpl.org/content/repositories/orbit-tools-r20130827064939/</url>
+		</repository>
+
 	</repositories>
 
-	<!-- Used to trigger upstream projects in Jenkins CI -->
-<!-- 	<dependencies>
-		<dependency>
-			<groupId>org.rascalmpl</groupId>
-			<artifactId>rascal</artifactId>
-			<version>0.8.3-SNAPSHOT</version>
-		</dependency>
-	</dependencies>	 -->
-	
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-source-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>plugin-source</id>
+						<goals>
+							<goal>plugin-source</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-versions-plugin</artifactId>
+				<version>${tycho-version}</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+
+				<configuration>
+					<resolver>p2</resolver>
+					<pomDependencies>consider</pomDependencies>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>
