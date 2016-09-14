@@ -15,10 +15,19 @@
 		<developerConnection>scm:git:https://github.com/usethesource/rascal-update-site.git</developerConnection>
 	</scm>
 
+	<distributionManagement>
+		<site>
+			<id>rascal-update-site-unstable</id>
+			<url>dav:http://nexus.rascal-mpl.org/content/sites/rascal-update-site-unstable//</url>
+		</site>
+	</distributionManagement>
+
 	<properties>
 		<repo.path>${project.build.directory}/repository/</repo.path>
 		<unstable.url>dav:http://nexus.rascal-mpl.org/content/sites/rascal-update-site-unstable/</unstable.url>
 		<stable.url>dav:http://nexus.rascal-mpl.org/content/sites/rascal-update-site-stable/</stable.url>
+		
+		<maven.deploy.skip>false</maven.deploy.skip>
 	</properties>
 
 	<!-- Used to trigger upstream projects in Jenkins CI -->
@@ -43,6 +52,7 @@
 				<artifactId>wagon-webdav-jackrabbit</artifactId>
 				<version>2.10</version>
 			</extension>
+
 		</extensions>
 
 		<plugins>
@@ -61,9 +71,6 @@
 	<profiles>
 		<profile>
 			<id>deploy-unstable</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<build>
 				<plugins>
 					<plugin>
@@ -81,7 +88,6 @@
 									<serverId>rascal-update-site-unstable</serverId>
 									<url>${unstable.url}</url>
 									<fromDir>${repo.path}</fromDir>
-									<toDir>./</toDir>
 								</configuration>
 							</execution>
 						</executions>
@@ -109,7 +115,6 @@
 									<serverId>rascal-update-site-stable</serverId>
 									<url>${stable.url}</url>
 									<fromDir>${repo.path}</fromDir>
-									<toDir>./</toDir>
 								</configuration>
 							</execution>
 						</executions>

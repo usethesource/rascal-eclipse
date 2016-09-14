@@ -18,10 +18,10 @@
 		<module>rascal-update-site</module>
 	</modules>
 
-<!-- 	<properties>
+ 	<properties>
 		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
- -->
+
 	<!-- deployment configuration (usethesource) -->
 	<distributionManagement>
 		<repository>
@@ -50,4 +50,5 @@
 			<version>0.8.3-SNAPSHOT</version>
 		</dependency>
 	</dependencies>	 -->
+	
 </project>
