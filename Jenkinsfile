@@ -18,11 +18,7 @@ node {
     
     stage 'Deploy'
     sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
-    
-    stage 'Archive'
-    step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
-    // step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
-    
+        
   	slackSend (color: '#00FF00', message: "SUCCESS: Unstable updated : Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
   } catch (e) {
     slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
