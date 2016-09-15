@@ -19,9 +19,9 @@ node {
     stage 'Deploy'
     sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
         
-  	slackSend (color: '#00FF00', message: "SUCCESS: Unstable updated : Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+  	slackSend (color: '##5bc0de', message: "New unstable build successful: <${env.BUILD_URL}|${env.JOB_NAME} [${env.BUILD_NUMBER}]>")
   } catch (e) {
-    slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+    slackSend (color: '#d9534f', message: "FAILED: <${env.BUILD_URL}|${env.JOB_NAME} [${env.BUILD_NUMBER}]>")
     throw e
   }
 }   
