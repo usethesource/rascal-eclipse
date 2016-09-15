@@ -25,38 +25,35 @@
 	<distributionManagement>
 		<repository>
 			<id>usethesource-releases</id>
-			<url>http://nexus.rascal-mpl.org/content/repositories/releases/</url>
+			<url>http://nexus.usethesource.io/content/repositories/releases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>usethesource-snapshots</id>
-			<url>http://nexus.rascal-mpl.org/content/repositories/snapshots/</url>
+			<url>http://nexus.usethesource.io/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 
 	<repositories>
 		<repository>
 			<id>usethesource</id>
-			<url>http://nexus.rascal-mpl.org/content/repositories/public/</url>
+			<url>http://nexus.usethesource.io/content/repositories/public/</url>
 		</repository>
 
 
 		<repository>
 			<id>neon</id>
 			<layout>p2</layout>
-			<!--<url>http://download.eclipse.org/releases/mars</url> -->
-			<url>http://nexus.rascal-mpl.org/content/repositories/eclipse-neon/</url>
+			<url>http://nexus.usethesource.io/content/repositories/eclipse-neon/</url>
 		</repository>
 		<repository>
 			<id>tm</id>
 			<layout>p2</layout>
-			<!--<url>http://download.eclipse.org/tm/terminal/marketplace</url> -->
-			<url>http://nexus.rascal-mpl.org/content/repositories/tm-terminal-marketplace/</url>
+			<url>http://nexus.usethesource.io/content/repositories/tm-terminal-marketplace/</url>
 		</repository>
 		<repository>
 			<id>orbit</id>
 			<layout>p2</layout>
-			<!--<url>http://download.eclipse.org/tools/orbit/downloads/drops/R20130827064939/repository</url> -->
-			<url>http://nexus.rascal-mpl.org/content/repositories/orbit-tools-r20130827064939/</url>
+			<url>http://nexus.usethesource.io/content/repositories/orbit-tools-r20130827064939/</url>
 		</repository>
 
 	</repositories>
