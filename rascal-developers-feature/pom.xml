@@ -9,12 +9,10 @@
 	</parent>
 
 	<artifactId>rascal_developers_feature</artifactId>
+
 	<packaging>eclipse-feature</packaging>
 
-	<scm>
-		<developerConnection>scm:git:https://github.com/cwi-swat/rascal-developers-feature.git</developerConnection>
-	</scm>
-		<!-- Used to trigger upstream projects in Jenkins  -->
+	<!-- Used to trigger upstream projects in Jenkins  -->
 	<dependencies>
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
