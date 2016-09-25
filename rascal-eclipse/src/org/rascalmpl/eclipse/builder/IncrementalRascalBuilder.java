@@ -28,6 +28,7 @@ import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWParams;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
@@ -177,7 +178,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    }
 	    
 	    try {
-	        IConstructor result = kernel.compileAndLink(vf.string(main), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getboot(), pathConfig.getBin(), URIUtil.correctLocation("noreloc","",""),vf.mapWriter().done());
+	        IConstructor result = kernel.compileAndLink(vf.string(main), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getboot(), pathConfig.getBin(), URIUtil.correctLocation("noreloc","",""),new KWParams(vf).build());
             markErrors(module, result);
 	    }
 	    catch (Throwable e) {
@@ -220,7 +221,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                             String module = ResourcesToModules.moduleFromFile(file);
                             initializeParameters(false);
                             synchronized (kernel) {
-                                IConstructor result = kernel.compile(vf.string(module), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getboot(), pathConfig.getBin(), URIUtil.correctLocation("noreloc","",""), vf.mapWriter().done());
+                                IConstructor result = kernel.compile(vf.string(module), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getboot(), pathConfig.getBin(), URIUtil.correctLocation("noreloc","",""), new KWParams(vf).build());
                                 markErrors(loc, result);
                             }
                         }
