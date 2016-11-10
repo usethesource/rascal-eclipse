@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.rascalmpl.uri.URIUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -35,13 +34,11 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutio
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
