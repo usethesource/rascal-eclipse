@@ -46,11 +46,11 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>org.rascalmpl</groupId>
-									<artifactId>rascal-shell</artifactId>
+									<artifactId>rascal</artifactId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${basedir}/lib</outputDirectory>
-									<destFileName>rascal-shell.jar</destFileName>
+									<destFileName>rascal.jar</destFileName>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
