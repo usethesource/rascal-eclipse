@@ -554,7 +554,7 @@ public class ProjectEvaluatorFactory {
             // jar (probably extracted in a temp folder by OSGI) and add it to the Java compiler classpath which is used for compiling
             // generated code by the Rascal parser generator:
             Bundle rascalBundle = Activator.getInstance().getBundle();
-        	URL entry = FileLocator.toFileURL(rascalBundle.getEntry("lib/rascal-shell.jar"));
+        	URL entry = FileLocator.toFileURL(rascalBundle.getEntry("lib/rascal.jar"));
         
 			// this registers the compile-time path:
             String ccp = new File(entry.toURI()).getAbsolutePath();
@@ -564,9 +564,9 @@ public class ProjectEvaluatorFactory {
 
             parser.getConfiguration().setRascalJavaClassPathProperty(ccp);
         } catch (URISyntaxException e) {
-            Activator.log("URL of rascal-shell is not a valid URI???", e);
+            Activator.log("URL of rascal is not a valid URI???", e);
         } catch (IOException e1) {
-            Activator.log("could not find fat rascal-shell jar", e1);
+            Activator.log("could not find fat rascal jar", e1);
 		}
     }
 }
