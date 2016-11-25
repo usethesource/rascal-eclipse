@@ -23,7 +23,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
-			<artifactId>rascal-shell</artifactId>
+			<artifactId>rascal</artifactId>
 			<version>0.8.3-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
