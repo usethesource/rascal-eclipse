@@ -202,4 +202,4 @@ Export-Package: io.usethesource.capsule,
  org.rascalmpl.values.uptr.visitors
 Import-Package: org.eclipse.core.expressions
 Bundle-ClassPath: .,
-  lib/rascal-shell.jar
+  lib/rascal.jar
