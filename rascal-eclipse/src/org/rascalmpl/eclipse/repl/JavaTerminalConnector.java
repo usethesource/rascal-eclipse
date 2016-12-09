@@ -1,9 +1,15 @@
 package org.rascalmpl.eclipse.repl;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.DebugEvent;
@@ -18,6 +24,7 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.debug.core.model.IStreamsProxy;
 import org.eclipse.debug.ui.IDebugUIConstants;
+import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.tm.internal.terminal.emulator.VT100TerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
@@ -25,6 +32,8 @@ import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
 import org.eclipse.tm.internal.terminal.provisional.api.provider.TerminalConnectorImpl;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.shell.EclipseTerminalConnection;
+import org.rascalmpl.shell.RascalShell;
 
 @SuppressWarnings("restriction")
 public class JavaTerminalConnector extends TerminalConnectorImpl {
@@ -40,6 +49,10 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
     private String mode = "run";
     private ILaunch launch;
     private IDebugEventSetListener detectTerminated;
+    private int port;
+    private ServerSocket server;
+    private int currentWidth;
+    private int currentHeight;
     
     @Override
     public boolean isLocalEcho() {
@@ -81,10 +94,13 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
           
           // this makes sure the terminal does not echo the characters to the normal console as well:
           workingCopy.setAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, false);
+
+          startREPLWindowSizeSocket();
+          String vmArgs = workingCopy.getAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, "");
+          vmArgs += "-D" + RascalShell.ECLIPSE_TERMINAL_CONNECTION_REPL_KEY + "=" + port;
+          workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, vmArgs);
           
-          ILaunchConfiguration configuration = workingCopy.doSave();
-          
-          launch = configuration.launch(mode, new NullProgressMonitor(), true /*build first*/, true /*do register for debug*/);
+          launch = workingCopy.launch(mode, new NullProgressMonitor(), true /*build first*/, true /*do register for debug*/);
 
           if (launch.getProcesses().length == 1) {
             final IProcess currentProcess = launch.getProcesses()[0];
@@ -145,6 +161,11 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
                   if (events[i].getSource() == currentProcess && events[i].getKind() == DebugEvent.TERMINATE) {
                     control.setState(TerminalState.CLOSED);
                     DebugPlugin.getDefault().removeDebugEventListener(detectTerminated);
+                    try {
+                        server.close();
+                    }
+                    catch (IOException e) {
+                    }
                     break;
                   }
                 }
@@ -162,6 +183,52 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
         catch (Throwable e1) {
           Activator.log(e1.getMessage(), e1);
           control.setState(TerminalState.CLOSED);
+        }
+    }
+
+    private void startREPLWindowSizeSocket() {
+        try {
+            server = new ServerSocket(0, 1, InetAddress.getLoopbackAddress());
+            port = server.getLocalPort();
+            Thread runner = new Thread() {
+                public void run() {
+                    Socket sock;
+                    // only one connection possible
+                    try {
+                        if ((sock = server.accept()) != null) {
+                            DataOutputStream send = new DataOutputStream(sock.getOutputStream());
+                            DataInputStream recv = new DataInputStream(sock.getInputStream());
+                            byte[] clientHeader = new byte[EclipseTerminalConnection.HEADER.length];
+                            int off = 0;
+                            while (off < clientHeader.length) {
+                                off += recv.read(clientHeader, off, clientHeader.length - off);
+                            }
+                            if (!Arrays.equals(clientHeader, EclipseTerminalConnection.HEADER)) {
+                                throw new RuntimeException("Incorrect client");
+                            }
+                            send.write(EclipseTerminalConnection.HEADER);
+                            while (true) {
+                                switch (recv.readByte()) {
+                                    case EclipseTerminalConnection.GET_HEIGHT:
+                                        send.writeInt(currentHeight);
+                                        break;
+                                    case EclipseTerminalConnection.GET_WIDTH:
+                                        send.writeInt(currentWidth);
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                    catch (IOException e) {
+                        return;
+                    }
+                }
+            };
+            runner.setName("REPL Companion Runner");
+            runner.start();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -190,8 +257,9 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
         if (launch != null) {
           try {
             launch.terminate();
+            server.close();
           }
-          catch (DebugException e) {
+          catch (DebugException | IOException e) {
             Activator.log(e.getMessage(), e);
           }
         }
@@ -204,6 +272,12 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
     @Override
     public String getSettingsSummary() {
         return file != null ? "Running Java program " + file : "no file associated";
+    }
+    @Override
+    public void setTerminalSize(int newWidth, int newHeight) {
+        super.setTerminalSize(newWidth, newHeight);
+        currentWidth = newWidth;
+        currentHeight = newHeight;
     }
     
    
