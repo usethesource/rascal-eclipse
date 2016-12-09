@@ -32,7 +32,8 @@ import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.util.ProjectConfig;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.BasicIDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
@@ -120,8 +121,8 @@ public class CompiledRascalTerminalConnector extends SizedTerminalConnector {
                     shell = new CompiledRascalREPL(new ProjectConfig(vf).getPathConfig(ipr), stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), tm, new BasicIDEServices()) {
                         
                         @Override
-                        protected CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr) throws IOException ,org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction ,URISyntaxException {
-                            CommandExecutor exec = new CommandExecutor(pcfg, stdout, stderr);
+                        protected CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException ,org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction ,URISyntaxException {
+                            CommandExecutor exec = new CommandExecutor(pcfg, stdout, stderr, ideServices, null);
 //                            exec.setDebugObserver(new DebugREPLFrameObserver(reader.getInput(), control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), TerminalFactory.get(), new ProjectConfig(vf).getPathConfig(ipr)));
                             setMeasureCommandTime(true);
                             return exec;
