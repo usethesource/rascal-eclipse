@@ -32,11 +32,10 @@ import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.util.ProjectConfig;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.BasicIDEServices;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.IDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.LinkDetector;
 import org.rascalmpl.uri.LinkDetector.Type;
@@ -50,7 +49,6 @@ import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import jline.Terminal;
-import jline.TerminalFactory;
 
 @SuppressWarnings("restriction")
 public class CompiledRascalTerminalConnector extends SizedTerminalConnector {
