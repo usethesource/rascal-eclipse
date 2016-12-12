@@ -11,15 +11,18 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.terms.TermParseController;
 import org.rascalmpl.eclipse.util.ProjectConfig;
@@ -36,6 +39,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
+import io.usethesource.impulse.model.ISourceProject;
 import io.usethesource.impulse.parser.IParseController;
 import io.usethesource.impulse.services.ISourceHyperlinkDetector;
 
@@ -57,13 +61,21 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 			return getTreeLinks(tree, region);
 		}
 		
-		if (tree != null && parseController instanceof ParseController && RascalPreferences.isRascalCompilerEnabled()) {
-		    // Rascal case
-		    // TODO: integrate with DSL case
-		    ParseController rascalPc = (ParseController) parseController;
-		    PathConfig pcfg =  new ProjectConfig(ValueFactoryFactory.getValueFactory()).getPathConfig(rascalPc.getProject().getRawProject());
-		    return getLinksForRegionFromUseDefRelation(region, imp.getUseDef(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName()));
-		}
+		try {
+		    if (tree != null && parseController instanceof ParseController && RascalPreferences.isRascalCompilerEnabled()) {
+		        // Rascal case
+		        // TODO: integrate with DSL case
+		        ParseController rascalPc = (ParseController) parseController;
+		        ISourceProject rprj = rascalPc.getProject();
+		        IProject prj = rprj != null ? rprj.getRawProject() : null;
+		        PathConfig pcfg =  prj != null ? new ProjectConfig(ValueFactoryFactory.getValueFactory()).getPathConfig(prj) : new PathConfig();
+		        
+		        return getLinksForRegionFromUseDefRelation(region, imp.getUseDef(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName()));
+		    }
+		} catch (URISyntaxException e) {
+		    // should not happen
+		    Activator.log("unexpected", e);
+        }
 		
 		return null;
 	}
