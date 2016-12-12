@@ -122,18 +122,28 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		this.handler = handler;
 		this.project = project;
 
-		ISourceLocation location = null;
+		ISourceLocation location = getSourceLocation();
 		
 		if (project != null) {
-			location = ProjectURIResolver.constructProjectURI(project.getRawProject(), path);
 			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(project.getRawProject(), new WarningsToMessageHandler(location, handler));
 		} else {
-			location = FileURIResolver.constructFileURI(path.toString());
 			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(null);
 		}
 
 		this.warnings = new WarningsToMessageHandler(location, handler);
 		initParseJob(handler, location);
+	}
+	
+	public ISourceLocation getSourceLocation() {
+	    if (project != null && path != null) {
+	        return ProjectURIResolver.constructProjectURI(project.getRawProject(), path);
+	    }
+	    else if (path != null) {
+	        return FileURIResolver.constructFileURI(path.toString());
+	    }
+	    else {
+	        return null;
+	    }
 	}
 
 	protected void initParseJob(IMessageHandler handler, ISourceLocation location) {
@@ -298,4 +308,16 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			handler.handleSimpleMessage(message, 0, 0, 0, 0, 1, 1);
 		}
 	}
+
+    public String getModuleName() {
+        if (getCurrentAst() == null) {
+            return null;
+        }
+        
+        ITree top = TreeAdapter.getStartTop((ITree) getCurrentAst());
+        ITree header = TreeAdapter.getArg(top, "header");
+        ITree name = TreeAdapter.getArg(header, "name");
+
+        return TreeAdapter.yield(name);
+    }
 }

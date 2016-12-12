@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectConfig;
@@ -77,6 +78,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                 
 
                 kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
+                
             } catch (IOException | URISyntaxException e) {
                 Activator.log("could not initialize incremental Rascal builder", e);
             }
@@ -142,6 +144,8 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	}
 
 	private void buildMain(IProgressMonitor monitor) throws CoreException {
+	    IDEServicesModelProvider.getInstance().invalidateEverything();
+	    
 	    IFile mfFile = getProject().getFile(RascalEclipseManifest.META_INF_RASCAL_MF);
 	    
 	    if (mfFile == null || !mfFile.exists()) {
@@ -211,6 +215,8 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                         }
                         
                         ISourceLocation loc = ProjectURIResolver.constructProjectURI(delta.getFullPath());
+                        IDEServicesModelProvider.getInstance().clearUseDefCache(loc);
+                        
                         monitor.beginTask("Compiling " + loc, 100);
                         try {
                             IFile file = (IFile) delta.getResource();
