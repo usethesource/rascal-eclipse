@@ -27,11 +27,10 @@ import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWArgs;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
-import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIUtil;
@@ -51,7 +50,7 @@ import io.usethesource.impulse.runtime.RuntimePlugin;
  */
 public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     // A kernel is 100Mb, so we can't have one for every project; that's why it's static:
-    private static Kernel kernel;
+    private static IKernel kernel;
 	private static PrintWriter out;
     private static PrintWriter err;
     private static IValueFactory vf;
@@ -75,9 +74,10 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                         .forModule("lang::rascal::boot::Kernel")
                         .setJVM(true)         
                         .build();
+                
 
-                kernel = new Kernel(vf, rex);
-            } catch (IOException | NoSuchRascalFunction | URISyntaxException e) {
+                kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
+            } catch (IOException | URISyntaxException e) {
                 Activator.log("could not initialize incremental Rascal builder", e);
             }
         }
@@ -175,7 +175,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    }
 	    
 	    try {
-	        IConstructor result = kernel.compileAndLink(vf.string(main), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getBoot(), pathConfig.getBin(), URIUtil.correctLocation("noreloc","",""),new KWArgs(vf).build());
+	        IConstructor result = kernel.compileAndLink(vf.string(main), pathConfig.asConstructor(kernel), kernel.kw_compileAndLink());
             markErrors(module, result);
 	    }
 	    catch (Throwable e) {
@@ -218,7 +218,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                             String module = ResourcesToModules.moduleFromFile(file);
                             initializeParameters(false);
                             synchronized (kernel) {
-                                IConstructor result = kernel.compile(vf.string(module), pathConfig.getSrcs(), pathConfig.getLibs(), pathConfig.getBoot(), pathConfig.getBin(), URIUtil.correctLocation("noreloc","",""), new KWArgs(vf).build());
+                                IConstructor result = kernel.compile(vf.string(module), pathConfig.asConstructor(kernel), kernel.kw_compile());
                                 markErrors(loc, result);
                             }
                         }
