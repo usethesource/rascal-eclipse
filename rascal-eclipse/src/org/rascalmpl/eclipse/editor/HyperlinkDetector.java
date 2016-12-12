@@ -70,7 +70,14 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		        IProject prj = rprj != null ? rprj.getRawProject() : null;
 		        PathConfig pcfg =  prj != null ? new ProjectConfig(ValueFactoryFactory.getValueFactory()).getPathConfig(prj) : new PathConfig();
 		        
-		        return getLinksForRegionFromUseDefRelation(region, imp.getUseDef(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName()));
+		        ISet useDef = imp.getUseDef(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName());
+		        
+		        if (!checkUseDefType(useDef)) {
+		           Activator.log(useDef.getType() + " is not a rel[loc,loc] or rel[loc,loc,str]? " + useDef, new NullPointerException());
+		           return null;
+		        }
+		        
+                return getLinksForRegionFromUseDefRelation(region, useDef);
 		    }
 		} catch (URISyntaxException e) {
 		    // should not happen
@@ -79,6 +86,10 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		
 		return null;
 	}
+
+    private boolean checkUseDefType(ISet useDef) {
+        return useDef.getType().isSubtypeOf(linksRelType1) && !useDef.getType().isSubtypeOf(linksRelType2);
+    }
 	
 	private IHyperlink[] getTreeLinks(ITree tree, IRegion region) {
 		IValue xref = tree.asAnnotatable().getAnnotation("hyperlinks");
