@@ -51,6 +51,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.value.IValue;
 
@@ -58,12 +59,12 @@ import jline.Terminal;
 
 @SuppressWarnings("restriction")
 public class RascalTerminalConnector extends SizedTerminalConnector {
-    private RascalInterpreterREPL shell;
+    private BaseRascalREPL shell;
     private REPLPipedInputStream stdIn;
     private OutputStream stdInUI;
-    private String project;
-    private String module;
-    private String mode;
+    protected String project;
+    protected String module;
+    protected String mode;
     private ILaunch launch;
     private WarningsToPrintWriter warnings;
     private ModuleReloader reloader;
@@ -88,7 +89,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
         this.mode = store.get("mode");
     }
 
-    private File getHistoryFile() throws IOException {
+    protected File getHistoryFile() throws IOException {
         File home = new File(System.getProperty("user.home"));
         File rascal = new File(home, ".rascal");
         if (!rascal.exists()) {
@@ -118,112 +119,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
         Thread t = new Thread() {
             public void run() {
                 try {
-                    shell = new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), tm) {
-                        private AbstractInterpreterEventTrigger eventTrigger;
-                        private DebugHandler debugHandler;
-                        
-                        @Override
-                        protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
-                            IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
-                            if (ipr != null && !ipr.isOpen()) {
-                                ipr = null;
-                            }
-                            Evaluator eval = ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
-                            
-                            // TODO: this is a workaround to get access to a launch, but we'd rather
-                            // just get it from the terminal's properties
-                            launch = RascalTerminalRegistry.getInstance().getLaunch();
-                            warnings = new WarningsToPrintWriter(new PrintWriter(stderr));
-                            reloader = new ModuleReloader(ipr, eval, warnings);
-
-                            if (debug()) {
-                                initializeRascalDebugMode(eval);      
-                                connectToEclipseDebugAPI(eval);
-                                eventTrigger.fireSuspendByClientRequestEvent();
-                            }
-                            
-                            if (module != null) {
-                                eval.doImport(null, module);
-                                Result<IValue> mainFunc = eval.getCurrentEnvt().getFrameVariable("main");
-
-                                // do not move this queue before the mainFunc initializer
-                                super.queueCommand("import " + module + ";");
-                                if (mainFunc != null && mainFunc instanceof ICallableValue) {
-                                    super.queueCommand("main()");
-                                }
-                            }
-                            
-                            return eval;
-                        }
-                        
-                        @Override
-                        protected IRascalResult evalStatement(String statement, String lastLine)
-                                throws InterruptedException {
-                            try {
-                                if (debug()) {
-                                    synchronized(eval) {
-                                        eventTrigger.fireResumeByClientRequestEvent();
-                                    }
-                                }
-                                
-                                Job job = new Job("Reloading modules") {
-                                    @Override
-                                    protected IStatus run(IProgressMonitor monitor) {
-                                        reloader.updateModules(monitor, warnings, Collections.emptySet());
-                                        return Status.OK_STATUS;
-                                    }
-                                };
-                                job.schedule();
-                                job.join();
-                             
-                                return super.evalStatement(statement, lastLine);
-                            }
-                            finally {
-                                if (debug() && !":quit".equals(statement.trim())) {
-                                    synchronized(eval) {
-                                        eventTrigger.fireSuspendByClientRequestEvent();
-                                    }
-                                }
-                            }
-                        }
-                        
-                        private void connectToEclipseDebugAPI(IRascalRuntimeInspection eval) {
-                            try {
-                                RascalDebugTarget  debugTarget = new RascalDebugTarget(eval, launch, eventTrigger, debugHandler);
-                                launch.addDebugTarget(debugTarget);
-                                debugTarget.breakpointManagerEnablementChanged(true);
-                            } catch (CoreException e) {
-                                Activator.log("could not connect to debugger", e);
-                                // otherwise no harm done, can continue
-                            }
-                         
-                        }
-                        
-                        private void initializeRascalDebugMode(Evaluator eval) {
-                            eventTrigger = newInterpreterEventTrigger(this, new CopyOnWriteArrayList<IRascalEventListener>());
-                            debugHandler = new DebugHandler();
-                            debugHandler.setEventTrigger(eventTrigger);
-                            debugHandler.setTerminateAction(new Runnable() {
-                                @Override
-                                public void run() {
-                                    doDisconnect();
-                                }
-                            });         
-                            eval.addSuspendTriggerListener(debugHandler);
-                        }
-
-                        @Override
-                        public void queueCommand(String command) {
-                          super.queueCommand(command);
-                          try {
-                            // let's flush it
-                            stdInUI.write(new byte[]{(byte)ctrl('K'),(byte)ctrl('U'),(byte)'\n'});
-                          }
-                          catch (IOException e) {
-                          }
-                        }
-                    };
-                    
+                    shell = constructREPL(control, stdIn, stdInUI, tm);
                     control.setState(TerminalState.CONNECTED);
                     shell.run();
                 }
@@ -326,6 +222,114 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
 
     public int getWidth() {
         return terminalWidth;
+    }
+
+    protected BaseRascalREPL constructREPL(ITerminalControl control, REPLPipedInputStream stdIn, OutputStream stdInUI, Terminal tm) throws IOException, URISyntaxException {
+        return new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), tm) {
+            private AbstractInterpreterEventTrigger eventTrigger;
+            private DebugHandler debugHandler;
+            
+            @Override
+            protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
+                IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
+                if (ipr != null && !ipr.isOpen()) {
+                    ipr = null;
+                }
+                Evaluator eval = ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
+                
+                // TODO: this is a workaround to get access to a launch, but we'd rather
+                // just get it from the terminal's properties
+                launch = RascalTerminalRegistry.getInstance().getLaunch();
+                warnings = new WarningsToPrintWriter(new PrintWriter(stderr));
+                reloader = new ModuleReloader(ipr, eval, warnings);
+
+                if (debug()) {
+                    initializeRascalDebugMode(eval);      
+                    connectToEclipseDebugAPI(eval);
+                    eventTrigger.fireSuspendByClientRequestEvent();
+                }
+                
+                if (module != null) {
+                    eval.doImport(null, module);
+                    Result<IValue> mainFunc = eval.getCurrentEnvt().getFrameVariable("main");
+
+                    // do not move this queue before the mainFunc initializer
+                    super.queueCommand("import " + module + ";");
+                    if (mainFunc != null && mainFunc instanceof ICallableValue) {
+                        super.queueCommand("main()");
+                    }
+                }
+                
+                return eval;
+            }
+            
+            @Override
+            protected IRascalResult evalStatement(String statement, String lastLine)
+                    throws InterruptedException {
+                try {
+                    if (debug()) {
+                        synchronized(eval) {
+                            eventTrigger.fireResumeByClientRequestEvent();
+                        }
+                    }
+                    
+                    Job job = new Job("Reloading modules") {
+                        @Override
+                        protected IStatus run(IProgressMonitor monitor) {
+                            reloader.updateModules(monitor, warnings, Collections.emptySet());
+                            return Status.OK_STATUS;
+                        }
+                    };
+                    job.schedule();
+                    job.join();
+                 
+                    return super.evalStatement(statement, lastLine);
+                }
+                finally {
+                    if (debug() && !":quit".equals(statement.trim())) {
+                        synchronized(eval) {
+                            eventTrigger.fireSuspendByClientRequestEvent();
+                        }
+                    }
+                }
+            }
+            
+            private void connectToEclipseDebugAPI(IRascalRuntimeInspection eval) {
+                try {
+                    RascalDebugTarget  debugTarget = new RascalDebugTarget(eval, launch, eventTrigger, debugHandler);
+                    launch.addDebugTarget(debugTarget);
+                    debugTarget.breakpointManagerEnablementChanged(true);
+                } catch (CoreException e) {
+                    Activator.log("could not connect to debugger", e);
+                    // otherwise no harm done, can continue
+                }
+             
+            }
+            
+            private void initializeRascalDebugMode(Evaluator eval) {
+                eventTrigger = newInterpreterEventTrigger(this, new CopyOnWriteArrayList<IRascalEventListener>());
+                debugHandler = new DebugHandler();
+                debugHandler.setEventTrigger(eventTrigger);
+                debugHandler.setTerminateAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        doDisconnect();
+                    }
+                });         
+                eval.addSuspendTriggerListener(debugHandler);
+            }
+
+            @Override
+            public void queueCommand(String command) {
+              super.queueCommand(command);
+              try {
+                // let's flush it
+                stdInUI.write(new byte[]{(byte)ctrl('K'),(byte)ctrl('U'),(byte)'\n'});
+              }
+              catch (IOException e) {
+              }
+            }
+        };
     }
 
 }
