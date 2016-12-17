@@ -29,13 +29,11 @@ import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
@@ -66,18 +64,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                 out = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
                 err = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
                 vf = ValueFactoryFactory.getValueFactory();
-
-//                IMapWriter moduleTags = vf.mapWriter();
-
-//                rex = RascalExecutionContextBuilder.normalContext(vf, pcfg, out, err)
-//                        .withModuleTags(moduleTags.done())
-//                        .forModule("lang::rascal::boot::Kernel")
-//                        .setJVM(true)         
-//                        .build();
-                
-
                 kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
-                
             } catch (IOException | URISyntaxException e) {
                 Activator.log("could not initialize incremental Rascal builder", e);
             }
