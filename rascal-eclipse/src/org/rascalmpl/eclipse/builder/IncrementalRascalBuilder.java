@@ -34,7 +34,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Ja
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.ISet;
@@ -68,13 +67,13 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                 err = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
                 vf = ValueFactoryFactory.getValueFactory();
 
-                IMapWriter moduleTags = vf.mapWriter();
+//                IMapWriter moduleTags = vf.mapWriter();
 
-                rex = RascalExecutionContextBuilder.normalContext(vf, URIUtil.correctLocation("boot","",""), out, err)
-                        .withModuleTags(moduleTags.done())
-                        .forModule("lang::rascal::boot::Kernel")
-                        .setJVM(true)         
-                        .build();
+//                rex = RascalExecutionContextBuilder.normalContext(vf, pcfg, out, err)
+//                        .withModuleTags(moduleTags.done())
+//                        .forModule("lang::rascal::boot::Kernel")
+//                        .setJVM(true)         
+//                        .build();
                 
 
                 kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
@@ -165,7 +164,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    }
 	    
 	    initializeParameters(false);
-	    ISourceLocation module = rex.getRascalSearchPath().resolveModule(main);
+	    ISourceLocation module = rex.getPathConfig().resolveModule(main);
 	    
 	    if (module == null) {
 	        // TODO: this should be a marker on RASCAL.MF
@@ -266,6 +265,6 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         IProject project = getProject();
         projectLoc = ProjectURIResolver.constructProjectURI(project.getFullPath());
         pathConfig = new ProjectConfig(vf).getPathConfig(project);
-        rex.getRascalSearchPath().addPathContributor(pathConfig.getSourcePathContributor());
+        rex.getPathConfig().addSourceLoc(PathConfig.getDefaultStd());
     }
 }
