@@ -97,7 +97,7 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
 
           startREPLWindowSizeSocket();
           String vmArgs = workingCopy.getAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, "");
-          vmArgs += "-D" + RascalShell.ECLIPSE_TERMINAL_CONNECTION_REPL_KEY + "=" + port;
+          vmArgs += " -D" + RascalShell.ECLIPSE_TERMINAL_CONNECTION_REPL_KEY + "=" + port;
           workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, vmArgs);
           
           launch = workingCopy.launch(mode, new NullProgressMonitor(), true /*build first*/, true /*do register for debug*/);
