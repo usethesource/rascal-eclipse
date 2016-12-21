@@ -95,10 +95,15 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
           // this makes sure the terminal does not echo the characters to the normal console as well:
           workingCopy.setAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, false);
 
-          startREPLWindowSizeSocket();
-          String vmArgs = workingCopy.getAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, "");
-          vmArgs += " -D" + RascalShell.ECLIPSE_TERMINAL_CONNECTION_REPL_KEY + "=" + port;
-          workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, vmArgs);
+          if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+              server = startREPLWindowSizeSocket();
+              String vmArgs = workingCopy.getAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, "");
+              vmArgs += " -D" + RascalShell.ECLIPSE_TERMINAL_CONNECTION_REPL_KEY + "=" + port;
+              workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, vmArgs);
+          }
+          else {
+              server = null;
+          }
           
           launch = workingCopy.launch(mode, new NullProgressMonitor(), true /*build first*/, true /*do register for debug*/);
 
@@ -161,10 +166,12 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
                   if (events[i].getSource() == currentProcess && events[i].getKind() == DebugEvent.TERMINATE) {
                     control.setState(TerminalState.CLOSED);
                     DebugPlugin.getDefault().removeDebugEventListener(detectTerminated);
-                    try {
-                        server.close();
-                    }
-                    catch (IOException e) {
+                    if (server != null) {
+                        try {
+                            server.close();
+                        }
+                        catch (IOException e) {
+                        }
                     }
                     break;
                   }
@@ -186,16 +193,16 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
         }
     }
 
-    private void startREPLWindowSizeSocket() {
+    private ServerSocket startREPLWindowSizeSocket() {
         try {
-            server = new ServerSocket(0, 1, InetAddress.getLoopbackAddress());
-            port = server.getLocalPort();
+            final ServerSocket result = new ServerSocket(0, 1, InetAddress.getLoopbackAddress());
+            port = result.getLocalPort();
             Thread runner = new Thread() {
                 public void run() {
                     Socket sock;
                     // only one connection possible
                     try {
-                        if ((sock = server.accept()) != null) {
+                        if ((sock = result.accept()) != null) {
                             DataOutputStream send = new DataOutputStream(sock.getOutputStream());
                             DataInputStream recv = new DataInputStream(sock.getInputStream());
                             byte[] clientHeader = new byte[EclipseTerminalConnection.HEADER.length];
@@ -225,7 +232,9 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
                 }
             };
             runner.setName("REPL Companion Runner");
+            runner.setDaemon(true);
             runner.start();
+            return result;
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -257,7 +266,9 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
         if (launch != null) {
           try {
             launch.terminate();
-            server.close();
+            if (server != null) {
+                server.close();
+            }
           }
           catch (DebugException | IOException e) {
             Activator.log(e.getMessage(), e);
