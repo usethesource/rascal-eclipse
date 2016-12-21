@@ -60,7 +60,7 @@ import org.rascalmpl.eclipse.util.RascalInvoker;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.library.vis.util.FigureColorUtils;
+import org.rascalmpl.eclipse.library.vis.util.FigureColorUtils;
 import org.rascalmpl.uri.URIEditorInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIStorage;

@@ -33,7 +33,7 @@ import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.part.EditorPart;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.library.vis.swt.FigureExecutionEnvironment;
+import org.rascalmpl.eclipse.library.vis.swt.FigureExecutionEnvironment;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;

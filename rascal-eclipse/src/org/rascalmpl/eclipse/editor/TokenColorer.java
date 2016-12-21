@@ -22,7 +22,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
+import org.rascalmpl.eclipse.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IMap;
