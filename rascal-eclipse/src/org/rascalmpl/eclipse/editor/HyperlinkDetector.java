@@ -73,8 +73,8 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		        ISet useDef = imp.getUseDef(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName());
 		        
 		        if (!checkUseDefType(useDef)) {
-		           Activator.log(useDef.getType() + " is not a rel[loc,loc] or rel[loc,loc,str]? " + useDef, new NullPointerException());
-		           return null;
+		           Activator.log(useDef.getType() + " is not a rel[loc,loc] or rel[loc,loc,str]? " + useDef, null);
+		           return new IHyperlink[0];
 		        }
 		        
                 return getLinksForRegionFromUseDefRelation(region, useDef);
@@ -88,7 +88,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 	}
 
     private boolean checkUseDefType(ISet useDef) {
-        return useDef.getType().isSubtypeOf(linksRelType1) && !useDef.getType().isSubtypeOf(linksRelType2);
+        return !useDef.getType().isSubtypeOf(linksRelType1) && !useDef.getType().isSubtypeOf(linksRelType2);
     }
 	
 	private IHyperlink[] getTreeLinks(ITree tree, IRegion region) {
