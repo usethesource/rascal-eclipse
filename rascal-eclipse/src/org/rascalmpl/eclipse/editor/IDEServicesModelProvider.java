@@ -43,13 +43,13 @@ public class IDEServicesModelProvider {
     }
     
     @SuppressWarnings("unchecked")
-    private <T extends IValue> T get(ISourceLocation file, PathConfig pcfg, String moduleName, String field) {
+    private <T extends IValue> T get(ISourceLocation file, PathConfig pcfg, String moduleName, String field, T def) {
        IConstructor summary = getSummary(file, pcfg, moduleName);
-       return summary != null ? (T) summary.get(field) : null;
+       return summary != null ? (T) summary.get(field) : def;
     }
     
     public ISet getUseDef(ISourceLocation file, PathConfig pcfg, String moduleName) {
-        return get(file, pcfg, moduleName, "useDef");
+        return get(file, pcfg, moduleName, "useDef", vf.set());
     }
     
     public IConstructor getSummary(ISourceLocation file, PathConfig pcfg, String moduleName) {
