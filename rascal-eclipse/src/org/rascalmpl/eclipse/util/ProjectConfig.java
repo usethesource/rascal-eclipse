@@ -56,8 +56,6 @@ public class ProjectConfig {
             Activator.log(e.getMessage(), e);
         }
         
-      
-        
         for (String srcName : manifest.getSourceRoots(project)) {
             ISourceLocation src = URIUtil.getChildLocation(projectLoc, srcName);
             srcsWriter.append(src);

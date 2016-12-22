@@ -28,6 +28,8 @@ import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
+import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
@@ -36,6 +38,7 @@ import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -151,7 +154,23 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    }
 	    
 	    initializeParameters(false);
-	    ISourceLocation module = rex.getPathConfig().resolveModule(main);
+	    
+	    RascalSearchPath p = new RascalSearchPath();
+	    p.addPathContributor(new IRascalSearchPathContributor() {
+            @Override
+            public String getName() {
+                return "config";
+            }
+            
+            @Override
+            public void contributePaths(List<ISourceLocation> path) {
+                for (IValue val :pathConfig.getSrcs()) {
+                    path.add((ISourceLocation) val);
+                }
+            }
+        });
+	    
+	    ISourceLocation module = p.resolveModule(main);
 	    
 	    if (module == null) {
 	        // TODO: this should be a marker on RASCAL.MF
@@ -201,6 +220,11 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                         }
                         
                         ISourceLocation loc = ProjectURIResolver.constructProjectURI(delta.getFullPath());
+                        
+                        if (loc == null) {
+                            return false;
+                        }
+                        
                         IDEServicesModelProvider.getInstance().clearUseDefCache(loc);
                         
                         monitor.beginTask("Compiling " + loc, 100);
@@ -208,10 +232,16 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                             IFile file = (IFile) delta.getResource();
                             file.deleteMarkers(IMarker.PROBLEM, true, 1);
                             String module = ResourcesToModules.moduleFromFile(file);
-                            initializeParameters(false);
-                            synchronized (kernel) {
-                                IConstructor result = kernel.compile(vf.string(module), pathConfig.asConstructor(kernel), kernel.kw_compile());
-                                markErrors(loc, result);
+                            
+                            if (module != null) {
+                                initializeParameters(false);
+                                synchronized (kernel) {
+                                    IConstructor result = kernel.compile(vf.string(module), pathConfig.asConstructor(kernel), kernel.kw_compile());
+                                    markErrors(loc, result);
+                                }
+                            }
+                            else {
+                                // this module is not on the source search path
                             }
                         }
                         catch (Throwable e) {
@@ -252,6 +282,5 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         IProject project = getProject();
         projectLoc = ProjectURIResolver.constructProjectURI(project.getFullPath());
         pathConfig = new ProjectConfig(vf).getPathConfig(project);
-        rex.getPathConfig().addSourceLoc(PathConfig.getDefaultStd());
     }
 }
