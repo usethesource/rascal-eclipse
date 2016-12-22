@@ -88,7 +88,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 	}
 
     private boolean checkUseDefType(ISet useDef) {
-        return !useDef.getType().isSubtypeOf(linksRelType1) && !useDef.getType().isSubtypeOf(linksRelType2);
+        return useDef.getType().isSubtypeOf(linksRelType1) || useDef.getType().isSubtypeOf(linksRelType2);
     }
 	
 	private IHyperlink[] getTreeLinks(ITree tree, IRegion region) {
