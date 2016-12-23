@@ -68,7 +68,7 @@ public class ProjectConfig {
         
         // TODO this is necessary while the kernel does not hold a compiled standard library, so remove later:
         // We special-case the rascal project for bootstrapping purposes (avoiding confusing between source and bootstrapped library)
-        if ("rascal".equals(project.getName())) {
+        if (!"rascal".equals(project.getName())) {
             srcsWriter.append(URIUtil.correctLocation("std", "", ""));
             srcsWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
         }
