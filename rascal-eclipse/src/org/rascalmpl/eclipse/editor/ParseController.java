@@ -318,6 +318,6 @@ public class ParseController implements IParseController, IMessageHandlerProvide
         ITree header = TreeAdapter.getArg(top, "header");
         ITree name = TreeAdapter.getArg(header, "name");
 
-        return TreeAdapter.yield(name).replaceAll("\\","");
+        return TreeAdapter.yield(name).replaceAll("\\\\","");
     }
 }
