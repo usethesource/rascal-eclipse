@@ -2,6 +2,7 @@ package org.rascalmpl.eclipse.builder;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -30,7 +31,6 @@ import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
@@ -52,8 +52,8 @@ import io.usethesource.impulse.runtime.RuntimePlugin;
 public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     // A kernel is 100Mb, so we can't have one for every project; that's why it's static:
     private static IKernel kernel;
-	private static PrintWriter out;
-    private static PrintWriter err;
+	private static PrintStream out;
+    private static PrintStream err;
     private static IValueFactory vf;
     private static List<String> binaryExtension = Arrays.asList("imps","rvm.gz", "tc","sig","sigs");
     
@@ -63,10 +63,14 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     static {
         synchronized(IncrementalRascalBuilder.class){ 
             try {
-                out = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
-                err = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
+                out = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
+                err = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
                 vf = ValueFactoryFactory.getValueFactory();
-                kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
+                kernel = Java2Rascal.Builder
+                        .bridge(vf, new PathConfig(), IKernel.class)
+                        .stderr(err)
+                        .stdout(out)
+                        .build();
             } catch (IOException | URISyntaxException e) {
                 Activator.log("could not initialize incremental Rascal builder", e);
             }
