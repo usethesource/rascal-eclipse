@@ -33,6 +33,7 @@ public class CompiledRascalTerminalConnector extends RascalTerminalConnector {
             Activator.log("No project selected to configure console for", new NullPointerException());
             return null;
         }
+        
         return new CompiledRascalREPL(new ProjectConfig(vf).getPathConfig(ipr), stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), tm, new BasicIDEServices()) {
 
             @Override

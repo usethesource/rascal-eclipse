@@ -8,9 +8,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -27,17 +24,11 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.tm.internal.terminal.control.ITerminalMouseListener;
 import org.eclipse.tm.internal.terminal.emulator.VT100Emulator;
 import org.eclipse.tm.internal.terminal.emulator.VT100TerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
-import org.eclipse.tm.internal.terminal.textcanvas.ITextCanvasModel;
-import org.eclipse.tm.internal.terminal.textcanvas.TextCanvas;
 import org.rascalmpl.debug.AbstractInterpreterEventTrigger;
 import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.IRascalEventListener;
@@ -128,7 +119,10 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                 } 
                 finally {
                     control.setState(TerminalState.CLOSED);
-                    reloader.destroy();
+                    
+                    if (reloader != null) {
+                        reloader.destroy();
+                    }
                     
                     try {
                         if (debug()) {

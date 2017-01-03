@@ -16,10 +16,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.Platform;
+import org.osgi.framework.Bundle;
+import org.rascalmpl.eclipse.nature.BundleClassLoader;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class PluginURIResolver extends BundleURIResolver {
+public class PluginURIResolver extends BundleURIResolver implements IClassloaderLocationResolver {
 
 	@Override
 	public String scheme() {
@@ -45,4 +47,15 @@ public class PluginURIResolver extends BundleURIResolver {
 			throw new IOException(e);
 		}
 	}
+
+    @Override
+    public ClassLoader getClassLoader(ISourceLocation loc) throws IOException {
+        Bundle bundle = Platform.getBundle(loc.getAuthority());
+        
+        if (bundle == null) {
+            throw new IOException("Bundle " + loc + " not found");
+        }
+        
+        return new BundleClassLoader(bundle);
+    }
 }
