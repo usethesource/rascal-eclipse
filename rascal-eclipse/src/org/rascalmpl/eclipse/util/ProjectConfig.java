@@ -107,7 +107,7 @@ public class ProjectConfig {
                 javaCompilerPath.add(vf.sourceLocation(entry.toURI()));
                 classloaders.add(vf.sourceLocation(entry.toURI()));
             }
-            
+           
             collectPathForProject(project, javaCompilerPath, classloaders);
             
         } catch (URISyntaxException | IOException | CoreException e) {
@@ -130,11 +130,11 @@ public class ProjectConfig {
     }
 
     private void collectPathForProject(IProject project,  List<ISourceLocation> compilerPath, List<ISourceLocation> classloaders) throws URISyntaxException, JavaModelException, CoreException {
-        RascalEclipseManifest mf = new RascalEclipseManifest();
-        
         // this even works if the project is not a Java project,
         // we load bundle dependencies and local jars directly from RASCAL.MF
         if (project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
+            RascalEclipseManifest mf = new RascalEclipseManifest();
+            
             List<String> requiredBundles = mf.getRequiredBundles(project);
             if (requiredBundles != null) {
                 for (String lib : requiredBundles) {
@@ -169,6 +169,10 @@ public class ProjectConfig {
 
             classloaders.add(vf.sourceLocation("file", "", binLoc + "/"));
 
+            if (isRascalBootstrapProject(project)) {
+                compilerPath.add(vf.sourceLocation("file", "", binLoc + "/"));
+            }
+            
             if (!jProject.isOpen()) {
                 return;
             }
