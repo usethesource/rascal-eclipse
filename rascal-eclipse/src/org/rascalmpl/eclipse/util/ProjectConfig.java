@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIUtil;
@@ -107,8 +108,7 @@ public class ProjectConfig {
                 classloaders.add(vf.sourceLocation(entry.toURI()));
             }
             
-            fillJavaCompilerPath(project, javaCompilerPath);
-            collectClassloadersForProject(project, classloaders);
+            collectPathForProject(project, javaCompilerPath, classloaders);
             
         } catch (URISyntaxException | IOException | CoreException e) {
             Activator.log("error while constructing compiler path", e);
@@ -129,32 +129,45 @@ public class ProjectConfig {
         return "rascal".equals(project.getName());
     }
 
-    private void fillJavaCompilerPath(IProject project, List<ISourceLocation> path) throws URISyntaxException {
+    private void collectPathForProject(IProject project,  List<ISourceLocation> compilerPath, List<ISourceLocation> classloaders) throws URISyntaxException, JavaModelException, CoreException {
         RascalEclipseManifest mf = new RascalEclipseManifest();
         
-        List<String> requiredBundles = mf.getRequiredBundles(project);
-        if (requiredBundles != null) {
-            for (String lib : requiredBundles) {
-                path.add(vf.sourceLocation("plugin", Platform.getBundle(lib).getSymbolicName(), ""));
+        // this even works if the project is not a Java project,
+        // we load bundle dependencies and local jars directly from RASCAL.MF
+        if (project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
+            List<String> requiredBundles = mf.getRequiredBundles(project);
+            if (requiredBundles != null) {
+                for (String lib : requiredBundles) {
+                    ISourceLocation loc = vf.sourceLocation("plugin", Platform.getBundle(lib).getSymbolicName(), "");
+                    
+                    if (!classloaders.contains(loc)) {
+                        classloaders.add(loc);
+                    }
+                }
+            }
+
+            List<String> requiredLibraries = mf.getRequiredLibraries(project);
+            if (requiredLibraries != null) {
+                for (String lib : requiredLibraries) {
+                    ISourceLocation loc = vf.sourceLocation(project.getFile(lib).getFullPath().makeAbsolute().toFile().getAbsolutePath());
+                    if (!classloaders.contains(loc)) {
+                        classloaders.add(loc);
+                    }
+                }
             }
         }
         
-        List<String> requiredLibraries = mf.getRequiredLibraries(project);
-        if (requiredLibraries != null) {
-            for (String lib : requiredLibraries) {
-                path.add(vf.sourceLocation(project.getFile(lib).getFullPath().makeAbsolute().toFile().getAbsolutePath()));
-            }
-        }
-    }
-
-    private void collectClassloadersForProject(IProject project, List<ISourceLocation> classPath) throws URISyntaxException, JavaModelException, CoreException {
+        // Here we implement the meta-inf from META-INF/MANIFEST.MF, and
+        // the .classpath of Eclipse, adding all jar files to the compiler
+        // path and the classloader path, while in fact for the compilation we 
+        // need less. TODO: only add what is necessary for compiling generated parser code.
         if (project.hasNature(JavaCore.NATURE_ID)) {
             IJavaProject jProject = JavaCore.create(project);
 
             IPath binFolder = jProject.getOutputLocation();
             String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
 
-            classPath.add(vf.sourceLocation("file", "", binLoc + "/"));
+            classloaders.add(vf.sourceLocation("file", "", binLoc + "/"));
 
             if (!jProject.isOpen()) {
                 return;
@@ -170,19 +183,26 @@ public class ProjectConfig {
                             String file = project.getLocation() + "/" + entry.getPath().removeFirstSegments(1).toString();
                             ISourceLocation loc = vf.sourceLocation("file", "", file);
 
-                            if (!classPath.contains(loc)) {
-                                classPath.add(loc);
+                            if (!classloaders.contains(loc)) {
+                                classloaders.add(loc);
+                            }
+                            
+                            if (!compilerPath.contains(loc)) {
+                                compilerPath.add(loc);
                             }
                         }
                         else {
                             ISourceLocation url = vf.sourceLocation("file", "", entry.getPath().toString());
-                            if (!classPath.contains(url)) {
-                                classPath.add(url);
+                            if (!classloaders.contains(url)) {
+                                classloaders.add(url);
+                            }
+                            if (!compilerPath.contains(url)) {
+                                compilerPath.add(url);
                             }
                         }
                         break;
                     case IClasspathEntry.CPE_PROJECT:
-                        collectClassloadersForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath);
+                        collectPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), compilerPath, classloaders);
                         break;
                 }
             }
