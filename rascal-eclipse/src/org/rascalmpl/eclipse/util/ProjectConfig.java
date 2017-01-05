@@ -62,11 +62,13 @@ public class ProjectConfig {
         // These are other projects referenced by the current project for which we add
         // the bin folder to the lib path
         try {
-            for (IProject ref : project.getReferencedProjects()) {
-                libsWriter.append(URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), BIN_FOLDER));
-                
-                // TODO for now we also add the source paths; needs to be done more gracefully 
-                srcsWriter.appendAll(new ProjectConfig(vf).getPathConfig(ref).getSrcs());
+            if (!isRascalBootstrapProject(project)) {
+                for (IProject ref : project.getReferencedProjects()) {
+                    libsWriter.append(URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), BIN_FOLDER));
+
+                    // TODO for now we also add the source paths; needs to be done more gracefully 
+                    srcsWriter.appendAll(new ProjectConfig(vf).getPathConfig(ref).getSrcs());
+                }
             }
             
             //TODO add required libraries of referenced projects as well.
@@ -79,7 +81,6 @@ public class ProjectConfig {
             ISourceLocation src = URIUtil.getChildLocation(projectLoc, srcName);
             srcsWriter.append(src);
         }
-        
         
         // TODO this is necessary while the kernel does not hold a compiled standard library, so remove later:
         // We special-case the rascal project for bootstrapping purposes (avoiding confusing between source and bootstrapped library)
