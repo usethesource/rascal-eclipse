@@ -18,11 +18,12 @@ import java.net.URL;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.nature.BundleClassLoader;
+import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class PluginURIResolver extends BundleURIResolver implements IClassloaderLocationResolver {
-
+ 
 	@Override
 	public String scheme() {
 		return "plugin";
@@ -37,6 +38,7 @@ public class PluginURIResolver extends BundleURIResolver implements IClassloader
 				throw new IOException("missing authority for bundle name in " + uri);
 			}
 			
+			
 			URL entry = Platform.getBundle(authority).getEntry(uri.getPath());
 			if (entry == null) {
 				throw new FileNotFoundException(uri.toString());
@@ -49,13 +51,15 @@ public class PluginURIResolver extends BundleURIResolver implements IClassloader
 	}
 
     @Override
-    public ClassLoader getClassLoader(ISourceLocation loc) throws IOException {
+    public ClassLoader getClassLoader(ISourceLocation loc, ClassLoader parent) throws IOException {
         Bundle bundle = Platform.getBundle(loc.getAuthority());
         
         if (bundle == null) {
             throw new IOException("Bundle " + loc + " not found");
         }
         
+        // note how the parent parameter is ignored here to make sure bundles
+        // do not interact with each other
         return new BundleClassLoader(bundle);
     }
 }
