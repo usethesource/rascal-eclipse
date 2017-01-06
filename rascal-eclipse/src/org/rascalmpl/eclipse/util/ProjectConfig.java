@@ -65,10 +65,8 @@ public class ProjectConfig {
         try {
             if (!isRascalBootstrapProject(project)) {
                 for (IProject ref : project.getReferencedProjects()) {
-                    libsWriter.append(URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), BIN_FOLDER));
-
-                    // TODO for now we also add the source paths; needs to be done more gracefully 
-                    srcsWriter.appendAll(new ProjectConfig(vf).getPathConfig(ref).getSrcs());
+                    ISourceLocation child = URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), BIN_FOLDER);
+                    libsWriter.append(child);
                 }
             }
             
@@ -93,7 +91,8 @@ public class ProjectConfig {
         ISourceLocation bin = URIUtil.getChildLocation(projectLoc, BIN_FOLDER);
         ISourceLocation boot = URIUtil.correctLocation("boot", "", "");
         
-
+        libsWriter.insert(bin);
+        
         // Here we find out what the compiler class path must be for compiling generated Rascal parsers
         // and we construct a class path for the JavaBridge to load java builtins
         List<ISourceLocation> javaCompilerPath = new ArrayList<>();
