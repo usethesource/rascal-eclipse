@@ -1,11 +1,8 @@
 package org.rascalmpl.eclipse.builder;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +68,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                         .stderr(err)
                         .stdout(out)
                         .build();
-            } catch (IOException | URISyntaxException e) {
+            } catch (IOException e) {
                 Activator.log("could not initialize incremental Rascal builder", e);
             }
         }

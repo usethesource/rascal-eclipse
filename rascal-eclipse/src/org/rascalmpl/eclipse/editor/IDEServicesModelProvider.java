@@ -1,7 +1,6 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
 import org.rascalmpl.eclipse.Activator;
@@ -29,7 +28,7 @@ public class IDEServicesModelProvider {
             kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
             useDefCache = Caffeine.newBuilder().weakValues().expireAfterAccess(10, TimeUnit.MINUTES).maximumSize(32).build();
         } 
-        catch (IOException | URISyntaxException  e) {
+        catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

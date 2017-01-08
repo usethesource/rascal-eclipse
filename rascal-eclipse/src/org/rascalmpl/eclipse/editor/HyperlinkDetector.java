@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -61,28 +60,23 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 			return getTreeLinks(tree, region);
 		}
 		
-		try {
-		    if (tree != null && parseController instanceof ParseController && RascalPreferences.isRascalCompilerEnabled()) {
-		        // Rascal case
-		        // TODO: integrate with DSL case
-		        ParseController rascalPc = (ParseController) parseController;
-		        ISourceProject rprj = rascalPc.getProject();
-		        IProject prj = rprj != null ? rprj.getRawProject() : null;
-		        PathConfig pcfg =  prj != null ? new ProjectConfig(ValueFactoryFactory.getValueFactory()).getPathConfig(prj) : new PathConfig();
-		        
-		        ISet useDef = imp.getUseDef(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName());
-		        
-		        if (!checkUseDefType(useDef)) {
-		           Activator.log(useDef.getType() + " is not a rel[loc,loc] or rel[loc,loc,str]? " + useDef, null);
-		           return new IHyperlink[0];
-		        }
-		        
-                return getLinksForRegionFromUseDefRelation(region, useDef);
+		if (tree != null && parseController instanceof ParseController && RascalPreferences.isRascalCompilerEnabled()) {
+		    // Rascal case
+		    // TODO: integrate with DSL case
+		    ParseController rascalPc = (ParseController) parseController;
+		    ISourceProject rprj = rascalPc.getProject();
+		    IProject prj = rprj != null ? rprj.getRawProject() : null;
+		    PathConfig pcfg =  prj != null ? new ProjectConfig(ValueFactoryFactory.getValueFactory()).getPathConfig(prj) : new PathConfig();
+
+		    ISet useDef = imp.getUseDef(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName());
+
+		    if (!checkUseDefType(useDef)) {
+		        Activator.log(useDef.getType() + " is not a rel[loc,loc] or rel[loc,loc,str]? " + useDef, null);
+		        return new IHyperlink[0];
 		    }
-		} catch (URISyntaxException e) {
-		    // should not happen
-		    Activator.log("unexpected", e);
-        }
+
+		    return getLinksForRegionFromUseDefRelation(region, useDef);
+		}
 		
 		return null;
 	}
