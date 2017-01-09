@@ -52,7 +52,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	private static PrintStream out;
     private static PrintStream err;
     private static IValueFactory vf;
-    private static List<String> binaryExtension = Arrays.asList("imps","rvm.gz", "tc","sig","sigs");
+    private static List<String> binaryExtension = Arrays.asList("imps","rvm", "rvmx", "tc","sig","sigs");
     
     private ISourceLocation projectLoc;
     private PathConfig pathConfig;
@@ -280,6 +280,8 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         }
         
         IProject project = getProject();
+        
+        // TODO: these should not be fields
         projectLoc = ProjectURIResolver.constructProjectURI(project.getFullPath());
         pathConfig = new ProjectConfig(vf).getPathConfig(project);
     }
