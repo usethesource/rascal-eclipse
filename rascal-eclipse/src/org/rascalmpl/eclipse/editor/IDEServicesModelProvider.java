@@ -20,13 +20,13 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 public class IDEServicesModelProvider {
     private final IValueFactory vf;
     private final IKernel kernel;
-    private final Cache<ISourceLocation, IConstructor> useDefCache;
+    private final Cache<ISourceLocation, IConstructor> summaryCache;
     
     private IDEServicesModelProvider() {
         try {
             vf = ValueFactoryFactory.getValueFactory();
             kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
-            useDefCache = Caffeine.newBuilder().weakValues().expireAfterAccess(10, TimeUnit.MINUTES).maximumSize(32).build();
+            summaryCache = Caffeine.newBuilder().weakValues().expireAfterAccess(10, TimeUnit.MINUTES).maximumSize(32).build();
         } 
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -44,18 +44,27 @@ public class IDEServicesModelProvider {
     @SuppressWarnings("unchecked")
     private <T extends IValue> T get(ISourceLocation file, PathConfig pcfg, String moduleName, String field, T def) {
        IConstructor summary = getSummary(file, pcfg, moduleName);
-       return summary != null ? (T) summary.get(field) : def;
+       if (summary != null) {
+           IValue parameter = summary.asWithKeywordParameters().getParameter(field);
+           if (parameter != null) {
+               return (T) parameter;
+           }
+       }
+       
+       return def;
     }
     
     public ISet getUseDef(ISourceLocation file, PathConfig pcfg, String moduleName) {
-        return get(file, pcfg, moduleName, "useDef", vf.set());
+        return get(file, pcfg, moduleName, "uses", vf.set());
     }
     
     public IConstructor getSummary(ISourceLocation file, PathConfig pcfg, String moduleName) {
-        return useDefCache.get(file, loc -> {
+        return summaryCache.get(file, loc -> {
             synchronized (kernel) {
                 try {
-                    return kernel.makeSummary(vf.string(moduleName), pcfg.asConstructor(kernel));
+                    IConstructor summary = kernel.makeSummary(vf.string(moduleName), pcfg.asConstructor(kernel));
+                    
+                    return summary.asWithKeywordParameters().hasParameters() ? summary : null;
                 }
                 catch (Throwable e) {
                     Activator.log("exception during use def lookup", e);
@@ -66,11 +75,11 @@ public class IDEServicesModelProvider {
      }
     
     public void clearUseDefCache(ISourceLocation file) {
-        useDefCache.invalidate(file);
+        summaryCache.invalidate(file);
     }
 
 
     public void invalidateEverything() {
-        useDefCache.invalidateAll();
+        summaryCache.invalidateAll();
     }
 }
