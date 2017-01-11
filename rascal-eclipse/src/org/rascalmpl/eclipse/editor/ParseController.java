@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2015 CWI
+ * Copyright (c) 2009-2017 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -33,15 +32,18 @@ import org.eclipse.jface.text.IRegion;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.nature.IWarningHandler;
-import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
-import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.utils.Modules;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.file.FileURIResolver;
 import org.rascalmpl.value.IConstructor;
@@ -113,6 +115,8 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		return parseTree != null ? new TokenIterator(false, parseTree) : null;
 	}
 	
+	
+	
 	@Override
 	public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {
 		Assert.isTrue(filePath.isAbsolute() && project == null
@@ -124,13 +128,6 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 
 		ISourceLocation location = getSourceLocation();
 		
-		if (project != null) {
-			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(project.getRawProject(), new WarningsToMessageHandler(location, handler));
-		} else {
-			this.parser = ProjectEvaluatorFactory.getInstance().getEvaluator(null);
-		}
-
-		this.warnings = new WarningsToMessageHandler(location, handler);
 		initParseJob(handler, location);
 	}
 	
@@ -162,20 +159,15 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		return parse(doc.get(), monitor);
 	}
 	
-	
-	
 	public class ParseJob extends Job {
 		protected final ISourceLocation uri;
 		private Set<IResource> markedFiles;
 
 		protected String input;
 		public ITree parseTree = null;
-		private String name = null;
-		protected final Set<String> ignore = new HashSet<>();
 
 		public ParseJob(String name, ISourceLocation uri, IMessageHandler handler) {
 			super(name);
-			
 			this.uri = uri;
 		}
 		
@@ -184,18 +176,23 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		}
 		
 		protected void clearMarkers() {
-      try {
-        if (markedFiles != null) {
-          for (IResource res : markedFiles) {
-            res.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, true, 0);
-          }
-          
-          markedFiles = null;
-        }
-      } catch (CoreException e) {
-        Activator.log("could not erase markers completely", e);
-      }
-    }
+		    try {
+		        if (markedFiles != null) {
+		            for (IResource res : markedFiles) {
+		                res.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, true, 0);
+		            }
+
+		            markedFiles = null;
+		        }
+		    } catch (CoreException e) {
+		        Activator.log("could not erase markers completely", e);
+		    }
+		}
+		
+		private ITree parseModule(char[] input, ISourceLocation loc) {
+	        IActionExecutor<ITree> actions = new NoActionExecutor();    
+	        return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), input, actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
+	    }
 		
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
@@ -209,20 +206,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 			}
 			
 			try {
-				synchronized (parser) {
-					if (project != null) {
-						// if this is a source file in a Rascal project then
-						// reload other modules to find out about new syntax definitions
-						ProjectEvaluatorFactory.getInstance().reloadProject(project.getRawProject(), new WarningsToMessageHandler(uri, getMessageHandler()), ignore);
-					}
-					parseTree = parser.parseModuleAndFragments(rm, input.toCharArray(), uri);
-					
-					// this makes sure we do not reload the current module and who depends on it 
-					// while we are editing it.
-					name = Modules.getName(TreeAdapter.getStartTop(parseTree));
-					ignore.clear();
-					ignore.add(name);
-				}
+			    parseTree = parseModule(input.toCharArray(), uri);
 			}
 			catch (FactTypeUseException ftue) {
 				Activator.getInstance().logException("parsing rascal failed", ftue);

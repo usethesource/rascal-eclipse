@@ -16,6 +16,8 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.pages;
 
+import java.util.Collections;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -78,7 +80,7 @@ public class ParseController extends org.rascalmpl.eclipse.editor.ParseControlle
 					if (project != null) {
 						// if this is a source file in a Rascal project then
 						// reload other modules to find out about new syntax definitions
-						ProjectEvaluatorFactory.getInstance().reloadProject(project.getRawProject(), new WarningsToMessageHandler(uri, getMessageHandler()), ignore);
+						ProjectEvaluatorFactory.getInstance().reloadProject(project.getRawProject(), new WarningsToMessageHandler(uri, getMessageHandler()), Collections.emptySet());
 					}
 
 					parseTree = new RascalParser().parse(Parser.START_COMMANDS, uri.getURI(), input.toCharArray(), new NoActionExecutor() , new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
