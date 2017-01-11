@@ -12,6 +12,7 @@ import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -44,7 +45,19 @@ public class IDEServicesModelProvider {
     @SuppressWarnings("unchecked")
     private <T extends IValue> T get(ISourceLocation file, PathConfig pcfg, String moduleName, String field, T def) {
        IConstructor summary = getSummary(file, pcfg, moduleName);
-       return summary != null ? (T) summary.get(field) : def;
+       
+       if (summary != null) {
+           IWithKeywordParameters<? extends IConstructor> kws = summary.asWithKeywordParameters();
+           if (kws.hasParameters()) {
+               T val = (T) kws.getParameter(field);
+               
+               if (val != null) {
+                   return val;
+               }
+           }
+       }
+       
+       return def;
     }
     
     public ISet getUseDef(ISourceLocation file, PathConfig pcfg, String moduleName) {
@@ -52,17 +65,23 @@ public class IDEServicesModelProvider {
     }
     
     public IConstructor getSummary(ISourceLocation file, PathConfig pcfg, String moduleName) {
-        return useDefCache.get(file, loc -> {
-            synchronized (kernel) {
-                try {
-                    return kernel.makeSummary(vf.string(moduleName), pcfg.asConstructor(kernel));
-                }
-                catch (Throwable e) {
-                    Activator.log("exception during use def lookup", e);
-                    return null;
-                }
-            }
-        });
+         IConstructor summary = useDefCache.getIfPresent(file);
+         
+         if (summary == null) {
+             try {
+                 summary = kernel.makeSummary(vf.string(moduleName), pcfg.asConstructor(kernel));
+                 if (summary.asWithKeywordParameters().hasParameters()) {
+                     // otherwise it is an empty model which we do not 
+                     // want to cache.
+                     useDefCache.put(file, summary);
+                 }
+             }
+             catch (Throwable e) {
+                 Activator.log("failure to create summary for IDE features", e);
+             }
+         }
+         
+         return summary;
      }
     
     public void clearUseDefCache(ISourceLocation file) {
