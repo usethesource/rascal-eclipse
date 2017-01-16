@@ -225,7 +225,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                             return false;
                         }
                         
-                        IDEServicesModelProvider.getInstance().clearUseDefCache(loc);
+                       
                         
                         monitor.beginTask("Compiling " + loc, 100);
                         try {
@@ -238,6 +238,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                                 synchronized (kernel) {
                                     IConstructor result = kernel.compile(vf.string(module), pathConfig.asConstructor(kernel), kernel.kw_compile());
                                     markErrors(loc, result);
+                                    IDEServicesModelProvider.getInstance().clearUseDefCache(loc);
                                 }
                             }
                             else {
