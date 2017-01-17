@@ -792,6 +792,9 @@
              <contentExtension
                    pattern="org.eclipse.ui.navigator.resourceContent">
              </contentExtension>
+             <contentExtension
+                   pattern="org.eclipse.ui.navigator.resources.linkHelper">
+             </contentExtension>
           </includes>
        </viewerContentBinding>
        <viewerActionBinding
