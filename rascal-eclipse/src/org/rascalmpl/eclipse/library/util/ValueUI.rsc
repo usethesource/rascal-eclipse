@@ -14,7 +14,7 @@ import vis::Render;
 import Node;
 import Map;  
 import List;
-import Ambiguity;
+import analysis::grammars::Ambiguity;
 import util::Clipboard;
 import ParseTree;
 import vis::ParseTree;

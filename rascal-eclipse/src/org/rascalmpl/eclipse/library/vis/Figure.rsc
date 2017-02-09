@@ -14,7 +14,6 @@ import List;
 import Set;
 import IO;
 import String;
-import ToString;
 
 /*
  * Declarations and library functions for Rascal Visualization
@@ -1082,8 +1081,8 @@ public Figure palleteKey (str name, str key,FProperty props...){
  return  _nominalKey(p12,Figure (list[value] orig) { 
  		Figure inner;
  		if(size(orig) == 0) inner = space(); 
- 		else inner = grid([[box(fillColor(p12[i])),text(toString(orig[i]),left())] | i <- [0..size(orig)]],hgrow(1.05),vgrow(1.1));
- 		// SPLICING: else inner = grid([[box(fillColor(p12[i])),text(toString(orig[i]),left())] | i <- [0..size(orig)]],hgrow(1.05),vgrow(1.1));
+ 		else inner = grid([[box(fillColor(p12[i])),text("<orig[i]>",left())] | i <- [0..size(orig)]],hgrow(1.05),vgrow(1.1));
+ 		// SPLICING: else inner = grid([[box(fillColor(p12[i])),text("<orig[i]>",left())] | i <- [0..size(orig)]],hgrow(1.05),vgrow(1.1));
  		return vcat([
  		text(name,fontSize(13)),
  		box(
@@ -1096,7 +1095,7 @@ public Figure hPalleteKey (str name, str key,FProperty props...){
  return  _nominalKey(p12,Figure (list[value] orig) { 
  		Figure inner;
  		if(size(orig) == 0) inner = space(); 
- 		else inner = hcat([vcat([box(fillColor(p12[i])),text(toString(orig[i]))],hgrow(1.05)) | i <- [0..size(orig)]],hgrow(1.05));
+ 		else inner = hcat([vcat([box(fillColor(p12[i])),text("<orig[i]>")],hgrow(1.05)) | i <- [0..size(orig)]],hgrow(1.05));
  		return box(hcat([
  		text(name,fontSize(13)),
  		inner
@@ -1127,8 +1126,8 @@ public Figure point(FProperty props...){
 public Figure colorIntervalKey(str name, str key, Color lowc, Color highc, FProperty props...){
 	return  _intervalKey( value (real part) { return interpolateColor(lowc,highc,part); },
 				Figure (value low,value high) {
- 		Figure inner = hcat([vcat([box(fillColor(lowc)),text(toString(low))]),
- 							vcat([box(fillColor(highc)),text(toString(high))])]
+ 		Figure inner = hcat([vcat([box(fillColor(lowc)),text("<low>")]),
+ 							vcat([box(fillColor(highc)),text("<high>")])]
  						);
  		return box(hcat([
  		text(name,fontSize(13)),

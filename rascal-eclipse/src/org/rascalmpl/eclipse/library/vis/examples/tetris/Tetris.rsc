@@ -17,7 +17,6 @@ import vis::KeySym;
 import util::Maybe;
 import List;
 import util::Math;
-import ToString;
 import IO;
 import ValueIO;
 import Time;
