@@ -3,7 +3,7 @@ package org.rascalmpl.eclipse.util;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public class RascalInvoker{
 	

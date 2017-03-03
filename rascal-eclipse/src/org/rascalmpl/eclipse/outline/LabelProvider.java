@@ -41,7 +41,7 @@ import org.rascalmpl.ast.Variant.NAryConstructor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.value.IConstructor;
+import io.usethesource.vallang.IConstructor;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.impulse.editor.ModelTreeNode;

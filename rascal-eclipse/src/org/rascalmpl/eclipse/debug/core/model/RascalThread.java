@@ -34,7 +34,7 @@ import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.debug.RascalEvent;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 /**
  * A Rascal thread. Rascal programs are currently modelled single threaded.

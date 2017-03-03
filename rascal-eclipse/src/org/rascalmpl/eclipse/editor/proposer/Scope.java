@@ -3,7 +3,7 @@ package org.rascalmpl.eclipse.editor.proposer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class Scope implements ISymbol {
 	private final ISymbol scopeSymbol;

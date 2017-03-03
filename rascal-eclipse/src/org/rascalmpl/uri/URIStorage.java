@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class URIStorage implements IStorage {
 	private final ISourceLocation uri;

@@ -3,7 +3,7 @@ package org.rascalmpl.eclipse.editor.proposer;
 import java.util.HashMap;
 import java.util.Set;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class Symbol implements ISymbol {
 	public static final String symbol_type_void = "Void";

@@ -14,7 +14,7 @@ import org.rascalmpl.eclipse.library.vis.util.FigureMath;
 import org.rascalmpl.eclipse.library.vis.util.vector.BoundingBox;
 import org.rascalmpl.eclipse.library.vis.util.vector.Dimension;
 import org.rascalmpl.eclipse.library.vis.util.vector.Rectangle;
-import org.rascalmpl.value.IConstructor;
+import io.usethesource.vallang.IConstructor;
 
 public class WidthDependsOnHeightWrapper extends Scrollable{
 

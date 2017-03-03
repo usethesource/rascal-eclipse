@@ -33,7 +33,7 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIStorage;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class NavigatorContentProvider implements ITreeContentProvider, IResourceChangeListener,
 	IResourceDeltaVisitor {

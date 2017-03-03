@@ -26,8 +26,8 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.JavaToRascal;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
 
 import io.usethesource.impulse.editor.ModelTreeNode;
 import io.usethesource.impulse.editor.UniversalEditor;

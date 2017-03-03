@@ -17,7 +17,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public class Button extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Button> {
 

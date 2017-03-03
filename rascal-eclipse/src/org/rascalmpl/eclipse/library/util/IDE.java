@@ -15,10 +15,10 @@ package org.rascalmpl.eclipse.library.util;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public class IDE {
 	public IDE(IValueFactory factory) {

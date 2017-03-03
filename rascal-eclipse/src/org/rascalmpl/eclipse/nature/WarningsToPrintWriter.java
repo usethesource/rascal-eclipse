@@ -2,7 +2,7 @@ package org.rascalmpl.eclipse.nature;
 
 import java.io.PrintWriter;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class WarningsToPrintWriter implements IWarningHandler {
   private final PrintWriter writer;

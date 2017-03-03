@@ -10,9 +10,9 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.util;
 
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public class ValueUI {
 	public ValueUI(IValueFactory vf) { }

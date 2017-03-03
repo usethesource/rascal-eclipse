@@ -14,8 +14,8 @@ import org.rascalmpl.eclipse.library.vis.figure.interaction.MouseOver;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
 
 public class LayerGraphRecompute extends LayoutProxy {
 	

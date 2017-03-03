@@ -21,7 +21,7 @@ import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.SearchPath;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
 import org.rascalmpl.uri.URIResourceResolver;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalNavigator extends CommonNavigator {

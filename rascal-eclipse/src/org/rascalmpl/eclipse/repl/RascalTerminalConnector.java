@@ -44,7 +44,7 @@ import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.RascalInterpreterREPL;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 import jline.Terminal;
 

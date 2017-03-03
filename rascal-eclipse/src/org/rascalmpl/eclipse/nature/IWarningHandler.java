@@ -1,6 +1,6 @@
 package org.rascalmpl.eclipse.nature;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public interface IWarningHandler {
   public void warning(String message, ISourceLocation location);

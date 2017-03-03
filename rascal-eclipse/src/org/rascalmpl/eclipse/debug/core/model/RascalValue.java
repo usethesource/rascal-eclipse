@@ -22,16 +22,16 @@ import org.eclipse.debug.core.model.IVariable;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.io.StandardTextWriter;
-import org.rascalmpl.value.type.ITypeVisitor;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.io.StandardTextWriter;
+import io.usethesource.vallang.type.ITypeVisitor;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -43,18 +43,18 @@ public class RascalValue extends RascalDebugElement implements IValue {
 	/* do not print more than MAX_VALUE_STRING characters */
 	private final static int MAX_VALUE_STRING = 1000;
 	private final RascalStackFrame target;
-	private final org.rascalmpl.value.IValue value;
+	private final io.usethesource.vallang.IValue value;
 	private final Type decl;
 	private IVariable[] children = null;
 
-	public RascalValue(RascalStackFrame target, Type decl, org.rascalmpl.value.IValue value) {
+	public RascalValue(RascalStackFrame target, Type decl, io.usethesource.vallang.IValue value) {
 		super(target.getRascalDebugTarget());
 		this.value = value;
 		this.decl = decl;
 		this.target = target;
 	}
 
-	public org.rascalmpl.value.IValue getRuntimeValue() {
+	public io.usethesource.vallang.IValue getRuntimeValue() {
 	  return value;
 	}
 	
@@ -179,7 +179,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				IMap map = (IMap) value;
 				IVariable[] result = new IVariable[map.size()];
 				int i = 0;
-				for (org.rascalmpl.value.IValue key : map) {
+				for (io.usethesource.vallang.IValue key : map) {
 					result[i++] = new RascalVariable(target, key.toString(), decl.isMap() ? decl.getValueType() : vt, map.get(key));
 				}
 				return result;
@@ -200,7 +200,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				ISet set = (ISet) value;
 				IVariable[] result = new IVariable[set.size()];
 				int i = 0;
-				for (org.rascalmpl.value.IValue elem : set) {
+				for (io.usethesource.vallang.IValue elem : set) {
 					result[i++] = new RascalVariable(target, "[" + i + "]", decl.isSet() ? decl.getElementType() : vt, elem);
 				}
 				return result;
@@ -247,7 +247,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 					IList elems = TreeAdapter.getListASTArgs(tree);
 					IVariable[] vars = new IVariable[elems.length()];
 					int i = 0;
-					for (org.rascalmpl.value.IValue elem : elems) {
+					for (io.usethesource.vallang.IValue elem : elems) {
 						vars[i++] = new RascalVariable(target,  "elem " + i, RascalTypeFactory.getInstance().nonTerminalType((IConstructor) elem), elem);
 					}
 					
@@ -274,7 +274,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 					ISet alts = TreeAdapter.getAlternatives(tree);
 					IVariable[] vars = new IVariable[alts.size()];
 					int i = 0;
-					for (org.rascalmpl.value.IValue elem : alts) {
+					for (io.usethesource.vallang.IValue elem : alts) {
 						vars[i++] = new RascalVariable(target, "alt " + i,  RascalTypeFactory.getInstance().nonTerminalType((IConstructor) elem) , elem);
 					}
 					

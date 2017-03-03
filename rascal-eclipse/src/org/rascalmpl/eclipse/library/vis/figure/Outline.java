@@ -20,10 +20,10 @@ import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.eclipse.library.vis.util.FigureColorUtils;
 import org.rascalmpl.eclipse.library.vis.util.vector.Rectangle;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IValue;
 
 /**
  * Outline element: a rectangle with colored horizontal lines

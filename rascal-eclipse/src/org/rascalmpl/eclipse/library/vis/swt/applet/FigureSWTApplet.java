@@ -45,7 +45,7 @@ import org.rascalmpl.eclipse.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.vector.Coordinate;
 import org.rascalmpl.eclipse.library.vis.util.vector.Rectangle;
-import org.rascalmpl.value.IConstructor;
+import io.usethesource.vallang.IConstructor;
 
 public class FigureSWTApplet extends Composite 
 	implements IFigureConstructionEnv, DisposeListener{

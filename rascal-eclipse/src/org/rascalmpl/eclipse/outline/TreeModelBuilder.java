@@ -43,7 +43,7 @@ import org.rascalmpl.ast.Toplevel.GivenVisibility;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.semantics.dynamic.FunctionDeclaration;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 

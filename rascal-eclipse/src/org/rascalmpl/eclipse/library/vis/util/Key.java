@@ -7,7 +7,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.vis.util;
 
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public interface Key<T> {
 	

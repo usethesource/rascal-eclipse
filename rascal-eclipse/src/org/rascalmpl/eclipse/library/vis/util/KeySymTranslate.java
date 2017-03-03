@@ -74,10 +74,10 @@ import static org.rascalmpl.eclipse.library.vis.KeySym.KeySym_keyUnknown;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class KeySymTranslate {

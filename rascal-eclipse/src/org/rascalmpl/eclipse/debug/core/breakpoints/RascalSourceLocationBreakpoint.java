@@ -38,8 +38,8 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.debug.core.model.RascalThread;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**

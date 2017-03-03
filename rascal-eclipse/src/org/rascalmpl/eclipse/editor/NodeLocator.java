@@ -17,9 +17,9 @@ import java.util.Iterator;
 import org.eclipse.core.runtime.IPath;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 

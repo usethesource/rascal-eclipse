@@ -15,7 +15,7 @@ import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class NavigatorActionProvider extends CommonActionProvider {
 

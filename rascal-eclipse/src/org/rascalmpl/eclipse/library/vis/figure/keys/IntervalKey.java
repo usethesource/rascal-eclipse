@@ -1,12 +1,12 @@
 //package org.rascalmpl.eclipse.library.vis.figure.keys;
 //
-//import org.rascalmpl.value.IConstructor;
-//import org.rascalmpl.value.IList;
-//import org.rascalmpl.value.INumber;
-//import org.rascalmpl.value.IValue;
-//import org.rascalmpl.value.impl.fast.ValueFactory;
-//import org.rascalmpl.value.type.Type;
-//import org.rascalmpl.value.type.TypeFactory;
+//import io.usethesource.vallang.IConstructor;
+//import io.usethesource.vallang.IList;
+//import io.usethesource.vallang.INumber;
+//import io.usethesource.vallang.IValue;
+//import io.usethesource.vallang.impl.fast.ValueFactory;
+//import io.usethesource.vallang.type.Type;
+//import io.usethesource.vallang.type.TypeFactory;
 //import org.rascalmpl.eclipse.library.vis.figure.FigureFactory;
 //import org.rascalmpl.eclipse.library.vis.figure.combine.WithInnerFig;
 //import org.rascalmpl.eclipse.library.vis.graphics.GraphicsContext;

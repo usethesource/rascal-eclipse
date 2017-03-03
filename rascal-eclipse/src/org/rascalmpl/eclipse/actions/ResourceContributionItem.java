@@ -16,7 +16,7 @@ import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.library.util.Clipboard;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ResourceContributionItem extends ContributionItem {

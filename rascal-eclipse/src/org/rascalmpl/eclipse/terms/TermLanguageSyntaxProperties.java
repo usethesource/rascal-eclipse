@@ -1,12 +1,12 @@
 package org.rascalmpl.eclipse.terms;
 
 import org.eclipse.jface.text.IRegion;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IWithKeywordParameters;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
 
 import io.usethesource.impulse.parser.IParseController;
 import io.usethesource.impulse.services.ILanguageSyntaxProperties;

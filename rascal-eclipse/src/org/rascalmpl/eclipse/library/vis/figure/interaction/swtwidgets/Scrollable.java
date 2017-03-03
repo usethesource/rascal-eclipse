@@ -18,7 +18,7 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.swt.applet.FigureSWTApplet;
 import org.rascalmpl.eclipse.library.vis.util.FigureMath;
 import org.rascalmpl.eclipse.library.vis.util.vector.BoundingBox;
-import org.rascalmpl.value.IConstructor;
+import io.usethesource.vallang.IConstructor;
 
 public class Scrollable extends SWTWidgetFigure<FigureSWTApplet> {
 

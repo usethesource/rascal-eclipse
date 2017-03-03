@@ -23,12 +23,12 @@ import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.eclipse.library.vis.swt.SWTFontsAndColors;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.impulse.parser.IParseController;

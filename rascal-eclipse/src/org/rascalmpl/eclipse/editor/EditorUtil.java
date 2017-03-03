@@ -24,7 +24,7 @@ import org.rascalmpl.uri.URIEditorInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIResourceResolver;
 import org.rascalmpl.uri.URIStorage;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class EditorUtil {
 	

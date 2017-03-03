@@ -23,11 +23,11 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.eclipse.library.vis.swt.FigureExecutionEnvironment;
 import org.rascalmpl.eclipse.library.vis.util.vector.BoundingBox;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValueFactory;
 
 public class FigureLibrary {
 	

@@ -8,7 +8,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.views.values.ValueEditorInput;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public class Editor {
 	public static void edit(final IValue v, boolean indent, int tabsize) {

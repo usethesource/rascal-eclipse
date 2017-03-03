@@ -25,7 +25,7 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.eclipse.library.vis.util.vector.Coordinate;
 import org.rascalmpl.eclipse.library.vis.util.vector.Rectangle;
-import org.rascalmpl.value.IString;
+import io.usethesource.vallang.IString;
 
 
 /**

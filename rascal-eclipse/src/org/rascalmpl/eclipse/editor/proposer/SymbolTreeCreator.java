@@ -59,7 +59,7 @@ import org.rascalmpl.ast.Variable.Initialized;
 import org.rascalmpl.ast.Variable.UnInitialized;
 import org.rascalmpl.ast.Variant;
 import org.rascalmpl.ast.Variant.NAryConstructor;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class SymbolTreeCreator extends NullASTVisitor<List<ISymbol>> {
 	private class AlgebraicDataTypeInfo extends NullASTVisitor<Boolean> {

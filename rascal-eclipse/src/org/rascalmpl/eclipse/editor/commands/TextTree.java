@@ -2,8 +2,8 @@ package org.rascalmpl.eclipse.editor.commands;
 
 import org.rascalmpl.eclipse.editor.ParseController;
 import org.rascalmpl.eclipse.library.util.ValueUI;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.impulse.editor.UniversalEditor;

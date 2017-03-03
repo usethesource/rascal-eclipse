@@ -15,10 +15,10 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.eclipse.library.vis.graphics.FontStyle;
 import org.rascalmpl.eclipse.library.vis.util.FigureColorUtils;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class SWTFontsAndColors {

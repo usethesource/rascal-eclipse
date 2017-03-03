@@ -19,7 +19,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BundleURIResolver implements  ISourceLocationInputOutput {

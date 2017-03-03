@@ -31,7 +31,7 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
 import org.rascalmpl.eclipse.library.vis.util.vector.Rectangle;
-import org.rascalmpl.value.IString;
+import io.usethesource.vallang.IString;
 
 /**
  * A LayeredGraphEdge is created for each "edge" constructor that occurs in a graph:

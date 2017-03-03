@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class RascalMonitor implements IRascalMonitor {
 	private SubRascalMonitor subMon = null;

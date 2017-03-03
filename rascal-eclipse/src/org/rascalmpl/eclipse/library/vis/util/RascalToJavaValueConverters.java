@@ -11,12 +11,12 @@ import org.rascalmpl.eclipse.library.vis.figure.Figure;
 import org.rascalmpl.eclipse.library.vis.figure.FigureFactory;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IReal;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 
 public class RascalToJavaValueConverters {
 	

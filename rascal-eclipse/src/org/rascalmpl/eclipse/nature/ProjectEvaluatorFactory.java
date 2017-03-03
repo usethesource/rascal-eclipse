@@ -51,7 +51,7 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.impulse.runtime.RuntimePlugin;

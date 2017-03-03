@@ -9,7 +9,7 @@ import org.eclipse.core.resources.IResource;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.uri.URIResourceResolver;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 import io.usethesource.impulse.builder.MarkerCreator;
 

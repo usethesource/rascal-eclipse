@@ -22,10 +22,10 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 /**
  * ProjectConfig is a builder to produce a proper Rascal PathConfig for an Eclipse project.

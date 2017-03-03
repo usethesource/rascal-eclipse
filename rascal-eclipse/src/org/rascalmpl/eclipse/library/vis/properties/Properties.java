@@ -29,8 +29,8 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.RascalToJavaValueConverters.Convert;
 import org.rascalmpl.eclipse.library.vis.util.RascalToJavaValueConverters.ConvertStr;
 import org.rascalmpl.eclipse.library.vis.util.RascalToJavaValueConverters.DoNotConvert;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
 
 	  	  
 

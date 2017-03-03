@@ -16,7 +16,7 @@ import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public abstract class SWTWidgetFigureWithSingleCallBack<WidgetType extends Control> extends SWTWidgetFigure<WidgetType>{
 

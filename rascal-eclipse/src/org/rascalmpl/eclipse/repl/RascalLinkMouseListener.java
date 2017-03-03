@@ -9,11 +9,11 @@ import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.uri.LinkDetector;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.LinkDetector.Type;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.exceptions.FactParseError;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.io.StandardTextReader;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.FactParseError;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 final class RascalLinkMouseListener implements ITerminalMouseListener {

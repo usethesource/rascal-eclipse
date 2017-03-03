@@ -30,8 +30,8 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.eclipse.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.eclipse.library.vis.util.FigureColorUtils;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TextField extends SWTWidgetFigureWithValidationAndCallBack<Text> {

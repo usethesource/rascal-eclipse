@@ -7,8 +7,8 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.commands.AbstractEditorAction;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IString;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IString;
 
 import io.usethesource.impulse.editor.UniversalEditor;
 import io.usethesource.impulse.parser.IParseController;

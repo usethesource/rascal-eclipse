@@ -24,9 +24,9 @@ import org.rascalmpl.eclipse.library.vis.swt.applet.FigureSWTApplet;
 import org.rascalmpl.eclipse.library.vis.util.FigureMath;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
 import org.rascalmpl.eclipse.library.vis.util.vector.BoundingBox;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class FigureExecutionEnvironment implements ICallbackEnv{
 
