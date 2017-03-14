@@ -8,10 +8,10 @@ tmp/**/*
 *.swp
 *~.nib
 local.properties
-.classpath
+#.classpath
 .settings/
 .loadpath
-.project
+#.project
 .DS_Store
 # maven stuff
 target/
