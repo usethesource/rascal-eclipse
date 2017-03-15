@@ -14,12 +14,14 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.Ba
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.BaseRascalREPL;
-import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.vallang.IValueFactory;
 import jline.Terminal;
+import jline.TerminalFactory;
 
 public class CompiledRascalTerminalConnector extends RascalTerminalConnector {
     
@@ -39,7 +41,7 @@ public class CompiledRascalTerminalConnector extends RascalTerminalConnector {
             @Override
             protected CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException ,org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction ,URISyntaxException {
                 CommandExecutor exec = new CommandExecutor(pcfg, stdout, stderr, ideServices, null);
-                //exec.setDebugObserver(new DebugREPLFrameObserver(reader.getInput(), control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), TerminalFactory.get(), new ProjectConfig(vf).getPathConfig(ipr)));
+                exec.setDebugObserver(new DebugREPLFrameObserver(new ProjectConfig(vf).getPathConfig(ipr), reader.getInput(), control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), TerminalFactory.get(), new EclipseIDEServices()));                	
                 setMeasureCommandTime(true);
                 return exec;
             }
