@@ -56,9 +56,12 @@ public class CompiledRascalLauncherDelegate extends AbstractLauncherDelegate {
 			        combo.setLayoutData(comboLayout);
 			        
 
-			        for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
-			            if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
-			                combo.add(project.getName());
+			        for (IProject project1 : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+			            if (project1.isOpen() && project1.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
+			            	if(lastProject == null){
+			            		project = lastProject = project1.getName();
+			            	}
+			                combo.add(project1.getName());
 			            }
 			        }
 			        
