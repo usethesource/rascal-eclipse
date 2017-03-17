@@ -82,34 +82,4 @@ public class EclipseIDEServices implements IDEServices {
 		
 	}
 
-	@Override
-	public void watch(Path dir) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void unwatch(Path dir) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void unwatchAll() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Iterable<Path> fileChanges() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean anyFileChanges() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 }
