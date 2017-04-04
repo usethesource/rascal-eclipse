@@ -28,6 +28,7 @@ import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
@@ -233,9 +234,14 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                             file.deleteMarkers(IMarker.PROBLEM, true, 1);
                             String module = ResourcesToModules.moduleFromFile(file);
                             
+                            
                             if (module != null) {
                                 initializeParameters(false);
                                 synchronized (kernel) {
+                                    // System.err.println("buildIncremental project: " + getProject());
+                                    // System.err.println("buildIncremental file: " + file);
+                                    // System.err.println("buildIncremental module: " + module);
+                                    // System.err.println("buildIncremental: " + pathConfig);
                                     IConstructor result = kernel.compile(vf.string(module), pathConfig.asConstructor(kernel), kernel.kw_compile());
                                     markErrors(loc, result);
                                     IDEServicesModelProvider.getInstance().clearUseDefCache(loc);
