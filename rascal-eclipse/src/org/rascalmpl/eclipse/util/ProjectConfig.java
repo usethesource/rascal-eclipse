@@ -69,10 +69,10 @@ public class ProjectConfig {
                     libsWriter.append(child);
                     
                     // TODO while the repl does not import binary-only modules
-                    for (String src : new RascalEclipseManifest().getSourceRoots(ref)) {
-                        child = URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), src);
-                        srcsWriter.append(child);
-                    }
+//                    for (String src : new RascalEclipseManifest().getSourceRoots(ref)) {
+//                        child = URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), src);
+//                        srcsWriter.append(child);
+//                    }
                     
                 }
             }
