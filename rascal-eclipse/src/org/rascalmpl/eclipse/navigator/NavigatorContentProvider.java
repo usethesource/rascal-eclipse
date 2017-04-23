@@ -134,14 +134,15 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
   }
 
   public static class SearchPath {
-	  private IProject project;
+	  private final IProject project;
+	  private final RascalSearchPath resolver;
 
 	  public SearchPath(IProject project) {
 		  this.project = project;
+		  this.resolver =  ProjectEvaluatorFactory.getInstance().getProjectSearchPath(project);
 	  }
 	  
 	  public List<URIContent> getSearchPath() {
-		  RascalSearchPath resolver =  ProjectEvaluatorFactory.getInstance().getProjectSearchPath(project);
 		  List<URIContent> result = new LinkedList<>();
 		  
 		  for (ISourceLocation root : resolver.collect()) {

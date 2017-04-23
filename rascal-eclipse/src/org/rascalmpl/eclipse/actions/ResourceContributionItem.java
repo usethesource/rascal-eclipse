@@ -21,60 +21,62 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ResourceContributionItem extends ContributionItem {
 
-  public ResourceContributionItem() {
-    // TODO Auto-generated constructor stub
-  }
+    public ResourceContributionItem() {
+    }
 
-  public ResourceContributionItem(String id) {
-    super(id);
-    // TODO Auto-generated constructor stub
-  }
-  
-  @Override
-  public void fill(Menu menu, int index) {
-   
-    final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-    final Clipboard cb = new Clipboard(vf);
-    new ActionContributionItem(new Action("Copy source location") { 
-      
-      @Override
-      public ImageDescriptor getImageDescriptor() {
-        return Activator.getRascalImage();
-      }
-      
-      @Override
-      public void run() {
-        try {
-          final IResource val = getSelectedValue();
-          
-          if (val != null) {
-            URI uri = URIUtil.create("project", val.getProject().getName(), "/" + val.getProjectRelativePath().toPortableString());
-            cb.copy(vf.sourceLocation(uri));
-          }
-        } catch (URISyntaxException e) {
-          // s
+    public ResourceContributionItem(String id) {
+        super(id);
+    }
+
+    @Override
+    public void fill(Menu menu, int index) {
+        new ActionContributionItem(new CopySourceLocAction()).fill(menu, index);
+    }
+
+    private static class CopySourceLocAction extends Action {
+        final IValueFactory vf = ValueFactoryFactory.getValueFactory();
+        final Clipboard cb = new Clipboard(vf);
+
+        public CopySourceLocAction() {
+            super("Copy source location");
         }
-      }
-    }).fill(menu, index);
-  }
-  
-  private IResource getSelectedValue() {
-    IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-    
-    if (window != null) {
-        ISelection sel = window.getSelectionService().getSelection();
-        
-        if (sel instanceof IStructuredSelection) {
-          IStructuredSelection selection = (IStructuredSelection) sel;
-          Object firstElement = selection.getFirstElement();
 
-          if (firstElement instanceof IResource) {
-            return ((IResource) firstElement);
-          }
+        @Override
+        public ImageDescriptor getImageDescriptor() {
+            return Activator.getRascalImage();
+        }
+
+        @Override
+        public void run() {
+            try {
+                final IResource val = getSelectedValue();
+
+                if (val != null) {
+                    URI uri = URIUtil.create("project", val.getProject().getName(), "/" + val.getProjectRelativePath().toPortableString());
+                    cb.copy(vf.sourceLocation(uri));
+                }
+            } catch (URISyntaxException e) {
+                // s
+            }
+        }
+
+        private IResource getSelectedValue() {
+            IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+
+            if (window != null) {
+                ISelection sel = window.getSelectionService().getSelection();
+
+                if (sel instanceof IStructuredSelection) {
+                    IStructuredSelection selection = (IStructuredSelection) sel;
+                    Object firstElement = selection.getFirstElement();
+
+                    if (firstElement instanceof IResource) {
+                        return ((IResource) firstElement);
+                    }
+                }
+            }
+
+            return null;
         }
     }
-    
-    return null;
-  }
-
 }

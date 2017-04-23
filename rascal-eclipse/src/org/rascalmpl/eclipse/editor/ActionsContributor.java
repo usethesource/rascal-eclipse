@@ -16,6 +16,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.rascalmpl.eclipse.actions.GenerateInterface;
 import org.rascalmpl.eclipse.actions.StartConsole;
 import org.rascalmpl.eclipse.editor.commands.BrowseTree;
 import org.rascalmpl.eclipse.editor.commands.CopyToConsole;
@@ -42,6 +43,7 @@ public class ActionsContributor implements ILanguageActionsContributor {
 		exp.add(new RunTests(editor));
 		exp.add(new ShowAsHTML(editor));
 		exp.add(new ShowAsLatex(editor));
+		exp.add(new GenerateInterface(editor));
 		
 		MenuManager devel = new SubMenu(menuManager, "Developers");
 		devel.add(new ResetProjectState(editor));
