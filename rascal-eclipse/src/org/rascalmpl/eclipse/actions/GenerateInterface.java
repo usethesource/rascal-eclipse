@@ -2,7 +2,12 @@ package org.rascalmpl.eclipse.actions;
 
 import java.io.OutputStream;
 
+import org.eclipse.core.internal.jobs.JobStatus;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -52,33 +57,38 @@ public class GenerateInterface extends AbstractEditorAction implements IWorkbenc
 
     @Override
     public void run() {
-        String moduleName = ResourcesToModules.moduleFromFile(file);
-        IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        PathConfig pcfg = new ProjectConfig(vf).getPathConfig(file.getProject());
+        new Job("Compiling module and Generating Interface") {
+            @Override
+            protected IStatus run(IProgressMonitor arg0) {
+                String moduleName = ResourcesToModules.moduleFromFile(file);
+                IValueFactory vf = ValueFactoryFactory.getValueFactory();
+                PathConfig pcfg = new ProjectConfig(vf).getPathConfig(file.getProject());
 
-        System.err.println(pcfg);
-        try {
-            IKernel kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class)
-                    .trace(false)
-                    .profile(false)
-                    .verbose(false)
-                    .build();
+                try {
+                    IKernel kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class)
+                            .trace(false)
+                            .profile(false)
+                            .verbose(false)
+                            .build();
 
-            kernel.compileAndLink(vf.string(moduleName), pcfg.asConstructor(kernel), kernel.kw_compileAndLink());
-            ISourceLocation binary = Rascal.findBinary(pcfg.getBin(), moduleName);
-            RVMExecutable exec = RVMExecutable.read(binary);
+                    kernel.compileAndLink(vf.string(moduleName), pcfg.asConstructor(kernel), kernel.kw_compileAndLink());
+                    ISourceLocation binary = Rascal.findBinary(pcfg.getBin(), moduleName);
+                    RVMExecutable exec = RVMExecutable.read(binary);
 
-            String modulePath = getModulePath(moduleName);
-            String pkg = getPackageName(modulePath); 
-            String api = ApiGen.generate(exec, moduleName, pkg);
-            String path = pkg + "/" + modulePath + ".java";
-            ISourceLocation apiLoc = URIUtil.getChildLocation((ISourceLocation) pcfg.getSrcs().get(0), path); 
-            OutputStream apiOut = URIResolverRegistry.getInstance().getOutputStream(apiLoc, false);
-            apiOut.write(api.getBytes());
-            apiOut.close();
-        } catch (Exception e) {
-            Activator.log("could not generate API", e);
-        }
+                    String modulePath = getModulePath(moduleName);
+                    String pkg = getPackageName(modulePath); 
+                    String api = ApiGen.generate(exec, moduleName, pkg);
+                    String path = pkg + "/" + modulePath + ".java";
+                    ISourceLocation apiLoc = URIUtil.getChildLocation((ISourceLocation) pcfg.getSrcs().get(0), path); 
+                    OutputStream apiOut = URIResolverRegistry.getInstance().getOutputStream(apiLoc, false);
+                    apiOut.write(api.getBytes());
+                    apiOut.close();
+                    return new Status(IStatus.OK, Activator.PLUGIN_ID, "API generated");           
+                } catch (Exception e) {
+                    return new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, "could not generate API", e);
+                }
+            }
+        }.schedule();
     }
 
     private String getPackageName(String modulePath) {
