@@ -48,7 +48,7 @@ public class TokenColorer implements ITokenColorer {
 		map.put(TreeAdapter.META_KEYWORD, new TextAttribute(new Color(Display.getDefault(), 123, 0, 82), null, SWT.BOLD));
 		map.put(TreeAdapter.META_VARIABLE, new TextAttribute(new Color(Display.getDefault(), 0x29,0x5F,0x94), null, SWT.ITALIC));
 		map.put(TreeAdapter.META_AMBIGUITY,  new TextAttribute(new Color(Display.getDefault(), 186, 29, 29), null, SWT.BOLD));
-		map.put(TreeAdapter.META_SKIPPED,  new TextAttribute(null, new Color(Display.getDefault(), 255, 180, 180), SWT.ITALIC)); //82, 141, 115
+		map.put(TreeAdapter.META_SKIPPED,  new TextAttribute(null, new Color(Display.getDefault(), 255, 255, 255), SWT.ITALIC)); //82, 141, 115
 		map.put(TreeAdapter.TODO,new TextAttribute(new Color(Display.getDefault(), 123, 157, 198), null, SWT.BOLD));
 		map.put(TreeAdapter.COMMENT,new TextAttribute(new Color(Display.getDefault(), 82, 141, 115), null, SWT.ITALIC));
 		map.put(TreeAdapter.CONSTANT,new TextAttribute(new Color(Display.getDefault(), 139, 0, 139), null, SWT.NONE));
