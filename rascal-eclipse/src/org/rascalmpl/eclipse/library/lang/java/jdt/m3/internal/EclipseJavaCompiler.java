@@ -40,8 +40,7 @@ public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.inte
     }
     
     public ISet createAstsFromEclipseProject(ISourceLocation root, IBool collectBindings, IBool errorRecovery, IEvaluatorContext ctx) {
-        TypeStore store = new TypeStore();
-        store.extendStore(ctx.getHeap().getModule("lang::java::m3::AST").getStore());
+        LimitedTypeStore store = getM3Store(ctx);
 
         ISetWriter result = VF.setWriter();
         Map<String, ISourceLocation> cache = new HashMap<>();
@@ -52,9 +51,8 @@ public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.inte
     }
     
     public ISet createM3sFromEclipseProject(ISourceLocation root, IBool errorRecovery, IEvaluatorContext ctx) {
-        TypeStore store = new TypeStore();
-        store.extendStore(ctx.getHeap().getModule("lang::java::m3::Core").getStore());
-        store.extendStore(ctx.getHeap().getModule("lang::java::m3::AST").getStore());
+        LimitedTypeStore store = getM3Store(ctx);
+
 
         ISetWriter result = VF.setWriter();
         Map<String, ISourceLocation> cache = new HashMap<>();
@@ -66,8 +64,8 @@ public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.inte
     }
 
     public IValue createAstFromEclipseFile(ISourceLocation file, IBool collectBindings, IBool errorRecovery, IEvaluatorContext ctx) {
-        TypeStore store = new TypeStore();
-        store.extendStore(ctx.getHeap().getModule("lang::java::m3::AST").getStore());
+        LimitedTypeStore store = getM3Store(ctx);
+
 
         CompilationUnit cu = compileOneFile(file, collectBindings.getValue(), errorRecovery.getValue());
         Map<String, ISourceLocation> cache = new HashMap<>();
@@ -75,9 +73,8 @@ public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.inte
     }
     
     public IValue createM3FromEclipseFile(ISourceLocation file, IBool errorRecovery, IEvaluatorContext ctx) {
-        TypeStore store = new TypeStore();
-        store.extendStore(ctx.getHeap().getModule("lang::java::m3::Core").getStore());
-        store.extendStore(ctx.getHeap().getModule("lang::java::m3::AST").getStore());
+        LimitedTypeStore store = getM3Store(ctx);
+
 
         CompilationUnit cu = compileOneFile(file, true, errorRecovery.getValue());
         Map<String, ISourceLocation> cache = new HashMap<>();
