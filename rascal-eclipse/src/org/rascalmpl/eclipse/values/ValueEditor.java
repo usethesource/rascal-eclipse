@@ -1,7 +1,5 @@
 package org.rascalmpl.eclipse.values;
 
-import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
-
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -21,7 +19,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
-import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
 
 public class ValueEditor extends TextEditor  {
