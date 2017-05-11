@@ -3,11 +3,14 @@ package org.rascalmpl.eclipse.editor;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.core.resources.IProject;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -83,6 +86,14 @@ public class IDEServicesModelProvider {
          
          return summary;
      }
+    
+    public INode getOutline(IConstructor module) {
+        return kernel.outline(module);
+    }
+    
+    public IConstructor getPathConfig(IProject project) {
+        return new ProjectConfig(vf).getPathConfig(project).asConstructor(kernel);
+    }
     
     public void clearUseDefCache(ISourceLocation file) {
         useDefCache.invalidate(file);

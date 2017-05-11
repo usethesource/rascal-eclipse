@@ -12,19 +12,16 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import java.util.Iterator;
-
 import org.eclipse.core.runtime.IPath;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.eclipse.outline.TreeModelBuilder.Group;
-import io.usethesource.vallang.INode;
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.impulse.editor.ModelTreeNode;
 import io.usethesource.impulse.parser.ISourcePositionLocator;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 
 public class NodeLocator implements ISourcePositionLocator {
 
@@ -79,18 +76,33 @@ public class NodeLocator implements ISourcePositionLocator {
 		return getLocation(node) == null ? 0 : getLocation(node).getLength();
 	}
 	
-	private ISourceLocation getLocation(Object node){
+	@SuppressWarnings("deprecation")
+    private ISourceLocation getLocation(Object node){
 		if (node instanceof ITree){
 			return TreeAdapter.getLocation((ITree) node);
 		}
 		
 		if (node instanceof INode) {
 			INode n = (INode) node;
-			IValue ann = n.asAnnotatable().getAnnotation("loc");
-			if (ann != null) {
-				return (ISourceLocation) ann;
+			
+			if (n.isAnnotatable()) {
+			    IValue ann = n.asAnnotatable().getAnnotation("loc");
+			    if (ann != null) {
+			        return (ISourceLocation) ann;
+			    }
 			}
-		} 
+			
+			if (n.mayHaveKeywordParameters()) {
+			    IValue src = n.asWithKeywordParameters().getParameter("src");
+			    if (src != null && src instanceof ISourceLocation) { 
+			        return (ISourceLocation) src;
+			    }
+			}
+		}
+		
+		if (node instanceof ISourceLocation) {
+            return (ISourceLocation) node;
+        }
 		
 		if (node instanceof AbstractAST){
 			return ((AbstractAST) node).getLocation();
@@ -98,15 +110,6 @@ public class NodeLocator implements ISourcePositionLocator {
 		
 		if (node instanceof ModelTreeNode){
 			return getLocation(((ModelTreeNode) node).getASTNode());
-		}
-		
-		if (node instanceof Group<?>){
-			Group<?> group = (Group<?>) node;
-			Iterator<?> i = group.iterator();
-			if(i.hasNext()){
-				return getLocation(i.next());
-			}
-			return group.getLocation();
 		}
 		
 		return null;
