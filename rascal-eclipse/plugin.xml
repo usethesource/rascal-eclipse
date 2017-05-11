@@ -1033,4 +1033,14 @@
             name="Compiled Rascal Terminal">
       </connector>
    </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.rascalmpl.eclipse.values.ValueEditor"
+            default="false"
+            extensions="rvm,imps,sig,sigs,tc,val"
+            id="rascal_eclipse.values.editor"
+            name="Value editor">
+      </editor>
+   </extension>
 </plugin>

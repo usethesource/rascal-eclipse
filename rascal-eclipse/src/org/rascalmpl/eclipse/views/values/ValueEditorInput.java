@@ -1,5 +1,7 @@
 package org.rascalmpl.eclipse.views.values;
 
+import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,8 +14,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IStorageEditorInput;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextWriter;
+import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 
 public class ValueEditorInput implements IStorageEditorInput {
 	private final IValue value;
@@ -21,6 +28,19 @@ public class ValueEditorInput implements IStorageEditorInput {
 	private final boolean indent;
 	private final int tabsize;
 
+	public ValueEditorInput(ISourceLocation loc, boolean indent, int tabsize) throws IOException {
+        this.value = parse(loc);
+        this.label = loc.toString();
+        this.indent = indent;
+        this.tabsize = tabsize;
+    }
+	
+	private IValue parse(ISourceLocation loc) throws IOException {
+        try (IValueInputStream s = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), ValueFactoryFactory.getValueFactory(), TYPE_STORE_SUPPLIER)) {
+            return s.read();
+        } 
+    }
+	
 	public ValueEditorInput(IValue value, boolean indent, int tabsize) {
 		this.value = value;
 		this.label = value.getType().toString();
