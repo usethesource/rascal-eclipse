@@ -371,7 +371,12 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 
             @Override
             public Object[] visitNode(INode arg0) throws RuntimeException {
-                return StreamSupport.stream(arg0.spliterator(), false).map(x -> new ValueContent(x, project, this)).toArray(Object[]::new);
+                if (arg0.arity() == 1 && arg0.get(0) instanceof IList) {
+                    return visitList((IList) arg0.get(0));
+                }
+                else {
+                    return StreamSupport.stream(arg0.spliterator(), false).map(x -> new ValueContent(x, project, this)).toArray(Object[]::new);
+                }
             }
 
             @Override
