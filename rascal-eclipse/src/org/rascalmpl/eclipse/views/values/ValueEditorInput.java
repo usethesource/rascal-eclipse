@@ -15,6 +15,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IStorageEditorInput;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIStorage;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -28,7 +29,14 @@ public class ValueEditorInput implements IStorageEditorInput {
 	private final boolean indent;
 	private final int tabsize;
 
-	public ValueEditorInput(ISourceLocation loc, boolean indent, int tabsize) throws IOException {
+	public ValueEditorInput(URIStorage loc, boolean indent, int tabsize) throws IOException, CoreException {
+        this.value = parse(loc);
+        this.label = loc.toString();
+        this.indent = indent;
+        this.tabsize = tabsize;
+    }
+	
+    public ValueEditorInput(ISourceLocation loc, boolean indent, int tabsize) throws IOException {
         this.value = parse(loc);
         this.label = loc.toString();
         this.indent = indent;
@@ -37,6 +45,12 @@ public class ValueEditorInput implements IStorageEditorInput {
 	
 	private IValue parse(ISourceLocation loc) throws IOException {
         try (IValueInputStream s = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), ValueFactoryFactory.getValueFactory(), TYPE_STORE_SUPPLIER)) {
+            return s.read();
+        } 
+    }
+	
+	private IValue parse(URIStorage loc) throws IOException, CoreException {
+	    try (IValueInputStream s = new IValueInputStream(loc.getContents(), ValueFactoryFactory.getValueFactory(), TYPE_STORE_SUPPLIER)) {
             return s.read();
         } 
     }
