@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.navigator;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -513,7 +514,8 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
   }
   
   public static class URIContent {
-	  private final ISourceLocation uri;
+	  private static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
+    private final ISourceLocation uri;
 	  private final IProject project;
 	  private final boolean isRoot;
 	  
@@ -540,22 +542,39 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	  }
 	  
 	  public URIContent[] listEntries() {
-	      try {
-	          return Arrays.stream(URIResolverRegistry.getInstance().list(uri))
+	      ISourceLocation l = uri;
+	      
+	      if (isJarLoc(l)) {
+	          try {
+	              l = URIUtil.changePath(URIUtil.changeScheme(l, "jar+" + l.getScheme()), l.getPath() + "!/");
+	          } catch (URISyntaxException e) {
+	              Activator.log("navigator could not dive into jar", e);
+	          }
+	      }
+	      return doList(l);
+	  }
+
+    private boolean isJarLoc(ISourceLocation l) {
+        return l.getPath() != null && l.getPath().endsWith(".jar");
+    }
+
+    private URIContent[] doList(ISourceLocation l) {
+        try {
+	          return Arrays.stream(reg.list(l))
 	                  .map(loc -> new URIContent(loc, project, false))
 	                  .toArray(URIContent[]::new);			 
 	      } catch (IOException e) {
 	          Activator.log("could not list entries", e);
 	          return new URIContent[0];
 	      }
-	  }
+    }
 	  
 	  public boolean isDirectory() {
-		  return URIResolverRegistry.getInstance().isDirectory(uri);
+		  return reg.isDirectory(uri) || isJarLoc(uri);
 	  }
 	  
 	  public boolean exists() {
-		  return URIResolverRegistry.getInstance().exists(uri);
+		  return reg.exists(uri);
 	  }
 
 	  @Override

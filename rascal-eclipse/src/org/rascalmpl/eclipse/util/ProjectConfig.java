@@ -51,7 +51,7 @@ public class ProjectConfig {
         // we special-case the rascal project for bootstrapping purposes (avoiding confusing between source and bootstrapped library)
         if (!isRascalBootstrapProject(project)) {
             // TODO: this needs to be configured elsewhere
-            libsWriter.append(URIUtil.correctLocation("std", "", ""));
+            libsWriter.append(URIUtil.correctLocation("stdlib", "", ""));
             libsWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
         }
         
@@ -67,13 +67,6 @@ public class ProjectConfig {
                 for (IProject ref : project.getReferencedProjects()) {
                     ISourceLocation child = URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), BIN_FOLDER);
                     libsWriter.append(child);
-                    
-                    // TODO while the repl does not import binary-only modules
-//                    for (String src : new RascalEclipseManifest().getSourceRoots(ref)) {
-//                        child = URIUtil.getChildLocation(ProjectURIResolver.constructProjectURI(ref.getFullPath()), src);
-//                        srcsWriter.append(child);
-//                    }
-                    
                 }
             }
             
@@ -91,7 +84,7 @@ public class ProjectConfig {
         // TODO this is necessary while the kernel does not hold a compiled standard library, so remove later:
         // We special-case the rascal project for bootstrapping purposes (avoiding confusing between source and bootstrapped library)
         if (!isRascalBootstrapProject(project)) {
-            srcsWriter.append(URIUtil.correctLocation("std", "", ""));
+//            srcsWriter.append(URIlUtil.correctLocation("std", "", ""));
             srcsWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
         }
         
@@ -175,7 +168,7 @@ public class ProjectConfig {
 
             classloaders.add(vf.sourceLocation("file", "", binLoc + "/"));
 
-            if (isRascalBootstrapProject(project)) {
+            if (!isRascalBootstrapProject(project)) {
                 compilerPath.add(vf.sourceLocation("file", "", binLoc + "/"));
             }
             

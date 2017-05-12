@@ -23,8 +23,14 @@ public class ValueEditor extends TextEditor  {
                 super.init(site, new ValueEditorInput((URIStorage) ((URIEditorInput) input).getStorage(), true, 2)); 
             }
             else {
-                ISourceLocation uri = ProjectURIResolver.constructProjectURI(input.getAdapter(IResource.class).getFullPath());
-                super.init(site, new ValueEditorInput(uri, true, 2));
+                IResource tmp = input.getAdapter(IResource.class);
+                
+                if (tmp != null) {
+                    ISourceLocation uri = ProjectURIResolver.constructProjectURI(tmp.getFullPath());
+                    super.init(site, new ValueEditorInput(uri, true, 2));
+                }
+                
+                throw new IOException("Value editor can not open " + input);
             }
         } catch (IOException | CoreException e) {
             throw new PartInitException("could not initialize editor", e);
