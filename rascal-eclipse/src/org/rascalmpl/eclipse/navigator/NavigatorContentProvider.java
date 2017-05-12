@@ -355,8 +355,12 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
             @Override
             public Object[] visitList(IList arg0) throws RuntimeException {
                 return StreamSupport.stream(arg0.spliterator(), false)
-                        .map(x -> x.getType().isSourceLocation() ? new URIContent((ISourceLocation) x, project, true) : new ValueContent(x, project, this))
+                        .map(x -> newChild(x))
                         .toArray(Object[]::new);
+            }
+
+            private Object newChild(IValue x) {
+                return x.getType().isSourceLocation() ? new URIContent((ISourceLocation) x, project, true) : new ValueContent(x, project, this);
             }
 
             @Override
@@ -366,7 +370,9 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 
             @Override
             public Object[] visitMap(IMap arg0) throws RuntimeException {
-                return StreamSupport.stream(arg0.spliterator(), false).map(x -> new ValueContent(vf.node(x.toString(), arg0.get(x)), project, this)).toArray(Object[]::new);
+                return StreamSupport.stream(arg0.spliterator(), false)
+                        .map(x -> new ValueContent(vf.node(x.toString(), arg0.get(x)), project, this))
+                        .toArray(Object[]::new);
             }
 
             @Override
@@ -375,7 +381,9 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
                     return visitList((IList) arg0.get(0));
                 }
                 else {
-                    return StreamSupport.stream(arg0.spliterator(), false).map(x -> new ValueContent(x, project, this)).toArray(Object[]::new);
+                    return StreamSupport.stream(arg0.spliterator(), false)
+                            .map(x -> newChild(x))
+                            .toArray(Object[]::new);
                 }
             }
 
@@ -397,7 +405,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
             @Override
             public Object[] visitSet(ISet arg0) throws RuntimeException {
                 return StreamSupport.stream(arg0.spliterator(), false)
-                        .map(x -> x.getType().isSourceLocation() ? new URIContent((ISourceLocation) x, project, true) : new ValueContent(x, project, this))
+                        .map(x -> newChild(x))
                         .toArray(Object[]::new);
             }
 
