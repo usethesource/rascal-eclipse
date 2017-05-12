@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
@@ -28,12 +29,31 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIStorage;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IDateTime;
+import io.usethesource.vallang.IExternalValue;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.IRational;
+import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class NavigatorContentProvider implements ITreeContentProvider, IResourceChangeListener,
 	IResourceDeltaVisitor {
@@ -105,9 +125,12 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 
         if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
           IResource[] members = project.members();
-          Object[] result = new Object[members.length + 1];
+          Object[] result = new Object[members.length + 2];
           System.arraycopy(members, 0, result, 0, members.length);
-          result[members.length] = new SearchPath(project);
+          IConstructor pcfg = IDEServicesModelProvider.getInstance().getPathConfig(project);
+          result[members.length] = new ValueContent(pcfg, project, project);
+          result[members.length + 1] = new SearchPath(project);
+          
           return result;
         }
         else if (project.isOpen()) {
@@ -125,6 +148,12 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
     	  if (storage.isDirectory()) {
     		  return storage.listEntries();
     	  }
+      }
+      else if (parentElement instanceof ValueContent) {
+          ValueContent content = (ValueContent) parentElement;
+          if (content.isDirectory()) {
+              return content.listEntries();
+          }
       }
     } catch (CoreException e) {
     	Activator.log(e.getMessage(), e);
@@ -169,6 +198,307 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	  };
   }
   
+  public static class ValueContent {
+      private final IValue val;
+      private final IProject project;
+      private Object parent;
+
+      public ValueContent(IValue val, IProject project, Object parent) {
+          this.val = val;
+          this.project = project;
+          this.parent = parent;
+      }
+      
+      @Override
+      public int hashCode() {
+          return val.hashCode() * 13 + parent.hashCode() * 17 + 13333331;
+      }
+      
+      public Object getParent() {
+        return parent;
+      }
+      
+      public IValue getValue() {
+        return val;
+      }
+      
+      @Override
+      public boolean equals(Object obj) {
+          if (obj instanceof ValueContent) {
+              return parent.equals(((ValueContent) obj).parent) && val.equals(((ValueContent) obj).val);
+          }
+          return false;
+      }
+      
+      public IProject getProject() {
+        return project;
+      }
+      
+      public boolean isDirectory() {
+          return val.accept(new IValueVisitor<Boolean, RuntimeException>() {
+
+            @Override
+            public Boolean visitBoolean(IBool arg0) throws RuntimeException {
+                return false;
+            }
+
+            @Override
+            public Boolean visitConstructor(IConstructor arg0) throws RuntimeException {
+                return true;
+            }
+
+            @Override
+            public Boolean visitDateTime(IDateTime arg0) throws RuntimeException {
+                return false;
+            }
+
+            @Override
+            public Boolean visitExternal(IExternalValue arg0) throws RuntimeException {
+                return false;
+            }
+
+            @Override
+            public Boolean visitInteger(IInteger arg0) throws RuntimeException {
+                return false;
+            }
+
+            @Override
+            public Boolean visitList(IList arg0) throws RuntimeException {
+                return true;
+            }
+
+            @Override
+            public Boolean visitListRelation(IList arg0) throws RuntimeException {
+                return true;
+            }
+
+            @Override
+            public Boolean visitMap(IMap arg0) throws RuntimeException {
+                return true;
+            }
+
+            @Override
+            public Boolean visitNode(INode arg0) throws RuntimeException {
+                return true;
+            }
+
+            @Override
+            public Boolean visitRational(IRational arg0) throws RuntimeException {
+                return false;
+            }
+
+            @Override
+            public Boolean visitReal(IReal arg0) throws RuntimeException {
+                return false;
+            }
+
+            @Override
+            public Boolean visitRelation(ISet arg0) throws RuntimeException {
+                return false;
+            }
+
+            @Override
+            public Boolean visitSet(ISet arg0) throws RuntimeException {
+                return true;
+            }
+
+            @Override
+            public Boolean visitSourceLocation(ISourceLocation arg0) throws RuntimeException {
+                return false;
+            }
+
+            @Override
+            public Boolean visitString(IString arg0) throws RuntimeException {
+                return false;
+            }
+
+            @Override
+            public Boolean visitTuple(ITuple arg0) throws RuntimeException {
+                return true;
+            }
+              
+          }).booleanValue();
+      }
+      
+      public Object[] listEntries() {
+          return val.accept(new IValueVisitor<Object[], RuntimeException>() {
+              private Object[] empty = new Object[0];
+              private IValueFactory vf = ValueFactoryFactory.getValueFactory();
+              
+            @Override
+            public Object[] visitBoolean(IBool arg0) throws RuntimeException {
+                return empty;
+            }
+
+            @Override
+            public Object[] visitConstructor(IConstructor arg0) throws RuntimeException {
+                return arg0.asWithKeywordParameters().getParameters().entrySet().stream()
+                        .map(x -> new ValueContent(vf.node(x.getKey(), x.getValue()), project, this))
+                        .toArray(Object[]::new);
+            }
+
+            @Override
+            public Object[] visitDateTime(IDateTime arg0) throws RuntimeException {
+                return empty;
+            }
+
+            @Override
+            public Object[] visitExternal(IExternalValue arg0) throws RuntimeException {
+                return empty;
+            }
+
+            @Override
+            public Object[] visitInteger(IInteger arg0) throws RuntimeException {
+                return empty;
+            }
+
+            @Override
+            public Object[] visitList(IList arg0) throws RuntimeException {
+                return StreamSupport.stream(arg0.spliterator(), false)
+                        .map(x -> x.getType().isSourceLocation() ? new URIContent((ISourceLocation) x, project, true) : new ValueContent(x, project, this))
+                        .toArray(Object[]::new);
+            }
+
+            @Override
+            public Object[] visitListRelation(IList arg0) throws RuntimeException {
+                return visitList(arg0);
+            }
+
+            @Override
+            public Object[] visitMap(IMap arg0) throws RuntimeException {
+                return StreamSupport.stream(arg0.spliterator(), false).map(x -> new ValueContent(vf.node(x.toString(), arg0.get(x)), project, this)).toArray(Object[]::new);
+            }
+
+            @Override
+            public Object[] visitNode(INode arg0) throws RuntimeException {
+                return StreamSupport.stream(arg0.spliterator(), false).map(x -> new ValueContent(x, project, this)).toArray(Object[]::new);
+            }
+
+            @Override
+            public Object[] visitRational(IRational arg0) throws RuntimeException {
+                return empty;
+            }
+
+            @Override
+            public Object[] visitReal(IReal arg0) throws RuntimeException {
+                return empty;
+            }
+
+            @Override
+            public Object[] visitRelation(ISet arg0) throws RuntimeException {
+                return visitSet(arg0);
+            }
+
+            @Override
+            public Object[] visitSet(ISet arg0) throws RuntimeException {
+                return StreamSupport.stream(arg0.spliterator(), false)
+                        .map(x -> x.getType().isSourceLocation() ? new URIContent((ISourceLocation) x, project, true) : new ValueContent(x, project, this))
+                        .toArray(Object[]::new);
+            }
+
+            @Override
+            public Object[] visitSourceLocation(ISourceLocation arg0) throws RuntimeException {
+                return empty;
+            }
+
+            @Override
+            public Object[] visitString(IString arg0) throws RuntimeException {
+                return empty;
+            }
+
+            @Override
+            public Object[] visitTuple(ITuple arg0) throws RuntimeException {
+                return StreamSupport.stream(arg0.spliterator(), false).map(x -> new ValueContent(x, project, this)).toArray(Object[]::new);
+            }
+          });
+      }
+      
+      public String getName() {
+          return val.accept(new IValueVisitor<String, RuntimeException>() {
+
+            @Override
+            public String visitBoolean(IBool arg0) throws RuntimeException {
+                return arg0.toString();
+            }
+
+            @Override
+            public String visitConstructor(IConstructor arg0) throws RuntimeException {
+                return arg0.getName();
+            }
+
+            @Override
+            public String visitDateTime(IDateTime arg0) throws RuntimeException {
+                return arg0.toString();
+            }
+
+            @Override
+            public String visitExternal(IExternalValue arg0) throws RuntimeException {
+                return arg0.toString();
+            }
+
+            @Override
+            public String visitInteger(IInteger arg0) throws RuntimeException {
+                return arg0.toString();
+            }
+
+            @Override
+            public String visitList(IList arg0) throws RuntimeException {
+                return "[" + arg0.length() + "]";
+            }
+
+            @Override
+            public String visitListRelation(IList arg0) throws RuntimeException {
+                return visitList(arg0);
+            }
+
+            @Override
+            public String visitMap(IMap arg0) throws RuntimeException {
+                return "(" + arg0.size() + ")";
+            }
+
+            @Override
+            public String visitNode(INode arg0) throws RuntimeException {
+                return arg0.getName();
+            }
+
+            @Override
+            public String visitRational(IRational arg0) throws RuntimeException {
+                return arg0.toString();
+            }
+
+            @Override
+            public String visitReal(IReal arg0) throws RuntimeException {
+                return arg0.toString();
+            }
+
+            @Override
+            public String visitRelation(ISet arg0) throws RuntimeException {
+               return visitSet(arg0);
+            }
+
+            @Override
+            public String visitSet(ISet arg0) throws RuntimeException {
+                return "{" + arg0.size() + "}";
+            }
+
+            @Override
+            public String visitSourceLocation(ISourceLocation arg0) throws RuntimeException {
+                return arg0.toString();
+            }
+
+            @Override
+            public String visitString(IString arg0) throws RuntimeException {
+                return arg0.getValue();
+            }
+
+            @Override
+            public String visitTuple(ITuple arg0) throws RuntimeException {
+                return "<>";
+            }
+          });
+      }
+  }
+  
   public static class URIContent {
 	  private final ISourceLocation uri;
 	  private final IProject project;
@@ -197,16 +527,16 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 	  }
 	  
 	  public URIContent[] listEntries() {
-		  try {
-			  return Arrays.stream(URIResolverRegistry.getInstance().list(uri))
-			      .filter(loc -> loc.getPath() == null || !loc.getPath().endsWith(".class"))
-			      .map(loc -> new URIContent(loc, project, false))
-			      .toArray(i -> new URIContent[i]);			 
-		  } catch (IOException e) {
-			  return new URIContent[0];
-		  }
+	      try {
+	          return Arrays.stream(URIResolverRegistry.getInstance().list(uri))
+	                  .map(loc -> new URIContent(loc, project, false))
+	                  .toArray(URIContent[]::new);			 
+	      } catch (IOException e) {
+	          Activator.log("could not list entries", e);
+	          return new URIContent[0];
+	      }
 	  }
-
+	  
 	  public boolean isDirectory() {
 		  return URIResolverRegistry.getInstance().isDirectory(uri);
 	  }
@@ -215,10 +545,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 		  return URIResolverRegistry.getInstance().exists(uri);
 	  }
 
-	  public URIContent makeChild(String child) {
-		  return new URIContent(URIUtil.getChildLocation(uri, child), project, false);
-	  }
-	  
 	  @Override
 	  public boolean equals(Object obj) {
 		 if (obj instanceof URIContent) {
@@ -256,9 +582,11 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
     else if (element instanceof SearchPath) {
     	return ((SearchPath) element).getProject();
     }
+    else if (element instanceof ValueContent) {
+        return ((ValueContent) element).getParent();
+    }
     else if (element instanceof URIStorage) {
-    	// TODO: don't know yet
-    	return null;
+        return null;
     }
     
     return null;

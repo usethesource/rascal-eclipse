@@ -33,6 +33,7 @@ public class ValueEditor extends TextEditor  {
                 IValueOutputStream out = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(uri, false), ValueFactoryFactory.getValueFactory());
                 out.write(val);
                 out.close();
+                firePropertyChange(PROP_DIRTY);
             }
         } catch (FactTypeUseException | IOException e) {
             Activator.log("could not save this file", e);

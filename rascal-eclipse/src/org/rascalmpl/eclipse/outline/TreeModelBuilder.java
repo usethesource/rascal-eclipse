@@ -21,6 +21,9 @@ public class TreeModelBuilder extends org.rascalmpl.eclipse.terms.TreeModelBuild
 
 	@Override
 	protected void visitTree(Object root) {
+	    if (root == null) {
+	        return;
+	    }
 	    INode model = IDEServicesModelProvider.getInstance().getOutline((IConstructor) root);
 	    convertModel(model);
 	}

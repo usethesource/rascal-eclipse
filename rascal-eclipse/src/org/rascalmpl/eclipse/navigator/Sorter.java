@@ -6,6 +6,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
+import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.ValueContent;
 
 public class Sorter extends ViewerSorter {
 
@@ -24,6 +25,12 @@ public class Sorter extends ViewerSorter {
 		  if (((URIContent) element).isDirectory()) {
 			  return 1;
 		  }
+	  }
+	  
+	  if (element instanceof ValueContent) {
+	      if (((ValueContent) element).isDirectory()) {
+              return 1;
+          }
 	  }
 	  
 	  return 0;

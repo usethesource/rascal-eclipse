@@ -9,6 +9,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.SearchPath;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
+import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.ValueContent;
 
 public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
   @Override
@@ -19,6 +20,9 @@ public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
     }
     else if (element instanceof SearchPath) {
     	return "search path";
+    }
+    else if (element instanceof ValueContent) {
+        return ((ValueContent) element).getName();
     }
     else {
       return super.getText(element);
@@ -33,7 +37,7 @@ public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
     else if (element instanceof URIContent) {
         return new StyledString(getText(element));
     }  
-    else if (element instanceof SearchPath) {
+    else if (element instanceof SearchPath || element instanceof ValueContent) {
         return new StyledString(getText(element));
     }
     
@@ -42,7 +46,7 @@ public class NavigatorContentLabelProvider extends JavaElementLabelProvider {
   
   @Override
   public Image getImage(Object element) {
-	  if (element instanceof SearchPath) {
+	  if (element instanceof SearchPath || element instanceof ValueContent) {
 		  return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_JAR_WITH_SOURCE);
 	  }
 	  if (element instanceof URIContent) {
