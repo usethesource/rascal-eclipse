@@ -51,7 +51,8 @@ public class ProjectConfig {
         // we special-case the rascal project for bootstrapping purposes (avoiding confusing between source and bootstrapped library)
         if (!isRascalBootstrapProject(project)) {
             // TODO: this needs to be configured elsewhere
-            libsWriter.append(URIUtil.correctLocation("stdlib", "", ""));
+            libsWriter.append(URIUtil.correctLocation("std", "", ""));
+//            libsWriter.append(URIUtil.correctLocation("stdlib", "", "")); // TODO: should replace the previous later
             libsWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
         }
         
@@ -84,7 +85,7 @@ public class ProjectConfig {
         // TODO this is necessary while the kernel does not hold a compiled standard library, so remove later:
         // We special-case the rascal project for bootstrapping purposes (avoiding confusing between source and bootstrapped library)
         if (!isRascalBootstrapProject(project)) {
-//            srcsWriter.append(URIlUtil.correctLocation("std", "", ""));
+            srcsWriter.append(URIUtil.correctLocation("std", "", "")); // TODO should be removed later
             srcsWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
         }
         
