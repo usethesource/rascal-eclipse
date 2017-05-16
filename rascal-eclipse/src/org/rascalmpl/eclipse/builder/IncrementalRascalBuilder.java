@@ -36,11 +36,13 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Ja
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.impulse.builder.MarkerCreator;
 import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -147,24 +149,6 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	private void buildMain(IProgressMonitor monitor) throws CoreException {
 	    IDEServicesModelProvider.getInstance().invalidateEverything();
 	    
-	    IFile mfFile = getProject().getFile(RascalEclipseManifest.META_INF_RASCAL_MF);
-	    
-	    if (mfFile == null || !mfFile.exists()) {
-	        return; // fine; no meta file so we don't know what to compile.
-	    }
-	    else {
-	        // remove previous markers
-	        mfFile.deleteMarkers(IMarker.PROBLEM, true, 1);
-	    }
-	    
-	    RascalEclipseManifest mf = new RascalEclipseManifest();
-        String main = mf.getMainModule(getProject());
-        
-	    if (main == null) {
-	        // no main defined in the RASCAL.MF file is fine
-	        return;
-	    }
-	    
 	    initializeParameters(false);
 	    
 	    RascalSearchPath p = new RascalSearchPath();
@@ -182,30 +166,32 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             }
         });
 	    
-	    ISourceLocation module = p.resolveModule(main);
-	    
-	    if (module == null) {
-	        // TODO: this should be a marker on RASCAL.MF
-	      
-            IMarker marker = mfFile.createMarker(IMarker.PROBLEM);
-	        marker.setAttribute(IMarker.MESSAGE, "Main module with name " + main + " does not exist.");
-	        marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-	        marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-	        marker.setAttribute(IMarker.LINE_NUMBER, 1);
-	        return;
-	    }
-	    
 	    try {
-	        IConstructor result = kernel.compileAndLink(vf.string(main), pathConfig.asConstructor(kernel), kernel.kw_compileAndLink());
-            markErrors(module, result);
+	        for (IValue srcv : pathConfig.getSrcs()) {
+	            ISourceLocation src = (ISourceLocation) srcv;
+	            
+	            if (!URIResolverRegistry.getInstance().isDirectory(src)) {
+	                Activator.log("Source config is not a directory?", new IllegalArgumentException(src.toString()));
+	                continue;
+	            }
+               
+	            // the pathConfig source path currently still contains library sources,
+	            // which we want to compile on-demand only:
+	            if (src.getScheme().equals("project") && src.getAuthority().equals(projectLoc.getAuthority())) {
+	                IList programs = kernel.compileAll((ISourceLocation) srcv, pathConfig.asConstructor(kernel), kernel.kw_compile());
+	                markErrors(programs);
+	            }
+	        }
 	    }
 	    catch (Throwable e) {
-	        Activator.log("error during compilation of " + main, e);
+	        Activator.log("error during compilation of project " + projectLoc, e);
 	    }
 	    finally {
 	        monitor.done();
 	    }
     }
+
+   
 
     private void buildIncremental(IResourceDelta delta, IProgressMonitor monitor) {
         if (!RascalPreferences.isRascalCompilerEnabled()) {
@@ -249,10 +235,6 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                             if (module != null) {
                                 initializeParameters(false);
                                 synchronized (kernel) {
-                                    // System.err.println("buildIncremental project: " + getProject());
-                                    // System.err.println("buildIncremental file: " + file);
-                                    // System.err.println("buildIncremental module: " + module);
-                                    // System.err.println("buildIncremental: " + pathConfig);
                                     IConstructor result = kernel.compile(vf.string(module), pathConfig.asConstructor(kernel), kernel.kw_compile());
                                     markErrors(loc, result);
                                     IDEServicesModelProvider.getInstance().clearUseDefCache(loc);
@@ -277,6 +259,22 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             });
         } catch (CoreException e) {
             Activator.log("error during Rascal compilation", e);
+        }
+    }
+    
+    private void markErrors(IList programs) throws MalformedURLException, IOException {
+        for (IValue iprogram : programs){
+            IConstructor program = (IConstructor) iprogram;
+            
+            if (program.has("main_module")) {
+                program = (IConstructor) program.get("main_module");
+            }
+            
+            if (!program.has("src")) {
+               Activator.log("could not get src for errors", new IllegalArgumentException()); 
+            }
+            
+            markErrors((ISourceLocation) program.get("src"), program);
         }
     }
     
