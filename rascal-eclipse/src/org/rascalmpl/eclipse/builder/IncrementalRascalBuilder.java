@@ -3,6 +3,8 @@ package org.rascalmpl.eclipse.builder;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +18,10 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
@@ -28,20 +32,19 @@ import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
-import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+import io.usethesource.impulse.builder.MarkerCreator;
+import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
-
-import io.usethesource.impulse.builder.MarkerCreator;
-import io.usethesource.impulse.runtime.RuntimePlugin;
 
 /** 
  * This builder manages the execution of the Rascal compiler on all Rascal files which have been changed while editing them in Eclipse.
@@ -64,12 +67,20 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                 out = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
                 err = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
                 vf = ValueFactoryFactory.getValueFactory();
+                
+                Bundle rascalBundle = Activator.getInstance().getBundle();
+                URL entry = FileLocator.toFileURL(rascalBundle.getEntry("lib/rascal.jar"));
+                ISourceLocation rascalJarLoc = vf.sourceLocation(entry.toURI());
+                PathConfig pcfg = new PathConfig()
+                        .addJavaCompilerPath(rascalJarLoc)
+                        .addClassloader(rascalJarLoc);
+                        
                 kernel = Java2Rascal.Builder
-                        .bridge(vf, new PathConfig(), IKernel.class)
+                        .bridge(vf, pcfg, IKernel.class)
                         .stderr(err)
                         .stdout(out)
                         .build();
-            } catch (IOException e) {
+            } catch (IOException | URISyntaxException e) {
                 Activator.log("could not initialize incremental Rascal builder", e);
             }
         }
