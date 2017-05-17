@@ -28,6 +28,7 @@ public class ValueEditor extends TextEditor  {
                 if (tmp != null) {
                     ISourceLocation uri = ProjectURIResolver.constructProjectURI(tmp.getFullPath());
                     super.init(site, new ValueEditorInput(uri, true, 2));
+                    return;
                 }
                 
                 throw new IOException("Value editor can not open " + input);
