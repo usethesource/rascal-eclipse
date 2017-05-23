@@ -33,6 +33,7 @@ import io.usethesource.vallang.IValueFactory;
  */
 public class ProjectConfig {
     public static final String BIN_FOLDER = "bin";
+    public static final String MVN_TARGET_FOLDER = "target";
     private final IValueFactory vf;
     
     public ProjectConfig(IValueFactory vf) {

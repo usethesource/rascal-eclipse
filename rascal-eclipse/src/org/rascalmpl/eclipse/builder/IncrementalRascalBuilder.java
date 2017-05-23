@@ -285,7 +285,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             return !ProjectConfig.BIN_FOLDER.equals(path.toPortableString())
                 // if a duplicate bin folder from maven exists, don't recurse into it:
                 // this is brittle, but it saves a lot of time waiting for unnecessary compilation:
-                && !"target".equals(path.toPortableString());    
+                && !ProjectConfig.MVN_TARGET_FOLDER.equals(path.toPortableString());    
         }
     }
 
