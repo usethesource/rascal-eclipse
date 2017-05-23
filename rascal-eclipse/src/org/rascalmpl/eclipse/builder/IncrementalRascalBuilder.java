@@ -57,22 +57,12 @@ import io.usethesource.vallang.IValueFactory;
  * It also interacts with Project Clean actions to clear up files and markers on request.  
  */
 public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
-    // A kernel is 100Mb, so we can't have one for every project; that's why it's static:
-    private static IKernel kernel;
-	private static PrintStream out;
-    private static PrintStream err;
-    private static IValueFactory vf;
-    private static List<String> binaryExtension = Arrays.asList("imps","rvm", "rvmx", "tc","sig","sigs");
-    
-    private ISourceLocation projectLoc;
-    private PathConfig pathConfig;
-
-    static {
-        synchronized(IncrementalRascalBuilder.class){ 
+    private static ThreadLocal<IKernel> kernel = new ThreadLocal<IKernel>() {
+        protected IKernel initialValue() {
             try {
-                out = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
-                err = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
-                vf = ValueFactoryFactory.getValueFactory();
+                PrintStream out = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
+                PrintStream err = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
+                IValueFactory vf = ValueFactoryFactory.getValueFactory();
                 
                 Bundle rascalBundle = Activator.getInstance().getBundle();
                 URL entry = FileLocator.toFileURL(rascalBundle.getEntry("lib/rascal.jar"));
@@ -81,17 +71,24 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                         .addJavaCompilerPath(rascalJarLoc)
                         .addClassloader(rascalJarLoc);
                         
-                kernel = Java2Rascal.Builder
+                return Java2Rascal.Builder
                         .bridge(vf, pcfg, IKernel.class)
                         .stderr(err)
                         .stdout(out)
                         .build();
             } catch (IOException | URISyntaxException e) {
                 Activator.log("could not initialize incremental Rascal builder", e);
+                return null;
             }
         }
-    }
+    };
     
+    private IValueFactory vf = ValueFactoryFactory.getValueFactory();
+    private List<String> binaryExtension = Arrays.asList("imps","rvm", "rvmx", "tc","sig","sigs");
+    
+    private ISourceLocation projectLoc;
+    private PathConfig pathConfig;
+
     public IncrementalRascalBuilder() {
         
 	}
@@ -201,7 +198,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                         // the pathConfig source path currently still contains library sources,
                         // which we want to compile on-demand only:
                         if (src.getScheme().equals("project") && src.getAuthority().equals(projectLoc.getAuthority())) {
-                            IList programs = kernel.compileAll((ISourceLocation) srcv, pathConfig.asConstructor(kernel), kernel.kw_compile());
+                            IList programs = kernel.get().compileAll((ISourceLocation) srcv, pathConfig.asConstructor(kernel.get()), kernel.get().kw_compile());
                             markErrors(programs);
                         }
                     }
@@ -330,10 +327,8 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             public void run(IProgressMonitor arg0) throws CoreException {
                 try {
                     if (!locs.isEmpty()) {
-                        synchronized (kernel) {
-                            IList results = kernel.compile(locs, pathConfig.asConstructor(kernel), kernel.kw_compile());
-                            markErrors(results);
-                        }
+                        IList results = kernel.get().compile(locs, pathConfig.asConstructor(kernel.get()), kernel.get().kw_compile());
+                        markErrors(results);
                     }
                 } catch (IOException e) {
                     throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e));
