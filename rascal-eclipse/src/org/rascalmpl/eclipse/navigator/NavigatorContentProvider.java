@@ -79,6 +79,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
   public Object[] getElements(Object inputElement) {
     if (inputElement instanceof IWorkspaceRoot) {
       IWorkingSetManager manager = PlatformUI.getWorkbench().getWorkingSetManager();
+      
       IWorkingSet[] workingSets = manager.getWorkingSets();
       
       if (workingSets.length == 0) {
@@ -106,7 +107,14 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
     try {
       if (parentElement instanceof IWorkspaceRoot) {
         IWorkingSetManager manager = PlatformUI.getWorkbench().getWorkingSetManager();
-        return manager.getWorkingSets();
+        IWorkingSet[] workingSets = manager.getWorkingSets();
+        
+        if (workingSets.length == 0) {
+          return ((IWorkspaceRoot) parentElement).getProjects();
+        }
+        else {
+          return workingSets;
+        }
       }
       else if (parentElement instanceof IWorkingSet) {
         IAdaptable[] elems = ((IWorkingSet) parentElement).getElements();
