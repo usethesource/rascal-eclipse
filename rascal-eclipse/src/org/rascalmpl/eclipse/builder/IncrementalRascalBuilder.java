@@ -33,8 +33,6 @@ import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
-import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
-import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
@@ -165,21 +163,6 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    IDEServicesModelProvider.getInstance().invalidateEverything();
 	    
 	    initializeParameters(false);
-	    
-	    RascalSearchPath p = new RascalSearchPath();
-	    p.addPathContributor(new IRascalSearchPathContributor() {
-            @Override
-            public String getName() {
-                return "config";
-            }
-            
-            @Override
-            public void contributePaths(List<ISourceLocation> path) {
-                for (IValue val :pathConfig.getSrcs()) {
-                    path.add((ISourceLocation) val);
-                }
-            }
-        });
 	    
 	    IProject project = getProject();
 	    
@@ -395,6 +378,11 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     }
     
     private void markErrors(ISourceLocation loc, IConstructor result) throws MalformedURLException, IOException {
+        if ("project".equals(loc.getScheme())) {
+            // ignoring errors outside of projects
+            return;
+        }
+        
         if (result.has("main_module")) {
             result = (IConstructor) result.get("main_module");
         }
