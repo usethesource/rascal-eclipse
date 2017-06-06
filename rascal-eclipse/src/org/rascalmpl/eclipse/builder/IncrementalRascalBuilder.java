@@ -378,7 +378,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     }
     
     private void markErrors(ISourceLocation loc, IConstructor result) throws MalformedURLException, IOException {
-        if ("project".equals(loc.getScheme())) {
+        if (!"project".equals(loc.getScheme())) {
             // ignoring errors outside of projects
             return;
         }
