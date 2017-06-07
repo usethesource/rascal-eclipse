@@ -16,9 +16,11 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -133,17 +135,23 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 	    IProject project = getProject();
 	    
-	    switch (kind) {
-	        case INCREMENTAL_BUILD:
-	        case AUTO_BUILD:
-	            buildIncremental(getDelta(project), monitor);
-	            break;
-	        case FULL_BUILD:
-	            buildWholeProject(monitor);
-	            break;
-	    }
+	    ICoreRunnable runner = new ICoreRunnable() {
+            @Override
+            public void run(IProgressMonitor monitor) throws CoreException {
+                switch (kind) {
+                    case INCREMENTAL_BUILD:
+                    case AUTO_BUILD:
+                        buildIncremental(getDelta(project), monitor);
+                        break;
+                    case FULL_BUILD:
+                        buildWholeProject(monitor);
+                        break;
+                }
+            }
+        };
 	    
-//        project.getWorkspace().run(runner, project,  IWorkspace.AVOID_UPDATE, monitor);
+	    
+        project.getWorkspace().run(runner, project,  IWorkspace.AVOID_UPDATE, monitor);
 
 	    // TODO: return project this project depends on?
 		return new IProject[0];
