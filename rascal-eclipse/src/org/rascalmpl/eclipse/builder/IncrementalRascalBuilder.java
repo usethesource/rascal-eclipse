@@ -16,8 +16,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -87,9 +85,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     private ISourceLocation projectLoc;
     private PathConfig pathConfig;
 
-    public IncrementalRascalBuilder() {
-        
-	}
+    public IncrementalRascalBuilder() { }
 
 	@Override
 	protected void clean(IProgressMonitor monitor) throws CoreException {
@@ -102,59 +98,53 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         
         IProject project = getProject();
         
-        project.getWorkspace().run(new IWorkspaceRunnable() {
-            @Override
-            public void run(IProgressMonitor arg0) throws CoreException {
-                for (String src : manifest.getSourceRoots(project)) {
-                    project.findMember(src).accept(new IResourceVisitor() {
-                        @Override
-                        public boolean visit(IResource resource) throws CoreException {
-                            if (IRascalResources.RASCAL_EXT.equals(resource.getFileExtension())) {
-                                resource.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, true, IResource.DEPTH_ONE);
-                                return false;
-                            }
-                            
-                            return true;
-                        }
-                    });
+        for (String src : manifest.getSourceRoots(project)) {
+            project.findMember(src).accept(new IResourceVisitor() {
+                @Override
+                public boolean visit(IResource resource) throws CoreException {
+                    if (IRascalResources.RASCAL_EXT.equals(resource.getFileExtension())) {
+                        resource.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, true, IResource.DEPTH_ONE);
+                        return false;
+                    }
+
+                    return true;
                 }
-            }
-        }, monitor);
+            });
+        }
     }
 
     private void cleanBinFiles(IProgressMonitor monitor) throws CoreException {
         IProject project = getProject();
         
-        project.getWorkspace().run(new IWorkspaceRunnable() {
+        project.findMember(ProjectConfig.BIN_FOLDER).accept(new IResourceVisitor() {
             @Override
-            public void run(IProgressMonitor arg0) throws CoreException {
-                project.findMember(ProjectConfig.BIN_FOLDER).accept(new IResourceVisitor() {
-                    @Override
-                    public boolean visit(IResource resource) throws CoreException {
-                        if (binaryExtension.contains(resource.getFileExtension())) {
-                            resource.delete(true, monitor);
-                            return false;
-                        }
-                        
-                        return true;
-                    }
-                });
+            public boolean visit(IResource resource) throws CoreException {
+                if (binaryExtension.contains(resource.getFileExtension())) {
+                    resource.delete(true, monitor);
+                    return false;
+                }
+
+                return true;
             }
-        }, monitor);
+        });
     }
 	
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
+	    IProject project = getProject();
+	    
 	    switch (kind) {
-	    case INCREMENTAL_BUILD:
-	    case AUTO_BUILD:
-	        buildIncremental(getDelta(getProject()), monitor);
-	        break;
-	    case FULL_BUILD:
-	        buildWholeProject(monitor);
-	        break;
+	        case INCREMENTAL_BUILD:
+	        case AUTO_BUILD:
+	            buildIncremental(getDelta(project), monitor);
+	            break;
+	        case FULL_BUILD:
+	            buildWholeProject(monitor);
+	            break;
 	    }
 	    
+//        project.getWorkspace().run(runner, project,  IWorkspace.AVOID_UPDATE, monitor);
+
 	    // TODO: return project this project depends on?
 		return new IProject[0];
 	}
@@ -164,37 +154,30 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    
 	    initializeParameters(false);
 	    
-	    IProject project = getProject();
-	    
-	    project.getWorkspace().run(new IWorkspaceRunnable() {
-            @Override
-            public void run(IProgressMonitor monitor) throws CoreException {
-                try {
-                    for (IValue srcv : pathConfig.getSrcs()) {
-                        ISourceLocation src = (ISourceLocation) srcv;
-                        
-                        if (!URIResolverRegistry.getInstance().isDirectory(src)) {
-                            Activator.log("Source config is not a directory?", new IllegalArgumentException(src.toString()));
-                            continue;
-                        }
-                       
-                        // the pathConfig source path currently still contains library sources,
-                        // which we want to compile on-demand only:
-                        if (src.getScheme().equals("project") && src.getAuthority().equals(projectLoc.getAuthority())) {
-                            IList programs = kernel.get().compileAll((ISourceLocation) srcv, pathConfig.asConstructor(kernel.get()), kernel.get().kw_compile());
-                            markErrors(programs);
-                        }
-                    }
-                }
-                catch (Throwable e) {
-                    Activator.log("error during compilation of project " + projectLoc, e);
-                }
-                finally {
-                    monitor.done();
-                }
-            }
-        }, monitor);
-    }
+	    try {
+	        for (IValue srcv : pathConfig.getSrcs()) {
+	            ISourceLocation src = (ISourceLocation) srcv;
+
+	            if (!URIResolverRegistry.getInstance().isDirectory(src)) {
+	                Activator.log("Source config is not a directory?", new IllegalArgumentException(src.toString()));
+	                continue;
+	            }
+
+	            // the pathConfig source path currently still contains library sources,
+	            // which we want to compile on-demand only:
+	            if (src.getScheme().equals("project") && src.getAuthority().equals(projectLoc.getAuthority())) {
+	                IList programs = kernel.get().compileAll((ISourceLocation) srcv, pathConfig.asConstructor(kernel.get()), kernel.get().kw_compile());
+	                markErrors(programs);
+	            }
+	        }
+	    }
+	    catch (Throwable e) {
+	        Activator.log("error during compilation of project " + projectLoc, e);
+	    }
+	    finally {
+	        monitor.done();
+	    }
+	}
 
 	private static class ModuleWork {
 	    public IFile file;
@@ -212,7 +195,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    }
 
         public void deleteMarkers() throws CoreException {
-            file.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, false, IFile.DEPTH_ZERO);
+            file.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, true, IFile.DEPTH_ZERO);
         }
 
         public void clearUseDefCache() {
@@ -304,29 +287,22 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     }
 
     private void buildChangedModules(List<ModuleWork> todo, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Compiling changed Rascal modules", 100);
+        monitor.beginTask("Compiling changed Rascal modules", todo.size());
         
         IList locs = getModuleLocations(todo);
         
-        IWorkspaceRunnable runner = new IWorkspaceRunnable() {
-            @Override
-            public void run(IProgressMonitor arg0) throws CoreException {
-                try {
-                    if (!locs.isEmpty()) {
-                        IList results = kernel.get().compile(locs, pathConfig.asConstructor(kernel.get()), kernel.get().kw_compile());
-                        markErrors(results);
-                    }
-                } catch (IOException e) {
-                    throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e));
-                }
+        try {
+            if (!locs.isEmpty()) {
+                IList results = kernel.get().compile(locs, pathConfig.asConstructor(kernel.get()), kernel.get().kw_compile());
+                markErrors(results);
             }
-        };
-        
-        IProject project = getProject();
+        } 
+        catch (IOException e) {
+            throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e));
+        }
         
         // this shares the locking of the project for efficiency's sake
-        project.getWorkspace().run(runner, project, IWorkspace.AVOID_UPDATE, monitor);
-        monitor.worked(100);
+        monitor.worked(todo.size());
     }
 
     private IList getModuleLocations(List<ModuleWork> todo) {
@@ -341,23 +317,10 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 
     private void cleanChangedModules(List<ModuleWork> todo, IProgressMonitor monitor) throws CoreException {
         monitor.beginTask("Cleaning old errors", todo.size());
-        IWorkspaceRunnable runner = new IWorkspaceRunnable() {
-            
-            @Override
-            public void run(IProgressMonitor arg0) throws CoreException {
-                for (ModuleWork mod : todo) {
-                    mod.deleteMarkers();
-                    mod.clearUseDefCache();
-                   
-                }
-            }
-        };
-
-        IProject project = getProject();
-        
-        // this shares the locking of the project for efficiency's sake
-        project.getWorkspace().run(runner, project,  IWorkspace.AVOID_UPDATE, monitor);
-
+        for (ModuleWork mod : todo) {
+            mod.deleteMarkers();
+            mod.clearUseDefCache();
+        }
         monitor.worked(todo.size());
     }
 
@@ -391,7 +354,8 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             Activator.log("Unexpected Rascal compiler result: " + result, new IllegalArgumentException());
         }
         
-        new MessagesToMarkers().process(loc, (ISet) result.get("messages"), new MarkerCreator(new ProjectURIResolver().resolveFile(loc)));
+        new MessagesToMarkers().process(loc, (ISet) result.get("messages"), 
+                new MarkerCreator(new ProjectURIResolver().resolveFile(loc), IRascalResources.ID_RASCAL_MARKER));
     }
 
     private void initializeParameters(boolean force) throws CoreException {
