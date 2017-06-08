@@ -37,7 +37,7 @@ public class Page extends TabbedPreferencesPage {
 			
 			BooleanFieldEditor enableBootstrap = fPrefUtils.makeNewBooleanField(
                     page, this, fPrefService,
-                    IPreferencesService.INSTANCE_LEVEL, bootstrapRascalProject, "Enable Rascal Compiler",
+                    IPreferencesService.INSTANCE_LEVEL, bootstrapRascalProject, "Enable Bootstrapping of Rascal project",
                     "If checked, and the rascal compiler option is also checked, then the rascal compiler will compile the rascal project itself.",
                     parent,
                     true, true,
