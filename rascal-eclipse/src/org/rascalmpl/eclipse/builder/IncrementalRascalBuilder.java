@@ -268,6 +268,10 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             return;
         }
         
+        if (isRascalBootstrapProject() && !RascalPreferences.bootstrapRascalProject()) {
+            return;
+        }
+        
         try {
             List<ModuleWork> todo = new LinkedList<>();
 
@@ -282,6 +286,10 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         } catch (CoreException e) {
             Activator.log("incremental Rascal build failed", e);
         }
+    }
+
+    private boolean isRascalBootstrapProject() {
+        return "rascal".equals(getProject().getName());
     }
     
     private void buildDirty(List<ModuleWork> todo, IProgressMonitor monitor) {

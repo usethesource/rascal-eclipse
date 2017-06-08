@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.preferences;
 
 import static org.rascalmpl.eclipse.preferences.RascalPreferences.enableRascalCompiler;
+import static org.rascalmpl.eclipse.preferences.RascalPreferences.bootstrapRascalProject;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TabFolder;
@@ -34,8 +35,19 @@ public class Page extends TabbedPreferencesPage {
 					false, false,
 					true);
 			
+			BooleanFieldEditor enableBootstrap = fPrefUtils.makeNewBooleanField(
+                    page, this, fPrefService,
+                    IPreferencesService.INSTANCE_LEVEL, bootstrapRascalProject, "Enable Rascal Compiler",
+                    "If checked, and the rascal compiler option is also checked, then the rascal compiler will compile the rascal project itself.",
+                    parent,
+                    true, true,
+                    false, false,
+                    false, false,
+                    true);
+			
 			return new FieldEditor[] {
-					enableStaticFieldEditor
+					enableStaticFieldEditor,
+					enableBootstrap
 			};
 		}
 	}
