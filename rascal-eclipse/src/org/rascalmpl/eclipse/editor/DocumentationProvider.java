@@ -65,9 +65,9 @@ public class DocumentationProvider  implements IDocumentationProvider {
 	    	
 	    	ISourceLocation occ = TreeAdapter.getLocation((ITree) arg);
 
-	    	IConstructor type = imp.getType(occ, pcfg);
+	    	IString type = imp.getType(occ, pcfg);
 	    	if(type != null){
-	    		b.append("<b>").append(type.toString()).append("</b>");
+	    		b.append("<b>").append(type.getValue()).append("</b>");
 	    	}
 	    	b.append("<ul>");
 	    	for (IValue idef : imp.getDefs(occ, pcfg)) {

@@ -94,9 +94,9 @@ public class IDEServicesModelProvider {
         return get(file, pcfg, "useDef", vf.set());
     }
     
-    public IConstructor getType(ISourceLocation occ, PathConfig pcfg){
+    public IString getType(ISourceLocation occ, PathConfig pcfg){
     	IMap locationTypes = get(occ, pcfg, "locationTypes", vf.mapWriter().done());
-    	return (IConstructor) locationTypes.get(occ);
+    	return (IString) locationTypes.get(occ);
     }
     
     public ISet getDefs(ISourceLocation occ, PathConfig pcfg) {
