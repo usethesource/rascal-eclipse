@@ -617,10 +617,10 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
       }
     }
     else if (element instanceof IResource) {
-      return ((IResource) element).getParent();
+        return ((IResource) element).getParent();
     } 
     else if (element instanceof SearchPath) {
-    	return ((SearchPath) element).getProject();
+        return ((SearchPath) element).getProject();
     }
     else if (element instanceof ValueContent) {
         return ((ValueContent) element).getParent();
