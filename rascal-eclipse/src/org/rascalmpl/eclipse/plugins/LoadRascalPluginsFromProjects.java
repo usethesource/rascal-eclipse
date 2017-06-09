@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
+import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -30,7 +31,9 @@ import io.usethesource.impulse.language.ILanguageRegistrar;
 
 public class LoadRascalPluginsFromProjects implements ILanguageRegistrar {
 	public void registerLanguages() {
-			registerTermLanguagePlugins();
+	    if (RascalPreferences.loadInterpretedLanguagesFromProjects()) {
+	        registerTermLanguagePlugins();
+	    }
 	}
 	
 	public static void registerTermLanguagePlugins() {

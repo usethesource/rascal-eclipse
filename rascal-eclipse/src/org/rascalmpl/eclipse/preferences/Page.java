@@ -2,6 +2,8 @@ package org.rascalmpl.eclipse.preferences;
 
 import static org.rascalmpl.eclipse.preferences.RascalPreferences.enableRascalCompiler;
 import static org.rascalmpl.eclipse.preferences.RascalPreferences.bootstrapRascalProject;
+import static org.rascalmpl.eclipse.preferences.RascalPreferences.loadInterpretedLanguagesFromProjects;
+import static org.rascalmpl.eclipse.preferences.RascalPreferences.loadInterpretedLanguagesFromBundles;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TabFolder;
@@ -35,6 +37,7 @@ public class Page extends TabbedPreferencesPage {
 					false, false,
 					true);
 			
+			@SuppressWarnings("deprecation")
 			BooleanFieldEditor enableBootstrap = fPrefUtils.makeNewBooleanField(
                     page, this, fPrefService,
                     IPreferencesService.INSTANCE_LEVEL, bootstrapRascalProject, "Enable Bootstrapping of Rascal project",
@@ -45,9 +48,33 @@ public class Page extends TabbedPreferencesPage {
                     false, false,
                     true);
 			
+			@SuppressWarnings("deprecation")
+            BooleanFieldEditor loadInterpretedLanguages1 = fPrefUtils.makeNewBooleanField(
+                    page, this, fPrefService,
+                    IPreferencesService.INSTANCE_LEVEL, loadInterpretedLanguagesFromBundles, "At Eclipse startup time or first use, registered languages found in installed plugin bundles",
+                    "If checked, the start-up procedure will load language implementations which are bundled into Eclipse plugins at start-up time",
+                    parent,
+                    true, true,
+                    false, false,
+                    false, false,
+                    true);
+			
+			@SuppressWarnings("deprecation")
+            BooleanFieldEditor loadInterpretedLanguages2 = fPrefUtils.makeNewBooleanField(
+                    page, this, fPrefService,
+                    IPreferencesService.INSTANCE_LEVEL, loadInterpretedLanguagesFromProjects, "At Eclipse startup time or first use, registered languages found in open workspace projects",
+                    "If checked, the start-up procedure will load language implementations which are present in open workspace projects at start-up time",
+                    parent,
+                    true, true,
+                    false, false,
+                    false, false,
+                    true);
+			
 			return new FieldEditor[] {
 					enableStaticFieldEditor,
-					enableBootstrap
+					enableBootstrap,
+					loadInterpretedLanguages1,
+					loadInterpretedLanguages2
 			};
 		}
 	}
