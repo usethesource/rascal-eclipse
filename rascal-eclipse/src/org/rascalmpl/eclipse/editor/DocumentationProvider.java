@@ -65,6 +65,10 @@ public class DocumentationProvider  implements IDocumentationProvider {
 	    	
 	    	ISourceLocation occ = TreeAdapter.getLocation((ITree) arg);
 
+	    	IConstructor type = imp.getType(occ, pcfg);
+	    	if(type != null){
+	    		b.append("<b>").append(type.toString()).append("</b>");
+	    	}
 	    	b.append("<ul>");
 	    	for (IValue idef : imp.getDefs(occ, pcfg)) {
 	    		ISourceLocation def = (ISourceLocation) idef;
@@ -74,9 +78,7 @@ public class DocumentationProvider  implements IDocumentationProvider {
 	    		ISourceLocation docLink = imp.getDocLoc(def, pcfg);
 
 	    		if (docLink != null) {
-	    			b.append("<a href=\"");
-	    			b.append(docLink.getURI());
-	    			b.append("\">");
+	    			b.append("<a href=\"").append(docLink.getURI()).append("\">");
 	    		}
 	    		
 	    		IValue synopsis = imp.getSynopsis(def, pcfg);
