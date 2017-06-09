@@ -207,7 +207,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         }
 
         public void clearUseDefCache() {
-            IDEServicesModelProvider.getInstance().clearUseDefCache(getLocation());
+            IDEServicesModelProvider.getInstance().clearSummaryCache(getLocation());
         }
 	}
 	

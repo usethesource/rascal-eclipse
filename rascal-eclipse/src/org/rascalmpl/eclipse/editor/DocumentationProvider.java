@@ -55,59 +55,45 @@ public class DocumentationProvider  implements IDocumentationProvider {
             return getDocStringFromTree(arg, top);
         }
         
-        if (arg != null && parseController instanceof ParseController && RascalPreferences.isRascalCompilerEnabled()) {
-            ParseController rascalPc = (ParseController) parseController;
-            ISourceProject rprj = rascalPc.getProject();
-            IProject prj = rprj != null ? rprj.getRawProject() : null;
-            PathConfig pcfg =  prj != null ? new ProjectConfig(ValueFactoryFactory.getValueFactory()).getPathConfig(prj) : new PathConfig();
+	    if (arg != null && parseController instanceof ParseController && RascalPreferences.isRascalCompilerEnabled()) {
+	    	ParseController rascalPc = (ParseController) parseController;
+	    	ISourceProject rprj = rascalPc.getProject();
+	    	IProject prj = rprj != null ? rprj.getRawProject() : null;
+	    	PathConfig pcfg =  prj != null ? new ProjectConfig(ValueFactoryFactory.getValueFactory()).getPathConfig(prj) : new PathConfig();
 
-            ISet useDefs = imp.getUseDef(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName());
-            IMap synopses = imp.getSynopses(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName());
-            IMap docLinks = imp.getDocLocs(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName());
-            
-            if (useDefs == null || synopses == null) {
-                return null;
-            }
-            
-            ISet defs = useDefs.asRelation().index(TreeAdapter.getLocation((ITree) arg));
+	    	StringBuffer b = new StringBuffer();
+	    	
+	    	ISourceLocation occ = TreeAdapter.getLocation((ITree) arg);
 
-            if (defs == null) {
-                return null;
-            }
-            
-            StringBuffer b = new StringBuffer();
-            
-            b.append("<ul>");
-            for (IValue def : defs) {
-                IValue synopsis = synopses.get(def);
-                boolean hasLink = false;
-                
-                b.append("<li>");
-                if (docLinks != null) { 
-                    ISourceLocation docLink = (ISourceLocation) docLinks.get(def);
-                    
-                    if (docLink != null) {
-                        hasLink = true;
-                        b.append("<a href=\"");
-                        b.append(docLink.getURI());
-                        b.append("\">");
-                    }
-                }
-                
-                if (synopsis != null) {
-                    b.append(((IString) synopsis).getValue());
-                }
-                
-                if (hasLink) {
-                    b.append("</a>");
-                }
-                
-                b.append("</li>");
-            }
-            b.append("</ul>");
-            
-            return b.toString();
-        }
+	    	b.append("<ul>");
+	    	for (IValue idef : imp.getDefs(occ, pcfg)) {
+	    		ISourceLocation def = (ISourceLocation) idef;
+
+	    		b.append("<li>");
+
+	    		ISourceLocation docLink = imp.getDocLoc(def, pcfg);
+
+	    		if (docLink != null) {
+	    			b.append("<a href=\"");
+	    			b.append(docLink.getURI());
+	    			b.append("\">");
+	    		}
+	    		
+	    		IValue synopsis = imp.getSynopsis(def, pcfg);
+	    		if (synopsis != null) {
+	    			b.append(((IString) synopsis).getValue());
+	    		}
+
+	    		if (docLink != null) {
+	    			b.append("</a>");
+	    		}
+
+	    		b.append("</li>");
+	    	}
+	    	b.append("</ul>");
+
+	    	return b.toString();
+	    }
 		
 		return null;
 	}
