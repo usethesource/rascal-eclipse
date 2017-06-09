@@ -10,6 +10,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Ja
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
@@ -65,6 +66,14 @@ public class IDEServicesModelProvider {
     
     public ISet getUseDef(ISourceLocation file, PathConfig pcfg, String moduleName) {
         return get(file, pcfg, moduleName, "useDef", vf.set());
+    }
+    
+    public IMap getSynopses(ISourceLocation file, PathConfig pcfg, String moduleName) {
+        return get(file, pcfg, moduleName, "synopses", vf.mapWriter().done());
+    }
+    
+    public IMap getDocLocs(ISourceLocation file, PathConfig pcfg, String moduleName) {
+        return get(file, pcfg, moduleName, "docLocs", vf.mapWriter().done());
     }
     
     public IConstructor getSummary(ISourceLocation file, PathConfig pcfg, String moduleName) {
