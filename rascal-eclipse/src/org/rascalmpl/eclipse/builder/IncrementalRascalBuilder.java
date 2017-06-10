@@ -264,9 +264,9 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     }
 
     private void buildIncremental(IResourceDelta delta, IProgressMonitor monitor) {
-//        if (!RascalPreferences.isRascalCompilerEnabled()) {
-//            return;
-//        }
+        if (!RascalPreferences.isRascalCompilerEnabled()) {
+            return;
+        }
         
         if (isRascalBootstrapProject() && !RascalPreferences.bootstrapRascalProject()) {
             return;
