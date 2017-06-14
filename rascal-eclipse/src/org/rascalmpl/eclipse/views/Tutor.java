@@ -14,11 +14,10 @@ package org.rascalmpl.eclipse.views;
 
 import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_TUTOR_VIEW_PART;
 
+import java.io.PrintWriter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -29,18 +28,18 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
-import org.rascalmpl.eclipse.nature.RascalMonitor;
-import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
-import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.tutor.RascalTutor;
+import org.rascalmpl.eclipse.repl.EclipseIDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
+import org.rascalmpl.library.util.PathConfig;
+
+import io.usethesource.impulse.runtime.RuntimePlugin;
 
 public class Tutor extends ViewPart {
 	public static final String ID = ID_RASCAL_TUTOR_VIEW_PART;
 	
 	private Browser browser;
 	private volatile String mainLocation;
-	private RascalTutor tutor;
+	private HelpManager tutor;
 	private Object lock = new Object();
 
 	private ExecutorService backgroundTasks;
@@ -100,7 +99,6 @@ public class Tutor extends ViewPart {
 	private void stop() {
 		if (tutor != null) {
 			try {
-				tutor.stop();
 				tutor = null;
 			} catch (Exception e) {
 				Activator.log("could not stop tutor", e);
@@ -119,30 +117,16 @@ public class Tutor extends ViewPart {
 			synchronized (lock) {
 				try {
 					if (tutor != null) {
-					  tutor.stop();
+					  tutor.stopServer(); 
+					  tutor = null;
 					}
 
 					if (tutor == null) {
 						monitor.beginTask("Loading Tutor server", 2);
-						tutor = new RascalTutor();
-						
-						// to make sure we can find classes used in the Eclipse libraries.
-						Evaluator eval = tutor.getRascalEvaluator();
-						
-						eval.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
-						
-						// This is to make parser generation work (a JDK classpath has to be constructed)
-						ProjectEvaluatorFactory.configureClassPath(Activator.getInstance().getBundle(), eval);						
-						
-						// if we go into edit mode and have some extra checks 
-						if (tutor.isEditMode()) {
-							IProject exampleProject = ResourcesPlugin.getWorkspace().getRoot().getProject("example-project");
-							if (exampleProject == null || !exampleProject.exists() || !exampleProject.isOpen()) {
-								throw new RuntimeException("Tutor will not start before you make sure example-project is open in your workspace. You can find it nested in the rascal project to import.");
-							}
-						}
-						
-						tutor.start(new RascalMonitor(monitor, new WarningsToErrorLog()));
+						PrintWriter out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
+						PrintWriter err = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
+		                
+						tutor = new HelpManager(new PathConfig(), out, err, new EclipseIDEServices());
 					}
 					
 					monitor.worked(1);
@@ -150,8 +134,7 @@ public class Tutor extends ViewPart {
 					new WorkbenchJob("Loading tutor start page") {
 						@Override
 						public IStatus runInUIThread(IProgressMonitor monitor) {
-							mainLocation = tutor.getServer().toString();
-							browser.setUrl(mainLocation);
+							browser.setUrl("http://localhost:" + tutor.getPort() + "/Rascal/index.html");
 							return Status.OK_STATUS;
 						}
 					}.schedule();
