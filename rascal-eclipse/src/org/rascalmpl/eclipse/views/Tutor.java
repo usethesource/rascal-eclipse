@@ -134,7 +134,8 @@ public class Tutor extends ViewPart {
 					new WorkbenchJob("Loading tutor start page") {
 						@Override
 						public IStatus runInUIThread(IProgressMonitor monitor) {
-							browser.setUrl("http://localhost:" + tutor.getPort() + "/Rascal/index.html");
+						    mainLocation = "http://localhost:" + tutor.getPort();
+							browser.setUrl(mainLocation + "/Rascal/index.html");
 							return Status.OK_STATUS;
 						}
 					}.schedule();

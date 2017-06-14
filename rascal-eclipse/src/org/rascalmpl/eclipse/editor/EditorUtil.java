@@ -112,9 +112,13 @@ public class EditorUtil {
     try {
       String link = loc.getURI().toString();
 
-      if (link.startsWith(tutorPrefix) || link.startsWith(localTutorPrefix)) {
-        Tutor t = (Tutor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(Tutor.ID);
-        t.gotoPage(link.substring(tutorPrefix.length()));
+      if (link.startsWith(tutorPrefix)) {
+          Tutor t = (Tutor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(Tutor.ID);
+          t.gotoPage(link.substring(tutorPrefix.length()));
+      }
+      else if (link.startsWith(localTutorPrefix)) {
+          Tutor t = (Tutor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(Tutor.ID);
+          t.gotoPage(link.substring(localTutorPrefix.length() + 4));
       }
       else {
         // open a link in an external browser
