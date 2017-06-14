@@ -11,7 +11,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.util.ProjectConfig;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
@@ -37,7 +36,7 @@ public class CompiledRascalTerminalConnector extends RascalTerminalConnector {
             return null;
         }
         
-        return new CompiledRascalREPL(new ProjectConfig(vf).getPathConfig(ipr), stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), tm, new BasicIDEServices(new PrintWriter(System.err))) {
+        return new CompiledRascalREPL(new ProjectConfig(vf).getPathConfig(ipr), stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), tm, new EclipseIDEServices()) {
 
             @Override
             protected CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException ,org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction ,URISyntaxException {

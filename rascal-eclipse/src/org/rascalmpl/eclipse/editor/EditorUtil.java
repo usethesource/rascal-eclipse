@@ -28,6 +28,9 @@ import io.usethesource.vallang.ISourceLocation;
 
 public class EditorUtil {
 	
+    /**
+     * MUST be called from a UI Thread
+     */
 	public static boolean openAndSelectURI(ISourceLocation uri) {
 		try {
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
@@ -99,12 +102,17 @@ public class EditorUtil {
 	}
 
   private static final String tutorPrefix = "http://tutor.rascal-mpl.org";
+  private static final String localTutorPrefix = "http://localhost:";
 
+  /**
+   * MUST be called from a UI thread
+   * @param loc
+   */
   public static void openWebURI(ISourceLocation loc) {
     try {
       String link = loc.getURI().toString();
 
-      if (link.startsWith(tutorPrefix)) {
+      if (link.startsWith(tutorPrefix) || link.startsWith(localTutorPrefix)) {
         Tutor t = (Tutor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(Tutor.ID);
         t.gotoPage(link.substring(tutorPrefix.length()));
       }
