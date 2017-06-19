@@ -135,7 +135,7 @@ public class Tutor extends ViewPart {
 						@Override
 						public IStatus runInUIThread(IProgressMonitor monitor) {
 						    mainLocation = "http://localhost:" + tutor.getPort();
-							browser.setUrl(mainLocation + "/Rascal/index.html");
+							browser.setUrl(mainLocation + "/TutorHome/index.html");
 							return Status.OK_STATUS;
 						}
 					}.schedule();
