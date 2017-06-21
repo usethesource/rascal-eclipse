@@ -158,6 +158,14 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	}
 
 	private void buildWholeProject(IProgressMonitor monitor) throws CoreException {
+	    if (!RascalPreferences.isRascalCompilerEnabled()) {
+            return;
+        }
+        
+        if (isRascalBootstrapProject() && !RascalPreferences.bootstrapRascalProject()) {
+            return;
+        }
+        
 	    IDEServicesModelProvider.getInstance().invalidateEverything();
 	    
 	    initializeParameters(false);
