@@ -81,5 +81,16 @@ public class TMTerminalTerminal implements Terminal {
     public OutputStream wrapOutIfNeeded(OutputStream out) {
         return out;
     }
+    
+    
+    @Override
+    public void enableInterruptCharacter() {
+        // TODO: figure out if we need to do something here
+    }
+    
+    @Override
+    public void disableInterruptCharacter() {
+        // TODO: figure out if we need to do something here
+    }
 
 }
