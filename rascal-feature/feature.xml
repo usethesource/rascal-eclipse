@@ -5,7 +5,7 @@
       version="0.8.4.qualifier"
       provider-name="CWI">
 
-   <description url="http://www.rascal-mpl.org/">
+   <description url="https://www.rascal-mpl.org/">
       Rascal is a domain specific language for metaprogramming, which
 includes source code analysis source-to-source transformation,
 reverse engineering, source code generation and source code visualization.
@@ -59,7 +59,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </license>
 
    <url>
-      <update label="Rascal" url="http://update.rascal-mpl.org/stable/"/>
+      <update label="Rascal" url="https://update.rascal-mpl.org/stable/"/>
       <discovery label="Eclipse Orbit" url="http://download.eclipse.org/tools/orbit/downloads/drops/R20130827064939/repository/"/>
       <discovery label="TM" url="http://download.eclipse.org/tm/terminal/marketplace/"/>
    </url>
