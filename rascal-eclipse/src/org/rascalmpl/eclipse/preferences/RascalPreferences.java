@@ -17,7 +17,7 @@ public class RascalPreferences {
   }
   
   public static boolean bootstrapRascalProject() {
-      return service.getBooleanPreference(IPreferencesService.INSTANCE_LEVEL, enableRascalCompiler);
+      return service.getBooleanPreference(IPreferencesService.INSTANCE_LEVEL, bootstrapRascalProject);
   }
   
   public static boolean loadInterpretedLanguagesFromBundles() {
