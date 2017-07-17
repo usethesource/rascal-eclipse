@@ -2,7 +2,6 @@ package org.rascalmpl.eclipse.actions;
 
 import java.io.OutputStream;
 
-import org.eclipse.core.internal.jobs.JobStatus;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
