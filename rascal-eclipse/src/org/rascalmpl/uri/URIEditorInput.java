@@ -48,7 +48,7 @@ public class URIEditorInput implements IStorageEditorInput {
        return storage.getLocation().toString();
     }
     
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public Object getAdapter(Class adapter) {
     	if (adapter == IResource.class) {

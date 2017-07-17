@@ -25,6 +25,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.java.m3.internal.LimitedTypeStore;
 import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
@@ -32,7 +33,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.TypeStore;
 
 public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler {
 

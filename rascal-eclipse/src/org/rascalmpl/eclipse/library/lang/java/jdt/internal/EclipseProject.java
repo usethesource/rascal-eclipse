@@ -103,7 +103,6 @@ public class EclipseProject {
     IJavaProject jProject = JavaCore.create(project);
     IMapWriter result = VF.mapWriter();
     
-    @SuppressWarnings("unchecked")
     Map<String,String> options = jProject.getOptions(true);
     
     for (Entry<String,String> entry : options.entrySet()) {
