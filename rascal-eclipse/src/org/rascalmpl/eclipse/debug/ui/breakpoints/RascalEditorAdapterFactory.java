@@ -22,7 +22,7 @@ import io.usethesource.impulse.parser.IParseController;
 
 public class RascalEditorAdapterFactory implements IAdapterFactory {
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({"rawtypes", "unchecked"})
     public Object getAdapter(Object adaptableObject, Class adapterType) {
 	  if (adaptableObject instanceof UniversalEditor) {
 			IParseController pc = ((UniversalEditor) adaptableObject).getParseController();

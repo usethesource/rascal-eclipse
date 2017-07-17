@@ -17,7 +17,7 @@ import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
 
 public class DummyConsoleSourceContainer implements ISourceContainer {
 
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public Object getAdapter(Class adapter) {
       return null;
@@ -31,7 +31,7 @@ public class DummyConsoleSourceContainer implements ISourceContainer {
     if (name.equals(RascalSourceLookupParticipant.RASCAL_CONSOLE_DUMMY) || name.startsWith("stdin:") || name.startsWith("prompt:") || name.startsWith("main:")) {
       return new Object[] { new IFileStore() {
         
-        @SuppressWarnings("rawtypes")
+        @SuppressWarnings({"rawtypes", "unchecked"})
         @Override
         public Object getAdapter(Class adapter) {
             return null;

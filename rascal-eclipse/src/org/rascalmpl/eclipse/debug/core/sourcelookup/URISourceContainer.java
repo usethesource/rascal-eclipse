@@ -60,7 +60,7 @@ public class URISourceContainer implements ISourceContainer {
     return false;
   }
 
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public Object getAdapter(Class adapter) {
       return null;
