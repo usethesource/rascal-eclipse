@@ -10,6 +10,11 @@ import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.INode;
@@ -19,12 +24,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 
 public class IDEServicesModelProvider {
     private final IValueFactory vf;
@@ -118,8 +117,20 @@ public class IDEServicesModelProvider {
         return kernel.outline(module);
     }
     
-    public IConstructor getPathConfig(IProject project) {
-        return new ProjectConfig(vf).getPathConfig(project).asConstructor(kernel);
+    public IConstructor getPathConfigCons(IProject prj) {
+        return getPathConfig(prj).asConstructor(kernel);
+    }
+    
+    public PathConfig getPathConfig(IProject prj) {
+        try {
+            if (prj != null) {
+              return new ProjectConfig(ValueFactoryFactory.getValueFactory()).getPathConfig(prj);
+            }
+        } catch (IOException e) {
+            Activator.log("could not create proper path config, defaulting", e);
+        }
+        
+        return new PathConfig();
     }
     
     public void clearSummaryCache(ISourceLocation file) {

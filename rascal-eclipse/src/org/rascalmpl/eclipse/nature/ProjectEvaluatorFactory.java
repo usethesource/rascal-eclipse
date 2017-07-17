@@ -211,15 +211,6 @@ public class ProjectEvaluatorFactory {
 				configureClassPath(bundle, eval);
 
 				RascalEclipseManifest mf = new RascalEclipseManifest();
-				List<String> requiredBundles = mf.getRequiredBundles(bundle);
-				
-				if (requiredBundles != null) {
-					for (String required : requiredBundles) {
-						if (!configured.contains(required)) {
-							configure(Platform.getBundle(required), eval);
-						}
-					}
-				}
 				
 				List<String> libs = mf.getRequiredLibraries(bundle);
 				if (libs != null) {
@@ -326,13 +317,6 @@ public class ProjectEvaluatorFactory {
 		RascalEclipseManifest mf = new RascalEclipseManifest();
 		for (String root : mf.getSourceRoots(project)) {
 			eval.addRascalSearchPath(ProjectURIResolver.constructProjectURI(project, project.getFile(root).getProjectRelativePath()));
-		}
-		
-		List<String> requiredBundles = mf.getRequiredBundles(project);
-		if (requiredBundles != null) {
-			for (String lib : requiredBundles) {
-				configure(Platform.getBundle(lib), eval);
-			}
 		}
 		
 		List<String> requiredLibraries = mf.getRequiredLibraries(project);

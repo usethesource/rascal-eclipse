@@ -29,14 +29,6 @@ public class RascalEclipseManifest extends RascalManifest {
     return getManifestSourceRoots(manifest(project));
   }
   
-  public List<String> getRequiredBundles(IProject project) {
-	  return getManifestRequiredBundles(manifest(project));
-  }
-  
-  public List<String> getRequiredBundles(Bundle bundle) {
-	  return getManifestRequiredBundles(manifest(bundle));
-  }
-  
   public List<String> getRequiredLibraries(IProject project) {
 	  return getManifestRequiredLibraries(manifest(project));
   }

@@ -33,7 +33,7 @@ class StringStorage implements IStorage {
 			return project.getFullPath().addFileExtension(ext);
 		}
 		
-		@SuppressWarnings("rawtypes")
+		@SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         public Object getAdapter(Class adapter) {
             return null;

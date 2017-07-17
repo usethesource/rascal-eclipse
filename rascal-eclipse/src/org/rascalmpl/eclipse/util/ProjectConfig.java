@@ -11,7 +11,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -22,6 +21,7 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -40,7 +40,7 @@ public class ProjectConfig {
         this.vf = vf;
     }
     
-    public PathConfig getPathConfig(IProject project) {
+    public PathConfig getPathConfig(IProject project) throws IOException {
         ISourceLocation projectLoc = ProjectURIResolver.constructProjectURI(project.getFullPath());
         
         RascalEclipseManifest manifest = new RascalEclipseManifest();
@@ -111,19 +111,18 @@ public class ProjectConfig {
            
             collectPathForProject(project, javaCompilerPath, classloaders);
             
-        } catch (URISyntaxException | IOException | CoreException e) {
-            Activator.log("error while constructing compiler path", e);
+            return new PathConfig(
+                    srcsWriter.done(), 
+                    libsWriter.done(), 
+                    bin, 
+                    boot, 
+                    vf.list(), 
+                    vf.list(javaCompilerPath.toArray(new IValue[0])), 
+                    vf.list(classloaders.toArray(new IValue[0])));
+
+        } catch (URISyntaxException | CoreException e) {
+            throw new IOException(e);
         } 
-        
-        return new PathConfig(
-                srcsWriter.done(), 
-                libsWriter.done(), 
-                bin, 
-                boot, 
-                vf.list(), 
-                vf.list(javaCompilerPath.toArray(new IValue[0])), 
-                vf.list(classloaders.toArray(new IValue[0])));
-        
     }
 
     private boolean isRascalBootstrapProject(IProject project) {
@@ -136,17 +135,6 @@ public class ProjectConfig {
         if (project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
             RascalEclipseManifest mf = new RascalEclipseManifest();
             
-            List<String> requiredBundles = mf.getRequiredBundles(project);
-            if (requiredBundles != null) {
-                for (String lib : requiredBundles) {
-                    ISourceLocation loc = vf.sourceLocation("plugin", Platform.getBundle(lib).getSymbolicName(), "");
-                    
-                    if (!classloaders.contains(loc)) {
-                        classloaders.add(loc);
-                    }
-                }
-            }
-
             List<String> requiredLibraries = mf.getRequiredLibraries(project);
             if (requiredLibraries != null) {
                 for (String lib : requiredLibraries) {

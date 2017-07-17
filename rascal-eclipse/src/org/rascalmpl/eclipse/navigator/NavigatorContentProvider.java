@@ -136,7 +136,7 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
           IResource[] members = project.members();
           Object[] result = new Object[members.length + 2];
           System.arraycopy(members, 0, result, 0, members.length);
-          IConstructor pcfg = IDEServicesModelProvider.getInstance().getPathConfig(project);
+          IConstructor pcfg = IDEServicesModelProvider.getInstance().getPathConfigCons(project);
           result[members.length] = new ValueContent(pcfg, project, project);
           result[members.length + 1] = new SearchPath(project);
           

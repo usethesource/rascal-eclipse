@@ -42,7 +42,7 @@ class StringInput implements IStorageEditorInput {
 			return "String-based file: " + storage.getName();
 		}
 
-		@SuppressWarnings("rawtypes")
+		@SuppressWarnings({"rawtypes", "unchecked"})
         @Override
 		public Object getAdapter(Class adapter) {
 			return null;

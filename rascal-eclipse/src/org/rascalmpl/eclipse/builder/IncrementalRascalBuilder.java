@@ -389,8 +389,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         
         IProject project = getProject();
         
-        // TODO: these should not be fields
         projectLoc = ProjectURIResolver.constructProjectURI(project.getFullPath());
-        pathConfig = new ProjectConfig(vf).getPathConfig(project);
+        pathConfig = IDEServicesModelProvider.getInstance().getPathConfig(project);
     }
 }

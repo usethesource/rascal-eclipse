@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2017 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,14 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetWriter;
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -37,6 +29,13 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.impulse.language.Language;
 import io.usethesource.impulse.language.LanguageRegistry;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class TermLanguageRegistry {
 	private final Map<String, Language> languages = new HashMap<String,Language>();

@@ -24,8 +24,13 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.terms.TermParseController;
-import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
+import io.usethesource.impulse.model.ISourceProject;
+import io.usethesource.impulse.parser.IParseController;
+import io.usethesource.impulse.services.ISourceHyperlinkDetector;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
@@ -34,13 +39,6 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
-
-import io.usethesource.impulse.model.ISourceProject;
-import io.usethesource.impulse.parser.IParseController;
-import io.usethesource.impulse.services.ISourceHyperlinkDetector;
 
 public class HyperlinkDetector implements ISourceHyperlinkDetector {
     private static final TypeFactory tf = TypeFactory.getInstance();
@@ -66,7 +64,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		    ParseController rascalPc = (ParseController) parseController;
 		    ISourceProject rprj = rascalPc.getProject();
 		    IProject prj = rprj != null ? rprj.getRawProject() : null;
-		    PathConfig pcfg =  prj != null ? new ProjectConfig(ValueFactoryFactory.getValueFactory()).getPathConfig(prj) : new PathConfig();
+		    PathConfig pcfg = IDEServicesModelProvider.getInstance().getPathConfig(prj);
 
 		    ISet useDef = imp.getUseDef(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName());
 

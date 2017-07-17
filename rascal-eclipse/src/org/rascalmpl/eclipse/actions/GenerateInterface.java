@@ -62,9 +62,9 @@ public class GenerateInterface extends AbstractEditorAction implements IWorkbenc
             protected IStatus run(IProgressMonitor arg0) {
                 String moduleName = ResourcesToModules.moduleFromFile(file);
                 IValueFactory vf = ValueFactoryFactory.getValueFactory();
-                PathConfig pcfg = new ProjectConfig(vf).getPathConfig(file.getProject());
-
+               
                 try {
+                    PathConfig pcfg = new ProjectConfig(vf).getPathConfig(file.getProject());
                     IKernel kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class)
                             .trace(false)
                             .profile(false)

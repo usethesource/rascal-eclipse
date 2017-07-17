@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2017 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,9 +14,7 @@ package org.rascalmpl.eclipse.editor;
 import org.eclipse.core.resources.IProject;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.terms.TermParseController;
-import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -26,7 +24,6 @@ import io.usethesource.impulse.parser.IParseController;
 import io.usethesource.impulse.services.IDocumentationProvider;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
-import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -59,7 +56,7 @@ public class DocumentationProvider  implements IDocumentationProvider {
 	    	ParseController rascalPc = (ParseController) parseController;
 	    	ISourceProject rprj = rascalPc.getProject();
 	    	IProject prj = rprj != null ? rprj.getRawProject() : null;
-	    	PathConfig pcfg =  prj != null ? new ProjectConfig(ValueFactoryFactory.getValueFactory()).getPathConfig(prj) : new PathConfig();
+	    	PathConfig pcfg =  IDEServicesModelProvider.getInstance().getPathConfig(prj);
 
 	    	StringBuffer b = new StringBuffer();
 	    	
