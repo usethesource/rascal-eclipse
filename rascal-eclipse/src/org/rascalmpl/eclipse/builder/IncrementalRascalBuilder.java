@@ -101,17 +101,21 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         IProject project = getProject();
         
         for (String src : manifest.getSourceRoots(project)) {
-            project.findMember(src).accept(new IResourceVisitor() {
-                @Override
-                public boolean visit(IResource resource) throws CoreException {
-                    if (IRascalResources.RASCAL_EXT.equals(resource.getFileExtension())) {
-                        resource.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, true, IResource.DEPTH_ONE);
-                        return false;
-                    }
+            IResource folder = project.findMember(src);
+            
+            if (folder != null && folder.exists()) {
+                folder.accept(new IResourceVisitor() {
+                    @Override
+                    public boolean visit(IResource resource) throws CoreException {
+                        if (IRascalResources.RASCAL_EXT.equals(resource.getFileExtension())) {
+                            resource.deleteMarkers(IRascalResources.ID_RASCAL_MARKER, true, IResource.DEPTH_ONE);
+                            return false;
+                        }
 
-                    return true;
-                }
-            });
+                        return true;
+                    }
+                });
+            }
         }
     }
 
