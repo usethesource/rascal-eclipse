@@ -38,8 +38,12 @@ public class PluginURIResolver extends BundleURIResolver implements IClassloader
 				throw new IOException("missing authority for bundle name in " + uri);
 			}
 			
+			Bundle bundle = Platform.getBundle(authority);
+			if (bundle == null) {
+				throw new FileNotFoundException("plugin://" + authority);
+			}
 			
-			URL entry = Platform.getBundle(authority).getEntry(uri.getPath());
+			URL entry = bundle.getEntry(uri.getPath());
 			if (entry == null) {
 				throw new FileNotFoundException(uri.toString());
 			}
