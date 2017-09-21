@@ -51,10 +51,10 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIUtil;
-import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.impulse.runtime.RuntimePlugin;
+import io.usethesource.vallang.ISourceLocation;
 
 public class ProjectEvaluatorFactory {
 	
@@ -395,7 +395,7 @@ public class ProjectEvaluatorFactory {
     } 
   }
   
-	private void collectClassPathForProject(IProject project, List<URL> classPath, List<String> compilerClassPath, Evaluator parser) {
+	private void collectClassPathForProject(IProject project, List<URL> classPath, List<String> compilerClassPath, List<ClassLoader> bundleLoaders, Evaluator parser) {
 	    if (project == null) {
 	        return;
 	    }
@@ -403,7 +403,7 @@ public class ProjectEvaluatorFactory {
 		try {
 			if (!project.hasNature(JavaCore.NATURE_ID)) {
 				for (IProject ref : project.getReferencedProjects()) {
-					collectClassPathForProject(ref, classPath, compilerClassPath, parser);
+					collectClassPathForProject(ref, classPath, compilerClassPath, bundleLoaders, parser);
 				}
 			}
 			else {
@@ -436,14 +436,24 @@ public class ProjectEvaluatorFactory {
 						}
 						else {
 							URL url = new URL("file", "", entry.getPath().toString());
-							if (!classPath.contains(url)) {
+							// Try to see if it's actually a Bundle in disguise
+							// FIXME: Awful string manipulation stuff
+							String segment = entry.getPath().lastSegment();
+							int pos = segment.lastIndexOf("_");
+							if (pos != -1) {
+								String bundleName = segment.substring(0, pos);
+								Bundle bundle = Platform.getBundle(bundleName);
+								if (bundle != null) {
+									bundleLoaders.add(new BundleClassLoader(bundle));
+								}
+							} else if (!classPath.contains(url)) {
 								classPath.add(url);
 								compilerClassPath.add(entry.getPath().toString());
 							}
 						}
 						break;
 					case IClasspathEntry.CPE_PROJECT:
-						collectClassPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath, compilerClassPath, parser);
+						collectClassPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath, compilerClassPath, bundleLoaders, parser);
 						break;
 					}
 				}
@@ -460,37 +470,45 @@ public class ProjectEvaluatorFactory {
 	public void configureClassPath(IProject project, Evaluator parser) throws CoreException {
 		List<URL> classPath = new LinkedList<URL>();
 		List<String> compilerClassPath = new LinkedList<String>();
+		List<ClassLoader> bundleLoaders = new LinkedList<ClassLoader>();
 		Bundle rascalBundle = Activator.getInstance().getBundle();
 		
 		// order is important
 		if (project != null && project.isOpen() && project.hasNature(JavaCore.NATURE_ID)) {
-			collectClassPathForProject(project, classPath, compilerClassPath, parser);
+			collectClassPathForProject(project, classPath, compilerClassPath, bundleLoaders, parser);
 		}
 		
-		collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
+//		collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
 	
 		
-		configureClassPath(parser, classPath, compilerClassPath);
+		configureClassPath(parser, classPath, compilerClassPath, bundleLoaders);
 	}
 	
 	public static void configureClassPath(Bundle bundle, Evaluator evaluator) {
 	  List<URL> classPath = new LinkedList<URL>();
 	  List<String> compilerClassPath = new LinkedList<String>();
+	  List<ClassLoader> bundleLoaders = new LinkedList<ClassLoader>();
 	  collectClassPathForBundle(bundle, classPath, compilerClassPath);
 	  Bundle rascalBundle = Activator.getInstance().getBundle();
 	  if (!bundle.getSymbolicName().equals(rascalBundle.getSymbolicName())) {
 		  collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
 	  }
-	  configureClassPath(evaluator, classPath, compilerClassPath);
+	  configureClassPath(evaluator, classPath, compilerClassPath, bundleLoaders);
 	}
 	
-	private static void configureClassPath(Evaluator parser, List<URL> classPath, List<String> compilerClassPath) {
+	private static void configureClassPath(Evaluator parser, List<URL> classPath, List<String> compilerClassPath, List<ClassLoader> bundleLoaders) {
         // this registers the run-time path:
         URL[] urls = new URL[classPath.size()];
         classPath.toArray(urls);
-        URLClassLoader classPathLoader = new URLClassLoader(urls, ProjectEvaluatorFactory.class.getClassLoader());
-        parser.addClassLoader(classPathLoader);
+
+        // FIXME: Why .get(0) ?!
+        URLClassLoader classPathLoader = new URLClassLoader(urls, bundleLoaders.size() > 0 ? bundleLoaders.get(0) : ProjectEvaluatorFactory.class.getClassLoader());
         
+        for (ClassLoader cl : bundleLoaders)
+            parser.addClassLoader(cl);
+
+        parser.addClassLoader(classPathLoader);
+
         try {
             // The Java compiler does not extract classes from nested jars, therefore we try to find a file URL for the nested fat
             // jar (probably extracted in a temp folder by OSGI) and add it to the Java compiler classpath which is used for compiling
