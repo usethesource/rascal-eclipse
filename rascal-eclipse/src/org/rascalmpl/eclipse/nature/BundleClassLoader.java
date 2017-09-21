@@ -11,10 +11,14 @@ import org.osgi.framework.Bundle;
  */
 public class BundleClassLoader extends ClassLoader {
   private Bundle bundle;
-  private ClassLoader parent;
     
   public BundleClassLoader(Bundle bundle) {
     this.bundle = bundle;
+  }
+  
+  public BundleClassLoader(Bundle bundle, ClassLoader parent) {
+	  super(parent);
+	  this.bundle = bundle;
   }
 
   @Override
@@ -34,12 +38,12 @@ public class BundleClassLoader extends ClassLoader {
 
   @Override
   public URL getResource(String name) {
-    return (parent == null) ? findResource(name) : super.getResource(name);
+    return (getParent() == null) ? findResource(name) : super.getResource(name);
   }
 
   @Override
   protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-    Class<?> clazz = (parent == null) ? findClass(name) : super.loadClass(name, false);
+    Class<?> clazz = (getParent() == null) ? findClass(name) : super.loadClass(name, false);
     if (resolve)
       super.resolveClass(clazz);
     

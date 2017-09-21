@@ -442,7 +442,7 @@ public class ProjectEvaluatorFactory {
 								String bundleName = segment.substring(0, pos);
 								Bundle bundle = Platform.getBundle(bundleName);
 								if (bundle != null) {
-									bundleLoaders.add(new BundleClassLoader(bundle));
+									bundleLoaders.add(new BundleClassLoader(bundle, getClass().getClassLoader()));
 								}
 							} else if (!classPath.contains(url)) {
 								classPath.add(url);
