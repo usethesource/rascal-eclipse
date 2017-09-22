@@ -467,15 +467,11 @@ public class ProjectEvaluatorFactory {
 		List<URL> classPath = new LinkedList<URL>();
 		List<String> compilerClassPath = new LinkedList<String>();
 		List<ClassLoader> bundleLoaders = new LinkedList<ClassLoader>();
-		Bundle rascalBundle = Activator.getInstance().getBundle();
 		
 		// order is important
 		if (project != null && project.isOpen() && project.hasNature(JavaCore.NATURE_ID)) {
 			collectClassPathForProject(project, classPath, compilerClassPath, bundleLoaders, parser);
 		}
-		
-//		collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
-	
 		
 		configureClassPath(parser, classPath, compilerClassPath, bundleLoaders);
 	}
