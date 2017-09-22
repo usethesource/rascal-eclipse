@@ -283,8 +283,6 @@ public class ProjectEvaluatorFactory {
       // TODO: add check to see if library is referenced in RASCAL.MF
       evaluator.addRascalSearchPath(URIUtil.correctLocation("plugin", bundle.getSymbolicName(), "/" + root));
     }
-    
-    evaluator.addClassLoader(new BundleClassLoader(bundle));
   }
 
   public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
