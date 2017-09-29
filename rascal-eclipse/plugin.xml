@@ -490,6 +490,13 @@
              id="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem.dynamic3">
        </dynamic>
     </menuContribution>
+    <menuContribution
+          locationURI="popup:#CEditorContext">
+       <dynamic
+             class="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem"
+             id="org.rascalmpl.eclipse.library.util.NonRascalMenuContributionItem.dynamic3">
+       </dynamic>
+    </menuContribution>
  </extension>
  <extension
        point="org.eclipse.ui.themes">
