@@ -18,7 +18,6 @@ import analysis::grammars::Ambiguity;
 import util::Clipboard;
 import ParseTree;
 import vis::ParseTree;
-import vis::web::Chart;
 
 @label{Visualize parse tree}
 public void visPT(Tree x) {
@@ -94,28 +93,3 @@ Figure toGraph(value v) {
   }
 }
 
-//@doc{Displays (svg) any value as a set of nested figures. EXPERIMENTAL!}
-//@label{Experimental value as web view}
-//public void histogramHtml(value v) {
-//  switch (v) {
-//     case map[num, num] m: chart(m);
-//     case map[num, list[num]] m: chart(m);
-//     case map[str, num] r: chart(r);
-//     case map[str, list[num]] m: chart(m);
-//     case rel[num, num] r: chart(r);
-//     case rel[num, num, str] r: chart(r);
-//     case rel[str, str] r: chart(r);    
-//     case rel[loc, loc] r: chart(r);
-//     case rel[map[str, num], str] r:chart(r);
-//     case rel[map[str, num], str, str] r:chart(r);
-//     case rel[map[loc, num], loc] r:chart(r);
-//     case rel[map[loc, num], loc, str] r:chart(r);
-//     case rel[map[str, num], map[str, num]] r:chart(r);
-//     case rel[map[loc, num], map[loc, num]] r:chart(r);
-//     case tuple[str name, list[num] ticks, num(num) q] f: chart([f]);
-//     case tuple[str name, lrel[num, num] r] p: chart([p]);
-//     case list[tuple[str name, list[num] ticks, num(num) q]] f: chart(f);
-//     case list[tuple[str name, lrel[num, num] r]] p: chart(p);
-//     default: chartDefault("<v>");
-//     }    
-//}
