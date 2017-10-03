@@ -29,7 +29,6 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.eclipse.library.vis.figure.Figure;
 import org.rascalmpl.eclipse.library.vis.figure.FigureFactory;
 import org.rascalmpl.eclipse.library.vis.graphics.GraphicsContext;
-import org.rascalmpl.eclipse.library.vis.properties.Properties;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.swt.applet.IHasSWTElement;
@@ -67,7 +66,6 @@ public class LayeredGraph extends Figure {
 	double hgap;
 	double vgap;
 	double MAXWIDTH;
-	private boolean reduceCrossings = true;
 	private static final int INFINITY = Integer.MAX_VALUE - 1000;
 	private static final double DINFINITY = Double.MAX_VALUE -1000;
 	
@@ -80,9 +78,6 @@ public class LayeredGraph extends Figure {
 		this.fpa = fpa;		
 		
 		// Create the nodes
-		if (properties.getStr(Properties.HINT).contains("ordered")) {
-		    this.reduceCrossings = false;
-		}
 		
 		this.nodes = new ArrayList<LayeredGraphNode>();
 		registeredNodeIds = new HashMap<String,LayeredGraphNode>();
@@ -558,16 +553,14 @@ public class LayeredGraph extends Figure {
 			if(debug)
 				print("insertVirtualNodes", layers);
 			
-			if (reduceCrossings) {
-			    layers = reduceCrossings(layers);
-			    if(debug)
-			        print("reduceCrossings", layers);
-
-			    layers = moveInnerCrossingsDown(layers);
-			    if(debug) 
-			        print("moveInnerCrossingsDown", layers);
+			layers = reduceCrossings(layers);
+			if(debug)
+				print("reduceCrossings", layers);
+			
+			layers = moveInnerCrossingsDown(layers);
+			if(debug)
+				print("moveInnerCrossingsDown", layers);
 			}
-		}
 			
 		placeHorizontal(layers);
 		
