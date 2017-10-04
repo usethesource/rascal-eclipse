@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IStorageEditorInput;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
@@ -184,6 +185,9 @@ public class Resources {
 		    if (storage instanceof URIStorage) {
 		        return ((URIStorage) storage).getLocation();
 		    }
+		}
+		else if (activeEditorInput instanceof IURIEditorInput) {
+		    return VF.sourceLocation(((IURIEditorInput) activeEditorInput).getURI());
 		}
 		else if (activeEditorInput instanceof IStorageEditorInput) {
 		    try {
