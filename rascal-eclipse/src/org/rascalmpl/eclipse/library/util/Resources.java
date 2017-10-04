@@ -14,6 +14,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.util;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.core.resources.IFile;
@@ -26,6 +27,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -163,11 +165,19 @@ public class Resources {
 		if (activeEditorInput instanceof FileEditorInput) {
 			IFile actualFile = ((FileEditorInput)activeEditorInput).getFile();
 			return makeFile(actualFile);
-		} 
-		else { // a non file editor (not part of any project, such as annotated class files
-			String fileName = activeEditorInput.getName();
-			return VF.sourceLocation(fileName);
 		}
+		else if (activeEditorInput instanceof FileStoreEditorInput) {
+		    // a non file editor (not part of any project, such as annotated class files
+		    URI urlPath = ((FileStoreEditorInput) activeEditorInput).getURI();
+		    
+            if (urlPath != null) {
+                return VF.sourceLocation(urlPath);
+            }
+		}
+	
+		// we really don't know so we bail out with some default
+	    String fileName = activeEditorInput.getName();
+		return VF.sourceLocation(fileName);
 	}
 	
 	public  ISourceLocation makeFolder(IFolder folder) {
