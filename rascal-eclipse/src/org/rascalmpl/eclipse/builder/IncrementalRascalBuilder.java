@@ -309,7 +309,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             initializeParameters(false);
             cleanChangedModules(todo, monitor);
             buildChangedModules(todo, monitor);
-        } catch (CoreException e) {
+        } catch (Throwable e) {
             Activator.log("exception during increment Rascal build on " + getProject(), e);
         }
     }
@@ -325,8 +325,8 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                 markErrors(results);
             }
         } 
-        catch (IOException e) {
-            throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e));
+        catch (Throwable e) {
+            Activator.log("Unexpected error during compilation:" + e.getMessage(), e);
         }
         
         // this shares the locking of the project for efficiency's sake
