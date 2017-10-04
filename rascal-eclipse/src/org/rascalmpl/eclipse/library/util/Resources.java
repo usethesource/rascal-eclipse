@@ -22,16 +22,20 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIEditorInput;
+import org.rascalmpl.uri.URIStorage;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
@@ -169,9 +173,24 @@ public class Resources {
 		else if (activeEditorInput instanceof FileStoreEditorInput) {
 		    // a non file editor (not part of any project, such as annotated class files
 		    URI urlPath = ((FileStoreEditorInput) activeEditorInput).getURI();
-		    
+
             if (urlPath != null) {
                 return VF.sourceLocation(urlPath);
+            }
+		}
+		else if (activeEditorInput instanceof URIEditorInput) {
+		    IStorage storage = ((URIEditorInput) activeEditorInput).getStorage();
+		    
+		    if (storage instanceof URIStorage) {
+		        return ((URIStorage) storage).getLocation();
+		    }
+		}
+		else if (activeEditorInput instanceof IStorageEditorInput) {
+		    try {
+                IStorage storage = ((IStorageEditorInput) activeEditorInput).getStorage();
+                return VF.sourceLocation(storage.getFullPath().makeAbsolute().toFile().toURI());
+            } catch (CoreException e) {
+                // if this happens, then we bail to the next thing
             }
 		}
 	
