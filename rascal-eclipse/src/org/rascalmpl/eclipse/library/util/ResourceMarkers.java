@@ -103,8 +103,11 @@ public class ResourceMarkers {
 				
 				for (IValue msg : markers) {
 					IConstructor marker = (IConstructor) msg;
-					if (! marker.getType().getName().equals("Message"))
+					
+					if (! marker.getType().getName().equals("Message")) {
 					  throw RuntimeExceptionFactory.illegalArgument(marker, null, null);
+					}
+					
 					ISourceLocation loc = (ISourceLocation)marker.get(1);
 					try { 
 						loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
@@ -112,41 +115,85 @@ public class ResourceMarkers {
 					catch (IOException e) {
 						// couldn't resolve it, must be a physical one already.
 					}
+					
 					IResource resource = URIResourceResolver.getResource(loc);
+					
 					if (resource instanceof IFile) {
 					  IFile file = (IFile) resource;
+					  
 					  try {
 					    int severity = IMarker.SEVERITY_INFO;
-					    if (marker.getName().equals("error"))
-					      severity = IMarker.SEVERITY_ERROR;
-					    else if (marker.getName().equals("warning"))
-					      severity = IMarker.SEVERITY_WARNING;
+					    if (marker.getName().equals("error")) {
+					        severity = IMarker.SEVERITY_ERROR;
+					    }
+					    else if (marker.getName().equals("warning")) {
+					        severity = IMarker.SEVERITY_WARNING;
+					    }
 
 					    IString markerMessage = (IString)marker.get(0);
 					    ISourceLocation markerLocation = loc;
 
-					    String[] attributeNames= new String[] {
-					        IMarker.LINE_NUMBER, 
-					        IMarker.CHAR_START, 
-					        IMarker.CHAR_END, 
-					        IMarker.MESSAGE, 
-					        IMarker.PRIORITY, 
-					        IMarker.SEVERITY
-					    };
+					    if (markerLocation.hasLineColumn()) {
+					        String[] attributeNames = new String[] {
+					                IMarker.LINE_NUMBER, 
+					                IMarker.CHAR_START, 
+					                IMarker.CHAR_END, 
+					                IMarker.MESSAGE, 
+					                IMarker.PRIORITY, 
+					                IMarker.SEVERITY
+					        };
 
-					    Object[] values= new Object[] {
-					        markerLocation.getBeginLine(), 
-					        markerLocation.getOffset(), 
-					        markerLocation.getOffset() + markerLocation.getLength(), 
-					        markerMessage.getValue(), 
-					        IMarker.PRIORITY_HIGH, 
-					        severity
-					    };
+					        Object[] values = new Object[] {
+					                        markerLocation.getBeginLine(), 
+					                        markerLocation.getOffset(), 
+					                        markerLocation.getOffset() + markerLocation.getLength(), 
+					                        markerMessage.getValue(), 
+					                        IMarker.PRIORITY_HIGH, 
+					                        severity
+					                };
 
-					    IMarker m = file.createMarker(IRascalResources.ID_RASCAL_MARKER);
-					    m.setAttributes(attributeNames, values);
-					  } catch (CoreException ce) {
-					    throw RuntimeExceptionFactory.javaException(ce, null, null);
+					        IMarker m = file.createMarker(IRascalResources.ID_RASCAL_MARKER);
+					        m.setAttributes(attributeNames, values);
+					    }
+					    else if (markerLocation.hasOffsetLength()) {
+                            String[] attributeNames = new String[] {
+                                    IMarker.CHAR_START, 
+                                    IMarker.CHAR_END, 
+                                    IMarker.MESSAGE, 
+                                    IMarker.PRIORITY, 
+                                    IMarker.SEVERITY
+                            };
+
+                            Object[] values = new Object[] {
+                                    markerLocation.getOffset(), 
+                                    markerLocation.getOffset() + markerLocation.getLength(), 
+                                    markerMessage.getValue(), 
+                                    IMarker.PRIORITY_HIGH, 
+                                    severity
+                            };
+
+                            IMarker m = file.createMarker(IRascalResources.ID_RASCAL_MARKER);
+                            m.setAttributes(attributeNames, values);
+                        }
+					    else {
+					        String[] attributeNames = new String[] {
+                                    IMarker.MESSAGE, 
+                                    IMarker.PRIORITY, 
+                                    IMarker.SEVERITY
+                            };
+
+                            Object[] values = new Object[] {
+                                            markerMessage.getValue(), 
+                                            IMarker.PRIORITY_HIGH, 
+                                            severity
+                            };
+
+                            IMarker m = file.createMarker(IRascalResources.ID_RASCAL_MARKER);
+                            m.setAttributes(attributeNames, values);
+					    }
+					  } 
+					  catch (CoreException ce) {
+					    throw RuntimeExceptionFactory.illegalArgument(loc, null, null, ce.getMessage());
 					  }
 					}
 				}
