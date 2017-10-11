@@ -61,7 +61,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    <url>
       <update label="Rascal" url="https://update.rascal-mpl.org/stable/"/>
       <discovery label="Eclipse Orbit" url="http://download.eclipse.org/tools/orbit/downloads/drops/R20130827064939/repository/"/>
-      <discovery label="TM" url="http://download.eclipse.org/tm/terminal/marketplace/"/>
+      <discovery label="TM" url="http://nexus.usethesource.io/content/repositories/tm-terminal-marketplace/"/>
    </url>
 
    <requires>
