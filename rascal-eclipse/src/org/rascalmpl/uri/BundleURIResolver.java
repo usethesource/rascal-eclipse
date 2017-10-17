@@ -83,7 +83,7 @@ public class BundleURIResolver implements  ISourceLocationInputOutput {
 				return ValueFactoryFactory.getValueFactory().sourceLocation(resolved.getProtocol(), resolved.getAuthority(), path);
 			}
 			else {
-				return ValueFactoryFactory.getValueFactory().sourceLocation(resolved.toURI());
+				return ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.fromURL(resolved));
 			}
 		} catch (URISyntaxException e) {
 			throw new IOException("unexpected URI syntax exception: " + e.getMessage(), e);

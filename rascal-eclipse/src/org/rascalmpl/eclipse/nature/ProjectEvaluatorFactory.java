@@ -215,7 +215,7 @@ public class ProjectEvaluatorFactory {
 				List<String> libs = mf.getRequiredLibraries(bundle);
 				if (libs != null) {
 					for (String required : libs) {
-					    URI entryURI = bundle.getEntry(required).toURI();
+					    URI entryURI = URIUtil.fromURL(bundle.getEntry(required));
 					    addJarToSearchPath(eval.getValueFactory().sourceLocation(entryURI), eval);
 					}
 				}
@@ -499,7 +499,7 @@ public class ProjectEvaluatorFactory {
         	URL entry = FileLocator.toFileURL(rascalBundle.getEntry("lib/rascal.jar"));
         
 			// this registers the compile-time path:
-            String ccp = new File(entry.toURI()).getAbsolutePath();
+            String ccp = new File(URIUtil.fromURL(entry)).getAbsolutePath();
             for (String elem : compilerClassPath) {
                 ccp += File.pathSeparatorChar + elem;
             }

@@ -48,7 +48,7 @@ public class PluginURIResolver extends BundleURIResolver implements IClassloader
 				throw new FileNotFoundException(uri.toString());
 			}
 			
-			return super.resolve(ValueFactoryFactory.getValueFactory().sourceLocation(entry.toURI()));
+			return super.resolve(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.fromURL(entry)));
 		} catch (URISyntaxException e) {
 			throw new IOException(e);
 		}

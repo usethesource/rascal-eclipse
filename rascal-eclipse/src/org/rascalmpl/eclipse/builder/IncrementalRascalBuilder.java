@@ -38,6 +38,7 @@ import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.impulse.builder.MarkerCreator;
@@ -64,7 +65,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                 
                 Bundle rascalBundle = Activator.getInstance().getBundle();
                 URL entry = FileLocator.toFileURL(rascalBundle.getEntry("lib/rascal.jar"));
-                ISourceLocation rascalJarLoc = vf.sourceLocation(entry.toURI());
+                ISourceLocation rascalJarLoc = vf.sourceLocation(URIUtil.fromURL(entry));
                 PathConfig pcfg = new PathConfig()
                         .addJavaCompilerPath(rascalJarLoc)
                         .addClassloader(rascalJarLoc);
