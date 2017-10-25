@@ -39,18 +39,17 @@ import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.IRascalResult;
-import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.RascalInterpreterREPL;
-import io.usethesource.vallang.IValue;
 
+import io.usethesource.vallang.ISourceLocation;
 import jline.Terminal;
 
 @SuppressWarnings("restriction")
 public class RascalTerminalConnector extends SizedTerminalConnector {
-    private BaseRascalREPL shell;
+    private BaseREPL shell;
     private REPLPipedInputStream stdIn;
     private OutputStream stdInUI;
     protected String project;
@@ -97,7 +96,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
     public void connect(ITerminalControl control) {
         super.connect(control);
         
-        Terminal tm = configure(control);
+        final Terminal tm = configure(control);
         
 
         stdIn = new REPLPipedInputStream();
@@ -218,8 +217,13 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
         return terminalWidth;
     }
 
-    protected BaseRascalREPL constructREPL(ITerminalControl control, REPLPipedInputStream stdIn, OutputStream stdInUI, Terminal tm) throws IOException, URISyntaxException {
-        return new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), tm) {
+    protected BaseREPL constructREPL(ITerminalControl control, REPLPipedInputStream stdIn, OutputStream stdInUI, Terminal tm) throws IOException, URISyntaxException {
+        BaseRascalREPL repl = constructRascalREPL(control, stdIn, stdInUI, tm);
+        return new BaseREPL(repl, null, stdIn, stdInUI, true, true, (ISourceLocation) null, tm, new EclipseIDEServices());
+    }
+    
+    protected BaseRascalREPL constructRascalREPL(ITerminalControl control, REPLPipedInputStream stdIn, OutputStream stdInUI, Terminal tm) throws IOException, URISyntaxException {
+        return new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, false, getHistoryFile()) {
             private AbstractInterpreterEventTrigger eventTrigger;
             private DebugHandler debugHandler;
             
@@ -245,20 +249,13 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                 
                 if (module != null) {
                     eval.doImport(null, module);
-                    Result<IValue> mainFunc = eval.getCurrentEnvt().getFrameVariable("main");
-
-                    // do not move this queue before the mainFunc initializer
-                    super.queueCommand("import " + module + ";");
-                    if (mainFunc != null && mainFunc instanceof ICallableValue) {
-                        super.queueCommand("main()");
-                    }
                 }
                 
                 return eval;
             }
             
             @Override
-            protected IRascalResult evalStatement(String statement, String lastLine)
+            public IRascalResult evalStatement(String statement, String lastLine)
                     throws InterruptedException {
                 try {
                     if (debug()) {
@@ -312,18 +309,6 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                 });         
                 eval.addSuspendTriggerListener(debugHandler);
             }
-
-            @Override
-            public void queueCommand(String command) {
-              super.queueCommand(command);
-              try {
-                // let's flush it
-                stdInUI.write(new byte[]{(byte)ctrl('K'),(byte)ctrl('U'),(byte)'\n'});
-              }
-              catch (IOException e) {
-              }
-            }
         };
     }
-
 }
