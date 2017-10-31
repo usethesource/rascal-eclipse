@@ -109,7 +109,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
         Thread t = new Thread() {
             public void run() {
                 try {
-                    shell = constructREPL(control, stdIn, stdInUI, tm);
+                    shell = constructREPL(control, stdIn, control.getRemoteToTerminalOutputStream(), tm);
                     control.setState(TerminalState.CONNECTED);
                     shell.run();
                 }
