@@ -28,7 +28,7 @@ public class CompiledRascalTerminalConnector extends RascalTerminalConnector {
     private final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
     @Override
-    protected BaseRascalREPL constructREPL(ITerminalControl control, REPLPipedInputStream stdIn, OutputStream stdInUI, Terminal tm) throws IOException, URISyntaxException {
+    protected BaseRascalREPL constructRascalREPL(ITerminalControl control, REPLPipedInputStream stdIn, OutputStream stdInUI, Terminal tm) throws IOException, URISyntaxException {
         IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         IProject ipr;
         if (root == null || project == null ||  (ipr = root.getProject(project)) == null) {
@@ -36,25 +36,18 @@ public class CompiledRascalTerminalConnector extends RascalTerminalConnector {
             return null;
         }
         
-        return new CompiledRascalREPL(new ProjectConfig(vf).getPathConfig(ipr), stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), tm, new EclipseIDEServices()) {
-
+        return new CompiledRascalREPL(new ProjectConfig(vf).getPathConfig(ipr), true, true, false, getHistoryFile(), new EclipseIDEServices()) {
             @Override
             protected CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException ,org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction ,URISyntaxException {
                 CommandExecutor exec = new CommandExecutor(pcfg, stdout, stderr, ideServices, null);
-                exec.setDebugObserver(new DebugREPLFrameObserver(new ProjectConfig(vf).getPathConfig(ipr), reader.getInput(), control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), TerminalFactory.get(), new EclipseIDEServices()));                	
+                exec.setDebugObserver(new DebugREPLFrameObserver(new ProjectConfig(vf).getPathConfig(ipr), stdIn, stdInUI, true, true, getHistoryFile(), TerminalFactory.get(), new EclipseIDEServices()));                	
                 setMeasureCommandTime(true);
                 return exec;
             }
-
+            
             @Override
-            public void queueCommand(String command) {
-                super.queueCommand(command);
-                try {
-                    // let's flush it
-                    stdInUI.write(new byte[]{(byte)ctrl('K'),(byte)ctrl('U'),(byte)'\n'});
-                }
-                catch (IOException e) {
-                }
+            public void stop() {
+                
             }
         };
     }
