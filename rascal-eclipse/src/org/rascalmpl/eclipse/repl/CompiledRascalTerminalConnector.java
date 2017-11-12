@@ -40,7 +40,7 @@ public class CompiledRascalTerminalConnector extends RascalTerminalConnector {
             @Override
             protected CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException ,org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction ,URISyntaxException {
                 CommandExecutor exec = new CommandExecutor(pcfg, stdout, stderr, ideServices, null);
-                exec.setDebugObserver(new DebugREPLFrameObserver(new ProjectConfig(vf).getPathConfig(ipr), stdIn, stdInUI, true, true, getHistoryFile(), TerminalFactory.get(), new EclipseIDEServices()));                	
+                exec.setDebugObserver(new DebugREPLFrameObserver(new ProjectConfig(vf).getPathConfig(ipr), stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), TerminalFactory.get(), new EclipseIDEServices()));                	
                 setMeasureCommandTime(true);
                 return exec;
             }
