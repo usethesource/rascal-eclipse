@@ -219,7 +219,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
 
     protected BaseREPL constructREPL(ITerminalControl control, REPLPipedInputStream stdIn, OutputStream stdInUI, Terminal tm) throws IOException, URISyntaxException {
         BaseRascalREPL repl = constructRascalREPL(control, stdIn, stdInUI, tm);
-        return new BaseREPL(repl, null, stdIn, stdInUI, true, true, (ISourceLocation) null, tm, new EclipseIDEServices());
+        return new BaseREPL(repl, null, stdIn, stdInUI, true, true, getHistoryFile(), tm, new EclipseIDEServices());
     }
     
     protected BaseRascalREPL constructRascalREPL(ITerminalControl control, REPLPipedInputStream stdIn, OutputStream stdInUI, Terminal tm) throws IOException, URISyntaxException {
