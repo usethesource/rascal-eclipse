@@ -196,6 +196,19 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
 
     public void queueCommand(String cmd) {
         shell.queueCommand(cmd);
+        try {
+            // let's flush it.
+            stdInUI.write(new byte[]{(byte)ctrl('K'),(byte)ctrl('U'),(byte)'\n'});
+        }
+        catch (IOException e) {
+            // tough, but we don't have a sensible way of dealing with this,
+            // and if it does happen, the user will have bigger issues than the current one.
+        }
+    }
+    
+    private static char ctrl(char ch) {
+        assert 'A' <= ch && ch <= '_'; 
+        return (char)((((int)ch) - 'A') + 1);
     }
 
     private boolean debug() {
