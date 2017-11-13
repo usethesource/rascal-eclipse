@@ -112,6 +112,10 @@ public class ProjectEvaluatorFactory {
 		return parser;
 	}
 	
+	private static boolean isRascalBootstrapProject(IProject project) {
+        return "rascal".equals(project.getName());
+    }
+	
 	public void reloadProject(IProject project, IWarningHandler handler, Set<String> ignored) {
 		ModuleReloader reloader = reloaderForProject.get(project);
 		
@@ -153,12 +157,16 @@ public class ProjectEvaluatorFactory {
 	/**
 	 * This method configures an evaluator for use in an eclipse context
 	 */
-	public static void configure(Evaluator evaluator) {
+	public static void configure(Evaluator evaluator, IProject project) {
 		// NB. the code in this method is order dependent because it constructs a rascal module path in a particular order
 	    evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
 		evaluator.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
-		evaluator.addClassLoader(Evaluator.class.getClassLoader());
-		evaluator.addRascalSearchPath(URIUtil.rootLocation("std"));
+		
+		if (project == null || !isRascalBootstrapProject(project)) {
+		    evaluator.addClassLoader(Evaluator.class.getClassLoader());
+		    evaluator.addRascalSearchPath(URIUtil.rootLocation("std"));
+		}
+		
 		configureRascalLibraryPlugins(evaluator);
 	}
 	
@@ -186,7 +194,7 @@ public class ProjectEvaluatorFactory {
 			}
 		}
 		
-		configure(evaluator);
+		configure(evaluator, project);
 
 		try {
 			configureClassPath(project, evaluator); 
@@ -197,7 +205,7 @@ public class ProjectEvaluatorFactory {
 	}
 	
 	private static void configure(Bundle bundle, Evaluator evaluator) {
-		configure(evaluator);
+		configure(evaluator, null);
 		configure(bundle, evaluator, new HashSet<String>());
 	}
 	

@@ -70,7 +70,7 @@ public class ValueContributionItem extends ContributionItem {
       err = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
       eval = new JavaToRascal(out, err).getEvaluator();
       eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-      ProjectEvaluatorFactory.configure(eval);
+      ProjectEvaluatorFactory.configure(eval, null);
       eval.doImport(null, UTIL_VALUE_UI);
     } catch (UnsupportedEncodingException e) {
       Activator.log("could not init value contributions", e);
