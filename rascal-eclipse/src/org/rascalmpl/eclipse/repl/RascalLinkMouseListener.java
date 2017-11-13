@@ -3,12 +3,15 @@ package org.rascalmpl.eclipse.repl;
 import java.io.IOException;
 import java.io.StringReader;
 
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.tm.internal.terminal.control.ITerminalMouseListener;
 import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.uri.LinkDetector;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.LinkDetector.Type;
+import org.rascalmpl.uri.URIResolverRegistry;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactParseError;
@@ -40,7 +43,12 @@ final class RascalLinkMouseListener implements ITerminalMouseListener {
                 try {
                     IValue loc = new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), new StringReader(link));
                     if (loc instanceof ISourceLocation) {
-                        EditorUtil.openAndSelectURI((ISourceLocation)loc);
+                        if (URIResolverRegistry.getInstance().exists(((ISourceLocation) loc).top())) {
+                            EditorUtil.openAndSelectURI((ISourceLocation)loc);
+                        }
+                        else {
+                            Display.getCurrent().beep();
+                        }
                     }
                 }
                 catch (FactTypeUseException | FactParseError | IOException e) {
