@@ -26,6 +26,7 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -81,7 +82,7 @@ public class AnnotatorExecutor {
 			if (e instanceof ParseError || e instanceof StaticError || e instanceof Throw) {
 				PrintWriter stdErr = func.getEval().getStdErr();
 				stdErr.write("Annotator failed\n");
-				stdErr.write(ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(e));
+				ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(stdErr, e, new StandardTextWriter(true));
 				stdErr.flush();
 			}
 			else {

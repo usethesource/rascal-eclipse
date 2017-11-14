@@ -28,6 +28,7 @@ import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 
 import io.usethesource.impulse.language.ILanguageRegistrar;
+import io.usethesource.vallang.io.StandardTextWriter;
 
 public class LoadRascalPluginsFromProjects implements ILanguageRegistrar {
 	public void registerLanguages() {
@@ -77,11 +78,13 @@ public class LoadRascalPluginsFromProjects implements ILanguageRegistrar {
 				return;
 			}
 			eval.getStdErr().println("Could not run Plugin.rsc main of " + project.getName());
-			eval.getStdErr().println(ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(e));
+			ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(eval.getStdErr(), e, new StandardTextWriter(true));
+			eval.getStdErr().println();
 		}
 		catch (ParseError | StaticError | Throw e) {
 		  eval.getStdErr().println("Could not run Plugin.rsc main of " + project.getName());
-		  eval.getStdErr().println(ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(e));
+			ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(eval.getStdErr(), e, new StandardTextWriter(true));
+			eval.getStdErr().println();
 		}
 		catch (Throwable e) {
 			Activator.getInstance().logException("could not run Plugin.rsc main of " + project.getName(), e);

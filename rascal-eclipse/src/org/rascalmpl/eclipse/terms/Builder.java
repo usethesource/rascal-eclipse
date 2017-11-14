@@ -40,6 +40,7 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -155,7 +156,8 @@ public class Builder extends BuilderBase {
 					handler.handleSimpleMessage("builder error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 				}
 				else if (evalForErrors != null) {
-					evalForErrors.getStdErr().write(ReadEvalPrintDialogMessages.throwMessage(e) + "\n");
+				    ReadEvalPrintDialogMessages.throwMessage(evalForErrors.getStdErr(), e, new StandardTextWriter());
+				    evalForErrors.getStdErr().println();
 					evalForErrors.getStdErr().flush();
 				}
 				else {
@@ -164,7 +166,8 @@ public class Builder extends BuilderBase {
 			}
 			else {
 				if (evalForErrors != null) {
-					evalForErrors.getStdErr().write(ReadEvalPrintDialogMessages.throwMessage(e) + "\n");
+				    ReadEvalPrintDialogMessages.throwMessage(evalForErrors.getStdErr(), e, new StandardTextWriter());
+				    evalForErrors.getStdErr().println();
 					evalForErrors.getStdErr().flush();
 				}
 				else {
