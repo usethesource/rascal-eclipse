@@ -38,8 +38,6 @@
 			<id>usethesource</id>
 			<url>http://nexus.usethesource.io/content/repositories/public/</url>
 		</repository>
-
-
 		<repository>
 			<id>neon</id>
 			<layout>p2</layout>
@@ -50,12 +48,6 @@
 			<layout>p2</layout>
 			<url>http://nexus.usethesource.io/content/repositories/tm-terminal-marketplace/</url>
 		</repository>
-		<repository>
-			<id>orbit</id>
-			<layout>p2</layout>
-			<url>http://nexus.usethesource.io/content/repositories/orbit-tools-r20130827064939/</url>
-		</repository>
-
 	</repositories>
 
 

@@ -80,8 +80,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <import plugin="org.eclipse.ui.views"/>
       <import plugin="org.eclipse.ui.navigator"/>
       <import plugin="org.eclipse.swt"/>
-      <import plugin="org.apache.commons.math"/>
-      <import plugin="org.apache.commons.lang"/>
       <import plugin="org.junit"/>
       <import plugin="com.google.gson"/>
       <import plugin="org.eclipse.core.contenttype"/>
@@ -106,20 +104,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          download-size="0"
          install-size="0"
          version="0.9.1.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.lang"
-         download-size="0"
-         install-size="0"
-         version="2.4.0.v201005080502"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.math"
-         download-size="0"
-         install-size="0"
-         version="2.1.0.v201105210652"
          unpack="false"/>
 
    <plugin
