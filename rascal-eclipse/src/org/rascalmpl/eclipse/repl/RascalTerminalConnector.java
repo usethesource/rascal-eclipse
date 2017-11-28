@@ -39,12 +39,15 @@ import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.IRascalResult;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 import jline.Terminal;
 
 @SuppressWarnings("restriction")
@@ -262,6 +265,13 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                 
                 if (module != null) {
                     eval.doImport(null, module);
+                    queueCommand("import " + module + ";");
+
+                    // do not move this queue before the mainFunc initializer
+                    Result<IValue> mainFunc = eval.getCurrentEnvt().getFrameVariable("main");
+                    if (mainFunc != null && mainFunc instanceof ICallableValue) {
+                        queueCommand("main()");
+                    }
                 }
                 
                 return eval;
