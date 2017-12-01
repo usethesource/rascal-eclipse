@@ -239,7 +239,7 @@ public class Resources {
 			return p;
 		}
 		else if (!p.isOpen()) {
-			throw new Throw(VF.string("Project does is not open: " + projectName), (ISourceLocation) null, null);
+			throw new Throw(VF.string("Project is not open: " + projectName), (ISourceLocation) null, null);
 		}
 		else {
 			throw new Throw(VF.string("Project does not exist: " + projectName), (ISourceLocation) null, null);
