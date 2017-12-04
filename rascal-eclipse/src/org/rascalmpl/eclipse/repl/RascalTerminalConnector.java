@@ -12,6 +12,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -53,6 +54,7 @@ import jline.Terminal;
 @SuppressWarnings("restriction")
 public class RascalTerminalConnector extends SizedTerminalConnector {
     private BaseREPL shell;
+    private final AtomicBoolean shellIsRunning = new AtomicBoolean(false);
     private REPLPipedInputStream stdIn;
     private OutputStream stdInUI;
     protected String project;
@@ -114,6 +116,13 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                 try {
                     shell = constructREPL(control, stdIn, control.getRemoteToTerminalOutputStream(), tm);
                     control.setState(TerminalState.CONNECTED);
+
+                    if (module != null) {
+                        queueCommand("import " + module + ";");
+                        queueCommand("main()");
+                    }
+                
+                    shellIsRunning.set(true);
                     shell.run();
                 }
                 catch (IOException | URISyntaxException e) {
@@ -199,13 +208,15 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
 
     public void queueCommand(String cmd) {
         shell.queueCommand(cmd);
-        try {
-            // let's flush it.
-            stdInUI.write(new byte[]{(byte)ctrl('K'),(byte)ctrl('U'),(byte)'\n'});
-        }
-        catch (IOException e) {
-            // tough, but we don't have a sensible way of dealing with this,
-            // and if it does happen, the user will have bigger issues than the current one.
+        if (shellIsRunning.get()) {
+            try {
+                // let's flush it.
+                stdInUI.write(new byte[]{(byte)ctrl('K'),(byte)ctrl('U'),(byte)'\n'});
+            }
+            catch (IOException e) {
+                // tough, but we don't have a sensible way of dealing with this,
+                // and if it does happen, the user will have bigger issues than the current one.
+            }
         }
     }
     
@@ -261,17 +272,6 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                     initializeRascalDebugMode(eval);      
                     connectToEclipseDebugAPI(eval);
                     eventTrigger.fireSuspendByClientRequestEvent();
-                }
-                
-                if (module != null) {
-                    eval.doImport(null, module);
-                    queueCommand("import " + module + ";");
-
-                    // do not move this queue before the mainFunc initializer
-                    Result<IValue> mainFunc = eval.getCurrentEnvt().getFrameVariable("main");
-                    if (mainFunc != null && mainFunc instanceof ICallableValue) {
-                        queueCommand("main()");
-                    }
                 }
                 
                 return eval;
