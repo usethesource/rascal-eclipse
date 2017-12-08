@@ -55,6 +55,17 @@
             url="http://www.rascal-mpl.org">
       </language>
    </extension>
+    <extension 
+         point="impulse.languageDescription">
+      <language
+            description="Tutor3 - Rascal Documentation Engine"
+            extensions="concept"
+            icon="icons/rascal3D_2-16px.gif"
+            language="Tutor3"
+            natureID="rascal_nature"
+            url="http://www.rascal-mpl.org">
+      </language>
+   </extension>
    <extension
          id="rascal_eclipse.parserWrapper"
          name="Rascal Parser Wrapper"
@@ -599,6 +610,16 @@
    <builder>
       <run
             class="org.rascalmpl.eclipse.terms.Builder">
+      </run>
+   </builder>
+</extension>
+<extension
+      id="tutor_builder"
+      name="tutor_builder"
+      point="org.eclipse.core.resources.builders">
+   <builder>
+      <run
+            class="org.rascalmpl.eclipse.tutor.Builder">
       </run>
    </builder>
 </extension>
