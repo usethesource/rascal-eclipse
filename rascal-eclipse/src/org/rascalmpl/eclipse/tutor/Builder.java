@@ -87,6 +87,7 @@ public class Builder extends BuilderBase {
             Activator.getInstance().logException("ignoring all but the first Courses from META-INF/RASCAL.MF", null);
         }
         
+        // TODO: project should be able to have multiple courses directories
         Path coursesSrcPath = loc2path((ISourceLocation) courseList.get(0));
         
         // TODO: a project may have multiple source paths
