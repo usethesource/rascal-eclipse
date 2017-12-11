@@ -31,12 +31,30 @@
 			<artifactId>jline</artifactId>
 			<version>2.13</version>
 		</dependency>
+       <dependency>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctorj</artifactId>
+            <version>1.5.4.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jruby</groupId>
+            <artifactId>jruby-complete</artifactId>
+            <version>1.7.25</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+            <version>1.35</version>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
-				<!-- Copy non-Ecipse plugins to target/dependency so that may be referenced 
+				<!-- Copy non-Eclipse plugins to target/dependency so that may be referenced 
 					for runtime use. -->
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>2.9</version>
@@ -56,6 +74,30 @@
 									<overWrite>true</overWrite>
 									<outputDirectory>${basedir}/lib</outputDirectory>
 									<destFileName>rascal.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+                                                                        <groupId>org.jruby</groupId>
+                                                                        <artifactId>jruby-complete</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${basedir}/lib</outputDirectory>
+									<destFileName>jruby.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${basedir}/lib</outputDirectory>
+									<destFileName>jcommander.jar</destFileName>
+								</artifactItem>
+								<artifactItem>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctorj</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${basedir}/lib</outputDirectory>
+									<destFileName>asciidoctor.jar</destFileName>
 								</artifactItem>
 							</artifactItems>
 						</configuration>

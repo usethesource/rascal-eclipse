@@ -147,4 +147,7 @@ Export-Package: io.usethesource.vallang,
  org.rascalmpl.values.uptr.visitors
 Import-Package: org.eclipse.core.expressions
 Bundle-ClassPath: .,
-  lib/rascal.jar
+ lib/rascal.jar,
+ lib/asciidoctor.jar,
+ lib/jcommander.jar,
+ lib/jruby.jar
