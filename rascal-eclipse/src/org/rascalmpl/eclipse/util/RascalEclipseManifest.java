@@ -45,6 +45,10 @@ public class RascalEclipseManifest extends RascalManifest {
     return getManifestMainModule(manifest(project));
   }
   
+  public List<String> getCourses(IProject project) {
+      return getManifestCourses(manifest(project));
+  }
+  
   public String getMainModule(Bundle project) {
     return getManifestMainModule(manifest(project));
   }
@@ -76,7 +80,7 @@ public class RascalEclipseManifest extends RascalManifest {
     IFile rascalMF = project.getFile(new Path(META_INF_RASCAL_MF));
     try {
       if (rascalMF.exists()) {
-        return new BufferedInputStream(rascalMF.getContents());
+        return rascalMF.getContents();
       }
     } 
     catch (CoreException e) {

@@ -47,6 +47,7 @@ public class ProjectConfig {
         
         IListWriter libsWriter = vf.listWriter();
         IListWriter srcsWriter = vf.listWriter();
+        IListWriter coursesWriter = vf.listWriter();
         
         
         // we special-case the rascal project for bootstrapping purposes (avoiding confusing between source and bootstrapped library)
@@ -60,6 +61,10 @@ public class ProjectConfig {
         // These are jar files which make contain compiled Rascal code to link to:
         for (String lib : manifest.getRequiredLibraries(project)) {
             libsWriter.append(URIUtil.getChildLocation(projectLoc, lib));
+        }
+        
+        for (String course : manifest.getCourses(project)) {
+            coursesWriter.append(URIUtil.getChildLocation(projectLoc, course));
         }
         
         // These are other projects referenced by the current project for which we add
@@ -116,7 +121,7 @@ public class ProjectConfig {
                     libsWriter.done(), 
                     bin, 
                     boot, 
-                    vf.list(), 
+                    coursesWriter.done(), 
                     vf.list(javaCompilerPath.toArray(new IValue[0])), 
                     vf.list(classloaders.toArray(new IValue[0])));
 
