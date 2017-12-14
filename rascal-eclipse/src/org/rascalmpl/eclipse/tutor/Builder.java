@@ -1,21 +1,37 @@
 package org.rascalmpl.eclipse.tutor;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.DirectoryStream;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Asciidoctor.Factory;
+import org.asciidoctor.internal.AsciidoctorModule;
+import org.asciidoctor.internal.JRubyAsciidoctor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.internal.corext.refactoring.structure.MemberVisibilityAdjustor.IncomingMemberVisibilityAdjustment;
+import org.eclipse.ui.PlatformUI;
+import org.jruby.Ruby;
+import org.jruby.RubyInstanceConfig;
+import org.jruby.embed.osgi.OSGiScriptingContainer;
+import org.jruby.javasupport.JavaEmbedUtils;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.library.util.HtmlDisplay;
@@ -26,19 +42,19 @@ import org.rascalmpl.library.experiments.tutor3.Onthology;
 import org.rascalmpl.library.experiments.tutor3.TutorCommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIResourceResolver;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 import io.usethesource.impulse.builder.BuilderBase;
 import io.usethesource.impulse.runtime.PluginBase;
-import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 
 public class Builder extends BuilderBase {
     private final Map<IProject, Onthology> ontologies = new HashMap<>();
     private final PrintWriter err = new PrintWriter(getConsoleStream());
+    private PathConfig cachedConfig;
+    private TutorCommandExecutor cachedExecutor;
+    private Asciidoctor asciidoctor;
 
     public Builder() {
     }
@@ -97,27 +113,28 @@ public class Builder extends BuilderBase {
         try {
             CourseCompiler.copyStandardFiles(coursesSrcPath, destPath);
 
-            TutorCommandExecutor executor = new TutorCommandExecutor(pcfg, err, new BasicIDEServices(err));
+            TutorCommandExecutor executor = getCommandExecutor(pcfg);
 
             String courseName  = getCourseName(pcfg, file, coursesSrcPath);
             if (courseName != null) {
                 Onthology ontology = getOntology(file.getProject(), coursesSrcPath, courseName, destPath, libSrcPath, pcfg, executor);
 
-                CourseCompiler.compileCourse(coursesSrcPath, courseName, destPath, libSrcPath, pcfg, executor);
+                CourseCompiler.compileCourseCommand(getDoctorClasspath(), coursesSrcPath, courseName, destPath, libSrcPath, pcfg, executor);
                 err.flush();
-                //            writeFile(destPath + "/course-compilation-errors.txt", sw.toString());
 
-                System.err.println("Removing intermediate files");
-
-                //        FileVisitor<Path> fileProcessor = new RemoveAdocs();
-                //        try {
-                //            Files.walkFileTree(destPath, fileProcessor);
-                //        } catch (IOException e) {
-                //            // TODO: handle file issue (one file failed) with proper error handling mechanism.
-                //            System.err.println(e.getMessage());
-                //        }
-
-                HtmlDisplay.browse(destPath.resolve("index.html").toFile().toURI().toURL());
+                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            URL url = CourseCompiler.courseIndexFile(destPath).toURI().toURL();
+                            System.err.println(url);
+//                            HtmlDisplay.browse(url);
+                        } catch (MalformedURLException e) {
+                            Activator.log("could not show tutor compiled result", e);
+                        }
+                    }
+                });
+               
                 return;
             }
             else {
@@ -127,6 +144,28 @@ public class Builder extends BuilderBase {
             Activator.log("unexpected error during course compilation for " + file, e);
             return;
         }
+    }
+
+    private static String getDoctorClasspath() throws IOException {
+        return libLocation("lib/jruby.jar") + File.pathSeparator
+                + libLocation("lib/jcommander.jar") + File.pathSeparator
+                + libLocation("lib/asciidoctor.jar")
+                ;
+    }
+
+    private static String libLocation(String lib) throws IOException {
+        return FileLocator.resolve(Activator.getInstance().getBundle().getEntry(lib)).getPath();
+    }
+    
+    private TutorCommandExecutor getCommandExecutor(PathConfig pcfg)
+            throws IOException, NoSuchRascalFunction, URISyntaxException {
+        if (this.cachedConfig != null && this.cachedConfig.toString().equals(pcfg.toString())) {
+            return cachedExecutor;
+        }
+         
+        cachedConfig = pcfg;
+        cachedExecutor = new TutorCommandExecutor(pcfg, err, new BasicIDEServices(err));
+        return this.cachedExecutor;
     }
 
     private String getCourseName(PathConfig pcfg, IFile file, Path coursesSrcPath) {
