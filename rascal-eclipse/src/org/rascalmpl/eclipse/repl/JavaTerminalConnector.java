@@ -95,15 +95,11 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
           // this makes sure the terminal does not echo the characters to the normal console as well:
           workingCopy.setAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, false);
 
-          if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-              server = startREPLWindowSizeSocket();
-              String vmArgs = workingCopy.getAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, "");
-              vmArgs += " -D" + RascalShell.ECLIPSE_TERMINAL_CONNECTION_REPL_KEY + "=" + port;
-              workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, vmArgs);
-          }
-          else {
-              server = null;
-          }
+          // add the back channel to the window size
+          server = startREPLWindowSizeSocket();
+          String vmArgs = workingCopy.getAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, "");
+          vmArgs += " -D" + RascalShell.ECLIPSE_TERMINAL_CONNECTION_REPL_KEY + "=" + port;
+          workingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, vmArgs);
           
           launch = workingCopy.launch(mode, new NullProgressMonitor(), true /*build first*/, true /*do register for debug*/);
 
