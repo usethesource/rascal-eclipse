@@ -3,9 +3,6 @@ package org.rascalmpl.eclipse.tutor;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -13,28 +10,18 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.asciidoctor.Asciidoctor;
-import org.asciidoctor.Asciidoctor.Factory;
-import org.asciidoctor.internal.AsciidoctorModule;
-import org.asciidoctor.internal.JRubyAsciidoctor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.internal.corext.refactoring.structure.MemberVisibilityAdjustor.IncomingMemberVisibilityAdjustment;
 import org.eclipse.ui.PlatformUI;
-import org.jruby.Ruby;
-import org.jruby.RubyInstanceConfig;
-import org.jruby.embed.osgi.OSGiScriptingContainer;
-import org.jruby.javasupport.JavaEmbedUtils;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
-import org.rascalmpl.eclipse.library.util.HtmlDisplay;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.experiments.tutor3.CourseCompiler;
@@ -126,7 +113,7 @@ public class Builder extends BuilderBase {
                     @Override
                     public void run() {
                         try {
-                            URL url = CourseCompiler.courseIndexFile(destPath).toURI().toURL();
+                            URL url = CourseCompiler.courseIndexFile(destPath.resolve(courseName)).toURI().toURL();
                             System.err.println(url);
 //                            HtmlDisplay.browse(url);
                         } catch (MalformedURLException e) {
