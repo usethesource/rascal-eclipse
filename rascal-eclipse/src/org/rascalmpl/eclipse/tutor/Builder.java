@@ -40,6 +40,11 @@ public class Builder extends BuilderBase {
     }
 
     @Override
+    protected String getConsoleName() {
+        return "Tutor3 builder console";
+    }
+    
+    @Override
     protected PluginBase getPlugin() {
         return Activator.getInstance();
     }
