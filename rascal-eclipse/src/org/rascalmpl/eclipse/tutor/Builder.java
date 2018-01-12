@@ -13,7 +13,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.asciidoctor.Asciidoctor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -22,7 +21,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
+import org.rascalmpl.eclipse.library.util.HtmlDisplay;
+import org.rascalmpl.eclipse.repl.EclipseIDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.experiments.tutor3.CourseCompiler;
 import org.rascalmpl.library.experiments.tutor3.Onthology;
@@ -40,8 +42,8 @@ public class Builder extends BuilderBase {
     private final Map<IProject, Onthology> ontologies = new HashMap<>();
     private final PrintWriter err = new PrintWriter(getConsoleStream());
     private PathConfig cachedConfig;
+    private HelpManager help;
     private TutorCommandExecutor cachedExecutor;
-    private Asciidoctor asciidoctor;
 
     public Builder() {
     }
@@ -77,6 +79,10 @@ public class Builder extends BuilderBase {
         return Paths.get(URIResourceResolver.getResource(loc).getLocation().toFile().toURI());
     }
     
+    private static Path file2path(IFile file) {
+        return Paths.get(file.getLocation().toFile().toURI());
+    }
+    
     @Override
     protected void compile(IFile file, IProgressMonitor monitor) {
         PathConfig pcfg = getPathConfig(file);
@@ -104,7 +110,11 @@ public class Builder extends BuilderBase {
 
             String courseName  = getCourseName(pcfg, file, coursesSrcPath);
             if (courseName != null) {
-                Onthology ontology = getOntology(file.getProject(), coursesSrcPath, courseName, destPath, libSrcPath, pcfg, executor);
+//                Onthology ontology = getOntology(file.getProject(), coursesSrcPath, courseName, destPath, libSrcPath, pcfg, executor);
+//                ontology.buildCourseMap();
+                String anchor = getConceptAnchor(coursesSrcPath, file);
+//                int port = getHelpManager(pcfg).getPort();
+                URL url = new URL(destPath.resolve(courseName).toUri() + "/index.html#" + anchor);
 
                 CourseCompiler.compileCourseCommand(getDoctorClasspath(), coursesSrcPath, courseName, destPath, libSrcPath, pcfg, executor);
                 err.flush();
@@ -112,13 +122,8 @@ public class Builder extends BuilderBase {
                 PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            URL url = CourseCompiler.courseIndexFile(destPath.resolve(courseName)).toURI().toURL();
                             System.err.println(url);
-//                            HtmlDisplay.browse(url);
-                        } catch (MalformedURLException e) {
-                            Activator.log("could not show tutor compiled result", e);
-                        }
+                            HtmlDisplay.browse(url);
                     }
                 });
                
@@ -133,6 +138,12 @@ public class Builder extends BuilderBase {
         }
     }
 
+    private static String getConceptAnchor(Path coursesSrcPath, IFile file) {
+        Path name = coursesSrcPath.relativize(file2path(file)).getParent();
+        int n = name.getNameCount();
+        return n >= 2 ? name.getName(n-2) + "-" + name.getName(n-1) : name.getFileName().toString();
+    }
+    
     private static String getDoctorClasspath() throws IOException {
         return libLocation("lib/jruby.jar") + File.pathSeparator
                 + libLocation("lib/jcommander.jar") + File.pathSeparator
@@ -146,13 +157,29 @@ public class Builder extends BuilderBase {
     
     private TutorCommandExecutor getCommandExecutor(PathConfig pcfg)
             throws IOException, NoSuchRascalFunction, URISyntaxException {
-        if (this.cachedConfig != null && this.cachedConfig.toString().equals(pcfg.toString())) {
+        if (this.cachedConfig != null && !freshConfig(pcfg)) {
             return cachedExecutor;
         }
          
         cachedConfig = pcfg;
         cachedExecutor = new TutorCommandExecutor(pcfg, err, new BasicIDEServices(err));
+        
         return this.cachedExecutor;
+    }
+    
+    private HelpManager getHelpManager(PathConfig pcfg) throws IOException {
+        if (help == null || freshConfig(pcfg)) {
+            if (freshConfig(pcfg)) {
+                help.stopServer();
+            }
+            help = new HelpManager(pcfg, new PrintWriter(System.out), new PrintWriter(System.err), new EclipseIDEServices());
+        }
+        
+        return  help;
+    }
+
+    private boolean freshConfig(PathConfig pcfg) {
+        return !this.cachedConfig.toString().equals(pcfg.toString());
     }
 
     private String getCourseName(PathConfig pcfg, IFile file, Path coursesSrcPath) {
@@ -170,17 +197,6 @@ public class Builder extends BuilderBase {
         }
         
         return null;
-    }
-
-    private Onthology getOntology(IProject project, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
-        Onthology result = ontologies.get(project);
-
-        if (result == null) {
-            result = new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
-            ontologies.put(project, result);
-        }
-        
-        return result;
     }
 
     @Override
@@ -203,4 +219,8 @@ public class Builder extends BuilderBase {
         return "tutor3.info";
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        help.stopServer();
+    }
 }
