@@ -39,9 +39,6 @@
                class="org.rascalmpl.eclipse.nature.Nature">
          </run>
       </runtime>
-    <!--  <builder
-            id="rascal_eclipse.rascal_builder">
-      </builder> -->
    </extension>
 
    <extension 
@@ -51,6 +48,17 @@
             extensions="rsc"
             icon="icons/rascal3D_2-16px.gif"
             language="Rascal"
+            natureID="rascal_nature"
+            url="http://www.rascal-mpl.org">
+      </language>
+   </extension>
+    <extension 
+         point="impulse.languageDescription">
+      <language
+            description="Tutor3 - Rascal Documentation Engine"
+            extensions="concept"
+            icon="icons/rascal3D_2-16px.gif"
+            language="Tutor3"
             natureID="rascal_nature"
             url="http://www.rascal-mpl.org">
       </language>
@@ -90,6 +98,13 @@
       <parser
             class="org.rascalmpl.eclipse.terms.TermParseController"
             language="Terms">
+      </parser>
+   </extension>
+   <extension
+         point="impulse.parser">
+      <parser
+            class="org.rascalmpl.eclipse.tutor.ConceptParseController"
+            language="Tutor3">
       </parser>
    </extension>
    <extension
@@ -603,6 +618,16 @@
    </builder>
 </extension>
 <extension
+      id="tutor_builder"
+      name="tutor_builder"
+      point="org.eclipse.core.resources.builders">
+   <builder>
+      <run
+            class="org.rascalmpl.eclipse.tutor.Builder">
+      </run>
+   </builder>
+</extension>
+<extension
       id="rascal_builder"
       name="rascal_builder"
       point="org.eclipse.core.resources.builders">
@@ -637,6 +662,19 @@
    </builder>
 </extension>
 <extension
+      id="tutor_nature"
+      name="tutor_nature"
+      point="org.eclipse.core.resources.natures">
+   <runtime>
+      <run
+            class="org.rascalmpl.eclipse.tutor.TutorNature">
+      </run>
+   </runtime>
+   <builder
+         id="rascal_eclipse.tutor_builder">
+   </builder>
+</extension>
+<extension
       point="org.eclipse.ui.preferencePages">
    <page
          class="org.rascalmpl.eclipse.preferences.Page"
@@ -650,16 +688,6 @@
          class="org.rascalmpl.eclipse.preferences.Initializer">
    </initializer>
 </extension>
-<!-- <extension
-      id="rascal_builder"
-      name="rascal_builder"
-      point="org.eclipse.core.resources.builders">
-   <builder>
-      <run
-            class="org.rascalmpl.eclipse.nature.Builder">
-      </run>
-   </builder>
-</extension> -->
 <extension
       id="rascal_markers"
       name="rascal_markers"

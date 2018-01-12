@@ -57,6 +57,10 @@ public interface IRascalResources {
 	public static final String ID_TERM_NATURE = "rascal_eclipse.term_nature";
 	public static final String ID_TERM_BUILDER = "rascal_eclipse.term_builder";
 	
+	public static final String ID_TUTOR_MARKER = "rascal_eclipse.tutor_markers";
+    public static final String ID_TUTOR_NATURE = "rascal_eclipse.tutor_nature";
+    public static final String ID_TUTOR_BUILDER = "rascal_eclipse.tutor_builder";
+	
 	/**
 	 * Name of the string substitution variable that resolves to the location of
 	 * a local Rascal executable (value <code>rascalExecutable</code>).
