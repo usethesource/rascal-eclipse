@@ -98,9 +98,9 @@ public class Builder extends BuilderBase {
         // TODO: a project may have multiple source paths
         Path libSrcPath = loc2path((ISourceLocation)pcfg.getSrcs().get(0));
         Path destPath = loc2path((ISourceLocation)pcfg.getBin()).resolve("courses");
-        String courseName  = getCourseName(pcfg, file, coursesSrcPath);
-        
+       
         try {
+            String courseName  = getCourseName(pcfg, file, coursesSrcPath);
             CourseCompiler.copyStandardFiles(coursesSrcPath, destPath.resolve(courseName));
 
             TutorCommandExecutor executor = getCommandExecutor(pcfg);
@@ -130,6 +130,7 @@ public class Builder extends BuilderBase {
             return;
         } catch (Throwable e) {
             Activator.log("very unexpected error during course compilation of " + file, e);
+            e.printStackTrace(err);
             return;
         }
     }
@@ -167,7 +168,7 @@ public class Builder extends BuilderBase {
         return !this.cachedConfig.toString().equals(pcfg.toString());
     }
 
-    private String getCourseName(PathConfig pcfg, IFile file, Path coursesSrcPath) {
+    private String getCourseName(PathConfig pcfg, IFile file, Path coursesSrcPath) throws IOException {
         String filePath = file.getLocation().toFile().getAbsolutePath();
         
         try (DirectoryStream<Path> dirs = Files.newDirectoryStream(coursesSrcPath)) {
@@ -177,11 +178,8 @@ public class Builder extends BuilderBase {
                 }
             }
         } 
-        catch (IOException e) {
-            Activator.log("could not compute course name", e);
-        }
         
-        return null;
+        throw new IOException("No course found containing: " + file);
     }
 
     @Override
