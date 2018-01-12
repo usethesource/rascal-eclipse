@@ -31,6 +31,8 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 import io.usethesource.impulse.model.ISourceProject;
 import io.usethesource.impulse.parser.IParseController;
 import io.usethesource.impulse.services.ISourceHyperlinkDetector;
+import io.usethesource.vallang.IAnnotatable;
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
@@ -46,16 +48,34 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
     private static final Type linksRelType2 = tf.relType(tf.sourceLocationType(), tf.sourceLocationType(), tf.stringType());
     private static final IDEServicesModelProvider imp = IDEServicesModelProvider.getInstance();
     
+    private static ISourceLocation getLocation(ITree t, IParseController controller) {
+    	if (t.isAnnotatable()) {
+    		IAnnotatable<? extends IConstructor> annotatedTree = t.asAnnotatable();
+			if (annotatedTree.hasAnnotation("loc")) {
+    			return (ISourceLocation)(annotatedTree.getAnnotation("loc"));
+    		}
+    	}
+    	if (controller instanceof TermParseController) {
+    		return ((TermParseController)controller).getSourceLocation();
+    	}
+    	if (controller instanceof ParseController) {
+    		return ((ParseController)controller).getSourceLocation();
+    	}
+    	throw new RuntimeException("Cannot find SourceLocation for " + controller);
+    	
+    }
+    
 	public IHyperlink[] detectHyperlinks(IRegion region, ITextEditor editor, ITextViewer textViewer, IParseController parseController) {
 		if (parseController == null) {
 			return null;
 		}
 		
 		ITree tree = (ITree) parseController.getCurrentAst();
+		ISourceLocation rootLocation = getLocation(tree, parseController).top();
 		
 		if (tree != null && parseController instanceof TermParseController) {
 		    // DSL case
-			return getTreeLinks(tree, region);
+			return getTreeLinks(rootLocation,  tree, region);
 		}
 		
 		if (tree != null && parseController instanceof ParseController && RascalPreferences.isRascalCompilerEnabled()) {
@@ -66,14 +86,14 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		    IProject prj = rprj != null ? rprj.getRawProject() : null;
 		    PathConfig pcfg = IDEServicesModelProvider.getInstance().getPathConfig(prj);
 
-		    ISet useDef = imp.getUseDef(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName());
+		    ISet useDef = imp.getUseDef(rootLocation, pcfg, rascalPc.getModuleName());
 
 		    if (!checkUseDefType(useDef)) {
 		        Activator.log(useDef.getType() + " is not a rel[loc,loc] or rel[loc,loc,str]? " + useDef, null);
 		        return new IHyperlink[0];
 		    }
 
-		    return getLinksForRegionFromUseDefRelation(region, useDef);
+		    return getLinksForRegionFromUseDefRelation(rootLocation, region, useDef);
 		}
 		
 		return null;
@@ -83,11 +103,11 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
         return useDef.getType().isSubtypeOf(linksRelType1) || useDef.getType().isSubtypeOf(linksRelType2);
     }
 	
-	private IHyperlink[] getTreeLinks(ITree tree, IRegion region) {
+	private IHyperlink[] getTreeLinks(ISourceLocation root, ITree tree, IRegion region) {
 		IValue xref = tree.asAnnotatable().getAnnotation("hyperlinks");
 		
 		if (xref != null && (xref.getType().isSubtypeOf(linksRelType1) || xref.getType().isSubtypeOf(linksRelType2))) {
-		    return getLinksForRegionFromUseDefRelation(region, (ISet) xref);
+		    return getLinksForRegionFromUseDefRelation(root, region, (ISet) xref);
 		}
 		
 		
@@ -138,21 +158,23 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		return null;
 	}
 
-    private IHyperlink[] getLinksForRegionFromUseDefRelation(IRegion region, ISet rel) {
+    private IHyperlink[] getLinksForRegionFromUseDefRelation(ISourceLocation rootLocation, IRegion region, ISet rel) {
+    	rootLocation = rootLocation.top();
+
         List<IHyperlink> links = new ArrayList<>();
          
         for (IValue v: rel) {
         	ITuple t = ((ITuple)v);
         	ISourceLocation loc = (ISourceLocation)t.get(0);
-        	if (region.getOffset() >= loc.getOffset() && region.getOffset() < loc.getOffset() + loc.getLength()) {
-        		ISourceLocation to = (ISourceLocation)t.get(1);
-        		if (rel.getType().getElementType().getArity() == 3 && rel.getType().getElementType().getFieldType(2).isString()) {
-        			links.add(new SourceLocationHyperlink(loc, to, ((IString)t.get(2)).getValue()));
-        		}
-        		else {
-        			links.add(new SourceLocationHyperlink(loc, to, to.toString()));
-        		}
-        	}
+            if (loc.top().equals(rootLocation) && region.getOffset() >= loc.getOffset() && region.getOffset() < loc.getOffset() + loc.getLength()) {
+                ISourceLocation to = (ISourceLocation)t.get(1);
+                if (rel.getType().getElementType().getArity() == 3 && rel.getType().getElementType().getFieldType(2).isString()) {
+                    links.add(new SourceLocationHyperlink(loc, to, ((IString)t.get(2)).getValue()));
+                }
+                else {
+                    links.add(new SourceLocationHyperlink(loc, to, to.toString()));
+                }
+            }
         }
         if (links.isEmpty()) {
         	return null;

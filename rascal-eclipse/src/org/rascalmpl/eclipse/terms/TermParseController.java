@@ -92,6 +92,17 @@ public class TermParseController implements IParseController {
 		return new NodeLocator();
 	}
 
+	public ISourceLocation getSourceLocation() {
+	    if (project != null && path != null) {
+	        return ProjectURIResolver.constructProjectURI(project.getRawProject(), path);
+	    }
+	    else if (path != null) {
+	        return FileURIResolver.constructFileURI(path.toString());
+	    }
+	    else {
+	        return null;
+	    }
+	}
 	
 	public ILanguageSyntaxProperties getSyntaxProperties() {
 		IConstructor syntaxProperties = TermLanguageRegistry.getInstance().getSyntaxProperties(getLanguage());
