@@ -128,6 +128,9 @@ public class Builder extends BuilderBase {
         } catch (IOException | NoSuchRascalFunction | URISyntaxException e) {
             Activator.log("unexpected error during course compilation for " + file, e);
             return;
+        } catch (Throwable e) {
+            Activator.log("very unexpected error during course compilation of " + file, e);
+            return;
         }
     }
 
