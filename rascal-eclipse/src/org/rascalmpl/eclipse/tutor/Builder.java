@@ -3,18 +3,14 @@ package org.rascalmpl.eclipse.tutor;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -22,12 +18,9 @@ import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.library.util.HtmlDisplay;
-import org.rascalmpl.eclipse.repl.EclipseIDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.experiments.tutor3.CourseCompiler;
-import org.rascalmpl.library.experiments.tutor3.Onthology;
 import org.rascalmpl.library.experiments.tutor3.TutorCommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
@@ -39,10 +32,8 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 
 public class Builder extends BuilderBase {
-    private final Map<IProject, Onthology> ontologies = new HashMap<>();
     private final PrintWriter err = new PrintWriter(getConsoleStream());
     private PathConfig cachedConfig;
-    private HelpManager help;
     private TutorCommandExecutor cachedExecutor;
 
     public Builder() {
@@ -102,18 +93,15 @@ public class Builder extends BuilderBase {
         // TODO: a project may have multiple source paths
         Path libSrcPath = loc2path((ISourceLocation)pcfg.getSrcs().get(0));
         Path destPath = loc2path((ISourceLocation)pcfg.getBin()).resolve("courses");
+        String courseName  = getCourseName(pcfg, file, coursesSrcPath);
         
         try {
-            CourseCompiler.copyStandardFiles(coursesSrcPath, destPath);
+            CourseCompiler.copyStandardFiles(coursesSrcPath, destPath.resolve(courseName));
 
             TutorCommandExecutor executor = getCommandExecutor(pcfg);
-
-            String courseName  = getCourseName(pcfg, file, coursesSrcPath);
+           
             if (courseName != null) {
-//                Onthology ontology = getOntology(file.getProject(), coursesSrcPath, courseName, destPath, libSrcPath, pcfg, executor);
-//                ontology.buildCourseMap();
                 String anchor = getConceptAnchor(coursesSrcPath, file);
-//                int port = getHelpManager(pcfg).getPort();
                 URL url = new URL(destPath.resolve(courseName).toUri() + "/index.html#" + anchor);
 
                 CourseCompiler.compileCourseCommand(getDoctorClasspath(), coursesSrcPath, courseName, destPath, libSrcPath, pcfg, executor);
@@ -167,17 +155,6 @@ public class Builder extends BuilderBase {
         return this.cachedExecutor;
     }
     
-    private HelpManager getHelpManager(PathConfig pcfg) throws IOException {
-        if (help == null || freshConfig(pcfg)) {
-            if (freshConfig(pcfg)) {
-                help.stopServer();
-            }
-            help = new HelpManager(pcfg, new PrintWriter(System.out), new PrintWriter(System.err), new EclipseIDEServices());
-        }
-        
-        return  help;
-    }
-
     private boolean freshConfig(PathConfig pcfg) {
         return !this.cachedConfig.toString().equals(pcfg.toString());
     }
@@ -217,10 +194,5 @@ public class Builder extends BuilderBase {
     @Override
     protected String getInfoMarkerID() {
         return "tutor3.info";
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        help.stopServer();
     }
 }
