@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IRegion;
 
+import io.usethesource.impulse.parser.IParseController;
 import io.usethesource.impulse.parser.ISourcePositionLocator;
 import io.usethesource.impulse.parser.ParseControllerBase;
 import io.usethesource.impulse.services.IAnnotationTypeInfo;
@@ -62,7 +63,63 @@ public class ConceptParseController extends ParseControllerBase {
 
     @Override
     public ILanguageSyntaxProperties getSyntaxProperties() {
-        return null;
+        return new ILanguageSyntaxProperties() {
+            
+            @Override
+            public boolean isWhitespace(char ch) {
+                return Character.isWhitespace(ch);
+            }
+            
+            @Override
+            public boolean isIdentifierStart(char ch) {
+                return Character.isJavaIdentifierStart(ch);
+            }
+            
+            @Override
+            public boolean isIdentifierPart(char ch) {
+                return Character.isJavaIdentifierPart(ch);
+            }
+            
+            @Override
+            public String getSingleLineCommentPrefix() {
+                return "//";
+            }
+            
+            @Override
+            public String getIdentifierConstituentChars() {
+                return null;
+            }
+            
+            @Override
+            public int[] getIdentifierComponents(String ident) {
+                return null;
+            }
+            
+            @Override
+            public String[][] getFences() {
+                return new String[][] { { "(", ")"}, {"[", "]"}, {"{", "}"}};
+            }
+            
+            @Override
+            public IRegion getDoubleClickRegion(int offset, IParseController pc) {
+                return null;
+            }
+            
+            @Override
+            public String getBlockCommentStart() {
+                return "////";
+            }
+            
+            @Override
+            public String getBlockCommentEnd() {
+                return "////";
+            }
+            
+            @Override
+            public String getBlockCommentContinuation() {
+                return null;
+            }
+        };
     }
 
     @Override
