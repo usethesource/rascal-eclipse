@@ -95,9 +95,14 @@ public class Builder extends BuilderBase {
         // TODO: project should be able to have multiple courses directories
         Path coursesSrcPath = loc2path((ISourceLocation) courseList.get(0));
         
+        System.err.println("Source path for courses is: " + coursesSrcPath);
+        
         // TODO: a project may have multiple source paths
         Path libSrcPath = loc2path((ISourceLocation)pcfg.getSrcs().get(0));
         Path destPath = loc2path((ISourceLocation)pcfg.getBin()).resolve("courses");
+        
+        System.err.println("Source path for library files in courses is: " + libSrcPath);
+        System.err.println("Destination path for compiled courses is: " + destPath);
        
         try {
             String courseName  = getCourseName(pcfg, file, coursesSrcPath);
@@ -173,7 +178,9 @@ public class Builder extends BuilderBase {
         
         try (DirectoryStream<Path> dirs = Files.newDirectoryStream(coursesSrcPath)) {
             for (Path course : dirs) {
+                System.err.println("Looking for " + file + " in " + course);
                 if (filePath.startsWith(course.toAbsolutePath().toFile().getAbsolutePath())) {
+                    System.err.println("Found!");
                     return course.getFileName().toString();
                 }
             }
