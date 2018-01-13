@@ -14,6 +14,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
@@ -64,7 +66,15 @@ public class Builder extends BuilderBase {
         PathConfig pcfg = getPathConfig(resource);
         ISourceLocation binURI = ProjectURIResolver.constructProjectURI(resource.getProject(), resource.getProjectRelativePath());
         
-        return pcfg.getBin().equals(binURI);
+        try {
+            // either the Rascal output folder
+            // or the Java output folder, must be ignored:
+            return pcfg.getBin().equals(binURI)  
+                || JavaCore.create(resource.getProject()).getOutputLocation().equals(resource.getFullPath());
+        } catch (JavaModelException e) {
+            Activator.log(e.getMessage(), e);
+            return false;
+        }
     }
 
     private PathConfig getPathConfig(IResource resource) {
