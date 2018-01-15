@@ -39,8 +39,8 @@ public class CompiledRascalTerminalConnector extends RascalTerminalConnector {
         return new CompiledRascalREPL(new ProjectConfig(vf).getPathConfig(ipr), true, true, false, getHistoryFile(), new EclipseIDEServices()) {
             @Override
             protected CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException ,org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction ,URISyntaxException {
-                CommandExecutor exec = new CommandExecutor(pcfg, stdout, stderr, ideServices, null);
-                exec.setDebugObserver(new DebugREPLFrameObserver(new ProjectConfig(vf).getPathConfig(ipr), stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), TerminalFactory.get(), new EclipseIDEServices()));                	
+                DebugREPLFrameObserver observer = new DebugREPLFrameObserver(new ProjectConfig(vf).getPathConfig(ipr), stdIn, control.getRemoteToTerminalOutputStream(), true, true, getHistoryFile(), TerminalFactory.get(), new EclipseIDEServices());
+                CommandExecutor exec = new CommandExecutor(pcfg, stdout, stderr, ideServices, null, observer);
                 setMeasureCommandTime(true);
                 return exec;
             }
