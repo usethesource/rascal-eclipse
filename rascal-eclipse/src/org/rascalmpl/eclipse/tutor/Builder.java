@@ -129,7 +129,12 @@ public class Builder extends BuilderBase {
                     @Override
                     public void run() {
                             err.println(url);
-                            HtmlDisplay.browse(url);
+                            if (new File(url.getPath()).exists()) {
+                                HtmlDisplay.browse(url);
+                            }
+                            else {
+                                err.println("generate url does not exist? " + url);
+                            }
                     }
                 });
                
