@@ -105,15 +105,10 @@ public class Builder extends BuilderBase {
         // TODO: project should be able to have multiple courses directories
         Path coursesSrcPath = loc2path((ISourceLocation) courseList.get(0));
         
-        err.println("Source path for courses is: " + coursesSrcPath);
-        
         // TODO: a project may have multiple source paths
         Path libSrcPath = loc2path((ISourceLocation)pcfg.getSrcs().get(0));
         Path destPath = loc2path((ISourceLocation)pcfg.getBin()).resolve("courses");
         
-        err.println("Source path for library files in courses is: " + libSrcPath);
-        err.println("Destination path for compiled courses is: " + destPath);
-       
         try {
             String courseName  = getCourseName(pcfg, file, coursesSrcPath);
             CourseCompiler.copyStandardFiles(coursesSrcPath, destPath.resolve(courseName));
@@ -124,9 +119,12 @@ public class Builder extends BuilderBase {
                 String anchor = getConceptAnchor(coursesSrcPath, file);
                 URL url = new URL(destPath.resolve(courseName).toUri() + "/index.html#" + anchor);
 
-                CourseCompiler.compileCourseCommand(getDoctorClasspath(), coursesSrcPath, courseName, destPath, libSrcPath, pcfg, executor);
-                err.flush();
-
+                // we can only have only builder executing at a time due to file sharing on disk
+                synchronized (Builder.class) {
+                    CourseCompiler.compileCourseCommand(getDoctorClasspath(), coursesSrcPath, courseName, destPath, libSrcPath, pcfg, executor);
+                    err.flush();
+                }
+                
                 PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
                     @Override
                     public void run() {
@@ -188,9 +186,7 @@ public class Builder extends BuilderBase {
         
         try (DirectoryStream<Path> dirs = Files.newDirectoryStream(coursesSrcPath)) {
             for (Path course : dirs) {
-                err.println("Looking for " + file + " in " + course);
                 if (filePath.startsWith(course.toAbsolutePath().toFile().getAbsolutePath())) {
-                    err.println("Found!");
                     return course.getFileName().toString();
                 }
             }
