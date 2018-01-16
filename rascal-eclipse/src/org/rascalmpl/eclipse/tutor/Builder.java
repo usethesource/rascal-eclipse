@@ -3,6 +3,7 @@ package org.rascalmpl.eclipse.tutor;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
@@ -14,6 +15,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.PlatformUI;
@@ -117,7 +119,7 @@ public class Builder extends BuilderBase {
            
             if (courseName != null) {
                 String anchor = getConceptAnchor(coursesSrcPath, file);
-                URL url = new URL(destPath.resolve(courseName).toUri() + "/index.html#" + anchor);
+                URL url = URIUtil.toURL(new URI("file", destPath.resolve(courseName + "/index.html").toUri().getRawSchemeSpecificPart(), "#" + anchor));
 
                 // we can only have only builder executing at a time due to file sharing on disk
                 synchronized (Builder.class) {
