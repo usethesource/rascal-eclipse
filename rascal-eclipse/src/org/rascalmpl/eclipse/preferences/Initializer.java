@@ -13,6 +13,8 @@ public class Initializer extends PreferencesInitializer {
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.bootstrapRascalProject, false);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.loadInterpretedLanguagesFromBundles, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.loadInterpretedLanguagesFromProjects, true);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.enableConceptCompiler, false);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.liveConceptPreview, false);
 	}
 
 	@Override
@@ -22,5 +24,7 @@ public class Initializer extends PreferencesInitializer {
 		service.clearPreferenceAtLevel(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.bootstrapRascalProject);
 		service.clearPreferenceAtLevel(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.loadInterpretedLanguagesFromBundles);
 		service.clearPreferenceAtLevel(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.loadInterpretedLanguagesFromProjects);
+		service.clearPreferenceAtLevel(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.enableConceptCompiler);
+		service.clearPreferenceAtLevel(IPreferencesService.DEFAULT_LEVEL, RascalPreferences.liveConceptPreview);
 	}
 }

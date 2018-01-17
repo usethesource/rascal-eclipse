@@ -22,6 +22,7 @@ import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.library.util.HtmlDisplay;
+import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.experiments.tutor3.CourseCompiler;
@@ -93,6 +94,10 @@ public class Builder extends BuilderBase {
     
     @Override
     protected void compile(IFile file, IProgressMonitor monitor) {
+        if (!RascalPreferences.conceptCompilerEnabled()) {
+            return;
+        }
+        
         PathConfig pcfg = getPathConfig(file);
         
         IList courseList = pcfg.getCourses();
@@ -127,9 +132,10 @@ public class Builder extends BuilderBase {
                     err.flush();
                 }
                 
-                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                    @Override
-                    public void run() {
+                if (RascalPreferences.liveConceptPreviewEnabled()) {
+                    PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+                        @Override
+                        public void run() {
                             err.println(url);
                             if (new File(url.getPath()).exists()) {
                                 HtmlDisplay.browse(url);
@@ -137,8 +143,9 @@ public class Builder extends BuilderBase {
                             else {
                                 err.println("generate url does not exist? " + url);
                             }
-                    }
-                });
+                        }
+                    });
+                }
                
                 return;
             }
@@ -188,7 +195,7 @@ public class Builder extends BuilderBase {
         return !this.cachedConfig.toString().equals(pcfg.toString());
     }
 
-    private String getCourseName(PathConfig pcfg, IFile file, Path coursesSrcPath) throws IOException {
+    private static String getCourseName(PathConfig pcfg, IFile file, Path coursesSrcPath) throws IOException {
         String filePath = file.getLocation().toFile().getAbsolutePath();
         
         try (DirectoryStream<Path> dirs = Files.newDirectoryStream(coursesSrcPath)) {

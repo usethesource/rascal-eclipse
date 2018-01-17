@@ -1,9 +1,11 @@
 package org.rascalmpl.eclipse.preferences;
 
-import static org.rascalmpl.eclipse.preferences.RascalPreferences.enableRascalCompiler;
 import static org.rascalmpl.eclipse.preferences.RascalPreferences.bootstrapRascalProject;
-import static org.rascalmpl.eclipse.preferences.RascalPreferences.loadInterpretedLanguagesFromProjects;
+import static org.rascalmpl.eclipse.preferences.RascalPreferences.enableConceptCompiler;
+import static org.rascalmpl.eclipse.preferences.RascalPreferences.enableRascalCompiler;
+import static org.rascalmpl.eclipse.preferences.RascalPreferences.liveConceptPreview;
 import static org.rascalmpl.eclipse.preferences.RascalPreferences.loadInterpretedLanguagesFromBundles;
+import static org.rascalmpl.eclipse.preferences.RascalPreferences.loadInterpretedLanguagesFromProjects;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TabFolder;
@@ -70,11 +72,33 @@ public class Page extends TabbedPreferencesPage {
                     false, false,
                     true);
 			
+			@SuppressWarnings("deprecation")
+            BooleanFieldEditor enableConceptCompilerField = fPrefUtils.makeNewBooleanField(
+                    page, this, fPrefService,
+                    IPreferencesService.INSTANCE_LEVEL, enableConceptCompiler, "The experimental concept compiler can be used to improve the quality of the concept files", "",
+                    parent,
+                    true, true,
+                    false, false,
+                    false, false,
+                    true);
+			
+			@SuppressWarnings("deprecation")
+            BooleanFieldEditor enableLivePreviewField = fPrefUtils.makeNewBooleanField(
+                    page, this, fPrefService,
+                    IPreferencesService.INSTANCE_LEVEL, liveConceptPreview, "When editing concept files, one at a time, this flag will produce a html preview", "",
+                    parent,
+                    true, true,
+                    false, false,
+                    false, false,
+                    true);
+			
 			return new FieldEditor[] {
 					enableStaticFieldEditor,
 					enableBootstrap,
 					loadInterpretedLanguages1,
-					loadInterpretedLanguages2
+					loadInterpretedLanguages2,
+					enableConceptCompilerField,
+					enableLivePreviewField
 			};
 		}
 	}
