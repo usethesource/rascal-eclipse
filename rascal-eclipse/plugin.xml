@@ -593,7 +593,7 @@
       point="org.eclipse.ui.views">
    <view
          allowMultiple="false"
-         class="org.rascalmpl.eclipse.views.Tutor"
+         class="org.rascalmpl.eclipse.tutor.TutorView"
          icon="icons/rascal-tutor-small.png"
          id="rascal_eclipse.tutorBrowser"
          name="Tutor"

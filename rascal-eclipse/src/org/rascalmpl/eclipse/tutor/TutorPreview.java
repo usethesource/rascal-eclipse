@@ -10,14 +10,17 @@
  *   * Various members of the Software Analysis and Transformation Group - CWI
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
  *******************************************************************************/
-package org.rascalmpl.eclipse.views;
+package org.rascalmpl.eclipse.tutor;
 
 import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_TUTOR_VIEW_PART;
 
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -25,30 +28,40 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.repl.EclipseIDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
 import org.rascalmpl.library.util.PathConfig;
 
 import io.usethesource.impulse.runtime.RuntimePlugin;
 
-public class Tutor extends ViewPart {
-	public static final String ID = ID_RASCAL_TUTOR_VIEW_PART;
+public class TutorPreview extends ViewPart {
+	public static final String ID = ID_RASCAL_TUTOR_PREVIEW_PART;
 	
 	private Browser browser;
 	private volatile String mainLocation;
 	private HelpManager tutor;
 	private Object lock = new Object();
+	private IProject project;
 
 	private ExecutorService backgroundTasks;
     
-	public Tutor() { 
+	public TutorPreview() { 
 		backgroundTasks = Executors.newSingleThreadExecutor(); 
 	}
 	
-	public void gotoPage(final String page) {
+	public  static void previewConcept(IFile concept) {
+	    TutorPreview t = (TutorPreview) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(TutorPreview.ID);
+	    
+        t.gotoPage(link.substring(tutorPrefix.length()));
+    }
+
+	public void gotoPage(URL mainLocation) {
+	    
 		if (mainLocation == null) {
 			// lets wait in the background for the tutor being loaded, we know it will at some point..
 			backgroundTasks.execute(new Runnable() {
@@ -82,7 +95,7 @@ public class Tutor extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		browser = new Browser(parent, SWT.NONE);
-		browser.setText("<html><body>The Rascal tutor is now loading: <progress max=\"100\"></progress></body></html>");
+		browser.setText("<html><body>Tutor preview is now loading: <progress max=\"100\"></progress></body></html>");
 		new StarterJob().schedule();
 	}
 
@@ -126,6 +139,7 @@ public class Tutor extends ViewPart {
 						PrintWriter out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
 						PrintWriter err = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
 		                
+						IDEServicesModelProvider.getInstance().getPathConfig(resource.getProject());
 						tutor = new HelpManager(new PathConfig(), out, err, new EclipseIDEServices());
 					}
 					
