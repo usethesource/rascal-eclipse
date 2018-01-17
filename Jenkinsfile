@@ -4,7 +4,7 @@ node {
         checkout scm
     }
 
-    withMaven(maven: 'M3') {
+    withMaven(maven: 'M3', options: [artifactsPublisher(disabled: true)] ) {
         stage('Build') {
             sh "mvn -DskipTest clean compile"
         }
