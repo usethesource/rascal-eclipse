@@ -200,7 +200,13 @@ public class ProjectConfig {
                         }
                         break;
                     case IClasspathEntry.CPE_PROJECT:
-                        collectPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), compilerPath, classloaders);
+                        IProject libProject = (IProject) project.getWorkspace().getRoot().findMember(entry.getPath());
+                        if (libProject != null) {
+                            collectPathForProject(libProject, compilerPath, classloaders);
+                        }
+                        else {
+                            Activator.log("could not find project for " + entry.getPath() + " reference.", new IllegalArgumentException());
+                        }
                         break;
                 }
             }
