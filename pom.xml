@@ -93,4 +93,11 @@
 		</plugins>
 	</build>
 
+	<dependencies>
+		<dependency>
+			<groupId>org.rascalmpl</groupId>
+			<artifactId>impulse</artifactId>
+			<version>0.3.0-SNAPSHOT</version>
+		</dependency>
+    </dependencies>
 </project>
