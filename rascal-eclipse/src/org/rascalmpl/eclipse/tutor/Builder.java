@@ -124,7 +124,7 @@ public class Builder extends BuilderBase {
            
             if (courseName != null) {
                 String anchor = getConceptAnchor(coursesSrcPath, file);
-                URL url = URIUtil.toURL(new URI("file", destPath.resolve(courseName + "/index.html").toUri().getRawSchemeSpecificPart(), "#" + anchor));
+                URL url = URIUtil.toURL(new URI("file", destPath.resolve(courseName + "/index.html").toUri().getRawSchemeSpecificPart(), anchor));
 
                 // we can only have only builder executing at a time due to file sharing on disk
                 synchronized (Builder.class) {
