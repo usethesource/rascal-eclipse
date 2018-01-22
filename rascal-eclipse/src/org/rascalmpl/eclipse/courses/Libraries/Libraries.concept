@@ -1,0 +1,10 @@
+# Libraries
+:toc-levels: 2
+
+.Synopsis
+
+These libraries are supported by the Eclipse IDE; they give access to functionality which is in Eclipse to the Rascal developer.
+
+.Description
+
+loctoc::[1]
