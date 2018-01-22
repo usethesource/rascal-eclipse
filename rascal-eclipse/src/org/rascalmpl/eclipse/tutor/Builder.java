@@ -118,7 +118,7 @@ public class Builder extends BuilderBase {
         
         try {
             String courseName  = getCourseName(pcfg, file, coursesSrcPath);
-            CourseCompiler.copyStandardFiles(coursesSrcPath, destPath.resolve(courseName));
+            CourseCompiler.copyStandardFiles(coursesSrcPath, destPath);
 
             TutorCommandExecutor executor = getCommandExecutor(pcfg);
            
