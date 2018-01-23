@@ -81,7 +81,11 @@ public class Builder extends BuilderBase {
     }
 
     private PathConfig getPathConfig(IResource resource) {
-        return IDEServicesModelProvider.getInstance().getPathConfig(resource.getProject());
+        if (cachedConfig == null) {
+            cachedConfig = IDEServicesModelProvider.getInstance().getPathConfig(resource.getProject());
+        }
+         
+        return cachedConfig;
     }
 
     private static Path loc2path(ISourceLocation loc) {
@@ -181,7 +185,7 @@ public class Builder extends BuilderBase {
     
     private TutorCommandExecutor getCommandExecutor(PathConfig pcfg)
             throws IOException, NoSuchRascalFunction, URISyntaxException {
-        if (this.cachedConfig != null && !freshConfig(pcfg)) {
+        if (this.cachedConfig != null && !freshConfig(pcfg) && cachedExecutor != null) {
             return cachedExecutor;
         }
          
