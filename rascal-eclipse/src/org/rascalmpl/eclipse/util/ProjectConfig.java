@@ -163,9 +163,9 @@ public class ProjectConfig {
 
             classloaders.add(vf.sourceLocation("file", "", binLoc + "/"));
 
-            if (!isRascalBootstrapProject(project)) {
+//            if (!isRascalBootstrapProject(project)) {
                 compilerPath.add(vf.sourceLocation("file", "", binLoc + "/"));
-            }
+//            }
             
             if (!jProject.isOpen()) {
                 return;
