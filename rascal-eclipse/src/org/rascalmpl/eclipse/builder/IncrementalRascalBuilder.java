@@ -23,8 +23,6 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
@@ -56,31 +54,33 @@ import io.usethesource.vallang.IValueFactory;
  * It also interacts with Project Clean actions to clear up files and markers on request.  
  */
 public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
-    private static ThreadLocal<IKernel> kernel = new ThreadLocal<IKernel>() {
-        protected IKernel initialValue() {
+    private static class InstanceHolder {
+        private static IKernel kernel; 
+        
+        static {
             try {
                 PrintStream out = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
                 PrintStream err = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
                 IValueFactory vf = ValueFactoryFactory.getValueFactory();
-                
+
                 Bundle rascalBundle = Activator.getInstance().getBundle();
                 URL entry = FileLocator.toFileURL(rascalBundle.getEntry("lib/rascal.jar"));
                 ISourceLocation rascalJarLoc = vf.sourceLocation(URIUtil.fromURL(entry));
                 PathConfig pcfg = new PathConfig()
                         .addJavaCompilerPath(rascalJarLoc)
                         .addClassloader(rascalJarLoc);
-                        
-                return Java2Rascal.Builder
+
+                kernel = Java2Rascal.Builder
                         .bridge(vf, pcfg, IKernel.class)
                         .stderr(err)
                         .stdout(out)
                         .build();
             } catch (IOException | URISyntaxException e) {
                 Activator.log("could not initialize incremental Rascal builder", e);
-                return null;
+                kernel = null;
             }
         }
-    };
+    }
     
     private IValueFactory vf = ValueFactoryFactory.getValueFactory();
     private List<String> binaryExtension = Arrays.asList("imps","rvm", "rvmx", "tc","sig","sigs");
@@ -88,8 +88,14 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     private ISourceLocation projectLoc;
     private PathConfig pathConfig;
 
-    public IncrementalRascalBuilder() { }
+    public IncrementalRascalBuilder() {
+        
+    }
 
+    private IKernel kernel() {
+        return InstanceHolder.kernel;
+    }
+    
 	@Override
 	protected void clean(IProgressMonitor monitor) throws CoreException {
 		cleanBinFiles(monitor);
@@ -187,7 +193,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	            // the pathConfig source path currently still contains library sources,
 	            // which we want to compile on-demand only:
 	            if (src.getScheme().equals("project") && src.getAuthority().equals(projectLoc.getAuthority())) {
-	                IList programs = kernel.get().compileAll((ISourceLocation) srcv, pathConfig.asConstructor(kernel.get()), kernel.get().kw_compile());
+	                IList programs = kernel().compileAll((ISourceLocation) srcv, pathConfig.asConstructor(kernel()), kernel().kw_compile());
 	                markErrors(programs);
 	            }
 	        }
@@ -322,7 +328,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         
         try {
             if (!locs.isEmpty()) {
-                IList results = kernel.get().compile(locs, pathConfig.asConstructor(kernel.get()), kernel.get().kw_compile());
+                IList results = kernel().compile(locs, pathConfig.asConstructor(kernel()), kernel().kw_compile());
                 markErrors(results);
             }
         } 
