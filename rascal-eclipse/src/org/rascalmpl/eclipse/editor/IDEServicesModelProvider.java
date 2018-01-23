@@ -27,18 +27,30 @@ import io.usethesource.vallang.IWithKeywordParameters;
 
 public class IDEServicesModelProvider {
     private final IValueFactory vf;
-    private final IKernel kernel;
-    private final Cache<URI, IConstructor> summaryCache;
+    private final ThreadLocal<IKernel> kernel;
+    private final ThreadLocal<Cache<URI, IConstructor>> summaryCache;
     
     private IDEServicesModelProvider() {
-        try {
-            vf = ValueFactoryFactory.getValueFactory();
-            kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
-            summaryCache = Caffeine.newBuilder().weakValues().expireAfterAccess(10, TimeUnit.MINUTES).maximumSize(32_000).build();
-        } 
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        vf = ValueFactoryFactory.getValueFactory();
+        kernel = new ThreadLocal<IKernel>() {
+            @Override
+            protected IKernel initialValue() {
+                try {
+                    return Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
+                } catch (IOException e) {
+                    Activator.log("Could not initialize kernel for Rascal IDE services on this thread.", e);
+                    return null;
+                }
+            }
+            //                Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
+        };
+        
+        summaryCache = new ThreadLocal<Cache<URI, IConstructor>>() {
+            @Override
+            protected Cache<URI, IConstructor> initialValue() {
+                return Caffeine.newBuilder().weakValues().expireAfterAccess(10, TimeUnit.MINUTES).maximumSize(32_000).build();
+            }
+        };
     }
     
     private static class InstanceHolder {
@@ -68,25 +80,26 @@ public class IDEServicesModelProvider {
     }
     
     public IConstructor getSummary(ISourceLocation occ, PathConfig pcfg) {
-         IConstructor summary = summaryCache.getIfPresent(occ.getURI());
-         
-         if (summary == null) {
-             try {
-            	 String moduleName = pcfg.getModuleName(occ);
-                 summary = kernel.makeSummary(vf.string(moduleName), pcfg.asConstructor(kernel));
-                 if (summary.asWithKeywordParameters().hasParameters()) {
-                     // otherwise it is an empty model which we do not 
-                     // want to cache.
-                     summaryCache.put(occ.getURI(), summary);
-                 }
-             }
-             catch (Throwable e) {
-                 Activator.log("failure to create summary for IDE features", e);
-             }
-         }
-         
-         return summary;
-     }
+        Cache<URI, IConstructor> cache = summaryCache.get();
+        IConstructor summary = cache.getIfPresent(occ.getURI());
+        
+        if (summary == null) {
+            try {
+                String moduleName = pcfg.getModuleName(occ);
+                summary = kernel.get().makeSummary(vf.string(moduleName), pcfg.asConstructor(kernel.get()));
+                if (summary.asWithKeywordParameters().hasParameters()) {
+                    // otherwise it is an empty model which we do not 
+                    // want to cache.
+                    cache.put(occ.getURI(), summary);
+                }
+            }
+            catch (Throwable e) {
+                Activator.log("failure to create summary for IDE features", e);
+            }
+        }
+
+        return summary;
+    }
     
     // TODO to be removed, rewrite HyperlinkDetector
     public ISet getUseDef(ISourceLocation file, PathConfig pcfg, String moduleName) {
@@ -114,11 +127,11 @@ public class IDEServicesModelProvider {
     }
     
     public INode getOutline(IConstructor module) {
-        return kernel.outline(module);
+        return kernel.get().outline(module);
     }
     
     public IConstructor getPathConfigCons(IProject prj) {
-        return getPathConfig(prj).asConstructor(kernel);
+        return getPathConfig(prj).asConstructor(kernel.get());
     }
     
     public PathConfig getPathConfig(IProject prj) {
@@ -134,10 +147,10 @@ public class IDEServicesModelProvider {
     }
     
     public void clearSummaryCache(ISourceLocation file) {
-        summaryCache.invalidate(file.getURI());
+        summaryCache.get().invalidate(file.getURI());
     }
 
     public void invalidateEverything() {
-        summaryCache.invalidateAll();
+        summaryCache.get().invalidateAll();
     }
 }
