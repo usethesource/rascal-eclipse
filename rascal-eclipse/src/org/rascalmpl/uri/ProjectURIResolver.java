@@ -33,8 +33,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.rascalmpl.eclipse.Activator;
-import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
+
+import io.usethesource.vallang.ISourceLocation;
 
 public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResourceResolver {
 	
@@ -60,7 +61,7 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	@Override
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 		try {
-			return resolveFile(uri).getContents();
+			return resolveFile(uri).getContents(true);
 		} catch (CoreException e) {
 			Throwable cause = e.getCause();
 			
