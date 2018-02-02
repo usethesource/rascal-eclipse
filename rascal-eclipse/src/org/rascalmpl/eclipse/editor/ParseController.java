@@ -287,7 +287,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	
 	protected void setParseError(int offset, int length, int beginLine, int beginColumn, int endLine, int endColumn, String message){
 		if(offset >= 0){
-			handler.handleSimpleMessage(message, offset, offset + ((length == 0) ? 0 : length - 1), beginColumn, endColumn, beginLine, endLine);
+			handler.handleSimpleMessage(message, offset, offset + ((length == 0) ? 1 : length), beginColumn, endColumn, beginLine, endLine);
 		}else{
 			handler.handleSimpleMessage(message, 0, 0, 0, 0, 1, 1);
 		}

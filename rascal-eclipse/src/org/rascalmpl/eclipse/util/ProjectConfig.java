@@ -163,9 +163,9 @@ public class ProjectConfig {
 
             classloaders.add(vf.sourceLocation("file", "", binLoc + "/"));
 
-            if (!isRascalBootstrapProject(project)) {
+//            if (!isRascalBootstrapProject(project)) {
                 compilerPath.add(vf.sourceLocation("file", "", binLoc + "/"));
-            }
+//            }
             
             if (!jProject.isOpen()) {
                 return;
@@ -200,7 +200,13 @@ public class ProjectConfig {
                         }
                         break;
                     case IClasspathEntry.CPE_PROJECT:
-                        collectPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), compilerPath, classloaders);
+                        IProject libProject = (IProject) project.getWorkspace().getRoot().findMember(entry.getPath());
+                        if (libProject != null) {
+                            collectPathForProject(libProject, compilerPath, classloaders);
+                        }
+                        else {
+                            Activator.log("could not find project for " + entry.getPath() + " reference.", new IllegalArgumentException());
+                        }
                         break;
                 }
             }
