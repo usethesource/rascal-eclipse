@@ -599,7 +599,18 @@
          name="Tutor"
          restorable="true">
    </view>
-</extension>
+</extension> 
+<extension
+      point="org.eclipse.ui.views">
+   <view
+         allowMultiple="false"
+         class="org.rascalmpl.eclipse.tutor.TutorPreview"
+         icon="icons/rascal-tutor-small.png"
+         id="rascal_eclipse.tutorPreview"
+         name="Tutor Preview"
+         restorable="true">
+   </view>
+</extension> 
 <extension
       point="impulse.editorActionContributions">
    <editorActionContributor

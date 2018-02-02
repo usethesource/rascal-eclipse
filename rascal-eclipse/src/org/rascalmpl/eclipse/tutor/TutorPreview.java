@@ -1,33 +1,33 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2018 NWO-I - CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
  *
  *   * Various members of the Software Analysis and Transformation Group - CWI
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
  *******************************************************************************/
 package org.rascalmpl.eclipse.tutor;
 
-import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_TUTOR_VIEW_PART;
+import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_TUTOR_PREVIEW_PART;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.WorkbenchJob;
@@ -36,67 +36,89 @@ import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.repl.EclipseIDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.impulse.runtime.RuntimePlugin;
+import io.usethesource.vallang.ISourceLocation;
 
 public class TutorPreview extends ViewPart {
 	public static final String ID = ID_RASCAL_TUTOR_PREVIEW_PART;
-	
+	private static final Map<IProject, HelpManager> tutors = new HashMap<>();
 	private Browser browser;
-	private volatile String mainLocation;
-	private HelpManager tutor;
-	private Object lock = new Object();
-	private IProject project;
 
-	private ExecutorService backgroundTasks;
-    
 	public TutorPreview() { 
-		backgroundTasks = Executors.newSingleThreadExecutor(); 
+	    // all views need a nullary constructor
 	}
 	
-	public  static void previewConcept(IFile concept) {
-	    TutorPreview t = (TutorPreview) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(TutorPreview.ID);
-	    
-        t.gotoPage(link.substring(tutorPrefix.length()));
+	public static void previewConcept(IFile concept) {
+	    new WorkbenchJob("Loading concept " + concept) {
+            @Override
+            public IStatus runInUIThread(IProgressMonitor monitor) {
+                try {
+                    TutorPreview t = (TutorPreview) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(TutorPreview.ID);
+                    
+                    try {
+                        t.gotoPage(getConceptPage(concept));
+                    } 
+                    catch (IOException | URISyntaxException e) {
+                        t.setContent("<html><body>" + e.getMessage() + "</body></html>");   
+                    }
+                }
+                catch (PartInitException e) {
+                    Activator.getInstance().logException("Can not load concept " + concept, e);
+                }
+                
+                return Status.OK_STATUS;
+            }
+        }.schedule();
     }
 
-	public void gotoPage(URL mainLocation) {
-	    
-		if (mainLocation == null) {
-			// lets wait in the background for the tutor being loaded, we know it will at some point..
-			backgroundTasks.execute(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						Thread.sleep(10);
-						gotoPage(page);
-					} catch (InterruptedException e) {
-					}
-				}
-			});
-		}
-		else {
-			new WorkbenchJob("Loading concept page") {
-				@Override
-				public IStatus runInUIThread(IProgressMonitor monitor) {
-					if (mainLocation == null) {
-						// this shouldn't happen but lets just be sure
-						gotoPage(page);
-					}
-					else {
-						browser.setUrl(mainLocation + page);
-					}
-					return Status.OK_STATUS;
-				}
-			}.schedule();
-		}
+	private static URL getConceptPage(IFile concept) throws IOException, URISyntaxException {
+	    PathConfig pcfg = IDEServicesModelProvider.getInstance().getPathConfig(concept.getProject());
+        HelpManager m = getHelpManager(pcfg, concept.getProject());
+        return Builder.getConceptURL("http", "localhost:" + m.getPort(), pcfg, concept);
+    }
+
+    private static HelpManager getHelpManager(PathConfig pcfg, IProject project) throws IOException {
+        synchronized (tutors) {
+            HelpManager m = tutors.get(project);
+
+            if (m == null) {
+                PrintWriter out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
+                PrintWriter err = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
+                ISourceLocation root = URIUtil.getChildLocation(pcfg.getBin(), "courses");
+                m = new HelpManager(root, pcfg, out, err, new EclipseIDEServices());
+                tutors.put(project, m);
+            }
+
+            return m;
+        }
+    }
+
+    private void setContent(String html) {
+        new WorkbenchJob("Loading html") {
+            @Override
+            public IStatus runInUIThread(IProgressMonitor monitor) {
+                browser.setText(html);
+                return Status.OK_STATUS;
+            }
+        }.schedule();
+    }
+    
+    public void gotoPage(URL page) {
+        new WorkbenchJob("Loading concept page " + page) {
+            @Override
+            public IStatus runInUIThread(IProgressMonitor monitor) {
+                browser.setUrl(page.toString());
+                return Status.OK_STATUS;
+            }
+        }.schedule();
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
 		browser = new Browser(parent, SWT.NONE);
-		browser.setText("<html><body>Tutor preview is now loading: <progress max=\"100\"></progress></body></html>");
-		new StarterJob().schedule();
+		browser.setText("<html><body>Tutor preview is now ready for the first build result.</body></html>");
 	}
 
 	@Override
@@ -106,61 +128,8 @@ public class TutorPreview extends ViewPart {
 	
 	@Override
 	public void dispose() {
-		stop();
-	}
-	
-	private void stop() {
-		if (tutor != null) {
-			try {
-				tutor = null;
-			} catch (Exception e) {
-				Activator.log("could not stop tutor", e);
-			}
-		}
-	}
-	
-	private class StarterJob extends Job {
-
-		public StarterJob() {
-			super("Starting tutor");
-		}
-		
-		@Override
-		protected IStatus run(IProgressMonitor monitor) {
-			synchronized (lock) {
-				try {
-					if (tutor != null) {
-					  tutor.stopServer(); 
-					  tutor = null;
-					}
-
-					if (tutor == null) {
-						monitor.beginTask("Loading Tutor server", 2);
-						PrintWriter out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
-						PrintWriter err = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
-		                
-						IDEServicesModelProvider.getInstance().getPathConfig(resource.getProject());
-						tutor = new HelpManager(new PathConfig(), out, err, new EclipseIDEServices());
-					}
-					
-					monitor.worked(1);
-					
-					new WorkbenchJob("Loading tutor start page") {
-						@Override
-						public IStatus runInUIThread(IProgressMonitor monitor) {
-						    mainLocation = "http://localhost:" + tutor.getPort();
-							browser.setUrl(mainLocation + "/TutorHome/index.html");
-							return Status.OK_STATUS;
-						}
-					}.schedule();
-					
-				}
-				catch (Throwable e) {
-					Activator.getInstance().logException("Could not start tutor server", e);
-				}
-			}
-			
-			return Status.OK_STATUS;
-		}
+	    for (HelpManager m : tutors.values()) {
+	        m.stopServer();
+	    }
 	}
 }

@@ -100,7 +100,6 @@ Export-Package: io.usethesource.vallang,
  org.rascalmpl.eclipse.terms,
  org.rascalmpl.eclipse.util,
  org.rascalmpl.eclipse.values,
- org.rascalmpl.eclipse.views,
  org.rascalmpl.eclipse.views.values,
  org.rascalmpl.eclipse.views.values.text,
  org.rascalmpl.eclipse.views.values.tree,
@@ -146,7 +145,8 @@ Export-Package: io.usethesource.vallang,
  org.rascalmpl.values,
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors
-Import-Package: org.eclipse.core.expressions
+Import-Package: org.eclipse.core.expressions,
+ org.rascalmpl.uri
 Bundle-ClassPath: .,
  lib/rascal.jar,
  lib/asciidoctor.jar,

@@ -3,7 +3,6 @@ package org.rascalmpl.eclipse.tutor;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
@@ -15,13 +14,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
-import org.rascalmpl.eclipse.library.util.HtmlDisplay;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
@@ -30,6 +26,7 @@ import org.rascalmpl.library.experiments.tutor3.TutorCommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResourceResolver;
+import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.impulse.builder.BuilderBase;
 import io.usethesource.impulse.runtime.PluginBase;
@@ -104,17 +101,7 @@ public class Builder extends BuilderBase {
         
         PathConfig pcfg = getPathConfig(file);
         
-        IList courseList = pcfg.getCourses();
-        if (courseList.length() == 0) {
-            Activator.getInstance().logException("no courses configured in META-INF/RASCAL.MF", null);
-            return;
-        }
-        else if (courseList.length() > 1) {
-            Activator.getInstance().logException("ignoring all but the first Courses from META-INF/RASCAL.MF", null);
-        }
-        
-        // TODO: project should be able to have multiple courses directories
-        Path coursesSrcPath = loc2path((ISourceLocation) courseList.get(0));
+        Path coursesSrcPath = getSourcePath(pcfg);
         
         // TODO: a project may have multiple source paths
         Path libSrcPath = loc2path((ISourceLocation)pcfg.getSrcs().get(0));
@@ -127,9 +114,6 @@ public class Builder extends BuilderBase {
             TutorCommandExecutor executor = getCommandExecutor(pcfg);
            
             if (courseName != null) {
-                String anchor = getConceptAnchor(coursesSrcPath, file);
-                URL url = URIUtil.toURL(new URI("file", destPath.resolve(courseName + "/index.html").toUri().getRawSchemeSpecificPart(), anchor));
-
                 // we can only have only builder executing at a time due to file sharing on disk
                 synchronized (Builder.class) {
                     CourseCompiler.compileCourseCommand(getDoctorClasspath(), coursesSrcPath, courseName, destPath, libSrcPath, pcfg, executor);
@@ -137,18 +121,7 @@ public class Builder extends BuilderBase {
                 }
                 
                 if (RascalPreferences.liveConceptPreviewEnabled()) {
-                    PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                        @Override
-                        public void run() {
-                            err.println(url);
-                            if (new File(url.getPath()).exists()) {
-                                HtmlDisplay.browse(url);
-                            }
-                            else {
-                                err.println("generate url does not exist? " + url);
-                            }
-                        }
-                    });
+                    TutorPreview.previewConcept(file);
                 }
                
                 return;
@@ -166,6 +139,25 @@ public class Builder extends BuilderBase {
         }
     }
 
+    private static Path getSourcePath(PathConfig pcfg) {
+        IList courseList = pcfg.getCourses();
+        if (courseList.length() == 0) {
+            throw new IllegalArgumentException("no courses configured in META-INF/RASCAL.MF");
+        }
+        else if (courseList.length() > 1) {
+            Activator.getInstance().logException("ignoring all but the first Courses from META-INF/RASCAL.MF", null);
+        }
+        
+        // TODO: project should be able to have multiple courses directories
+        return loc2path((ISourceLocation) courseList.get(0));
+    }
+
+    public static URL getConceptURL(String scheme, String authority, PathConfig pcfg, IFile file) throws IOException, URISyntaxException {
+        String name = getCourseName(pcfg, file);
+        String anchor = getConceptAnchor(getSourcePath(pcfg), file);
+        return URIUtil.create(scheme, authority, "/" + name + "/index.html", null, anchor).toURL();
+    }
+    
     private static String getConceptAnchor(Path coursesSrcPath, IFile file) {
         Path name = coursesSrcPath.relativize(file2path(file)).getParent();
         int n = name.getNameCount();
@@ -199,6 +191,10 @@ public class Builder extends BuilderBase {
         return !this.cachedConfig.toString().equals(pcfg.toString());
     }
 
+    public static String getCourseName(PathConfig pcfg, IFile file) throws IOException {
+        return getCourseName(pcfg,  file, getSourcePath(pcfg));
+    }
+    
     private static String getCourseName(PathConfig pcfg, IFile file, Path coursesSrcPath) throws IOException {
         String filePath = file.getLocation().toFile().getAbsolutePath();
         
