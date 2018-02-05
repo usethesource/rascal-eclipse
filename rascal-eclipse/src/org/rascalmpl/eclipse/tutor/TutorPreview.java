@@ -61,6 +61,7 @@ public class TutorPreview extends ViewPart {
                         t.gotoPage(getConceptPage(concept));
                     } 
                     catch (IOException | URISyntaxException e) {
+                        e.printStackTrace();
                         t.setContent("<html><body>" + e.getMessage() + "</body></html>");   
                     }
                 }
@@ -76,6 +77,7 @@ public class TutorPreview extends ViewPart {
 	private static URL getConceptPage(IFile concept) throws IOException, URISyntaxException {
 	    PathConfig pcfg = IDEServicesModelProvider.getInstance().getPathConfig(concept.getProject());
         HelpManager m = getHelpManager(pcfg, concept.getProject());
+        m.refreshIndex(); // TODO pretty expensive but always up-to-date
         return Builder.getConceptURL("http", "localhost:" + m.getPort(), pcfg, concept);
     }
 
@@ -89,6 +91,14 @@ public class TutorPreview extends ViewPart {
                 ISourceLocation root = URIUtil.getChildLocation(pcfg.getBin(), "courses");
                 m = new HelpManager(root, pcfg, out, err, new EclipseIDEServices());
                 tutors.put(project, m);
+                
+                // since it might fail I want to do this after caching the server
+                try {
+                    m.refreshIndex();
+                }
+                catch (IOException e) {
+                    Activator.log("indexing the courses for " + project + " failed", e);
+                }
             }
 
             return m;
