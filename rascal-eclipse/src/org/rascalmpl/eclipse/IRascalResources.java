@@ -103,5 +103,6 @@ public interface IRascalResources {
 	public static final String ID_RASCAL_OUTPUT_VIEW_PART = "rascal_eclipse.outputview";
 	public static final String ID_RASCAL_FIGURE_VIEW_PART = "rascal_eclipse.Figure.viewer";
 	public static final String ID_RASCAL_TUTOR_VIEW_PART = "rascal_eclipse.tutorBrowser";
+	public static final String ID_RASCAL_TUTOR_PREVIEW_PART = "rascal_eclipse.tutorPreview";
 	
 }

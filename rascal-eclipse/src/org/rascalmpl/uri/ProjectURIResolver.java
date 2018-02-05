@@ -33,8 +33,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.rascalmpl.eclipse.Activator;
-import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
+
+import io.usethesource.vallang.ISourceLocation;
 
 public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResourceResolver {
 	
@@ -60,7 +61,7 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	@Override
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 		try {
-			return resolveFile(uri).getContents();
+			return resolveFile(uri).getContents(true);
 		} catch (CoreException e) {
 			Throwable cause = e.getCause();
 			
@@ -214,6 +215,10 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	public String[] list(ISourceLocation uri) throws IOException {
 		try {
 			IContainer folder = resolveFolder(uri);
+
+			// first make sure Eclipse sees the version on disk
+			folder.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
+			
 			IResource[] members = folder.members();
 			String[] result = new String[members.length];
 			
@@ -244,7 +249,7 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 		if (!resolved.exists()) {
 			try { 
 				if (resolved instanceof IFolder) {
-					((IFolder) resolved).create(false, true, pm);
+					((IFolder) resolved).create(true, true, pm);
 					resolved.refreshLocal(IResource.DEPTH_ZERO, pm);
 				}
 				else if (resolved instanceof IProject) {

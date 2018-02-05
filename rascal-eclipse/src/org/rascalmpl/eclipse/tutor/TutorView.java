@@ -10,7 +10,7 @@
  *   * Various members of the Software Analysis and Transformation Group - CWI
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI  
  *******************************************************************************/
-package org.rascalmpl.eclipse.views;
+package org.rascalmpl.eclipse.tutor;
 
 import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_TUTOR_VIEW_PART;
 
@@ -34,7 +34,7 @@ import org.rascalmpl.library.util.PathConfig;
 
 import io.usethesource.impulse.runtime.RuntimePlugin;
 
-public class Tutor extends ViewPart {
+public class TutorView extends ViewPart {
 	public static final String ID = ID_RASCAL_TUTOR_VIEW_PART;
 	
 	private Browser browser;
@@ -44,9 +44,10 @@ public class Tutor extends ViewPart {
 
 	private ExecutorService backgroundTasks;
     
-	public Tutor() { 
+	public TutorView() { 
 		backgroundTasks = Executors.newSingleThreadExecutor(); 
 	}
+	
 	
 	public void gotoPage(final String page) {
 		if (mainLocation == null) {

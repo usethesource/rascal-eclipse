@@ -18,7 +18,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.navigator.RascalNavigator;
-import org.rascalmpl.eclipse.views.Tutor;
+import org.rascalmpl.eclipse.tutor.TutorView;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.uri.URIEditorInput;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -113,11 +113,11 @@ public class EditorUtil {
       String link = loc.getURI().toString();
 
       if (link.startsWith(tutorPrefix)) {
-          Tutor t = (Tutor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(Tutor.ID);
+          TutorView t = (TutorView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(TutorView.ID);
           t.gotoPage(link.substring(tutorPrefix.length()));
       }
       else if (link.startsWith(localTutorPrefix)) {
-          Tutor t = (Tutor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(Tutor.ID);
+          TutorView t = (TutorView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(TutorView.ID);
           t.gotoPage(link.substring(localTutorPrefix.length() + 4));
       }
       else {

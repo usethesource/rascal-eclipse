@@ -6,7 +6,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PartInitException;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.views.Tutor;
+import org.rascalmpl.eclipse.tutor.TutorView;
 
 public class ShowTutor implements IWorkbenchWindowActionDelegate {
 	private IWorkbenchWindow activeWindow;
@@ -15,7 +15,7 @@ public class ShowTutor implements IWorkbenchWindowActionDelegate {
 	public void run(IAction action) {
 		if (activeWindow != null) {
 			try {
-				activeWindow.getActivePage().showView(Tutor.ID);
+				activeWindow.getActivePage().showView(TutorView.ID);
 			} catch (PartInitException e) {
 				Activator.log("could not find tutor view", e);
 			}
