@@ -215,6 +215,10 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	public String[] list(ISourceLocation uri) throws IOException {
 		try {
 			IContainer folder = resolveFolder(uri);
+
+			// first make sure Eclipse sees the version on disk
+			folder.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
+			
 			IResource[] members = folder.members();
 			String[] result = new String[members.length];
 			
@@ -245,7 +249,7 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 		if (!resolved.exists()) {
 			try { 
 				if (resolved instanceof IFolder) {
-					((IFolder) resolved).create(false, true, pm);
+					((IFolder) resolved).create(true, true, pm);
 					resolved.refreshLocal(IResource.DEPTH_ZERO, pm);
 				}
 				else if (resolved instanceof IProject) {
