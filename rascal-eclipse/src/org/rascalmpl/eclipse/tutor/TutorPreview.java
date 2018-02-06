@@ -215,7 +215,8 @@ public class TutorPreview extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-	    GridLayout grid = new GridLayout(4, true);
+	    int columns = 5;
+	    GridLayout grid = new GridLayout(columns, true);
         parent.setLayout(grid);
 	    
         Label currentConceptLabel = new Label(parent, SWT.NONE);
@@ -225,11 +226,11 @@ public class TutorPreview extends ViewPart {
         
 	    Label currentConcept = new Label(parent, SWT.NONE);
 	    currentConcept.setText("...");
-	    currentConcept.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
+	    currentConcept.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 	    
 	    Button openConcept = new Button(parent, SWT.NONE);
 	    openConcept.setText("Edit");
-	    openConcept.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, true, false, 2, 1));
+	    openConcept.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 	    openConcept.addSelectionListener(new SelectionListener() {
 
             @Override
@@ -245,11 +246,47 @@ public class TutorPreview extends ViewPart {
 	        
 	    });
 	    
+	    Button back = new Button(parent, SWT.NONE);
+	    back.setText("Back");
+        back.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+        back.addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if (browser != null) {
+                    browser.back();
+                }
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                /* nothing */
+            }
+        });
+        
+        Button refresh = new Button(parent, SWT.NONE);
+        refresh.setText("Refresh");
+        refresh.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+        refresh.addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if (browser != null) {
+                    browser.refresh();
+                }
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                /* nothing */
+            }
+        });
+	    
 	    Label separator = new Label(parent, SWT.HORIZONTAL | SWT.SEPARATOR);
-	    separator.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 4, 1));
+	    separator.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, columns, 1));
 	    
 		browser = new Browser(parent, SWT.FILL);
-		browser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
+		browser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, columns, 1));
 		browser.setText("<html><body>Tutor preview is now ready for the first build result.</body></html>");
 		
 		browser.addLocationListener(new LocationListener() {
