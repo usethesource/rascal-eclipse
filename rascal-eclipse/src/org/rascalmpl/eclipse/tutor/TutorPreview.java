@@ -16,26 +16,46 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceProxy;
+import org.eclipse.core.resources.IResourceProxyVisitor;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.LocationEvent;
+import org.eclipse.swt.browser.LocationListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.repl.EclipseIDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.impulse.runtime.RuntimePlugin;
@@ -45,6 +65,7 @@ public class TutorPreview extends ViewPart {
 	public static final String ID = ID_RASCAL_TUTOR_PREVIEW_PART;
 	private static final Map<IProject, HelpManager> tutors = new HashMap<>();
 	private Browser browser;
+    
 
 	public TutorPreview() { 
 	    // all views need a nullary constructor
@@ -80,6 +101,73 @@ public class TutorPreview extends ViewPart {
         m.refreshIndex(); // TODO pretty expensive but always up-to-date
         return Builder.getConceptURL("http", "localhost:" + m.getPort(), pcfg, concept);
     }
+	
+	private static class ConceptFileFinder implements IResourceProxyVisitor {
+	    private IFile found = null;
+        private final String parent;
+        private final String concept;
+
+	    public ConceptFileFinder(String parent, String concept) {
+	        this.parent = parent;
+	        this.concept = concept;
+        }
+	    
+	    public boolean found() {
+	        return found != null;
+	    }
+	    
+	    public IFile getFile() {
+	        return found;
+	    }
+	    
+	    @Override
+        public boolean visit(IResourceProxy proxy) throws CoreException {
+            if (proxy.getName().equals(parent) && proxy.getType() == IResource.FOLDER) {
+                IFolder conceptFolder = (IFolder) proxy.requestResource();
+
+                // TODO fix hard-wired bin folder location
+                if (conceptFolder.getProject().getFolder("bin").getFullPath().isPrefixOf(conceptFolder.getFullPath())) {
+                    return false;
+                }
+                
+                // TODO fix hard-wired bin folder location
+                if (conceptFolder.getProject().getFolder("target").getFullPath().isPrefixOf(conceptFolder.getFullPath())) {
+                    return false;
+                }
+                
+                IFile conceptFile = concept == null 
+                        ? conceptFolder.getFile(parent + ".concept")
+                        : conceptFolder.getFolder(concept).getFile(concept + ".concept");
+                    
+                if (conceptFile != null && conceptFile.exists()) {
+                    found = conceptFile;
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+	}
+	
+	private static IFile getConceptFile(String name) {
+        String[] parts = name.split("-");
+        
+        if (parts.length == 0) {
+            return null;
+        }
+        
+        try {
+            ConceptFileFinder finder = new ConceptFileFinder(parts[0], parts.length > 1 ? parts[1] : null);
+            ResourcesPlugin.getWorkspace().getRoot().accept(finder,  IResource.NONE);
+            if (finder.found()) {
+                return finder.getFile();
+            }
+        } catch (CoreException e) {
+            Activator.log("error while searching for concept file", e);
+        }
+	    
+	    return null;
+	}
 
     private static HelpManager getHelpManager(PathConfig pcfg, IProject project) throws IOException {
         synchronized (tutors) {
@@ -127,8 +215,56 @@ public class TutorPreview extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		browser = new Browser(parent, SWT.NONE);
+	    GridLayout grid = new GridLayout(4, true);
+        parent.setLayout(grid);
+	    
+        Label currentConceptLabel = new Label(parent, SWT.NONE);
+        currentConceptLabel.setText("Concept:");
+        GridData ccLabel = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
+        currentConceptLabel.setLayoutData(ccLabel);
+        
+	    Label currentConcept = new Label(parent, SWT.NONE);
+	    currentConcept.setText("...");
+	    currentConcept.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
+	    
+	    Button openConcept = new Button(parent, SWT.NONE);
+	    openConcept.setText("Edit");
+	    openConcept.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, true, false, 2, 1));
+	    openConcept.addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                IFile conceptFile = getConceptFile(currentConcept.getText());
+                EditorUtil.openAndSelectURI(ProjectURIResolver.constructProjectURI(conceptFile.getFullPath()));
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                /* nothing */
+            }
+	        
+	    });
+	    
+	    Label separator = new Label(parent, SWT.HORIZONTAL | SWT.SEPARATOR);
+	    separator.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 4, 1));
+	    
+		browser = new Browser(parent, SWT.FILL);
+		browser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
 		browser.setText("<html><body>Tutor preview is now ready for the first build result.</body></html>");
+		
+		browser.addLocationListener(new LocationListener() {
+            @Override
+            public void changing(LocationEvent event) { /*nothing*/ }
+
+            @Override
+            public void changed(LocationEvent event) {
+                String[] split = event.location.split("#");
+                
+                if (split.length == 2) {
+                    currentConcept.setText(split[1]);
+                }
+            }
+		});
 	}
 
 	@Override
