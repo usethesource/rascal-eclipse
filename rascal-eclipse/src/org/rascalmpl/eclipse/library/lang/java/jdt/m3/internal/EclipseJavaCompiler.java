@@ -95,22 +95,10 @@ public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.inte
 
     private CompilationUnit compileOneFile(ISourceLocation file, boolean collectBindings, boolean errorRecovery) {
         IJavaProject project = getProject(file);
-        IJavaElement path;
-        try {
-             path = project.findElement(new Path(file.getPath()));
-             if (path == null) {
-                 throw RuntimeExceptionFactory.io(VF.string("Could not find" + file), null, null);
-             }
-             if (path.getElementType() != IJavaElement.COMPILATION_UNIT) {
-                 throw RuntimeExceptionFactory.io(VF.string("" + file + "is not a compilation unit"), null, null);
-             }
-        }
-        catch (JavaModelException e) {
-             throw RuntimeExceptionFactory.io(VF.string("Could not find " + file), null, null);
-        }
+        IJavaElement path = locateFile(project, file);
         ASTParser parser = constructASTParser(collectBindings, project, errorRecovery); 
         CompilationUnit[] result = new CompilationUnit[] { null };
-        parser.createASTs(getFiles(project), new String[0], new ASTRequestor() {
+        parser.createASTs(new ICompilationUnit[] { (ICompilationUnit) path }, new String[0], new ASTRequestor() {
             @Override
             public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
                 if (result[0] != null) {
@@ -122,7 +110,28 @@ public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.inte
         return result[0];
     }
     
-    protected ISourceLocation getLocation(ISourceLocation root, IJavaProject project, ICompilationUnit source) {
+    private IJavaElement locateFile(IJavaProject project, ISourceLocation file) {
+    	String fullPath = file.getPath();
+    	int subPathOffset = fullPath.indexOf('/', 1);
+    	if (subPathOffset <= 0) {
+    		throw RuntimeExceptionFactory.io(VF.string("" + file + "is not a compilation unit"), null, null);
+    	}
+    	try {
+    		 IJavaElement path = project.findElement(new Path(fullPath.substring(subPathOffset + 1)));
+             if (path == null) {
+                 throw RuntimeExceptionFactory.io(VF.string("Could not find" + file), null, null);
+             }
+             if (path.getElementType() != IJavaElement.COMPILATION_UNIT) {
+                 throw RuntimeExceptionFactory.io(VF.string("" + file + "is not a compilation unit"), null, null);
+             }
+             return path;
+        }
+        catch (JavaModelException e) {
+             throw RuntimeExceptionFactory.io(VF.string("Could not find " + file), null, null);
+        }
+	}
+
+	protected ISourceLocation getLocation(ISourceLocation root, IJavaProject project, ICompilationUnit source) {
         try {
             return URIUtil.changePath(root, source.getPath().makeRelativeTo(project.getPath()).toString());
         }
