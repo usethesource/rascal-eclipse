@@ -9,73 +9,55 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IResourceDeltaVisitor;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.ICoreRunnable;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
+import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.experiments.tutor3.CourseCompiler;
 import org.rascalmpl.library.experiments.tutor3.TutorCommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResourceResolver;
 import org.rascalmpl.uri.URIUtil;
+import org.tukaani.xz.UnsupportedOptionsException;
 
-import io.usethesource.impulse.builder.BuilderBase;
-import io.usethesource.impulse.runtime.PluginBase;
+import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 
-public class Builder extends BuilderBase {
-    private final PrintWriter err = new PrintWriter(getConsoleStream());
+public class Builder extends IncrementalProjectBuilder {
+    private final PrintWriter err = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
     private PathConfig cachedConfig;
     private TutorCommandExecutor cachedExecutor;
 
     public Builder() {
     }
 
-    @Override
-    protected String getConsoleName() {
-        return "Tutor3 builder console";
-    }
-    
-    @Override
-    protected PluginBase getPlugin() {
-        return Activator.getInstance();
-    }
-
-    @Override
-    protected boolean isSourceFile(IFile file) {
-        return "concept".equals(file.getFileExtension());
-    }
-
-    @Override
-    protected boolean isNonRootSourceFile(IFile file) {
-        return false;
-    }
-
-    @Override
-    protected boolean isOutputFolder(IResource resource) {
-        PathConfig pcfg = getPathConfig(resource);
-        ISourceLocation binURI = ProjectURIResolver.constructProjectURI(resource.getProject(), resource.getProjectRelativePath());
-        
-        try {
-            // either the Rascal output folder
-            // or the Java output folder, must be ignored:
-            return pcfg.getBin().equals(binURI)  
-                || JavaCore.create(resource.getProject()).getOutputLocation().equals(resource.getFullPath());
-        } catch (JavaModelException e) {
-            Activator.log(e.getMessage(), e);
-            return false;
-        }
-    }
+//    private boolean inOutputFolder(IResource resource) throws JavaModelException {
+//        PathConfig pcfg = getPathConfig(resource);
+//        ISourceLocation binURI = ProjectURIResolver.constructProjectURI(resource.getProject(), resource.getProjectRelativePath());
+//        IPath targetPath = JavaCore.create(resource.getProject()).getOutputLocation();
+//        
+//        return binURI.getPath().startsWith(pcfg.getBin().getPath())
+//            || resource.getFullPath().toString().startsWith(targetPath.toString());
+//    }
 
     private PathConfig getPathConfig(IResource resource) {
         if (cachedConfig == null) {
@@ -94,7 +76,92 @@ public class Builder extends BuilderBase {
     }
     
     @Override
-    protected void compile(IFile file, IProgressMonitor monitor) {
+    protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor)
+            throws CoreException {
+        if (RascalPreferences.conceptCompilerEnabled()) {
+            IProject project = getProject();
+
+            ICoreRunnable runner = new ICoreRunnable() {
+                @Override
+                public void run(IProgressMonitor monitor) throws CoreException {
+                    switch (kind) {
+                        case INCREMENTAL_BUILD:
+                        case AUTO_BUILD:
+                            monitor.beginTask("Compiling dirty course concepts", 10);
+                            try {
+                                List<IFile> todo = new LinkedList<>();
+
+                                if (WorkCollector.fillWorkList(getDelta(getProject()), todo)) {
+                                    clean(monitor);
+                                }
+                                else if (todo.size() > 0) {
+                                    for (IFile dirty : todo) {
+                                        buildIncremental(dirty, monitor);
+                                    }
+                                }
+                            } catch (CoreException e) {
+                                Activator.log("incremental Rascal build failed", e);
+                            }
+                            break;
+                        case FULL_BUILD:
+                            Activator.log("Ignoring full tutor build trigger", new UnsupportedOptionsException());
+                            break;
+                    }
+                }
+            };
+
+            project.getWorkspace().run(runner, project, 0 /* no resource locking? */, monitor);
+        }
+
+        return new IProject[0];
+    }
+    
+    private static class WorkCollector implements IResourceDeltaVisitor {
+        private List<IFile> dirty = new LinkedList<>();
+        
+        /**
+         * Analyzes what to do based on a set of changed resources
+         * 
+         * @param delta the input model of changed resources in Eclipse
+         * @param todo  an output parameter which will contain the worklist
+         * @return true iff the whole project must be cleaned for some reason
+         */
+        public static boolean fillWorkList(IResourceDelta delta, List<IFile> todo) {
+            assert todo.isEmpty();
+
+            try {
+                WorkCollector c = new WorkCollector();
+                delta.accept(c);
+                todo.addAll(c.dirty);
+            } catch (CoreException e) {
+                Activator.log("incremental builder failed", e);
+            }
+            
+            return false;
+        }
+        
+        public boolean visit(IResourceDelta delta) throws CoreException {
+            IPath path = delta.getProjectRelativePath();
+            
+            String ext = delta.getFullPath().getFileExtension();
+            if ("concept".equals(ext)) {
+                if ((delta.getFlags() & IResourceDelta.CONTENT) == 0) {
+                    return false;
+                }
+
+                dirty.add((IFile) delta.getResource());
+
+                return false;
+            }
+            
+            return !ProjectConfig.BIN_FOLDER.equals(path.toPortableString())
+                // if a duplicate bin folder from maven exists, don't recurse into it:
+                // this is brittle, but it saves a lot of time waiting for unnecessary compilation:
+                && !ProjectConfig.MVN_TARGET_FOLDER.equals(path.toPortableString());    
+        }
+    }
+    
+    protected void buildIncremental(IFile file, IProgressMonitor monitor) throws JavaModelException {
         if (!RascalPreferences.conceptCompilerEnabled()) {
             return;
         }
@@ -111,18 +178,24 @@ public class Builder extends BuilderBase {
             String courseName  = getCourseName(pcfg, file, coursesSrcPath);
             CourseCompiler.copyStandardFiles(coursesSrcPath, destPath);
 
+            monitor.subTask("Initializing tutor command executor");
             TutorCommandExecutor executor = getCommandExecutor(pcfg);
+            monitor.worked(2);
            
             if (courseName != null) {
                 // we can only have only builder executing at a time due to file sharing on disk
                 synchronized (Builder.class) {
+                    monitor.subTask("Compiling course " + courseName);
                     CourseCompiler.compileCourseCommand(getDoctorClasspath(), coursesSrcPath, courseName, destPath, libSrcPath, pcfg, executor);
+                    monitor.worked(5);
                     err.flush();
                 }
                 
+                monitor.subTask("Starting viewer");
                 if (RascalPreferences.liveConceptPreviewEnabled()) {
                     TutorPreview.previewConcept(file);
                 }
+                monitor.worked(3);
                
                 return;
             }
@@ -207,25 +280,5 @@ public class Builder extends BuilderBase {
         } 
         
         throw new IOException("No course found containing: " + file);
-    }
-
-    @Override
-    protected void collectDependencies(IFile file) {
-
-    }
-
-    @Override
-    protected String getErrorMarkerID() {
-        return "tutor3.error";
-    }
-
-    @Override
-    protected String getWarningMarkerID() {
-        return "tutor3.warning";
-    }
-
-    @Override
-    protected String getInfoMarkerID() {
-        return "tutor3.info";
     }
 }
