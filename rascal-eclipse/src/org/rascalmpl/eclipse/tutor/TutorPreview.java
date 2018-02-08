@@ -16,13 +16,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -215,7 +211,7 @@ public class TutorPreview extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-	    int columns = 5;
+	    int columns = 6;
 	    GridLayout grid = new GridLayout(columns, true);
         parent.setLayout(grid);
 	    
@@ -255,6 +251,24 @@ public class TutorPreview extends ViewPart {
             public void widgetSelected(SelectionEvent e) {
                 if (browser != null) {
                     browser.back();
+                }
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                /* nothing */
+            }
+        });
+        
+        Button forward = new Button(parent, SWT.NONE);
+        forward.setText("Forward");
+        forward.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+        forward.addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if (browser != null) {
+                    browser.forward();
                 }
             }
 
