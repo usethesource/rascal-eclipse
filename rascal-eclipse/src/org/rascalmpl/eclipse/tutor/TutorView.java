@@ -128,6 +128,7 @@ public class TutorView extends ViewPart {
 						PrintWriter err = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
 		                
 						tutor = new HelpManager(new PathConfig(), out, err, new EclipseIDEServices());
+						tutor.refreshIndex();
 					}
 					
 					monitor.worked(1);
