@@ -5,12 +5,19 @@ import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.Platform;
+import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -26,20 +33,64 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
 
 public class IDEServicesModelProvider {
-    private final IValueFactory vf;
+    private final IValueFactory vf = IRascalValueFactory.getInstance();
+    private final IDESummaryService summaryService;
     private final IKernel kernel;
     private final Cache<URI, IConstructor> summaryCache;
     
     private IDEServicesModelProvider() {
         try {
-            vf = ValueFactoryFactory.getValueFactory();
             kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
-            summaryCache = Caffeine.newBuilder().weakValues().expireAfterAccess(10, TimeUnit.MINUTES).maximumSize(32_000).build();
+            IDESummaryService serviceToUse = getExtensionPointIDESummary();
+            if (serviceToUse == null) {
+            	// by default, use the kernel 
+                serviceToUse = new IDESummaryService() {
+                    @Override
+                    public IConstructor calculate(IKernel kernel, IString moduleName, IConstructor pcfg) {
+                        return kernel.makeSummary(moduleName, pcfg);
+                    }
+                    
+                    @Override
+                    public INode getOutline(IKernel kernel, IConstructor moduleTree) {
+                        return kernel.outline(moduleTree);
+                    }
+                };
+            }
+
+            summaryService = serviceToUse;
+            summaryCache = Caffeine.newBuilder()
+            		.weakValues()
+            		.maximumSize(32_000)
+            		.expireAfterAccess(10, TimeUnit.MINUTES)
+            		.build();
         } 
         catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
+	private IDESummaryService getExtensionPointIDESummary() {
+		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint("rascal_eclipse", "rascalIDESummary");
+		if (extensionPoint != null) {
+			if (extensionPoint.getExtensions().length > 1) {
+				Activator.log("multiple IDE summary services registered, not picking any of them", new RuntimeException());
+				return null;
+			}
+			for (IExtension element : extensionPoint.getExtensions()) {
+				for (IConfigurationElement cfg : element.getConfigurationElements()) {
+					try {
+						if (cfg.getName().equals("providedBy")) {
+							return (IDESummaryService) cfg.createExecutableExtension("class");
+						}
+					}
+					catch (ClassCastException | CoreException e) {
+						Activator.log("exception while constructing ide service" , e);
+					}
+				}
+			} 
+		}
+		return null;
+	}
     
     private static class InstanceHolder {
         static IDEServicesModelProvider sInstance = new IDEServicesModelProvider();
@@ -72,8 +123,7 @@ public class IDEServicesModelProvider {
          
          if (summary == null) {
              try {
-            	 String moduleName = pcfg.getModuleName(occ);
-                 summary = kernel.makeSummary(vf.string(moduleName), pcfg.asConstructor(kernel));
+            	 summary = summaryService.calculate(kernel, vf.string(pcfg.getModuleName(occ)), pcfg.asConstructor(kernel));
                  if (summary.asWithKeywordParameters().hasParameters()) {
                      // otherwise it is an empty model which we do not 
                      // want to cache.
@@ -114,7 +164,7 @@ public class IDEServicesModelProvider {
     }
     
     public INode getOutline(IConstructor module) {
-        return kernel.outline(module);
+        return summaryService.getOutline(kernel, module);
     }
     
     public IConstructor getPathConfigCons(IProject prj) {
