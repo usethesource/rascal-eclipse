@@ -43,11 +43,6 @@ Used as a way to inject the rascal-core based type checker, without creating a d
                </appInfo>
             </annotation>
          </attribute>
-      </complexType>
-   </element>
-
-   <element name="providedBy">
-      <complexType>
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>

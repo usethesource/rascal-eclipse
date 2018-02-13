@@ -79,7 +79,7 @@ public class IDEServicesModelProvider {
 			for (IExtension element : extensionPoint.getExtensions()) {
 				for (IConfigurationElement cfg : element.getConfigurationElements()) {
 					try {
-						if (cfg.getName().equals("providedBy")) {
+						if (cfg.getAttribute("class") != null) {
 							return (IDESummaryService) cfg.createExecutableExtension("class");
 						}
 					}
