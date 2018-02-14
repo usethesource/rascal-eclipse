@@ -124,7 +124,7 @@ public class IDEServicesModelProvider {
          if (summary == null) {
              try {
             	 summary = summaryService.calculate(kernel, vf.string(pcfg.getModuleName(occ)), pcfg.asConstructor(kernel));
-                 if (summary.asWithKeywordParameters().hasParameters()) {
+                 if (summary != null && summary.asWithKeywordParameters().hasParameters()) {
                      // otherwise it is an empty model which we do not 
                      // want to cache.
                      summaryCache.put(occ.getURI(), summary);
