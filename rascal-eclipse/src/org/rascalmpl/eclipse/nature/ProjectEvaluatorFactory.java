@@ -337,7 +337,7 @@ public class ProjectEvaluatorFactory {
   
   public static void addJarToSearchPath(ISourceLocation jar, Evaluator eval) {
       try {
-          String scheme = "jar+" + jar.getScheme();
+          String scheme = jar.getScheme().equals("file") ? "jar" :  "jar+" + jar.getScheme();
           String path = jar.getPath().endsWith("!/") ? jar.getPath() : jar.getPath() + "!/";
           ISourceLocation prefix = URIUtil.changeScheme(URIUtil.changePath(jar, path), scheme);
           

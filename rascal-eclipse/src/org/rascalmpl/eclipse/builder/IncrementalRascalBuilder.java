@@ -9,6 +9,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -55,30 +58,56 @@ import io.usethesource.vallang.IValueFactory;
  */
 public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     private static class InstanceHolder {
-        private static IKernel kernel; 
-        
+        private static final BuildRascalService service; 
+        private static final Future<IKernel> kernel;
         static {
-            try {
-                PrintStream out = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
-                PrintStream err = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
-                IValueFactory vf = ValueFactoryFactory.getValueFactory();
+        	kernel = new FutureTask<>(() -> {
+        		try {
+        			PrintStream out = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
+        			PrintStream err = new PrintStream(RuntimePlugin.getInstance().getConsoleStream());
+        			IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
-                Bundle rascalBundle = Activator.getInstance().getBundle();
-                URL entry = FileLocator.toFileURL(rascalBundle.getEntry("lib/rascal.jar"));
-                ISourceLocation rascalJarLoc = vf.sourceLocation(URIUtil.fromURL(entry));
-                PathConfig pcfg = new PathConfig()
-                        .addJavaCompilerPath(rascalJarLoc)
-                        .addClassloader(rascalJarLoc);
+        			Bundle rascalBundle = Activator.getInstance().getBundle();
+        			URL entry = FileLocator.toFileURL(rascalBundle.getEntry("lib/rascal.jar"));
+        			ISourceLocation rascalJarLoc = vf.sourceLocation(URIUtil.fromURL(entry));
+        			PathConfig pcfg = new PathConfig()
+        					.addJavaCompilerPath(rascalJarLoc)
+        					.addClassloader(rascalJarLoc);
 
-                kernel = Java2Rascal.Builder
-                        .bridge(vf, pcfg, IKernel.class)
-                        .stderr(err)
-                        .stdout(out)
-                        .build();
-            } catch (IOException | URISyntaxException e) {
-                Activator.log("could not initialize incremental Rascal builder", e);
-                kernel = null;
-            }
+        			return Java2Rascal.Builder
+        					.bridge(vf, pcfg, IKernel.class)
+        					.stderr(err)
+        					.stdout(out)
+        					.build();
+        		} catch (IOException | URISyntaxException e) {
+        			Activator.log("could not initialize incremental Rascal builder", e);
+        			return null;
+        		}
+        	});
+        	Thread initializer = new Thread((FutureTask<?>) kernel);
+        	initializer.setName("Kernel background loader");
+        	initializer.setDaemon(true);
+        	initializer.start();
+        	
+        	service = new BuildRascalService() {
+        		@Override
+        		public IList compile(IList files, IConstructor pcfg) {
+        			try {
+						return kernel.get().compile(files, pcfg, kernel.get().kw_compile());
+					} catch (InterruptedException | ExecutionException e) {
+						throw new RuntimeException(e);
+					}
+        		}
+        		
+        		@Override
+        		public IList compileAll(ISourceLocation folder, IConstructor pcfg) {
+        			try {
+						return kernel.get().compileAll(folder, pcfg, kernel.get().kw_compile());
+					} catch (InterruptedException | ExecutionException e) {
+						throw new RuntimeException(e);
+					}
+        		}
+        	};
         }
     }
     
@@ -91,9 +120,13 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     public IncrementalRascalBuilder() {
         
     }
-
+    
     private IKernel kernel() {
-        return InstanceHolder.kernel;
+    	try {
+			return InstanceHolder.kernel.get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}
     }
     
 	@Override
@@ -193,7 +226,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	            // the pathConfig source path currently still contains library sources,
 	            // which we want to compile on-demand only:
 	            if (src.getScheme().equals("project") && src.getAuthority().equals(projectLoc.getAuthority())) {
-	                IList programs = kernel().compileAll((ISourceLocation) srcv, pathConfig.asConstructor(kernel()), kernel().kw_compile());
+	                IList programs = InstanceHolder.service.compileAll(src, pathConfig.asConstructor(kernel()));
 	                markErrors(programs);
 	            }
 	        }
@@ -328,7 +361,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         
         try {
             if (!locs.isEmpty()) {
-                IList results = kernel().compile(locs, pathConfig.asConstructor(kernel()), kernel().kw_compile());
+                IList results = InstanceHolder.service.compile(locs, pathConfig.asConstructor(kernel()));
                 markErrors(results);
             }
         } 
