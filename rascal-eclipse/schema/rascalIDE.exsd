@@ -3,10 +3,10 @@
 <schema targetNamespace="rascal_eclipse" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
-         <meta.schema plugin="rascal_eclipse" id="rascalIDESummary" name="rascalIDESummary"/>
+         <meta.schema plugin="rascal_eclipse" id="rascalIDE" name="rascalIDE"/>
       </appInfo>
       <documentation>
-         Supply a custom IDE Summary engine for the rascal language.
+         Supply a custom Rascal IDE summary &amp; incremental build engine for the rascal language.
 
 Used as a way to inject the rascal-core based type checker, without creating a dependency cycle. And turning it opt-in.
       </documentation>
@@ -20,7 +20,7 @@ Used as a way to inject the rascal-core based type checker, without creating a d
       </annotation>
       <complexType>
          <sequence>
-            <element ref="summaryProvider"/>
+            <element ref="ideProvider"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -49,15 +49,25 @@ Used as a way to inject the rascal-core based type checker, without creating a d
       </complexType>
    </element>
 
-   <element name="summaryProvider">
+   <element name="ideProvider">
       <complexType>
-         <attribute name="class" type="string" use="required">
+         <attribute name="summaryClass" type="string" use="required">
             <annotation>
                <documentation>
                   
                </documentation>
                <appInfo>
                   <meta.attribute kind="java" basedOn=":org.rascalmpl.eclipse.editor.IDESummaryService"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="builderClass" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":org.rascalmpl.eclipse.builder.BuildRascalService"/>
                </appInfo>
             </annotation>
          </attribute>

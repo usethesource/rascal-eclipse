@@ -23,13 +23,18 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.ICoreRunnable;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
+import org.rascalmpl.eclipse.editor.IDESummaryService;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectConfig;
@@ -89,27 +94,54 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         	initializer.setDaemon(true);
         	initializer.start();
         	
-        	service = new BuildRascalService() {
-        		@Override
-        		public IList compile(IList files, IConstructor pcfg) {
-        			try {
-						return kernel.get().compile(files, pcfg, kernel.get().kw_compile());
-					} catch (InterruptedException | ExecutionException e) {
-						throw new RuntimeException(e);
-					}
-        		}
-        		
-        		@Override
-        		public IList compileAll(ISourceLocation folder, IConstructor pcfg) {
-        			try {
-						return kernel.get().compileAll(folder, pcfg, kernel.get().kw_compile());
-					} catch (InterruptedException | ExecutionException e) {
-						throw new RuntimeException(e);
-					}
-        		}
-        	};
+        	BuildRascalService nonFinalService = getExtensionPointRascalBuilder();
+        	if (nonFinalService == null) {
+        		nonFinalService = new BuildRascalService() {
+        			@Override
+        			public IList compile(IList files, IConstructor pcfg) {
+        				try {
+        					return kernel.get().compile(files, pcfg, kernel.get().kw_compile());
+        				} catch (InterruptedException | ExecutionException e) {
+        					throw new RuntimeException(e);
+        				}
+        			}
+
+        			@Override
+        			public IList compileAll(ISourceLocation folder, IConstructor pcfg) {
+        				try {
+        					return kernel.get().compileAll(folder, pcfg, kernel.get().kw_compile());
+        				} catch (InterruptedException | ExecutionException e) {
+        					throw new RuntimeException(e);
+        				}
+        			}
+        		};
+        	}
+        	service = nonFinalService;
         }
     }
+
+	private static BuildRascalService getExtensionPointRascalBuilder() {
+		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint("rascal_eclipse", "rascalIDE");
+		if (extensionPoint != null) {
+			if (extensionPoint.getExtensions().length > 1) {
+				Activator.log("multiple rascal builder services registered, not picking any of them", new RuntimeException());
+				return null;
+			}
+			for (IExtension element : extensionPoint.getExtensions()) {
+				for (IConfigurationElement cfg : element.getConfigurationElements()) {
+					try {
+						if (cfg.getAttribute("builderClass") != null) {
+							return (BuildRascalService) cfg.createExecutableExtension("builderClass");
+						}
+					}
+					catch (ClassCastException | CoreException e) {
+						Activator.log("exception while constructing ide service" , e);
+					}
+				}
+			} 
+		}
+		return null;
+	}
     
     private IValueFactory vf = ValueFactoryFactory.getValueFactory();
     private List<String> binaryExtension = Arrays.asList("imps","rvm", "rvmx", "tc","sig","sigs");

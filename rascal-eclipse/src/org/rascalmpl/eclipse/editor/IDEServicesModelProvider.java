@@ -70,7 +70,7 @@ public class IDEServicesModelProvider {
     }
 
 	private IDESummaryService getExtensionPointIDESummary() {
-		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint("rascal_eclipse", "rascalIDESummary");
+		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint("rascal_eclipse", "rascalIDE");
 		if (extensionPoint != null) {
 			if (extensionPoint.getExtensions().length > 1) {
 				Activator.log("multiple IDE summary services registered, not picking any of them", new RuntimeException());
@@ -79,8 +79,8 @@ public class IDEServicesModelProvider {
 			for (IExtension element : extensionPoint.getExtensions()) {
 				for (IConfigurationElement cfg : element.getConfigurationElements()) {
 					try {
-						if (cfg.getAttribute("class") != null) {
-							return (IDESummaryService) cfg.createExecutableExtension("class");
+						if (cfg.getAttribute("summaryClass") != null) {
+							return (IDESummaryService) cfg.createExecutableExtension("summaryClass");
 						}
 					}
 					catch (ClassCastException | CoreException e) {
