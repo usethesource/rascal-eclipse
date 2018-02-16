@@ -118,6 +118,12 @@ public class IDEServicesModelProvider {
        return def;
     }
     
+    public void putSummary(ISourceLocation occ, IConstructor summary) {
+    	if (summary != null && summary.asWithKeywordParameters().hasParameters()) {
+    		summaryCache.put(occ.getURI(), summary);
+    	}
+    }
+    
     public IConstructor getSummary(ISourceLocation occ, PathConfig pcfg) {
          IConstructor summary = summaryCache.getIfPresent(occ.getURI());
          
