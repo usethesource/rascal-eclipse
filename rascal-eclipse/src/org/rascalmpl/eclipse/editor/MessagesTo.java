@@ -88,8 +88,11 @@ public class MessagesTo {
 		Map<String,Object> attrs = new HashMap<String,Object>();
 		attrs.put(IMarker.SEVERITY, severity);
 		attrs.put(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-
-		handler.handleSimpleMessage(msg, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine(), attrs);
+		if(loc.hasOffsetLength() && loc.hasLineColumn()) {
+			handler.handleSimpleMessage(msg, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine(), attrs);
+		} else {
+			handler.handleSimpleMessage(msg, 0, 0, 0, 0, 0, 0, attrs);
+		}
 	}
 	
 	public int compareTo(IModelListener o) {
