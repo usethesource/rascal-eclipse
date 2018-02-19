@@ -9,9 +9,11 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -24,6 +26,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.JavaModelException;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
@@ -94,11 +97,13 @@ public class Builder extends IncrementalProjectBuilder {
                                 if (WorkCollector.fillWorkList(getDelta(getProject()), todo)) {
                                     clean(monitor);
                                 }
-                                else if (todo.size() > 0) {
-                                    for (IFile dirty : todo) {
-                                        buildIncremental(dirty, monitor);
-                                    }
+
+                                Set<IResource> toRefresh = new HashSet<>();
+                                for (IFile dirty : todo) {
+                                    buildIncremental(dirty, monitor, toRefresh);
                                 }
+                                toRefresh.forEach(Builder::refreshResource);
+
                             } catch (CoreException e) {
                                 Activator.log("incremental Rascal build failed", e);
                             }
@@ -161,7 +166,7 @@ public class Builder extends IncrementalProjectBuilder {
         }
     }
     
-    protected void buildIncremental(IFile file, IProgressMonitor monitor) throws JavaModelException {
+    protected void buildIncremental(IFile file, IProgressMonitor monitor, Set<IResource> refresh) throws JavaModelException {
         if (!RascalPreferences.conceptCompilerEnabled()) {
             return;
         }
@@ -172,7 +177,12 @@ public class Builder extends IncrementalProjectBuilder {
         
         // TODO: a project may have multiple source paths
         Path libSrcPath = loc2path((ISourceLocation)pcfg.getSrcs().get(0));
-        Path destPath = loc2path((ISourceLocation)pcfg.getBin()).resolve("courses");
+        ISourceLocation destLoc = URIUtil.getChildLocation((ISourceLocation)pcfg.getBin(), "courses");
+		Path destPath = loc2path(destLoc);
+        IResource destResource = null;
+		if (destLoc.getScheme().equals("project")) {
+			destResource = URIResourceResolver.getResource(destLoc);
+		}
         
         try {
             String courseName  = getCourseName(pcfg, file, coursesSrcPath);
@@ -193,7 +203,11 @@ public class Builder extends IncrementalProjectBuilder {
                 
                 monitor.subTask("Starting viewer");
                 if (RascalPreferences.liveConceptPreviewEnabled()) {
+                	refreshResource(destResource);
                     TutorPreview.previewConcept(file);
+                }
+                else {
+                    refresh.add(destResource);
                 }
                 monitor.worked(3);
                
@@ -212,7 +226,16 @@ public class Builder extends IncrementalProjectBuilder {
         }
     }
 
-    private static Path getSourcePath(PathConfig pcfg) {
+    private static void refreshResource(IResource destPath) {
+    	if (destPath != null) {
+            try {
+                destPath.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+            } catch (CoreException e) {
+            }
+    	}
+	}
+
+	private static Path getSourcePath(PathConfig pcfg) {
         IList courseList = pcfg.getCourses();
         if (courseList.length() == 0) {
             throw new IllegalArgumentException("no courses configured in META-INF/RASCAL.MF");
