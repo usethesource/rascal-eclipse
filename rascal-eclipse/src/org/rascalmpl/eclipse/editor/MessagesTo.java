@@ -17,7 +17,7 @@ import io.usethesource.impulse.parser.IMessageHandler;
 import io.usethesource.impulse.parser.IModelListener;
 
 public class MessagesTo {
-	private static int MAX_MESSAGE_LENGTH = 65000;
+	private static int MAX_MESSAGE_LENGTH = 2000;
 	
 	MessagesTo(int defaultSeverity,Map<String,Integer> severityMap){
 		this.severityMap = severityMap;
