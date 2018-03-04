@@ -17,6 +17,7 @@ import io.usethesource.impulse.parser.IMessageHandler;
 import io.usethesource.impulse.parser.IModelListener;
 
 public class MessagesTo {
+	private static int MAX_MESSAGE_LENGTH = 65000;
 	
 	MessagesTo(int defaultSeverity,Map<String,Integer> severityMap){
 		this.severityMap = severityMap;
@@ -85,6 +86,9 @@ public class MessagesTo {
 		}
 
 		String msg = ((IString) marker.get(0)).getValue();
+		if(msg.length() >= MAX_MESSAGE_LENGTH) {
+			msg = msg.substring(0, MAX_MESSAGE_LENGTH);
+		}
 		Map<String,Object> attrs = new HashMap<String,Object>();
 		attrs.put(IMarker.SEVERITY, severity);
 		attrs.put(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
