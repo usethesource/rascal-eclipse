@@ -18,6 +18,8 @@ import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -37,6 +39,7 @@ public class IDEServicesModelProvider {
     private final IDESummaryService summaryService;
     private final IKernel kernel;
     private final Cache<URI, IConstructor> summaryCache;
+    private final Cache<URI, INode> outlineCache;
     
     private IDEServicesModelProvider() {
         try {
@@ -62,6 +65,11 @@ public class IDEServicesModelProvider {
             		.weakValues()
             		.maximumSize(32_000)
             		.expireAfterAccess(10, TimeUnit.MINUTES)
+            		.build();
+
+            outlineCache = Caffeine.newBuilder()
+            		.expireAfterAccess(60, TimeUnit.SECONDS)
+            		.maximumSize(32_000)
             		.build();
         } 
         catch (IOException e) {
@@ -169,8 +177,40 @@ public class IDEServicesModelProvider {
         return (ISourceLocation) docLocs.get(occ);
     }
     
+    private ISourceLocation getFileLoc(ITree moduleTree) {
+    	try {
+    		if (TreeAdapter.isTop(moduleTree)) {
+    			moduleTree = TreeAdapter.getStartTop(moduleTree);
+    		}
+    		ISourceLocation loc = TreeAdapter.getLocation(moduleTree);
+    		if (loc != null) {
+    			return loc.top();
+    		}
+    		return null;
+    	} catch (Throwable t) {
+    		return null;
+    	}
+    }
+
     public INode getOutline(IConstructor module) {
-        return summaryService.getOutline(kernel, module);
+    	ISourceLocation loc = getFileLoc((ITree) module);
+    	if (loc == null) {
+    		return vf.node("");
+    	}
+
+    	return outlineCache.get(loc.getURI(), (l) -> {
+    		try {
+    			INode result = summaryService.getOutline(kernel, module);
+    			if (result == null || result.arity() == 0) {
+    				return null;
+    			}
+    			return result;
+    		}
+    		catch (Throwable e) {
+    			Activator.log("failure to create summary for IDE features", e);
+    			return null;
+    		}
+    	});
     }
     
     public IConstructor getPathConfigCons(IProject prj) {
@@ -191,9 +231,11 @@ public class IDEServicesModelProvider {
     
     public void clearSummaryCache(ISourceLocation file) {
         summaryCache.invalidate(file.getURI());
+        outlineCache.invalidate(file.getURI());
     }
 
     public void invalidateEverything() {
         summaryCache.invalidateAll();
+        outlineCache.invalidateAll();;
     }
 }
