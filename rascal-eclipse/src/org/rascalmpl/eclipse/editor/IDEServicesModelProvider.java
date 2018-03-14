@@ -133,23 +133,19 @@ public class IDEServicesModelProvider {
     }
     
     public IConstructor getSummary(ISourceLocation occ, PathConfig pcfg) {
-         IConstructor summary = summaryCache.getIfPresent(occ.getURI());
-         
-         if (summary == null) {
+    	return summaryCache.get(occ.getURI(), (u) -> {
              try {
-            	 summary = summaryService.calculate(kernel, vf.string(pcfg.getModuleName(occ)), pcfg.asConstructor(kernel));
-                 if (summary != null && summary.asWithKeywordParameters().hasParameters()) {
-                     // otherwise it is an empty model which we do not 
-                     // want to cache.
-                     summaryCache.put(occ.getURI(), summary);
+            	 IConstructor result = summaryService.calculate(kernel, vf.string(pcfg.getModuleName(occ)), pcfg.asConstructor(kernel));
+                 if (result == null || !result.asWithKeywordParameters().hasParameters()) {
+                	 return null;
                  }
+                 return result;
              }
              catch (Throwable e) {
                  Activator.log("failure to create summary for IDE features", e);
+                 return null;
              }
-         }
-         
-         return summary;
+    	});
      }
     
     // TODO to be removed, rewrite HyperlinkDetector
