@@ -85,6 +85,7 @@ data Contribution
      | liveUpdater(lrel[loc,str] (&T<:Tree input) updater)
      | outliner(node (&T<:Tree input) outliner)
      | proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int requestOffset) proposer, str legalPrefixChars)
+     | treeProperties(bool hasQuickFixes = true)
      | syntaxProperties(
          rel[str,str] fences = {}, 
          str lineComment = "", 

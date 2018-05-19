@@ -3,6 +3,7 @@ package org.rascalmpl.eclipse.terms;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.lucene.index.Term;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -26,6 +27,7 @@ import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import io.usethesource.impulse.editor.hover.ProblemLocation;
+import io.usethesource.impulse.language.Language;
 import io.usethesource.impulse.services.IQuickFixAssistant;
 import io.usethesource.impulse.services.IQuickFixInvocationContext;
 import io.usethesource.impulse.utils.NullMessageHandler;
@@ -84,13 +86,23 @@ public class TermQuickFixAssistant implements IQuickFixAssistant {
 		return 	quickFixLoc.getOffset() == problemOffset;
 	}
 	
+	private boolean languageHasQuickFixes(IQuickFixInvocationContext context) {
+		TermLanguageRegistry tm = TermLanguageRegistry.getInstance();
+		Language lang = tm.getLanguage(context.getModel().getFile().getFileExtension());
+		if (lang != null) {
+			return tm.getHasQuickFixes(lang).getValue();
+		}
+		return false;
+	}
+	
 	@Override
 	public void addProposals(IQuickFixInvocationContext context,
 			ProblemLocation problem, Collection<ICompletionProposal> proposals) {
-		
-		IConstructor ast = (IConstructor)context.getModel().getAST(new NullMessageHandler(), new NullProgressMonitor());
+		if (languageHasQuickFixes(context)) {
+            IConstructor ast = (IConstructor)context.getModel().getAST(new NullMessageHandler(), new NullProgressMonitor());
 
-		constructProposals(ast, problem.getOffset(), proposals);
+            constructProposals(ast, problem.getOffset(), proposals);
+		}
 	}
 
 	private ICompletionProposal makeProposal(final IConstructor ast, final ISourceLocation loc, final String label,

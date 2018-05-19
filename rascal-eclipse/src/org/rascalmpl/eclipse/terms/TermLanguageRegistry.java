@@ -25,10 +25,12 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.impulse.language.Language;
 import io.usethesource.impulse.language.LanguageRegistry;
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
@@ -172,6 +174,22 @@ public class TermLanguageRegistry {
 	
 	public ISet getContentProposer(Language lang) {
 		return getContentProposer(lang.getName());
+	}
+	
+	public IBool getHasQuickFixes(Language lang) {
+		return getHasQuickFixes(lang.getName());
+	}
+
+	public IBool getHasQuickFixes(String lang) {
+		ISet props = getContributions(lang, "treeProperties");
+		for (IValue v : props) {
+			IConstructor p = (IConstructor)v;
+			if (p.mayHaveKeywordParameters() && p.asWithKeywordParameters().hasParameter("hasQuickFixes")) {
+				return (IBool) p.asWithKeywordParameters().getParameter("hasQuickFixes");
+			}
+		}
+		return IRascalValueFactory.getInstance().bool(true);
+
 	}
 	
 	public ISet getContentProposer(String lang) {
