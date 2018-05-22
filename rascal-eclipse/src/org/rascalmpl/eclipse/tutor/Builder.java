@@ -37,6 +37,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.Ba
 import org.rascalmpl.library.experiments.tutor3.CourseCompiler;
 import org.rascalmpl.library.experiments.tutor3.TutorCommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIResourceResolver;
 import org.rascalmpl.uri.URIUtil;
 import org.tukaani.xz.UnsupportedOptionsException;
@@ -171,20 +172,22 @@ public class Builder extends IncrementalProjectBuilder {
             return;
         }
         
-        PathConfig pcfg = getPathConfig(file);
-        
-        Path coursesSrcPath = getSourcePath(pcfg);
-        
-        // TODO: a project may have multiple source paths
-        Path libSrcPath = loc2path((ISourceLocation)pcfg.getSrcs().get(0));
-        ISourceLocation destLoc = URIUtil.getChildLocation((ISourceLocation)pcfg.getBin(), "courses");
-		Path destPath = loc2path(destLoc);
-        IResource destResource = null;
-		if (destLoc.getScheme().equals("project")) {
-			destResource = URIResourceResolver.getResource(destLoc);
-		}
-        
         try {
+        	PathConfig pcfg = getPathConfig(file);
+        	Path coursesSrcPath = getSourcePath(pcfg);
+
+        	// TODO: a project may have multiple source paths
+        	Path libSrcPath = loc2path((ISourceLocation)pcfg.getSrcs().get(0));
+        	ISourceLocation destLoc = URIUtil.getChildLocation((ISourceLocation)pcfg.getBin(), "courses");
+        	if (!URIResolverRegistry.getInstance().exists(destLoc)) {
+        		URIResolverRegistry.getInstance().mkDirectory(destLoc);
+        	}
+        	Path destPath = loc2path(destLoc);
+        	IResource destResource = null;
+        	if (destLoc.getScheme().equals("project")) {
+        		destResource = URIResourceResolver.getResource(destLoc);
+        	}
+    
             String courseName  = getCourseName(pcfg, file, coursesSrcPath);
             CourseCompiler.copyStandardFiles(coursesSrcPath, destPath);
 
@@ -305,3 +308,4 @@ public class Builder extends IncrementalProjectBuilder {
         throw new IOException("No course found containing: " + file);
     }
 }
+
