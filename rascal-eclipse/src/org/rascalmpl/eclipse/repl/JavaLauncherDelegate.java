@@ -64,6 +64,7 @@ public class JavaLauncherDelegate extends AbstractLauncherDelegate {
                   configs.setText(selected);
               }
               else if (launches.length > 0) {
+            	  selected = launches[0].getName();
                   configs.setText(launches[0].getName());
               }
 
