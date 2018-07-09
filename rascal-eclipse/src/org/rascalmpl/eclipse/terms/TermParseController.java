@@ -194,7 +194,7 @@ public class TermParseController implements IParseController {
 				int offset = pe.getOffset();
 				if(offset == input.length()) --offset;
 				
-				handler.handleSimpleMessage("parse error", offset, offset + pe.getLength(), pe.getBeginColumn(), pe.getEndColumn(), pe.getBeginLine() + 1, pe.getEndLine() + 1);
+				handler.handleSimpleMessage("parse error", offset, offset + pe.getLength(), pe.getBeginColumn(), pe.getEndColumn(), pe.getBeginLine(), pe.getEndLine());
 			} 
 			catch (Throw e) {
 				IValue exc = e.getException();

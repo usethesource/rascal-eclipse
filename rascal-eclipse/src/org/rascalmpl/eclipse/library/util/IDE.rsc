@@ -188,6 +188,7 @@ Register a language extension and a parser for use in Eclipse.
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public java void registerLanguage(str name, str extension, type[&T <: Tree] nonterminal);
 
+
 @doc{
 .Synopsis
 Register an annotator.
