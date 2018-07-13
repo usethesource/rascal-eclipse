@@ -64,13 +64,8 @@ public class ProjectEvaluatorFactory {
 	private final PrintWriter err;
 	
 	private ProjectEvaluatorFactory() {
-		try {
-			out = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"));
-			err = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
-		} catch (UnsupportedEncodingException e) {
-			Activator.getInstance().logException("internal error", e);
-			throw new RuntimeException("???", e);
-		}
+		out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
+		err = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream(), true);
 	}
 	
 	private static class InstanceHolder {
