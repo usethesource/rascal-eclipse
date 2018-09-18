@@ -286,6 +286,7 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		}
 		catch (SWTException ex) {
 			Activator.log("Could not paint vis figure", ex);
+			draw(e.gc);
 		}
 		finally {
 			parent.animate();
