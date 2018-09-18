@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -31,6 +32,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.ScrollBar;
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.library.vis.figure.Figure;
 import org.rascalmpl.eclipse.library.vis.figure.combine.Overlap;
 import org.rascalmpl.eclipse.library.vis.graphics.SWTGraphicsContext;
@@ -279,8 +281,15 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 
 	@Override
 	public void paintControl(PaintEvent e) {
-		draw(e.gc);
-		parent.animate();
+		try {
+			draw(e.gc);
+		}
+		catch (SWTException ex) {
+			Activator.log("Could not paint vis figure", ex);
+		}
+		finally {
+			parent.animate();
+		}
 	}
 	
 
