@@ -284,10 +284,6 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 		try {
 			draw(e.gc);
 		}
-		catch (SWTException ex) {
-			Activator.log("Could not paint vis figure", ex);
-			draw(e.gc);
-		}
 		finally {
 			parent.animate();
 		}
@@ -309,24 +305,27 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 			gc.setGC(new GC(backbuffer));
 		}
 		
-		gc.getGC().setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-		
-		Rectangle part = getViewPortRectangle();
-		gc.getGC().fillRectangle(0, 0, FigureMath.ceil(part.getSize().getX()), FigureMath.ceil(part.getSize().getY()));
-		gc.translate(-part.getLocation().getX(), -part.getLocation().getY());
+        Rectangle part = getViewPortRectangle();
+		try {
+            gc.getGC().setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+            
+            gc.getGC().fillRectangle(0, 0, FigureMath.ceil(part.getSize().getX()), FigureMath.ceil(part.getSize().getY()));
+            gc.translate(-part.getLocation().getX(), -part.getLocation().getY());
 
-		
-		figure.draw(zoom, gc, part,swtVisiblityMangager.getVisibleSWTElementsVector());
-		for(Overlap f : overlapFigures){
-			if(f.over.overlapsWith(part)){
-				f.over.draw(zoom, gc, part, swtVisiblityMangager.getVisibleSWTElementsVector());
-			}
+            figure.draw(zoom, gc, part,swtVisiblityMangager.getVisibleSWTElementsVector());
+            for(Overlap f : overlapFigures){
+                if(f.over.overlapsWith(part)){
+                    f.over.draw(zoom, gc, part, swtVisiblityMangager.getVisibleSWTElementsVector());
+                }
+            }
+            gc.translate(part.getLocation().getX(), part.getLocation().getY());
 		}
-		gc.translate(part.getLocation().getX(), part.getLocation().getY());
-		
-
-		
-		gc.dispose();
+		catch (SWTException ex) {
+			Activator.log("Could not paint vis figure", ex);
+		}
+		finally {
+            gc.dispose();
+		}
 		swtGC.drawImage(backbuffer, 0, 0);
 	
 		swtVisiblityMangager.makeOffscreenElementsInvisble();
