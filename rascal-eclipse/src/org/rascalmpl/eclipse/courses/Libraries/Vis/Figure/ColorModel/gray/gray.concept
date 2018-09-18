@@ -34,7 +34,7 @@ b3 = box(fillColor(gray(255)));
 render(hcat([b1, b2, b3], size(50)));
 ----
 gives: 
-image::{concept}/h1.png[alt="h1"]
+image:h1.png[alt="h1"]
 
 
 Setting gray values with an a percentage in the range [0.0, 1.0]:
@@ -46,7 +46,7 @@ b3 = box(fillColor(gray(1.0)));
 render(hcat([b1, b2, b3], size(50)));
 ----
 gives: 
-image::{concept}/h2.png[alt="h2"]
+image:h2.png[alt="h2"]
 
 
 Setting transparency:
@@ -58,7 +58,7 @@ b3 = box(fillColor(gray(0.5, 1.0)));
 render(hcat([b1, b2, b3], size(50)));
 ----
 gives: 
-image::{concept}/h3.png[alt="h3"]
+image:h3.png[alt="h3"]
 
 
 .Benefits

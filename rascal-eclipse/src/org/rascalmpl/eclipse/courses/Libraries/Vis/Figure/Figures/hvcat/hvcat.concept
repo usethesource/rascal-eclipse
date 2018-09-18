@@ -36,7 +36,7 @@ b6 = box(size(60,20), fillColor("Orange"));
 render(hvcat([b1, b2, b3, b4, b5, b6], gap(5)));
 ----
 displayed in a 400x50 area gives: 
-image::{concept}/h1.png[alt="h1"]
+image:h1.png[alt="h1"]
 
 
 However, the same example
@@ -51,7 +51,7 @@ b6 = box(size(60,20), fillColor("Orange"));
 render(hvcat([b1, b2, b3, b4, b5, b6], gap(5)));
 ----
 displayed in a 100x120 area gives: 
-image::{concept}/h2.png[alt="h2"]
+image:h2.png[alt="h2"]
 
 
 The alignment of the rows can be set using <<justify>> and <<ialign>>.

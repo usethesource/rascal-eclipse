@@ -25,7 +25,7 @@ sc = hscreen(i,id("hscreen"));
 render(sc);
 ----
 
-image::{concept}/hscreen1.png[alt="hscreen1"]
+image:hscreen1.png[alt="hscreen1"]
 
 
 
@@ -36,7 +36,7 @@ sc = hscreen(i,id("hscreen"));
 render(sc);
 ----
 
-image::{concept}/hscreen2.png[alt="hscreen2"]
+image:hscreen2.png[alt="hscreen2"]
 
 
 
@@ -49,7 +49,7 @@ sc = hscreen(i,id("hscreen"));
 render(sc);
 ----
 
-image::{concept}/hscreen4.png[alt="hscreen4"]
+image:hscreen4.png[alt="hscreen4"]
 
 
 Alignment and shrinking of projected figures also works.
@@ -62,7 +62,7 @@ s = hscreen(hcat(boxes,hgrow(1.2),top(),vshrink(0.8)),id("hscreen"));
 render(s);
 ----
 
-image::{concept}/hscreen5.png[alt="hscreen5"]
+image:hscreen5.png[alt="hscreen5"]
 
 
 Also see <<vscreen>>.

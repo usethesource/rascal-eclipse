@@ -17,7 +17,7 @@ Defines the horizontal and vertical alignment of a figure relative to its parent
 Alignments range from 0 (left, top) to 1 (right, bottom) as follows:
 
 
-image::{concept}/Align.png[width="400px" style="float: center;" ,alt="Align"]
+image:Align.png[width="400px" style="float: center;" ,alt="Align"]
 
 
 Alignments can be set per dimension by <<halign>>, respectively, <<valign>>.
@@ -55,7 +55,7 @@ render(b2);
 ----
 
 
-image::{concept}/a1.png[alt="a1"]
+image:a1.png[alt="a1"]
 
 
 [source,rascal-figure,width=150,height=150,file=a2.png]
@@ -66,7 +66,7 @@ render(b2);
 ----
 
 
-image::{concept}/a2.png[alt="a2"]
+image:a2.png[alt="a2"]
 
 
 .Benefits

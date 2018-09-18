@@ -29,7 +29,7 @@ callback `vcallback` is called. Typically, the callback causes a state change in
 render(inc());
 ----
 
-image::{concept}/b1.png[alt="b1"]
+image:b1.png[alt="b1"]
 
 
 Clicking the button will increment the value of `n`.

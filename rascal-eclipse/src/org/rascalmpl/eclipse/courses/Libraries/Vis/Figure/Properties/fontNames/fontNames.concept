@@ -28,7 +28,7 @@ The available fonts (on the machine on which this page was generated) are
 //render(grid(samples, size(700), gap(350, 20), left(), bottom()));
 ----
 
-image::{concept}/f1.png[alt="font names"]
+image:f1.png[alt="font names"]
 
 
 .Benefits

@@ -30,7 +30,7 @@ render(hvcat(boxes, width(500), left()));
 ----
 
 
-image::{concept}/c1.png[alt="colors"]
+image:c1.png[alt="colors"]
 
 
 Or a color table with the color names in colored boxes:
@@ -46,7 +46,7 @@ boxes = [ box(text(col, left()), fillColor(col)) | col <- colorNames() ];
 render(grid(split(boxes, 3))); 
 ----
 
-image::{concept}/c3.png[alt="c3"]
+image:c3.png[alt="c3"]
 
 
 .Benefits

@@ -28,7 +28,7 @@ called with that choice as argument.
 render(comboTest());
 ----
 
-image::{concept}/combo1.png[alt="combo1"]
+image:combo1.png[alt="combo1"]
 
 
 .Benefits

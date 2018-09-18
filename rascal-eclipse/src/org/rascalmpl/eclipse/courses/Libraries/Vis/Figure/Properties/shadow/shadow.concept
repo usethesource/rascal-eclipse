@@ -24,7 +24,7 @@ The position of the shadow is determined by <<shadowPos>>.
 render(box1);
 ----
 
-image::{concept}/s1.png[alt="s1"]
+image:s1.png[alt="s1"]
 
 
 .Benefits

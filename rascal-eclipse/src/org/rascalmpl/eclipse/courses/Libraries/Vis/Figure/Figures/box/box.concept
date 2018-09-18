@@ -26,7 +26,7 @@ Lets start with a box `b0` of given (minimal) dimensions:
 render(b0);
 ----
 that will display as: 
-image::{concept}/box0.png[alt="box0"]
+image:box0.png[alt="box0"]
 
 
 We can nest a new box `b1` in box `b0` as follows:
@@ -37,7 +37,7 @@ b0 = box(b1, size(150,50), fillColor("lightGray"));
 render(b0);
 ----
 The result is: 
-image::{concept}/box1.png[alt="box1"]
+image:box1.png[alt="box1"]
 
 
 Note that:
@@ -55,7 +55,7 @@ b0 = box(b1, size(150,50), fillColor("lightGray"));
 render(b0);
 ----
 The result is: 
-image::{concept}/box2.png[alt="box2"]
+image:box2.png[alt="box2"]
 
 
 Placing `b1` in the bottom right corner of `b0`:
@@ -66,7 +66,7 @@ b0 = box(b1, size(150,50), fillColor("lightGray"));
 render(b0);
 ----
 gives: 
-image::{concept}/box3.png[alt="box3"]
+image:box3.png[alt="box3"]
 
 
 We can also nest box `b0` in another box `b2` and make `b2` 20% larger than `b0`:
@@ -77,7 +77,7 @@ b2 = box(b0, grow(1.2), fillColor("blue"));
 render(b2);
 ----
 The result is: 
-image::{concept}/box4.png[alt="box4"]
+image:box4.png[alt="box4"]
 
 
 If no sizes are given at all then the box will expand to fill the available size:
@@ -87,7 +87,7 @@ If no sizes are given at all then the box will expand to fill the available size
                 render(box(box(box(box(shrink(0.5)),shrink(0.5)),shrink(0.5))));
 ----
 The result is: 
-image::{concept}/box5.png[alt="box5"]
+image:box5.png[alt="box5"]
 
 
 .Benefits

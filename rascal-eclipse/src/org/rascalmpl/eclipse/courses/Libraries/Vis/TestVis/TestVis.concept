@@ -20,7 +20,7 @@ List of visualization tests (for developers only).
                 render(box());
 ----
 
-image::{concept}/test1.png[alt="test"]
+image:test1.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test2.png]
@@ -28,7 +28,7 @@ image::{concept}/test1.png[alt="test"]
                 render(box(shrink(0.5)));
 ----
 
-image::{concept}/test2.png[alt="test"]
+image:test2.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test3.png]
@@ -36,7 +36,7 @@ image::{concept}/test2.png[alt="test"]
                 render(box( fillColor("green")));
 ----
 
-image::{concept}/test3.png[alt="test"]
+image:test3.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test4.png]
@@ -44,7 +44,7 @@ image::{concept}/test3.png[alt="test"]
                 render(box(hshrink(0.7), vshrink(0.2),fillColor("green"), lineColor("red")));
 ----
 
-image::{concept}/test4.png[alt="test"]
+image:test4.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test5.png]
@@ -52,7 +52,7 @@ image::{concept}/test4.png[alt="test"]
                 render(box(box(fillColor("white")), fillColor("mediumblue"), grow(1.5)));
 ----
 
-image::{concept}/test5.png[alt="test"]
+image:test5.png[alt="test"]
 
 
 /Unsized blue outer box with black inner text
@@ -61,7 +61,7 @@ image::{concept}/test5.png[alt="test"]
                 render(box(text("een label"), fillColor("mediumblue"), grow(1.2)));
 ----
 
-image::{concept}/test6.png[alt="test"]
+image:test6.png[alt="test"]
 
 
 Unsized blue outer box with white inner text
@@ -71,7 +71,7 @@ Unsized blue outer box with white inner text
                 render(box(text("een label", fontColor("white")), fillColor("mediumblue"),grow(1.2)));
 ----
 
-image::{concept}/test7.png[alt="test"]
+image:test7.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test8.png]
@@ -79,7 +79,7 @@ image::{concept}/test7.png[alt="test"]
                 render(box(text("een label"),  fillColor("mediumblue"), grow(2.0),shrink(0.7)));
 ----
 
-image::{concept}/test8.png[alt="test"]
+image:test8.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test9.png]
@@ -87,7 +87,7 @@ image::{concept}/test8.png[alt="test"]
                 render(box(box(fillColor("green"), lineColor("red")), grow(2.0,1.5)));
 ----
 
-image::{concept}/test9.png[alt="test"]
+image:test9.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test10.png]
@@ -95,7 +95,7 @@ image::{concept}/test9.png[alt="test"]
                 render(box(box(fillColor("green"), lineColor("red"),left()), grow(2.0,1.5)));
 ----
 
-image::{concept}/test10.png[alt="test"]
+image:test10.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test11.png]
@@ -103,7 +103,7 @@ image::{concept}/test10.png[alt="test"]
                 render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), top(),grow(1.2)), grow(2.0,1.5),resizable(false)));
 ----
 
-image::{concept}/test11.png[alt="test"]
+image:test11.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test12.png]
@@ -111,7 +111,7 @@ image::{concept}/test11.png[alt="test"]
                 render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), bottom(),grow(1.2)), grow(2.0,1.5),resizable(false)));
 ----
 
-image::{concept}/test12.png[alt="test"]
+image:test12.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test13.png]
@@ -119,7 +119,7 @@ image::{concept}/test12.png[alt="test"]
                 render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),vresizable(false)));
 ----
 
-image::{concept}/test13.png[alt="test"]
+image:test13.png[alt="test"]
 
 
 
@@ -128,7 +128,7 @@ image::{concept}/test13.png[alt="test"]
                 render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),top(),grow(1.2)), grow(2.0,1.5)));
 ----
 
-image::{concept}/test14.png[alt="test"]
+image:test14.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test15.png]
@@ -136,7 +136,7 @@ image::{concept}/test14.png[alt="test"]
                 render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),width(100.0),height(100.0),hresizable(false)));
 ----
 
-image::{concept}/test15.png[alt="test"]
+image:test15.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test16.png]
@@ -144,7 +144,7 @@ image::{concept}/test15.png[alt="test"]
                 render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),width(100.0),height(300.0),resizable(false)));
 ----
 
-image::{concept}/test16.png[alt="test"]
+image:test16.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test17.png]
@@ -152,7 +152,7 @@ image::{concept}/test16.png[alt="test"]
                 render(box(box( fillColor("green"), lineColor("red"), right(), bottom()), grow(1.3),size(300.0,200.0),resizable(false)));
 ----
 
-image::{concept}/test17.png[alt="test"]
+image:test17.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test18.png]
@@ -161,7 +161,7 @@ image::{concept}/test17.png[alt="test"]
 render(h);
 ----
 
-image::{concept}/test18.png[alt="test"]
+image:test18.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test19.png]
@@ -177,7 +177,7 @@ box(fillColor(color("mediumblue", 1.0)))
 render(h);
 ----
 
-image::{concept}/test19.png[alt="test"]
+image:test19.png[alt="test"]
 
 [source,rascal-figure,width=500,height=200,file=testabc.png]
 ----
@@ -192,7 +192,7 @@ image::{concept}/test19.png[alt="test"]
 render(h);
 ----
 
-image::{concept}/testabc.png[alt="test"]
+image:testabc.png[alt="test"]
 
 [source,rascal-figure,width=500,height=200,file=testdef.png]
 ----
@@ -204,7 +204,7 @@ image::{concept}/testabc.png[alt="test"]
 render(h	);
 ----
 
-image::{concept}/testdef.png[alt="test"]
+image:testdef.png[alt="test"]
 
 [source,rascal-figure,width=350,height=350,file=test21.png]
 ----
@@ -216,7 +216,7 @@ image::{concept}/testdef.png[alt="test"]
 render(h);
 ----
 
-image::{concept}/test21.png[alt="test"]
+image:test21.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test22.png]
@@ -229,7 +229,7 @@ image::{concept}/test21.png[alt="test"]
 render(h);
 ----
 
-image::{concept}/test22.png[alt="test"]
+image:test22.png[alt="test"]
 
 [source,rascal-figure,width=350,height=350,file=test23.png]
 ----
@@ -244,7 +244,7 @@ image::{concept}/test22.png[alt="test"]
 render(h);
 ----
 
-image::{concept}/test23.png[alt="test"]
+image:test23.png[alt="test"]
 
 [source,rascal-figure,width=350,height=350,file=test24.png]
 ----
@@ -260,7 +260,7 @@ image::{concept}/test23.png[alt="test"]
 render(h);
 ----
 
-image::{concept}/test24.png[alt="test"]
+image:test24.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test25.png]
@@ -275,7 +275,7 @@ image::{concept}/test24.png[alt="test"]
 render(h);
 ----
 
-image::{concept}/test25.png[alt="test"]
+image:test25.png[alt="test"]
 
 
 
@@ -290,7 +290,7 @@ image::{concept}/test25.png[alt="test"]
 render(h);
 ----
 
-image::{concept}/test26.png[alt="test"]
+image:test26.png[alt="test"]
 
 
 
@@ -309,7 +309,7 @@ image::{concept}/test26.png[alt="test"]
 render(h);
 ----
 
-image::{concept}/test27.png[alt="test"]
+image:test27.png[alt="test"]
 
 
 
@@ -329,7 +329,7 @@ image::{concept}/test27.png[alt="test"]
 render(h);
 ----
 
-image::{concept}/test28.png[alt="test"]
+image:test28.png[alt="test"]
 
 
 
@@ -343,7 +343,7 @@ image::{concept}/test28.png[alt="test"]
 render(h);
 ----
 
-image::{concept}/test30.png[alt="test"]
+image:test30.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test31.png]
@@ -360,7 +360,7 @@ gap(10),std(left()),std(resizable(false)));
 render(h);
 ----
 
-image::{concept}/test31.png[alt="test"]
+image:test31.png[alt="test"]
 
 
 [source,rascal-figure,width=350,height=350,file=test32.png]
@@ -368,7 +368,7 @@ image::{concept}/test31.png[alt="test"]
                 render(ellipse(text("een label", fontColor("white")),fillColor("mediumblue"), grow(1.2)));
 ----
 
-image::{concept}/test32.png[alt="test"]
+image:test32.png[alt="test"]
 
 
 .Benefits

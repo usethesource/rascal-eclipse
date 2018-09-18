@@ -26,7 +26,7 @@ Creates a text string. The following properties are relevant for text:
                 render(text("Rascal"));
 ----
 
-image::{concept}/t1.png[alt="text 1"]
+image:t1.png[alt="text 1"]
 
 
 [source,rascal-figure,width=,height=,file=t2.png]
@@ -34,7 +34,7 @@ image::{concept}/t1.png[alt="text 1"]
                 render(text("Rascal", fontSize(20), fontColor("blue")));
 ----
 
-image::{concept}/t2.png[alt="text 2"]
+image:t2.png[alt="text 2"]
 
 
 [source,rascal-figure,width=,height=,file=t3.png]
@@ -42,7 +42,7 @@ image::{concept}/t2.png[alt="text 2"]
                 render(box(text("Rascal", fontSize(20), fontColor("blue")), grow(2.0)));
 ----
 
-image::{concept}/t3.png[alt="text 3"]
+image:t3.png[alt="text 3"]
 
 
 [source,rascal-figure,width=,height=,file=t4.png]
@@ -53,7 +53,7 @@ t3 = text("Rascal", fontSize(60), fontColor("red"));
 render(box(hcat([t1, t2, t3]), gap(10)));
 ----
 
-image::{concept}/t4.png[alt="text 4"]
+image:t4.png[alt="text 4"]
 
 
 [source,rascal-figure,width=,height=,file=t5.png]
@@ -61,7 +61,7 @@ image::{concept}/t4.png[alt="text 4"]
                 render(text("Rascal", fontSize(60), fontColor("red"), textAngle(90)));
 ----
 
-image::{concept}/t5.png[alt="text 5"]
+image:t5.png[alt="text 5"]
 
 
 .Benefits

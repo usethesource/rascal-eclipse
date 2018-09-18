@@ -32,7 +32,7 @@ b2 = box(b1, size(100, 50), fillColor("yellow"));
 render(b2);
 ----
 
-image::{concept}/s1.png[alt="s1"]
+image:s1.png[alt="s1"]
 
 
 .Benefits

@@ -31,7 +31,7 @@ vertical dimension.
 //render(hcat([b, scale(0.5, b), scale(0.25, b), scale(2, b)]));
 ----
 
-image::{concept}/sc1.png[alt="scale 1"]
+image:sc1.png[alt="scale 1"]
 
 
 .Benefits
@@ -46,6 +46,6 @@ Reducing `lineWidth` to 0.5 and scaling by 2 given a `lineWidth` of 1:
 //render(scale(2, b));
 ----
 
-image::{concept}/sc2.png[alt="scale 2"]
+image:sc2.png[alt="scale 2"]
 
 

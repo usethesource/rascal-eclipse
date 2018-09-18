@@ -27,7 +27,7 @@ Show figure `fig` when the mouse hovers over the current figure.
 render(box(stairs(10),grow(1.2),bottom(),center()));
 ----
 
-image::{concept}/onkeydown.png[alt="onkeydown"]
+image:onkeydown.png[alt="onkeydown"]
 
 
 .Benefits

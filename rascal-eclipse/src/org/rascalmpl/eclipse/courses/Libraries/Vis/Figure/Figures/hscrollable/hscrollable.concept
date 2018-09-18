@@ -25,7 +25,7 @@ sb = hscrollable(box1,shrink(0.5));
 render(box(sb,fillColor("red")));
 ----
 
-image::{concept}/s1.png[alt="s1"]
+image:s1.png[alt="s1"]
 
 
 .Benefits

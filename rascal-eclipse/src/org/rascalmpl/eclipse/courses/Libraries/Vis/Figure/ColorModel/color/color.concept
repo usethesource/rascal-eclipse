@@ -29,7 +29,7 @@ b1 = box([size(50), fillColor(c)]);
 render(b1);
 ----
 gives 
-image::{concept}/b1.png[alt="b1"]
+image:b1.png[alt="b1"]
  and with only 50% transparency:
 [source,rascal-figure,width=,height=,file=b2.png]
 ----
@@ -38,7 +38,7 @@ b1 = box([size(50), fillColor(c)]);
 render(b1);
 ----
 gives 
-image::{concept}/b2.png[alt="b2"]
+image:b2.png[alt="b2"]
 
 
 .Benefits

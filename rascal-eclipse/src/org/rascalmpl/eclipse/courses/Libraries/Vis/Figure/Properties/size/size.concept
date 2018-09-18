@@ -32,7 +32,7 @@ render(b1);
 ----
 will be displayed with the given minimal sizes:
 
-image::{concept}/box1.png[alt="box1"]
+image:box1.png[alt="box1"]
 
 
 
@@ -49,7 +49,7 @@ If we enlarge the window in which `b1` is displayed to, say, 400, 200, we get:
 render(b1);
 ----
 
-image::{concept}/box2.png[alt="box2"]
+image:box2.png[alt="box2"]
 
 
 Resizing can be turned off by setting <<resizable>> to false.

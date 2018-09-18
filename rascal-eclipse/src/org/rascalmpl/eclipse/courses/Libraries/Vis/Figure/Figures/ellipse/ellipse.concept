@@ -27,7 +27,7 @@ render(e1);
 ----
 
 will display: 
-image::{concept}/e1.png[alt="ellipse 1"]
+image:e1.png[alt="ellipse 1"]
 
 
 Nesting, for instance, a box in an ellipse
@@ -41,7 +41,7 @@ render(e1);
 gives:
 
 
-image::{concept}/e2.png[alt="ellipse 2"]
+image:e2.png[alt="ellipse 2"]
 
 
 .Benefits

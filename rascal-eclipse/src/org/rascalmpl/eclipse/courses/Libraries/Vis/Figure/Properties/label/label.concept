@@ -32,7 +32,7 @@ edges = [ edge("A", "B", label(text("A to B"))), edge("B", "C"), edge("B", "D"),
 render(graph(nodes, edges, hint("layered"), gap(100)));
 ----
 
-image::{concept}/l1.png[alt="graph 1"]
+image:l1.png[alt="graph 1"]
 
 
 .Benefits

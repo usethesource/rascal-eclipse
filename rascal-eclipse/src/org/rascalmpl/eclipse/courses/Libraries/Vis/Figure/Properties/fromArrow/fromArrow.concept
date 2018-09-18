@@ -33,7 +33,7 @@ render(graph(nodes, edges, gap(50), std(size(100))));
 ----
 
 
-image::{concept}/f1.png[alt="f1"]
+image:f1.png[alt="f1"]
 
 
 .Benefits

@@ -24,7 +24,7 @@ Defines the color of shadows. Also see <<shadow>> and <<shadowPos>>.
 render(box1);
 ----
 
-image::{concept}/s1.png[alt="s1"]
+image:s1.png[alt="s1"]
 
 
 .Benefits

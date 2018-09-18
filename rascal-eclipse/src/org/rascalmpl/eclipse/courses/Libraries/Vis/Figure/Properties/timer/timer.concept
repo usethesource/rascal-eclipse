@@ -59,7 +59,7 @@ e = ellipse(fillColor(getColor), timer(timeAction,executeTimer),shrink(0.5));
 render(e);
 ----
 
-image::{concept}/timer.png[alt="timer"]
+image:timer.png[alt="timer"]
 
 
 .Benefits

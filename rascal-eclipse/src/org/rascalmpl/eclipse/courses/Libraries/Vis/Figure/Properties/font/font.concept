@@ -23,7 +23,7 @@ See <<fontNames>> for a list of available fonts.
 render(t1);
 ----
 
-image::{concept}/f1.png[alt="font 1"]
+image:f1.png[alt="font 1"]
 
 
 [source,rascal-figure,width=,height=,file=f2.png]
@@ -32,7 +32,7 @@ image::{concept}/f1.png[alt="font 1"]
 render(t2);
 ----
 
-image::{concept}/f2.png[alt="font 2"]
+image:f2.png[alt="font 2"]
 
 
 .Benefits

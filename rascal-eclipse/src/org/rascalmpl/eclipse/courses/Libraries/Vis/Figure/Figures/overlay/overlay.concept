@@ -33,7 +33,7 @@ b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
 render(overlay([b1, b2, b3]));
 ----
 gives: 
-image::{concept}/o1.png[alt="o1"]
+image:o1.png[alt="o1"]
 
 
 [source,rascal-figure,width=150,height=150,file=o2.png]
@@ -44,7 +44,7 @@ b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
 render(overlay([b1, b2, b3]));
 ----
 gives: 
-image::{concept}/o2.png[alt="o2"]
+image:o2.png[alt="o2"]
 
 
 [source,rascal-figure,width=150,height=150,file=o3.png]
@@ -55,7 +55,7 @@ b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
 render(overlay([b1, b2, b3]));
 ----
 gives: 
-image::{concept}/o3.png[alt="o3"]
+image:o3.png[alt="o3"]
 
 
 [source,rascal-figure,width=150,height=150,file=o4.png]
@@ -66,7 +66,7 @@ b3 = box(shrink(0.1,0.7), fillColor("Yellow"),right());
 render(overlay([b1, b2, b3]));
 ----
 gives: 
-image::{concept}/o4.png[alt="o4"]
+image:o4.png[alt="o4"]
 
 
 Alignment gives detailed control over the position of figures in an overlay. 
@@ -81,7 +81,7 @@ render(ovl);
 gives: 
 
 
-image::{concept}/o5.png[alt="o5"]
+image:o5.png[alt="o5"]
 
 
 The overlaid figures can be connected by using <<shapeConnected>>:
@@ -96,7 +96,7 @@ render(ovl);
 gives: 
 
 
-image::{concept}/o6.png[alt="o6"]
+image:o6.png[alt="o6"]
 
 
 The next enhancement is to close the begin and end points of the shape, using <<shapeClosed>>:
@@ -111,7 +111,7 @@ render(ovl);
 gives: 
 
 
-image::{concept}/o7.png[alt="o7"]
+image:o7.png[alt="o7"]
 
 
 Another enhancement is to use curves to connect the figures in the shape, using <<shapeCurved>>:
@@ -127,7 +127,7 @@ render(ovl);
 gives: 
 
 
-image::{concept}/o8.png[alt="o8"]
+image:o8.png[alt="o8"]
 
 
 A final enhancement is to set the fill color of the closed shape:
@@ -144,7 +144,7 @@ render(ovl);
 gives: 
 
 
-image::{concept}/o9.png[alt="o9"]
+image:o9.png[alt="o9"]
 
 
 The <<hconnect>> and <<vconnect>> properties can be used to determine where a
@@ -161,7 +161,7 @@ render(ovl);
 gives: 
 
 
-image::{concept}/o10.png[alt="o10"]
+image:o10.png[alt="o10"]
 
 
 .Benefits

@@ -16,7 +16,7 @@ Various properties use angles.
 Angles are measured in degrees and, using an analog clock as metaphor, 0 degrees is at 3:00 hours and degrees go clockwise: 
 
 
-image::{concept}/Angles.png[width="300px" ,alt="Angles"]
+image:Angles.png[width="300px" ,alt="Angles"]
 
 
 .Examples

@@ -28,7 +28,7 @@ controlled by a standard setting in `hcat`:
 render(box(hcat(boxes,shrink(0.9)),std(lineColor("blue")), std(fillColor("grey")), std(lineWidth(3))));
 ----
 
-image::{concept}/s1.png[alt="s1"]
+image:s1.png[alt="s1"]
 
 
 If a figure does not specify a certain property, then the standard will be used.

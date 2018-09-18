@@ -22,7 +22,7 @@ Also see <<Angles>>.
                 render(text("Rascal", fontSize(20), textAngle(45)));
 ----
 
-image::{concept}/ta1.png[alt="ta1"]
+image:ta1.png[alt="ta1"]
 
 
 .Benefits

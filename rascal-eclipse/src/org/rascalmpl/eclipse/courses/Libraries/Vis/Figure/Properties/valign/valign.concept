@@ -26,7 +26,7 @@ render(b2);
 ----
 
 
-image::{concept}/a1.png[alt="a1"]
+image:a1.png[alt="a1"]
 
 
 [source,rascal-figure,width=,height=,file=a2.png]
@@ -37,7 +37,7 @@ render(b2);
 ----
 
 
-image::{concept}/a2.png[alt="a2"]
+image:a2.png[alt="a2"]
 
 
 .Benefits

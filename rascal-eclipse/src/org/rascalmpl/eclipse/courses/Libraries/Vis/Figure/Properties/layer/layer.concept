@@ -29,7 +29,7 @@ edges = [ edge("A", "B"), edge("B", "C")];
 render(graph(nodes, edges, gap(20), std(size(50))));
 ----
 
-image::{concept}/l1.png[alt="l1"]
+image:l1.png[alt="l1"]
 
 
 .Benefits

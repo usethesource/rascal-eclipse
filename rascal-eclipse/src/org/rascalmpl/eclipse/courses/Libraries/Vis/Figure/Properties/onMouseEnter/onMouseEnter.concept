@@ -26,7 +26,7 @@ b = box(fillColor(Color () { return c ? color("red") : color("green"); }),
 render(b);
 ----
 
-image::{concept}/mouseenter.png[alt="mouseenter"]
+image:mouseenter.png[alt="mouseenter"]
 
 
 .Benefits

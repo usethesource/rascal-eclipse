@@ -23,7 +23,7 @@ render(hcat(boxes));
 ----
 gives:
 
-image::{concept}/h1.png[alt="h1"]
+image:h1.png[alt="h1"]
 
 
 .Benefits

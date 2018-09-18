@@ -31,7 +31,7 @@ If the treemapping algorithm assigns a size to a figure that is smaller than its
 render(t);
 ----
 
-image::{concept}/tm1.png[alt="treemap 1"]
+image:tm1.png[alt="treemap 1"]
 
 
 .Benefits

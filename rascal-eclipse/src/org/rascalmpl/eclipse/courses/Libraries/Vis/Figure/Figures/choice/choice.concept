@@ -27,7 +27,7 @@ called with that choice as argument.
 render(choiceTest());
 ----
 
-image::{concept}/choice1.png[alt="choice1"]
+image:choice1.png[alt="choice1"]
 
 
 .Examples

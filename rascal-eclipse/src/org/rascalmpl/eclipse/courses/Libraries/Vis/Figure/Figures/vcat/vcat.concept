@@ -25,7 +25,7 @@ b2 = box(fillColor("Blue"));
 render(vcat([b1, b2]));
 ----
 gives: 
-image::{concept}/v1.png[alt="v1"]
+image:v1.png[alt="v1"]
 
 
 [source,rascal-figure,width=100,height=200,file=v2.png]
@@ -35,7 +35,7 @@ b2 = box(hshrink(1.0),fillColor("Blue"));
 render(vcat([b1, b2]));
 ----
 gives: 
-image::{concept}/v2.png[alt="v2"]
+image:v2.png[alt="v2"]
 
 
 
@@ -46,7 +46,7 @@ b2 = box(hshrink(1.0),fillColor("Blue"));
 render(vcat([b1, b2]));
 ----
 gives: 
-image::{concept}/v3.png[alt="v3"]
+image:v3.png[alt="v3"]
 
 
 When several child figures are involved, it is more convenient to change
@@ -59,7 +59,7 @@ b3 = box(hshrink(0.5), fillColor("Yellow"));
 render(vcat([b1, b2, b3], std(left()), vgrow(1.1)));
 ----
 gives: 
-image::{concept}/v5.png[alt="v5"]
+image:v5.png[alt="v5"]
 
 
 .Benefits

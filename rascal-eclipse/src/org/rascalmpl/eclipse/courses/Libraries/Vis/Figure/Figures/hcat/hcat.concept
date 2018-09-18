@@ -27,7 +27,7 @@ b3 = box(vshrink(1.0), fillColor("Yellow"));
 render(hcat([b1, b2, b3]));
 ----
 gives: 
-image::{concept}/h1.png[alt="h1"]
+image:h1.png[alt="h1"]
 
 
 `b2` aligned at the top:
@@ -39,7 +39,7 @@ b3 = box(vshrink(1.0), fillColor("Yellow"));
 render(hcat([b1, b2, b3]));
 ----
 gives: 
-image::{concept}/h2.png[alt="h2"]
+image:h2.png[alt="h2"]
 
 
 `b2` aligned at the bottom:
@@ -51,7 +51,7 @@ b3 = box(vshrink(1.0), fillColor("Yellow"));
 render(hcat([b1, b2, b3]));
 ----
 gives: 
-image::{concept}/h3.png[alt="h3"]
+image:h3.png[alt="h3"]
 
 
 All boxes aligned at the bottom:
@@ -63,7 +63,7 @@ b3 = box(vshrink(1.0), fillColor("Yellow"));
 render(hcat([b1, b2, b3],std(bottom())));
 ----
 gives: 
-image::{concept}/h6.png[alt="h6"]
+image:h6.png[alt="h6"]
 
 
 .Benefits

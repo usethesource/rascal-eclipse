@@ -29,7 +29,7 @@ The following line styles are available:
 render(b1);
 ----
 gives 
-image::{concept}/box1.png[alt="box1"]
+image:box1.png[alt="box1"]
 
 
 [source,rascal-figure,width=,height=,file=box2.png]
@@ -38,7 +38,7 @@ image::{concept}/box1.png[alt="box1"]
 render(b2);
 ----
 gives 
-image::{concept}/box2.png[alt="box2"]
+image:box2.png[alt="box2"]
 
 
 [source,rascal-figure,width=,height=,file=box3.png]
@@ -47,7 +47,7 @@ image::{concept}/box2.png[alt="box2"]
 render(b3);
 ----
 gives 
-image::{concept}/box3.png[alt="box3"]
+image:box3.png[alt="box3"]
 
 
 [source,rascal-figure,width=,height=,file=box4.png]
@@ -56,7 +56,7 @@ image::{concept}/box3.png[alt="box3"]
 render(b4);
 ----
 gives 
-image::{concept}/box4.png[alt="box4"]
+image:box4.png[alt="box4"]
 
 
 .Benefits

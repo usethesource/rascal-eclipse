@@ -47,7 +47,7 @@ render(b1);
 ----
 
 displays: 
-image::{concept}/b1.png[alt="b1"]
+image:b1.png[alt="b1"]
 
 
 We can also use the RGB value of MidNightBlue directly
@@ -57,7 +57,7 @@ We can also use the RGB value of MidNightBlue directly
 render(b2);
 ----
 and obtain (unsurprisingly) the same result: 
-image::{concept}/b2.png[alt="b2"]
+image:b2.png[alt="b2"]
 
 
 .Benefits

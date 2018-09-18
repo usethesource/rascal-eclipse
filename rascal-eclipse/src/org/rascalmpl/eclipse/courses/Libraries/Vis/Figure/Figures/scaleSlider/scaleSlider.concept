@@ -50,7 +50,7 @@ Here are the code and the resulting figure:
 render(scaledbox());  
 ----
 
-image::{concept}/s1.png[alt="s1"]
+image:s1.png[alt="s1"]
 
 
 Moving the slider will change the size of the box.      

@@ -30,7 +30,7 @@ Also see <<ColorModel>>.
 render(t1);
 ----
 gives: 
-image::{concept}/t1.png[alt="t1"]
+image:t1.png[alt="t1"]
 
 
 [source,rascal-figure,width=,height=,file=t2.png]
@@ -39,7 +39,7 @@ image::{concept}/t1.png[alt="t1"]
 render(t2);
 ----
 gives: 
-image::{concept}/t2.png[alt="t2"]
+image:t2.png[alt="t2"]
 
 
 .Benefits

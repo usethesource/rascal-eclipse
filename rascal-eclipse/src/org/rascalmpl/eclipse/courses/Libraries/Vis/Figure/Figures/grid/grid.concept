@@ -32,7 +32,7 @@ render(grid([row1, row2]));
 gives:
 
 
-image::{concept}/grid1.png[alt="grid1"]
+image:grid1.png[alt="grid1"]
 
 
 If an element specifies a <<hshrink>> then this element will get a portion <<hshrink>> of the total width of the grid. Similarly, if an an element specifies a <<vshrink>> then this element will get a portion <<vshrink>> of the total height of the grid. For example:
@@ -52,7 +52,7 @@ render(grid([row1, row2]));
 gives:
 
 
-image::{concept}/grid2.png[alt="grid2"]
+image:grid2.png[alt="grid2"]
 
 
 If a row or column contains only non-resizable elements then the entire row or column will not be resized. For example:
@@ -73,7 +73,7 @@ render(b);
 Gives
 
 
-image::{concept}/grid3.png[alt="grid3"]
+image:grid3.png[alt="grid3"]
 
 
 If the total <<hshrink>> in a row is more than 1.0 or if the total <<hshrink>> of a row is 1.0 but there are elements in row which do not specify a hshrink but do need space. Then we cannot meet the constraints and the grid will show a `Grid over-constrained message`. The same holds for <<vshrink>>.
@@ -91,7 +91,7 @@ render(grid(<<row1>>));
 Gives
 
 
-image::{concept}/grid4.png[alt="grid4"]
+image:grid4.png[alt="grid4"]
 
 
 To insert white space between figures we can specify the <<hgrow>> and <<vgrow>>. For example <<hgrow>> indicates that the grid will be <<hgrow>> as wide as combined width of the elements, the extra space will be used for gaps between the rows. 
@@ -113,7 +113,7 @@ render(grid([row1, row2],hgrow(1.1),vgrow(1.3)));
 Gives
 
 
-image::{concept}/grid5.png[alt="grid5"]
+image:grid5.png[alt="grid5"]
 
 
 Alternatively we can use <<hgap>> and <<vgap>> to specify the gap in pixels, instead of relative to the size of the elements. 
@@ -135,7 +135,7 @@ render(grid([row1, row2],hgap(10),vgap(15)));
 Gives
 
 
-image::{concept}/grid6.png[alt="grid6"]
+image:grid6.png[alt="grid6"]
 
 
 If both <<hgrow>> and <<hgap>> are set then the property which gives the largest gap will be used.
@@ -158,7 +158,7 @@ render(grid([row1, row2, row3]));
 Gives
 
 
-image::{concept}/grid7.png[alt="grid7"]
+image:grid7.png[alt="grid7"]
 
 
 
@@ -184,7 +184,7 @@ gives:
 
 
 
-image::{concept}/g2.png[alt="grid2"]
+image:g2.png[alt="grid2"]
 
 
 And now changing the alignment of `b2`:
@@ -205,7 +205,7 @@ render(grid([row1, row2, row3]));
 gives:
 
 
-image::{concept}/g3.png[alt="grid3"]
+image:g3.png[alt="grid3"]
 
 
 .Benefits

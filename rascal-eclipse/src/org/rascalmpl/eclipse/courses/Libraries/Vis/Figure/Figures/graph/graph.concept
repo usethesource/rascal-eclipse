@@ -50,7 +50,7 @@ render(graph(nodes, edges, hint("layered"), gap(100)));
 ----
 
 
-image::{concept}/g1.png[alt="graph 1"]
+image:g1.png[alt="graph 1"]
 
 
 [source,rascal-figure,width=,height=,file=g2.png]
@@ -79,7 +79,7 @@ render(graph(nodes, edges, hint("layered"), std(size(30)), gap(40)));
 ----
 
 
-image::{concept}/g2.png[alt="graph 2"]
+image:g2.png[alt="graph 2"]
 
 
 [source,rascal-figure,width=,height=,file=g3.png]
@@ -97,7 +97,7 @@ render(graph(nodes, edges, hint("spring"), size(500), gap(20)));
 ----
 
 
-image::{concept}/screenshot.png[alt="graph 3"]
+image:screenshot.png[alt="graph 3"]
 
 
 .Benefits

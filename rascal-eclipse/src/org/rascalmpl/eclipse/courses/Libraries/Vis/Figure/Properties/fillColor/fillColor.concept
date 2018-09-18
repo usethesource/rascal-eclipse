@@ -35,7 +35,7 @@ render(hcat(boxes));
 ----
 gives:
 
-image::{concept}/fc1.png[alt="h1"]
+image:fc1.png[alt="h1"]
 
 
 .Benefits

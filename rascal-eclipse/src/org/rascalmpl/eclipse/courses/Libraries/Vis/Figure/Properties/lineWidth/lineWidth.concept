@@ -27,7 +27,7 @@ render(hcat(boxes,hgrow(1.2)));
 ----
 gives:
 
-image::{concept}/lw1.png[alt="h1"]
+image:lw1.png[alt="h1"]
 
 
 .Benefits

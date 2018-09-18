@@ -25,7 +25,7 @@ b1 = box(e1,fillColor("red"));
 render(e1);
 ----
 
-image::{concept}/a0.png[alt="a0"]
+image:a0.png[alt="a0"]
 
 
 [source,rascal-figure,width=200,height=100,file=a1.png]
@@ -35,7 +35,7 @@ b1 = box(e1,fillColor("red"));
 render(e1);
 ----
 
-image::{concept}/a1.png[alt="a1"]
+image:a1.png[alt="a1"]
 
 
 [source,rascal-figure,width=200,height=100,file=a2.png]
@@ -45,7 +45,7 @@ b1 = box(e1,fillColor("red"));
 render(e1);
 ----
 
-image::{concept}/a2.png[alt="a2"]
+image:a2.png[alt="a2"]
 
 
 .Benefits

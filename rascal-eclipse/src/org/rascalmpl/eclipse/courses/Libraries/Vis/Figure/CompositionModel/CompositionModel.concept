@@ -15,7 +15,7 @@ The model for composing figures.
 The Figure library uses the following model for the composition of figures:
 
 
-image::{concept}/CompositionModel.png[width="400px" style="float: center;" ,alt="Composition Model"]
+image:CompositionModel.png[width="400px" style="float: center;" ,alt="Composition Model"]
 
 
 The ingredients are:

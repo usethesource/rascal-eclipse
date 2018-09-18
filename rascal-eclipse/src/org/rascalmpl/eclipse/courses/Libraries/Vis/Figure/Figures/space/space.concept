@@ -26,7 +26,7 @@ render(hcat([b1, s1, b2]));
 ----
 
 
-image::{concept}/s1.png[alt="space 1"]
+image:s1.png[alt="space 1"]
 
 
 .Benefits

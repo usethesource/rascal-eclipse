@@ -24,7 +24,7 @@ box3 = box(fillColor(arbColor()));
 render(hcat([box1, box2, box3], std(size(50))));
 ----
 
-image::{concept}/a1.png[alt="a1"]
+image:a1.png[alt="a1"]
 
 
 .Benefits

@@ -44,7 +44,7 @@ b2 = box(vcat([
 render(b2);
 ----
 
-image::{concept}/onkeydown.png[alt="onkeydown"]
+image:onkeydown.png[alt="onkeydown"]
 
 
 .Benefits

@@ -34,7 +34,7 @@ a visual cue is given that the entered text is erroneous. Only when `validate` r
 render(tfield()); 
 ----
 
-image::{concept}/t1.png[alt="t1"]
+image:t1.png[alt="t1"]
 
 
 .Benefits

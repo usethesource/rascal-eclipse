@@ -30,7 +30,7 @@ b6 = box([size(50), fillColor(interpolateColor(from, to, 1.0))]);
 render(hcat([b1, b2, b3, b4, b5, b6]));
 ----
 gives: 
-image::{concept}/h1.png[alt="h1"]
+image:h1.png[alt="h1"]
 
 
 .Benefits
