@@ -33,7 +33,6 @@ import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.experiments.tutor3.CourseCompiler;
 import org.rascalmpl.library.experiments.tutor3.TutorCommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
@@ -281,7 +280,7 @@ public class Builder extends IncrementalProjectBuilder {
         }
          
         cachedConfig = pcfg;
-        cachedExecutor = new TutorCommandExecutor(pcfg, err, new BasicIDEServices(err));
+        cachedExecutor = new TutorCommandExecutor(pcfg);
         
         return this.cachedExecutor;
     }
