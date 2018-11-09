@@ -286,14 +286,21 @@ public class Builder extends IncrementalProjectBuilder {
     
     private static String getCourseName(PathConfig pcfg, IFile file, Path coursesSrcPath) throws IOException {
         String filePath = file.getLocation().toFile().getAbsolutePath();
+        Path child = Paths.get(filePath).toAbsolutePath();
+        
+        String found = "";
         
         try (DirectoryStream<Path> dirs = Files.newDirectoryStream(coursesSrcPath)) {
             for (Path course : dirs) {
-                if (filePath.startsWith(course.toAbsolutePath().toFile().getAbsolutePath())) {
-                    return course.getFileName().toString();
+                if (child.startsWith(course)) {
+                	return course.getFileName().toString();
                 }
             }
         } 
+        
+        if (!found.isEmpty()) {
+        	return found;
+        }
         
         throw new IOException("No course found containing: " + file);
     }
