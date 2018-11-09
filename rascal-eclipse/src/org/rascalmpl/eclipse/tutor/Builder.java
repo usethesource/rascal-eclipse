@@ -39,7 +39,6 @@ import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIResourceResolver;
 import org.rascalmpl.uri.URIUtil;
-import org.tukaani.xz.UnsupportedOptionsException;
 
 import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.IList;
@@ -53,14 +52,6 @@ public class Builder extends IncrementalProjectBuilder {
     public Builder() {
     }
 
-//    private boolean inOutputFolder(IResource resource) throws JavaModelException {
-//        PathConfig pcfg = getPathConfig(resource);
-//        ISourceLocation binURI = ProjectURIResolver.constructProjectURI(resource.getProject(), resource.getProjectRelativePath());
-//        IPath targetPath = JavaCore.create(resource.getProject()).getOutputLocation();
-//        
-//        return binURI.getPath().startsWith(pcfg.getBin().getPath())
-//            || resource.getFullPath().toString().startsWith(targetPath.toString());
-//    }
 
     private PathConfig getPathConfig(IResource resource) {
         if (cachedConfig == null) {
@@ -109,7 +100,7 @@ public class Builder extends IncrementalProjectBuilder {
                             }
                             break;
                         case FULL_BUILD:
-                            Activator.log("Ignoring full tutor build trigger", new UnsupportedOptionsException());
+                            Activator.log("Ignoring full tutor build trigger", new IllegalArgumentException());
                             break;
                     }
                 }
