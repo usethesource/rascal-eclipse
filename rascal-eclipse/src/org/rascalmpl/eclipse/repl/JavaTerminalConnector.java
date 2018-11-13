@@ -124,37 +124,50 @@ public class JavaTerminalConnector extends TerminalConnectorImpl {
               }
 
             };
-            proxy.getOutputStreamMonitor().addListener(new IStreamListener() {
-                private boolean firstPrint = true;
-                
-              @Override
-              public void streamAppended(String text, IStreamMonitor monitor) {
-                try {
-                    if (firstPrint) {
-                        Display.getDefault().asyncExec(new Runnable() {
-                            public void run() {
-                                setFocus();
-                            };
-                        });
-                        
-                        firstPrint = false;
-                    }
-                  control.getRemoteToTerminalOutputStream().write(text.getBytes(StandardCharsets.UTF_8));
-                }
-                catch (IOException e) {
-                }
-              }
-            });
-            proxy.getErrorStreamMonitor().addListener(new IStreamListener() {
-              @Override
-              public void streamAppended(String text, IStreamMonitor monitor) {
-                try {
-                  control.getRemoteToTerminalOutputStream().write(text.getBytes(StandardCharsets.UTF_8));
-                }
-                catch (IOException e) {
-                }
-              }
-            });
+            
+            IStreamMonitor outputStreamMonitor = proxy.getOutputStreamMonitor();
+            
+            // some run configurations do not have outputstreams
+            if (outputStreamMonitor != null) {
+            	outputStreamMonitor.addListener(new IStreamListener() {
+            		private boolean firstPrint = true;
+
+            		@Override
+            		public void streamAppended(String text, IStreamMonitor monitor) {
+            			try {
+            				if (firstPrint) {
+            					Display.getDefault().asyncExec(new Runnable() {
+            						public void run() {
+            							setFocus();
+            						};
+            					});
+
+            					firstPrint = false;
+            				}
+            				control.getRemoteToTerminalOutputStream().write(text.getBytes(StandardCharsets.UTF_8));
+            			}
+            			catch (IOException e) {
+            			}
+            		}
+            	});
+            }
+            
+            IStreamMonitor errorStreamMonitor = proxy.getErrorStreamMonitor();
+            
+            // some run configurations do not have error streams
+            if (errorStreamMonitor != null) {
+            	errorStreamMonitor.addListener(new IStreamListener() {
+            		@Override
+            		public void streamAppended(String text, IStreamMonitor monitor) {
+            			try {
+            				control.getRemoteToTerminalOutputStream().write(text.getBytes(StandardCharsets.UTF_8));
+            			}
+            			catch (IOException e) {
+            			}
+            		}
+            	});
+            }
+            
             detectTerminated = new IDebugEventSetListener() {
               @Override
               public void handleDebugEvents(DebugEvent[] events) {

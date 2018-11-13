@@ -57,7 +57,7 @@ public class FigureLibrary {
 					@Override
 					public void run() {
 						OutputStream out = null;
-						try{
+						try {
 							out =  URIResolverRegistry.getInstance().getOutputStream(loc, false);
 							env.saveImage(out);
 						} catch(IOException f){
