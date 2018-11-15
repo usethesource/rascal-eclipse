@@ -8,9 +8,14 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -30,6 +35,11 @@ import org.eclipse.tm.internal.terminal.emulator.VT100TerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+import org.eclipse.ui.internal.browser.WorkbenchBrowserSupport;
+import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.debug.AbstractInterpreterEventTrigger;
 import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.IRascalEventListener;
@@ -40,19 +50,17 @@ import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.IRascalResult;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.RascalInterpreterREPL;
+import org.rascalmpl.shell.OnePageServer;
 
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 import jline.Terminal;
 
 @SuppressWarnings("restriction")
 public class RascalTerminalConnector extends SizedTerminalConnector {
+	private static final OnePageServer htmlServer = initHTMLServer();
     private BaseREPL shell;
     private final AtomicBoolean shellIsRunning = new AtomicBoolean(false);
     private REPLPipedInputStream stdIn;
@@ -66,13 +74,21 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
     private int terminalHeight = 24;
     private int terminalWidth = 80;
   
-   
     @Override
     public OutputStream getTerminalToRemoteStream() {
         return stdInUI;
     }
 
-    @Override
+    private static OnePageServer initHTMLServer() {
+    	try {
+    		return OnePageServer.getInstance();
+    	} catch (IOException e) {
+    		Activator.log("could not load HTML page server", e);
+    		return null;
+		}
+	}
+
+	@Override
     public boolean isLocalEcho() {
         return false;
     }
@@ -275,6 +291,38 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                 }
                 
                 return eval;
+            }
+            
+            @Override
+            public void handleInput(String line, Map<String, String> output, Map<String, String> metadata)
+            		throws InterruptedException {
+            	super.handleInput(line, output, metadata);
+            	
+            	String html = output.get("text/html");
+            	
+            	if (htmlServer != null && html != null) {
+            		new UIJob("HTML content shower") {
+						@Override
+						public IStatus runInUIThread(IProgressMonitor monitor) {
+							try {
+		            			synchronized (htmlServer) {
+		            				htmlServer.setHTML(html);
+		            				MessageDigest md = MessageDigest.getInstance("MD5");
+		            				String id = new String(md.digest(html.getBytes()));
+		    						IWebBrowser browser = WorkbenchBrowserSupport.getInstance().createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, id, "Content", "This browser shows the latest HTML content produced by a Rascal terminal");
+		    						browser.openURL(new URL("http", "localhost", htmlServer.getListeningPort(), "/"));
+								}
+							} catch (PartInitException | MalformedURLException | NoSuchAlgorithmException e) {
+								Activator.log("could not view HTML content", e);
+							}
+							
+							return Status.OK_STATUS;
+						}
+					}.schedule();
+            	}
+            	else {
+            		htmlServer.unsetHTML();
+            	}
             }
             
             @Override
