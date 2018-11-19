@@ -297,7 +297,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
 							try {
 								String id = metadata.get("url");
 								URL url = new URL(id);
-								IWebBrowser browser = WorkbenchBrowserSupport.getInstance().createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, id, "Content", "This browser shows the latest HTML content produced by a Rascal terminal");
+								IWebBrowser browser = WorkbenchBrowserSupport.getInstance().createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, id, id, "This browser shows the latest web content produced by a Rascal terminal");
 								browser.openURL(url);
 							} catch (PartInitException | MalformedURLException e) {
 								Activator.log("could not view HTML content", e);
