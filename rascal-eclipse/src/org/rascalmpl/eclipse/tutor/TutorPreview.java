@@ -173,7 +173,7 @@ public class TutorPreview extends ViewPart {
                 PrintWriter out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
                 PrintWriter err = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
                 ISourceLocation root = URIUtil.getChildLocation(pcfg.getBin(), "courses");
-                m = new HelpManager(root, pcfg, out, err, new EclipseIDEServices());
+                m = new HelpManager(root, pcfg, out, err, new EclipseIDEServices(), true);
                 tutors.put(project, m);
                 
                 // since it might fail I want to do this after caching the server
