@@ -4,13 +4,17 @@ import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newInterpreter
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -30,6 +34,11 @@ import org.eclipse.tm.internal.terminal.emulator.VT100TerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalControl;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalState;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+import org.eclipse.ui.internal.browser.WorkbenchBrowserSupport;
+import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.debug.AbstractInterpreterEventTrigger;
 import org.rascalmpl.debug.DebugHandler;
 import org.rascalmpl.debug.IRascalEventListener;
@@ -40,15 +49,11 @@ import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.IRascalResult;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 import jline.Terminal;
 
 @SuppressWarnings("restriction")
@@ -66,13 +71,12 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
     private int terminalHeight = 24;
     private int terminalWidth = 80;
   
-   
     @Override
     public OutputStream getTerminalToRemoteStream() {
         return stdInUI;
     }
 
-    @Override
+	@Override
     public boolean isLocalEcho() {
         return false;
     }
@@ -275,6 +279,34 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                 }
                 
                 return eval;
+            }
+            
+            @Override
+            public void handleInput(String line, Map<String, InputStream> output, Map<String, String> metadata)
+            		throws InterruptedException {
+            	super.handleInput(line, output, metadata);
+            	
+            	for (String mimetype : output.keySet()) {
+                    if (!mimetype.contains("html") && !mimetype.startsWith("image/")) {
+                        continue;
+                    }
+
+            		new UIJob("Content") {
+						@Override
+						public IStatus runInUIThread(IProgressMonitor monitor) {
+							try {
+								String id = metadata.get("url");
+								URL url = new URL(id);
+								IWebBrowser browser = WorkbenchBrowserSupport.getInstance().createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, id, id, "This browser shows the latest web content produced by a Rascal terminal");
+								browser.openURL(url);
+							} catch (PartInitException | MalformedURLException e) {
+								Activator.log("could not view HTML content", e);
+							}
+							
+							return Status.OK_STATUS;
+						}
+					}.schedule();
+                }
             }
             
             @Override
