@@ -46,7 +46,6 @@ public class IDEServicesModelProvider {
             kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
             IDESummaryService serviceToUse = getExtensionPointIDESummary();
             if (serviceToUse == null) {
-				Activator.log("Falling back to the default service provider", new RuntimeException());
             	// by default, use the kernel 
                 serviceToUse = new IDESummaryService() {
                     @Override
@@ -98,7 +97,6 @@ public class IDEServicesModelProvider {
 				}
 			} 
 		}
-		Activator.log("No extension point for service provider registered", new RuntimeException());
 		return null;
 	}
     
