@@ -159,6 +159,10 @@ public class ProjectConfig {
         if (project.hasNature(JavaCore.NATURE_ID)) {
             IJavaProject jProject = JavaCore.create(project);
 
+            if (!jProject.isOpen()) {
+                return;
+            }
+            
             IPath binFolder = jProject.getOutputLocation();
             String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
 
@@ -168,9 +172,7 @@ public class ProjectConfig {
                 compilerPath.add(vf.sourceLocation("file", "", binLoc + "/"));
 //            }
             
-            if (!jProject.isOpen()) {
-                return;
-            }
+           
 
             IClasspathEntry[] entries = jProject.getResolvedClasspath(true);
 
