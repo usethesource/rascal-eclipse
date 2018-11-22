@@ -71,8 +71,11 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		}
 		
 		ITree tree = (ITree) parseController.getCurrentAst();
+		if (tree == null) {
+			return null;
+		}
+
 		ISourceLocation rootLocation = getLocation(tree, parseController).top();
-		
 		if (tree != null && parseController instanceof TermParseController) {
 		    // DSL case
 			return getTreeLinks(rootLocation,  tree, region);
