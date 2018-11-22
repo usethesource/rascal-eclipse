@@ -110,8 +110,9 @@ public class ProjectConfig {
             
             if (!isRascalBootstrapProject(project)) {
                 URL entry = FileLocator.toFileURL(rascalBundle.getEntry("lib/rascal.jar"));
-                javaCompilerPath.add(vf.sourceLocation(URIUtil.fromURL(entry)));
-                classloaders.add(vf.sourceLocation(entry.toURI()));
+                ISourceLocation loc = vf.sourceLocation(URIUtil.fromURL(entry));
+				javaCompilerPath.add(loc);
+                classloaders.add(loc);
             }
            
             collectPathForProject(project, javaCompilerPath, classloaders);
