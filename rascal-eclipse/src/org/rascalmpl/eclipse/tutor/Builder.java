@@ -179,7 +179,9 @@ public class Builder extends IncrementalProjectBuilder {
         	}
     
             String courseName  = getCourseName(pcfg, file, coursesSrcPath);
-            CourseCompiler.copyStandardFiles(coursesSrcPath, destPath);
+            
+            // TODO: these have to come from somewhere else, or should not be copied at all..
+            CourseCompiler.copyStandardFiles(destLoc);
 
             monitor.subTask("Initializing tutor command executor");
             TutorCommandExecutor executor = getCommandExecutor(pcfg);
