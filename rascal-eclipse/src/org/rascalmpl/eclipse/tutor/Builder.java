@@ -53,6 +53,7 @@ public class Builder extends IncrementalProjectBuilder {
     }
 
 
+   
     private PathConfig getPathConfig(IResource resource) {
         if (cachedConfig == null) {
             cachedConfig = IDEServicesModelProvider.getInstance().getPathConfig(resource.getProject());
@@ -157,6 +158,14 @@ public class Builder extends IncrementalProjectBuilder {
         }
     }
     
+    @Override
+    protected void clean(IProgressMonitor monitor) throws CoreException {
+    	PathConfig pcfg = getPathConfig(getProject());
+    	ISourceLocation target = URIUtil.getChildLocation((ISourceLocation)pcfg.getBin(), "courses");
+    	IResource destResource = URIResourceResolver.getResource(target);
+    	destResource.delete(true, monitor);
+    }
+    
     protected void buildIncremental(IFile file, IProgressMonitor monitor, Set<IResource> refresh) throws JavaModelException {
         if (!RascalPreferences.conceptCompilerEnabled()) {
             return;
@@ -180,7 +189,6 @@ public class Builder extends IncrementalProjectBuilder {
     
             String courseName  = getCourseName(pcfg, file, coursesSrcPath);
             
-            // TODO: these have to come from somewhere else, or should not be copied at all..
             CourseCompiler.copyStandardFiles(destLoc);
 
             monitor.subTask("Initializing tutor command executor");
