@@ -10,7 +10,6 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
-import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
@@ -187,7 +186,7 @@ public class IDEServicesModelProvider {
     		return null;
     	}
     }
-
+    
     public INode getOutline(IConstructor module) {
     	ISourceLocation loc = getFileLoc((ITree) module);
     	if (loc == null) {

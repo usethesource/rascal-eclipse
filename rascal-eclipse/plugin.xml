@@ -81,6 +81,13 @@
       </tokenColorer>
    </extension>
    <extension
+         point="impulse.labelProvider">
+      <labelProvider
+            class="org.rascalmpl.eclipse.outline.LabelProvider"
+            language="Rascal">
+      </labelProvider>
+   </extension>
+   <extension
          point="impulse.modelTreeBuilder">
       <treeBuilder
             class="org.rascalmpl.eclipse.outline.TreeModelBuilder"
@@ -545,13 +552,6 @@
     <labelProvider
           class="org.rascalmpl.eclipse.terms.LabelProvider"
           language="Terms">
-    </labelProvider>
- </extension>
- <extension
-       point="impulse.labelProvider">
-    <labelProvider
-          class="org.rascalmpl.eclipse.terms.LabelProvider"
-          language="Rascal">
     </labelProvider>
  </extension>
  <extension

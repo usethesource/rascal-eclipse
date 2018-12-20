@@ -63,7 +63,119 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 			}
 
 			if (outline instanceof INode) {
-				convertModel(outline);
+				INode node = (INode) outline;
+				createTopItem(outline);
+
+					for (IValue child : node) {
+						child.accept(new IValueVisitor<Object, RuntimeException>() {
+							public Object visitBoolean(IBool o)
+							 {
+								createSubItem(o);
+								return null;
+							}
+
+							public Object visitConstructor(IConstructor o)
+							 {
+								pushSubItem(o);
+								for (IValue child : o) {
+									child.accept(this);
+								}
+								popSubItem();
+								return null;
+							}
+
+							public Object visitDateTime(IDateTime o)
+							 {
+								createSubItem(o);
+								return null;
+							}
+
+							public Object visitExternal(IExternalValue o)
+							 {
+								createSubItem(o);
+								return null;
+							}
+
+							public Object visitInteger(IInteger o)  {
+								createSubItem(o);
+								return null;
+							}
+
+							public Object visitRational(IRational o)  {
+								createSubItem(o);
+								return null;
+							}
+
+							public Object visitList(IList o)  {
+								for (IValue elem : o) {
+									elem.accept(this);
+								}
+								return null;
+							}
+
+							public Object visitMap(IMap o)  {
+								for (IValue key : o) {
+									pushSubItem(key);
+									o.get(key).accept(this);
+									popSubItem();
+								}
+								return null;
+							}
+
+							public Object visitNode(INode o)  {
+								pushSubItem(o);
+								for (IValue child : o) {
+									child.accept(this);
+								}
+								popSubItem();
+								return null;
+							}
+
+							public Object visitReal(IReal o)  {
+								return createSubItem(o);
+							}
+
+							public Object visitRelation(ISet o)
+							 {
+								for (IValue tuple : o) {
+									tuple.accept(this);
+								}
+								return null;
+							}
+							
+							public Object visitListRelation(IList o)
+							 {
+								for (IValue tuple : o) {
+										tuple.accept(this);
+								}
+								return null;
+							}
+
+							public Object visitSet(ISet o)  {
+								for (IValue tuple : o) {
+									tuple.accept(this);
+								}
+								return null;
+							}
+
+							public Object visitSourceLocation(ISourceLocation o)
+							 {
+								return createSubItem(o);
+							}
+
+							public Object visitString(IString o)  {
+								return createSubItem(o);
+							}
+
+							public Object visitTuple(ITuple o)  {
+								for (IValue field : o) {
+									field.accept(this);
+								}
+								return null;
+							}
+						});
+
+					}
 			}
 		}
 		catch (Throwable e) {
@@ -71,122 +183,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 			return;
 		}
 	}
-
-    protected void convertModel(IValue outline) {
-        INode node = (INode) outline;
-        createTopItem(outline);
-
-        	for (IValue child : node) {
-        		child.accept(new IValueVisitor<Object, RuntimeException>() {
-        			public Object visitBoolean(IBool o)
-        			 {
-        				createSubItem(o);
-        				return null;
-        			}
-
-        			public Object visitConstructor(IConstructor o)
-        			 {
-        				pushSubItem(o);
-        				for (IValue child : o) {
-        					child.accept(this);
-        				}
-        				popSubItem();
-        				return null;
-        			}
-
-        			public Object visitDateTime(IDateTime o)
-        			 {
-        				createSubItem(o);
-        				return null;
-        			}
-
-        			public Object visitExternal(IExternalValue o)
-        			 {
-        				createSubItem(o);
-        				return null;
-        			}
-
-        			public Object visitInteger(IInteger o)  {
-        				createSubItem(o);
-        				return null;
-        			}
-
-        			public Object visitRational(IRational o)  {
-        				createSubItem(o);
-        				return null;
-        			}
-
-        			public Object visitList(IList o)  {
-        				for (IValue elem : o) {
-        					elem.accept(this);
-        				}
-        				return null;
-        			}
-
-        			public Object visitMap(IMap o)  {
-        				for (IValue key : o) {
-        					pushSubItem(key);
-        					o.get(key).accept(this);
-        					popSubItem();
-        				}
-        				return null;
-        			}
-
-        			public Object visitNode(INode o)  {
-        				pushSubItem(o);
-        				for (IValue child : o) {
-        					child.accept(this);
-        				}
-        				popSubItem();
-        				return null;
-        			}
-
-        			public Object visitReal(IReal o)  {
-        				return createSubItem(o);
-        			}
-
-        			public Object visitRelation(ISet o)
-        			 {
-        				for (IValue tuple : o) {
-        					tuple.accept(this);
-        				}
-        				return null;
-        			}
-        			
-        			public Object visitListRelation(IList o)
-        			 {
-        				for (IValue tuple : o) {
-        						tuple.accept(this);
-        				}
-        				return null;
-        			}
-
-        			public Object visitSet(ISet o)  {
-        				for (IValue tuple : o) {
-        					tuple.accept(this);
-        				}
-        				return null;
-        			}
-
-        			public Object visitSourceLocation(ISourceLocation o)
-        			 {
-        				return createSubItem(o);
-        			}
-
-        			public Object visitString(IString o)  {
-        				return createSubItem(o);
-        			}
-
-        			public Object visitTuple(ITuple o)  {
-        				for (IValue field : o) {
-        					field.accept(this);
-        				}
-        				return null;
-        			}
-        		});
-
-        	}
-    }
 
 	private Language initLanguage(Object root) {
 		if (lang == null) {
