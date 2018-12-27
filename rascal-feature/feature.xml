@@ -2,8 +2,8 @@
 <feature
       id="rascal-feature"
       label="The Rascal MetaProgramming Language"
-      version="0.10.0.qualifier"
-      provider-name="NWOi_CWI">
+      version="0.12.0.qualifier"
+      provider-name="NWO_I_CWI">
 
    <description url="https://www.rascal-mpl.org/">
       Rascal is a domain specific language for metaprogramming, which
@@ -12,7 +12,7 @@ reverse engineering, source code generation and source code visualization.
    </description>
 
    <copyright url="http://www.rascal-mpl.org/">
-      Copyright NWOi - CWI 2008-2018
+      Copyright NWO-I - CWI 2008-2018
 Please note that this feature bundle also contains the following
 third-party libraries:
 
