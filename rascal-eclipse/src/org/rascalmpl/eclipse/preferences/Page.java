@@ -1,6 +1,8 @@
 package org.rascalmpl.eclipse.preferences;
 
+import static org.rascalmpl.eclipse.preferences.RascalPreferences.bootstrapRascalProject;
 import static org.rascalmpl.eclipse.preferences.RascalPreferences.enableConceptCompiler;
+import static org.rascalmpl.eclipse.preferences.RascalPreferences.enableRascalCompiler;
 import static org.rascalmpl.eclipse.preferences.RascalPreferences.liveConceptPreview;
 import static org.rascalmpl.eclipse.preferences.RascalPreferences.loadInterpretedLanguagesFromBundles;
 import static org.rascalmpl.eclipse.preferences.RascalPreferences.loadInterpretedLanguagesFromProjects;
@@ -26,28 +28,27 @@ public class Page extends TabbedPreferencesPage {
 		@Override
 		protected FieldEditor[] createFields(TabbedPreferencesPage page,
 				Composite parent) {
-			// TODO: uncomment when new compiler comes online
-//			@SuppressWarnings("deprecation")
-//			BooleanFieldEditor enableCompilerFieldEditor = fPrefUtils.makeNewBooleanField(
-//					page, this, fPrefService,
-//					IPreferencesService.INSTANCE_LEVEL, enableRascalCompiler, "Enable Rascal Compiler",
-//					"If checked, all changed or new Rascal files will be checked when a build is triggered.",
-//					parent,
-//					true, true,
-//					false, false,
-//					false, false,
-//					true);
-//			
-//			@SuppressWarnings("deprecation")
-//			BooleanFieldEditor enableBootstrap = fPrefUtils.makeNewBooleanField(
-//                    page, this, fPrefService,
-//                    IPreferencesService.INSTANCE_LEVEL, bootstrapRascalProject, "Enable Bootstrapping of Rascal project",
-//                    "If checked, and the rascal compiler option is also checked, then the rascal compiler will compile the rascal project itself.",
-//                    parent,
-//                    true, true,
-//                    false, false,
-//                    false, false,
-//                    true);
+			@SuppressWarnings("deprecation")
+			BooleanFieldEditor enableCompilerFieldEditor = fPrefUtils.makeNewBooleanField(
+					page, this, fPrefService,
+					IPreferencesService.INSTANCE_LEVEL, enableRascalCompiler, "Enable Rascal Compiler",
+					"If checked, all changed or new Rascal files will be checked when a build is triggered.",
+					parent,
+					true, true,
+					false, false,
+					false, false,
+					true);
+			
+			@SuppressWarnings("deprecation")
+			BooleanFieldEditor enableBootstrap = fPrefUtils.makeNewBooleanField(
+                    page, this, fPrefService,
+                    IPreferencesService.INSTANCE_LEVEL, bootstrapRascalProject, "Enable Bootstrapping of Rascal project",
+                    "If checked, and the rascal compiler option is also checked, then the rascal compiler will compile the rascal project itself.",
+                    parent,
+                    true, true,
+                    false, false,
+                    false, false,
+                    true);
 			
 			@SuppressWarnings("deprecation")
             BooleanFieldEditor loadInterpretedLanguages1 = fPrefUtils.makeNewBooleanField(
@@ -92,8 +93,8 @@ public class Page extends TabbedPreferencesPage {
                     true);
 			
 			return new FieldEditor[] {
-//					enableCompilerFieldEditor,
-//					enableBootstrap,
+					enableCompilerFieldEditor,
+					enableBootstrap,
 					loadInterpretedLanguages1,
 					loadInterpretedLanguages2,
 					enableConceptCompilerField,
