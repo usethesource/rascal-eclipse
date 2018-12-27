@@ -29,7 +29,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.JavaModelException;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
@@ -56,7 +55,9 @@ public class Builder extends IncrementalProjectBuilder {
    
     private PathConfig getPathConfig(IResource resource) {
         if (cachedConfig == null) {
-            cachedConfig = IDEServicesModelProvider.getInstance().getPathConfig(resource.getProject());
+        	// TODO
+            cachedConfig = null;
+            // IDEServicesModelProvider.getInstance().getPathConfig(resource.getProject());
         }
          
         return cachedConfig;

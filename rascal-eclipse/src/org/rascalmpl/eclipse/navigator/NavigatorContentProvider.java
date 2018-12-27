@@ -30,7 +30,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -134,11 +133,9 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 
         if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
           IResource[] members = project.members();
-          Object[] result = new Object[members.length + 2];
+          Object[] result = new Object[members.length + 1];
           System.arraycopy(members, 0, result, 0, members.length);
-          IConstructor pcfg = IDEServicesModelProvider.getInstance().getPathConfigCons(project);
-          result[members.length] = new ValueContent(pcfg, project, project);
-          result[members.length + 1] = new SearchPath(project);
+          result[members.length] = new SearchPath(project);
           
           return result;
         }

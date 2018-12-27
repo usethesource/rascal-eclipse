@@ -56,7 +56,7 @@ public class DocumentationProvider  implements IDocumentationProvider {
 	    	ParseController rascalPc = (ParseController) parseController;
 	    	ISourceProject rprj = rascalPc.getProject();
 	    	IProject prj = rprj != null ? rprj.getRawProject() : null;
-	    	PathConfig pcfg =  IDEServicesModelProvider.getInstance().getPathConfig(prj);
+	    	PathConfig pcfg = IDEServicesModelProvider.getInstance().getPathConfig(prj);
 
 	    	StringBuffer b = new StringBuffer();
 	    	

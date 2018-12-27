@@ -138,6 +138,7 @@ Export-Package: io.usethesource.vallang,
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors
 Import-Package: org.eclipse.core.expressions,
+ org.rascalmpl.interpreter.env,
  org.rascalmpl.shell,
  org.rascalmpl.uri
 Bundle-ClassPath: .,

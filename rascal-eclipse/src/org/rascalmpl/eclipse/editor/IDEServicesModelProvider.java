@@ -2,6 +2,8 @@ package org.rascalmpl.eclipse.editor;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IProject;
@@ -10,13 +12,13 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
-import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
+import org.rascalmpl.eclipse.util.BackgroundInitializer;
 import org.rascalmpl.eclipse.util.ProjectConfig;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -37,25 +39,35 @@ import io.usethesource.vallang.IWithKeywordParameters;
 public class IDEServicesModelProvider {
     private final IValueFactory vf = IRascalValueFactory.getInstance();
     private final IDESummaryService summaryService;
-    private final IKernel kernel;
+    
     private final Cache<URI, IConstructor> summaryCache;
     private final Cache<URI, INode> outlineCache;
     
     private IDEServicesModelProvider() {
-        try {
-            kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
             IDESummaryService serviceToUse = getExtensionPointIDESummary();
             if (serviceToUse == null) {
-            	// by default, use the kernel 
+            	// by default, use the the local services 
                 serviceToUse = new IDESummaryService() {
+                	private final Future<Evaluator> eval = BackgroundInitializer.construct("IDE services evaluator", () -> {
+                		Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(Activator.getInstance().getBundle());
+                		eval.doImport(null, "lang::rascal::ide::Outline");
+                		return eval;
+                	});
+                	
                     @Override
                     public IConstructor calculate(IKernel kernel, IString moduleName, IConstructor pcfg) {
-                        return kernel.makeSummary(moduleName, pcfg);
+                    	// TODO: include new type checker information here
+                        return null;
                     }
                     
                     @Override
                     public INode getOutline(IKernel kernel, IConstructor moduleTree) {
-                        return kernel.outline(moduleTree);
+                        try {
+							return (INode) eval.get().call("outline", moduleTree);
+						} catch (InterruptedException | ExecutionException e) {
+							Activator.log("outline failed", e);
+							return IRascalValueFactory.getInstance().node(e.getMessage());
+						}
                     }
                 };
             }
@@ -71,10 +83,6 @@ public class IDEServicesModelProvider {
             		.expireAfterWrite(60, TimeUnit.SECONDS)
             		.maximumSize(1_000)
             		.build();
-        } 
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 	private IDESummaryService getExtensionPointIDESummary() {
@@ -133,19 +141,8 @@ public class IDEServicesModelProvider {
     }
     
     public IConstructor getSummary(ISourceLocation occ, PathConfig pcfg) {
-    	return summaryCache.get(occ.getURI(), (u) -> {
-             try {
-            	 IConstructor result = summaryService.calculate(kernel, vf.string(pcfg.getModuleName(occ)), pcfg.asConstructor(kernel));
-                 if (result == null || !result.asWithKeywordParameters().hasParameters()) {
-                	 return null;
-                 }
-                 return result;
-             }
-             catch (Throwable e) {
-                 Activator.log("failure to create summary for IDE features", e);
-                 return null;
-             }
-    	});
+    	// TODO: include new type checker information
+    	return null;
      }
     
     // TODO to be removed, rewrite HyperlinkDetector
@@ -196,7 +193,7 @@ public class IDEServicesModelProvider {
 
     	return outlineCache.get(loc.getURI(), (l) -> {
     		try {
-    			INode result = summaryService.getOutline(kernel, module);
+    			INode result = summaryService.getOutline(null, module);
     			if (result == null || result.arity() == 0) {
     				return null;
     			}
@@ -209,22 +206,6 @@ public class IDEServicesModelProvider {
     	});
     }
     
-    public IConstructor getPathConfigCons(IProject prj) {
-        return getPathConfig(prj).asConstructor(kernel);
-    }
-    
-    public PathConfig getPathConfig(IProject prj) {
-        try {
-            if (prj != null) {
-              return new ProjectConfig(ValueFactoryFactory.getValueFactory()).getPathConfig(prj);
-            }
-        } catch (IOException e) {
-            Activator.log("could not create proper path config, defaulting", e);
-        }
-        
-        return new PathConfig();
-    }
-    
     public void clearSummaryCache(ISourceLocation file) {
         summaryCache.invalidate(file.getURI());
         outlineCache.invalidate(file.getURI());
@@ -233,5 +214,18 @@ public class IDEServicesModelProvider {
     public void invalidateEverything() {
         summaryCache.invalidateAll();
         outlineCache.invalidateAll();;
+    }
+    
+    
+    public PathConfig getPathConfig(IProject prj) {
+    	try {
+    		if (prj != null) {
+    			return new ProjectConfig(IRascalValueFactory.getInstance()).getPathConfig(prj);
+    		}
+    	} catch (IOException e) {
+    		Activator.log("could not create proper path config, defaulting", e);
+    	}
+    	
+    	return null;
     }
 }
