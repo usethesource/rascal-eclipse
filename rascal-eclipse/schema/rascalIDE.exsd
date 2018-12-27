@@ -79,7 +79,7 @@ Used as a way to inject the rascal-core based type checker, without creating a d
          <meta.section type="since"/>
       </appInfo>
       <documentation>
-         0.10.0
+         0.12.0
       </documentation>
    </annotation>
 
