@@ -63,11 +63,18 @@ public class IDEServicesModelProvider {
                     @Override
                     public INode getOutline(IKernel kernel, IConstructor moduleTree) {
                         try {
-							return (INode) eval.get().call("outline", moduleTree);
-						} catch (InterruptedException | ExecutionException e) {
+							Evaluator evaluator = eval.get();
+							if (eval != null) {
+								synchronized (eval) {
+									return (INode) evaluator.call("outline", moduleTree);
+								}
+							}
+						} 
+                        catch (InterruptedException | ExecutionException e) {
 							Activator.log("outline failed", e);
-							return IRascalValueFactory.getInstance().node(e.getMessage());
 						}
+                        
+                        return IRascalValueFactory.getInstance().node("outline failed");
                     }
                 };
             }
