@@ -61,7 +61,7 @@ public class MoveParticipant extends
 				int last;
 
 				if ((last = moduleName.lastIndexOf("::")) != -1) {
-					lastName = moduleName.substring(last + 2);
+					lastName = moduleName.substring(last + "::".length());
 				}
 				
 				IFile newFile = folder.getFile(lastName + "." + IRascalResources.RASCAL_EXT);
@@ -75,8 +75,8 @@ public class MoveParticipant extends
 				int index = content.indexOf(moduleName);
 				if (index != -1) {
 					MultiTextEdit m = new MultiTextEdit();
+					m.addChild(new InsertEdit(index + moduleName.length(), newModuleName));
 					m.addChild(new DeleteEdit(index, moduleName.length()));
-					m.addChild(new InsertEdit(index, newModuleName));
 					change.setEdit(m);
 				}
 				
