@@ -29,7 +29,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.repl.EclipseIDEServices;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
+import org.rascalmpl.help.HelpManager;
 import org.rascalmpl.library.util.PathConfig;
 
 import io.usethesource.impulse.runtime.RuntimePlugin;

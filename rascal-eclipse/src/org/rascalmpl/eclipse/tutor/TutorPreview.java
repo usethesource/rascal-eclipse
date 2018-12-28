@@ -49,7 +49,7 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.repl.EclipseIDEServices;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
+import org.rascalmpl.help.HelpManager;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIUtil;
