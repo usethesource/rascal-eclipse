@@ -61,8 +61,8 @@ public class RenameParticipant extends org.eclipse.ltk.core.refactoring.particip
 			int index = content.indexOf(moduleName);
 			if (index != -1) {
 				MultiTextEdit m = new MultiTextEdit();
+				m.addChild(new InsertEdit(index + moduleName.length(), newModuleName));
 				m.addChild(new DeleteEdit(index, moduleName.length()));
-				m.addChild(new InsertEdit(index, newModuleName));
 				change.setEdit(m);
 			}
 
