@@ -52,11 +52,8 @@ public class Builder extends IncrementalProjectBuilder {
     public Builder() {
     }
 
-
-   
     private PathConfig getPathConfig(IResource resource) {
         if (cachedConfig == null) {
-        	// TODO
             cachedConfig = IDEServicesModelProvider.getInstance().getPathConfig(resource.getProject());
         }
          
