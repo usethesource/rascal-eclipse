@@ -205,7 +205,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	            if (src.getScheme().equals("project") && src.getAuthority().equals(projectLoc.getAuthority())) {
 	            	// TODO: call new compiler and extract the errors
 	                IList programs = IRascalValueFactory.getInstance().list();
-	                // InstanceHolder.service.compileAll(src, pathConfig.asConstructor(kernel()));
+	                InstanceHolder.service.compileAll(src, pathConfig.asConstructor());
 	                markErrors(programs);
 	            }
 	        }
@@ -340,7 +340,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         
         try {
             if (!locs.isEmpty()) {
-                IList results = InstanceHolder.service.compile(locs, null /*pathConfig.asConstructor(kernel())*/);
+                IList results = InstanceHolder.service.compile(locs, pathConfig.asConstructor());
                 markErrors(results);
             }
         } 
