@@ -70,7 +70,7 @@ public class GenerateInterface extends AbstractEditorAction implements IWorkbenc
                             .verbose(false)
                             .build();
 
-                    kernel.compileAndLink(vf.string(moduleName), pcfg.asConstructor(kernel), kernel.kw_compileAndLink());
+                    kernel.compileAndLink(vf.string(moduleName), pcfg.asConstructor(), kernel.kw_compileAndLink());
                     ISourceLocation binary = Rascal.findBinary(pcfg.getBin(), moduleName);
                     RVMExecutable exec = RVMExecutable.read(binary);
 
