@@ -148,6 +148,13 @@ public class ProjectEvaluatorFactory {
 	    initializeBundleEvaluator(bundle, parser);
 	    return parser;
 	}
+
+	public Evaluator getBundleEvaluator(Bundle bundle, Writer err, Writer out) {
+	    GlobalEnvironment heap = new GlobalEnvironment();
+	    Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(err), new PrintWriter(out), new ModuleEnvironment("$parser$", heap), heap);
+	    initializeBundleEvaluator(bundle, parser);
+	    return parser;
+	}
 	
 	/**
 	 * This method configures an evaluator for use in an eclipse context
