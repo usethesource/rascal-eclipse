@@ -148,8 +148,19 @@ public class IDEServicesModelProvider {
     }
     
     public IConstructor getSummary(ISourceLocation occ, PathConfig pcfg) {
-    	// TODO: include new type checker information
-    	return null;
+    	return summaryCache.get(occ.getURI(), (u) -> {
+    		try {
+    			IConstructor result = summaryService.calculate(null, vf.string(pcfg.getModuleName(occ)), pcfg.asConstructor());
+    			if (result == null || !result.asWithKeywordParameters().hasParameters()) {
+    				return null;
+    			}
+    			return result;
+    		}
+    		catch (Throwable e) {
+    			Activator.log("failure to create summary for IDE features", e);
+    			return null;
+    		}
+    	});
      }
     
     // TODO to be removed, rewrite HyperlinkDetector
