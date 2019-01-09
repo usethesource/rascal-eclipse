@@ -328,12 +328,24 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             initializeParameters(false);
             cleanChangedModules(todo, monitor);
             buildChangedModules(todo, monitor);
+            preloadSummaries(todo, monitor);
         } catch (Throwable e) {
             Activator.log("exception during increment Rascal build on " + getProject(), e);
         }
     }
 
-    private void buildChangedModules(List<ModuleWork> todo, IProgressMonitor monitor) throws CoreException {
+    private void preloadSummaries(List<ModuleWork> todo, IProgressMonitor monitor) {
+        IList locs = getModuleLocations(todo);
+        monitor.beginTask("Preloading module summary caches", locs.length());
+        for (IValue l : locs) {
+        	monitor.worked(1);
+        	if (l instanceof ISourceLocation) {
+        		IDEServicesModelProvider.getInstance().getSummary((ISourceLocation) l, pathConfig);
+        	}
+        }
+	}
+
+	private void buildChangedModules(List<ModuleWork> todo, IProgressMonitor monitor) throws CoreException {
         monitor.beginTask("Compiling changed Rascal modules", todo.size());
         
         IList locs = getModuleLocations(todo);
