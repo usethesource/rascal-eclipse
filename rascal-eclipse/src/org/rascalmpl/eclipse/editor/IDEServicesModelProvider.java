@@ -81,14 +81,14 @@ public class IDEServicesModelProvider {
 
             summaryService = serviceToUse;
             summaryCache = Caffeine.newBuilder()
-            		.weakValues()
-            		.maximumSize(32_000)
+            		.softValues()
+            		.maximumSize(256)
             		.expireAfterAccess(10, TimeUnit.MINUTES)
             		.build();
 
             outlineCache = Caffeine.newBuilder()
             		.expireAfterWrite(60, TimeUnit.SECONDS)
-            		.maximumSize(1_000)
+            		.maximumSize(512)
             		.build();
     }
 
