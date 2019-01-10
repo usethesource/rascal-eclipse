@@ -326,8 +326,8 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     private void buildDirty(List<ModuleWork> todo, IProgressMonitor monitor) {
         try {
             initializeParameters(false);
-            cleanChangedModules(todo, monitor);
             buildChangedModules(todo, monitor);
+            cleanChangedModules(todo, monitor);
             preloadSummaries(todo, monitor);
         } catch (Throwable e) {
             Activator.log("exception during increment Rascal build on " + getProject(), e);
