@@ -326,8 +326,9 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     private void buildDirty(List<ModuleWork> todo, IProgressMonitor monitor) {
         try {
             initializeParameters(false);
+            cleanChangedModulesMarkers(todo, monitor);
             buildChangedModules(todo, monitor);
-            cleanChangedModules(todo, monitor);
+            cleanChangedModulesUseDefCache(todo, monitor);
             preloadSummaries(todo, monitor);
         } catch (Throwable e) {
             Activator.log("exception during increment Rascal build on " + getProject(), e);
@@ -374,10 +375,17 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         return w.done();
     }
 
-    private void cleanChangedModules(List<ModuleWork> todo, IProgressMonitor monitor) throws CoreException {
+    private void cleanChangedModulesMarkers(List<ModuleWork> todo, IProgressMonitor monitor) throws CoreException {
         monitor.beginTask("Cleaning old errors", todo.size());
         for (ModuleWork mod : todo) {
             mod.deleteMarkers();
+        }
+        monitor.worked(todo.size());
+    }
+    
+    private void cleanChangedModulesUseDefCache(List<ModuleWork> todo, IProgressMonitor monitor) throws CoreException {
+        monitor.beginTask("Cleaning use-def cache", todo.size());
+        for (ModuleWork mod : todo) {
             mod.clearUseDefCache();
         }
         monitor.worked(todo.size());
