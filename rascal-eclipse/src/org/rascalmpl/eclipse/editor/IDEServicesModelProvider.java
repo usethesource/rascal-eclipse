@@ -87,7 +87,8 @@ public class IDEServicesModelProvider {
             		.build();
 
             outlineCache = Caffeine.newBuilder()
-            		.expireAfterWrite(60, TimeUnit.SECONDS)
+            		.softValues()
+            		.expireAfterWrite(10, TimeUnit.MINUTES)
             		.maximumSize(512)
             		.build();
     }
