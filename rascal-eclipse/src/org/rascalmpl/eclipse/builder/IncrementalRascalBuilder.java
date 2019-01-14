@@ -187,7 +187,6 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             return;
         }
         
-	    IDEServicesModelProvider.getInstance().invalidateEverything();
 	    
 	    initializeParameters(false);
 	    
@@ -209,6 +208,8 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	                markErrors(programs);
 	            }
 	        }
+	        IDEServicesModelProvider.getInstance().invalidateEverything(); // mark caches as outdated
+	        // TODO: make this invalidate more accurate to be scoped by the project that was rebuild
 	    }
 	    catch (Throwable e) {
 	        Activator.log("error during compilation of project " + projectLoc, e);
