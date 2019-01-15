@@ -6,6 +6,13 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -58,13 +65,13 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 			if (nonFinalService == null) {
 				nonFinalService = new BuildRascalService() {
 					@Override
-					public IList compile(IList files, IConstructor pcfg) {
-						return IRascalValueFactory.getInstance().list();
+					public FutureTask<IList> compile(IList files, IConstructor pcfg) {
+						return new FutureTask<>(IRascalValueFactory.getInstance()::list);
 					}
 
 					@Override
-					public IList compileAll(ISourceLocation folder, IConstructor pcfg) {
-						return IRascalValueFactory.getInstance().list();
+					public FutureTask<IList> compileAll(ISourceLocation folder, IConstructor pcfg) {
+	                    return new FutureTask<>(IRascalValueFactory.getInstance()::list);
 					}
 				};
 			}
@@ -178,6 +185,9 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 		return new IProject[0];
 	}
 
+	
+
+	
 	private void buildWholeProject(IProgressMonitor monitor) throws CoreException {
 	    if (!RascalPreferences.isRascalCompilerEnabled()) {
             return;
@@ -202,7 +212,11 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	            // the pathConfig source path currently still contains library sources,
 	            // which we want to compile on-demand only:
 	            if (src.getScheme().equals("project") && src.getAuthority().equals(projectLoc.getAuthority())) {
-	                IList programs = InstanceHolder.service.compileAll(src, pathConfig.asConstructor());
+	                FutureTask<IList> result = InstanceHolder.service.compileAll(src, pathConfig.asConstructor());
+	                if (!result.isDone()) {
+	                    watchAndCancelTask(result, monitor);
+	                }
+	                IList programs = result.get();
 	                if (programs != null) {
 	                	markErrors(programs);
 	                }
@@ -219,7 +233,18 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    }
 	}
 
-	private static class ModuleWork {
+	private final ScheduledExecutorService backgroundCancelation = Executors.newSingleThreadScheduledExecutor();
+	
+	private void watchAndCancelTask(FutureTask<IList> result, IProgressMonitor monitor) {
+	    backgroundCancelation.scheduleAtFixedRate(() -> {
+	        if (monitor.isCanceled()) {
+	            result.cancel(true);
+	            throw new RuntimeException("Stop schedule");
+	        }
+	    }, 1, 1, TimeUnit.SECONDS);
+    }
+
+    private static class ModuleWork {
 	    public IFile file;
 	    
 	    public ModuleWork(IFile file) {
@@ -354,8 +379,14 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         
         try {
             if (!locs.isEmpty()) {
-                IList results = InstanceHolder.service.compile(locs, pathConfig.asConstructor());
-                markErrors(results);
+                FutureTask<IList> result = InstanceHolder.service.compile(locs, pathConfig.asConstructor());
+                if (!result.isDone()) {
+                    watchAndCancelTask(result, monitor);
+                }
+                IList results = result.get();
+                if (results != null) {
+                    markErrors(results);
+                }
             }
         } 
         catch (Throwable e) {
