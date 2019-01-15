@@ -6,12 +6,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import javax.management.RuntimeErrorException;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -40,6 +35,7 @@ import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
+
 import io.usethesource.impulse.builder.MarkerCreator;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -62,13 +58,13 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 			if (nonFinalService == null) {
 				nonFinalService = new BuildRascalService() {
 					@Override
-					public CompletableFuture<IList> compile(IList files, IConstructor pcfg) {
-						return CompletableFuture.completedFuture(IRascalValueFactory.getInstance().list());
+					public IList compile(IList files, IConstructor pcfg) {
+						return IRascalValueFactory.getInstance().list();
 					}
 
 					@Override
-					public CompletableFuture<IList> compileAll(ISourceLocation folder, IConstructor pcfg) {
-						return CompletableFuture.completedFuture(IRascalValueFactory.getInstance().list());
+					public IList compileAll(ISourceLocation folder, IConstructor pcfg) {
+						return IRascalValueFactory.getInstance().list();
 					}
 				};
 			}
@@ -196,9 +192,6 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    
 	    try {
 	        for (IValue srcv : pathConfig.getSrcs()) {
-	        	if (monitor.isCanceled()) {
-	        		break;
-	        	}
 	            ISourceLocation src = (ISourceLocation) srcv;
 
 	            if (!URIResolverRegistry.getInstance().isDirectory(src)) {
@@ -209,7 +202,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	            // the pathConfig source path currently still contains library sources,
 	            // which we want to compile on-demand only:
 	            if (src.getScheme().equals("project") && src.getAuthority().equals(projectLoc.getAuthority())) {
-	                IList programs = waitOrCancel(InstanceHolder.service.compileAll(src, pathConfig.asConstructor()), monitor);
+	                IList programs = InstanceHolder.service.compileAll(src, pathConfig.asConstructor());
 	                if (programs != null) {
 	                	markErrors(programs);
 	                }
@@ -224,20 +217,6 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    finally {
 	        monitor.done();
 	    }
-	}
-
-	private IList waitOrCancel(Future<IList> task, IProgressMonitor monitor) throws InterruptedException, ExecutionException {
-		while (!monitor.isCanceled()) {
-			try {
-				return task.get(1, TimeUnit.SECONDS);
-			}
-			catch (TimeoutException e) {
-				// expected, continue
-				continue;
-			}
-		}
-		task.cancel(true);
-		return null;
 	}
 
 	private static class ModuleWork {
@@ -375,10 +354,8 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         
         try {
             if (!locs.isEmpty()) {
-            	IList results = waitOrCancel(InstanceHolder.service.compile(locs, pathConfig.asConstructor()), monitor);
-            	if (results != null) {
-            		markErrors(results);
-            	}
+                IList results = InstanceHolder.service.compile(locs, pathConfig.asConstructor());
+                markErrors(results);
             }
         } 
         catch (Throwable e) {
