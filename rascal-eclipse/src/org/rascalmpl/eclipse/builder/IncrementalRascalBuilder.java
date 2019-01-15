@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -203,6 +205,9 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    try {
 	        for (IValue srcv : pathConfig.getSrcs()) {
 	            ISourceLocation src = (ISourceLocation) srcv;
+	            if (monitor.isCanceled()) {
+	                return;
+	            }
 
 	            if (!URIResolverRegistry.getInstance().isDirectory(src)) {
 	                Activator.log("Source config is not a directory?", new IllegalArgumentException(src.toString()));
@@ -215,6 +220,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	                FutureTask<IList> result = InstanceHolder.service.compileAll(src, pathConfig.asConstructor());
 	                if (!result.isDone()) {
 	                    watchAndCancelTask(result, monitor);
+	                    result.run();
 	                }
 	                IList programs = result.get();
 	                if (programs != null) {
@@ -225,8 +231,11 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	        IDEServicesModelProvider.getInstance().invalidateEverything(); // mark caches as outdated
 	        // TODO: make this invalidate more accurate to be scoped by the project that was rebuild
 	    }
+	    catch (CancellationException e) {
+	        // ignore
+	    }
 	    catch (Throwable e) {
-	        Activator.log("error during compilation of project " + projectLoc, e);
+	        Activator.log("error during compilation of project " + projectLoc, e instanceof ExecutionException ? ((ExecutionException)e).getCause() : e);
 	    }
 	    finally {
 	        monitor.done();
@@ -239,6 +248,9 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    backgroundCancelation.scheduleAtFixedRate(() -> {
 	        if (monitor.isCanceled()) {
 	            result.cancel(true);
+	            throw new RuntimeException("Stop schedule");
+	        }
+	        else if (result.isDone()) {
 	            throw new RuntimeException("Stop schedule");
 	        }
 	    }, 1, 1, TimeUnit.SECONDS);
@@ -382,6 +394,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                 FutureTask<IList> result = InstanceHolder.service.compile(locs, pathConfig.asConstructor());
                 if (!result.isDone()) {
                     watchAndCancelTask(result, monitor);
+                    result.run();
                 }
                 IList results = result.get();
                 if (results != null) {
@@ -389,8 +402,11 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                 }
             }
         } 
+        catch (CancellationException e) {
+            // ignore
+        }
         catch (Throwable e) {
-            Activator.log("Unexpected error during compilation:" + e.getMessage(), e);
+            Activator.log("Unexpected error during compilation:" + e.getMessage(), e instanceof ExecutionException ? ((ExecutionException)e).getCause() : e);
         }
         
         // this shares the locking of the project for efficiency's sake
