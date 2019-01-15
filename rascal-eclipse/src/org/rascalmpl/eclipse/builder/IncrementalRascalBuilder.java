@@ -202,10 +202,10 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	            // the pathConfig source path currently still contains library sources,
 	            // which we want to compile on-demand only:
 	            if (src.getScheme().equals("project") && src.getAuthority().equals(projectLoc.getAuthority())) {
-	            	// TODO: call new compiler and extract the errors
-	                IList programs = IRascalValueFactory.getInstance().list();
-	                InstanceHolder.service.compileAll(src, pathConfig.asConstructor());
-	                markErrors(programs);
+	                IList programs = InstanceHolder.service.compileAll(src, pathConfig.asConstructor());
+	                if (programs != null) {
+	                	markErrors(programs);
+	                }
 	            }
 	        }
 	        IDEServicesModelProvider.getInstance().invalidateEverything(); // mark caches as outdated
