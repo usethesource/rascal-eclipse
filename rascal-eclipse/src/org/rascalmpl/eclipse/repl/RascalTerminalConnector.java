@@ -23,6 +23,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugException;
@@ -45,9 +46,11 @@ import org.rascalmpl.debug.IRascalEventListener;
 import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
+import org.rascalmpl.eclipse.nature.IWarningHandler;
 import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
-import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
+import org.rascalmpl.eclipse.nature.RascalMonitor;
+import org.rascalmpl.eclipse.nature.WarningsToMarkers;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.repl.BaseREPL;
@@ -66,7 +69,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
     protected String module;
     protected String mode;
     private ILaunch launch;
-    private WarningsToPrintWriter warnings;
+    private IWarningHandler warnings;
     private ModuleReloader reloader;
     private int terminalHeight = 24;
     private int terminalWidth = 80;
@@ -269,8 +272,9 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                 // TODO: this is a workaround to get access to a launch, but we'd rather
                 // just get it from the terminal's properties
                 launch = RascalTerminalRegistry.getInstance().getLaunch();
-                warnings = new WarningsToPrintWriter(new PrintWriter(stderr));
+                warnings = new WarningsToMarkers(ipr, new PrintWriter(stderr));
                 reloader = new ModuleReloader(ipr, eval, warnings);
+                eval.setMonitor(new RascalMonitor(new NullProgressMonitor(), warnings));
 
                 if (debug()) {
                     initializeRascalDebugMode(eval);      

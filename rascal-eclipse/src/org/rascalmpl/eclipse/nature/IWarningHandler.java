@@ -4,4 +4,5 @@ import io.usethesource.vallang.ISourceLocation;
 
 public interface IWarningHandler {
   public void warning(String message, ISourceLocation location);
+  public void clean();
 }

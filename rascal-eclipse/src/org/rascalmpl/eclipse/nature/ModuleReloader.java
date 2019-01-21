@@ -31,6 +31,8 @@ import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.uri.URIUtil;
 
+import io.usethesource.impulse.builder.MarkerCreator;
+
 public class ModuleReloader{
 	private final RascalModuleChangeListener moduleChangeListener;
 	private final RascalModuleUpdateListener resourceChangeListener;
@@ -47,6 +49,7 @@ public class ModuleReloader{
 	}
 	
 	public void updateModules(IProgressMonitor monitor, IWarningHandler handler, Set<String> ignored){
+		moduleChangeListener.clearMarkers();
 		moduleChangeListener.updateModules(monitor, handler, ignored);
 	}
 
@@ -132,6 +135,10 @@ public class ModuleReloader{
 			this.warnings = warnings;
 		}
 		
+		public void clearMarkers() {
+			warnings.clean();
+		}
+
 		public void moduleChanged(String name) {
 			synchronized (dirtyModules) {
 				dirtyModules.add(name);
