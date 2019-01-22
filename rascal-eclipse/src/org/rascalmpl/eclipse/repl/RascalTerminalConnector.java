@@ -51,6 +51,8 @@ import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMarkers;
+import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
+import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.repl.BaseREPL;
@@ -272,7 +274,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                 // TODO: this is a workaround to get access to a launch, but we'd rather
                 // just get it from the terminal's properties
                 launch = RascalTerminalRegistry.getInstance().getLaunch();
-                warnings = new WarningsToMarkers(ipr, new PrintWriter(stderr));
+                warnings = new WarningsToPrintWriter(new PrintWriter(ThreadSafeImpulseConsole.INSTANCE.getWriter()));
                 reloader = new ModuleReloader(ipr, eval, warnings);
                 eval.setMonitor(new RascalMonitor(new NullProgressMonitor(), warnings));
 
