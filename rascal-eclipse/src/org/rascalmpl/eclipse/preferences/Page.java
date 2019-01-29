@@ -53,7 +53,7 @@ public class Page extends TabbedPreferencesPage {
 			@SuppressWarnings("deprecation")
             BooleanFieldEditor loadInterpretedLanguages1 = fPrefUtils.makeNewBooleanField(
                     page, this, fPrefService,
-                    IPreferencesService.INSTANCE_LEVEL, loadInterpretedLanguagesFromBundles, "At Eclipse startup time or first use, registere languages found in installed plugin bundles",
+                    IPreferencesService.INSTANCE_LEVEL, loadInterpretedLanguagesFromBundles, "At Eclipse startup time or first use, register languages found in installed plugin bundles",
                     "If checked, the start-up procedure will load language implementations which are bundled into Eclipse plugins at start-up time",
                     parent,
                     true, true,
@@ -64,7 +64,7 @@ public class Page extends TabbedPreferencesPage {
 			@SuppressWarnings("deprecation")
             BooleanFieldEditor loadInterpretedLanguages2 = fPrefUtils.makeNewBooleanField(
                     page, this, fPrefService,
-                    IPreferencesService.INSTANCE_LEVEL, loadInterpretedLanguagesFromProjects, "At Eclipse startup time or first use, registere languages found in open workspace projects",
+                    IPreferencesService.INSTANCE_LEVEL, loadInterpretedLanguagesFromProjects, "At Eclipse startup time or first use, register languages found in open workspace projects",
                     "If checked, the start-up procedure will load language implementations which are present in open workspace projects at start-up time",
                     parent,
                     true, true,
