@@ -311,6 +311,8 @@ public class ProjectEvaluatorFactory {
       // this is to give the option to NOT run a main module, but provide only the 
       // plugin as a library to other plugins.
       if (mainModule != null && mainFunction != null) {
+    	evaluator.getStdOut().println("Loading module " + mainModule + " and calling " + mainFunction);
+    	evaluator.getStdOut().flush();
         evaluator.doImport(evaluator.getMonitor(), mainModule);
         evaluator.call(mainFunction);
       }
