@@ -148,40 +148,44 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     private void cleanBinFiles(IProgressMonitor monitor) throws CoreException {
         IProject project = getProject();
         
-        project.findMember(ProjectConfig.BIN_FOLDER).accept(new IResourceVisitor() {
-            @Override
-            public boolean visit(IResource resource) throws CoreException {
-                if (binaryExtension.contains(resource.getFileExtension())) {
-                    resource.delete(true, monitor);
-                    return false;
-                }
+        if (project != null) {
+            project.findMember(ProjectConfig.BIN_FOLDER).accept(new IResourceVisitor() {
+                @Override
+                public boolean visit(IResource resource) throws CoreException {
+                    if (binaryExtension.contains(resource.getFileExtension())) {
+                        resource.delete(true, monitor);
+                        return false;
+                    }
 
-                return true;
-            }
-        });
+                    return true;
+                }
+            });
+        }
     }
 	
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 	    IProject project = getProject();
 	    
-	    ICoreRunnable runner = new ICoreRunnable() {
-            @Override
-            public void run(IProgressMonitor monitor) throws CoreException {
-                switch (kind) {
-                    case INCREMENTAL_BUILD:
-                    case AUTO_BUILD:
-                        buildIncremental(getDelta(project), monitor);
-                        break;
-                    case FULL_BUILD:
-                        buildWholeProject(monitor);
-                        break;
+        if (project != null) {
+            ICoreRunnable runner = new ICoreRunnable() {
+                @Override
+                public void run(IProgressMonitor monitor) throws CoreException {
+                    switch (kind) {
+                        case INCREMENTAL_BUILD:
+                        case AUTO_BUILD:
+                            buildIncremental(getDelta(project), monitor);
+                            break;
+                        case FULL_BUILD:
+                            buildWholeProject(monitor);
+                            break;
+                    }
                 }
-            }
-        };
-	    
-	    
-        project.getWorkspace().run(runner, project,  IWorkspace.AVOID_UPDATE, monitor);
+            };
+            
+            
+            project.getWorkspace().run(runner, project,  IWorkspace.AVOID_UPDATE, monitor);
+        }
 
 	    // TODO: return project this project depends on?
 		return new IProject[0];
