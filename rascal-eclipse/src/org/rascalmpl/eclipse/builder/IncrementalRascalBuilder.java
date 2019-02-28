@@ -209,7 +209,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    try {
 	        for (IValue srcv : pathConfig.getSrcs()) {
 	            ISourceLocation src = (ISourceLocation) srcv;
-	            if (monitor.isCanceled()) {
+	            if (monitor.isCanceled() || isInterrupted()) {
 	                return;
 	            }
 
