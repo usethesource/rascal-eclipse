@@ -337,7 +337,7 @@ public class RascalValue extends RascalDebugElement implements IValue {
 		  return false;
 		}
 		Type type = value.getType();
-		return type.isList() || type.isMap() || type.isSet() || type.isAliased() || type.isNode() || type.isConstructor() || type.isRelation();
+		return type.isList() || type.isMap() || type.isSet() || type.isAliased() || type.isNode() || type.isConstructor() || type.isRelation() || type.isTuple();
 	}
 
 	/* (non-Javadoc)
