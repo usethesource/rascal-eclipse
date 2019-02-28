@@ -15,6 +15,9 @@ package org.rascalmpl.eclipse.debug.core.model;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
@@ -22,6 +25,12 @@ import org.eclipse.debug.core.model.IVariable;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -32,11 +41,6 @@ import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class RascalValue extends RascalDebugElement implements IValue {
 	
@@ -229,11 +233,17 @@ public class RascalValue extends RascalDebugElement implements IValue {
 				}
 				
 				IConstructor node = (IConstructor) value;
-				IVariable[] result = new IVariable[node.arity()];
-				for (int i = 0; i < result.length; i++) {
-					result[i] = new RascalVariable(target, type.hasFieldNames() ? type.getFieldName(i) : "" + i, node.getConstructorType().getFieldType(i), node.get(i));
+				List<IVariable> result = new ArrayList<>();
+				for (int i = 0; i < node.arity(); i++) {
+					result.add(new RascalVariable(target, type.hasFieldNames() ? type.getFieldName(i) : "" + i, node.getConstructorType().getFieldType(i), node.get(i)));
 				}
-				return result;
+				if (node.mayHaveKeywordParameters()) {
+					Map<String, io.usethesource.vallang.IValue> parameters = node.asWithKeywordParameters().getParameters();
+					parameters.forEach((name, value) -> {
+						result.add(new RascalVariable(target, "[" + name + "]", value.getType(), value));
+					});
+				}
+				return result.toArray(new IVariable[result.size()]);
 			}
 
 			private IVariable[] visitTree() {
