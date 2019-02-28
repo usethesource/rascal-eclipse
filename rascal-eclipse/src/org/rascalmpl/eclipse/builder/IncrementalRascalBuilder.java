@@ -250,7 +250,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	
 	private void watchAndCancelTask(FutureTask<IList> result, IProgressMonitor monitor) {
 	    backgroundCancelation.scheduleAtFixedRate(() -> {
-	        if (monitor.isCanceled()) {
+	        if (monitor.isCanceled() || isInterrupted()) {
 	            result.cancel(true);
 	            throw new RuntimeException("Stop schedule");
 	        }
