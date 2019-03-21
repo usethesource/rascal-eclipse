@@ -15,9 +15,11 @@ package org.rascalmpl.eclipse.tutor;
 import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_TUTOR_VIEW_PART;
 
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -27,12 +29,16 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.WorkbenchJob;
+import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.repl.EclipseIDEServices;
 import org.rascalmpl.help.HelpManager;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 import io.usethesource.impulse.runtime.RuntimePlugin;
+import io.usethesource.vallang.ISourceLocation;
 
 public class TutorView extends ViewPart {
 	public static final String ID = ID_RASCAL_TUTOR_VIEW_PART;
@@ -127,7 +133,13 @@ public class TutorView extends ViewPart {
 						PrintWriter out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
 						PrintWriter err = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
 		                
-						tutor = new HelpManager(new PathConfig(), out, err, new EclipseIDEServices(), true);
+						PathConfig pcfg = new PathConfig();
+						Bundle rascalBundle = Activator.getInstance().getBundle();
+						URL entry = FileLocator.toFileURL(rascalBundle.getEntry("lib/rascal.jar"));
+						ISourceLocation loc = IRascalValueFactory.getInstance().sourceLocation(URIUtil.fromURL(entry));
+						pcfg = pcfg.addJavaCompilerPath(loc);
+
+						tutor = new HelpManager(pcfg, out, err, new EclipseIDEServices(), true);
 						tutor.refreshIndex();
 					}
 					
