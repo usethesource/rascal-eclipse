@@ -17,7 +17,6 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackListener;
-import org.rascalmpl.eclipse.library.vis.KeySym;
 import org.rascalmpl.eclipse.library.vis.figure.Figure;
 import org.rascalmpl.eclipse.library.vis.figure.combine.Overlap;
 import org.rascalmpl.eclipse.library.vis.swt.FigureExecutionEnvironment;
@@ -29,14 +28,13 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class InputHandler implements MouseListener,MouseMoveListener, MouseTrackListener, KeyListener, IFigureChangedListener{
 	
 	@SuppressWarnings({ "unchecked", "unused" })
 	private static final BogusList<Figure> bogusFigureList = (BogusList<Figure>)BogusList.instance;
 	private static IMap keyboardModifierMap = 
-			ValueFactoryFactory.getValueFactory().map(KeySym.KeyModifier, TypeFactory.getInstance().boolType()); // there is only 1 keyboard , hence static
+			ValueFactoryFactory.getValueFactory().mapWriter().done(); // there is only 1 keyboard , hence static
 	private List<Figure> figuresUnderMouse;  // the figures under mouse from front to back
 	private List<Figure> figuresUnderMouseSorted; // figures under mouse sorted in an arbitrary stable ordering (stable as in the order does not change)
 	private List<Figure> figuresUnderMouseSortedPrev; // the figures under mouse sorted on the previous mouse location

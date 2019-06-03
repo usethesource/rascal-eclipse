@@ -25,7 +25,6 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class FigureColorUtils {
 
@@ -323,7 +322,7 @@ public class FigureColorUtils {
 		int fromColor = from.intValue();
 		int toColor = to.intValue();
 		int max = n.intValue();
-		IListWriter w = vf.listWriter(from.getType());
+		IListWriter w = vf.listWriter();
 		for (int i = 0; i < max; i++) {
 			// System.err.println("i = " + i + ": " + fromColor + " " + toColor
 			// + " " + (1.0f * i)/max);
@@ -385,8 +384,7 @@ public class FigureColorUtils {
 	 * @return list of built-in color names
 	 */
 	public IList colorNames() {
-		TypeFactory types = TypeFactory.getInstance();
-		IListWriter w = vf.listWriter(types.stringType());
+		IListWriter w = vf.listWriter();
 		String strings[] = new String[colorNames.size()];
 		Arrays.sort(colorNames.keySet().toArray(strings));
 		for (String s : strings) {

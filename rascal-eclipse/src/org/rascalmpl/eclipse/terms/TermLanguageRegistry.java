@@ -37,7 +37,6 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class TermLanguageRegistry {
 	private final Map<String, Language> languages = new HashMap<String,Language>();
@@ -204,7 +203,7 @@ public class TermLanguageRegistry {
 		if (contributions.containsKey(lang))
 			return contributions.get(lang);
 		else
-			return ValueFactoryFactory.getValueFactory().set(TypeFactory.getInstance().voidType());
+			return ValueFactoryFactory.getValueFactory().set();
 	}
 	
 	public ISet getBuilders(Language lang) {

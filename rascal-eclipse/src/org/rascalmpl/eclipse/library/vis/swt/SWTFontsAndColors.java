@@ -20,12 +20,10 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class SWTFontsAndColors {
 	
 	static IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	private static TypeFactory tf = TypeFactory.getInstance();
 
 	public SWTFontsAndColors(IValueFactory factory) {
 		vf = factory;
@@ -57,7 +55,7 @@ public class SWTFontsAndColors {
 			@Override
 			public void run() {
 				FontData[] fd =  Display.getDefault().getFontList(null, true);
-				IListWriter w = vf.listWriter(tf.stringType());
+				IListWriter w = vf.listWriter();
 				for(int i = 0; i < fd.length; i++){
 					System.err.println("adding " + fd[i].getName());
 					w.append(vf.string(fd[i].getName()));
