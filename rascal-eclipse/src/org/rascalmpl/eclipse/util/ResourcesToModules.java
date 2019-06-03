@@ -9,6 +9,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.uri.ProjectURIResolver;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public class ResourcesToModules {

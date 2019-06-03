@@ -14,7 +14,6 @@ package org.rascalmpl.eclipse.library.vis.figure;
 
 import java.util.HashMap;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.eclipse.library.vis.figure.combine.Overlap;
 import org.rascalmpl.eclipse.library.vis.figure.combine.containers.Box;
 import org.rascalmpl.eclipse.library.vis.figure.combine.containers.Ellipse;
@@ -50,6 +49,9 @@ import org.rascalmpl.eclipse.library.vis.properties.PropertyValue;
 import org.rascalmpl.eclipse.library.vis.properties.Types;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.vector.Dimension;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -57,7 +59,6 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * 

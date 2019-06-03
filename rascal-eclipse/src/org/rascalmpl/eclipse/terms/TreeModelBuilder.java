@@ -13,6 +13,11 @@ package org.rascalmpl.eclipse.terms;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.values.uptr.ITree;
+
+import io.usethesource.impulse.language.ILanguageService;
+import io.usethesource.impulse.language.Language;
+import io.usethesource.impulse.services.base.TreeModelBuilderBase;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -30,11 +35,6 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.ITree;
-
-import io.usethesource.impulse.language.ILanguageService;
-import io.usethesource.impulse.language.Language;
-import io.usethesource.impulse.services.base.TreeModelBuilderBase;
 
 public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageService{
 	private Language lang;

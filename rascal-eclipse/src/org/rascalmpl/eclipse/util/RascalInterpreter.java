@@ -26,11 +26,11 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.JavaToRascal;
-import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IList;
 
 import io.usethesource.impulse.editor.ModelTreeNode;
 import io.usethesource.impulse.editor.UniversalEditor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
 
 public class RascalInterpreter extends JavaToRascal {
 

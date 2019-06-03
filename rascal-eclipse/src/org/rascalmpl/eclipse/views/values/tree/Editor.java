@@ -20,6 +20,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.views.values.ValueEditorInput;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -36,7 +38,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Editor extends EditorPart {
 	public static final String EditorId = "org.rascalmpl.eclipse.views.values.tree.editor";

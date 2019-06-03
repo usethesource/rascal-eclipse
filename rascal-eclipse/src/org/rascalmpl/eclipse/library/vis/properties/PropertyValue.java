@@ -13,6 +13,7 @@ package org.rascalmpl.eclipse.library.vis.properties;
 
 import org.rascalmpl.eclipse.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 

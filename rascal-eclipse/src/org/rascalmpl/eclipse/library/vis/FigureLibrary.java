@@ -19,10 +19,11 @@ import java.io.OutputStream;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.eclipse.library.vis.swt.FigureExecutionEnvironment;
 import org.rascalmpl.eclipse.library.vis.util.vector.BoundingBox;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIResolverRegistry;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISourceLocation;

@@ -3,7 +3,6 @@ package org.rascalmpl.eclipse.terms;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.lucene.index.Term;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
@@ -13,6 +12,13 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+
+import io.usethesource.impulse.editor.hover.ProblemLocation;
+import io.usethesource.impulse.language.Language;
+import io.usethesource.impulse.services.IQuickFixAssistant;
+import io.usethesource.impulse.services.IQuickFixInvocationContext;
+import io.usethesource.impulse.utils.NullMessageHandler;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -24,13 +30,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-
-import io.usethesource.impulse.editor.hover.ProblemLocation;
-import io.usethesource.impulse.language.Language;
-import io.usethesource.impulse.services.IQuickFixAssistant;
-import io.usethesource.impulse.services.IQuickFixInvocationContext;
-import io.usethesource.impulse.utils.NullMessageHandler;
 
 public class TermQuickFixAssistant implements IQuickFixAssistant {
 	

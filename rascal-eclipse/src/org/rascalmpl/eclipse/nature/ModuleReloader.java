@@ -31,8 +31,6 @@ import org.rascalmpl.eclipse.util.ResourcesToModules;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.uri.URIUtil;
 
-import io.usethesource.impulse.builder.MarkerCreator;
-
 public class ModuleReloader{
 	private final RascalModuleChangeListener moduleChangeListener;
 	private final RascalModuleUpdateListener resourceChangeListener;

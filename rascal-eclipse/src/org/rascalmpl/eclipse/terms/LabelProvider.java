@@ -16,6 +16,12 @@ import java.util.Set;
 
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
+import io.usethesource.impulse.editor.ModelTreeNode;
+import io.usethesource.impulse.language.ILanguageService;
+import io.usethesource.impulse.services.ILabelProvider;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -32,12 +38,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
-
-import io.usethesource.impulse.editor.ModelTreeNode;
-import io.usethesource.impulse.language.ILanguageService;
-import io.usethesource.impulse.services.ILabelProvider;
 
 public class LabelProvider implements ILabelProvider, ILanguageService {
 	private Set<ILabelProviderListener> fListeners = new HashSet<ILabelProviderListener>();

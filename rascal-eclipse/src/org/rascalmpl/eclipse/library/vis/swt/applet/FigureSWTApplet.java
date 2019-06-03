@@ -31,7 +31,6 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.eclipse.library.vis.figure.Figure;
 import org.rascalmpl.eclipse.library.vis.figure.FigureFactory;
 import org.rascalmpl.eclipse.library.vis.figure.combine.Overlap;
@@ -45,6 +44,8 @@ import org.rascalmpl.eclipse.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.vector.Coordinate;
 import org.rascalmpl.eclipse.library.vis.util.vector.Rectangle;
+import org.rascalmpl.interpreter.IEvaluatorContext;
+
 import io.usethesource.vallang.IConstructor;
 
 public class FigureSWTApplet extends Composite 

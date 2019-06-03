@@ -25,6 +25,7 @@ import org.eclipse.debug.core.sourcelookup.ISourcePathComputerDelegate;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.interpreter.Evaluator;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public class RascalSourcePathComputerDelegate implements ISourcePathComputerDelegate {

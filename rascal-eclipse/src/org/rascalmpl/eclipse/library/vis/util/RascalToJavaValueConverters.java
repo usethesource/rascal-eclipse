@@ -11,6 +11,7 @@ import org.rascalmpl.eclipse.library.vis.figure.Figure;
 import org.rascalmpl.eclipse.library.vis.figure.FigureFactory;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;

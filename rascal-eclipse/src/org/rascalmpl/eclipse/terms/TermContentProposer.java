@@ -21,6 +21,13 @@ import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.eclipse.editor.proposer.Prefix;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+import io.usethesource.impulse.editor.ErrorProposal;
+import io.usethesource.impulse.editor.SourceProposal;
+import io.usethesource.impulse.language.Language;
+import io.usethesource.impulse.parser.IParseController;
+import io.usethesource.impulse.services.IContentProposer;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -29,13 +36,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.ValueFactoryFactory;
-
-import io.usethesource.impulse.editor.ErrorProposal;
-import io.usethesource.impulse.editor.SourceProposal;
-import io.usethesource.impulse.language.Language;
-import io.usethesource.impulse.parser.IParseController;
-import io.usethesource.impulse.services.IContentProposer;
 
 public class TermContentProposer implements IContentProposer {	
 	private IConstructor cachedTree = null;

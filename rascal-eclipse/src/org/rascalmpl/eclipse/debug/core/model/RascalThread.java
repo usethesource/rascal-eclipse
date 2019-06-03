@@ -34,6 +34,7 @@ import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.debug.RascalEvent;
 import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.ISourceLocation;
 
 /**

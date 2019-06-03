@@ -8,9 +8,10 @@
 package org.rascalmpl.eclipse.library.vis.figure.interaction.swtwidgets;
 
 import org.eclipse.swt.widgets.Control;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.interpreter.result.Result;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IValue;
 

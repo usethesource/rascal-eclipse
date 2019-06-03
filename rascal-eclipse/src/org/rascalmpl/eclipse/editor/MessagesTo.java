@@ -4,17 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
+import io.usethesource.impulse.parser.IMessageHandler;
+import io.usethesource.impulse.parser.IModelListener;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
-
-import io.usethesource.impulse.parser.IMessageHandler;
-import io.usethesource.impulse.parser.IModelListener;
 
 public class MessagesTo {
 	private static int MAX_MESSAGE_LENGTH = 2000;

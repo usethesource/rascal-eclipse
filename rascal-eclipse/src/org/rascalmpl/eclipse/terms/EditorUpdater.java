@@ -16,6 +16,10 @@ import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+
+import io.usethesource.impulse.editor.UniversalEditor;
+import io.usethesource.impulse.parser.IParseController;
+import io.usethesource.impulse.services.IEditorService;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
@@ -23,10 +27,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-
-import io.usethesource.impulse.editor.UniversalEditor;
-import io.usethesource.impulse.parser.IParseController;
-import io.usethesource.impulse.services.IEditorService;
 
 /*
  * NB: this might end up in an infinite loop when the function used to compute patches

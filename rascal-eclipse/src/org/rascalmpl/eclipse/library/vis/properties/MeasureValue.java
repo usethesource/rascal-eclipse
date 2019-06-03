@@ -11,6 +11,7 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.Key;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
 import org.rascalmpl.eclipse.library.vis.util.RascalToJavaValueConverters.Convert;
+
 import io.usethesource.vallang.IValue;
 
 public class MeasureValue<PropType> extends PropertyValue<PropType> {

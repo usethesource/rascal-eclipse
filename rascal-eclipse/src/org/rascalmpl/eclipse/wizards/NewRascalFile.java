@@ -48,6 +48,7 @@ import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.RascalKeywords;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public class NewRascalFile extends Wizard implements INewWizard {

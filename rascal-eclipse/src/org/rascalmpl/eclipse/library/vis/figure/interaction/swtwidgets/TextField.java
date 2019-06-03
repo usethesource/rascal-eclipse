@@ -22,7 +22,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.eclipse.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.eclipse.library.vis.properties.Properties;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
@@ -30,9 +29,11 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.eclipse.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.eclipse.library.vis.util.FigureColorUtils;
+import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TextField extends SWTWidgetFigureWithValidationAndCallBack<Text> {
 

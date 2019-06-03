@@ -32,8 +32,9 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.part.EditorPart;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.eclipse.library.vis.swt.FigureExecutionEnvironment;
+import org.rascalmpl.interpreter.IEvaluatorContext;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;

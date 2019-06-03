@@ -16,6 +16,7 @@ package org.rascalmpl.eclipse.debug.core.model;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
+
 import io.usethesource.vallang.type.Type;
 
 /**

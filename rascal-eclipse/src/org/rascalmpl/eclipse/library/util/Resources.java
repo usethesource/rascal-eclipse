@@ -38,6 +38,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIEditorInput;
 import org.rascalmpl.uri.URIStorage;
 import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;

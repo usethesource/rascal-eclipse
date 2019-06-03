@@ -24,12 +24,12 @@ import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.URIContent;
 import org.rascalmpl.eclipse.navigator.NavigatorContentProvider.ValueContent;
 import org.rascalmpl.uri.URIResourceResolver;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
-
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalNavigator extends CommonNavigator {
 	

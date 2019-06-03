@@ -8,16 +8,16 @@ import org.eclipse.tm.internal.terminal.control.ITerminalMouseListener;
 import org.eclipse.tm.terminal.model.ITerminalTextDataReadOnly;
 import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.uri.LinkDetector;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.LinkDetector.Type;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 final class RascalLinkMouseListener implements ITerminalMouseListener {
     private int currentLine = -1;

@@ -18,9 +18,10 @@ import org.rascalmpl.eclipse.library.vis.properties.PropertyValue;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
 import org.rascalmpl.eclipse.library.vis.util.vector.Dimension;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Scale extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Scale>{
 

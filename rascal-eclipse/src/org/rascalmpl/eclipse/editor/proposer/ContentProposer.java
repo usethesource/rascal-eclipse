@@ -8,13 +8,13 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.parser.ASTBuilder;
-import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.values.uptr.ITree;
 
 import io.usethesource.impulse.editor.ErrorProposal;
 import io.usethesource.impulse.editor.SourceProposal;
 import io.usethesource.impulse.parser.IParseController;
 import io.usethesource.impulse.services.IContentProposer;
+import io.usethesource.vallang.ISourceLocation;
 
 /**
  * Content proposer for Rascal.

@@ -8,6 +8,7 @@
 package org.rascalmpl.eclipse.library.vis.properties;
 
 import org.rascalmpl.eclipse.library.vis.swt.ICallbackEnv;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 

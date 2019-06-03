@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IStatus;
-import io.usethesource.vallang.ISourceLocation;
 
 import io.usethesource.impulse.parser.IMessageHandler;
+import io.usethesource.vallang.ISourceLocation;
 
 public class WarningsToMessageHandler implements IWarningHandler {
 	private final ISourceLocation uri;

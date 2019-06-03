@@ -1,15 +1,15 @@
 package org.rascalmpl.eclipse.terms;
 
 import org.eclipse.jface.text.IRegion;
+
+import io.usethesource.impulse.parser.IParseController;
+import io.usethesource.impulse.services.ILanguageSyntaxProperties;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-
-import io.usethesource.impulse.parser.IParseController;
-import io.usethesource.impulse.services.ILanguageSyntaxProperties;
 
 public class TermLanguageSyntaxProperties implements ILanguageSyntaxProperties {
 	private IWithKeywordParameters<? extends IConstructor> properties;

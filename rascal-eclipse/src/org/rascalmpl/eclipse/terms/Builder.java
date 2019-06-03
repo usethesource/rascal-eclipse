@@ -34,15 +34,6 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.uri.ProjectURIResolver;
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetWriter;
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.io.StandardTextWriter;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 import io.usethesource.impulse.builder.BuilderBase;
 import io.usethesource.impulse.builder.MarkerCreator;
@@ -52,6 +43,15 @@ import io.usethesource.impulse.model.ISourceProject;
 import io.usethesource.impulse.model.ModelFactory;
 import io.usethesource.impulse.parser.IMessageHandler;
 import io.usethesource.impulse.runtime.PluginBase;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.StandardTextWriter;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class Builder extends BuilderBase {
 	private static final TermLanguageRegistry registry = TermLanguageRegistry.getInstance();

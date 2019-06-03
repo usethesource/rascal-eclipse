@@ -25,10 +25,11 @@ import org.rascalmpl.eclipse.library.vis.util.BogusList;
 import org.rascalmpl.eclipse.library.vis.util.KeySymTranslate;
 import org.rascalmpl.eclipse.library.vis.util.Util;
 import org.rascalmpl.eclipse.library.vis.util.vector.Coordinate;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class InputHandler implements MouseListener,MouseMoveListener, MouseTrackListener, KeyListener, IFigureChangedListener{
 	

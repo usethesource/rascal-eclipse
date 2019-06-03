@@ -27,6 +27,7 @@ import org.eclipse.debug.core.model.IVariable;
 import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.uri.URIResolverRegistry;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public class RascalStackFrame extends RascalDebugElement implements IStackFrame {

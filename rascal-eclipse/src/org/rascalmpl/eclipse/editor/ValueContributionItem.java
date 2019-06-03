@@ -24,11 +24,11 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.env.Pair;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+
+import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-
-import io.usethesource.impulse.runtime.RuntimePlugin;
 
 public class ValueContributionItem extends ContributionItem {
   private static final class FunctionAction extends Action {

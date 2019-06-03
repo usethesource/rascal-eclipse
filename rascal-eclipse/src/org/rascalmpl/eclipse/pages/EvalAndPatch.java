@@ -23,6 +23,14 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedExcepti
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
+import io.usethesource.impulse.editor.UniversalEditor;
+import io.usethesource.impulse.parser.IModelListener;
+import io.usethesource.impulse.parser.IParseController;
+import io.usethesource.impulse.services.IEditorService;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -33,14 +41,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
-
-import io.usethesource.impulse.editor.UniversalEditor;
-import io.usethesource.impulse.parser.IModelListener;
-import io.usethesource.impulse.parser.IParseController;
-import io.usethesource.impulse.services.IEditorService;
 
 public class EvalAndPatch implements IModelListener, IEditorService {
 

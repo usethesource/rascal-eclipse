@@ -20,19 +20,19 @@ import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
+import org.rascalmpl.eclipse.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.eclipse.library.vis.swt.SWTFontsAndColors;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
+import io.usethesource.impulse.parser.IParseController;
+import io.usethesource.impulse.services.ITokenColorer;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
-import org.rascalmpl.values.uptr.TreeAdapter;
-
-import io.usethesource.impulse.parser.IParseController;
-import io.usethesource.impulse.services.ITokenColorer;
 
 public class TokenColorer implements ITokenColorer {
 	private Boolean firstUse = true;

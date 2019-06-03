@@ -46,9 +46,6 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.file.FileURIResolver;
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -60,6 +57,9 @@ import io.usethesource.impulse.parser.IParseController;
 import io.usethesource.impulse.parser.ISourcePositionLocator;
 import io.usethesource.impulse.services.IAnnotationTypeInfo;
 import io.usethesource.impulse.services.ILanguageSyntaxProperties;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 public class ParseController implements IParseController, IMessageHandlerProvider {
 	protected IMessageHandler handler;

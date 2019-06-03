@@ -8,11 +8,11 @@
 package org.rascalmpl.eclipse.library.vis.swt;
 
 import org.eclipse.swt.widgets.Control;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.eclipse.library.vis.figure.Figure;
 import org.rascalmpl.eclipse.library.vis.figure.combine.Overlap;
 import org.rascalmpl.eclipse.library.vis.properties.IRunTimePropertyChanges;
 import org.rascalmpl.eclipse.library.vis.swt.applet.FigureSWTApplet;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 
 
 public interface IFigureConstructionEnv {

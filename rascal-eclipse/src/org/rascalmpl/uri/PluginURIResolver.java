@@ -19,8 +19,9 @@ import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.nature.BundleClassLoader;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
-import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
+
+import io.usethesource.vallang.ISourceLocation;
 
 public class PluginURIResolver extends BundleURIResolver implements IClassloaderLocationResolver {
  

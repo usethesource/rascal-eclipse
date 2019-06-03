@@ -17,7 +17,6 @@ import static org.rascalmpl.eclipse.library.vis.properties.Properties.TO_ARROW;
 
 import java.util.List;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.eclipse.library.vis.figure.Figure;
 import org.rascalmpl.eclipse.library.vis.graphics.GraphicsContext;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
@@ -25,6 +24,8 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.eclipse.library.vis.util.vector.Coordinate;
 import org.rascalmpl.eclipse.library.vis.util.vector.Rectangle;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IString;
 
 
