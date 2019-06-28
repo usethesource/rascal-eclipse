@@ -34,9 +34,6 @@ Require-Bundle:
  org.eclipse.tm.terminal.connector.process
 Export-Package: io.usethesource.vallang,
  io.usethesource.vallang.exceptions,
- io.usethesource.vallang.impl,
- io.usethesource.vallang.impl.fast,
- io.usethesource.vallang.impl.func,
  io.usethesource.vallang.impl.persistent,
  io.usethesource.vallang.impl.primitive,
  io.usethesource.vallang.impl.reference,
@@ -147,3 +144,4 @@ Bundle-ClassPath: .,
  lib/asciidoctor.jar,
  lib/jcommander.jar,
  lib/jruby.jar
+Automatic-Module-Name: rascal_eclipse
