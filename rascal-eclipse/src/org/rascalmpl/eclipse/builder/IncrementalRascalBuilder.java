@@ -211,7 +211,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	            }
 
 	            if (!URIResolverRegistry.getInstance().isDirectory(src)) {
-	                Activator.log("Source config is not a directory?", new IllegalArgumentException(src.toString()));
+	                Activator.log("Source config is not a directory: " + src, new IllegalArgumentException(src.toString()));
 	                continue;
 	            }
 
