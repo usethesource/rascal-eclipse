@@ -72,7 +72,7 @@ public class ValueEditorInput implements IStorageEditorInput {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj.getClass() == ValueEditorInput.class) {
+		if (obj != null && obj.getClass() == ValueEditorInput.class) {
 			return value.equals(((ValueEditorInput) obj).value);
 		}
 		return false;
