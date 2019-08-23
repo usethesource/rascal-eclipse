@@ -161,7 +161,10 @@ public class Builder extends IncrementalProjectBuilder {
     	PathConfig pcfg = getPathConfig(getProject());
     	ISourceLocation target = URIUtil.getChildLocation((ISourceLocation)pcfg.getBin(), "courses");
     	IResource destResource = URIResourceResolver.getResource(target);
-    	destResource.delete(true, monitor);
+    	
+    	if (destResource != null) {
+    	    destResource.delete(true, monitor);
+    	}
     }
     
     protected void buildIncremental(IFile file, IProgressMonitor monitor, Set<IResource> refresh) throws JavaModelException {
