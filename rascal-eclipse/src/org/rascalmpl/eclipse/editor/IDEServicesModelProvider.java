@@ -17,7 +17,6 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.util.BackgroundInitializer;
 import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
@@ -55,13 +54,13 @@ public class IDEServicesModelProvider {
                 	});
                 	
                     @Override
-                    public IConstructor calculate(IKernel kernel, IString moduleName, IConstructor pcfg) {
+                    public IConstructor calculate(IString moduleName, IConstructor pcfg) {
                     	// TODO: include new type checker information here
                         return null;
                     }
                     
                     @Override
-                    public INode getOutline(IKernel kernel, IConstructor moduleTree) {
+                    public INode getOutline(IConstructor moduleTree) {
                         try {
 							Evaluator evaluator = eval.get();
 							if (eval != null) {
@@ -151,7 +150,7 @@ public class IDEServicesModelProvider {
     public IConstructor getSummary(ISourceLocation occ, PathConfig pcfg) {
     	return summaryCache.get(occ.getURI(), (u) -> {
     		try {
-    			IConstructor result = summaryService.calculate(null, vf.string(pcfg.getModuleName(occ)), pcfg.asConstructor());
+    			IConstructor result = summaryService.calculate(vf.string(pcfg.getModuleName(occ)), pcfg.asConstructor());
     			if (result == null || !result.asWithKeywordParameters().hasParameters()) {
     				return null;
     			}
@@ -212,7 +211,7 @@ public class IDEServicesModelProvider {
 
     	return outlineCache.get(loc.getURI(), (l) -> {
     		try {
-    			INode result = summaryService.getOutline(null, module);
+    			INode result = summaryService.getOutline(module);
     			if (result == null || result.arity() == 0) {
     				return null;
     			}

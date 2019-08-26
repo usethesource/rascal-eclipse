@@ -1028,11 +1028,6 @@
             id="org.rascalmpl.eclipse.java.launcher"
             label="Java Terminal">
       </delegate> 
-       <delegate
-            class="org.rascalmpl.eclipse.repl.CompiledRascalLauncherDelegate"
-            id="org.rascalmpl.eclipse.rascal.launcher2"
-            label="Compiled Rascal Terminal">
-      </delegate>
    </extension>
    <extension
          point="impulse.editorService">
@@ -1070,15 +1065,6 @@
             class="org.rascalmpl.eclipse.pages.EvalAndPatch"
             language="RascalPage">
       </editorService>
-   </extension>
-   <extension
-         point="org.eclipse.tm.terminal.control.connectors">
-      <connector
-            class="org.rascalmpl.eclipse.repl.CompiledRascalTerminalConnector"
-            hidden="false"
-            id="rascal-eclipse.connector3"
-            name="Compiled Rascal Terminal">
-      </connector>
    </extension>
    <extension
          point="org.eclipse.ui.editors">

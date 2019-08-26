@@ -32,7 +32,6 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectConfig;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.lang.rascal.tutor.CourseCompiler;
 import org.rascalmpl.library.lang.rascal.tutor.TutorCommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
@@ -220,7 +219,7 @@ public class Builder extends IncrementalProjectBuilder {
             else {
                 Activator.log("could not find course name for " + file, null);
             }
-        } catch (IOException | NoSuchRascalFunction | URISyntaxException e) {
+        } catch (IOException | URISyntaxException e) {
             Activator.log("unexpected error during course compilation for " + file, e);
             return;
         } catch (Throwable e) {
@@ -276,7 +275,7 @@ public class Builder extends IncrementalProjectBuilder {
     }
     
     private TutorCommandExecutor getCommandExecutor(PathConfig pcfg)
-            throws IOException, NoSuchRascalFunction, URISyntaxException {
+            throws IOException, URISyntaxException {
         if (this.cachedConfig != null && !freshConfig(pcfg) && cachedExecutor != null) {
             return cachedExecutor;
         }
