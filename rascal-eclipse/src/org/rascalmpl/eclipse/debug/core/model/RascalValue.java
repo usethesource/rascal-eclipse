@@ -66,6 +66,9 @@ public class RascalValue extends RascalDebugElement implements IValue {
 	 * @see org.eclipse.debug.core.model.IValue#getReferenceTypeName()
 	 */
 	public String getReferenceTypeName() throws DebugException {
+		if (value == null) {
+			return "<uninitialized>";
+		}
 		return value.getType().toString();
 	}
 
