@@ -99,13 +99,13 @@ public class NewRascalFilePage extends WizardPage {
 		fileText = new Text(container, SWT.BORDER | SWT.SINGLE);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		fileText.setLayoutData(gd);
-		fileText.setFocus();
 		fileText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
 			}
 		});
 		initialize();
+		fileText.setFocus();
 		dialogChanged();
 		setControl(container);
 	}
