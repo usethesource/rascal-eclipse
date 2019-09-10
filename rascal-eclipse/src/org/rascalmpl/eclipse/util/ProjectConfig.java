@@ -10,7 +10,10 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -76,12 +79,14 @@ public class ProjectConfig {
                     libsWriter.append(child);
                 }
             }
+
             
             //TODO add required libraries of referenced projects as well.
         }
         catch (CoreException e) {
             Activator.log(e.getMessage(), e);
         }
+        
         
         for (String srcName : manifest.getSourceRoots(project)) {
             ISourceLocation src = URIUtil.getChildLocation(projectLoc, srcName);
@@ -93,6 +98,22 @@ public class ProjectConfig {
         if (!isRascalBootstrapProject(project)) {
             srcsWriter.append(URIUtil.correctLocation("std", "", "")); // TODO should be removed later
             srcsWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
+        }
+
+        if (!isRascalBootstrapProject(project)) {
+        	// we also add libraries, but they don't have a bin yet, so we add them to the source folder
+        	IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
+        			.getExtensionPoint("rascal_eclipse", "rascalLibrary");
+        	if (extensionPoint != null) {
+        		for (IExtension element : extensionPoint.getExtensions()) {
+        			String name = element.getContributor().getName();
+        			Bundle bundle = Platform.getBundle(name);
+        			List<String> roots = new RascalEclipseManifest().getSourceRoots(bundle);
+        			for (String root : roots) {
+        				srcsWriter.append(URIUtil.correctLocation("plugin", bundle.getSymbolicName(), "/" + root));
+        			}
+        		}
+        	} 
         }
         
         ISourceLocation bin = URIUtil.getChildLocation(projectLoc, BIN_FOLDER);
