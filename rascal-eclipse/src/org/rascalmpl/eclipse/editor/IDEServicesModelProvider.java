@@ -63,8 +63,8 @@ public class IDEServicesModelProvider {
                     public INode getOutline(IConstructor moduleTree) {
                         try {
 							Evaluator evaluator = eval.get();
-							if (eval != null) {
-								synchronized (eval) {
+							if (evaluator != null) {
+								synchronized (evaluator) {
 									return (INode) evaluator.call("outline", moduleTree);
 								}
 							}
