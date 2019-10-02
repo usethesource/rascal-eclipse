@@ -213,13 +213,13 @@ public class IDEServicesModelProvider {
     		try {
     			INode result = summaryService.getOutline(module);
     			if (result == null || result.arity() == 0) {
-    				return null;
+    				return vf.node("");
     			}
     			return result;
     		}
     		catch (Throwable e) {
     			Activator.log("failure to create summary for IDE features", e);
-    			return null;
+                return vf.node("");
     		}
     	});
     }
