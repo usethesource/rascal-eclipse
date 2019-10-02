@@ -5,7 +5,7 @@ import java.net.URI;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -36,7 +36,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
 
 public class IDEServicesModelProvider {
-    private final IValueFactory vf = IRascalValueFactory.getInstance();
+    private static final IValueFactory vf = IRascalValueFactory.getInstance();
     private final IDESummaryService summaryService;
     
     private final Cache<ISourceLocation, IConstructor> summaryCache;
@@ -202,29 +202,36 @@ public class IDEServicesModelProvider {
     		return null;
     	}
     }
+    
+    private final static INode EMPTY_NODE = vf.node("");
+
+    private INode replaceNull(@Nullable INode result) {
+    	return result == null ? EMPTY_NODE : result;
+	}
 
     public INode getOutline(IConstructor module) {
     	ISourceLocation loc = getFileLoc((ITree) module);
     	if (loc == null) {
-    		return vf.node("");
+    		return EMPTY_NODE;
     	}
 
-    	return outlineCache.get(loc.top(), (l) -> {
+    	return replaceNull(outlineCache.get(loc.top(), (l) -> {
     		try {
     			INode result = summaryService.getOutline(module);
     			if (result == null || result.arity() == 0) {
-    				return vf.node("");
+    				return null;
     			}
     			return result;
     		}
     		catch (Throwable e) {
     			Activator.log("failure to create summary for IDE features", e);
-                return vf.node("");
+                return null;
     		}
-    	});
+    	}));
     }
     
-    public void clearSummaryCache(ISourceLocation file) {
+
+	public void clearSummaryCache(ISourceLocation file) {
         summaryCache.invalidate(file.top());
         outlineCache.invalidate(file.top());
     }
