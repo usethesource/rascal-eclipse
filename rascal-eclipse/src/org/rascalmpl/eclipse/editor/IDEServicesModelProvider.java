@@ -39,8 +39,8 @@ public class IDEServicesModelProvider {
     private final IValueFactory vf = IRascalValueFactory.getInstance();
     private final IDESummaryService summaryService;
     
-    private final Cache<URI, IConstructor> summaryCache;
-    private final Cache<URI, INode> outlineCache;
+    private final Cache<ISourceLocation, IConstructor> summaryCache;
+    private final Cache<ISourceLocation, INode> outlineCache;
     
     private IDEServicesModelProvider() {
             IDESummaryService serviceToUse = getExtensionPointIDESummary();
@@ -143,12 +143,12 @@ public class IDEServicesModelProvider {
     
     public void putSummary(ISourceLocation occ, IConstructor summary) {
     	if (summary != null && summary.asWithKeywordParameters().hasParameters()) {
-    		summaryCache.put(occ.getURI(), summary);
+    		summaryCache.put(occ.top(), summary);
     	}
     }
     
     public IConstructor getSummary(ISourceLocation occ, PathConfig pcfg) {
-    	return summaryCache.get(occ.getURI(), (u) -> {
+    	return summaryCache.get(occ.top(), (u) -> {
     		try {
     			IConstructor result = summaryService.calculate(vf.string(pcfg.getModuleName(occ)), pcfg.asConstructor());
     			if (result == null || !result.asWithKeywordParameters().hasParameters()) {
@@ -209,7 +209,7 @@ public class IDEServicesModelProvider {
     		return vf.node("");
     	}
 
-    	return outlineCache.get(loc.getURI(), (l) -> {
+    	return outlineCache.get(loc.top(), (l) -> {
     		try {
     			INode result = summaryService.getOutline(module);
     			if (result == null || result.arity() == 0) {
@@ -225,8 +225,8 @@ public class IDEServicesModelProvider {
     }
     
     public void clearSummaryCache(ISourceLocation file) {
-        summaryCache.invalidate(file.getURI());
-        outlineCache.invalidate(file.getURI());
+        summaryCache.invalidate(file.top());
+        outlineCache.invalidate(file.top());
     }
 
     public void invalidateEverything() {
