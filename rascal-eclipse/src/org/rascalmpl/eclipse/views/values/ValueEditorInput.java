@@ -3,10 +3,12 @@ package org.rascalmpl.eclipse.views.values;
 import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
-
+import java.nio.charset.StandardCharsets;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -117,11 +119,12 @@ public class ValueEditorInput implements IStorageEditorInput {
 		return new IStorage() {
 
 			public InputStream getContents() throws CoreException {
-				try {
-					StringWriter out = new StringWriter(10000);
+				ByteArrayOutputStream out = new ByteArrayOutputStream(10_000);
+				try (OutputStreamWriter outWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
 					StandardTextWriter w = new StandardTextWriter(indent, tabsize);
-					w.write(value, out);
-					return new ByteArrayInputStream(out.toString().getBytes());
+					w.write(value, outWriter);
+					outWriter.flush();
+					return new ByteArrayInputStream(out.toByteArray());
 				} catch (IOException e) {
 					throw new CoreException(Status.OK_STATUS);
 				}
