@@ -19,8 +19,8 @@
         </scm>
 	<properties>
 		<maven.deploy.skip>true</maven.deploy.skip>
-
-		<tycho-version>1.2.0</tycho-version>
+                <scm-plugin-version>1.9.5</scm-plugin-version>
+		<tycho-version>1.4.0</tycho-version>
 	</properties>
 
 	<!-- deployment configuration (usethesource) -->
@@ -92,6 +92,36 @@
 					<pomDependencies>consider</pomDependencies>
 				</configuration>
 			</plugin>
+
+<plugin>
+   <groupId>org.apache.maven.plugins</groupId>
+   <artifactId>maven-scm-plugin</artifactId>
+   <version>${scm-plugin-version}</version>
+   <executions>
+     <execution>
+       <id>default-cli</id>
+       <goals>
+         <goal>add</goal>
+         <goal>checkin</goal>
+       </goals>
+       <configuration>
+         <excludes>**/target/**,**/bin/**</excludes>
+         <includes>**/META-INF/MANIFEST.MF,**/feature.xml,**/*.product,**/category.xml</includes>
+       <message>Changing the version to reflect the pom versions for the release</message>
+       </configuration>
+     </execution>
+   </executions>
+ </plugin>
+<plugin>
+   <groupId>org.apache.maven.plugins</groupId>
+   <artifactId>maven-release-plugin</artifactId>
+   <version>2.5.3</version>
+   <configuration>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+     <preparationGoals>org.eclipse.tycho:tycho-versions-plugin:${tycho-version}:update-eclipse-metadata org.apache.maven.plugins:maven-scm-plugin:${scm-plugin-version}:add org.apache.maven.plugins:maven-scm-plugin:${scm-plugin-version}:checkin</preparationGoals>
+     <completionGoals>org.eclipse.tycho:tycho-versions-plugin:${tycho-version}:update-eclipse-metadata org.apache.maven.plugins:maven-scm-plugin:${scm-plugin-version}:add org.apache.maven.plugins:maven-scm-plugin:${scm-plugin-version}:checkin</completionGoals>
+   </configuration>
+ </plugin>
 		</plugins>
 	</build>
 </project>
