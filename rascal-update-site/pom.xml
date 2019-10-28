@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.rascalmpl</groupId>
 		<artifactId>rascal-eclipse-ide</artifactId>
-        <version>0.13.0-SNAPSHOT</version>
+        <version>0.13.0</version>
 	</parent>
 
 	<artifactId>rascal-update-site</artifactId>
@@ -12,7 +12,8 @@
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/usethesource/rascal-update-site.git</developerConnection>
-	</scm>
+	  <tag>v0.13.0</tag>
+  </scm>
 
 	<properties>
 		<maven.deploy.skip>false</maven.deploy.skip>
