@@ -15,7 +15,8 @@
 	</modules>
 
         <scm>
-                <developerConnection>scm:git:https://github.com/usethesource/rascal-eclipse-ide.git</developerConnection>
+		<developerConnection>scm:git:ssh://git@github.com/usethesource/rascal-eclipse.git</developerConnection>
+                
         </scm>
 	<properties>
 		<maven.deploy.skip>true</maven.deploy.skip>
