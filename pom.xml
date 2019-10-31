@@ -1,130 +1,130 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.rascalmpl</groupId>
-	<artifactId>rascal-eclipse-ide</artifactId>
-	<version>0.14.0-SNAPSHOT</version>
+    <groupId>org.rascalmpl</groupId>
+    <artifactId>rascal-eclipse-ide</artifactId>
+    <version>0.14.0-SNAPSHOT</version>
 
-	<packaging>pom</packaging>
+    <packaging>pom</packaging>
 
-	<modules>
-		<module>rascal-eclipse</module>
-		<module>rascal-feature</module>
-		<module>rascal-developers-feature</module>
-		<module>rascal-update-site</module>
-	</modules>
+    <modules>
+        <module>rascal-eclipse</module>
+        <module>rascal-feature</module>
+        <module>rascal-developers-feature</module>
+        <module>rascal-update-site</module>
+    </modules>
 
-        <scm>
-		<developerConnection>scm:git:ssh://git@github.com/usethesource/rascal-eclipse.git</developerConnection>
-                
-          <tag>HEAD</tag>
-  </scm>
-	<properties>
-		<maven.deploy.skip>true</maven.deploy.skip>
-                <scm-plugin-version>1.9.5</scm-plugin-version>
-		<tycho-version>1.4.0</tycho-version>
-	</properties>
+    <scm>
+        <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal-eclipse.git</developerConnection>
 
-	<!-- deployment configuration (usethesource) -->
-	<distributionManagement>
-		<repository>
-			<id>usethesource-releases</id>
-			<url>http://nexus.usethesource.io/content/repositories/releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>usethesource-snapshots</id>
-			<url>http://nexus.usethesource.io/content/repositories/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
+        <tag>HEAD</tag>
+    </scm>
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <scm-plugin-version>1.9.5</scm-plugin-version>
+        <tycho-version>1.4.0</tycho-version>
+    </properties>
 
-	<repositories>
-		<repository>
-			<id>usethesource</id>
-			<url>http://nexus.usethesource.io/content/repositories/public/</url>
-		</repository>
-		<repository>
-			<id>neon</id>
-			<layout>p2</layout>
-			<url>http://nexus.usethesource.io/content/repositories/eclipse-neon/</url>
-		</repository>
-		<repository>
-			<id>tm</id>
-			<layout>p2</layout>
-			<url>http://nexus.usethesource.io/content/repositories/tm-terminal-marketplace/</url>
-		</repository>
-	</repositories>
+    <!-- deployment configuration (usethesource) -->
+    <distributionManagement>
+        <repository>
+            <id>usethesource-releases</id>
+            <url>http://nexus.usethesource.io/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>usethesource-snapshots</id>
+            <url>http://nexus.usethesource.io/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>usethesource</id>
+            <url>http://nexus.usethesource.io/content/repositories/public/</url>
+        </repository>
+        <repository>
+            <id>neon</id>
+            <layout>p2</layout>
+            <url>http://nexus.usethesource.io/content/repositories/eclipse-neon/</url>
+        </repository>
+        <repository>
+            <id>tm</id>
+            <layout>p2</layout>
+            <url>http://nexus.usethesource.io/content/repositories/tm-terminal-marketplace/</url>
+        </repository>
+    </repositories>
 
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<extensions>true</extensions>
-			</plugin>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-maven-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <extensions>true</extensions>
+            </plugin>
 
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-source-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<executions>
-					<execution>
-						<id>plugin-source</id>
-						<goals>
-							<goal>plugin-source</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-source-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <executions>
+                    <execution>
+                        <id>plugin-source</id>
+                        <goals>
+                            <goal>plugin-source</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-versions-plugin</artifactId>
-				<version>${tycho-version}</version>
-			</plugin>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-versions-plugin</artifactId>
+                <version>${tycho-version}</version>
+            </plugin>
 
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<version>${tycho-version}</version>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>target-platform-configuration</artifactId>
+                <version>${tycho-version}</version>
 
-				<configuration>
-					<resolver>p2</resolver>
-					<pomDependencies>consider</pomDependencies>
-				</configuration>
-			</plugin>
+                <configuration>
+                    <resolver>p2</resolver>
+                    <pomDependencies>consider</pomDependencies>
+                </configuration>
+            </plugin>
 
-<plugin>
-   <groupId>org.apache.maven.plugins</groupId>
-   <artifactId>maven-scm-plugin</artifactId>
-   <version>${scm-plugin-version}</version>
-   <executions>
-     <execution>
-       <id>default-cli</id>
-       <goals>
-         <goal>add</goal>
-         <goal>checkin</goal>
-       </goals>
-       <configuration>
-         <excludes>**/target/**,**/bin/**</excludes>
-         <includes>**/META-INF/MANIFEST.MF,**/feature.xml,**/*.product,**/category.xml</includes>
-       <message>Changing the version to reflect the pom versions for the release</message>
-       </configuration>
-     </execution>
-   </executions>
- </plugin>
-<plugin>
-   <groupId>org.apache.maven.plugins</groupId>
-   <artifactId>maven-release-plugin</artifactId>
-   <version>2.5.3</version>
-   <configuration>
- <autoVersionSubmodules>true</autoVersionSubmodules>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-plugin</artifactId>
+                <version>${scm-plugin-version}</version>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <goals>
+                            <goal>add</goal>
+                            <goal>checkin</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>**/target/**,**/bin/**</excludes>
+                            <includes>**/META-INF/MANIFEST.MF,**/feature.xml,**/*.product,**/category.xml</includes>
+                            <message>Changing the version to reflect the pom versions for the release</message>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
-     <preparationGoals>org.eclipse.tycho:tycho-versions-plugin:${tycho-version}:update-eclipse-metadata org.apache.maven.plugins:maven-scm-plugin:${scm-plugin-version}:add org.apache.maven.plugins:maven-scm-plugin:${scm-plugin-version}:checkin</preparationGoals>
-     <completionGoals>org.eclipse.tycho:tycho-versions-plugin:${tycho-version}:update-eclipse-metadata org.apache.maven.plugins:maven-scm-plugin:${scm-plugin-version}:add org.apache.maven.plugins:maven-scm-plugin:${scm-plugin-version}:checkin</completionGoals>
-   </configuration>
- </plugin>
-		</plugins>
-	</build>
+                    <preparationGoals>org.eclipse.tycho:tycho-versions-plugin:${tycho-version}:update-eclipse-metadata org.apache.maven.plugins:maven-scm-plugin:${scm-plugin-version}:add org.apache.maven.plugins:maven-scm-plugin:${scm-plugin-version}:checkin</preparationGoals>
+                    <completionGoals>org.eclipse.tycho:tycho-versions-plugin:${tycho-version}:update-eclipse-metadata org.apache.maven.plugins:maven-scm-plugin:${scm-plugin-version}:add org.apache.maven.plugins:maven-scm-plugin:${scm-plugin-version}:checkin</completionGoals>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
