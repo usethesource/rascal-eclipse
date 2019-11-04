@@ -340,7 +340,16 @@ public class ProjectEvaluatorFactory {
 		List<String> requiredLibraries = mf.getRequiredLibraries(project);
 		if (requiredLibraries != null) {
 			for (String lib : requiredLibraries) {
-			    addJarToSearchPath(ProjectURIResolver.constructProjectURI(project, project.getFile(lib).getProjectRelativePath()), eval);
+			    try {
+			        if (lib.startsWith("|")) {
+			            eval.addRascalSearchPath((ISourceLocation) new StandardTextReader().read(eval.getValueFactory(), new StringReader(lib)));
+			        }
+			        else {
+			            addJarToSearchPath(ProjectURIResolver.constructProjectURI(project, project.getFile(lib).getProjectRelativePath()), eval);
+			        }
+			    } catch (FactTypeUseException | IOException e) {
+			        Activator.log(e.getMessage(), e);
+                }
 			}
 		}
 	}
