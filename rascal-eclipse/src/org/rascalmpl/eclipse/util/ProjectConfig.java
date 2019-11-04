@@ -2,6 +2,7 @@ package org.rascalmpl.eclipse.util;
 
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.StandardTextReader;
 
 /**
  * ProjectConfig is a builder to produce a proper Rascal PathConfig for an Eclipse project.
@@ -63,7 +65,12 @@ public class ProjectConfig {
         
         // These are jar files which make contain compiled Rascal code to link to:
         for (String lib : manifest.getRequiredLibraries(project)) {
-            libsWriter.append(URIUtil.getChildLocation(projectLoc, lib));
+            if (lib.startsWith("|")) {
+                libsWriter.append(new StandardTextReader().read(vf, new StringReader(lib)));
+            }
+            else {
+                libsWriter.append(URIUtil.getChildLocation(projectLoc, lib));
+            }
         }
         
         for (String course : manifest.getCourses(project)) {

@@ -13,6 +13,7 @@ package org.rascalmpl.eclipse.nature;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -53,6 +54,8 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
 
 public class ProjectEvaluatorFactory {
 	
@@ -223,12 +226,17 @@ public class ProjectEvaluatorFactory {
 				List<String> libs = mf.getRequiredLibraries(bundle);
 				if (libs != null) {
 					for (String required : libs) {
-					    URI entryURI = URIUtil.fromURL(bundle.getEntry(required));
-					    addJarToSearchPath(eval.getValueFactory().sourceLocation(entryURI), eval);
+					    if (required.startsWith("|")) {
+					        eval.addRascalSearchPath((ISourceLocation) new StandardTextReader().read(eval.getValueFactory(), new StringReader(required)));
+					    }
+					    else {
+					        URI entryURI = URIUtil.fromURL(bundle.getEntry(required));
+					        addJarToSearchPath(eval.getValueFactory().sourceLocation(entryURI), eval);
+					    }
 					}
 				}
 			} 
-			catch (URISyntaxException e) {
+			catch (URISyntaxException | FactTypeUseException | IOException e) {
 				Activator.getInstance().logException("could not construct search path", e);
 			}
 		}
