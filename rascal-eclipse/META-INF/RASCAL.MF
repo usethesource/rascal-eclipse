@@ -1,2 +1,3 @@
 Source: src/org/rascalmpl/eclipse/library
+Project-Name: rascal-eclipse
 Bin: org/rascalmpl/eclipse/library
