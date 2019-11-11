@@ -48,7 +48,9 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.ProjectURIResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -352,6 +354,35 @@ public class ProjectEvaluatorFactory {
                 }
 			}
 		}
+		
+		/** So that the target folder of a project can serve as a lib URI during development time in Eclipse: */
+		URIResolverRegistry.getInstance().registerLogical(new ILogicalSourceLocationResolver() {
+            @Override
+            public String scheme() {
+                return "lib";
+            }
+            
+            @Override
+            public ISourceLocation resolve(ISourceLocation input) {
+                if (input.getAuthority().equals(authority())) {
+                    ISourceLocation root = URIUtil.correctLocation("project", authority(), "bin");
+
+                    if (project.getFile("target").exists()) {
+                        root = URIUtil.correctLocation("project", authority(), "target/classes");
+                    }
+
+                    return URIUtil.getChildLocation(root, input.getPath());
+                }
+                else {
+                    return input; // not this project, let the lib:/// resolver take care of it.
+                }
+            }
+            
+            @Override
+            public String authority() {
+                return project.getName();
+            }
+        });
 	}
   
   public static void addJarToSearchPath(ISourceLocation jar, Evaluator eval) {
