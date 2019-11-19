@@ -57,6 +57,7 @@ import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.RascalInterpreterREPL;
+import org.rascalmpl.shell.RascalShell;
 
 import jline.Terminal;
 
@@ -129,6 +130,9 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                         queueCommand("import " + module + ";");
                         queueCommand("main()");
                     }
+                    
+                    String version = RascalShell.getVersionNumber();
+                    shell.getOutput().println("Rascal Version: " + version);
                 
                     shellIsRunning.set(true);
                     shell.run();
