@@ -268,7 +268,7 @@ public class ProjectEvaluatorFactory {
       
       // first load the other plugins
       // TODO: support true dependencies
-      configureRascalLibraryPlugins(bundleEval);
+//      configureRascalLibraryPlugins(bundleEval);
       
       // then run the main of the current one
       runLibraryPluginMain(bundleEval, bundle);
@@ -344,7 +344,19 @@ public class ProjectEvaluatorFactory {
 			for (String lib : requiredLibraries) {
 			    try {
 			        if (lib.startsWith("|")) {
-			            eval.addRascalSearchPath((ISourceLocation) new StandardTextReader().read(eval.getValueFactory(), new StringReader(lib)));
+			            ISourceLocation library = (ISourceLocation) new StandardTextReader().read(eval.getValueFactory(), new StringReader(lib));
+			            ISourceLocation projectLib = URIUtil.changeScheme(library, "project");
+			            
+			            if (URIResolverRegistry.getInstance().exists(projectLib)) {
+			                // we give precedence to the project dependency over the installed library dependency
+			                for (String root : mf.getSourceRoots(projectLib)) {
+			                    eval.addRascalSearchPath(URIUtil.getChildLocation(projectLib, root));
+			                }
+			            }
+			            else {
+			                // otherwise we expect to find the sources in a library, at the root of the jar
+			                eval.addRascalSearchPath(library);
+			            }
 			        }
 			        else {
 			            addJarToSearchPath(ProjectURIResolver.constructProjectURI(project, project.getFile(lib).getProjectRelativePath()), eval);
