@@ -171,8 +171,6 @@ public class ProjectEvaluatorFactory {
 		    evaluator.addClassLoader(Evaluator.class.getClassLoader());
 		    evaluator.addRascalSearchPath(URIUtil.rootLocation("std"));
 		}
-		
-		configureRascalLibraryPlugins(evaluator);
 	}
 	
 	/**
@@ -251,59 +249,24 @@ public class ProjectEvaluatorFactory {
     configure(bundle, evaluator);
   }
 	
-	public void loadInstalledRascalLibraryPlugins() {
-    IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
-        .getExtensionPoint("rascal_eclipse", "rascalLibrary");
+  public void loadInstalledRascalLibraryPlugins() {
+      IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
+              .getExtensionPoint("rascal_eclipse", "rascalLibrary");
 
-    if (extensionPoint == null) {
-      return; // this may happen when nobody extends this point.
-    }
-    
-    for (IExtension element : extensionPoint.getExtensions()) {
-      String name = element.getContributor().getName();
-      Bundle bundle = Platform.getBundle(name);
-      Evaluator bundleEval = getBundleEvaluator(bundle);
-      
-      // first load the other plugins
-      // TODO: support true dependencies
-//      configureRascalLibraryPlugins(bundleEval);
-      
-      // then run the main of the current one
-      runLibraryPluginMain(bundleEval, bundle);
-    } 
+      if (extensionPoint == null) {
+          return; // this may happen when nobody extends this point.
+      }
+
+      for (IExtension element : extensionPoint.getExtensions()) {
+          String name = element.getContributor().getName();
+          Bundle bundle = Platform.getBundle(name);
+          Evaluator bundleEval = getBundleEvaluator(bundle);
+
+          // then run the main of the current one
+          runLibraryPluginMain(bundleEval, bundle);
+      } 
   }
 	
-	public static void configureRascalLibraryPlugins(Evaluator evaluator) {
-	  IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
-        .getExtensionPoint("rascal_eclipse", "rascalLibrary");
-
-	  if (extensionPoint == null) {
-	    return; // this may happen when nobody extends this point.
-	  }
-	  
-	  try {
-	    for (IExtension element : extensionPoint.getExtensions()) {
-	      String name = element.getContributor().getName();
-	      Bundle bundle = Platform.getBundle(name);
-	      configureRascalLibraryPlugin(evaluator, bundle);
-	    }
-	  } 
-	  catch (URISyntaxException e) {
-	    Activator.log("could not load some library", e);
-	  }
-  }
-
-  public static void configureRascalLibraryPlugin(Evaluator evaluator, Bundle bundle) throws URISyntaxException {
-    List<String> roots = new RascalEclipseManifest().getSourceRoots(bundle);
-    
-    for (String root : roots) {
-      // TODO: add check to see if library is referenced in RASCAL.MF
-      evaluator.addRascalSearchPath(URIUtil.correctLocation("plugin", bundle.getSymbolicName(), "/" + root));
-    }
-    
-    evaluator.addClassLoader(new BundleClassLoader(bundle));
-  }
-
   public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
     try {
       RascalEclipseManifest mf = new RascalEclipseManifest();
