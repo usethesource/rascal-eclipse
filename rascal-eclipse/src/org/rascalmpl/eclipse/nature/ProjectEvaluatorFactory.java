@@ -171,8 +171,6 @@ public class ProjectEvaluatorFactory {
 		    evaluator.addClassLoader(Evaluator.class.getClassLoader());
 		    evaluator.addRascalSearchPath(URIUtil.rootLocation("std"));
 		}
-		
-		configureRascalLibraryPlugins(evaluator);
 	}
 	
 	/**
@@ -186,17 +184,15 @@ public class ProjectEvaluatorFactory {
 			    
 				addProjectToSearchPath(project, evaluator);
 				
-				IProject[] projects = project.getReferencedProjects();
-				for (IProject ref : projects) {
-					addProjectToSearchPath(ref, evaluator);
-				}
+				// this should have been overtaken by Required-Libs
+//				IProject[] projects = project.getReferencedProjects();
+//				for (IProject ref : projects) {
+//					addProjectToSearchPath(ref, evaluator);
+//				}
 			} 
 			catch (URISyntaxException usex) {
 				Activator.getInstance().logException("could not construct search path", usex);
 			} 
-			catch (CoreException e) {
-				Activator.getInstance().logException("could not construct search path", e);
-			}
 		}
 		
 		configure(evaluator, project);
@@ -253,59 +249,24 @@ public class ProjectEvaluatorFactory {
     configure(bundle, evaluator);
   }
 	
-	public void loadInstalledRascalLibraryPlugins() {
-    IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
-        .getExtensionPoint("rascal_eclipse", "rascalLibrary");
+  public void loadInstalledRascalLibraryPlugins() {
+      IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
+              .getExtensionPoint("rascal_eclipse", "rascalLibrary");
 
-    if (extensionPoint == null) {
-      return; // this may happen when nobody extends this point.
-    }
-    
-    for (IExtension element : extensionPoint.getExtensions()) {
-      String name = element.getContributor().getName();
-      Bundle bundle = Platform.getBundle(name);
-      Evaluator bundleEval = getBundleEvaluator(bundle);
-      
-      // first load the other plugins
-      // TODO: support true dependencies
-      configureRascalLibraryPlugins(bundleEval);
-      
-      // then run the main of the current one
-      runLibraryPluginMain(bundleEval, bundle);
-    } 
+      if (extensionPoint == null) {
+          return; // this may happen when nobody extends this point.
+      }
+
+      for (IExtension element : extensionPoint.getExtensions()) {
+          String name = element.getContributor().getName();
+          Bundle bundle = Platform.getBundle(name);
+          Evaluator bundleEval = getBundleEvaluator(bundle);
+
+          // then run the main of the current one
+          runLibraryPluginMain(bundleEval, bundle);
+      } 
   }
 	
-	public static void configureRascalLibraryPlugins(Evaluator evaluator) {
-	  IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
-        .getExtensionPoint("rascal_eclipse", "rascalLibrary");
-
-	  if (extensionPoint == null) {
-	    return; // this may happen when nobody extends this point.
-	  }
-	  
-	  try {
-	    for (IExtension element : extensionPoint.getExtensions()) {
-	      String name = element.getContributor().getName();
-	      Bundle bundle = Platform.getBundle(name);
-	      configureRascalLibraryPlugin(evaluator, bundle);
-	    }
-	  } 
-	  catch (URISyntaxException e) {
-	    Activator.log("could not load some library", e);
-	  }
-  }
-
-  public static void configureRascalLibraryPlugin(Evaluator evaluator, Bundle bundle) throws URISyntaxException {
-    List<String> roots = new RascalEclipseManifest().getSourceRoots(bundle);
-    
-    for (String root : roots) {
-      // TODO: add check to see if library is referenced in RASCAL.MF
-      evaluator.addRascalSearchPath(URIUtil.correctLocation("plugin", bundle.getSymbolicName(), "/" + root));
-    }
-    
-    evaluator.addClassLoader(new BundleClassLoader(bundle));
-  }
-
   public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
     try {
       RascalEclipseManifest mf = new RascalEclipseManifest();
@@ -344,7 +305,19 @@ public class ProjectEvaluatorFactory {
 			for (String lib : requiredLibraries) {
 			    try {
 			        if (lib.startsWith("|")) {
-			            eval.addRascalSearchPath((ISourceLocation) new StandardTextReader().read(eval.getValueFactory(), new StringReader(lib)));
+			            ISourceLocation library = (ISourceLocation) new StandardTextReader().read(eval.getValueFactory(), new StringReader(lib));
+			            ISourceLocation projectLib = URIUtil.changeScheme(library, "project");
+			            
+			            if (URIResolverRegistry.getInstance().exists(projectLib)) {
+			                // we give precedence to the project dependency over the installed library dependency
+			                for (String root : mf.getSourceRoots(projectLib)) {
+			                    eval.addRascalSearchPath(URIUtil.getChildLocation(projectLib, root));
+			                }
+			            }
+			            else {
+			                // otherwise we expect to find the sources in a library, at the root of the jar
+			                eval.addRascalSearchPath(library);
+			            }
 			        }
 			        else {
 			            addJarToSearchPath(ProjectURIResolver.constructProjectURI(project, project.getFile(lib).getProjectRelativePath()), eval);
@@ -459,53 +432,46 @@ public class ProjectEvaluatorFactory {
 	    }
 	    
 		try {
-			if (!project.hasNature(JavaCore.NATURE_ID)) {
-				for (IProject ref : project.getReferencedProjects()) {
-					collectClassPathForProject(ref, classPath, compilerClassPath, parser);
-				}
-			}
-			else {
-				IJavaProject jProject = JavaCore.create(project);
-				
-				IPath binFolder = jProject.getOutputLocation();
-				String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
-				compilerClassPath.add(binLoc);
-				
-				URL binURL = new URL("file", "",  binLoc + "/");
-				parser.addClassLoader(new URLClassLoader(new URL[] {binURL}, getClass().getClassLoader()));
-				classPath.add(binURL);
-				
-				if (!jProject.isOpen()) {
-					return;
-				}
-				IClasspathEntry[] entries = jProject.getResolvedClasspath(true);
-				
-				for (int i = 0; i < entries.length; i++) {
-					IClasspathEntry entry = entries[i];
-					switch (entry.getEntryKind()) {
-					case IClasspathEntry.CPE_LIBRARY:
-						if (entry.getPath().segment(0).equals(project.getName())) {
-							String file = project.getLocation() + "/" + entry.getPath().removeFirstSegments(1).toString();
-							URL url = new URL("file", "", file);
-							if (!classPath.contains(url)) {
-								classPath.add(url);
-								compilerClassPath.add(file);
-							}
-						}
-						else {
-							URL url = new URL("file", "", entry.getPath().toString());
-							if (!classPath.contains(url)) {
-								classPath.add(url);
-								compilerClassPath.add(entry.getPath().toString());
-							}
-						}
-						break;
-					case IClasspathEntry.CPE_PROJECT:
-						collectClassPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath, compilerClassPath, parser);
-						break;
-					}
-				}
-			}
+		    IJavaProject jProject = JavaCore.create(project);
+
+		    IPath binFolder = jProject.getOutputLocation();
+		    String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
+		    compilerClassPath.add(binLoc);
+
+		    URL binURL = new URL("file", "",  binLoc + "/");
+		    parser.addClassLoader(new URLClassLoader(new URL[] {binURL}, getClass().getClassLoader()));
+		    classPath.add(binURL);
+
+		    if (!jProject.isOpen()) {
+		        return;
+		    }
+		    IClasspathEntry[] entries = jProject.getResolvedClasspath(true);
+
+		    for (int i = 0; i < entries.length; i++) {
+		        IClasspathEntry entry = entries[i];
+		        switch (entry.getEntryKind()) {
+		        case IClasspathEntry.CPE_LIBRARY:
+		            if (entry.getPath().segment(0).equals(project.getName())) {
+		                String file = project.getLocation() + "/" + entry.getPath().removeFirstSegments(1).toString();
+		                URL url = new URL("file", "", file);
+		                if (!classPath.contains(url)) {
+		                    classPath.add(url);
+		                    compilerClassPath.add(file);
+		                }
+		            }
+		            else {
+		                URL url = new URL("file", "", entry.getPath().toString());
+		                if (!classPath.contains(url)) {
+		                    classPath.add(url);
+		                    compilerClassPath.add(entry.getPath().toString());
+		                }
+		            }
+		            break;
+		        case IClasspathEntry.CPE_PROJECT:
+		            collectClassPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath, compilerClassPath, parser);
+		            break;
+		        }
+		    }
 		}
 		catch (CoreException e) {
 			Activator.getInstance().logException("failed to configure classpath", e);
@@ -526,8 +492,6 @@ public class ProjectEvaluatorFactory {
 		}
 		
 		collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
-	
-		
 		configureClassPath(parser, classPath, compilerClassPath);
 	}
 	
