@@ -186,17 +186,15 @@ public class ProjectEvaluatorFactory {
 			    
 				addProjectToSearchPath(project, evaluator);
 				
-				IProject[] projects = project.getReferencedProjects();
-				for (IProject ref : projects) {
-					addProjectToSearchPath(ref, evaluator);
-				}
+				// this should have been overtaken by Required-Libs
+//				IProject[] projects = project.getReferencedProjects();
+//				for (IProject ref : projects) {
+//					addProjectToSearchPath(ref, evaluator);
+//				}
 			} 
 			catch (URISyntaxException usex) {
 				Activator.getInstance().logException("could not construct search path", usex);
 			} 
-			catch (CoreException e) {
-				Activator.getInstance().logException("could not construct search path", e);
-			}
 		}
 		
 		configure(evaluator, project);
@@ -471,53 +469,46 @@ public class ProjectEvaluatorFactory {
 	    }
 	    
 		try {
-			if (!project.hasNature(JavaCore.NATURE_ID)) {
-				for (IProject ref : project.getReferencedProjects()) {
-					collectClassPathForProject(ref, classPath, compilerClassPath, parser);
-				}
-			}
-			else {
-				IJavaProject jProject = JavaCore.create(project);
-				
-				IPath binFolder = jProject.getOutputLocation();
-				String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
-				compilerClassPath.add(binLoc);
-				
-				URL binURL = new URL("file", "",  binLoc + "/");
-				parser.addClassLoader(new URLClassLoader(new URL[] {binURL}, getClass().getClassLoader()));
-				classPath.add(binURL);
-				
-				if (!jProject.isOpen()) {
-					return;
-				}
-				IClasspathEntry[] entries = jProject.getResolvedClasspath(true);
-				
-				for (int i = 0; i < entries.length; i++) {
-					IClasspathEntry entry = entries[i];
-					switch (entry.getEntryKind()) {
-					case IClasspathEntry.CPE_LIBRARY:
-						if (entry.getPath().segment(0).equals(project.getName())) {
-							String file = project.getLocation() + "/" + entry.getPath().removeFirstSegments(1).toString();
-							URL url = new URL("file", "", file);
-							if (!classPath.contains(url)) {
-								classPath.add(url);
-								compilerClassPath.add(file);
-							}
-						}
-						else {
-							URL url = new URL("file", "", entry.getPath().toString());
-							if (!classPath.contains(url)) {
-								classPath.add(url);
-								compilerClassPath.add(entry.getPath().toString());
-							}
-						}
-						break;
-					case IClasspathEntry.CPE_PROJECT:
-						collectClassPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath, compilerClassPath, parser);
-						break;
-					}
-				}
-			}
+		    IJavaProject jProject = JavaCore.create(project);
+
+		    IPath binFolder = jProject.getOutputLocation();
+		    String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
+		    compilerClassPath.add(binLoc);
+
+		    URL binURL = new URL("file", "",  binLoc + "/");
+		    parser.addClassLoader(new URLClassLoader(new URL[] {binURL}, getClass().getClassLoader()));
+		    classPath.add(binURL);
+
+		    if (!jProject.isOpen()) {
+		        return;
+		    }
+		    IClasspathEntry[] entries = jProject.getResolvedClasspath(true);
+
+		    for (int i = 0; i < entries.length; i++) {
+		        IClasspathEntry entry = entries[i];
+		        switch (entry.getEntryKind()) {
+		        case IClasspathEntry.CPE_LIBRARY:
+		            if (entry.getPath().segment(0).equals(project.getName())) {
+		                String file = project.getLocation() + "/" + entry.getPath().removeFirstSegments(1).toString();
+		                URL url = new URL("file", "", file);
+		                if (!classPath.contains(url)) {
+		                    classPath.add(url);
+		                    compilerClassPath.add(file);
+		                }
+		            }
+		            else {
+		                URL url = new URL("file", "", entry.getPath().toString());
+		                if (!classPath.contains(url)) {
+		                    classPath.add(url);
+		                    compilerClassPath.add(entry.getPath().toString());
+		                }
+		            }
+		            break;
+		        case IClasspathEntry.CPE_PROJECT:
+		            collectClassPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath, compilerClassPath, parser);
+		            break;
+		        }
+		    }
 		}
 		catch (CoreException e) {
 			Activator.getInstance().logException("failed to configure classpath", e);
@@ -538,8 +529,6 @@ public class ProjectEvaluatorFactory {
 		}
 		
 		collectClassPathForBundle(rascalBundle, classPath, compilerClassPath);
-	
-		
 		configureClassPath(parser, classPath, compilerClassPath);
 	}
 	
