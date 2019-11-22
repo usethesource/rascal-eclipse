@@ -103,7 +103,7 @@ public class RascalEclipseManifest extends RascalManifest {
       IFile rascalMF = project.getFile(new Path(META_INF_RASCAL_MF)) ;
       if (!rascalMF.exists()) {
         try (FileOutputStream file = new FileOutputStream(rascalMF.getLocation().toOSString())) {
-          getDefaultManifest().write(file);
+          getDefaultManifest(project.getName()).write(file);
         }
       }
       
