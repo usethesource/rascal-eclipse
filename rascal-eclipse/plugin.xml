@@ -1076,4 +1076,15 @@
             name="Value editor">
       </editor>
    </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            class="org.rascalmpl.eclipse.views.xterm.XtermView"
+            icon="icons/rascal-tutor-small.png"
+            id="rascal_eclipse.xterm"
+            name="XTerm"
+            restorable="true">
+      </view>
+   </extension>
 </plugin>
