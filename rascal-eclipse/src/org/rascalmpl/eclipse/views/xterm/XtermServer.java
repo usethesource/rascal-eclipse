@@ -26,7 +26,7 @@ public class XtermServer extends NanoHTTPD {
     @Override
     public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
         try {
-            ISourceLocation file = URIUtil.correctLocation("plugin", "rascal_eclipse", uri);
+            ISourceLocation file = URIUtil.getChildLocation(URIUtil.correctLocation("plugin", "rascal_eclipse", "org/rascalmpl/eclipse/views/xterm/html5"), uri);
             
             return newChunkedResponse(Status.OK, "text/plain", URIResolverRegistry.getInstance().getInputStream(file));
         } catch (IOException e) {
