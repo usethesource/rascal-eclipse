@@ -3,12 +3,13 @@
 
 <link rel="stylesheet" href="/xterm.css">
 <script src="/xterm.js"></script>
-<script>
-	var term = new Terminal();
-	term.open(document.getElementById('xterm-container'));
-</script>
+
 <body>
 	<div id="xterm-container"></div>
+	<script>
+		var term = new Terminal();
+		term.open(document.getElementById('xterm-container'));
+	</script>
 </body>
 
 </html>

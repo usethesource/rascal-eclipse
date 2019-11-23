@@ -2,6 +2,7 @@ package org.rascalmpl.eclipse.views.xterm;
 
 import static org.rascalmpl.eclipse.IRascalResources.ID_RASCAL_XTERM_PART;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -15,7 +16,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.help.HelpServer;
 import org.rascalmpl.uri.URIUtil;
+
+import fi.iki.elonen.NanoHTTPD;
 
 public class XtermView extends ViewPart {
     public static final String ID = ID_RASCAL_XTERM_PART;
@@ -24,6 +28,10 @@ public class XtermView extends ViewPart {
     private volatile String mainLocation;
     private XtermServer server;
     private Object lock = new Object();
+    
+    private final int BASE_PORT = 9787;
+    private final int ATTEMPTS = 100;
+    
 
     private ExecutorService backgroundTasks;
 
@@ -106,7 +114,21 @@ public class XtermView extends ViewPart {
                     }
 
                     if (server == null) {
-                        server = new XtermServer(9999, URIUtil.correctLocation("http", "localhost:9999", ""));
+                        for(int port = BASE_PORT; port < BASE_PORT+ATTEMPTS; port++){
+                            try {
+                                server = new XtermServer(port, URIUtil.correctLocation("http", "localhost:9999", ""));
+                                server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, true);
+                                // success!
+                                break;
+                            } catch (IOException e) {
+                                // failure is expected if the port is taken
+                                continue;
+                            }
+                        }
+
+                        if (server == null) {
+                            throw new IOException("Could not find port to run help server on");
+                        }
                     }
 
                     monitor.worked(1);
@@ -115,7 +137,7 @@ public class XtermView extends ViewPart {
                         @Override
                         public IStatus runInUIThread(IProgressMonitor monitor) {
                             mainLocation = "http://localhost:" + server.getPort();
-                            browser.setUrl(mainLocation + "index.html");
+                            browser.setUrl(mainLocation + "/index.html");
                             return Status.OK_STATUS;
                         }
                     }.schedule();
