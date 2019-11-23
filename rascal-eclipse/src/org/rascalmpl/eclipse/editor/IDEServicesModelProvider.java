@@ -1,10 +1,10 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
