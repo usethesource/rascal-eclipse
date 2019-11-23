@@ -60,9 +60,9 @@ public class RascalXtermConnector implements XtermConnector {
     private final AtomicBoolean shellIsRunning = new AtomicBoolean(false);
     private XtermPipedInputStream stdIn;
     private OutputStream stdInUI;
-    protected String project;
-    protected String module;
-    protected String mode;
+    protected String project = "rascal";
+    protected String module = null;
+    protected String mode = "run";
     private ILaunch launch;
     private IWarningHandler warnings;
     private ModuleReloader reloader;

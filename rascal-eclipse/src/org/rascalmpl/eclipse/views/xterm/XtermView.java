@@ -138,6 +138,8 @@ public class XtermView extends ViewPart {
                         public IStatus runInUIThread(IProgressMonitor monitor) {
                             mainLocation = "http://localhost:" + server.getPort();
                             browser.setUrl(mainLocation + "/index.html");
+                            
+                            new RascalXtermConnector().connect(server, XtermView.this);
                             return Status.OK_STATUS;
                         }
                     }.schedule();
