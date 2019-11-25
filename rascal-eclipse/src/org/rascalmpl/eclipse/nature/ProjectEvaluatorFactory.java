@@ -42,6 +42,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -169,7 +170,10 @@ public class ProjectEvaluatorFactory {
 		
 		if (project == null || !isRascalBootstrapProject(project)) {
 		    evaluator.addClassLoader(Evaluator.class.getClassLoader());
-		    evaluator.addRascalSearchPath(URIUtil.rootLocation("std"));
+		    evaluator.addRascalSearchPath(URIUtil.rootLocation("std")); 
+		    // add where the sources of the eclipse dependant standard lib are in its jar:
+
+		    addBundleToSearchPath(Platform.getBundle(IRascalResources.ID_RASCAL_ECLIPSE_PLUGIN), evaluator);
 		}
 	}
 	
@@ -181,14 +185,7 @@ public class ProjectEvaluatorFactory {
 	public void configure(IProject project, Evaluator evaluator) {
 		if (project != null) {
 			try {
-			    
 				addProjectToSearchPath(project, evaluator);
-				
-				// this should have been overtaken by Required-Libs
-//				IProject[] projects = project.getReferencedProjects();
-//				for (IProject ref : projects) {
-//					addProjectToSearchPath(ref, evaluator);
-//				}
 			} 
 			catch (URISyntaxException usex) {
 				Activator.getInstance().logException("could not construct search path", usex);
@@ -377,7 +374,7 @@ public class ProjectEvaluatorFactory {
       } 
   }
   
-  public static void addBundleToSearchPath(Bundle bundle, Evaluator eval) throws URISyntaxException {
+  public static void addBundleToSearchPath(Bundle bundle, Evaluator eval) {
 	  RascalEclipseManifest mf = new RascalEclipseManifest();
 	  List<String> srcs = mf.getSourceRoots(bundle);
 
