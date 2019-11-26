@@ -40,6 +40,10 @@ public class RascalEclipseManifest extends RascalManifest {
     return getManifestSourceRoots(manifest(project));
   }
   
+  public String getProjectName(Bundle project) {
+	  return getProjectName(manifest(project));
+  }
+  
   public String getMainModule(IProject project) {
     return getManifestMainModule(manifest(project));
   }

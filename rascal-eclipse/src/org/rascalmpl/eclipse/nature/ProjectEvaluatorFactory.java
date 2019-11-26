@@ -11,6 +11,7 @@
 package org.rascalmpl.eclipse.nature;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -50,6 +51,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.uri.BundleURIResolver;
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -256,6 +258,12 @@ public class ProjectEvaluatorFactory {
       if (extensionPoint == null) {
           return; // this may happen when nobody extends this point.
       }
+      
+      for (IExtension element : extensionPoint.getExtensions()) {
+          String name = element.getContributor().getName();
+          Bundle bundle = Platform.getBundle(name);
+          registerBundleLibraryURI(bundle, name);
+      }
 
       for (IExtension element : extensionPoint.getExtensions()) {
           String name = element.getContributor().getName();
@@ -267,7 +275,40 @@ public class ProjectEvaluatorFactory {
       } 
   }
 	
-  public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
+  private static void registerBundleLibraryURI(Bundle bundle, String name) {
+	  RascalEclipseManifest mf = new RascalEclipseManifest();
+	  String projectName = mf.getProjectName(bundle);
+	  URIResolverRegistry reg = URIResolverRegistry.getInstance();
+	  reg.registerLogical(new ILogicalSourceLocationResolver() {
+		  @Override
+		  public String scheme() {
+			  return "lib";
+		  }
+
+		  @Override
+		  public ISourceLocation resolve(ISourceLocation input) throws IOException {
+			  if (input.getScheme().equals(scheme()) && input.getAuthority().equals(authority())) {
+				  URL resolved = bundle.getResource(input.getPath());
+				  if (resolved == null) {
+					  throw new FileNotFoundException(input.toString());
+				  }
+				  try {
+					return ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.fromURL(resolved));
+				} catch (URISyntaxException e) {
+					throw new FileNotFoundException(input.toString() + " failed " + resolved + " to convert to " + e);
+				}
+			  }
+			  return input; // we cannot resolve this uri
+		  }
+
+		  @Override
+		  public String authority() {
+			  return projectName;
+		  }
+	  });
+  }
+
+public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
     try {
       RascalEclipseManifest mf = new RascalEclipseManifest();
       
