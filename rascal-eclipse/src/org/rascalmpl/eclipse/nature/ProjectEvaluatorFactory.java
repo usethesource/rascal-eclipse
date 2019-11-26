@@ -44,6 +44,7 @@ import org.osgi.framework.wiring.BundleWiring;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
+import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -183,6 +184,8 @@ public class ProjectEvaluatorFactory {
 	 * @param evaluator the evaluator to configure, may not be null
 	 */
 	public void configure(IProject project, Evaluator evaluator) {
+		// make sure errors show up somewhere
+		evaluator.setMonitor(new ConsoleRascalMonitor(RuntimePlugin.getInstance().getConsoleStream()));
 		if (project != null) {
 			try {
 				addProjectToSearchPath(project, evaluator);
