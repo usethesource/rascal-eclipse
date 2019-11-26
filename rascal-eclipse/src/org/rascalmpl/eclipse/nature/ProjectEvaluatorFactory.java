@@ -278,8 +278,9 @@ public class ProjectEvaluatorFactory {
   private static void registerBundleLibraryURI(Bundle bundle, String name) {
 	  RascalEclipseManifest mf = new RascalEclipseManifest();
 	  String projectName = mf.getProjectName(bundle);
-	  URIResolverRegistry reg = URIResolverRegistry.getInstance();
-	  reg.registerLogical(new ILogicalSourceLocationResolver() {
+	  List<String> sourceRoots = mf.getSourceRoots(bundle);
+
+	  URIResolverRegistry.getInstance().registerLogical(new ILogicalSourceLocationResolver() {
 		  @Override
 		  public String scheme() {
 			  return "lib";
@@ -288,7 +289,13 @@ public class ProjectEvaluatorFactory {
 		  @Override
 		  public ISourceLocation resolve(ISourceLocation input) throws IOException {
 			  if (input.getScheme().equals(scheme()) && input.getAuthority().equals(authority())) {
-				  URL resolved = bundle.getResource(input.getPath());
+				  URL resolved = null;
+				  for (String root: sourceRoots) {
+					  resolved = bundle.getResource(root + "/" + input.getPath());
+					  if (resolved != null) {
+						  break;
+					  }
+				  }
 				  if (resolved == null) {
 					  throw new FileNotFoundException(input.toString());
 				  }
