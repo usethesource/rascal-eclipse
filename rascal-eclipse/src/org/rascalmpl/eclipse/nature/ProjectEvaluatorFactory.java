@@ -291,7 +291,8 @@ public class ProjectEvaluatorFactory {
 			  if (input.getScheme().equals("lib") && input.getAuthority().equals(projectName)) {
 				  URL resolved = null;
 				  for (String root: sourceRoots) {
-					  resolved = bundle.getEntry((root.startsWith("/") ? "" : "/") + root + input.getPath());
+					  // TODO: use getEntry, but that returns currently unsupported bundleentry scheme
+					  resolved = bundle.getResource((root.startsWith("/") ? "" : "/") + root + input.getPath());
 					  if (resolved != null) {
 						  break;
 					  }
