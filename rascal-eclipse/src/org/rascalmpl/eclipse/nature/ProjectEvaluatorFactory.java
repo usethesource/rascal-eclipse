@@ -165,6 +165,8 @@ public class ProjectEvaluatorFactory {
 	 * This method configures an evaluator for use in an eclipse context
 	 */
 	public static void configure(Evaluator evaluator, IProject project) {
+		// make sure errors show up somewhere
+		evaluator.setMonitor(new ConsoleRascalMonitor(RuntimePlugin.getInstance().getConsoleStream()));
 		// NB. the code in this method is order dependent because it constructs a rascal module path in a particular order
 	    evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
 		evaluator.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
@@ -184,8 +186,6 @@ public class ProjectEvaluatorFactory {
 	 * @param evaluator the evaluator to configure, may not be null
 	 */
 	public void configure(IProject project, Evaluator evaluator) {
-		// make sure errors show up somewhere
-		evaluator.setMonitor(new ConsoleRascalMonitor(RuntimePlugin.getInstance().getConsoleStream()));
 		if (project != null) {
 			try {
 				addProjectToSearchPath(project, evaluator);
