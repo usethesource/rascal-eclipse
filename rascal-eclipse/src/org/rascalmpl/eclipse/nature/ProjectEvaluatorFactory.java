@@ -291,7 +291,7 @@ public class ProjectEvaluatorFactory {
 			  if (input.getScheme().equals(scheme()) && input.getAuthority().equals(authority())) {
 				  URL resolved = null;
 				  for (String root: sourceRoots) {
-					  resolved = bundle.getResource(root + input.getPath());
+					  resolved = bundle.getEntry("/" + root + input.getPath());
 					  if (resolved != null) {
 						  break;
 					  }
