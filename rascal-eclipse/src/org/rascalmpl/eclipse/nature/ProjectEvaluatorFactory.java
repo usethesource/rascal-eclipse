@@ -288,10 +288,10 @@ public class ProjectEvaluatorFactory {
 
 		  @Override
 		  public ISourceLocation resolve(ISourceLocation input) throws IOException {
-			  if (input.getScheme().equals(scheme()) && input.getAuthority().equals(authority())) {
+			  if (input.getScheme().equals("lib") && input.getAuthority().equals(projectName)) {
 				  URL resolved = null;
 				  for (String root: sourceRoots) {
-					  resolved = bundle.getEntry("/" + root + input.getPath());
+					  resolved = bundle.getEntry((root.startsWith("/") ? "" : "/") + root + input.getPath());
 					  if (resolved != null) {
 						  break;
 					  }
