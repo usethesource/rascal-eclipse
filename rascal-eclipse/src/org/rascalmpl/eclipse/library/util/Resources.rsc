@@ -28,7 +28,7 @@ public set[loc] dependencies(loc project) {
   set[loc] closure = references(project);
   
   solve (closure) {
-    closure += { dep | loc project <- closure, loc dep <- references(project) };
+    closure += { dep | loc p <- closure, loc dep <- references(p) };
   }
   
   return closure;
