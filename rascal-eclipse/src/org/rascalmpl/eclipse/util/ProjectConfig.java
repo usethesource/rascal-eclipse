@@ -65,9 +65,6 @@ public class ProjectConfig {
         
         // These are jar files which make contain compiled Rascal code to link to:
         for (String lib : manifest.getRequiredLibraries(project)) {
-        	if (lib == null && lib.trim().isEmpty()) {
-        		continue; // skip empty libraries
-        	}
             if (lib.startsWith("|")) {
                 libsWriter.append(new StandardTextReader().read(vf, new StringReader(lib)));
             }
@@ -175,9 +172,6 @@ public class ProjectConfig {
             List<String> requiredLibraries = mf.getRequiredLibraries(project);
             if (requiredLibraries != null) {
                 for (String lib : requiredLibraries) {
-                	if (lib == null && lib.trim().isEmpty()) {
-                		continue; // skip empty libraries
-                	}
                     ISourceLocation loc = vf.sourceLocation(project.getFile(lib).getFullPath().makeAbsolute().toFile().getAbsolutePath());
                     if (!classloaders.contains(loc)) {
                         classloaders.add(loc);

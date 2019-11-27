@@ -353,9 +353,6 @@ public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
 		if (requiredLibraries != null) {
 			for (String lib : requiredLibraries) {
 			    try {
-			    	if (lib == null || lib.trim().isEmpty()) {
-			    		continue; // skip empty library definitions
-			    	}
 			        if (lib.startsWith("|")) {
 			            ISourceLocation library = (ISourceLocation) new StandardTextReader().read(eval.getValueFactory(), new StringReader(lib));
 			            ISourceLocation projectLib = URIUtil.changeScheme(library, "project");
