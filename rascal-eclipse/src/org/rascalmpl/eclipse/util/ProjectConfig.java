@@ -65,6 +65,9 @@ public class ProjectConfig {
         
         // These are jar files which make contain compiled Rascal code to link to:
         for (String lib : manifest.getRequiredLibraries(project)) {
+        	if (lib == null && lib.trim().isEmpty()) {
+        		continue; // skip empty libraries
+        	}
             if (lib.startsWith("|")) {
                 libsWriter.append(new StandardTextReader().read(vf, new StringReader(lib)));
             }
