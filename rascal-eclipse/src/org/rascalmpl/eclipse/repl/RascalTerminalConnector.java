@@ -54,6 +54,7 @@ import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.IRascalResult;
+import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.RascalInterpreterREPL;
@@ -133,6 +134,13 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                     
                     String version = RascalShell.getVersionNumber();
                     shell.getOutput().println("Rascal Version: " + version);
+                    if (new SemVer(version).getPrerelease().equals("SNAPSHOT")) {
+                        shell.getOutput().print(
+                                "Rascal's daily SNAPSHOT releases have become more unstable recently.\n" +
+                                "We recommend switching to the (monthly) stable release strain 0.16.x from https://update.rascal-mpl.org/stable as soon as possible.\n" +
+                                "Until the end of Feb 2020, the stable release will have a higher version than the daily unstable, to facilitate your move to stable.\n\n");
+                        
+                    }
                 
                     shellIsRunning.set(true);
                     shell.run();
