@@ -366,7 +366,32 @@ public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
 			            else {
 			                // otherwise we expect to find the sources in a library, at the root of the jar
 			                eval.addRascalSearchPath(library);
-			            }
+			                
+			                // TODO: temporary workaround. What if the lib scheme does not work for this dependency yet, we generate it right here:
+			                URIResolverRegistry reg = URIResolverRegistry.getInstance();
+			                reg.registerLogical(new ILogicalSourceLocationResolver() {
+                                
+                                @Override
+                                public String scheme() {
+                                    return "lib";
+                                }
+                                
+                                @Override
+                                public ISourceLocation resolve(ISourceLocation input) throws IOException {
+                                    try {
+                                        return URIUtil.changeScheme(input, "plugin");
+                                    } catch (URISyntaxException e) {
+                                        Activator.log("weird bug in lib resolver code", e);
+                                        return input;
+                                    }
+                                }
+                                
+                                @Override
+                                public String authority() {
+                                    return library.getAuthority();
+                                }
+                            });
+			                			            }
 			        }
 			        else {
 			            addJarToSearchPath(ProjectURIResolver.constructProjectURI(project, project.getFile(lib).getProjectRelativePath()), eval);
