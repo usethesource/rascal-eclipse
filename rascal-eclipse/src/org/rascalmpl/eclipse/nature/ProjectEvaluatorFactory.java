@@ -50,7 +50,6 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -317,32 +316,7 @@ public class ProjectEvaluatorFactory {
 			            else {
 			                // otherwise we expect to find the sources in a library, at the root of the jar
 			                eval.addRascalSearchPath(library);
-			                
-			                // TODO: temporary workaround. What if the lib scheme does not work for this dependency yet, we generate it right here:
-			                URIResolverRegistry reg = URIResolverRegistry.getInstance();
-			                reg.registerLogical(new ILogicalSourceLocationResolver() {
-                                
-                                @Override
-                                public String scheme() {
-                                    return "lib";
-                                }
-                                
-                                @Override
-                                public ISourceLocation resolve(ISourceLocation input) throws IOException {
-                                    try {
-                                        return URIUtil.changeScheme(input, "plugin");
-                                    } catch (URISyntaxException e) {
-                                        Activator.log("weird bug in lib resolver code", e);
-                                        return input;
-                                    }
-                                }
-                                
-                                @Override
-                                public String authority() {
-                                    return library.getAuthority();
-                                }
-                            });
-			                			            }
+			            }
 			        }
 			        else {
 			            addJarToSearchPath(ProjectURIResolver.constructProjectURI(project, project.getFile(lib).getProjectRelativePath()), eval);
@@ -352,35 +326,6 @@ public class ProjectEvaluatorFactory {
                 }
 			}
 		}
-		
-		/** So that the target folder of a project can serve as a lib URI during development time in Eclipse: */
-		URIResolverRegistry.getInstance().registerLogical(new ILogicalSourceLocationResolver() {
-            @Override
-            public String scheme() {
-                return "lib";
-            }
-            
-            @Override
-            public ISourceLocation resolve(ISourceLocation input) {
-                if (input.getAuthority().equals(authority())) {
-                    ISourceLocation root = URIUtil.correctLocation("project", authority(), "bin");
-
-                    if (project.getFile("target").exists()) {
-                        root = URIUtil.correctLocation("project", authority(), "target/classes");
-                    }
-
-                    return URIUtil.getChildLocation(root, input.getPath());
-                }
-                else {
-                    return input; // not this project, let the lib:/// resolver take care of it.
-                }
-            }
-            
-            @Override
-            public String authority() {
-                return project.getName();
-            }
-        });
 	}
   
   public static void addJarToSearchPath(ISourceLocation jar, Evaluator eval) {
