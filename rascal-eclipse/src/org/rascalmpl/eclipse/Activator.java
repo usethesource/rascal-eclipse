@@ -24,6 +24,9 @@ import java.util.List;
 import javax.tools.ToolProvider;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
@@ -35,6 +38,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 import io.usethesource.impulse.runtime.PluginBase;
 
@@ -51,6 +55,15 @@ public class Activator extends PluginBase {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		sInstance = this;
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(
+		      new IResourceChangeListener() {
+                @Override
+                public void resourceChanged(IResourceChangeEvent event) {
+                    if (event.getResource() instanceof IProject) {
+                        URIResolverRegistry.getInstance().reinitialize();
+                    }
+                }
+            }, IResourceChangeEvent.PRE_CLOSE + IResourceChangeEvent.PRE_REFRESH);
 		super.start(context);
 	}
 	
