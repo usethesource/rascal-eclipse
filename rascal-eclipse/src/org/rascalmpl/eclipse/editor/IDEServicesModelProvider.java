@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Platform;
+import org.osgi.framework.Bundle;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.util.ProjectConfig;
@@ -39,8 +40,8 @@ public class IDEServicesModelProvider {
     private final Cache<ISourceLocation, IConstructor> summaryCache;
     private final Cache<ISourceLocation, INode> outlineCache;
     
-    private final Future<Evaluator> outlineEvaluator = makeFutureEvaluator("outline-evaluator", "lang::rascalcore::check::Summary");
-    private final Future<Evaluator> summaryEvaluator = makeFutureEvaluator("summary-evaluator", "lang::rascal::ide::Outline");
+    private final Future<Evaluator> outlineEvaluator = makeFutureEvaluator("outline-evaluator", "lang::rascal::ide::Outline");
+    private final Future<Evaluator> summaryEvaluator = makeFutureEvaluator("summary-evaluator", "lang::rascalcore::check::Summary");
     
     private IDEServicesModelProvider() {
             summaryCache = Caffeine.newBuilder()
@@ -165,16 +166,15 @@ public class IDEServicesModelProvider {
                 }
                 
                 synchronized (eval) {
-                    return (IConstructor) eval.call("outline", module);
+                    return (INode) eval.call("outline", module);
                 }
     		}
     		catch (Throwable e) {
-    			Activator.log("failure to create summary for IDE features", e);
+    			Activator.log("failure to create outline", e);
                 return null;
     		}
     	}));
     }
-    
 
 	public void clearSummaryCache(ISourceLocation file) {
         summaryCache.invalidate(file.top());
@@ -185,7 +185,6 @@ public class IDEServicesModelProvider {
         summaryCache.invalidateAll();
         outlineCache.invalidateAll();;
     }
-    
     
     public PathConfig getPathConfig(IProject prj) {
     	try {
@@ -201,13 +200,19 @@ public class IDEServicesModelProvider {
     
     private Future<Evaluator> makeFutureEvaluator(String label, final String... imports) {
         return task(label, () ->  {
-            Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(Platform.getBundle("rascal_eclipse"), ThreadSafeImpulseConsole.INSTANCE.getWriter(), ThreadSafeImpulseConsole.INSTANCE.getWriter());
+            Bundle bundle = Platform.getBundle("rascal_eclipse");
+            Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(bundle, ThreadSafeImpulseConsole.INSTANCE.getWriter(), ThreadSafeImpulseConsole.INSTANCE.getWriter());
            
-            eval.addRascalSearchPath(URIUtil.correctLocation("lib", "typepal", ""));
-            eval.addRascalSearchPath(URIUtil.correctLocation("lib", "rascal-core", ""));
+            eval.addRascalSearchPath(URIUtil.correctLocation("jar+plugin", "rascal_eclipse", "/lib/typepal.jar!/"));
+            eval.addRascalSearchPath(URIUtil.correctLocation("jar+plugin", "rascal_eclipse", "/lib/rascal-core.jar!/"));
             
             for (String i : imports) {
-                eval.doImport(eval, i);
+                try {
+                    eval.doImport(eval, i);
+                }
+                catch (Throwable e) {
+                    Activator.log("failed to import " + i, e);
+                }
             }
            
             return eval;
