@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/rascal-feature_0.16.0.jar" id="rascal-feature" version="0.16.0">
+   <feature url="features/rascal-feature_0.16.1.qualifier.jar" id="rascal-feature" version="0.16.1.qualifier">
       <category name="rascal-category"/>
    </feature>
-   <feature url="features/rascal.developers.feature_0.16.0.jar" id="rascal_developers_feature" version="0.16.0">
+   <feature url="features/rascal.developers.feature_0.16.1.qualifier.jar" id="rascal_developers_feature" version="0.16.1.qualifier">
       <category name="rascal-category"/>
    </feature>
    <category-def name="rascal-category" label="Rascal">
