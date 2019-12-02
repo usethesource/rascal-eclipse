@@ -1,23 +1,21 @@
 package org.rascalmpl.eclipse.editor;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
-import org.rascalmpl.eclipse.util.BackgroundInitializer;
 import org.rascalmpl.eclipse.util.ProjectConfig;
+import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -37,48 +35,14 @@ import io.usethesource.vallang.IWithKeywordParameters;
 
 public class IDEServicesModelProvider {
     private static final IValueFactory vf = IRascalValueFactory.getInstance();
-    private final IDESummaryService summaryService;
     
     private final Cache<ISourceLocation, IConstructor> summaryCache;
     private final Cache<ISourceLocation, INode> outlineCache;
     
+    private final Future<Evaluator> outlineEvaluator = makeFutureEvaluator("outline-evaluator", "lang::rascalcore::check::Summary");
+    private final Future<Evaluator> summaryEvaluator = makeFutureEvaluator("summary-evaluator", "lang::rascal::ide::Outline");
+    
     private IDEServicesModelProvider() {
-            IDESummaryService serviceToUse = getExtensionPointIDESummary();
-            if (serviceToUse == null) {
-            	// by default, use the the local services 
-                serviceToUse = new IDESummaryService() {
-                	private final Future<Evaluator> eval = BackgroundInitializer.construct("IDE services evaluator", () -> {
-                		Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(Activator.getInstance().getBundle());
-                		eval.doImport(null, "lang::rascal::ide::Outline");
-                		return eval;
-                	});
-                	
-                    @Override
-                    public IConstructor calculate(IString moduleName, IConstructor pcfg) {
-                    	// TODO: include new type checker information here
-                        return null;
-                    }
-                    
-                    @Override
-                    public INode getOutline(IConstructor moduleTree) {
-                        try {
-							Evaluator evaluator = eval.get();
-							if (evaluator != null) {
-								synchronized (evaluator) {
-									return (INode) evaluator.call("outline", moduleTree);
-								}
-							}
-						} 
-                        catch (InterruptedException | ExecutionException e) {
-							Activator.log("outline failed", e);
-						}
-                        
-                        return IRascalValueFactory.getInstance().node("outline failed");
-                    }
-                };
-            }
-
-            summaryService = serviceToUse;
             summaryCache = Caffeine.newBuilder()
             		.softValues()
             		.maximumSize(256)
@@ -92,29 +56,6 @@ public class IDEServicesModelProvider {
             		.build();
     }
 
-	private IDESummaryService getExtensionPointIDESummary() {
-		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint("rascal_eclipse", "rascalIDE");
-		if (extensionPoint != null) {
-			if (extensionPoint.getExtensions().length > 1) {
-				Activator.log("multiple IDE summary services registered, not picking any of them", new RuntimeException());
-				return null;
-			}
-			for (IExtension element : extensionPoint.getExtensions()) {
-				for (IConfigurationElement cfg : element.getConfigurationElements()) {
-					try {
-						if (cfg.getAttribute("summaryClass") != null) {
-							return (IDESummaryService) cfg.createExecutableExtension("summaryClass");
-						}
-					}
-					catch (ClassCastException | CoreException e) {
-						Activator.log("exception while constructing ide service" , e);
-					}
-				}
-			} 
-		}
-		return null;
-	}
-    
     private static class InstanceHolder {
         static IDEServicesModelProvider sInstance = new IDEServicesModelProvider();
     }
@@ -123,13 +64,13 @@ public class IDEServicesModelProvider {
         return InstanceHolder.sInstance;
     }
     
-    @SuppressWarnings("unchecked")
     private <T extends IValue> T get(ISourceLocation occ, PathConfig pcfg, String field, T def) {
        IConstructor summary = getSummary(occ, pcfg);
        
        if (summary != null) {
            IWithKeywordParameters<? extends IConstructor> kws = summary.asWithKeywordParameters();
            if (kws.hasParameters()) {
+               @SuppressWarnings("unchecked")
                T val = (T) kws.getParameter(field);
                
                if (val != null) {
@@ -141,20 +82,19 @@ public class IDEServicesModelProvider {
        return def;
     }
     
-    public void putSummary(ISourceLocation occ, IConstructor summary) {
-    	if (summary != null && summary.asWithKeywordParameters().hasParameters()) {
-    		summaryCache.put(occ.top(), summary);
-    	}
-    }
-    
     public IConstructor getSummary(ISourceLocation occ, PathConfig pcfg) {
     	return summaryCache.get(occ.top(), (u) -> {
     		try {
-    			IConstructor result = summaryService.calculate(vf.string(pcfg.getModuleName(occ)), pcfg.asConstructor());
-    			if (result == null || !result.asWithKeywordParameters().hasParameters()) {
-    				return null;
-    			}
-    			return result;
+    		    Evaluator eval = summaryEvaluator.get();
+    		    
+                if (eval == null) {
+                    Activator.log("Could not calculate summary due to missing evaluator", null);
+                    return null;
+                }
+                
+                synchronized (eval) {
+                    return (IConstructor) eval.call("makeSummary", vf.string(pcfg.getModuleName(occ)), pcfg.asConstructor());
+                }
     		}
     		catch (Throwable e) {
     			Activator.log("failure to create summary for IDE features", e);
@@ -217,11 +157,16 @@ public class IDEServicesModelProvider {
 
     	return replaceNull(outlineCache.get(loc.top(), (l) -> {
     		try {
-    			INode result = summaryService.getOutline(module);
-    			if (result == null || result.arity() == 0) {
-    				return null;
-    			}
-    			return result;
+    		    Evaluator eval = outlineEvaluator.get();
+                
+                if (eval == null) {
+                    Activator.log("Could not calculate outline due to missing evaluator", null);
+                    return null;
+                }
+                
+                synchronized (eval) {
+                    return (IConstructor) eval.call("outline", module);
+                }
     		}
     		catch (Throwable e) {
     			Activator.log("failure to create summary for IDE features", e);
@@ -252,5 +197,37 @@ public class IDEServicesModelProvider {
     	}
     	
     	return null;
+    }
+    
+    private Future<Evaluator> makeFutureEvaluator(String label, final String... imports) {
+        return task(label, () ->  {
+            Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(Platform.getBundle("rascal_eclipse"), ThreadSafeImpulseConsole.INSTANCE.getWriter(), ThreadSafeImpulseConsole.INSTANCE.getWriter());
+           
+            eval.addRascalSearchPath(URIUtil.correctLocation("lib", "typepal", ""));
+            eval.addRascalSearchPath(URIUtil.correctLocation("lib", "rascal-core", ""));
+            
+            for (String i : imports) {
+                eval.doImport(eval, i);
+            }
+           
+            return eval;
+        });
+    }
+    
+    private static <T> Future<T> task(String name, Callable<T> generate) {
+        FutureTask<T> result = new FutureTask<>(() -> {
+            try {
+                return generate.call();
+            } catch (Throwable e) {
+                Activator.log("Cannot initialize " + name, e);
+                return null;
+            }
+        });
+        
+        Thread background = new Thread(result);
+        background.setDaemon(true);
+        background.setName("Background initializer for: " + name);
+        background.start();
+        return result;
     }
 }
