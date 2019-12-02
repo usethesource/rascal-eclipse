@@ -129,7 +129,6 @@ Export-Package: io.usethesource.vallang,
  org.rascalmpl.uri.jar,
  org.rascalmpl.uri.libraries,
  org.rascalmpl.uri.remote,
- org.rascalmpl.uri.project,
  org.rascalmpl.values,
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors
