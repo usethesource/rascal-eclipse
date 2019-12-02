@@ -11,7 +11,6 @@
 package org.rascalmpl.eclipse.nature;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -51,8 +50,6 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.uri.BundleURIResolver;
-import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -262,12 +259,6 @@ public class ProjectEvaluatorFactory {
       for (IExtension element : extensionPoint.getExtensions()) {
           String name = element.getContributor().getName();
           Bundle bundle = Platform.getBundle(name);
-          registerBundleLibraryURI(bundle, name);
-      }
-
-      for (IExtension element : extensionPoint.getExtensions()) {
-          String name = element.getContributor().getName();
-          Bundle bundle = Platform.getBundle(name);
           Evaluator bundleEval = getBundleEvaluator(bundle);
 
           // then run the main of the current one
@@ -275,71 +266,30 @@ public class ProjectEvaluatorFactory {
       } 
   }
 	
-  private static void registerBundleLibraryURI(Bundle bundle, String name) {
-	  RascalEclipseManifest mf = new RascalEclipseManifest();
-	  String projectName = mf.getProjectName(bundle);
-	  List<String> sourceRoots = mf.getSourceRoots(bundle);
+  public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
+      try {
+          RascalEclipseManifest mf = new RascalEclipseManifest();
 
-	  URIResolverRegistry.getInstance().registerLogical(new ILogicalSourceLocationResolver() {
-		  @Override
-		  public String scheme() {
-			  return "lib";
-		  }
+          if (!mf.hasManifest(bundle)) {
+              return;
+          }
 
-		  @Override
-		  public ISourceLocation resolve(ISourceLocation input) throws IOException {
-			  if (input.getScheme().equals("lib") && input.getAuthority().equals(projectName)) {
-				  URL resolved = null;
-				  for (String root: sourceRoots) {
-					  // TODO: use getEntry, but that returns currently unsupported bundleentry scheme
-					  resolved = bundle.getResource((root.startsWith("/") ? "" : "/") + root + input.getPath());
-					  if (resolved != null) {
-						  break;
-					  }
-				  }
-				  if (resolved == null) {
-					  throw new FileNotFoundException(input.toString());
-				  }
-				  try {
-					return ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.fromURL(resolved));
-				} catch (URISyntaxException e) {
-					throw new FileNotFoundException(input.toString() + " failed " + resolved + " to convert to " + e);
-				}
-			  }
-			  return input; // we cannot resolve this uri
-		  }
+          String mainModule = mf.getMainModule(bundle);
+          String mainFunction = mf.getMainFunction(bundle);
 
-		  @Override
-		  public String authority() {
-			  return projectName;
-		  }
-	  });
-  }
-
-public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
-    try {
-      RascalEclipseManifest mf = new RascalEclipseManifest();
-      
-      if (!mf.hasManifest(bundle)) {
-        return;
+          // we only run a function if the main module and function have been configured.
+          // this is to give the option to NOT run a main module, but provide only the 
+          // plugin as a library to other plugins.
+          if (mainModule != null && mainFunction != null) {
+              evaluator.getStdOut().println("Loading module " + mainModule + " and calling " + mainFunction);
+              evaluator.getStdOut().flush();
+              evaluator.doImport(evaluator.getMonitor(), mainModule);
+              evaluator.call(mainFunction);
+          }
       }
-      
-      String mainModule = mf.getMainModule(bundle);
-      String mainFunction = mf.getMainFunction(bundle);
-      
-      // we only run a function if the main module and function have been configured.
-      // this is to give the option to NOT run a main module, but provide only the 
-      // plugin as a library to other plugins.
-      if (mainModule != null && mainFunction != null) {
-    	evaluator.getStdOut().println("Loading module " + mainModule + " and calling " + mainFunction);
-    	evaluator.getStdOut().flush();
-        evaluator.doImport(evaluator.getMonitor(), mainModule);
-        evaluator.call(mainFunction);
+      catch (Throwable e) {
+          Activator.log("Library defined by bundle " + bundle.getSymbolicName() + " has no main module or main function", e);
       }
-    }
-    catch (Throwable e) {
-      Activator.log("Library defined by bundle " + bundle.getSymbolicName() + " has no main module or main function", e);
-    }
   }
 
 	public static void addProjectToSearchPath(IProject project, Evaluator eval)
@@ -366,32 +316,7 @@ public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
 			            else {
 			                // otherwise we expect to find the sources in a library, at the root of the jar
 			                eval.addRascalSearchPath(library);
-			                
-			                // TODO: temporary workaround. What if the lib scheme does not work for this dependency yet, we generate it right here:
-			                URIResolverRegistry reg = URIResolverRegistry.getInstance();
-			                reg.registerLogical(new ILogicalSourceLocationResolver() {
-                                
-                                @Override
-                                public String scheme() {
-                                    return "lib";
-                                }
-                                
-                                @Override
-                                public ISourceLocation resolve(ISourceLocation input) throws IOException {
-                                    try {
-                                        return URIUtil.changeScheme(input, "plugin");
-                                    } catch (URISyntaxException e) {
-                                        Activator.log("weird bug in lib resolver code", e);
-                                        return input;
-                                    }
-                                }
-                                
-                                @Override
-                                public String authority() {
-                                    return library.getAuthority();
-                                }
-                            });
-			                			            }
+			            }
 			        }
 			        else {
 			            addJarToSearchPath(ProjectURIResolver.constructProjectURI(project, project.getFile(lib).getProjectRelativePath()), eval);
@@ -401,35 +326,6 @@ public static void runLibraryPluginMain(Evaluator evaluator, Bundle bundle) {
                 }
 			}
 		}
-		
-		/** So that the target folder of a project can serve as a lib URI during development time in Eclipse: */
-		URIResolverRegistry.getInstance().registerLogical(new ILogicalSourceLocationResolver() {
-            @Override
-            public String scheme() {
-                return "lib";
-            }
-            
-            @Override
-            public ISourceLocation resolve(ISourceLocation input) {
-                if (input.getAuthority().equals(authority())) {
-                    ISourceLocation root = URIUtil.correctLocation("project", authority(), "bin");
-
-                    if (project.getFile("target").exists()) {
-                        root = URIUtil.correctLocation("project", authority(), "target/classes");
-                    }
-
-                    return URIUtil.getChildLocation(root, input.getPath());
-                }
-                else {
-                    return input; // not this project, let the lib:/// resolver take care of it.
-                }
-            }
-            
-            @Override
-            public String authority() {
-                return project.getName();
-            }
-        });
 	}
   
   public static void addJarToSearchPath(ISourceLocation jar, Evaluator eval) {

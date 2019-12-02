@@ -23,7 +23,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
-			<artifactId>rascal</artifactId>
+			<artifactId>rascal-defer-to-plugin</artifactId>
 			<version>0.15.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
@@ -69,7 +69,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>org.rascalmpl</groupId>
-									<artifactId>rascal</artifactId>
+									<artifactId>rascal-defer-to-plugin</artifactId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${basedir}/lib</outputDirectory>
