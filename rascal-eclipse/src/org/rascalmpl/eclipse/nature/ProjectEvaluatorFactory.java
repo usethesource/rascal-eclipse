@@ -42,6 +42,7 @@ import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
+import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -158,6 +159,9 @@ public class ProjectEvaluatorFactory {
 	 * This method configures an evaluator for use in an eclipse context
 	 */
 	public static void configure(Evaluator evaluator, IProject project) {
+       	// make sure errors show up somewhere
+        evaluator.setMonitor(new ConsoleRascalMonitor(RuntimePlugin.getInstance().getConsoleStream()));
+
 		// NB. the code in this method is order dependent because it constructs a rascal module path in a particular order
 	    evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
 		evaluator.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
