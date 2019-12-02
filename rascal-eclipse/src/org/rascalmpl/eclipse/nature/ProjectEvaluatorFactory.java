@@ -227,6 +227,10 @@ public class ProjectEvaluatorFactory {
 				List<String> libs = mf.getRequiredLibraries(bundle);
 				if (libs != null) {
 					for (String required : libs) {
+						if (required.trim().isEmpty() || required.startsWith("|")) {
+							// either empty, or a source location as a required library, which is a new feature that we do not have yet 
+							continue;
+						}
 					    URI entryURI = URIUtil.fromURL(bundle.getEntry(required));
 					    addJarToSearchPath(eval.getValueFactory().sourceLocation(entryURI), eval);
 					}
