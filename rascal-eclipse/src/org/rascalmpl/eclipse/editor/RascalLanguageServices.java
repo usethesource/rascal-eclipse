@@ -20,6 +20,7 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
@@ -132,13 +133,21 @@ public class RascalLanguageServices {
     public IList compileAll(IRascalMonitor monitor, IList files, PathConfig pcfg) {
         try {
             Evaluator eval = compilerEvaluator.get();
+           
             
             synchronized (eval) {
                 try {
                     return (IList) eval.call(monitor, "check", files, pcfg.asConstructor());
-                } catch (Throwable e) {
+                }
+                catch (InterruptException e) {
+                    return IRascalValueFactory.getInstance().list();
+                }
+                catch (Throwable e) {
                     Activator.log("compilation failed", e);
                     return IRascalValueFactory.getInstance().list();
+                }
+                finally {
+                    eval.__setInterrupt(false);
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
