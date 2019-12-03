@@ -8,10 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -19,28 +15,23 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.ICoreRunnable;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Platform;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
+import org.rascalmpl.eclipse.editor.RascalLanguageServices;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectConfig;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
+import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 import io.usethesource.impulse.builder.MarkerCreator;
 import io.usethesource.vallang.IConstructor;
@@ -56,54 +47,8 @@ import io.usethesource.vallang.IValueFactory;
  * It also interacts with Project Clean actions to clear up files and markers on request.  
  */
 public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
-	private static class InstanceHolder {
-		private static final BuildRascalService service; 
-
-		static {
-			BuildRascalService nonFinalService = getExtensionPointRascalBuilder();
-			if (nonFinalService == null) {
-				nonFinalService = new BuildRascalService() {
-					@Override
-					public FutureTask<IList> compile(IList files, IConstructor pcfg) {
-						return new FutureTask<>(IRascalValueFactory.getInstance()::list);
-					}
-
-					@Override
-					public FutureTask<IList> compileAll(ISourceLocation folder, IConstructor pcfg) {
-	                    return new FutureTask<>(IRascalValueFactory.getInstance()::list);
-					}
-				};
-			}
-
-			service = nonFinalService;
-		}
-	}
-
-	private static BuildRascalService getExtensionPointRascalBuilder() {
-		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint("rascal_eclipse", "rascalIDE");
-		if (extensionPoint != null) {
-			if (extensionPoint.getExtensions().length > 1) {
-				Activator.log("multiple rascal builder services registered, not picking any of them", new RuntimeException());
-				return null;
-			}
-			for (IExtension element : extensionPoint.getExtensions()) {
-				for (IConfigurationElement cfg : element.getConfigurationElements()) {
-					try {
-						if (cfg.getAttribute("builderClass") != null) {
-							return (BuildRascalService) cfg.createExecutableExtension("builderClass");
-						}
-					}
-					catch (ClassCastException | CoreException e) {
-						Activator.log("exception while constructing ide service" , e);
-					}
-				}
-			} 
-		}
-		return null;
-	}
-    
-    private IValueFactory vf = ValueFactoryFactory.getValueFactory();
-    private List<String> binaryExtension = Arrays.asList("imps","rvm", "rvmx", "tc","sig","sigs");
+    private final IValueFactory vf = ValueFactoryFactory.getValueFactory();
+    private final List<String> binaryExtension = Arrays.asList("class", "tpl");
     
     private ISourceLocation projectLoc;
     private PathConfig pathConfig;
@@ -165,31 +110,20 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    IProject project = getProject();
 	    
         if (project != null) {
-            ICoreRunnable runner = new ICoreRunnable() {
-                @Override
-                public void run(IProgressMonitor monitor) throws CoreException {
-                    switch (kind) {
-                        case INCREMENTAL_BUILD:
-                        case AUTO_BUILD:
-                            buildIncremental(getDelta(project), monitor);
-                            break;
-                        case FULL_BUILD:
-                            buildWholeProject(monitor);
-                            break;
-                    }
-                }
-            };
-            
-            
-            project.getWorkspace().run(runner, project,  IWorkspace.AVOID_UPDATE, monitor);
+            switch (kind) {
+            case INCREMENTAL_BUILD:
+            case AUTO_BUILD:
+                buildIncremental(getDelta(project), monitor);
+                break;
+            case FULL_BUILD:
+                buildWholeProject(monitor);
+                break;
+            }
         }
 
 	    // TODO: return project this project depends on?
 		return new IProject[0];
 	}
-
-	
-
 	
 	private void buildWholeProject(IProgressMonitor monitor) throws CoreException {
 	    if (!RascalPreferences.isRascalCompilerEnabled()) {
@@ -200,7 +134,6 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             return;
         }
         
-	    
 	    initializeParameters(false);
 	    
 	    try {
@@ -218,19 +151,16 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	            // the pathConfig source path currently still contains library sources,
 	            // which we want to compile on-demand only:
 	            if (src.getScheme().equals("project") && src.getAuthority().equals(projectLoc.getAuthority())) {
-	                FutureTask<IList> result = InstanceHolder.service.compileAll(src, pathConfig.asConstructor());
-	                if (!result.isDone()) {
-	                    watchAndCancelTask(result, monitor);
-	                    result.run();
-	                }
-	                IList programs = result.get();
+	                IList programs = compileAll(monitor, src, pathConfig);
+
 	                if (programs != null) {
 	                	markErrors(programs);
 	                }
 	            }
 	        }
-	        IDEServicesModelProvider.getInstance().invalidateEverything(); // mark caches as outdated
-	        // TODO: make this invalidate more accurate to be scoped by the project that was rebuild
+	        
+	        // TODO: make this invalidate more accurately (scoped by the project that was rebuild)
+	        RascalLanguageServices.getInstance().invalidateEverything(); 
 	    }
 	    catch (CancellationException e) {
 	        // ignore
@@ -243,18 +173,76 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    }
 	}
 
-	private final ScheduledExecutorService backgroundCancelation = Executors.newSingleThreadScheduledExecutor();
+	private IList compileAll(IProgressMonitor monitor, IList files, PathConfig pcfg) {
+	    return RascalLanguageServices.getInstance().compileAll(new RascalProgressMonitor(monitor), files, pcfg); 
+    }
 	
-	private void watchAndCancelTask(FutureTask<IList> result, IProgressMonitor monitor) {
-	    backgroundCancelation.scheduleAtFixedRate(() -> {
-	        if (monitor.isCanceled() || isInterrupted()) {
-	            result.cancel(true);
-	            throw new RuntimeException("Stop schedule");
-	        }
-	        else if (result.isDone()) {
-	            throw new RuntimeException("Stop schedule");
-	        }
-	    }, 1, 1, TimeUnit.SECONDS);
+	private IList compileAll(IProgressMonitor monitor, ISourceLocation src, PathConfig pcfg) {
+	    return RascalLanguageServices.getInstance().compileAll(new RascalProgressMonitor(monitor), src, pcfg);
+    }
+	
+    private final class RascalProgressMonitor implements IRascalMonitor {
+        private final IProgressMonitor monitor;
+
+        private RascalProgressMonitor(IProgressMonitor monitor) {
+            this.monitor = monitor;
+        }
+
+        @Override
+        public void startJob(String name) {
+            monitor.beginTask(name, -1);
+        }
+
+        @Override
+        public void startJob(String name, int totalWork) {
+            monitor.beginTask(name, totalWork);
+        }
+
+        @Override
+        public void startJob(String name, int workShare, int totalWork) {
+            monitor.beginTask(name, totalWork);
+        }
+
+        @Override
+        public void event(String name) {
+            monitor.subTask(name);
+        }
+
+        @Override
+        public void event(String name, int inc) {
+            monitor.subTask(name);
+            monitor.worked(inc);
+        }
+
+        @Override
+        public void event(int inc) {
+            monitor.worked(inc);
+        }
+
+        @Override
+        public int endJob(boolean succeeded) {
+            monitor.done();
+            return -1;
+        }
+
+        @Override
+        public boolean isCanceled() {
+            return monitor.isCanceled();
+        }
+
+        @Override
+        public void todo(int work) {
+            
+        }
+
+        @Override
+        public void warning(String message, ISourceLocation src) {
+            try {
+                ThreadSafeImpulseConsole.INSTANCE.getWriter().write(src + ":" + message + "\n");
+            } catch (IOException e) {
+                Activator.log("failed to print warning", e);
+            }
+        }
     }
 
     private static class ModuleWork {
@@ -277,7 +265,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         }
 
         public void clearUseDefCache() {
-            IDEServicesModelProvider.getInstance().clearSummaryCache(getLocation());
+            RascalLanguageServices.getInstance().clearSummaryCache(getLocation());
         }
 	}
 	
@@ -380,7 +368,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         for (IValue l : locs) {
         	monitor.worked(1);
         	if (l instanceof ISourceLocation) {
-        		IDEServicesModelProvider.getInstance().getSummary((ISourceLocation) l, pathConfig);
+        		RascalLanguageServices.getInstance().getSummary((ISourceLocation) l, pathConfig);
         	}
         }
 	}
@@ -392,26 +380,16 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         
         try {
             if (!locs.isEmpty()) {
-                FutureTask<IList> result = InstanceHolder.service.compile(locs, pathConfig.asConstructor());
-                if (!result.isDone()) {
-                    watchAndCancelTask(result, monitor);
-                    result.run();
-                }
-                IList results = result.get();
+                IList results = compileAll(monitor, locs, pathConfig);
+
                 if (results != null) {
                     markErrors(results);
                 }
             }
         } 
-        catch (CancellationException e) {
-            // ignore
-        }
         catch (Throwable e) {
             Activator.log("Unexpected error during compilation:" + e.getMessage(), e instanceof ExecutionException ? ((ExecutionException)e).getCause() : e);
         }
-        
-        // this shares the locking of the project for efficiency's sake
-        monitor.worked(todo.size());
     }
 
     private IList getModuleLocations(List<ModuleWork> todo) {
@@ -482,6 +460,6 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         IProject project = getProject();
         
         projectLoc = ProjectURIResolver.constructProjectURI(project.getFullPath());
-        pathConfig = IDEServicesModelProvider.getInstance().getPathConfig(project);
+        pathConfig = RascalLanguageServices.getInstance().getPathConfig(project);
     }
 }
