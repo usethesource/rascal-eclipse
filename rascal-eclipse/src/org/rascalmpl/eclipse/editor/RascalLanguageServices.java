@@ -2,14 +2,19 @@ package org.rascalmpl.eclipse.editor;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.ICoreRunnable;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.Job;
 import org.osgi.framework.Bundle;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.util.ProjectConfig;
@@ -25,6 +30,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
@@ -34,16 +40,17 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
 
-public class IDEServicesModelProvider {
+public class RascalLanguageServices {
     private static final IValueFactory vf = IRascalValueFactory.getInstance();
     
     private final Cache<ISourceLocation, IConstructor> summaryCache;
     private final Cache<ISourceLocation, INode> outlineCache;
     
-    private final Future<Evaluator> outlineEvaluator = makeFutureEvaluator("outline-evaluator", "lang::rascal::ide::Outline");
-    private final Future<Evaluator> summaryEvaluator = makeFutureEvaluator("summary-evaluator", "lang::rascalcore::check::Summary");
+    private final Future<Evaluator> outlineEvaluator = makeFutureEvaluator("Loading Rascal outline evaluator", "lang::rascal::ide::Outline");
+    private final Future<Evaluator> summaryEvaluator = makeFutureEvaluator("Loading Rascal summary evaluator", "lang::rascalcore::check::Summary");
+    private final Future<Evaluator> compilerEvaluator = makeFutureEvaluator("Loading Rascal compiler evaluator", "lang::rascalcore::check::Checker");
     
-    private IDEServicesModelProvider() {
+    private RascalLanguageServices() {
             summaryCache = Caffeine.newBuilder()
             		.softValues()
             		.maximumSize(256)
@@ -58,10 +65,10 @@ public class IDEServicesModelProvider {
     }
 
     private static class InstanceHolder {
-        static IDEServicesModelProvider sInstance = new IDEServicesModelProvider();
+        static RascalLanguageServices sInstance = new RascalLanguageServices();
     }
     
-    public static IDEServicesModelProvider getInstance() {
+    public static RascalLanguageServices getInstance() {
         return InstanceHolder.sInstance;
     }
     
@@ -103,6 +110,42 @@ public class IDEServicesModelProvider {
     		}
     	});
      }
+    
+    public IList compileAll(IRascalMonitor monitor, ISourceLocation folder, PathConfig pcfg) {
+        try {
+            Evaluator eval = compilerEvaluator.get();
+            
+            synchronized (eval) {
+                try {
+                    return (IList) eval.call(monitor, "checkAll", folder, pcfg.asConstructor());
+                } catch (Throwable e) {
+                    Activator.log("compilation failed", e);
+                    return IRascalValueFactory.getInstance().list();
+                }
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            Activator.log("compilation failed", e);
+            return IRascalValueFactory.getInstance().list();
+        }
+    }
+    
+    public IList compileAll(IRascalMonitor monitor, IList files, PathConfig pcfg) {
+        try {
+            Evaluator eval = compilerEvaluator.get();
+            
+            synchronized (eval) {
+                try {
+                    return (IList) eval.call(monitor, "check", files, pcfg.asConstructor());
+                } catch (Throwable e) {
+                    Activator.log("compilation failed", e);
+                    return IRascalValueFactory.getInstance().list();
+                }
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            Activator.log("compilation failed", e);
+            return IRascalValueFactory.getInstance().list();
+        }
+    }
     
     // TODO to be removed, rewrite HyperlinkDetector
     public ISet getUseDef(ISourceLocation file, PathConfig pcfg, String moduleName) {
@@ -199,7 +242,7 @@ public class IDEServicesModelProvider {
     }
     
     private Future<Evaluator> makeFutureEvaluator(String label, final String... imports) {
-        return task(label, () ->  {
+        return asyncGenerator(label, () ->  {
             Bundle bundle = Platform.getBundle("rascal_eclipse");
             Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(bundle, ThreadSafeImpulseConsole.INSTANCE.getWriter(), ThreadSafeImpulseConsole.INSTANCE.getWriter());
            
@@ -219,7 +262,7 @@ public class IDEServicesModelProvider {
         });
     }
     
-    private static <T> Future<T> task(String name, Callable<T> generate) {
+    private static <T> Future<T> asyncGenerator(String name, Callable<T> generate) {
         FutureTask<T> result = new FutureTask<>(() -> {
             try {
                 return generate.call();
@@ -229,10 +272,15 @@ public class IDEServicesModelProvider {
             }
         });
         
-        Thread background = new Thread(result);
-        background.setDaemon(true);
-        background.setName("Background initializer for: " + name);
-        background.start();
+        Job job = Job.create(name, new ICoreRunnable() {
+            @Override
+            public void run(IProgressMonitor monitor) {
+                result.run();
+            }
+        });
+        
+        job.schedule();
+        
         return result;
     }
 }
