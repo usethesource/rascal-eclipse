@@ -17,7 +17,7 @@ import org.osgi.framework.Bundle;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
-import org.rascalmpl.eclipse.util.ProjectConfig;
+import org.rascalmpl.eclipse.util.ProjectPathConfig;
 import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -241,7 +241,7 @@ public class RascalLanguageServices {
     public PathConfig getPathConfig(IProject prj) {
     	try {
     		if (prj != null) {
-    			return new ProjectConfig(IRascalValueFactory.getInstance()).getPathConfig(prj);
+    			return new ProjectPathConfig(IRascalValueFactory.getInstance()).getPathConfig(prj);
     		}
     	} catch (IOException e) {
     		Activator.log("could not create proper path config, defaulting", e);
