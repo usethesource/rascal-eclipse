@@ -11,10 +11,7 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -36,12 +33,12 @@ import io.usethesource.vallang.io.StandardTextReader;
  * ProjectConfig is a builder to produce a proper Rascal PathConfig for an Eclipse project.
  * This is not yet complete.
  */
-public class ProjectConfig {
+public class ProjectPathConfig {
     public static final String BIN_FOLDER = "bin";
     public static final String MVN_TARGET_FOLDER = "target";
     private final IValueFactory vf;
     
-    public ProjectConfig(IValueFactory vf) {
+    public ProjectPathConfig(IValueFactory vf) {
         this.vf = vf;
     }
     
@@ -57,13 +54,11 @@ public class ProjectConfig {
         
         // we special-case the rascal project for bootstrapping purposes (avoiding confusing between source and bootstrapped library)
         if (!isRascalBootstrapProject(project)) {
-            // TODO: this needs to be configured elsewhere
-            libsWriter.append(URIUtil.correctLocation("std", "", ""));
-//            libsWriter.append(URIUtil.correctLocation("stdlib", "", "")); // TODO: should replace the previous later
-            libsWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
+            libsWriter.append(URIUtil.correctLocation("lib", "rascal", ""));
+            libsWriter.append(URIUtil.correctLocation("lib", "rascal_eclipse", ""));
         }
         
-        // These are jar files which make contain compiled Rascal code to link to:
+        // These are jar files which make contain compiled Rascal code to link to, but also installed libraries and plugins
         for (String lib : manifest.getRequiredLibraries(project)) {
             if (lib.startsWith("|")) {
                 libsWriter.append(new StandardTextReader().read(vf, new StringReader(lib)));
@@ -77,7 +72,6 @@ public class ProjectConfig {
             coursesWriter.append(URIUtil.getChildLocation(projectLoc, course));
         }
         
-        // These are other projects referenced by the current project for which we add
         // the bin folder to the lib path
         try {
             if (!isRascalBootstrapProject(project)) {
@@ -86,47 +80,31 @@ public class ProjectConfig {
                     libsWriter.append(child);
                 }
             }
-
-            
-            //TODO add required libraries of referenced projects as well.
         }
         catch (CoreException e) {
             Activator.log(e.getMessage(), e);
         }
         
-        
         for (String srcName : manifest.getSourceRoots(project)) {
             ISourceLocation src = URIUtil.getChildLocation(projectLoc, srcName);
             srcsWriter.append(src);
         }
+
+        String binFolder = BIN_FOLDER;
         
-        // TODO this is necessary while the kernel does not hold a compiled standard library, so remove later:
-        // We special-case the rascal project for bootstrapping purposes (avoiding confusing between source and bootstrapped library)
-        if (!isRascalBootstrapProject(project)) {
-            srcsWriter.append(URIUtil.correctLocation("std", "", "")); // TODO should be removed later
-            srcsWriter.append(URIUtil.correctLocation("plugin", "rascal_eclipse", "/src/org/rascalmpl/eclipse/library"));
+        try {
+            if (project.hasNature(JavaCore.NATURE_ID)) {
+                IJavaProject jProject = JavaCore.create(project);
+                binFolder = jProject.getOutputLocation().toOSString();
+            }
+        } catch (CoreException e) {
+            Activator.log("could not find output location", e);
         }
 
-        if (!isRascalBootstrapProject(project)) {
-        	// we also add libraries, but they don't have a bin yet, so we add them to the source folder
-        	IExtensionPoint extensionPoint = Platform.getExtensionRegistry()
-        			.getExtensionPoint("rascal_eclipse", "rascalLibrary");
-        	if (extensionPoint != null) {
-        		for (IExtension element : extensionPoint.getExtensions()) {
-        			String name = element.getContributor().getName();
-        			Bundle bundle = Platform.getBundle(name);
-        			List<String> roots = new RascalEclipseManifest().getSourceRoots(bundle);
-        			for (String root : roots) {
-        				srcsWriter.append(URIUtil.correctLocation("plugin", bundle.getSymbolicName(), "/" + root));
-        			}
-        		}
-        	} 
-        }
-        
-        ISourceLocation bin = URIUtil.getChildLocation(projectLoc, BIN_FOLDER);
-        ISourceLocation boot = URIUtil.correctLocation("boot", "", "");
-        
+        ISourceLocation bin = URIUtil.getChildLocation(projectLoc, binFolder);
         libsWriter.insert(bin);
+
+        ISourceLocation boot = URIUtil.correctLocation("boot", "", "");
         
         // Here we find out what the compiler class path must be for compiling generated Rascal parsers
         // and we construct a class path for the JavaBridge to load java builtins
@@ -144,19 +122,18 @@ public class ProjectConfig {
             }
            
             collectPathForProject(project, javaCompilerPath, classloaders);
-            
-            return new PathConfig(
-                    srcsWriter.done(), 
-                    libsWriter.done(), 
-                    bin, 
-                    boot, 
-                    coursesWriter.done(), 
-                    vf.list(javaCompilerPath.toArray(new IValue[0])), 
-                    vf.list(classloaders.toArray(new IValue[0])));
-
         } catch (URISyntaxException | CoreException e) {
             throw new IOException(e);
         } 
+        
+        return new PathConfig(
+                srcsWriter.done(), 
+                libsWriter.done(), 
+                bin, 
+                boot, 
+                coursesWriter.done(), 
+                vf.list(javaCompilerPath.toArray(new IValue[0])), 
+                vf.list(classloaders.toArray(new IValue[0])));
     }
 
     private boolean isRascalBootstrapProject(IProject project) {
