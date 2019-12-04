@@ -102,7 +102,9 @@ public class RascalLanguageServices {
                 }
                 
                 synchronized (eval) {
-                    return (IConstructor) eval.call("makeSummary", vf.string(pcfg.getModuleName(occ)), pcfg.asConstructor());
+                    IConstructor result = (IConstructor) eval.call("makeSummary", vf.string(pcfg.getModuleName(occ)), pcfg.asConstructor());
+
+                    return result != null && result.asWithKeywordParameters().hasParameters() ? result : null;
                 }
     		}
     		catch (Throwable e) {
