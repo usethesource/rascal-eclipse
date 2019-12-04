@@ -39,16 +39,21 @@ public class PluginURIResolver extends BundleURIResolver implements IClassloader
 				throw new IOException("missing authority for bundle name in " + uri);
 			}
 			
+			if (!Platform.isRunning()) {
+			    throw new IOException("platform is not running for " + uri);
+			}
+			
 			Bundle bundle = Platform.getBundle(authority);
 			if (bundle == null) {
-				throw new FileNotFoundException("plugin://" + authority);
+			    throw new FileNotFoundException("plugin://" + authority);
 			}
-			
+
 			URL entry = bundle.getEntry(uri.getPath());
 			if (entry == null) {
-				throw new FileNotFoundException(uri.toString());
+			    throw new FileNotFoundException(uri.toString());
 			}
-			
+
+
 			return super.resolve(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.fromURL(entry)));
 		} catch (URISyntaxException e) {
 			throw new IOException(e);
@@ -57,12 +62,16 @@ public class PluginURIResolver extends BundleURIResolver implements IClassloader
 
     @Override
     public ClassLoader getClassLoader(ISourceLocation loc, ClassLoader parent) throws IOException {
-        Bundle bundle = Platform.getBundle(loc.getAuthority());
+        if (!Platform.isRunning()) {
+            throw new IOException("platform is not running");
+        }
         
+        Bundle bundle = Platform.getBundle(loc.getAuthority());
+
         if (bundle == null) {
             throw new IOException("Bundle " + loc + " not found");
         }
-        
+
         // note how the parent parameter is ignored here to make sure bundles
         // do not interact with each other
         return new BundleClassLoader(bundle);
