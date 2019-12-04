@@ -19,15 +19,14 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
-import org.rascalmpl.eclipse.editor.RascalLanguageServices;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
+import org.rascalmpl.eclipse.editor.RascalLanguageServices;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectPathConfig;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
-import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
+import org.rascalmpl.eclipse.util.RascalProgressMonitor;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -109,19 +108,22 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 	    IProject project = getProject();
 	    
-        if (project != null) {
-            switch (kind) {
-            case INCREMENTAL_BUILD:
-            case AUTO_BUILD:
-                buildIncremental(getDelta(project), monitor);
-                break;
-            case FULL_BUILD:
-                buildWholeProject(monitor);
-                break;
-            }
-        }
-
-        monitor.done();
+	    try {
+	        if (project != null) {
+	            switch (kind) {
+	            case INCREMENTAL_BUILD:
+	            case AUTO_BUILD:
+	                buildIncremental(getDelta(project), monitor);
+	                break;
+	            case FULL_BUILD:
+	                buildWholeProject(monitor);
+	                break;
+	            }
+	        }
+	    } finally {
+	        monitor.done();
+	    }
+	    
 	    // TODO: return project this project depends on?
 		return new IProject[0];
 	}
@@ -179,73 +181,20 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     }
 	
 	private IList compileAll(IProgressMonitor monitor, ISourceLocation src, PathConfig pcfg) {
-	    return RascalLanguageServices.getInstance().compileAll(new RascalProgressMonitor(monitor), src, pcfg);
+	    return RascalLanguageServices.getInstance().compileAll(new CancelableProgressMonitor(monitor), src, pcfg);
     }
 	
-    private final class RascalProgressMonitor implements IRascalMonitor {
-        private final IProgressMonitor monitor;
-
-        private RascalProgressMonitor(IProgressMonitor monitor) {
-            this.monitor = monitor;
+	private final class CancelableProgressMonitor extends RascalProgressMonitor {
+        public CancelableProgressMonitor(IProgressMonitor monitor) {
+            super(monitor);
         }
-
-        @Override
-        public void startJob(String name) {
-            monitor.beginTask(name, -1);
-        }
-
-        @Override
-        public void startJob(String name, int totalWork) {
-            monitor.beginTask(name, totalWork);
-        }
-
-        @Override
-        public void startJob(String name, int workShare, int totalWork) {
-            monitor.beginTask(name, totalWork);
-        }
-
-        @Override
-        public void event(String name) {
-            monitor.subTask(name);
-        }
-
-        @Override
-        public void event(String name, int inc) {
-            monitor.subTask(name);
-            monitor.worked(inc);
-        }
-
-        @Override
-        public void event(int inc) {
-            monitor.worked(inc);
-        }
-
-        @Override
-        public int endJob(boolean succeeded) {
-            monitor.done();
-            return -1;
-        }
-
-        @Override
-        public boolean isCanceled() {
-            return monitor.isCanceled() || isInterrupted();
-        }
-
-        @Override
-        public void todo(int work) {
-            
-        }
-
-        @Override
-        public void warning(String message, ISourceLocation src) {
-            try {
-                ThreadSafeImpulseConsole.INSTANCE.getWriter().write(src + ":" + message + "\n");
-            } catch (IOException e) {
-                Activator.log("failed to print warning", e);
-            }
-        }
-    }
-
+	    
+	    @Override
+	    public boolean isCanceled() {
+	        return super.isCanceled() || isInterrupted();
+	    }
+	}
+	
     private static class ModuleWork {
 	    public IFile file;
 	    
