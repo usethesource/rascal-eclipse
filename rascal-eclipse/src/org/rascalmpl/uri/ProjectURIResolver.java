@@ -170,11 +170,7 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	public boolean exists(ISourceLocation uri) {
 		try {
 			return resolve(uri).exists();
-		} catch (MalformedURLException e) {
-			return false;
-		} catch (IOException e) {
-			return false;
-		} catch (AssertionFailedException e) {
+		} catch (IllegalStateException | IOException | AssertionFailedException e) {
 			return false;
 		}
 	}
@@ -183,9 +179,7 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	public boolean isDirectory(ISourceLocation uri) {
 		try {
 			return resolveFolder(uri).exists();
-		} catch (MalformedURLException e) {
-			return false;
-		} catch (IOException e) {
+		} catch (IllegalStateException | IOException | AssertionFailedException e) {
 			return false;
 		}
 	}
@@ -193,9 +187,7 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	public boolean isFile(ISourceLocation uri) {
 		try {
 			return resolveFile(uri).exists();
-		} catch (MalformedURLException e) {
-			return false;
-		} catch (IOException e) {
+		} catch (IllegalStateException | IOException | AssertionFailedException e) {
 			return false;
 		}
 	}
@@ -204,9 +196,7 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	public long lastModified(ISourceLocation uri) {
 		try {
 			return resolve(uri).getLocalTimeStamp();
-		} catch (MalformedURLException e) {
-			return 0L;
-		} catch (IOException e) {
+		} catch (IllegalStateException | IOException | AssertionFailedException e) {
 			return 0L;
 		}
 	}
