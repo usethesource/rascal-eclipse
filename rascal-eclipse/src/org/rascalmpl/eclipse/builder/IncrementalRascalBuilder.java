@@ -52,7 +52,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     
     private ISourceLocation projectLoc;
     private PathConfig pathConfig;
-
+    
     public IncrementalRascalBuilder() {
         
     }
