@@ -25,7 +25,7 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.editor.RascalLanguageServices;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
-import org.rascalmpl.eclipse.util.ProjectConfig;
+import org.rascalmpl.eclipse.util.ProjectPathConfig;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.library.util.PathConfig;
@@ -91,7 +91,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         IProject project = getProject();
         
         if (project != null) {
-            project.findMember(ProjectConfig.BIN_FOLDER).accept(new IResourceVisitor() {
+            project.findMember(ProjectPathConfig.BIN_FOLDER).accept(new IResourceVisitor() {
                 @Override
                 public boolean visit(IResource resource) throws CoreException {
                     if (binaryExtension.contains(resource.getFileExtension())) {
@@ -121,6 +121,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             }
         }
 
+        monitor.done();
 	    // TODO: return project this project depends on?
 		return new IProject[0];
 	}
@@ -227,7 +228,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 
         @Override
         public boolean isCanceled() {
-            return monitor.isCanceled();
+            return monitor.isCanceled() || isInterrupted();
         }
 
         @Override
@@ -314,10 +315,10 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
                 return false;
             }
             
-            return !ProjectConfig.BIN_FOLDER.equals(path.toPortableString())
+            return !ProjectPathConfig.BIN_FOLDER.equals(path.toPortableString())
                 // if a duplicate bin folder from maven exists, don't recurse into it:
                 // this is brittle, but it saves a lot of time waiting for unnecessary compilation:
-                && !ProjectConfig.MVN_TARGET_FOLDER.equals(path.toPortableString());    
+                && !ProjectPathConfig.MVN_TARGET_FOLDER.equals(path.toPortableString());    
         }
     }
 
