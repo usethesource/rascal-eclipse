@@ -95,7 +95,7 @@ public class ProjectPathConfig {
         try {
             if (project.hasNature(JavaCore.NATURE_ID)) {
                 IJavaProject jProject = JavaCore.create(project);
-                binFolder = jProject.getOutputLocation().toOSString();
+                binFolder = jProject.getOutputLocation().removeFirstSegments(1).toOSString();
             }
         } catch (CoreException e) {
             Activator.log("could not find output location", e);
@@ -104,36 +104,14 @@ public class ProjectPathConfig {
         ISourceLocation bin = URIUtil.getChildLocation(projectLoc, binFolder);
         libsWriter.insert(bin);
 
-        ISourceLocation boot = URIUtil.correctLocation("boot", "", "");
-        
-        // Here we find out what the compiler class path must be for compiling generated Rascal parsers
-        // and we construct a class path for the JavaBridge to load java builtins
-        List<ISourceLocation> javaCompilerPath = new ArrayList<>();
-        List<ISourceLocation> classloaders = new ArrayList<>();
-      
-        try {
-            Bundle rascalBundle = Activator.getInstance().getBundle();
-            
-            if (!isRascalBootstrapProject(project)) {
-                URL entry = FileLocator.toFileURL(rascalBundle.getEntry("lib/rascal.jar"));
-                ISourceLocation loc = vf.sourceLocation(URIUtil.fromURL(entry));
-				javaCompilerPath.add(loc);
-                classloaders.add(loc);
-            }
-           
-            collectPathForProject(project, javaCompilerPath, classloaders);
-        } catch (URISyntaxException | CoreException e) {
-            throw new IOException(e);
-        } 
-        
         return new PathConfig(
                 srcsWriter.done(), 
                 libsWriter.done(), 
                 bin, 
-                boot, 
+                URIUtil.correctLocation("boot", "", ""), 
                 coursesWriter.done(), 
-                vf.list(javaCompilerPath.toArray(new IValue[0])), 
-                vf.list(classloaders.toArray(new IValue[0])));
+                vf.list(),  // TODO compiler path for when code actually has to be compiled
+                vf.list()); // TODO classloader path for when the compiled code must run
     }
 
     private boolean isRascalBootstrapProject(IProject project) {
