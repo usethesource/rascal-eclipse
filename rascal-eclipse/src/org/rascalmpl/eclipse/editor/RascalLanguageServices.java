@@ -114,7 +114,7 @@ public class RascalLanguageServices {
     	});
      }
     
-    public IList compileAll(IRascalMonitor monitor, ISourceLocation folder, PathConfig pcfg) {
+    public IList compileFolder(IRascalMonitor monitor, ISourceLocation folder, PathConfig pcfg) {
         try {
             Evaluator eval = compilerEvaluator.get();
             
@@ -132,7 +132,7 @@ public class RascalLanguageServices {
         }
     }
     
-    public IList compileAll(IRascalMonitor monitor, IList files, PathConfig pcfg) {
+    public IList compileFileList(IRascalMonitor monitor, IList files, PathConfig pcfg) {
         try {
             Evaluator eval = compilerEvaluator.get();
            
