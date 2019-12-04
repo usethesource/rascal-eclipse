@@ -177,11 +177,11 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	}
 
 	private IList compileAll(IProgressMonitor monitor, IList files, PathConfig pcfg) {
-	    return RascalLanguageServices.getInstance().compileAll(new RascalProgressMonitor(monitor), files, pcfg); 
+	    return RascalLanguageServices.getInstance().compileFileList(new RascalProgressMonitor(monitor), files, pcfg); 
     }
 	
 	private IList compileAll(IProgressMonitor monitor, ISourceLocation src, PathConfig pcfg) {
-	    return RascalLanguageServices.getInstance().compileAll(new CancelableProgressMonitor(monitor), src, pcfg);
+	    return RascalLanguageServices.getInstance().compileFolder(new CancelableProgressMonitor(monitor), src, pcfg);
     }
 	
 	private final class CancelableProgressMonitor extends RascalProgressMonitor {
