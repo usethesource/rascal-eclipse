@@ -33,7 +33,7 @@ import io.usethesource.vallang.IValue;
  * "doc" which is a string.
  */
 public class DocumentationProvider  implements IDocumentationProvider {
-    private static final IDEServicesModelProvider imp = IDEServicesModelProvider.getInstance();
+    private static final RascalLanguageServices imp = RascalLanguageServices.getInstance();
     
 	public String getDocumentation(Object target,
 			IParseController parseController) {
@@ -56,7 +56,7 @@ public class DocumentationProvider  implements IDocumentationProvider {
 	    	ParseController rascalPc = (ParseController) parseController;
 	    	ISourceProject rprj = rascalPc.getProject();
 	    	IProject prj = rprj != null ? rprj.getRawProject() : null;
-	    	PathConfig pcfg = IDEServicesModelProvider.getInstance().getPathConfig(prj);
+	    	PathConfig pcfg = RascalLanguageServices.getInstance().getPathConfig(prj);
 
 	    	StringBuffer b = new StringBuffer();
 	    	
