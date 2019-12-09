@@ -301,5 +301,6 @@ Bundle-ClassPath: .,
  lib/rascal.jar,
  lib/asciidoctor.jar,
  lib/jcommander.jar,
- lib/jruby.jar
+ lib/jruby.jar,
+ lib/websocket.jar
 Automatic-Module-Name: rascal_eclipse
