@@ -128,6 +128,7 @@ public class XtermView extends ViewPart {
                             }
                         }
                         
+                        // TODO: bundle these two servers in a wrapper
                         for (int port = server.getPort(); port < BASE_PORT+ATTEMPTS; port++){
                             try {
                                 wsServer = new XtermWebsocketServer(port);
