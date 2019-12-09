@@ -47,7 +47,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.EditorUtil;
-import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
+import org.rascalmpl.eclipse.editor.RascalLanguageServices;
 import org.rascalmpl.eclipse.repl.EclipseIDEServices;
 import org.rascalmpl.help.HelpManager;
 import org.rascalmpl.library.util.PathConfig;
@@ -92,7 +92,7 @@ public class TutorPreview extends ViewPart {
     }
 
 	private static URL getConceptPage(IFile concept) throws IOException, URISyntaxException {
-	    PathConfig pcfg = IDEServicesModelProvider.getInstance().getPathConfig(concept.getProject());
+	    PathConfig pcfg = RascalLanguageServices.getInstance().getPathConfig(concept.getProject());
         HelpManager m = getHelpManager(pcfg, concept.getProject());
         m.refreshIndex(); // TODO pretty expensive but always up-to-date
         return Builder.getConceptURL("http", "localhost:" + m.getPort(), pcfg, concept);

@@ -12,7 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.outline;
 
-import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
+import org.rascalmpl.eclipse.editor.RascalLanguageServices;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.INode;
@@ -24,7 +24,7 @@ public class TreeModelBuilder extends org.rascalmpl.eclipse.terms.TreeModelBuild
 	    if (root == null) {
 	        return;
 	    }
-	    INode model = IDEServicesModelProvider.getInstance().getOutline((IConstructor) root);
+	    INode model = RascalLanguageServices.getInstance().getOutline((IConstructor) root);
 	    convertModel(model);
 	}
 }

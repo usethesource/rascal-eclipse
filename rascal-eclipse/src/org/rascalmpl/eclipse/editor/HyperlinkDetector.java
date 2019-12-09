@@ -46,7 +46,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
     private static final TypeFactory tf = TypeFactory.getInstance();
     private static final Type linksRelType1 = tf.relType(tf.sourceLocationType(), tf.sourceLocationType());
     private static final Type linksRelType2 = tf.relType(tf.sourceLocationType(), tf.sourceLocationType(), tf.stringType());
-    private static final IDEServicesModelProvider imp = IDEServicesModelProvider.getInstance();
+    private static final RascalLanguageServices imp = RascalLanguageServices.getInstance();
     
     private static ISourceLocation getLocation(ITree t, IParseController controller) {
     	if (t.isAnnotatable()) {
@@ -87,7 +87,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		    ParseController rascalPc = (ParseController) parseController;
 		    ISourceProject rprj = rascalPc.getProject();
 		    IProject prj = rprj != null ? rprj.getRawProject() : null;
-		    PathConfig pcfg = IDEServicesModelProvider.getInstance().getPathConfig(prj);
+		    PathConfig pcfg = RascalLanguageServices.getInstance().getPathConfig(prj);
 
 		    ISet useDef = imp.getUseDef(rootLocation, pcfg, rascalPc.getModuleName());
 

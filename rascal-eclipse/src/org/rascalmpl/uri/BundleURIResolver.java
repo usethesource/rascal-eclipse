@@ -29,6 +29,7 @@ public class BundleURIResolver implements  ISourceLocationInputOutput {
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append)
 			throws IOException {
 		ISourceLocation parent = resolve(URIUtil.getParentLocation(uri));
+		// TODO: why twice resolve?
 		parent = resolve(parent);
 		return URIResolverRegistry.getInstance().getOutputStream(URIUtil.getChildLocation(parent, URIUtil.getLocationName(uri)), append);
 	}
@@ -36,6 +37,7 @@ public class BundleURIResolver implements  ISourceLocationInputOutput {
 	@Override
 	public void mkDirectory(ISourceLocation uri) throws IOException {
 		ISourceLocation parent = resolve(URIUtil.getParentLocation(uri));
+		// TODO: why twice resolve?
 		parent = resolve(parent);
 		URIResolverRegistry.getInstance().mkDirectory(URIUtil.getChildLocation(parent, URIUtil.getLocationName(uri)));
 	}

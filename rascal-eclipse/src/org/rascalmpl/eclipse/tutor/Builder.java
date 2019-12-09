@@ -29,9 +29,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.JavaModelException;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.eclipse.editor.IDEServicesModelProvider;
+import org.rascalmpl.eclipse.editor.RascalLanguageServices;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
-import org.rascalmpl.eclipse.util.ProjectConfig;
+import org.rascalmpl.eclipse.util.ProjectPathConfig;
 import org.rascalmpl.library.lang.rascal.tutor.CourseCompiler;
 import org.rascalmpl.library.lang.rascal.tutor.TutorCommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
@@ -53,7 +53,7 @@ public class Builder extends IncrementalProjectBuilder {
 
     private PathConfig getPathConfig(IResource resource) {
         if (cachedConfig == null) {
-            cachedConfig = IDEServicesModelProvider.getInstance().getPathConfig(resource.getProject());
+            cachedConfig = RascalLanguageServices.getInstance().getPathConfig(resource.getProject());
         }
          
         return cachedConfig;
@@ -148,10 +148,10 @@ public class Builder extends IncrementalProjectBuilder {
                 return false;
             }
             
-            return !ProjectConfig.BIN_FOLDER.equals(path.toPortableString())
+            return !ProjectPathConfig.BIN_FOLDER.equals(path.toPortableString())
                 // if a duplicate bin folder from maven exists, don't recurse into it:
                 // this is brittle, but it saves a lot of time waiting for unnecessary compilation:
-                && !ProjectConfig.MVN_TARGET_FOLDER.equals(path.toPortableString());    
+                && !ProjectPathConfig.MVN_TARGET_FOLDER.equals(path.toPortableString());    
         }
     }
     
