@@ -3,11 +3,14 @@
 
 <link rel="stylesheet" href="/xterm.css">
 <script src="/xterm.js"></script>
+<script src="/AttachAddon.js"></script>
 
 <body>
 	<div id="xterm-container"></div>
 	<script>
 		var term = new Terminal();
+		var attachAddon = new AttachAddon('wss://localhost:9789');
+		terminal.loadAddon(attachAddon);
 		term.open(document.getElementById('xterm-container'));
 	</script>
 </body>

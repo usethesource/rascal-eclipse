@@ -27,6 +27,7 @@ public class XtermView extends ViewPart {
     private Browser browser;
     private volatile String mainLocation;
     private XtermServer server;
+    private XtermWebsocketServer wsServer;
     private Object lock = new Object();
     
     private final int BASE_PORT = 9787;
@@ -100,6 +101,7 @@ public class XtermView extends ViewPart {
 
     private class StarterJob extends Job {
 
+
         public StarterJob() {
             super("Starting xterm");
         }
@@ -125,6 +127,21 @@ public class XtermView extends ViewPart {
                                 continue;
                             }
                         }
+                        
+                        for (int port = server.getPort(); port < BASE_PORT+ATTEMPTS; port++){
+                            try {
+                                wsServer = new XtermWebsocketServer(port);
+                                wsServer.start();
+                                // success!
+                                break;
+                            }
+                            catch (Throwable e) {
+                                Activator.log("Debug: fail to start websocket", e);
+                                // failure is expected if the port is taken
+                                continue;
+                            }
+                        }
+                        
 
                         if (server == null) {
                             throw new IOException("Could not find port to run help server on");
