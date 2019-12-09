@@ -149,18 +149,6 @@ public class RascalXtermConnector implements XtermConnector {
             tm = new XtermTerminal(control, this);
         }
         return tm;
-        
-//        vtControl.setVT100LineWrapping(false);
-//        VT100Emulator text = vtControl.getTerminalText();
-//        text.setCrAfterNewLine(true);
-//        vtControl.setConnectOnEnterIfClosed(false);
-//        vtControl.setBufferLineLimit(10_000);
-//        try {
-//          control.setEncoding(StandardCharsets.UTF_8.name());
-//        }
-//        catch (UnsupportedEncodingException e) {
-//          throw new RuntimeException("UTF8 not available???", e);
-//        }
     }
     
     public void setFocus() {
