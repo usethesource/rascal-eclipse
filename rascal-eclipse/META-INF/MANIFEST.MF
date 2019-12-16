@@ -31,7 +31,8 @@ Require-Bundle:
  org.eclipse.tm.terminal.view.core,
  org.eclipse.tm.terminal.view.ui,
  org.eclipse.swt,
- org.eclipse.tm.terminal.connector.process
+ org.eclipse.tm.terminal.connector.process,
+ org.slf4j.api;bundle-version="1.7.2"
 Export-Package: io.usethesource.vallang,
  io.usethesource.vallang.exceptions,
  io.usethesource.vallang.impl.persistent,
