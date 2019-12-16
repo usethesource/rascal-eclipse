@@ -117,6 +117,11 @@ public class BundleURIResolver implements  ISourceLocationInputOutput {
 	}
 
 	@Override
+	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
+        URIResolverRegistry.getInstance().setLastModified(resolve(uri), timestamp);
+	}
+	
+	@Override
 	public String[] list(ISourceLocation uri) throws IOException {
 		return URIResolverRegistry.getInstance().listEntries(resolve(uri));
 	}
