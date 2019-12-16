@@ -200,6 +200,15 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 			return 0L;
 		}
 	}
+	
+	@Override
+	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
+	    try {
+            resolve(uri).setLocalTimeStamp(timestamp);
+        } catch (CoreException e) {
+            throw new IOException(e.getMessage());
+        }
+	}
 
 	@Override
 	public String[] list(ISourceLocation uri) throws IOException {
