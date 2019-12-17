@@ -13,7 +13,7 @@
 package org.rascalmpl.uri;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,7 +32,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -80,8 +79,11 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	    
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		
-		if (project == null) {
+		if (project == null || !project.exists()) {
 			throw new IOException("project " + uri.getAuthority() + " does not exist");
+		}
+		else if (!project.isOpen()) {
+		    throw new IOException("project " + uri.getAuthority() + " is closed");
 		}
 		
 		return project.getFile(new Path(uri.getPath()));
@@ -135,31 +137,24 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	}
 	
 	public OutputStream getOutputStream(final ISourceLocation uri, boolean append) throws IOException {
-		try {
-			IFile file = resolveFile(uri);
-			
-			// this is necessary to also flush possible parent folders to disk first
-			if (!file.exists()) {
-				file.create(new ByteArrayInputStream(new byte[0]), true, new NullProgressMonitor());
-			}
-			
-			
-			// if the above is not done, then the parent folder does not exist.
-			return new FileOutputStream(file.getRawLocation().toOSString(), append) {
-				@Override
-				public void close() throws IOException {
-					super.close();
-					try {
-						file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-					} catch (CoreException e) {
-						Activator.getInstance().logException("could not refresh " + uri, e);
-					}
-				}
-			};
-		}
-		catch (CoreException e) {
-			throw new IOException(e);
-		}
+	    final IFile file = resolveFile(uri);
+	    final ByteArrayOutputStream out = new ByteArrayOutputStream(256) {
+	        public void close() throws IOException {
+	            try {
+	                if (file.exists()) {
+	                    file.setContents(new ByteArrayInputStream(toByteArray()), true, true, new NullProgressMonitor());
+	                }
+	                else {
+	                    file.create(new ByteArrayInputStream(toByteArray()),true, new NullProgressMonitor());
+	                }
+	            } catch (CoreException e) {
+	                throw new IOException(e);
+	            }
+	        };
+	    };
+	    
+	    // allow client to start writing on the current thread
+	    return out;
 	}
 
 	public String scheme() {

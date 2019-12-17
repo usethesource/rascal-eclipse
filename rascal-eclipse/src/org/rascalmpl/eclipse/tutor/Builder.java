@@ -68,8 +68,7 @@ public class Builder extends IncrementalProjectBuilder {
     }
     
     @Override
-    protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor)
-            throws CoreException {
+    protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor)  throws CoreException {
         if (RascalPreferences.conceptCompilerEnabled()) {
             IProject project = getProject();
 
