@@ -177,7 +177,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	}
 
 	private IList compileAll(IProgressMonitor monitor, IList files, PathConfig pcfg) {
-	    return RascalLanguageServices.getInstance().compileFileList(new RascalProgressMonitor(monitor), files, pcfg); 
+	    return RascalLanguageServices.getInstance().compileFileList(new CancelableProgressMonitor(monitor), files, pcfg); 
     }
 	
 	private IList compileAll(IProgressMonitor monitor, ISourceLocation src, PathConfig pcfg) {

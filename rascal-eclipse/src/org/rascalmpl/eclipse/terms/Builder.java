@@ -95,7 +95,14 @@ public class Builder extends BuilderBase {
 		try {
 			ICallableValue parser = registry.getParser(lang);
 			evalForErrors = parser.getEval();
-			RascalMonitor rmonitor = new RascalMonitor(monitor, warnings);
+			RascalMonitor rmonitor = new RascalMonitor(monitor, warnings) {
+			    @Override
+			    public boolean isCanceled() {
+			        // makes compilation processes interuptible by the next build
+			        return super.isCanceled() || isInterrupted();
+			    }  
+			};
+			
 			IValueFactory VF = parser.getEval().getValueFactory();
 			ISourceProject project = ModelFactory.open(file.getProject());
 			ISourceLocation loc = ProjectURIResolver.constructProjectURI(project.getRawProject(), file.getProjectRelativePath());
