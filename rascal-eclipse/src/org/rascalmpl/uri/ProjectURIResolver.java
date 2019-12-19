@@ -137,33 +137,31 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 		throw new IOException(uri+" refers to a resource that does not exist.");
 	}
 	
+    private static final boolean keepHistory = false;
+    private static final boolean forceRegardLessOutOfSync = true;
+
 	public OutputStream getOutputStream(final ISourceLocation uri, boolean append) throws IOException {
 	    final IFile file = resolveFile(uri);
 
+	    try {
+	        // clear or create the file if needed
+    	    if (!file.exists()) {
+                file.create(new ByteArrayInputStream(new byte[0]), forceRegardLessOutOfSync, new NullProgressMonitor());
+            }
+            else if (!append) {
+                file.setContents(new ByteArrayInputStream(new byte[0]), keepHistory, forceRegardLessOutOfSync, new NullProgressMonitor());
+            }
+	    }
+	    catch (CoreException e) {
+	        throw new IOException(e);
+	    }
+	    
 	    return new OutputStream() {
-            private static final boolean keepHistory = false;
-            private static final boolean forceRegardLessOutOfSync = true;
-            private boolean firstWrite = true;
             
 	        @Override
 	        public void write(byte[] b, int off, int len) throws IOException {
-	            NullProgressMonitor npm = new NullProgressMonitor();
-	            
 	            try {
-                    if (firstWrite) {
-	                    firstWrite = false;
-	                    
-	                    if (!file.exists()) {
-	                        file.create(new ByteArrayInputStream(b, off, len), forceRegardLessOutOfSync, npm);
-	                        return;
-	                    }
-	                    else if (!append) {
-	                        file.setContents(new ByteArrayInputStream(b, off, len), keepHistory, forceRegardLessOutOfSync, npm);
-	                        return;
-	                    }
-	                }
-	                
-	                file.appendContents(new ByteArrayInputStream(b, off, len), keepHistory, forceRegardLessOutOfSync, npm);
+                    file.appendContents(new ByteArrayInputStream(b, off, len), keepHistory, forceRegardLessOutOfSync, new NullProgressMonitor());
 	            } catch (CoreException e) {
 	                throw new IOException(e);
 	            }
