@@ -67,6 +67,14 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	
 	@Override
 	public ISchedulingRule getRule(int kind, Map<String, String> args) {
+	    if (pathConfig == null) {
+	        try {
+                initializeParameters(false);
+            } catch (CoreException e) {
+                Activator.log("failed to initialize builder", e);
+            }
+	    }
+	    
 	    if (pathConfig != null) {
 	        return URIResourceResolver.getResource(pathConfig.getBin());
 	    }
