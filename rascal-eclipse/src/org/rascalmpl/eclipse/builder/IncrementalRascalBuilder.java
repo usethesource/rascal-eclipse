@@ -79,7 +79,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	        return URIResourceResolver.getResource(pathConfig.getBin());
 	    }
 	    else {
-	        return SchedulingRules.getRascalProjectsRule();
+	        return SchedulingRules.getRascalProjectBinFolderRule(getProject());
 	    }
 	}
 

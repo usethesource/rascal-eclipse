@@ -70,7 +70,7 @@ public class Builder extends BuilderBase {
 
 	@Override
     public ISchedulingRule getRule(int kind, Map<String, String> args) {
-	    return SchedulingRules.getRascalProjectsRule();
+	    return SchedulingRules.getRascalProjectBinFolderRule(getProject());
     }
 	
     @Override

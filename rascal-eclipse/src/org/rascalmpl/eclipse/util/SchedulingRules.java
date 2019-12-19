@@ -9,11 +9,19 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 
 public class SchedulingRules {
+    public static ISchedulingRule getRascalProjectBinFolderRule(IProject project) {
+        if (project != null && project.isOpen()) {
+            return getBinFolder(project);
+        }
+        else {
+            return getRascalProjectsRule();
+        }
+    }
+    
     public static ISchedulingRule getRascalProjectsRule() {
         return new MultiRule(Arrays.stream(ResourcesPlugin.getWorkspace().getRoot().getProjects())
                 .filter(SchedulingRules::isOpenRascalProject)
@@ -23,11 +31,15 @@ public class SchedulingRules {
     
     private static IResource getBinFolder(IProject p) {
         try {
-            return p.getFolder(JavaCore.create(p).getOutputLocation());
-        } catch (JavaModelException e) {
-            Activator.log("could not get bin folder", e);
-            return p;
+            if (p.hasNature(JavaCore.NATURE_ID)) {
+                return p.getFolder(JavaCore.create(p).getOutputLocation());
+            } 
         }
+        catch (CoreException e) {
+            Activator.log("could not get bin folder", e);
+        }
+
+        return p;
     }
 
     private static boolean isOpenRascalProject(IProject p) {

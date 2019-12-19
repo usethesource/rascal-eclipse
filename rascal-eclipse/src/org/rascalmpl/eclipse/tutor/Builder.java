@@ -67,7 +67,7 @@ public class Builder extends IncrementalProjectBuilder {
             return URIResourceResolver.getResource(cachedConfig.getBin());
         }
         
-        return SchedulingRules.getRascalProjectsRule();
+        return SchedulingRules.getRascalProjectBinFolderRule(getProject());
     }
 
     private static Path loc2path(ISourceLocation loc) {
