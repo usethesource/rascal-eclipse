@@ -13,7 +13,6 @@
 package org.rascalmpl.uri;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,7 +37,9 @@ import io.usethesource.vallang.ISourceLocation;
 
 public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResourceResolver {
 	
-	public static ISourceLocation constructProjectURI(IProject project, IPath path){
+	
+
+    public static ISourceLocation constructProjectURI(IProject project, IPath path){
 		return constructProjectURI(project.getName(), path);
 	}
 
@@ -138,23 +139,41 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	
 	public OutputStream getOutputStream(final ISourceLocation uri, boolean append) throws IOException {
 	    final IFile file = resolveFile(uri);
-	    final ByteArrayOutputStream out = new ByteArrayOutputStream(256) {
-	        public void close() throws IOException {
+
+	    return new OutputStream() {
+            private static final boolean keepHistory = false;
+            private static final boolean forceRegardLessOutOfSync = true;
+            private boolean firstWrite = true;
+            
+	        @Override
+	        public void write(byte[] b, int off, int len) throws IOException {
+	            NullProgressMonitor npm = new NullProgressMonitor();
+	            
 	            try {
-	                if (file.exists()) {
-	                    file.setContents(new ByteArrayInputStream(toByteArray()), true, true, new NullProgressMonitor());
+                    if (firstWrite) {
+	                    firstWrite = false;
+	                    
+	                    if (!file.exists()) {
+	                        file.create(new ByteArrayInputStream(b, off, len), forceRegardLessOutOfSync, npm);
+	                        return;
+	                    }
+	                    else if (!append) {
+	                        file.setContents(new ByteArrayInputStream(b, off, len), keepHistory, forceRegardLessOutOfSync, npm);
+	                        return;
+	                    }
 	                }
-	                else {
-	                    file.create(new ByteArrayInputStream(toByteArray()),true, new NullProgressMonitor());
-	                }
+	                
+	                file.appendContents(new ByteArrayInputStream(b, off, len), keepHistory, forceRegardLessOutOfSync, npm);
 	            } catch (CoreException e) {
 	                throw new IOException(e);
 	            }
-	        };
-	    };
-	    
-	    // allow client to start writing on the current thread
-	    return out;
+	        }
+	        
+            @Override
+            public void write(int b) throws IOException {
+                throw new UnsupportedOperationException("always wrap this outputstream with a buffered outputstream");
+            }
+        };
 	}
 
 	public String scheme() {
@@ -286,4 +305,4 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	public IResource getResource(ISourceLocation uri) throws IOException {
 		return resolve(uri);
 	}
-}
+}	

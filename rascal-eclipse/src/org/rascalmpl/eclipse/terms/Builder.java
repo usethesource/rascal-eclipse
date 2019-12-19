@@ -15,15 +15,18 @@ package org.rascalmpl.eclipse.terms;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
+import org.rascalmpl.eclipse.util.SchedulingRules;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -66,6 +69,11 @@ public class Builder extends BuilderBase {
 	}
 
 	@Override
+    public ISchedulingRule getRule(int kind, Map<String, String> args) {
+	    return SchedulingRules.getRascalProjectsRule();
+    }
+	
+    @Override
 	protected boolean isSourceFile(IFile file) {
 		return registry.getLanguage(file.getFileExtension()) != null;
 	}
