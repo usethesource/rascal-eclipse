@@ -424,7 +424,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     }
 
     private void initializeParameters(boolean force) throws CoreException {
-        if (projectLoc != null && !force) {
+        if (projectLoc != null && pathConfig != null && !force) {
             return;
         }
         

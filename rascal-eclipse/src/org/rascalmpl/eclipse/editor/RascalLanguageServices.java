@@ -136,7 +136,6 @@ public class RascalLanguageServices {
         try {
             Evaluator eval = compilerEvaluator.get();
            
-            
             synchronized (eval) {
                 try {
                     return (IList) eval.call(monitor, "check", files, pcfg.asConstructor());
