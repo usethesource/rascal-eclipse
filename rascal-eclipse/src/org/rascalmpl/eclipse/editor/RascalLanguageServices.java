@@ -248,7 +248,7 @@ public class RascalLanguageServices {
     		Activator.log("could not create proper path config, defaulting", e);
     	}
     	
-    	return null;
+    	return new PathConfig();
     }
     
     private Future<Evaluator> makeFutureEvaluator(String label, final String... imports) {
