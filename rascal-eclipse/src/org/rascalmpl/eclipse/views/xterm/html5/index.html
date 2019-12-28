@@ -1,19 +1,9 @@
 <!DOCTYPE html>
 <html>
-
 <link rel="stylesheet" href="/xterm.css">
-<script id="common-js" data-main="/js-browser/main.js" src="/common.js"></script>
-<script src="/xterm.js"></script>
-<script src="/AttachAddon.js"></script>
 
-<body> 
-	<script>
-		var term = new Terminal();
-		var urlParams = new URLSearchParams(window.location.search)
-		var attachAddon = new AttachAddon('ws://localhost:' + urlParams.get('socket'));
-		terminal.loadAddon(attachAddon);
-		term.open(document.getElementById('xterm-container'));
-	</script>
+<body>
+	<script src="/bundle.js"></script>
 	<div id="xterm-container"></div>
 </body>
 
