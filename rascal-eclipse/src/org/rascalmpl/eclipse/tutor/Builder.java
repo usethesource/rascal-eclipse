@@ -27,11 +27,13 @@ import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.JavaModelException;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.RascalLanguageServices;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectPathConfig;
+import org.rascalmpl.eclipse.util.SchedulingRules;
 import org.rascalmpl.library.lang.rascal.tutor.CourseCompiler;
 import org.rascalmpl.library.lang.rascal.tutor.TutorCommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
@@ -58,6 +60,15 @@ public class Builder extends IncrementalProjectBuilder {
          
         return cachedConfig;
     }
+    
+    @Override
+    public ISchedulingRule getRule(int kind, Map<String, String> args) {
+        if (cachedConfig != null) {
+            return URIResourceResolver.getResource(cachedConfig.getBin());
+        }
+        
+        return SchedulingRules.getRascalProjectBinFolderRule(getProject());
+    }
 
     private static Path loc2path(ISourceLocation loc) {
         return Paths.get(URIResourceResolver.getResource(loc).getLocation().toFile().toURI());
@@ -68,8 +79,7 @@ public class Builder extends IncrementalProjectBuilder {
     }
     
     @Override
-    protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor)
-            throws CoreException {
+    protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor)  throws CoreException {
         if (RascalPreferences.conceptCompilerEnabled()) {
             IProject project = getProject();
 

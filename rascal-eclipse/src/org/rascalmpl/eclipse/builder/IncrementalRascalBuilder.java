@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
@@ -27,9 +28,11 @@ import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectPathConfig;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.RascalProgressMonitor;
+import org.rascalmpl.eclipse.util.SchedulingRules;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIResourceResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.impulse.builder.MarkerCreator;
@@ -60,6 +63,24 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	protected void clean(IProgressMonitor monitor) throws CoreException {
 		cleanBinFiles(monitor);
 		cleanProblemMarkers(monitor);
+	}
+	
+	@Override
+	public ISchedulingRule getRule(int kind, Map<String, String> args) {
+	    if (pathConfig == null) {
+	        try {
+                initializeParameters(false);
+            } catch (CoreException e) {
+                Activator.log("failed to initialize builder", e);
+            }
+	    }
+	    
+	    if (pathConfig != null) {
+	        return URIResourceResolver.getResource(pathConfig.getBin());
+	    }
+	    else {
+	        return SchedulingRules.getRascalProjectBinFolderRule(getProject());
+	    }
 	}
 
     private void cleanProblemMarkers(IProgressMonitor monitor) throws CoreException {
@@ -177,7 +198,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	}
 
 	private IList compileAll(IProgressMonitor monitor, IList files, PathConfig pcfg) {
-	    return RascalLanguageServices.getInstance().compileFileList(new RascalProgressMonitor(monitor), files, pcfg); 
+	    return RascalLanguageServices.getInstance().compileFileList(new CancelableProgressMonitor(monitor), files, pcfg); 
     }
 	
 	private IList compileAll(IProgressMonitor monitor, ISourceLocation src, PathConfig pcfg) {
@@ -403,7 +424,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
     }
 
     private void initializeParameters(boolean force) throws CoreException {
-        if (projectLoc != null && !force) {
+        if (projectLoc != null && pathConfig != null && !force) {
             return;
         }
         

@@ -1,7 +1,5 @@
 package org.rascalmpl.eclipse.editor;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -19,6 +17,7 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.util.ProjectPathConfig;
+import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.library.util.PathConfig;
@@ -136,7 +135,6 @@ public class RascalLanguageServices {
         try {
             Evaluator eval = compilerEvaluator.get();
            
-            
             synchronized (eval) {
                 try {
                     return (IList) eval.call(monitor, "check", files, pcfg.asConstructor());
@@ -241,22 +239,17 @@ public class RascalLanguageServices {
     }
     
     public PathConfig getPathConfig(IProject prj) {
-    	try {
-    		if (prj != null) {
-    			return new ProjectPathConfig(IRascalValueFactory.getInstance()).getPathConfig(prj);
-    		}
-    	} catch (IOException e) {
-    		Activator.log("could not create proper path config, defaulting", e);
-    	}
+        if (prj != null && prj.isOpen()) {
+            return new ProjectPathConfig(IRascalValueFactory.getInstance()).getPathConfig(prj);
+        }
     	
-    	return null;
+    	return new PathConfig();
     }
     
     private Future<Evaluator> makeFutureEvaluator(String label, final String... imports) {
         return asyncGenerator(label, () ->  {
             Bundle bundle = Platform.getBundle("rascal_eclipse");
-//            Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(bundle, ThreadSafeImpulseConsole.INSTANCE.getWriter(), ThreadSafeImpulseConsole.INSTANCE.getWriter());
-            Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(bundle, new PrintWriter(System.err), new PrintWriter(System.out));
+            Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(bundle, ThreadSafeImpulseConsole.INSTANCE.getWriter(), ThreadSafeImpulseConsole.INSTANCE.getWriter());
            
             eval.addRascalSearchPath(URIUtil.correctLocation("jar+plugin", "rascal_eclipse", "/lib/typepal.jar!/"));
             eval.addRascalSearchPath(URIUtil.correctLocation("jar+plugin", "rascal_eclipse", "/lib/rascal-core.jar!/"));

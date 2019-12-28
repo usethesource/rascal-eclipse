@@ -13,7 +13,6 @@
 package org.rascalmpl.uri;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,14 +31,15 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
 
 public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResourceResolver {
 	
-	public static ISourceLocation constructProjectURI(IProject project, IPath path){
+	
+
+    public static ISourceLocation constructProjectURI(IProject project, IPath path){
 		return constructProjectURI(project.getName(), path);
 	}
 
@@ -80,8 +80,11 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	    
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(uri.getAuthority());
 		
-		if (project == null) {
+		if (project == null || !project.exists()) {
 			throw new IOException("project " + uri.getAuthority() + " does not exist");
+		}
+		else if (!project.isOpen()) {
+		    throw new IOException("project " + uri.getAuthority() + " is closed");
 		}
 		
 		return project.getFile(new Path(uri.getPath()));
@@ -134,32 +137,41 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 		throw new IOException(uri+" refers to a resource that does not exist.");
 	}
 	
+    private static final boolean keepHistory = false;
+    private static final boolean forceRegardLessOutOfSync = true;
+
 	public OutputStream getOutputStream(final ISourceLocation uri, boolean append) throws IOException {
-		try {
-			IFile file = resolveFile(uri);
-			
-			// this is necessary to also flush possible parent folders to disk first
-			if (!file.exists()) {
-				file.create(new ByteArrayInputStream(new byte[0]), true, new NullProgressMonitor());
-			}
-			
-			
-			// if the above is not done, then the parent folder does not exist.
-			return new FileOutputStream(file.getRawLocation().toOSString(), append) {
-				@Override
-				public void close() throws IOException {
-					super.close();
-					try {
-						file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-					} catch (CoreException e) {
-						Activator.getInstance().logException("could not refresh " + uri, e);
-					}
-				}
-			};
-		}
-		catch (CoreException e) {
-			throw new IOException(e);
-		}
+	    final IFile file = resolveFile(uri);
+
+	    try {
+	        // clear or create the file if needed
+    	    if (!file.exists()) {
+                file.create(new ByteArrayInputStream(new byte[0]), forceRegardLessOutOfSync, new NullProgressMonitor());
+            }
+            else if (!append) {
+                file.setContents(new ByteArrayInputStream(new byte[0]), keepHistory, forceRegardLessOutOfSync, new NullProgressMonitor());
+            }
+	    }
+	    catch (CoreException e) {
+	        throw new IOException(e);
+	    }
+	    
+	    return new OutputStream() {
+            
+	        @Override
+	        public void write(byte[] b, int off, int len) throws IOException {
+	            try {
+                    file.appendContents(new ByteArrayInputStream(b, off, len), keepHistory, forceRegardLessOutOfSync, new NullProgressMonitor());
+	            } catch (CoreException e) {
+	                throw new IOException(e);
+	            }
+	        }
+	        
+            @Override
+            public void write(int b) throws IOException {
+                throw new UnsupportedOperationException("always wrap this outputstream with a buffered outputstream");
+            }
+        };
 	}
 
 	public String scheme() {
@@ -199,6 +211,15 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 		} catch (IllegalStateException | IOException | AssertionFailedException e) {
 			return 0L;
 		}
+	}
+	
+	@Override
+	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
+	    try {
+            resolve(uri).setLocalTimeStamp(timestamp);
+        } catch (CoreException e) {
+            throw new IOException(e.getMessage());
+        }
 	}
 
 	@Override
@@ -282,4 +303,4 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	public IResource getResource(ISourceLocation uri) throws IOException {
 		return resolve(uri);
 	}
-}
+}	

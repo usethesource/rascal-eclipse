@@ -16,6 +16,7 @@ import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 
 /**
@@ -31,7 +32,7 @@ public class ProjectPathConfig {
         this.vf = vf;
     }
     
-    public PathConfig getPathConfig(IProject project) throws IOException {
+    public PathConfig getPathConfig(IProject project) {
         ISourceLocation projectLoc = ProjectURIResolver.constructProjectURI(project.getFullPath());
         
         RascalEclipseManifest manifest = new RascalEclipseManifest();
@@ -50,7 +51,11 @@ public class ProjectPathConfig {
         // These are jar files which make contain compiled Rascal code to link to, but also installed libraries and plugins
         for (String lib : manifest.getRequiredLibraries(project)) {
             if (lib.startsWith("|")) {
-                libsWriter.append(new StandardTextReader().read(vf, new StringReader(lib)));
+                try {
+                    libsWriter.append(new StandardTextReader().read(vf, new StringReader(lib)));
+                } catch (FactTypeUseException | IOException e) {
+                    Activator.log("failed to depend on library: [" + lib + "]", e);
+                }
             }
             else {
                 libsWriter.append(URIUtil.getChildLocation(projectLoc, lib));
@@ -93,14 +98,33 @@ public class ProjectPathConfig {
         ISourceLocation bin = URIUtil.getChildLocation(projectLoc, binFolder);
         libsWriter.insert(bin);
 
-        return new PathConfig(
-                srcsWriter.done(), 
-                libsWriter.done(), 
-                bin, 
-                URIUtil.correctLocation("boot", "", ""), 
-                coursesWriter.done(), 
-                vf.list(),  // TODO compiler path for when code actually has to be compiled
-                vf.list()); // TODO classloader path for when the compiled code must run
+        try {
+            return new PathConfig(
+                    srcsWriter.done(), 
+                    libsWriter.done(), 
+                    bin, 
+                    URIUtil.correctLocation("boot", "", ""), 
+                    coursesWriter.done(), 
+                    vf.list(),  // TODO compiler path for when code actually has to be compiled
+                    vf.list()); // TODO classloader path for when the compiled code must run
+        }
+        catch (IOException e) {
+            // one of the dependencies failed to resolve
+            Activator.log("could not resolve project dependencies, defaulting to empty list of dependencies for now.", e);
+            try {
+                return new PathConfig(
+                        srcsWriter.done(), 
+                        vf.list(), 
+                        bin, 
+                        URIUtil.correctLocation("boot", "", ""), 
+                        coursesWriter.done(), 
+                        vf.list(),  // TODO compiler path for when code actually has to be compiled
+                        vf.list());
+            } catch (IOException e1) {
+                Activator.log("unexpected exception generating a default path configuration", e1);
+                return new PathConfig();
+            }
+        }
     }
 
     private boolean isRascalBootstrapProject(IProject project) {
