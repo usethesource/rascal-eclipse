@@ -37,6 +37,7 @@ public class XtermWebsocketServer extends WebSocketServer {
     @Override
     public void onOpen(WebSocket ws, ClientHandshake hs) {
         System.err.println("websocket opened with " + hs);
+        ws.send("Hello Xterm.js>");
     }
 
     @Override
