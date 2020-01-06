@@ -15,6 +15,7 @@ import org.simpleframework.http.core.Container;
 import org.simpleframework.http.core.ContainerSocketProcessor;
 import org.simpleframework.http.socket.Frame;
 import org.simpleframework.http.socket.FrameListener;
+import org.simpleframework.http.socket.FrameType;
 import org.simpleframework.http.socket.Reason;
 import org.simpleframework.http.socket.Session;
 import org.simpleframework.http.socket.service.DirectRouter;
@@ -47,19 +48,10 @@ public class XtermServer implements Container, Service, FrameListener {
         return port;
     }
 
-    private String getMimeType(String ext){
-        switch(ext){
-        case "css":     return "text/css";
-        case "ico":     return "image/x-icon";
-        case "html":    return "text/html";
-        case "jpeg":    return "image/jpeg";
-        case "png":     return "image/png";
-        case "txt":     return "text/plain";
-        default:        return "text/html"; 
-        }
-    }
-
+    
     public OutputStream getRemoteToTerminalOutputStream() {
+        // TODO this is a stub
+        
         if (session != null) {
             return new OutputStream() {
                 @Override
@@ -91,6 +83,7 @@ public class XtermServer implements Container, Service, FrameListener {
     @Override
     public void onFrame(Session session, Frame frame) {
         System.err.println("received frame: " + frame.getText());
+        System.err.println("type = " + frame.getType());
         // echo it back
         try {
             session.getChannel().send(frame.getText());
@@ -117,6 +110,7 @@ public class XtermServer implements Container, Service, FrameListener {
     public void handle(Request request, Response response) {
         // HTTP
 
+      
         try {
             ISourceLocation file = URIUtil.getChildLocation(URIUtil.correctLocation("plugin", "rascal_eclipse", "org/rascalmpl/eclipse/views/xterm/html5"), request.getAddress().getPath().getPath());
             if (!URIResolverRegistry.getInstance().exists(file)) {
@@ -147,4 +141,17 @@ public class XtermServer implements Container, Service, FrameListener {
             Activator.log("failed to close XTerm socket", e);
         }
     }
+    
+    private String getMimeType(String ext){
+        switch(ext){
+        case "css":     return "text/css";
+        case "ico":     return "image/x-icon";
+        case "html":    return "text/html";
+        case "jpeg":    return "image/jpeg";
+        case "png":     return "image/png";
+        case "txt":     return "text/plain";
+        default:        return "text/html"; 
+        }
+    }
+
 }
