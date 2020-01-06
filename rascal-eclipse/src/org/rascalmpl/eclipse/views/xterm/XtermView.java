@@ -18,15 +18,12 @@ import org.eclipse.ui.progress.WorkbenchJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.uri.URIUtil;
 
-import fi.iki.elonen.NanoHTTPD;
-
 public class XtermView extends ViewPart {
     public static final String ID = ID_RASCAL_XTERM_PART;
 
     private Browser browser;
     private volatile String mainLocation;
     private XtermServer server;
-    private XtermWebsocketServer wsServer;
     private Object lock = new Object();
     
     private final int BASE_PORT = 9787;
@@ -97,14 +94,6 @@ public class XtermView extends ViewPart {
                 Activator.log("could not stop xterm webserver", e);
             }
         }
-        if (wsServer != null) {
-            try {
-                wsServer.stop();
-                wsServer = null;
-            } catch (Exception e) {
-                Activator.log("could not stop xterm websocket", e);
-            }
-        }
     }
 
     private class StarterJob extends Job {
@@ -127,7 +116,6 @@ public class XtermView extends ViewPart {
                         for(int port = BASE_PORT; port < BASE_PORT+ATTEMPTS; port++){
                             try {
                                 server = new XtermServer(port, URIUtil.correctLocation("http", "localhost:" + port, ""));
-                                server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, true);
                                 // success!
                                 break;
                             } catch (IOException e) {
@@ -136,27 +124,6 @@ public class XtermView extends ViewPart {
                             }
                         }
                         
-                        System.err.println("HTTP server port is " + server.getPort());
-                        // TODO: bundle these two servers in a wrapper
-                        for (int port = server.getPort() + 1; port < BASE_PORT+ATTEMPTS; port++){
-                            try {
-                                wsServer = new XtermWebsocketServer(port);
-                                wsServer.start();
-                                Exception error = wsServer.getError();
-                                if (error != null) {
-                                    wsServer.stop();
-                                   throw new IOException("port taken"); 
-                                }
-                                // success!
-                                break;
-                            }
-                            catch (IOException e) {
-                                // failure is expected if the port is taken
-                                continue;
-                            }
-                        }
-                        
-
                         if (server == null) {
                             throw new IOException("Could not find port to run help server on");
                         }
@@ -168,7 +135,7 @@ public class XtermView extends ViewPart {
                         @Override
                         public IStatus runInUIThread(IProgressMonitor monitor) {
                             mainLocation = "http://localhost:" + server.getPort();
-                            browser.setUrl(mainLocation + "/index.html?socket=" + wsServer.getPort());
+                            browser.setUrl(mainLocation + "/index.html?socket=" + server.getPort());
                             
                             new RascalXtermConnector().connect(server, XtermView.this);
                             return Status.OK_STATUS;

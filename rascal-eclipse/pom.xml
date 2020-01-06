@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -12,8 +14,8 @@
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/usethesource/rascal-eclipse.git</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<dependencies>
 		<dependency>
@@ -40,30 +42,40 @@
 			<groupId>jline</groupId>
 			<artifactId>jline</artifactId>
 			<version>2.13</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.java-websocket</groupId>
-                        <artifactId>Java-WebSocket</artifactId>
-                        <version>1.4.0</version>
-                    </dependency>
-       <dependency>
-            <groupId>org.asciidoctor</groupId>
-            <artifactId>asciidoctorj</artifactId>
-            <version>1.6.0-alpha.6</version>
-            <scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.simpleframework</groupId>
+			<artifactId>simple-http</artifactId>
+			<version>6.0.1</version>
+		</dependency>
+		<dependency>
+            <groupId>org.simpleframework</groupId>
+            <artifactId>simple-common</artifactId>
+            <version>6.0.1</version>
         </dependency>
         <dependency>
-            <groupId>org.jruby</groupId>
-            <artifactId>jruby-complete</artifactId>
-            <version>9.1.15.0</version>
-            <scope>provided</scope>
+            <groupId>org.simpleframework</groupId>
+            <artifactId>simple-transport</artifactId>
+            <version>6.0.1</version>
         </dependency>
-        <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-            <version>1.72</version>
-            <scope>provided</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.asciidoctor</groupId>
+			<artifactId>asciidoctorj</artifactId>
+			<version>1.6.0-alpha.6</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jruby</groupId>
+			<artifactId>jruby-complete</artifactId>
+			<version>9.1.15.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.beust</groupId>
+			<artifactId>jcommander</artifactId>
+			<version>1.72</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -91,13 +103,29 @@
 									<destFileName>rascal.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
-									<groupId>org.java-websocket</groupId>
-									<artifactId>Java-WebSocket</artifactId>
+									<groupId>org.simpleframework</groupId>
+									<artifactId>simple-http</artifactId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${basedir}/lib</outputDirectory>
-									<destFileName>websocket.jar</destFileName>
+									<destFileName>simple-http.jar</destFileName>
 								</artifactItem>
+								<artifactItem>
+                                    <groupId>org.simpleframework</groupId>
+                                    <artifactId>simple-common</artifactId>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${basedir}/lib</outputDirectory>
+                                    <destFileName>simple-common.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.simpleframework</groupId>
+                                    <artifactId>simple-transport</artifactId>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${basedir}/lib</outputDirectory>
+                                    <destFileName>simple-transport.jar</destFileName>
+                                </artifactItem>
 								<artifactItem>
 									<groupId>org.rascalmpl</groupId>
 									<artifactId>typepal</artifactId>
@@ -115,24 +143,24 @@
 									<destFileName>rascal-core.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
-                                                                        <groupId>org.jruby</groupId>
-                                                                        <artifactId>jruby-complete</artifactId>
+									<groupId>org.jruby</groupId>
+									<artifactId>jruby-complete</artifactId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${basedir}/lib</outputDirectory>
 									<destFileName>jruby.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
+									<groupId>com.beust</groupId>
+									<artifactId>jcommander</artifactId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${basedir}/lib</outputDirectory>
 									<destFileName>jcommander.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
-            <groupId>org.asciidoctor</groupId>
-            <artifactId>asciidoctorj</artifactId>
+									<groupId>org.asciidoctor</groupId>
+									<artifactId>asciidoctorj</artifactId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${basedir}/lib</outputDirectory>
