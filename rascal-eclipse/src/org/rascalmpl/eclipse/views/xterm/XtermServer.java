@@ -133,7 +133,8 @@ public class XtermServer {
 
             switch (frame.getType()) {
             case TEXT:
-                inputStream.queue(frame.getText().getBytes());
+                byte[] bytes = frame.getText().getBytes();
+                inputStream.queue(bytes);
                 break;
             case BINARY:
                 inputStream.queue(frame.getBinary());
@@ -196,13 +197,13 @@ public class XtermServer {
             default:        return "text/html"; 
             }
         }
-    }
-
-    private static void copy(InputStream from, OutputStream to) throws IOException {
-        final byte[] buffer = new byte[FILE_BUFFER_SIZE];
-        int read;
-        while ((read = from.read(buffer, 0, buffer.length)) != -1) {
-            to.write(buffer, 0, read);
+        
+        private static void copy(InputStream from, OutputStream to) throws IOException {
+            final byte[] buffer = new byte[FILE_BUFFER_SIZE];
+            int read;
+            while ((read = from.read(buffer, 0, buffer.length)) != -1) {
+                to.write(buffer, 0, read);
+            }
         }
     }
 
