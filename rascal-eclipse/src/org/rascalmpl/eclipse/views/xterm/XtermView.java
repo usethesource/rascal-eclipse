@@ -137,11 +137,12 @@ public class XtermView extends ViewPart {
                             mainLocation = "http://localhost:" + server.getPort();
                             browser.setUrl(mainLocation + "/index.html?socket=" + server.getPort());
                             
-                            new RascalXtermConnector().connect(server, XtermView.this);
                             return Status.OK_STATUS;
                         }
                     }.schedule();
 
+                    // this blocks until the client (see WBjob above) has activated the connection and the IO streams are bound
+                     new RascalXtermConnector().connect(server.getStandardInput(), server.getStandardOutput());
                 }
                 catch (Throwable e) {
                     Activator.getInstance().logException("Could not start tutor server", e);

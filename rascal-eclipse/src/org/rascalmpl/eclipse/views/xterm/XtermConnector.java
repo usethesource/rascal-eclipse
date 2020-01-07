@@ -1,15 +1,14 @@
 package org.rascalmpl.eclipse.views.xterm;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 
 public interface XtermConnector {
     public void initialize() throws Exception;
 
-    public void connect(XtermServer server, XtermView viewer);
+    public void connect(InputStream stdin, OutputStream stdout);
 
     public void disconnect();
-
-    public OutputStream getTerminalToRemoteStream();
 
     public boolean isLocalEcho();
 

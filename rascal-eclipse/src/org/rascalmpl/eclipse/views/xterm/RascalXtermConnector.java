@@ -52,13 +52,11 @@ import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.shell.RascalShell;
 
-import jline.Terminal;
-
 @SuppressWarnings("restriction")
 public class RascalXtermConnector implements XtermConnector {
     private BaseREPL shell;
     private final AtomicBoolean shellIsRunning = new AtomicBoolean(false);
-    private XtermPipedInputStream stdIn;
+    private InputStream stdIn;
     private OutputStream stdInUI;
     protected String project = "rascal";
     protected String module = null;
@@ -68,14 +66,7 @@ public class RascalXtermConnector implements XtermConnector {
     private ModuleReloader reloader;
     private int terminalHeight = 24;
     private int terminalWidth = 80;
-    private XtermTerminal tm;
-    private XtermView view;
   
-    @Override
-    public OutputStream getTerminalToRemoteStream() {
-        return stdInUI;
-    }
-
 	@Override
     public boolean isLocalEcho() {
         return false;
@@ -95,16 +86,16 @@ public class RascalXtermConnector implements XtermConnector {
     }
 
     @Override
-    public void connect(XtermServer control, XtermView view) {
-        stdIn = new XtermPipedInputStream();
-        stdInUI = new XTermPipedOutputStream(stdIn);
+    public void connect(InputStream stdIn, OutputStream stdOut) {
+        this.stdIn = stdIn;
+        stdInUI = stdOut;
 
         RascalXtermRegistry.getInstance().register(this);
         
         Thread t = new Thread() {
             public void run() {
                 try {
-                    shell = constructREPL(control, stdIn, control.getRemoteToTerminalOutputStream(), configure(control));
+                    shell = constructREPL(stdIn, stdInUI);
 
                     if (module != null) {
                         queueCommand("import " + module + ";");
@@ -143,16 +134,7 @@ public class RascalXtermConnector implements XtermConnector {
 
     }
 
-
-    private Terminal configure(XtermServer control) {
-        if (tm == null) {
-            tm = new XtermTerminal(control, this);
-        }
-        return tm;
-    }
-    
     public void setFocus() {
-        view.setFocus();
         RascalXtermRegistry.getInstance().setActive(this);
     }
     
@@ -197,13 +179,13 @@ public class RascalXtermConnector implements XtermConnector {
         return terminalWidth;
     }
 
-    protected BaseREPL constructREPL(XtermServer control, XtermPipedInputStream stdIn, OutputStream stdInUI, Terminal tm) throws IOException, URISyntaxException {
-        BaseRascalREPL repl = constructRascalREPL(control, stdIn, stdInUI, tm);
-        return new BaseREPL(repl, null, stdIn, stdInUI, true, true, getHistoryFile(), tm, new XtermIDEServices());
+    protected BaseREPL constructREPL(InputStream stdIn, OutputStream stdInUI) throws IOException, URISyntaxException {
+        BaseRascalREPL repl = constructRascalREPL(stdIn, stdInUI);
+        return new BaseREPL(repl, null, stdIn, stdInUI, true, true, getHistoryFile(), new XtermTerminal(stdIn, stdInUI), new XtermIDEServices());
     }
     
-    protected BaseRascalREPL constructRascalREPL(XtermServer control, XtermPipedInputStream stdIn, OutputStream stdInUI, Terminal tm) throws IOException, URISyntaxException {
-        return new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, false, getHistoryFile()) {
+    protected BaseRascalREPL constructRascalREPL(InputStream stdIn, OutputStream stdInUI) throws IOException, URISyntaxException {
+        return new RascalInterpreterREPL(stdIn, stdInUI, true, true, false, getHistoryFile()) {
             private AbstractInterpreterEventTrigger eventTrigger;
             private DebugHandler debugHandler;
             
