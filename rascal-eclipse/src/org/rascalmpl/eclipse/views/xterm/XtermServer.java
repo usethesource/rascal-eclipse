@@ -54,14 +54,11 @@ public class XtermServer {
      * Handles new terminal connections
      */
     private class XtermService implements Service {
-        private QueuedInputStream input;
-        private OutputStream output;
-        
         @Override
         public void connect(Session session) {
             try {
-                this.input = new QueuedInputStream();
-                this.output = new SocketOutputStream(session.getChannel());
+                QueuedInputStream input = new QueuedInputStream();
+                OutputStream output = new SocketOutputStream(session.getChannel());
                 session.getChannel().register(new XtermFrameListener(session, input));
                 
                 System.err.println("Session connection parameters: " + session.getRequest().getAttributes());
@@ -74,11 +71,6 @@ public class XtermServer {
             }
         }
         
-        @Override
-        protected void finalize() throws Throwable {
-            input.close();
-            output.close();
-        }
     }
     
     /**
@@ -186,7 +178,6 @@ public class XtermServer {
      */
     private class SocketOutputStream extends OutputStream {
         private final FrameChannel channel;
-        private final byte[] singleton = new byte[1];
         
         public SocketOutputStream(FrameChannel frameChannel) {
             this.channel = frameChannel;
@@ -195,8 +186,7 @@ public class XtermServer {
         @Override
         public void write(int b) throws IOException {
             // TODO check byte conversion
-            singleton[0] = (byte) (b & 0xFF);
-            channel.send(singleton);
+            channel.send(new byte[] { (byte) (b & 0xFF) });
         }
         
         @Override
@@ -231,7 +221,7 @@ public class XtermServer {
         }
 
         @Override
-        public int read() throws IOException {
+        public synchronized int read() throws IOException {
             if (closed) {
                 return -1;
             }
@@ -264,10 +254,15 @@ public class XtermServer {
         }
 
         @Override
-        public int read(byte[] b, int off, int len) throws IOException {
+        public synchronized int read(byte[] b, int off, int len) throws IOException {
             if (len == 0) {
                 return 0;
             }
+            
+            if (closed) {
+                return -1;
+            }
+            
             waitForAvailable();
             // TODO: check for off by one
             int availableBytes =  Math.min(len, currentBlock.length - consumed);

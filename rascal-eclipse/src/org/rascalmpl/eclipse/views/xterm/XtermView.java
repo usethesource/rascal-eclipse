@@ -22,6 +22,7 @@ public class XtermView extends ViewPart {
         for (int port = BASE_PORT; port < BASE_PORT+ATTEMPTS; port++) {
             try {
                 server = new XtermServer(port);
+                System.err.println("Xterm port: " + port);
                 break;
             }
             catch (IOException e) {
