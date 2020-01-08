@@ -8,7 +8,6 @@ import java.net.URISyntaxException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -32,86 +31,53 @@ import io.usethesource.vallang.ISourceLocation;
 
 public class XtermServer {
     private static final int FILE_BUFFER_SIZE = 8 * 1024;
+    
     private final int port;
-    private final SocketConnection socket;
-    private final AtomicReference<XtermService> service;
+    private final SocketConnection connection;
 
-    public XtermServer(int port, ISourceLocation root) throws IOException {
-        this.port = port; 
-        
+    public XtermServer(int port) throws IOException {
+        this.port = port;
         XtermService xtermService = new XtermService();
-        this.service = new AtomicReference<>();
-        
         Router router = new DirectRouter(xtermService);
         RouterContainer routerContainer = new RouterContainer(new XtermContainer(), router, 1);
         ContainerSocketProcessor server = new ContainerSocketProcessor(routerContainer, 1);
-        
-        socket = new SocketConnection(server);
-        socket.connect(new InetSocketAddress(port));
-    }
 
-    private synchronized void waitForActiveStreamService() {
-        // now wait until the view has connected through the dispatch mechanism 
-        // and we have the IO streams readily available
-        while (service.get() == null) {
-            try {
-                wait();
-            } catch (InterruptedException ignore) {
-                // log.debug("interrupted: " + ignore.getMessage());
-            }
-        }
+        connection = new SocketConnection(server);
+        connection.connect(new InetSocketAddress(port));
     }
     
-    public InputStream getStandardInput() {
-        waitForActiveStreamService();
-        
-        assert service.get() != null && service.get().input != null;
-        return service.get().input;
-    }
-    
-    public OutputStream getStandardOutput() {
-        waitForActiveStreamService();
-        
-        assert service.get() != null && service.get().output != null;
-        return service.get().output;
-    }
-
     public int getPort() {
         return port;
     }
     
+    /** 
+     * Handles new terminal connections
+     */
     private class XtermService implements Service {
         private QueuedInputStream input;
         private OutputStream output;
         
         @Override
         public void connect(Session session) {
-            XtermService oldService = service.getAndSet(this);
-            
             try {
                 this.input = new QueuedInputStream();
                 this.output = new SocketOutputStream(session.getChannel());
                 session.getChannel().register(new XtermFrameListener(session, input));
                 
-                if (oldService != null) {
-                    oldService.close();
-                }
+                System.err.println("Session connection parameters: " + session.getRequest().getAttributes());
+                
+                // TODO: here we can inject different kinds of connectors
+                // TODO: receive project config parameters from session URL
+                new RascalXtermConnector().connect(input, output);
             } catch (IOException e) {
                 Activator.log("failed to connect xterm server", e);
             }
         }
         
-        private void close() {
-            try {
-                if (input != null) {
-                    input.close();
-                }
-                if (output != null) {
-                    output.close();
-                }
-            } catch (IOException e) {
-                // we tried our best..
-            }
+        @Override
+        protected void finalize() throws Throwable {
+            input.close();
+            output.close();
         }
     }
     
@@ -209,9 +175,9 @@ public class XtermServer {
 
     public void stop() {
         try {
-            socket.close();
+            connection.close();
         } catch (IOException e) {
-            Activator.log("failed to close XTerm socket", e);
+            Activator.log("failed to close XTerm connection", e);
         }
     }
     
@@ -266,6 +232,10 @@ public class XtermServer {
 
         @Override
         public int read() throws IOException {
+            if (closed) {
+                return -1;
+            }
+            
             waitForAvailable();
             // TODO: check if maybe & 0xFF is needed
             return currentBlock[consumed++];
