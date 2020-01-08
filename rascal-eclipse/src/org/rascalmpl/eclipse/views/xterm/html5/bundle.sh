@@ -1,4 +1,4 @@
 npm install xterm
-npm install xterm
 npm install xterm-addon-attach
-browserify AttachAddonUse.js -o bundle.js
+npm install xterm-addon-fit
+browserify XtermClient.js -o bundle.js

@@ -254,6 +254,7 @@ public class XtermServer {
                             throw new IOException("Closed stream");
                         }
                     }
+
                     currentBlock = newBlock;
                     consumed = 0;
                 } catch (InterruptedException e) {
