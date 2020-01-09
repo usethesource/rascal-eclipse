@@ -19,6 +19,8 @@ public class XtermView extends ViewPart {
         browser = new Browser(parent, SWT.WEBKIT);
         browser.setText("<html><body>XTerm is now loading: <progress max=\"100\"></progress></body></html>");
         
+        System.err.println("Browser is: " + browser.getBrowserType());
+        
         for (int port = BASE_PORT; port < BASE_PORT+ATTEMPTS; port++) {
             try {
                 server = new XtermServer(port);
