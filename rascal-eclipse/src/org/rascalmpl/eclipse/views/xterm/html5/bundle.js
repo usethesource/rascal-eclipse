@@ -4,7 +4,9 @@ exports.__esModule = true;
 var xterm_1 = require("xterm");
 var xterm_addon_attach_1 = require("xterm-addon-attach");
 var xterm_addon_fit_1 = require("xterm-addon-fit");
-var term = new xterm_1.Terminal({ cursorBlink: true, cursorStyle: 'bar', scrollback: 10000 });
+var term = new xterm_1.Terminal();
+term.setOption("cursorBlink", true);
+term.setOption("cursorStyle", 'bar');
 var fitAddon = new xterm_addon_fit_1.FitAddon();
 term.loadAddon(fitAddon);
 var urlParams = new URLSearchParams(window.location.search);
@@ -12,6 +14,7 @@ var socket = new WebSocket('ws://localhost:' + urlParams.get('socket'));
 var attachAddon = new xterm_addon_attach_1.AttachAddon(socket);
 term.loadAddon(attachAddon);
 term.open(document.getElementById('xterm-container'));
+fitAddon.fit();
 var viewport = document.querySelector('.xterm-viewport');
 /* TODO: get viewport dimensions from URL parameters */
 

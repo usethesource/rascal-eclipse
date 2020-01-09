@@ -4,7 +4,10 @@ import { Terminal } from 'xterm';
 import { AttachAddon } from 'xterm-addon-attach';
 import { FitAddon } from 'xterm-addon-fit';
 
-const term = new Terminal({cursorBlink: true, cursorStyle: 'bar', scrollback: 10000});
+const term = new Terminal();
+
+term.setOption("cursorBlink", true);
+term.setOption("cursorStyle", 'bar');
 
 const fitAddon = new FitAddon();
 term.loadAddon(fitAddon);
@@ -15,6 +18,8 @@ const attachAddon = new AttachAddon(socket);
 term.loadAddon(attachAddon);
 
 term.open(document.getElementById('xterm-container'));
+
+fitAddon.fit();
 
 var viewport = document.querySelector('.xterm-viewport');
 
