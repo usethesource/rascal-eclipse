@@ -227,7 +227,7 @@ public class XtermServer {
             }
             
             waitForAvailable();
-            // TODO: check if maybe & 0xFF is needed
+            // TODO: here we get ArrayIndexOutOfBounds exceptions
             return currentBlock[consumed++];
         }
         
