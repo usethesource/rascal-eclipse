@@ -6,8 +6,9 @@ import { FitAddon } from 'xterm-addon-fit';
 
 const term = new Terminal();
 
-term.setOption("cursorBlink", true);
-term.setOption("cursorStyle", 'bar');
+term.setOption('cursorBlink', true);
+term.setOption('cursorStyle', 'bar');
+term.setOption('convertEol', true);
 
 const fitAddon = new FitAddon();
 term.loadAddon(fitAddon);
