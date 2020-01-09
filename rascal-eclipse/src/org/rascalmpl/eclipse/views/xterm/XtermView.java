@@ -16,7 +16,7 @@ public class XtermView extends ViewPart {
 
     @Override
     public void createPartControl(Composite parent) {
-        browser = new Browser(parent, SWT.NONE);
+        browser = new Browser(parent, SWT.WEBKIT);
         browser.setText("<html><body>XTerm is now loading: <progress max=\"100\"></progress></body></html>");
         
         for (int port = BASE_PORT; port < BASE_PORT+ATTEMPTS; port++) {
