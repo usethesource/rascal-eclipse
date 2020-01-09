@@ -2,18 +2,19 @@ package org.rascalmpl.eclipse.repl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 public class REPLPipedInputStream extends InputStream {
 
-  private final ConcurrentLinkedQueue<Byte> queue;
+  private final BlockingQueue<Byte> queue;
   private volatile boolean closed;
-  private final Semaphore newData = new Semaphore(0);
 
   public REPLPipedInputStream() {
-    this.queue = new ConcurrentLinkedQueue<Byte>();
+    this.queue = new ArrayBlockingQueue<>(8 * 1024);
     this.closed = false;
   }
 
@@ -51,34 +52,44 @@ public class REPLPipedInputStream extends InputStream {
   @Override
   public int read() throws IOException {
     Byte result = null;
-    while ((result = queue.poll()) == null) {
-      try {
-        newData.tryAcquire(10, TimeUnit.MILLISECONDS);
-      }
-      catch (InterruptedException e) {
-        return -1;
-      }
-      if (closed) {
-        return -1;
-      }
+    try {
+    	while ((result = queue.poll(10, TimeUnit.MILLISECONDS)) == null) {
+    		if (closed) {
+    			return -1;
+    		}
+    	}
+    }
+    catch (InterruptedException e) {
+    	return -1;
     }
     return (result & 0xFF);
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     closed = true;
   }
+  
+  public void write(byte[] b) throws IOException {
+	  write(b, 0, b.length);
+  }
 
-  public void write(byte[] b, int off, int len) {
-    for (int i = off; i < off + len; i++) {
-      queue.add(b[i]); 
-    }
-    newData.release();
+  public void write(byte[] b, int off, int len) throws IOException {
+	  try {
+		  for (int i = off; i < off + len; i++) {
+			  queue.put(b[i]);
+		  }
+	  } catch (InterruptedException e) {
+		  throw new IOException(e);
+	  } 
   }
-  public void write(byte b) {
-    queue.add(b); 
-    newData.release();
+  public void write(byte b) throws IOException {
+	  try {
+		  queue.put(b); 
+	  } catch (InterruptedException e) {
+		  throw new IOException(e);
+	  } 
   }
+
 
 }
