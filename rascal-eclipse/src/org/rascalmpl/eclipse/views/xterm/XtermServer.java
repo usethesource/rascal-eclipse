@@ -5,11 +5,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.rascalmpl.eclipse.Activator;
+import org.rascalmpl.eclipse.repl.REPLPipedInputStream;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.simpleframework.http.Request;
@@ -57,9 +60,9 @@ public class XtermServer {
         @Override
         public void connect(Session session) {
             try {
-                QueuedInputStream input = new QueuedInputStream();
+                REPLPipedInputStream input = new REPLPipedInputStream();
                 OutputStream output = new SocketOutputStream(session.getChannel());
-                session.getChannel().register(new XtermFrameListener(session, input));
+                session.getChannel().register(new XtermFrameListener(input));
                 
                 System.err.println("Session connection parameters: " + session.getRequest().getAttributes());
                 
@@ -78,28 +81,28 @@ public class XtermServer {
      * on a QueuedInputStream.
      */
     private class XtermFrameListener implements FrameListener {
-        private final QueuedInputStream inputStream;
+        private final REPLPipedInputStream inputStream;
         
-        public XtermFrameListener(Session s, QueuedInputStream queue) {
-            this.inputStream = queue;
+        public XtermFrameListener(REPLPipedInputStream input) {
+            this.inputStream = input;
         }
 
         @Override
         public void onFrame(Session session, Frame frame) {
+        	if (frame.getType().isPing() || frame.getType().isPong()) {
+        		return;
+        	}
             System.err.println("received frame: " + frame.getText());
             System.err.println("type = " + frame.getType());
 
             switch (frame.getType()) {
             case TEXT:
-                byte[] bytes = frame.getText().getBytes();
-                inputStream.queue(bytes);
-                break;
             case BINARY:
-                inputStream.queue(frame.getBinary());
+                inputStream.write(frame.getBinary());
                 break;
             case CONTINUATION:
                 // TODO: check if this is the right response
-                inputStream.queue(frame.getBinary());
+                inputStream.write(frame.getBinary());
                 break;
             case CLOSE:
                 stop();
@@ -120,6 +123,11 @@ public class XtermServer {
         public void onError(Session arg0, Exception e) {
             Activator.log("error in XTerm server: " + e.getMessage(), e);
         }
+        
+        public void stop() {
+            inputStream.close();
+        }
+        
     }
 
     /**
@@ -148,11 +156,16 @@ public class XtermServer {
             switch(ext){
             case "css":     return "text/css";
             case "ico":     return "image/x-icon";
+            case "svg":     return "image/svg+xml";
+            case "htm":     
             case "html":    return "text/html";
+            case "jpg":     
             case "jpeg":    return "image/jpeg";
             case "png":     return "image/png";
-            case "txt":     return "text/plain";
-            default:        return "text/html"; 
+            case "js":      return "text/javascript";
+            case "map":     return "application/json";
+            case "txt":     
+            default:        return "text/plain"; 
             }
         }
         
@@ -185,9 +198,14 @@ public class XtermServer {
         
         @Override
         public void write(int b) throws IOException {
-            // TODO check byte conversion
-            channel.send(new byte[] { (byte) (b & 0xFF) });
+            channel.send(new byte[] { (byte)b });
         }
+        
+        @Override
+        public void write(byte[] b) throws IOException {
+            channel.send(b);
+        }
+        
         
         @Override
         public void write(byte[] b, int off, int len) throws IOException {
@@ -215,42 +233,38 @@ public class XtermServer {
         private volatile boolean closed = false;
         
         public void queue(byte[] chunk) {
-            if (chunk.length > 0) {
+            if (chunk.length > 0 && !closed) {
                 incomingBytes.add(chunk);
             }
         }
 
         @Override
         public synchronized int read() throws IOException {
-            if (closed) {
-                return -1;
+            int available = waitForAvailable();
+            if (available == -1) {
+            	return -1;
             }
-            
-            waitForAvailable();
-            // TODO: here we get ArrayIndexOutOfBounds exceptions
-            return currentBlock[consumed++];
+            return currentBlock[consumed++] & 0xFF;
         }
         
 
-        private synchronized void waitForAvailable() throws IOException {
+        private int waitForAvailable() throws IOException {
             if (closed) {
-                throw new IOException("Closed stream");
+            	return -1;
             }
             if (currentBlock == null || consumed >= currentBlock.length) {
                 try {
-                    byte[] newBlock;
-                    while ((newBlock = incomingBytes.poll(1, TimeUnit.SECONDS)) == null) {
+                    while ((currentBlock = incomingBytes.poll(1, TimeUnit.SECONDS)) == null) {
                         if (closed) {
-                            throw new IOException("Closed stream");
+                        	return -1;
                         }
                     }
-
-                    currentBlock = newBlock;
                     consumed = 0;
                 } catch (InterruptedException e) {
                     throw new IOException(e);
                 }
             }
+            return currentBlock.length - consumed;
         }
 
         @Override
@@ -258,21 +272,19 @@ public class XtermServer {
             if (len == 0) {
                 return 0;
             }
-            
-            if (closed) {
-                return -1;
+            int available = waitForAvailable();
+            if (available == -1) {
+            	return -1;
             }
             
-            waitForAvailable();
-            // TODO: check for off by one
-            int availableBytes =  Math.min(len, currentBlock.length - consumed);
-            System.arraycopy(currentBlock, consumed, b, off, availableBytes);
-            consumed += availableBytes;
-            return availableBytes;
+            int read =  Math.min(len, available);
+            System.arraycopy(currentBlock, consumed, b, off, read);
+            consumed += read;
+            return read;
         }
         
         @Override
-        public void close() throws IOException {
+        public void close() {
             closed = true;
         }
     }

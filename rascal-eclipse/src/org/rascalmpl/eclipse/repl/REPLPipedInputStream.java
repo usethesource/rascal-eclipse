@@ -66,15 +66,19 @@ public class REPLPipedInputStream extends InputStream {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     closed = true;
+  }
+
+  public void write(byte[] b) {
+	  write(b, 0, b.length);
   }
 
   public void write(byte[] b, int off, int len) {
     for (int i = off; i < off + len; i++) {
       queue.add(b[i]); 
     }
-    newData.release();
+    newData.release(len);
   }
   public void write(byte b) {
     queue.add(b); 

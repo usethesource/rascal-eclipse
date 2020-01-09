@@ -57,7 +57,6 @@ public class RascalXtermConnector implements XtermConnector {
     private BaseREPL shell;
     private final AtomicBoolean shellIsRunning = new AtomicBoolean(false);
     private InputStream stdIn;
-    private OutputStream stdInUI;
     protected String project = "rascal";
     protected String module = null;
     protected String mode = "run";
@@ -88,14 +87,13 @@ public class RascalXtermConnector implements XtermConnector {
     @Override
     public void connect(InputStream stdIn, OutputStream stdOut) {
         this.stdIn = stdIn;
-        stdInUI = stdOut;
 
         RascalXtermRegistry.getInstance().register(this);
         
         Thread t = new Thread() {
             public void run() {
                 try {
-                    shell = constructREPL(stdIn, stdInUI);
+                    shell = constructREPL(stdIn, stdOut);
 
                     if (module != null) {
                         queueCommand("import " + module + ";");
@@ -143,24 +141,9 @@ public class RascalXtermConnector implements XtermConnector {
     }
 
     public void queueCommand(String cmd) {
-        shell.queueCommand(cmd);
-        if (shellIsRunning.get()) {
-            try {
-                // let's flush it.
-                stdInUI.write(new byte[]{(byte)ctrl('K'),(byte)ctrl('U'),(byte)'\n'});
-            }
-            catch (IOException e) {
-                // tough, but we don't have a sensible way of dealing with this,
-                // and if it does happen, the user will have bigger issues than the current one.
-            }
-        }
+    	throw new RuntimeException("Not supported yet, we have to extend the xterm bridge to allow this");
     }
     
-    private static char ctrl(char ch) {
-        assert 'A' <= ch && ch <= '_'; 
-        return (char)((((int)ch) - 'A') + 1);
-    }
-
     private boolean debug() {
         return "debug".equals(mode);
     }
@@ -179,13 +162,13 @@ public class RascalXtermConnector implements XtermConnector {
         return terminalWidth;
     }
 
-    protected BaseREPL constructREPL(InputStream stdIn, OutputStream stdInUI) throws IOException, URISyntaxException {
-        BaseRascalREPL repl = constructRascalREPL(stdIn, stdInUI);
-        return new BaseREPL(repl, null, stdIn, stdInUI, true, true, getHistoryFile(), new XtermTerminal(stdIn, stdInUI), new XtermIDEServices());
+    protected BaseREPL constructREPL(InputStream stdIn, OutputStream stdOut) throws IOException, URISyntaxException {
+        BaseRascalREPL repl = constructRascalREPL(stdIn, stdOut);
+        return new BaseREPL(repl, null, stdIn, stdOut, true, true, getHistoryFile(), new XtermTerminal(), new XtermIDEServices());
     }
     
-    protected BaseRascalREPL constructRascalREPL(InputStream stdIn, OutputStream stdInUI) throws IOException, URISyntaxException {
-        return new RascalInterpreterREPL(stdIn, stdInUI, true, true, false, getHistoryFile()) {
+    protected BaseRascalREPL constructRascalREPL(InputStream stdIn, OutputStream stdOut) throws IOException, URISyntaxException {
+        return new RascalInterpreterREPL(stdIn, stdOut, true, true, false, getHistoryFile()) {
             private AbstractInterpreterEventTrigger eventTrigger;
             private DebugHandler debugHandler;
             

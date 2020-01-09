@@ -198,12 +198,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
         try {
             super.doDisconnect();
             if (shell != null) {
-                try {
-                    stdIn.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
+                stdIn.close();
                 shell.stop();
                 shell = null;
             }

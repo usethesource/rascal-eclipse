@@ -7,21 +7,19 @@ import java.io.OutputStream;
 import jline.Terminal;
 
 public class XtermTerminal implements Terminal {
-    private final InputStream input;
-    private final OutputStream output;
 
-    public XtermTerminal(InputStream input, OutputStream output) {
-        this.input = input;
-        this.output = output;
+    public XtermTerminal() {
     }
 
     @Override
     public void disableInterruptCharacter() {
-
+    	// TODO: add ctrl+c disable to bridge
+    	// this is done every time we readline
     }
 
     @Override
     public void enableInterruptCharacter() {
+    	// TODO: add ctrl+c enable to bridge
 
     }
 
@@ -42,6 +40,8 @@ public class XtermTerminal implements Terminal {
 
     @Override
     public boolean hasWeirdWrap() {
+    	// TODO: figure out which it is, in unix this maps to:
+    	// getBooleanCapability("auto_right_margin") && getBooleanCapability("eat_newline_glitch");
         return false;
     }
 
@@ -57,7 +57,7 @@ public class XtermTerminal implements Terminal {
 
     @Override
     public boolean isEchoEnabled() {
-        return true;
+        return false;
     }
 
     @Override
@@ -67,26 +67,26 @@ public class XtermTerminal implements Terminal {
 
     @Override
     public void reset() throws Exception {
-
+    	throw new RuntimeException("Not supported in xterm.js bridge yet");
     }
 
     @Override
     public void restore() throws Exception {
-
+    	throw new RuntimeException("Not supported in xterm.js bridge yet");
     }
 
     @Override
     public void setEchoEnabled(boolean arg0) {
-
+    	throw new RuntimeException("Enabling echo not supported in xterm.js bridge");
     }
 
     @Override
     public InputStream wrapInIfNeeded(InputStream arg0) throws IOException {
-        return input;
+        return arg0;
     }
 
     @Override
     public OutputStream wrapOutIfNeeded(OutputStream arg0) {
-        return output;
+        return arg0;
     }
 }
