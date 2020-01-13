@@ -5,11 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.repl.REPLPipedInputStream;
@@ -64,11 +59,12 @@ public class XtermServer {
                 OutputStream output = new SocketOutputStream(session.getChannel());
                 session.getChannel().register(new XtermFrameListener(input));
                 
-                System.err.println("Session connection parameters: " + session.getRequest().getAttributes());
+                System.err.println("Session connection parameters: " + session.getRequest().getQuery());
+                
                 
                 // TODO: here we can inject different kinds of connectors
                 // TODO: receive project config parameters from session URL
-                new RascalXtermConnector().connect(input, output);
+                new RascalXtermConnector().connect(input, output, session.getRequest().getQuery());
             } catch (IOException e) {
                 Activator.log("failed to connect xterm server", e);
             }
@@ -218,74 +214,6 @@ public class XtermServer {
                 System.arraycopy(b, off, buf, 0, len);
                 channel.send(buf);
             }
-        }
-    }
-    
-    /**
-     * This wraps a queue of byte[]'s which is asynchronously filled by the 
-     * websocket framechannel as an InputStream. The stream is to be read
-     * on a different thread.  
-     */
-    private class QueuedInputStream extends InputStream {
-        private final BlockingQueue<byte[]> incomingBytes = new ArrayBlockingQueue<>(128);
-        private volatile byte[] currentBlock = null;
-        private volatile int consumed = 0;
-        private volatile boolean closed = false;
-        
-        public void queue(byte[] chunk) {
-            if (chunk.length > 0 && !closed) {
-                incomingBytes.add(chunk);
-            }
-        }
-
-        @Override
-        public synchronized int read() throws IOException {
-            int available = waitForAvailable();
-            if (available == -1) {
-            	return -1;
-            }
-            return currentBlock[consumed++] & 0xFF;
-        }
-        
-
-        private int waitForAvailable() throws IOException {
-            if (closed) {
-            	return -1;
-            }
-            if (currentBlock == null || consumed >= currentBlock.length) {
-                try {
-                    while ((currentBlock = incomingBytes.poll(1, TimeUnit.SECONDS)) == null) {
-                        if (closed) {
-                        	return -1;
-                        }
-                    }
-                    consumed = 0;
-                } catch (InterruptedException e) {
-                    throw new IOException(e);
-                }
-            }
-            return currentBlock.length - consumed;
-        }
-
-        @Override
-        public synchronized int read(byte[] b, int off, int len) throws IOException {
-            if (len == 0) {
-                return 0;
-            }
-            int available = waitForAvailable();
-            if (available == -1) {
-            	return -1;
-            }
-            
-            int read =  Math.min(len, available);
-            System.arraycopy(currentBlock, consumed, b, off, read);
-            consumed += read;
-            return read;
-        }
-        
-        @Override
-        public void close() {
-            closed = true;
         }
     }
 }

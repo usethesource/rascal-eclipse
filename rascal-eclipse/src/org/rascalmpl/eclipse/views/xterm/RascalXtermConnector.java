@@ -85,7 +85,11 @@ public class RascalXtermConnector implements XtermConnector {
     }
 
     @Override
-    public void connect(InputStream stdIn, OutputStream stdOut) {
+    public void connect(InputStream stdIn, OutputStream stdOut, Map<String,String> parameters) {
+        String projectParam = parameters.get("project");
+        if (projectParam != null && !projectParam.equals("null")) {
+            this.project = projectParam;
+        }
         this.stdIn = stdIn;
 
         RascalXtermRegistry.getInstance().register(this);
