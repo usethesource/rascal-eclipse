@@ -224,7 +224,20 @@ public class ProjectEvaluatorFactory {
 				if (libs != null) {
 					for (String required : libs) {
 					    if (required.startsWith("|")) {
-					        eval.addRascalSearchPath((ISourceLocation) new StandardTextReader().read(eval.getValueFactory(), new StringReader(required)));
+					        ISourceLocation libLocation = (ISourceLocation) new StandardTextReader().read(eval.getValueFactory(), new StringReader(required));
+                            eval.addRascalSearchPath(libLocation);
+                            
+                            // load dependencies recursively
+                            if (libLocation.getScheme().equals("lib")) {
+                                String libName = libLocation.getAuthority();
+                                if (libName != null && !configured.contains(libName)) {
+                                    Bundle libBundle = Platform.getBundle(libName);
+                                    
+                                    if (libBundle != null) {
+                                        configure(libBundle, eval);
+                                    }
+                                }
+                            }
 					    }
 					    else {
 					        URI entryURI = URIUtil.fromURL(bundle.getEntry(required));
