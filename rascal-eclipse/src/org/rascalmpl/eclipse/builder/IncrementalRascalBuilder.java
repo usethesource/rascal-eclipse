@@ -111,17 +111,29 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         IProject project = getProject();
         
         if (project != null) {
-            project.findMember(ProjectPathConfig.BIN_FOLDER).accept(new IResourceVisitor() {
-                @Override
-                public boolean visit(IResource resource) throws CoreException {
-                    if (binaryExtension.contains(resource.getFileExtension())) {
-                        resource.delete(true, monitor);
-                        return false;
-                    }
-
-                    return true;
+            if (pathConfig == null) {
+                try {
+                    initializeParameters(false);
+                } catch (CoreException e) {
+                    Activator.log("failed to initialize builder", e);
                 }
-            });
+            }
+            
+            IResource binFolder = URIResourceResolver.getResource(pathConfig.getBin());
+            
+            if (binFolder != null) {
+                binFolder.accept(new IResourceVisitor() {
+                    @Override
+                    public boolean visit(IResource resource) throws CoreException {
+                        if (binaryExtension.contains(resource.getFileExtension())) {
+                            resource.delete(true, monitor);
+                            return false;
+                        }
+
+                        return true;
+                    }
+                });
+            }
         }
     }
 	
