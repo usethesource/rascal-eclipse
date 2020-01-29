@@ -136,8 +136,8 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                     shell.getOutput().println("Rascal Version: " + version);
                     if (new SemVer(version).getPrerelease().equals("SNAPSHOT")) {
                         shell.getOutput().print(
-                                "Rascal's daily SNAPSHOT releases have become more unstable recently.\n" +
-                                "We recommend switching to the (monthly) stable release strain 0.16.x from https://update.rascal-mpl.org/stable as soon as possible.\n" +
+                                "Due to intense development work Rascal's daily SNAPSHOT releases are now less stable.\n" +
+                                "We recommend switching to the (monthly) stable release train 0.16.x from https://update.rascal-mpl.org/stable as soon as possible.\n" +
                                 "Until the end of Feb 2020, the stable release will have a higher version than the daily unstable, to facilitate your move to stable.\n\n");
                         
                     }
