@@ -835,13 +835,10 @@
        <viewerContentBinding 
             viewerId="rascal.navigator">
           <includes>
+             <contentExtension pattern="org.eclipse.ui.navigator.resourceContent" />                      
              <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
-             <contentExtension
-                   pattern="org.eclipse.ui.navigator.resourceContent">
-             </contentExtension>
-             <contentExtension
-                   pattern="org.eclipse.ui.navigator.resources.linkHelper">
-             </contentExtension>
+             <contentExtension pattern="org.eclipse.ui.navigator.resources.linkHelper"/>
+             <contentExtension pattern="org.eclipse.ui.navigator.resources.workingSets"/>
           </includes>
        </viewerContentBinding>
        <viewerActionBinding
