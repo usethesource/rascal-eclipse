@@ -61,8 +61,7 @@ public class ProjectPathConfig {
                         IProject libProject = project.getWorkspace().getRoot().getProject(projectName);
                         
                         if (libProject != null) {
-                            String libTarget = getJavaTargetFolder(libProject, BIN_FOLDER);
-                            libsWriter.append(URIUtil.getChildLocation(projectLoc, libTarget));
+                            libsWriter.append(getJavaTargetFolder(libProject));
                         }
                         else {
                            libsWriter.append(libLocation);
@@ -102,11 +101,7 @@ public class ProjectPathConfig {
             srcsWriter.append(src);
         }
 
-        String binFolder = BIN_FOLDER;
-        
-        binFolder = getJavaTargetFolder(project, binFolder);
-
-        ISourceLocation bin = URIUtil.getChildLocation(projectLoc, binFolder);
+        ISourceLocation bin = getJavaTargetFolder(project);
         libsWriter.insert(bin);
 
         try {
@@ -138,7 +133,9 @@ public class ProjectPathConfig {
         }
     }
 
-    private String getJavaTargetFolder(IProject project, String binFolder) {
+    private ISourceLocation getJavaTargetFolder(IProject project) {
+        String binFolder = BIN_FOLDER;
+        
         try {
             if (project.hasNature(JavaCore.NATURE_ID)) {
                 IJavaProject jProject = JavaCore.create(project);
@@ -148,7 +145,8 @@ public class ProjectPathConfig {
             Activator.log("could not find output location", e);
         }
         
-        return binFolder;
+        ISourceLocation projectLoc = ProjectURIResolver.constructProjectURI(project.getFullPath());;
+        return URIUtil.getChildLocation(projectLoc, binFolder);
     }
 
     private boolean isRascalBootstrapProject(IProject project) {
