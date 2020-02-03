@@ -830,10 +830,8 @@
             id="rascal.navigator">
       </view>
    </extension>
-    <extension
-         point="org.eclipse.ui.navigator.viewer">
-       <viewerContentBinding 
-            viewerId="rascal.navigator">
+   <extension point="org.eclipse.ui.navigator.viewer">
+       <viewerContentBinding viewerId="rascal.navigator">
           <includes>
              <contentExtension pattern="org.eclipse.ui.navigator.resourceContent" />                      
              <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
@@ -841,25 +839,19 @@
              <contentExtension pattern="org.eclipse.ui.navigator.resources.workingSets"/>
           </includes>
        </viewerContentBinding>
-       <viewerActionBinding
-             viewerId="rascal.navigator">
+       <viewerActionBinding viewerId="rascal.navigator">
           <includes>
-             <actionExtension
-                   pattern="org.eclipse.ui.navigator.resources.*">
+             <actionExtension pattern="org.eclipse.ui.navigator.resources.*">
              </actionExtension>
-             <actionExtension
-                   pattern="org.rascalmpl.navigator.actions.*">
+             <actionExtension pattern="org.rascalmpl.navigator.actions.*">
              </actionExtension>
-             <actionExtension
-                   pattern="rascal_eclipse.console">
+             <actionExtension pattern="rascal_eclipse.console">
              </actionExtension>
           </includes>
        </viewerActionBinding>
-    
    </extension>
    
-   <extension
-         point="org.eclipse.ui.navigator.navigatorContent">
+   <extension point="org.eclipse.ui.navigator.navigatorContent">
       <navigatorContent
             activeByDefault="true"
             contentProvider="org.rascalmpl.eclipse.navigator.NavigatorContentProvider"
@@ -869,7 +861,7 @@
             priority="normal">
          <triggerPoints>
           <or>
-                 <instanceof value="org.eclipse.core.resources.IResource"/>
+             <instanceof value="org.eclipse.core.resources.IResource"/>
           </or>
          </triggerPoints>
          <possibleChildren>
