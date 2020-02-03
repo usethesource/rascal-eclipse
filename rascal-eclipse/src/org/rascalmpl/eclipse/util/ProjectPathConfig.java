@@ -52,7 +52,25 @@ public class ProjectPathConfig {
         for (String lib : manifest.getRequiredLibraries(project)) {
             if (lib.startsWith("|")) {
                 try {
-                    libsWriter.append(new StandardTextReader().read(vf, new StringReader(lib)));
+                    ISourceLocation libLocation = (ISourceLocation) new StandardTextReader().read(vf, new StringReader(lib));
+                    
+                    if (libLocation.getScheme().equals("lib")) {
+                        // if this is another project in the workspace, resolve
+                        // the lib location to the target folder of the respective project
+                        String projectName = libLocation.getAuthority();
+                        IProject libProject = project.getWorkspace().getRoot().getProject(projectName);
+                        
+                        if (libProject != null) {
+                            String libTarget = getJavaTargetFolder(libProject, BIN_FOLDER);
+                            libsWriter.append(URIUtil.getChildLocation(projectLoc, libTarget));
+                        }
+                        else {
+                           libsWriter.append(libLocation);
+                        }
+                    }
+                    else {
+                        libsWriter.append(libLocation);
+                    }
                 } catch (FactTypeUseException | IOException e) {
                     Activator.log("failed to depend on library: [" + lib + "]", e);
                 }
@@ -86,14 +104,7 @@ public class ProjectPathConfig {
 
         String binFolder = BIN_FOLDER;
         
-        try {
-            if (project.hasNature(JavaCore.NATURE_ID)) {
-                IJavaProject jProject = JavaCore.create(project);
-                binFolder = jProject.getOutputLocation().removeFirstSegments(1).toOSString();
-            }
-        } catch (CoreException e) {
-            Activator.log("could not find output location", e);
-        }
+        binFolder = getJavaTargetFolder(project, binFolder);
 
         ISourceLocation bin = URIUtil.getChildLocation(projectLoc, binFolder);
         libsWriter.insert(bin);
@@ -125,6 +136,19 @@ public class ProjectPathConfig {
                 return new PathConfig();
             }
         }
+    }
+
+    private String getJavaTargetFolder(IProject project, String binFolder) {
+        try {
+            if (project.hasNature(JavaCore.NATURE_ID)) {
+                IJavaProject jProject = JavaCore.create(project);
+                binFolder = jProject.getOutputLocation().removeFirstSegments(1).toOSString();
+            }
+        } catch (CoreException e) {
+            Activator.log("could not find output location", e);
+        }
+        
+        return binFolder;
     }
 
     private boolean isRascalBootstrapProject(IProject project) {
