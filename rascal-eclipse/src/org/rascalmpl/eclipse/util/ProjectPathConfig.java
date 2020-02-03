@@ -60,7 +60,7 @@ public class ProjectPathConfig {
                         String projectName = libLocation.getAuthority();
                         IProject libProject = project.getWorkspace().getRoot().getProject(projectName);
                         
-                        if (libProject != null) {
+                        if (libProject != null && libProject.exists() && libProject.isOpen()) {
                             libsWriter.append(getJavaTargetFolder(libProject));
                         }
                         else {
