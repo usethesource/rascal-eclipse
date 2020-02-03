@@ -108,7 +108,7 @@ public class Builder extends IncrementalProjectBuilder {
                             }
                             break;
                         case FULL_BUILD:
-                            Activator.log("Ignoring full tutor build trigger", new IllegalArgumentException());
+                            Activator.log("Ignoring full tutor build trigger", null);
                             break;
                     }
                 }
