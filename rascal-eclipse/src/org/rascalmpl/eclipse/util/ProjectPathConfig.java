@@ -109,7 +109,6 @@ public class ProjectPathConfig {
                     srcsWriter.done(), 
                     libsWriter.done(), 
                     bin, 
-                    URIUtil.correctLocation("boot", "", ""), 
                     coursesWriter.done(), 
                     vf.list(),  // TODO compiler path for when code actually has to be compiled
                     vf.list()); // TODO classloader path for when the compiled code must run
@@ -122,7 +121,6 @@ public class ProjectPathConfig {
                         srcsWriter.done(), 
                         vf.list(), 
                         bin, 
-                        URIUtil.correctLocation("boot", "", ""), 
                         coursesWriter.done(), 
                         vf.list(),  // TODO compiler path for when code actually has to be compiled
                         vf.list());
