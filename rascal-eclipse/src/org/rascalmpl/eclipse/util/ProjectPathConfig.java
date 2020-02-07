@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.util;
 
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -11,6 +12,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IListWriter;
@@ -61,14 +63,18 @@ public class ProjectPathConfig {
                         IProject libProject = project.getWorkspace().getRoot().getProject(projectName);
                         
                         if (libProject != null && libProject.exists() && libProject.isOpen()) {
-                            libsWriter.append(getJavaTargetFolder(libProject));
-                        }
-                        else {
-                           libsWriter.append(libLocation);
+                            ISourceLocation target = getJavaTargetFolder(libProject);
+                            
+                            libsWriter.append(target);
+                            continue;
                         }
                     }
-                    else {
+
+                    if (URIResolverRegistry.getInstance().exists(libLocation)) {
                         libsWriter.append(libLocation);
+                    }
+                    else {
+                        throw new FileNotFoundException(libLocation.toString());
                     }
                 } catch (FactTypeUseException | IOException e) {
                     Activator.log("failed to depend on library: [" + lib + "]", e);
