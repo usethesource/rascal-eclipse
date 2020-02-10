@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
-module lang::saf::AST
+module demo::lang::saf::AST
 
 data Fighter = fighter(str name, list[Spec] specs);
 

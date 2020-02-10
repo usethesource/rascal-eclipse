@@ -7,14 +7,14 @@
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 
-module lang::saf::Implode
+module demo::lang::saf::Implode
 
-import lang::saf::AST;
-import lang::saf::SAF;
+import demo::lang::saf::AST;
+import demo::lang::saf::SAF;
 
 import ParseTree;
 
 // start[lang::saf::SAF::Fighter] 
-public lang::saf::AST::Fighter implode(Tree pt) 
+public demo::lang::saf::AST::Fighter implode(Tree pt) 
   = implode(#lang::saf::AST::Fighter, pt);
 

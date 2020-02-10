@@ -8,7 +8,7 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Atze van der Ploeg - Atze.van.der.Ploeg@cwi.nl}
 
-module lang::saf::Render
+module demo::lang::saf::Render
 
 import vis::Figure;
 import vis::Render;

@@ -7,14 +7,14 @@
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 
-module lang::saf::Check
+module demo::lang::saf::Check
 
 import Message;
 import IO;
-import lang::saf::Implode;
-import lang::saf::Parse;
-import lang::saf::AST;
-import lang::saf::Config;
+import demo::lang::saf::Implode;
+import demo::lang::saf::Parse;
+import demo::lang::saf::AST;
+import demo::lang::saf::Config;
 
 
 // todo: non-empty behavior etc. Last should always be "always"?

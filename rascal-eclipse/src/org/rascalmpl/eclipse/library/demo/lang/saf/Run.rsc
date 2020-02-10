@@ -10,11 +10,11 @@
 
 module lang::saf::Run
 
-import lang::saf::AST;
-import lang::saf::Parse;
-import lang::saf::Implode;
-import lang::saf::Render;
-import lang::saf::Config; // TODO: remove cycle
+import demo::lang::saf::AST;
+import demo::lang::saf::Parse;
+import demo::lang::saf::Implode;
+import demo::lang::saf::Render;
+import demo::lang::saf::Config; // TODO: remove cycle
 
 import util::Math;
 import List;

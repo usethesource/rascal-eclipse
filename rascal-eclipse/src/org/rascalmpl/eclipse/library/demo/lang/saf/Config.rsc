@@ -8,9 +8,9 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Atze van der Ploeg - Atze.van.der.Ploeg@cwi.nl}
 
-module lang::saf::Config
+module demo::lang::saf::Config
 
-import lang::saf::AST;
+import demo::lang::saf::AST;
 import util::Math;
 import IO;
 

@@ -8,17 +8,17 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Atze van der Ploeg - Atze.van.der.Ploeg@cwi.nl}
 
-module lang::saf::Plugin
+module demo::lang::saf::Plugin
 
 import util::IDE;
 import util::Prompt;
-import lang::saf::SAF;
-import lang::saf::Parse;
-import lang::saf::Implode;
-import lang::saf::Check;
-import lang::saf::Run;
-import lang::saf::DumpXML;
-import lang::xml::DOM;
+import demo::lang::saf::SAF;
+import demo::lang::saf::Parse;
+import demo::lang::saf::Implode;
+import demo::lang::saf::Check;
+import demo::lang::saf::Run;
+import demo::lang::saf::DumpXML;
+import demo::lang::xml::DOM;
 import ParseTree;
 import IO;
 

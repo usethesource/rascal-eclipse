@@ -7,9 +7,9 @@
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 
-module lang::saf::Parse
+module demo::lang::saf::Parse
 
-import lang::saf::SAF;
+import demo::lang::saf::SAF;
 import ParseTree;
 
 public start[Fighter] parse(str src, loc l) = parse(#start[Fighter], src, l);
