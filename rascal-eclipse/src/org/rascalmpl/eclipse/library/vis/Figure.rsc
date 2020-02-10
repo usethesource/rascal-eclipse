@@ -235,6 +235,7 @@ str getDir(Orientation or){
 		case topDown() 	 : return "TB";
 		case downTop() 	 : return "BT";
 	}
+	throw "getDir: cannot handle <or>";
 }
 
 bool getHMajor(Orientation or){
@@ -244,6 +245,7 @@ bool getHMajor(Orientation or){
 		case topDown() 	 : return false;
 		case downTop() 	 : return false;
 	}
+	throw "getHMajor: cannot handle <or>";
 }
 
 bool getHMirror(Orientation or){
@@ -253,6 +255,7 @@ bool getHMirror(Orientation or){
 		case topDown() 	 : return false;
 		case downTop() 	 : return false;
 	}
+	throw "getHMirror: cannot handle <or>";
 }
 
 bool getVMirror(Orientation or){
@@ -262,6 +265,7 @@ bool getVMirror(Orientation or){
 		case topDown() 	 : return false;
 		case downTop() 	 : return true;
 	}
+	throw "getVMirror: cannot handle <or>";
 }
 
 public FProperty orientation(Orientation or){
@@ -643,7 +647,7 @@ public FProperty height(num h){
 
 public FProperty child(FProperty props ...){
 	throw "child is currently out of order (broken)";
-	return _child(props);
+	//return _child(props);
 }
 
 public FProperty grandChild(FProperty props ...){
@@ -720,8 +724,7 @@ public data Figure =
    | _withDependantWidthHeight(bool widthMajor,Figure innder, FProperties props)
    | _mouseOver(Figure under, Figure over, FProperties props)
    | _fswitch(int () choice,Figures figs, FProperties props)
-   | _overlap(Figure under, Figure over, FProperties props)
-   | _mouseOver(Figure under,Figure over,FProperties props)          
+   | _overlap(Figure under, Figure over, FProperties props)      
                    
    | _hvcat(Figures figs, FProperties props) // horizontal and vertical concatenation
                    
