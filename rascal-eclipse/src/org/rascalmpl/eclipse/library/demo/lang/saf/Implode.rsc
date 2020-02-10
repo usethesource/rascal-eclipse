@@ -16,5 +16,5 @@ import ParseTree;
 
 // start[lang::saf::SAF::Fighter] 
 public demo::lang::saf::AST::Fighter implode(Tree pt) 
-  = implode(#lang::saf::AST::Fighter, pt);
+  = implode(#demo::lang::saf::AST::Fighter, pt);
 
