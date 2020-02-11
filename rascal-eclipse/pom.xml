@@ -130,7 +130,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <!-- commented out due to bug in rascal-core <plugin>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>0.2.3</version>
@@ -157,7 +157,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>                
+            </plugin>                -->
         </plugins>
 
         <pluginManagement>
