@@ -128,18 +128,6 @@
                             </artifactItems>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>classpath</id>
-                        <goals>
-                            <goal>build-classpath</goal>
-                        </goals>
-                        <configuration>
-                            <fileSeparator>/</fileSeparator>
-                            <prefix>lib</prefix>
-                            <outputFile>${project.build.directory}/classPath.txt</outputFile>
-                            <excludeTransitive>true</excludeTransitive>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             <plugin>
