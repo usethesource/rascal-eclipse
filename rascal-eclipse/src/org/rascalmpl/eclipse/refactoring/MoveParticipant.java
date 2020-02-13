@@ -80,7 +80,6 @@ public class MoveParticipant extends
 					change.setEdit(m);
 				}
 				
-
 				return change;
 			}
 		} 

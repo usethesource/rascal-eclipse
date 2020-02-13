@@ -2,6 +2,7 @@ package org.rascalmpl.eclipse.builder;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIResourceResolver;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.impulse.builder.MarkerCreator;
@@ -304,6 +306,46 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         }
     }
 
+    private class OldBinaryFileRemover implements IResourceDeltaVisitor {
+        
+        public boolean visit(IResourceDelta delta) throws CoreException {
+                IPath path = delta.getProjectRelativePath();
+
+                try {
+                    if (IRascalResources.RASCAL_EXT.equals(path.getFileExtension() /* could be null */)) {
+                        if ((delta.getKind() & (IResourceDelta.REMOVED | IResourceDelta.MOVED_TO)) != 0) {
+                            initializeParameters(false);
+
+                            ISourceLocation module = ProjectURIResolver.constructProjectURI(getProject(), delta.getProjectRelativePath());
+
+                            for (IValue elem : pathConfig.getSrcs()) {
+                                ISourceLocation folder = (ISourceLocation) elem;
+
+                                if (module.getPath().startsWith(folder.getPath())) {
+                                    String relativePath = module.getPath().substring(folder.getPath().length());
+
+                                    ISourceLocation binFile = URIUtil.getChildLocation(pathConfig.getBin(), relativePath);
+                                    binFile = URIUtil.changePath(binFile, binFile.getPath().replace("." + IRascalResources.RASCAL_EXT, ".tpl"));
+                                    URIResolverRegistry.getInstance().remove(binFile);
+                                }
+                            }
+                        }
+                        
+                        return false;
+                    }
+                } catch (IOException | URISyntaxException e) {
+                    Activator.log("could not remove binary file", e);
+                    return false;
+                }
+
+                return !ProjectPathConfig.BIN_FOLDER.equals(path.toPortableString())
+                        // if a duplicate bin folder from maven exists, don't recurse into it:
+                        // this is brittle, but it saves a lot of time waiting for unnecessary compilation:
+                        && !ProjectPathConfig.MVN_TARGET_FOLDER.equals(path.toPortableString());
+
+        }
+    }
+
     private void buildIncremental(IResourceDelta delta, IProgressMonitor monitor) {
         if (!RascalPreferences.isRascalCompilerEnabled()) {
             return;
@@ -312,6 +354,8 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         if (isRascalBootstrapProject() && !RascalPreferences.bootstrapRascalProject()) {
             return;
         }
+        
+        removeBinaryFilesForRemovedSourceFiles(delta);
         
         try {
             List<ModuleWork> todo = new LinkedList<>();
@@ -326,6 +370,14 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
             }
         } catch (CoreException e) {
             Activator.log("incremental Rascal build failed", e);
+        }
+    }
+
+    private void removeBinaryFilesForRemovedSourceFiles(IResourceDelta delta) {
+        try {
+            delta.accept(new OldBinaryFileRemover());
+        } catch (CoreException e) {
+            Activator.log("binary file remover builder failed", e);
         }
     }
 
