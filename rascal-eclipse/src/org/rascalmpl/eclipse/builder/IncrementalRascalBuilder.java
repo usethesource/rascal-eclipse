@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.editor.MessagesToMarkers;
@@ -29,7 +30,6 @@ import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.ProjectPathConfig;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
 import org.rascalmpl.eclipse.util.RascalProgressMonitor;
-import org.rascalmpl.eclipse.util.SchedulingRules;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -78,10 +78,12 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    }
 	    
 	    if (pathConfig != null) {
-	        return URIResourceResolver.getResource(pathConfig.getBin());
+	        return new MultiRule((ISchedulingRule[]) pathConfig.getSrcs().stream()
+	                .map(l -> (URIResourceResolver.getResource((ISourceLocation) l)))
+	                .toArray());
 	    }
 	    else {
-	        return SchedulingRules.getRascalProjectBinFolderRule(getProject());
+	        return getProject();
 	    }
 	}
 
@@ -226,6 +228,9 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    
 	    @Override
 	    public boolean isCanceled() {
+	        if (isInterrupted()) {
+	            Activator.log("something has cancelled the build", null);
+	        }
 	        return super.isCanceled() || isInterrupted();
 	    }
 	}
