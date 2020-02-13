@@ -80,7 +80,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    if (pathConfig != null) {
 	        return new MultiRule((ISchedulingRule[]) pathConfig.getSrcs().stream()
 	                .map(l -> (URIResourceResolver.getResource((ISourceLocation) l)))
-	                .toArray());
+	                .toArray(ISchedulingRule[]::new));
 	    }
 	    else {
 	        return getProject();
