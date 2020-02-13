@@ -140,6 +140,7 @@ public class RascalLanguageServices {
                     return (IList) eval.call(monitor, "check", files, pcfg.asConstructor());
                 }
                 catch (InterruptException e) {
+                    Activator.log("compilation interrupted", e);
                     return IRascalValueFactory.getInstance().list();
                 }
                 catch (Throwable e) {
@@ -150,8 +151,11 @@ public class RascalLanguageServices {
                     eval.__setInterrupt(false);
                 }
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException e) {
             Activator.log("compilation failed", e);
+            return IRascalValueFactory.getInstance().list();
+        } catch (ExecutionException e1) {
+            Activator.log("could not find compiler", e1);
             return IRascalValueFactory.getInstance().list();
         }
     }
