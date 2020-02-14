@@ -228,9 +228,6 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	    
 	    @Override
 	    public boolean isCanceled() {
-	        if (isInterrupted()) {
-	            Activator.log("something has cancelled the build", null);
-	        }
 	        return super.isCanceled() || isInterrupted();
 	    }
 	}

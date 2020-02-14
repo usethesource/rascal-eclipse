@@ -140,7 +140,6 @@ public class RascalLanguageServices {
                     return (IList) eval.call(monitor, "check", files, pcfg.asConstructor());
                 }
                 catch (InterruptException e) {
-                    Activator.log("compilation interrupted", e);
                     return IRascalValueFactory.getInstance().list();
                 }
                 catch (Throwable e) {
