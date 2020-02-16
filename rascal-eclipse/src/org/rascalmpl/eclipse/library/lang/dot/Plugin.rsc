@@ -7,7 +7,7 @@
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl}
 
-module Plugin
+module lang::dot::Plugin
 
 import lang::dot::\syntax::Dot;
 
