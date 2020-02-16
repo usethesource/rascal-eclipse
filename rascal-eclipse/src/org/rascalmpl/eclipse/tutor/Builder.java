@@ -171,7 +171,7 @@ public class Builder extends IncrementalProjectBuilder {
     	ISourceLocation target = URIUtil.getChildLocation((ISourceLocation)pcfg.getBin(), "courses");
     	IResource destResource = URIResourceResolver.getResource(target);
     	
-    	if (destResource != null) {
+    	if (destResource != null && destResource.exists()) {
     	    destResource.delete(true, monitor);
     	}
     }
