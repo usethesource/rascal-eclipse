@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.rascalmpl</groupId>
         <artifactId>rascal-eclipse-ide</artifactId>
-        <version>0.15.3</version>
+        <version>0.15.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>rascal_eclipse</artifactId>
@@ -12,7 +12,7 @@
 
     <scm>
         <developerConnection>scm:git:https://github.com/usethesource/rascal-eclipse.git</developerConnection>
-        <tag>v0.15.3</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencies>
@@ -24,17 +24,17 @@
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>rascal</artifactId>
-            <version>0.15.3</version>
+            <version>0.15.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>typepal</artifactId>
-            <version>0.4.2</version>
+            <version>0.4.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>rascal-core</artifactId>
-            <version>0.4.5</version>
+            <version>0.4.6-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>jline</groupId>
