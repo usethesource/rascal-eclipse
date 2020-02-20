@@ -258,7 +258,6 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 			try { 
 				if (resolved instanceof IFolder) {
 					((IFolder) resolved).create(true, true, pm);
-					resolved.refreshLocal(IResource.DEPTH_ZERO, pm);
 				}
 				else if (resolved instanceof IProject) {
 					IProject project = (IProject) resolved;
