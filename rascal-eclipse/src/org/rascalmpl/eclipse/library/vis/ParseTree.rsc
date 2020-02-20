@@ -14,10 +14,8 @@ import lang::rascal::format::Grammar;
 import lang::rascal::format::Escape;
 import vis::Figure;
 import vis::Render;
-import vis::KeySym;
 
 import ParseTree;
-import IO;
 import String;
 import ValueIO;
 import Set;
@@ -68,31 +66,7 @@ private FProperty popup(str s){
 	return mouseOver(box(text(s), grow(1.2), resizable(false),fillColor("yellow")));
 }
 
-private bool allChars(list[Tree] trees){
-  return all(char(_) <- trees);
-}
-
-private str getChars(list[Tree] trees){
-  list[int] chars = [ c | t <- trees, char(int c) := t];
-  return stringChars(chars);
-}
-
 public FProperty popup(str s){
-return mouseOver(box(text(s), grow(1.2), resizable(false), fillColor("yellow")));
+    return mouseOver(box(text(s), grow(1.2), resizable(false), fillColor("yellow")));
 }
-
-public void tree2(){
-   render(tree(ellipse(size(60), fillColor("green"), popup("Ellipse A")),
-       [ ellipse(size(90), fillColor("red"), popup("Ellipse B")),
-         ellipse(size(120), fillColor("blue"), popup("Ellipse C")),
-         ellipse(size(150), fillColor("purple"), popup("Ellipse D")),
-         ellipse(size(180), fillColor("lightblue"), popup("Ellipse E")),
-         box(size(60), fillColor("orange"), popup("Box F")),
-         box(size(60), fillColor("brown"), popup("Box G")),
-         box(size(60), fillColor("black"), popup("Box H")),
-         box(size(60), fillColor("grey"), popup("Box I")),
-         ellipse(size(60), fillColor("white"), popup("Ellipse J"))
-       ],  gap(30),  lineWidth(2), fillColor("black"), std(shadow(true)))); 
-}
-
 

@@ -3,7 +3,7 @@ module util::tasks::Vis
 import vis::Figure;
 import vis::Render;
 import util::tasks::Manager;
-import IO;
+
 map[str,Color] nodeColor = (
 	"DesugaredTree" : rgb(64,200,64),
 	"ImplodedTree" : rgb(64,255,64),

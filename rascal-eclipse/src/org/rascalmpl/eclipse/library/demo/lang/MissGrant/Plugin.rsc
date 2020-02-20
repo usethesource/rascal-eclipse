@@ -14,7 +14,6 @@ import demo::lang::MissGrant::ToRelation;
 
 import util::IDE;
 import util::Prompt;
-import vis::Render;
 import ParseTree;
 import List;
 import IO;
