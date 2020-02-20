@@ -11,7 +11,6 @@ import demo::lang::MissGrant::ToMethods;
 import demo::lang::MissGrant::Rename;
 import demo::lang::MissGrant::ShowStateMachine;
 import demo::lang::MissGrant::ToRelation;
-import demo::lang::MissGrant::Completion;
 
 import util::IDE;
 import util::Prompt;
@@ -43,26 +42,25 @@ public void main() {
 	    		action("Visualize", visualizeController),
 	    		edit("Rename...", rename) 
 		    ])
-	  	),
-	  	proposerContrib
+	  	)
   };
 	
   registerContributions(CONTROLLER_LANG, contribs);
 }
 
-private void generateSwitch(demo::lang::MissGrant::MissGrant::Controller pt, loc l) {
+private void generateSwitch(demo::lang::MissGrant::MissGrant::Controller pt, loc _) {
   name = "ControllerSwitch";
   path = prompt("Output directory: ");
   writeFile(|file://<path>/<name>.java|, controller2switch(name, desugarResetEvents(implode(pt))));
 }
 
-private void generateMethods(demo::lang::MissGrant::MissGrant::Controller pt, loc l) {
+private void generateMethods(demo::lang::MissGrant::MissGrant::Controller pt, loc _) {
   name = "ControllerMethods";
   path = prompt("Output directory: ");
   writeFile(|file://<path>/<name>.java|, controller2methods(name, desugarResetEvents(implode(pt))));
 }
 
-private void visualizeController(demo::lang::MissGrant::MissGrant::Controller pt, loc l) {
+private void visualizeController(demo::lang::MissGrant::MissGrant::Controller pt, loc _) {
   ast = implode(pt);
   render(stateMachineVisInterface(transRel(ast), commands(ast), ast.states[0].name));
 }

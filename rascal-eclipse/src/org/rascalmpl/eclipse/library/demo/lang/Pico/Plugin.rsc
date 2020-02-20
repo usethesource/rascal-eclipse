@@ -2,7 +2,7 @@ module demo::lang::Pico::Plugin
 
 import Prelude;
 import util::IDE;
-import util::ValueUI;
+import util::ValueUI; 
 
 import vis::Figure;
 import vis::Render;
@@ -57,7 +57,7 @@ public void compilePicoProgram(Tree x, loc l){
 
 // /*6*/ Define connection with CFG visualization
 
-public void visualizePicoProgram(Tree x, loc selection) {
+public void visualizePicoProgram(Tree x, loc _) {
 	m = implode(#PROGRAM, x); 
 	CFG = cflowProgram(m);
 	render(visCFG(CFG.graph));
