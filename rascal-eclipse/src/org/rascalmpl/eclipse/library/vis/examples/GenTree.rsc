@@ -10,10 +10,7 @@ module vis::examples::GenTree
 
 import vis::Figure;
 import vis::Render;
-
 import util::Math;
-import IO;
-
 
 public Color arbColor(){
 	return rgb(toInt(arbReal() * 255.0),toInt(arbReal() * 255.0),toInt(arbReal() * 255.0));
@@ -26,7 +23,7 @@ public Figure genTree(int leafChance,int minDepth,int maxDepth, int minKids, int
 	
 	
 	return tree(root,
-		[ genTree(leafChance,minDepth-1,maxDepth-1,minKids,maxKids,minX,minY,maxX,maxY) | i <- [0..nr+1]]);	
+		[ genTree(leafChance,minDepth-1,maxDepth-1,minKids,maxKids,minX,minY,maxX,maxY) | _ <- [0..nr]]);	
 }
 
 public void testTree(){
@@ -87,7 +84,7 @@ public Figure genTreeMap(int leafChance,int minDepth,int maxDepth, int minKids, 
 	int nr = arbInt(maxKids-minKids) + minKids;
 
 	return treemap(
-		[ genTreeMap(leafChance,minDepth-1,maxDepth-1,minKids,maxKids,minArea) | i <- [0..nr+1]],p);	
+		[ genTreeMap(leafChance,minDepth-1,maxDepth-1,minKids,maxKids,minArea) | i <- [0..nr]],p);	
 }
 
 

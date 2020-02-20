@@ -30,7 +30,7 @@ public set[Message] check(Fighter fighter) {
 public set[Message] checkDuplicateAttributes(Fighter fighter) {
   done = {};
   errs = {};
-  for (a:attribute(n, s) <- fighter.specs) {
+  for (a:attribute(n, _) <- fighter.specs) {
     if (n in done) 
       errs += {error("Duplicate attribute", a@location)};
     else

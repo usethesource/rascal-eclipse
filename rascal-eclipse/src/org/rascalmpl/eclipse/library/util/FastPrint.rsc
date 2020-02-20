@@ -8,8 +8,6 @@
 @contributor{Davy Landman Davy.Landman@cwi.nl - CWI}
 module util::FastPrint
 
-import IO;
-
 @javaClass{org.rascalmpl.eclipse.library.util.FastPrint}
 @reflect
 public java void fprintln(value arg);

@@ -13,10 +13,6 @@ module demo::lang::saf::Render
 import vis::Figure;
 import vis::Render;
 
-import util::Math;
-import Map;
-import IO;
-
 Figure dot(num x, num y){ return point(align(x, y));}
 
 public Figure hand(num x, num y) = point(align(x,y));
