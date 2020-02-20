@@ -58,7 +58,7 @@ public TetrisState
 	initialState(int rows, int columns,int maxSpin, int nrInvisbleLines) {
 	pf = emptyPF(rows + nrInvisbleLines,columns);
 	currentTetromino = initialPT(randomTetromino(),pf,nrInvisbleLines);
-	next = [ randomTetromino() | i <- [1  ..  numberNext+1]];
+	next = [ randomTetromino() | _ <- [1  ..  numberNext]];
 	s = tetrisState(   0,0,pf,[],currentTetromino,
 	                   next,nothing(),false,false,0,maxSpin,nrInvisbleLines);
 	return update(s);
@@ -96,8 +96,10 @@ public TetrisState performNormalAction(TetrisState s, NormalAction action){
 	switch(action){
 		case acDown() : return down(s); 
 		case acSwap() : return swap(s);
-		case acDrop() : return s[cur = drop(s.cur,s.playField)]; 
+		case acDrop() : return s[cur = drop(s.cur,s.playField)];
+		default: throw "undefined action"; 
 	}
+	
 }
 
 TetrisState down(TetrisState s){

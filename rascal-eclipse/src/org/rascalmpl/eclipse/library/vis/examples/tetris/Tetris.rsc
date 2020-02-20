@@ -8,6 +8,7 @@
 @contributor{Atze van der Ploeg - ploeg@cwi.nl - CWI}
 module vis::examples::tetris::Tetris
 
+import IO;
 import vis::examples::tetris::TetrisState;
 import vis::examples::tetris::PlayField;
 import vis::examples::tetris::Tetromino;
