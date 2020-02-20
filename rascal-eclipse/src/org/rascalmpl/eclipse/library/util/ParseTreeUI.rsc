@@ -21,14 +21,14 @@ anno bool Tree@vertical;
 @doc{annotates each tree iff it contains a newline}
 Tree markVertical(Tree t) {
   return visit (t) {
-     case Tree u:appl(_,[_*, Tree v, _*]) : if (v@vertical?false) insert u[@vertical=true]; else fail;
-     case Tree u:amb({_*, Tree v, _*})    : if (v@vertical?false) insert u[@vertical=true]; else fail;
+     case Tree u:appl(_,[*_, Tree v, *_]) : if (v@vertical?false) insert u[@vertical=true]; else fail;
+     case Tree u:amb({*_, Tree v})    : if (v@vertical?false) insert u[@vertical=true]; else fail;
      case char(10) : return t[@vertical=true];
      case Tree u   : return u[@vertical=false];
   }
 }
 
-list[Figure] ambMap(appl(Production p, list[Tree] args)) {
+list[Figure] ambMap(appl(Production _, list[Tree] args)) {
   list[list[Tree]] blocks = [];
   
    while ([*Tree pre, Tree t, *Tree post] := args, t@vertical) {
@@ -38,5 +38,5 @@ list[Figure] ambMap(appl(Production p, list[Tree] args)) {
    
    blocks += args;
    
-   return box(vcat([hcat([ambMap(h) | h <- v]) | v <- blocks]), gap(5));
+   return [box(vcat([hcat([*ambMap(h) | h <- v]) | v <- blocks]), gap(5))];
 }
