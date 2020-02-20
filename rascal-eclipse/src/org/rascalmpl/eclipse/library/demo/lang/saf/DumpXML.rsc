@@ -15,7 +15,7 @@ import demo::lang::saf::AST;
 public Node saf2xml(fighter(n, ss)) = 
   document(element("fighter", [attribute("name", n)] + [saf2xml(s) | s <- ss ]));
 
-public Node saf2xml(lang::saf::AST::attribute(n, s)) = 
+public Node saf2xml(demo::lang::saf::AST::attribute(n, s)) = 
   element("attribute", [attribute("name", n), attribute("strength", "<s>")]); 
 
 public Node saf2xml(behavior(c, m, f)) = 
