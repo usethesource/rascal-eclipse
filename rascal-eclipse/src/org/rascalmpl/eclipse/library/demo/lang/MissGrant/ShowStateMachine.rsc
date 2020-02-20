@@ -1,18 +1,12 @@
 module demo::lang::MissGrant::ShowStateMachine
 
-import demo::lang::MissGrant::AST;
 import demo::lang::MissGrant::Step;
 import demo::lang::MissGrant::ToRelation;
 
 import vis::Figure;
-import List;
-import Real;
-import util::Math;
-import IO;
-import util::Resources;
 import vis::Render;
 import Relation;
-import  analysis::graphs::Graph;
+import analysis::graphs::Graph;
 import Set;
 
 public Figure stateMachineGraph(TransRel trans,str init,str state){

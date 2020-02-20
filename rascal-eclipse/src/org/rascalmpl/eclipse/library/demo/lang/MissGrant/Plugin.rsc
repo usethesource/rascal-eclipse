@@ -44,7 +44,7 @@ public void main() {
 		    ])
 	  	)
   };
-	
+  
   registerContributions(CONTROLLER_LANG, contribs);
 }
 
@@ -62,5 +62,5 @@ private void generateMethods(demo::lang::MissGrant::MissGrant::Controller pt, lo
 
 private void visualizeController(demo::lang::MissGrant::MissGrant::Controller pt, loc _) {
   ast = implode(pt);
-  render(stateMachineVisInterface(transRel(ast), commands(ast), ast.states[0].name));
+  stateMachineVisInterface(transRel(ast), commands(ast), ast.states[0].name);
 }
