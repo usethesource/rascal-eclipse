@@ -169,10 +169,13 @@ public class Builder extends IncrementalProjectBuilder {
     protected void clean(IProgressMonitor monitor) throws CoreException {
     	PathConfig pcfg = getPathConfig(getProject());
     	ISourceLocation target = URIUtil.getChildLocation((ISourceLocation)pcfg.getBin(), "courses");
-    	IResource destResource = URIResourceResolver.getResource(target);
     	
-    	if (destResource != null && destResource.exists()) {
-    	    destResource.delete(true, monitor);
+    	if (URIResolverRegistry.getInstance().exists(target)) {
+    	    IResource destResource = URIResourceResolver.getResource(target);
+    	
+    	    if (destResource != null && destResource.exists()) {
+    	        destResource.delete(true, monitor);
+    	    }
     	}
     }
     
