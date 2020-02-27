@@ -50,6 +50,9 @@ public class ProjectPathConfig {
             libsWriter.append(URIUtil.correctLocation("lib", "rascal", ""));
             libsWriter.append(URIUtil.correctLocation("lib", "rascal_eclipse", ""));
         }
+        else if (isRascalEclipseBootstrapProject(project)) {
+            libsWriter.append(URIUtil.correctLocation("lib", "rascal", ""));
+        }
         
         // These are jar files which make contain compiled Rascal code to link to, but also installed libraries and plugins
         for (String lib : manifest.getRequiredLibraries(project)) {
@@ -156,5 +159,9 @@ public class ProjectPathConfig {
 
     private boolean isRascalBootstrapProject(IProject project) {
         return Arrays.asList("rascal", "rascal-eclipse", "rascal_eclipse").contains(project.getName());
+    }
+    
+    private boolean isRascalEclipseBootstrapProject(IProject project) {
+        return Arrays.asList("rascal-eclipse", "rascal_eclipse").contains(project.getName());
     }
 }
