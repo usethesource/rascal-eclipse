@@ -4,6 +4,7 @@ package org.rascalmpl.eclipse.util;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Arrays;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -90,6 +91,7 @@ public class ProjectPathConfig {
         }
         
         // the bin folder to the lib path
+        // TODO: this should be removed soon (project references are superceded by Require-Libraries in RASCAL.MF
         try {
             if (!isRascalBootstrapProject(project)) {
                 for (IProject ref : project.getReferencedProjects()) {
@@ -108,7 +110,6 @@ public class ProjectPathConfig {
         }
 
         ISourceLocation bin = getJavaTargetFolder(project);
-        libsWriter.insert(bin);
 
         try {
             return new PathConfig(
@@ -154,6 +155,6 @@ public class ProjectPathConfig {
     }
 
     private boolean isRascalBootstrapProject(IProject project) {
-        return "rascal".equals(project.getName());
+        return Arrays.asList("rascal", "rascal-eclipse", "rascal_eclipse").contains(project.getName());
     }
 }
