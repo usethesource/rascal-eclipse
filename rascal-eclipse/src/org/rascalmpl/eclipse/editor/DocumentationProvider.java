@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import org.eclipse.core.resources.IProject;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.terms.TermParseController;
 import org.rascalmpl.library.util.PathConfig;
@@ -19,7 +18,6 @@ import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-import io.usethesource.impulse.model.ISourceProject;
 import io.usethesource.impulse.parser.IParseController;
 import io.usethesource.impulse.services.IDocumentationProvider;
 import io.usethesource.vallang.IConstructor;
@@ -54,9 +52,7 @@ public class DocumentationProvider  implements IDocumentationProvider {
         
 	    if (arg != null && parseController instanceof ParseController && RascalPreferences.isRascalCompilerEnabled()) {
 	    	ParseController rascalPc = (ParseController) parseController;
-	    	ISourceProject rprj = rascalPc.getProject();
-	    	IProject prj = rprj != null ? rprj.getRawProject() : null;
-	    	PathConfig pcfg = RascalLanguageServices.getInstance().getPathConfig(prj);
+	    	PathConfig pcfg = RascalLanguageServices.getInstance().getModulePathConfig(rascalPc.getSourceLocation());
 
 	    	StringBuffer b = new StringBuffer();
 	    	

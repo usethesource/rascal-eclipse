@@ -1,5 +1,6 @@
 package org.rascalmpl.eclipse.editor;
 
+import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -8,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -249,6 +251,23 @@ public class RascalLanguageServices {
     	return new PathConfig();
     }
     
+    public PathConfig getModulePathConfig(ISourceLocation module) {
+        if (module.getScheme().equals("project")) {
+            IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(module.getAuthority());
+            return getPathConfig(project);
+        }
+        else if (module.getScheme().equals("lib")) {
+            try {
+                return PathConfig.fromLibraryRascalManifest(module.getAuthority());
+            }
+            catch (IOException e) {
+                Activator.log("could not configure compiler for " + module, e);
+            }
+        }
+
+        return new PathConfig();
+    }
+    
     private Future<Evaluator> makeFutureEvaluator(String label, final String... imports) {
         return asyncGenerator(label, () ->  {
             Bundle bundle = Platform.getBundle("rascal_eclipse");
@@ -291,4 +310,6 @@ public class RascalLanguageServices {
         
         return result;
     }
+
+   
 }

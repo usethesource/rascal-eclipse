@@ -1065,4 +1065,11 @@
             name="Value editor">
       </editor>
    </extension>
+   <extension
+         point="impulse.editorInputResolver">
+      <editorInputResolver
+            class="org.rascalmpl.eclipse.editor.RascalEditorInputResolver"
+            language="rascal">
+      </editorInputResolver>
+   </extension>
 </plugin>

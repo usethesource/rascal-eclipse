@@ -51,7 +51,7 @@ public class URIStorage implements IStorage {
 	}
 
 	public IPath getFullPath() {
-		return new Path(uri.getPath());
+		return new Path("//" + uri.getScheme() + "/" + uri.getAuthority() + uri.getPath());
 	}
 
 	public String getName() {

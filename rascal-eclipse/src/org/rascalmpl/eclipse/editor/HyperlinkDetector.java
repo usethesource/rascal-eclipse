@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
@@ -28,7 +27,6 @@ import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-import io.usethesource.impulse.model.ISourceProject;
 import io.usethesource.impulse.parser.IParseController;
 import io.usethesource.impulse.services.ISourceHyperlinkDetector;
 import io.usethesource.vallang.IAnnotatable;
@@ -82,14 +80,11 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		}
 		
 		if (tree != null && parseController instanceof ParseController && RascalPreferences.isRascalCompilerEnabled()) {
-		    // Rascal case
-		    // TODO: integrate with DSL case
 		    ParseController rascalPc = (ParseController) parseController;
-		    ISourceProject rprj = rascalPc.getProject();
-		    IProject prj = rprj != null ? rprj.getRawProject() : null;
-		    PathConfig pcfg = RascalLanguageServices.getInstance().getPathConfig(prj);
+		    
+		    PathConfig pcfg = RascalLanguageServices.getInstance().getModulePathConfig(rascalPc.getSourceLocation());
 
-		    ISet useDef = imp.getUseDef(rootLocation, pcfg, rascalPc.getModuleName());
+		    ISet useDef = imp.getUseDef(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName());
 
 		    if (!checkUseDefType(useDef)) {
 		        Activator.log(useDef.getType() + " is not a rel[loc,loc] or rel[loc,loc,str]? " + useDef, null);

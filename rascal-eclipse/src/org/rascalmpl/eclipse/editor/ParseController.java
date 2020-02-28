@@ -45,7 +45,6 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.ProjectURIResolver;
-import org.rascalmpl.uri.file.FileURIResolver;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -71,6 +70,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	protected IDocument document;
 	protected Evaluator parser;
 	protected IWarningHandler warnings;
+    protected ISourceLocation sourceLocation;
 	
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
 		return null;
@@ -115,8 +115,6 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		return parseTree != null ? new TokenIterator(false, parseTree) : null;
 	}
 	
-	
-	
 	@Override
 	public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {
 		Assert.isTrue(filePath.isAbsolute() && project == null
@@ -126,17 +124,27 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		this.handler = handler;
 		this.project = project;
 
-		ISourceLocation location = getSourceLocation();
+		sourceLocation = recoverSourceLocation(filePath);
 		
-		initParseJob(handler, location);
+		initParseJob(handler, sourceLocation);
 	}
-	
+
 	public ISourceLocation getSourceLocation() {
+	    return sourceLocation;
+	}
+
+	private ISourceLocation recoverSourceLocation(IPath filePath) {
 	    if (project != null && path != null) {
 	        return ProjectURIResolver.constructProjectURI(project.getRawProject(), path);
 	    }
-	    else if (path != null) {
-	        return FileURIResolver.constructFileURI(path.toString());
+	    else if (path != null && path.isUNC() && path.segment(0).equals("std")) {
+	        return org.rascalmpl.uri.URIUtil.correctLocation("std", "", path.removeFirstSegments(1).toString());
+	    }
+	    else if (path != null && path.isUNC() && path.segment(0).equals("lib")) {
+            return org.rascalmpl.uri.URIUtil.correctLocation("lib", path.segment(1), path.removeFirstSegments(2).toString());
+        }
+	    else if (path != null && path.isUNC()) {
+	        return org.rascalmpl.uri.URIUtil.correctLocation(path.segment(0), path.segment(1), path.removeFirstSegments(2).toString());
 	    }
 	    else {
 	        return null;
