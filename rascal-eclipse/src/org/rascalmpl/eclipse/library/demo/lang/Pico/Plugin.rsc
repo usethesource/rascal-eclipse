@@ -18,6 +18,8 @@ import demo::lang::Pico::Visualize;
 
 // /*1*/ define the language name and extension
 
+int x = "1";
+
 private str Pico_NAME = "Pico";
 private str Pico_EXT = "pico";
 
@@ -36,20 +38,20 @@ public Tree checkPicoProgram(Tree x) {
 	if(!isEmpty(errors))
 		return x[@messages = errors];
     ids = uninitProgram(p);
-	warnings = { warning("Variable <v> maybe uninitialized", l) | <loc l, PicoId v, STATEMENT s> <- ids };
+	warnings = { warning("Variable <v> maybe uninitialized", l) | <loc l, PicoId v, STATEMENT _> <- ids };
 	return x[@messages = warnings];
 }
 
 // /*4*/ Define the connection with the Pico evaluator
 
-public void evalPicoProgram(Tree x, loc selection) {
+public void evalPicoProgram(Tree x, loc _) {
 	m = implode(#PROGRAM, x); 
 	text(evalProgram(m));
 }
 
 // /*5*/ Define connection with the Pico compiler
 
-public void compilePicoProgram(Tree x, loc l){
+public void compilePicoProgram(Tree x, loc _){
     p = implode(#PROGRAM, x);
     asm = compileProgram(p);
 	text(asm);
