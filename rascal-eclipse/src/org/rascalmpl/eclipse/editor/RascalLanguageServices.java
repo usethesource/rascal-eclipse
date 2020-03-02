@@ -92,7 +92,7 @@ public class RascalLanguageServices {
        return def;
     }
     
-    public IConstructor getSummary(ISourceLocation occ, PathConfig pcfg) {
+    public synchronized IConstructor getSummary(ISourceLocation occ, PathConfig pcfg) {
     	return summaryCache.get(occ.top(), (u) -> {
     		try {
     		    Evaluator eval = summaryEvaluator.get();
