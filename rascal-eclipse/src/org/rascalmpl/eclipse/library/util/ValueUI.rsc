@@ -12,7 +12,6 @@ import util::Editors;
 import vis::Figure;
 import vis::Render;
 import Node;
-import Map;  
 import List;
 import analysis::grammars::Ambiguity;
 import util::Clipboard;
@@ -81,7 +80,7 @@ Figure toGraph(value v) {
       int next = 0;
       int id() { next = next + 1; return next; }
       ids = ( e : "<id()>" | value e <- (r.from + r.to) );
-      return box(graph([box(toGraph(e),[id(ids[e])] + props) | e <- ids],
+      return box(graph([box(toGraph(e),[FProperty::id(ids[e])] + props) | e <- ids],
                    [edge(ids[from],ids[to],toArrow(triangle(10))) | from <- r.from, to <- r[from]],hint("layered"),gap(40)));
     }
     case set[value] l :  return box(pack([toGraph(e) | e <- l]),[hcenter(),vcenter()]);
