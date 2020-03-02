@@ -74,7 +74,7 @@ public class RascalLanguageServices {
         return InstanceHolder.sInstance;
     }
     
-    private <T extends IValue> T get(ISourceLocation occ, PathConfig pcfg, String field, T def) {
+    private synchronized <T extends IValue> T get(ISourceLocation occ, PathConfig pcfg, String field, T def) {
        IConstructor summary = getSummary(occ, pcfg);
        
        if (summary != null) {
@@ -208,37 +208,39 @@ public class RascalLanguageServices {
 	}
 
     public INode getOutline(IConstructor module) {
-    	ISourceLocation loc = getFileLoc((ITree) module);
-    	if (loc == null) {
-    		return EMPTY_NODE;
-    	}
+        synchronized (outlineCache) {
+            ISourceLocation loc = getFileLoc((ITree) module);
+            if (loc == null) {
+                return EMPTY_NODE;
+            }
 
-    	return replaceNull(outlineCache.get(loc.top(), (l) -> {
-    		try {
-    		    Evaluator eval = outlineEvaluator.get();
-                
-                if (eval == null) {
-                    Activator.log("Could not calculate outline due to missing evaluator", null);
+            return replaceNull(outlineCache.get(loc.top(), (l) -> {
+                try {
+                    Evaluator eval = outlineEvaluator.get();
+
+                    if (eval == null) {
+                        Activator.log("Could not calculate outline due to missing evaluator", null);
+                        return null;
+                    }
+
+                    synchronized (eval) {
+                        return (INode) eval.call("outline", module);
+                    }
+                }
+                catch (Throwable e) {
+                    Activator.log("failure to create outline", e);
                     return null;
                 }
-                
-                synchronized (eval) {
-                    return (INode) eval.call("outline", module);
-                }
-    		}
-    		catch (Throwable e) {
-    			Activator.log("failure to create outline", e);
-                return null;
-    		}
-    	}));
+            }));
+        }
     }
 
-	public void clearSummaryCache(ISourceLocation file) {
+	public synchronized void clearSummaryCache(ISourceLocation file) {
         summaryCache.invalidate(file.top());
         outlineCache.invalidate(file.top());
     }
 
-    public void invalidateEverything() {
+    public synchronized void invalidateEverything() {
         summaryCache.invalidateAll();
         outlineCache.invalidateAll();;
     }
