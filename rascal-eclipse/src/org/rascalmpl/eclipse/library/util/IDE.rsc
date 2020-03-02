@@ -160,7 +160,7 @@ Contribution proposer(type[&N <: Tree] g) {
   prefixrules = { <x,p> | p:prod(_,[lit(x),*_],_) <- rules};
   
   str sym(lit(z)) = z;
-  str sym(c:\char-class(_)) = class2str(type(c, ()));
+  str sym(Symbol c:\char-class(_)) = class2str(t) when type[Tree] t := type(c, ());
   str sym(layouts(_)) = " ";
   default str sym(Symbol s) = "\<<symbol2rascal(s)>\>";
   
