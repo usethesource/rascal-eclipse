@@ -21,7 +21,7 @@ public Color arbColor(){
 
 public Figure genGraph(int nNodes, int nEdges, real minX, real maxX, real minY, real maxY, real hg, real vg, Orientation or){
    nodes = [box(id("<i>"), fillColor(arbColor()), size(minX + round(arbReal() * (maxX-minX)), minY + round(arbReal() * (maxY -minY))),resizable(false)) | i <- [1 .. nNodes+1]];
-   edges = [edge("<1+arbInt(nNodes)>", "<1+arbInt(nNodes)>") |  i <- [1 .. nEdges+1]];
+   edges = [edge("<1+arbInt(nNodes)>", "<1+arbInt(nNodes)>") |  _ <- [1 .. nEdges+1]];
    return graph(nodes, edges, std(gap(hg,vg)), orientation(or));
 }
 
@@ -35,7 +35,7 @@ public void testGraph(){
 	int maxy = 20;
 	int nNodes = 2;
 	int nEdges = 2;
-	Figure currentGraph;
+	Figure currentGraph = text("initializing");
 	Orientation or = topDown();
 	render(
 		hcat([
