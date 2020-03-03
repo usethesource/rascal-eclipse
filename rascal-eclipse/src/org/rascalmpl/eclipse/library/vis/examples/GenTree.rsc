@@ -84,7 +84,7 @@ public Figure genTreeMap(int leafChance,int minDepth,int maxDepth, int minKids, 
 	int nr = arbInt(maxKids-minKids) + minKids;
 
 	return treemap(
-		[ genTreeMap(leafChance,minDepth-1,maxDepth-1,minKids,maxKids,minArea) | i <- [0..nr]],p);	
+		[ genTreeMap(leafChance,minDepth-1,maxDepth-1,minKids,maxKids,minArea) | _ <- [0..nr]],p);	
 }
 
 
