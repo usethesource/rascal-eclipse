@@ -208,41 +208,39 @@ public class RascalLanguageServices {
 	}
 
     public INode getOutline(IConstructor module) {
-        synchronized (outlineCache) {
-            ISourceLocation loc = getFileLoc((ITree) module);
-            if (loc == null) {
-                return EMPTY_NODE;
-            }
+        ISourceLocation loc = getFileLoc((ITree) module);
+        if (loc == null) {
+            return EMPTY_NODE;
+        }
 
-            Activator.getInstance().writeInfoMsg(System.currentTimeMillis()  + ": looking for outline for " + loc.top());
-            return replaceNull(outlineCache.get(loc.top(), (l) -> {
-                try {
-                    Evaluator eval = outlineEvaluator.get();
+        Activator.getInstance().writeInfoMsg(System.currentTimeMillis()  + ": looking for outline for " + loc.top());
+        return replaceNull(outlineCache.get(loc.top(), (l) -> {
+            try {
+                Evaluator eval = outlineEvaluator.get();
 
-                    if (eval == null) {
-                        Activator.log("Could not calculate outline due to missing evaluator", null);
-                        return null;
-                    }
-
-                    synchronized (eval) {
-                        Activator.getInstance().writeInfoMsg(System.currentTimeMillis() + ": calling outliner for " + module.asAnnotatable().getAnnotation("loc"));
-                        return (INode) eval.call("outline", module);
-                    }
-                }
-                catch (Throwable e) {
-                    Activator.log("failure to create outline", e);
+                if (eval == null) {
+                    Activator.log("Could not calculate outline due to missing evaluator", null);
                     return null;
                 }
-            }));
-        }
+
+                synchronized (eval) {
+                    Activator.getInstance().writeInfoMsg(System.currentTimeMillis() + ": calling outliner for " + module.asAnnotatable().getAnnotation("loc"));
+                    return (INode) eval.call("outline", module);
+                }
+            }
+            catch (Throwable e) {
+                Activator.log("failure to create outline", e);
+                return null;
+            }
+        }));
     }
 
-	public synchronized void clearSummaryCache(ISourceLocation file) {
+	public void clearSummaryCache(ISourceLocation file) {
         summaryCache.invalidate(file.top());
         outlineCache.invalidate(file.top());
     }
 
-    public synchronized void invalidateEverything() {
+    public void invalidateEverything() {
         summaryCache.invalidateAll();
         outlineCache.invalidateAll();;
     }
