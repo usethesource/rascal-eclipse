@@ -12,6 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.outline;
 
+import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.RascalLanguageServices;
 
 import io.usethesource.vallang.IConstructor;
@@ -24,6 +25,9 @@ public class TreeModelBuilder extends org.rascalmpl.eclipse.terms.TreeModelBuild
 	    if (root == null) {
 	        return;
 	    }
+	    
+	    Activator.getInstance().writeInfoMsg(System.currentTimeMillis() + ": tree model builder for " + ((IConstructor) root).asAnnotatable().getAnnotation("loc"));
+	    
 	    INode model = RascalLanguageServices.getInstance().getOutline((IConstructor) root);
 	    convertModel(model);
 	}

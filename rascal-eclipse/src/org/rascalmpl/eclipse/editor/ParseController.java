@@ -81,6 +81,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	}
 	
 	public Object getCurrentAst() {
+	    Activator.getInstance().writeInfoMsg(System.currentTimeMillis() + ": getting current AST for " + path);
 		return parseTree;
 	}
 	

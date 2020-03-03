@@ -214,6 +214,7 @@ public class RascalLanguageServices {
                 return EMPTY_NODE;
             }
 
+            Activator.getInstance().writeInfoMsg(System.currentTimeMillis()  + ": looking for outline for " + loc.top());
             return replaceNull(outlineCache.get(loc.top(), (l) -> {
                 try {
                     Evaluator eval = outlineEvaluator.get();
@@ -224,6 +225,7 @@ public class RascalLanguageServices {
                     }
 
                     synchronized (eval) {
+                        Activator.getInstance().writeInfoMsg(System.currentTimeMillis() + ": calling outliner for " + module.asAnnotatable().getAnnotation("loc"));
                         return (INode) eval.call("outline", module);
                     }
                 }
