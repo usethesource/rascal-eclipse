@@ -10,7 +10,6 @@
 module demo::lang::saf::Implode
 
 import demo::lang::saf::AST;
-import demo::lang::saf::SAF;
 
 import ParseTree;
 
