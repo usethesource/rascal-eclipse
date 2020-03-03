@@ -7,6 +7,7 @@
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 module vis::examples::MouseOver
+
 import vis::Figure;
 import vis::Render; 
 import util::Math;
