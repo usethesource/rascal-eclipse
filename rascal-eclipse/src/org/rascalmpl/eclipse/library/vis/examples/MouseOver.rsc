@@ -9,11 +9,7 @@
 module vis::examples::MouseOver
 import vis::Figure;
 import vis::Render; 
-import Prelude;
 import util::Math;
-
-
-
 
 public FProperty popup(str s){
 	return mouseOver(box(text(s),grow(1.2),resizable(false)));

@@ -2,11 +2,9 @@ module demo::lang::turing::l1::ide::Contributions
 
 import ParseTree;
 import util::IDE;
-import IO;
 import demo::lang::turing::l1::cst::Parse;
 import demo::lang::turing::l1::ast::Load;
 import demo::lang::turing::l1::ide::Compile;
-
 
 public void registerContributions() {
 	registerLanguage("Turing L1", "t_l1", Tree (str s, loc l) {
