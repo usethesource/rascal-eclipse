@@ -18,8 +18,6 @@ import demo::lang::Pico::Visualize;
 
 // /*1*/ define the language name and extension
 
-int x = "1";
-
 private str Pico_NAME = "Pico";
 private str Pico_EXT = "pico";
 
