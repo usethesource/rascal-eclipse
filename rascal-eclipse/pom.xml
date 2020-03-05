@@ -76,6 +76,8 @@
                             <goal>copy</goal>
                         </goals>
                         <configuration>
+                            <outputAbsoluteArtifactFilename>true</outputAbsoluteArtifactFilename>
+                            <overWriteSnapshots>true</overWriteSnapshots>
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.rascalmpl</groupId>
@@ -96,7 +98,6 @@
                                 <artifactItem>
                                     <groupId>org.rascalmpl</groupId>
                                     <artifactId>rascal-core</artifactId>
-                                    <version>0.4.8-SNAPSHOT</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${basedir}/lib</outputDirectory>
