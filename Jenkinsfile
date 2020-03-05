@@ -6,19 +6,19 @@ node {
 
     withMaven(maven: 'M3', jdk: 'jdk-oracle-8', options: [artifactsPublisher(disabled: true)] ) {
         stage('Build') {
-            sh "mvn -X -DskipTest clean compile"
+            sh "mvn -DskipTest clean compile"
         }
 
         // NOTE: it seems that the multimodule structure causes a build error when invoking 
         // 'test' without 'package', because the interdependencies between the modules are 
         // not yet deployed to the maven repository.
         stage('Package and Test') {
-            sh "mvn -X package test"
+            sh "mvn package test"
         }
     
         stage('Deploy') {
             if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy") {
-                sh "mvn -X -DskipTests deploy"
+                sh "mvn -DskipTests deploy"
             }
         }
     }
