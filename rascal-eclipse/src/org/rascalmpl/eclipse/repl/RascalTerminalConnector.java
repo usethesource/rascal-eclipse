@@ -59,7 +59,11 @@ import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.shell.RascalShell;
+import org.rascalmpl.uri.ILogicalSourceLocationResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 
+import io.usethesource.vallang.ISourceLocation;
 import jline.Terminal;
 
 @SuppressWarnings("restriction")
@@ -133,14 +137,34 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                     }
                     
                     String version = RascalShell.getVersionNumber();
-                    shell.getOutput().println("Rascal Version: " + version);
-                    if (new SemVer(version).getPrerelease().equals("SNAPSHOT")) {
-                        shell.getOutput().print(
-                                "Due to intense development work Rascal's daily SNAPSHOT releases are now less stable.\n" +
-                                "We recommend switching to the (monthly) stable release train 0.16.x from https://update.rascal-mpl.org/stable as soon as possible.\n" +
-                                "Until the end of Feb 2020, the stable release will have a higher version than the daily unstable, to facilitate your move to stable.\n\n");
+                    SemVer semVer = new SemVer(version);
+                    shell.getOutput().println("Rascal Version: " + version + (semVer.getPrerelease().equals("SNAPSHOT") ? "" : ", see |release-notes://" + version + "|"));
+                    
+                    URIResolverRegistry.getInstance().registerLogical(new ILogicalSourceLocationResolver() {
                         
-                    }
+                        @Override
+                        public String scheme() {
+                            return "release-notes";
+                        }
+                        
+                        @Override
+                        public ISourceLocation resolve(ISourceLocation input) throws IOException {
+                            if (input.getAuthority() == null || input.getAuthority().isEmpty()) {
+                                return input;
+                            }
+                            
+                            SemVer current = new SemVer(input.getAuthority());
+                            
+                            return URIUtil.correctLocation("http", "usethesource.io", "rascal-" + current.getMajor() + "-" + current.getMinor() + "-x-release-notes");
+                        }
+                        
+                        @Override
+                        public String authority() {
+                            return "";
+                        }
+                    });
+                   
+                  
                 
                     shellIsRunning.set(true);
                     shell.run();
