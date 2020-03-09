@@ -136,8 +136,9 @@ Annotate an outline node with a link.
 anno loc node@\loc;  // a link for an outline node
 
 @doc{create a proper based on a character class type literal} 
-Contribution proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int requestOffset) prop, type[Tree] cc : type(\char-class(_),_))
-  = proposer(prop, class2str(cc));
+Contribution proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int requestOffset) prop, type[Tree] cc)
+  = proposer(prop, class2str(cc))
+  when cc.symbol is \char-class;
   
 private str class2str(type[&T <: Tree] cc) = "<for (\char-class(rs) := cc.symbol, range(b,e) <- rs, ch <- [b..e+1]) {><char(ch)><}>";  
   
