@@ -59,11 +59,8 @@ import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.shell.RascalShell;
-import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
 
-import io.usethesource.vallang.ISourceLocation;
 import jline.Terminal;
 
 @SuppressWarnings("restriction")
@@ -140,31 +137,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                     SemVer semVer = new SemVer(version);
                     shell.getOutput().println("Rascal Version: " + version + (semVer.getPrerelease().equals("SNAPSHOT") ? "" : ", see |release-notes://" + version + "|"));
                     
-                    URIResolverRegistry.getInstance().registerLogical(new ILogicalSourceLocationResolver() {
-                        
-                        @Override
-                        public String scheme() {
-                            return "release-notes";
-                        }
-                        
-                        @Override
-                        public ISourceLocation resolve(ISourceLocation input) throws IOException {
-                            if (input.getAuthority() == null || input.getAuthority().isEmpty()) {
-                                return input;
-                            }
-                            
-                            SemVer current = new SemVer(input.getAuthority());
-                            
-                            return URIUtil.correctLocation("http", "usethesource.io", "rascal-" + current.getMajor() + "-" + current.getMinor() + "-x-release-notes");
-                        }
-                        
-                        @Override
-                        public String authority() {
-                            return "";
-                        }
-                    });
-                   
-                  
+                    URIResolverRegistry.getInstance().registerLogical(new ReleaseNotesResolver());
                 
                     shellIsRunning.set(true);
                     shell.run();
