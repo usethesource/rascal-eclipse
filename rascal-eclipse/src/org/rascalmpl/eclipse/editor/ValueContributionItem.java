@@ -68,7 +68,7 @@ public class ValueContributionItem extends ContributionItem {
     try {
       out = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"));
       err = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
-      eval = new JavaToRascal(out, err).getEvaluator();
+      eval = new JavaToRascal(System.in, out, err).getEvaluator();
       eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
       ProjectEvaluatorFactory.configure(eval, null);
       eval.doImport(null, UTIL_VALUE_UI);

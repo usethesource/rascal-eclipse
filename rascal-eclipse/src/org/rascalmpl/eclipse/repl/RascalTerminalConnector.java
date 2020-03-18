@@ -267,12 +267,12 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
             private DebugHandler debugHandler;
             
             @Override
-            protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
+            protected Evaluator constructEvaluator(InputStream input, Writer stdout, Writer stderr) {
                 IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
                 if (ipr != null && !ipr.isOpen()) {
                     ipr = null;
                 }
-                Evaluator eval = ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, stderr, stdout);
+                Evaluator eval = ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, input, stderr, stdout);
                 
                 // TODO: this is a workaround to get access to a launch, but we'd rather
                 // just get it from the terminal's properties
