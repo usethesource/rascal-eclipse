@@ -89,7 +89,7 @@ public class TermLanguageRegistry {
 	
 	public void registerLanguage(String name, String extension, ICallableValue parser, IEvaluatorContext ctx) {
 		Language l = new Language(name, "", "demo editor for " + name, "Terms", "icons/rascal3D_2-32px.gif", "http://www.rascal-mpl.org",ID_RASCAL_ECLIPSE_PLUGIN,extension,"",null);
-		languages.put(extension, l);
+		languages.put(extension.startsWith(".") ? extension.substring(0) : extension, l);
 		evals.put(name, ctx);
 		parsers.put(name, parser);
 		LanguageRegistry.registerLanguage(l);
