@@ -80,7 +80,7 @@ public class AnnotatorExecutor {
 		}
 		catch (RuntimeException e) {
 			if (e instanceof ParseError || e instanceof StaticError || e instanceof Throw) {
-				PrintWriter stdErr = func.getEval().getStdErr();
+				PrintWriter stdErr = func.getEval().getErrorPrinter();
 				stdErr.write("Annotator failed\n");
 				ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(stdErr, e, new StandardTextWriter(true));
 				stdErr.flush();

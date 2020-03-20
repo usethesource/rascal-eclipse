@@ -115,10 +115,8 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 			String errOut = "";
 			boolean exc = false;
 			Result<IValue> x = null;
-			PrintWriter stdout = eval.getStdOut();
-			PrintWriter stderr = eval.getStdErr();
 			try {
-				eval.overrideDefaultWriters(eval.getInput(), new PrintWriter(out), new PrintWriter(err));
+				eval.overrideDefaultWriters(eval.getInput(), eval.getStdOut(), eval.getStdErr());
 				x = new ASTBuilder().buildValue(cmd).interpret(eval);
 			} catch (Throwable e) {
 				errOut = err.getBuffer().substring(errOffset);
@@ -127,7 +125,7 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 				exc = true;
 			}
 			finally {
-				eval.overrideDefaultWriters(eval.getInput(), stdout, stderr);
+				eval.overrideDefaultWriters(eval.getInput(), eval.getStdOut(),  eval.getStdErr());
 			}
 			String output = out.getBuffer().substring(outOffset);
 			outOffset += output.length();

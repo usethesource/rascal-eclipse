@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -68,7 +67,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
     private BaseREPL shell;
     private final AtomicBoolean shellIsRunning = new AtomicBoolean(false);
     private REPLPipedInputStream stdIn;
-    private OutputStream stdInUI;
+    private OutputStream stdout;
     protected String project;
     protected String module;
     protected String mode;
@@ -80,7 +79,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
   
     @Override
     public OutputStream getTerminalToRemoteStream() {
-        return stdInUI;
+        return stdout;
     }
 
 	@Override
@@ -114,9 +113,8 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
         
         final Terminal tm = configure(control);
         
-
         stdIn = new REPLPipedInputStream();
-        stdInUI = new REPLPipedOutputStream(stdIn);
+        stdout = new REPLPipedOutputStream(stdIn);
 
         control.setState(TerminalState.CONNECTING);
 
@@ -132,10 +130,6 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                         queueCommand("import " + module + ";");
                         queueCommand("main()");
                     }
-                    
-                    String version = RascalShell.getVersionNumber();
-                    SemVer semVer = new SemVer(version);
-                    shell.getOutput().println("Rascal Version: " + version + (semVer.getPrerelease().equals("SNAPSHOT") ? "" : ", see |release-notes://" + version + "|"));
                     
                     URIResolverRegistry.getInstance().registerLogical(new ReleaseNotesResolver());
                 
@@ -165,9 +159,9 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                 }
             }
         };
+        
         t.setName("Rascal REPL Runner");
         t.start();
-
     }
 
 
@@ -223,7 +217,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
         if (shellIsRunning.get()) {
             try {
                 // let's flush it.
-                stdInUI.write(new byte[]{(byte)ctrl('K'),(byte)ctrl('U'),(byte)'\n'});
+                stdout.write(new byte[]{(byte)ctrl('K'),(byte)ctrl('U'),(byte)'\n'});
             }
             catch (IOException e) {
                 // tough, but we don't have a sensible way of dealing with this,
@@ -256,18 +250,18 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
         return terminalWidth;
     }
 
-    protected BaseREPL constructREPL(ITerminalControl control, REPLPipedInputStream stdIn, OutputStream stdInUI, Terminal tm) throws IOException, URISyntaxException {
-        BaseRascalREPL repl = constructRascalREPL(control, stdIn, stdInUI, tm);
-        return new BaseREPL(repl, null, stdIn, stdInUI, true, true, getHistoryFile(), tm, new EclipseIDEServices());
+    protected BaseREPL constructREPL(ITerminalControl control, REPLPipedInputStream stdin, OutputStream stdout, Terminal tm) throws IOException, URISyntaxException {
+        BaseRascalREPL repl = constructRascalREPL(control, stdin, stdout, tm);
+        return new BaseREPL(repl, null, stdin, stdout, stdout, true, true, getHistoryFile(), tm, new EclipseIDEServices());
     }
     
-    protected BaseRascalREPL constructRascalREPL(ITerminalControl control, REPLPipedInputStream stdIn, OutputStream stdInUI, Terminal tm) throws IOException, URISyntaxException {
-        return new RascalInterpreterREPL(stdIn, control.getRemoteToTerminalOutputStream(), true, true, false, getHistoryFile()) {
+    protected BaseRascalREPL constructRascalREPL(ITerminalControl control, REPLPipedInputStream stdIn, OutputStream stdout, Terminal tm) throws IOException, URISyntaxException {
+        return new RascalInterpreterREPL(true, true, false, getHistoryFile()) {
             private AbstractInterpreterEventTrigger eventTrigger;
             private DebugHandler debugHandler;
             
             @Override
-            protected Evaluator constructEvaluator(InputStream input, Writer stdout, Writer stderr) {
+            protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr) {
                 IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
                 if (ipr != null && !ipr.isOpen()) {
                     ipr = null;
@@ -286,6 +280,10 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                     connectToEclipseDebugAPI(eval);
                     eventTrigger.fireSuspendByClientRequestEvent();
                 }
+                
+                String version = RascalShell.getVersionNumber();
+                SemVer semVer = new SemVer(version);
+                eval.getOutPrinter().append("Rascal Version: " + version + (semVer.getPrerelease().equals("SNAPSHOT") ? ", see |http://ci.usethesource.io/job/usethesource/job/rascal-eclipse/job/master/|" : ", see |release-notes://" + version + "|") + "\n");
                 
                 return eval;
             }

@@ -137,9 +137,9 @@ public class Builder extends BuilderBase {
 						result = (ISet) builder.call(rmonitor, new Type[] { type }, new IValue[] { tree }, null).getValue();
 					}
 					catch (MatchFailed e) {
-						builder.getEval().getStdErr().write("builder function can not handle tree of type:" + type + "\n");
-						builder.getEval().getStdErr().write(e.toString() + "\n");
-						builder.getEval().getStdErr().flush();
+						builder.getEval().getErrorPrinter().write("builder function can not handle tree of type:" + type + "\n");
+						builder.getEval().getErrorPrinter().write(e.toString() + "\n");
+						builder.getEval().getErrorPrinter().flush();
 					}
 				}
 				
@@ -171,9 +171,9 @@ public class Builder extends BuilderBase {
 					handler.handleSimpleMessage("builder error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 				}
 				else if (evalForErrors != null) {
-				    ReadEvalPrintDialogMessages.throwMessage(evalForErrors.getStdErr(), e, new StandardTextWriter());
-				    evalForErrors.getStdErr().println();
-					evalForErrors.getStdErr().flush();
+				    ReadEvalPrintDialogMessages.throwMessage(evalForErrors.getErrorPrinter(), e, new StandardTextWriter());
+				    evalForErrors.getErrorPrinter().println();
+					evalForErrors.getErrorPrinter().flush();
 				}
 				else {
 					Activator.getInstance().logException(e.getMessage(), e);
@@ -181,9 +181,9 @@ public class Builder extends BuilderBase {
 			}
 			else {
 				if (evalForErrors != null) {
-				    ReadEvalPrintDialogMessages.throwMessage(evalForErrors.getStdErr(), e, new StandardTextWriter());
-				    evalForErrors.getStdErr().println();
-					evalForErrors.getStdErr().flush();
+				    ReadEvalPrintDialogMessages.throwMessage(evalForErrors.getErrorPrinter(), e, new StandardTextWriter());
+				    evalForErrors.getErrorPrinter().println();
+					evalForErrors.getErrorPrinter().flush();
 				}
 				else {
 					Activator.getInstance().logException(exc.toString(), e);
@@ -193,9 +193,9 @@ public class Builder extends BuilderBase {
 		catch (IOException e) {
 			String error = "could not read file in builder: " + file;
 			if (evalForErrors != null) {
-				evalForErrors.getStdErr().write(error + "\n");
-				evalForErrors.getStdErr().write(e.toString() + "\n");
-				evalForErrors.getStdErr().flush();
+				evalForErrors.getErrorPrinter().write(error + "\n");
+				evalForErrors.getErrorPrinter().write(e.toString() + "\n");
+				evalForErrors.getErrorPrinter().flush();
 			}
 			else 
 				Activator.getInstance().logException("could not read file in builder: " + file, e);

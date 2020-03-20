@@ -438,10 +438,10 @@ public class ViewPortHandler implements SelectionListener, ControlListener, Pain
 			writeScreenShot(to);
 			to.close();
 		} catch(FileNotFoundException e){
-			PrintWriter stdErr = this.parent.getCallBackEnv().getRascalContext().getStdErr();
+			PrintWriter stdErr = this.parent.getCallBackEnv().getRascalContext().getErrorPrinter();
 			stdErr.printf("Could not write to " + filepath + "\n Reason " + e.getMessage());
 		} catch (IOException e) {
-			PrintWriter stdErr = this.parent.getCallBackEnv().getRascalContext().getStdErr();
+			PrintWriter stdErr = this.parent.getCallBackEnv().getRascalContext().getErrorPrinter();
 			stdErr.printf("Could not write to " + filepath + "\n Reason " + e.getMessage());
 		}
 	}

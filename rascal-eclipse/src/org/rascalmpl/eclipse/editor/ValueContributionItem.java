@@ -1,8 +1,6 @@
 package org.rascalmpl.eclipse.editor;
 
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.OutputStream;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
@@ -53,8 +51,8 @@ public class ValueContributionItem extends ContributionItem {
   }
 
   private static final String UTIL_VALUE_UI = "util::ValueUI";
-  private static PrintWriter out;
-  private static PrintWriter err;
+  private static OutputStream out;
+  private static OutputStream err;
   private static Evaluator eval;
   
   public ValueContributionItem() {
@@ -65,17 +63,12 @@ public class ValueContributionItem extends ContributionItem {
   }
   
   private static void init() {
-    try {
-      out = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"));
-      err = new PrintWriter(new OutputStreamWriter(RuntimePlugin.getInstance().getConsoleStream(), "UTF16"), true);
+      out = RuntimePlugin.getInstance().getConsoleStream();
+      err = RuntimePlugin.getInstance().getConsoleStream();
       eval = new JavaToRascal(System.in, out, err).getEvaluator();
       eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
       ProjectEvaluatorFactory.configure(eval, null);
       eval.doImport(null, UTIL_VALUE_UI);
-    } catch (UnsupportedEncodingException e) {
-      Activator.log("could not init value contributions", e);
-      throw new RuntimeException(e);
-    }
   }
   
   @Override
