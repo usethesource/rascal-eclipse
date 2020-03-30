@@ -21,6 +21,7 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.util.ProjectPathConfig;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
@@ -121,12 +122,21 @@ public class RascalLanguageServices {
             synchronized (eval) {
                 try {
                     return (IList) eval.call(monitor, "checkAll", folder, pcfg.asConstructor());
-                } catch (Throwable e) {
-                    Activator.log("compilation failed", e);
+                }
+                catch (InterruptException e) {
                     return IRascalValueFactory.getInstance().list();
+                }
+                finally {
+                    eval.__setInterrupt(false);
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
+            Activator.log("compilation failed", e);
+            return IRascalValueFactory.getInstance().list();
+        } catch (Throw e) {
+            Activator.log("internal error during compilation;\n" + e.getLocation() + ": " + e.getMessage() + "\n" + e.getTrace(), e);
+            return IRascalValueFactory.getInstance().list();
+        } catch (Throwable e) {
             Activator.log("compilation failed", e);
             return IRascalValueFactory.getInstance().list();
         }
@@ -143,10 +153,6 @@ public class RascalLanguageServices {
                 catch (InterruptException e) {
                     return IRascalValueFactory.getInstance().list();
                 }
-                catch (Throwable e) {
-                    Activator.log("compilation failed", e);
-                    return IRascalValueFactory.getInstance().list();
-                }
                 finally {
                     eval.__setInterrupt(false);
                 }
@@ -156,6 +162,12 @@ public class RascalLanguageServices {
             return IRascalValueFactory.getInstance().list();
         } catch (ExecutionException e1) {
             Activator.log("could not find compiler", e1);
+            return IRascalValueFactory.getInstance().list();
+        } catch (Throw e) {
+            Activator.log("internal error during compilation;\n" + e.getLocation() + ": " + e.getMessage() + "\n" + e.getTrace(), e);
+            return IRascalValueFactory.getInstance().list();
+        } catch (Throwable e) {
+            Activator.log("compilation failed", e);
             return IRascalValueFactory.getInstance().list();
         }
     }
