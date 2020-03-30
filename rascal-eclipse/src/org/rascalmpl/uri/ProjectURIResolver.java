@@ -13,11 +13,14 @@
 package org.rascalmpl.uri;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 
 import org.eclipse.core.resources.IContainer;
@@ -31,11 +34,15 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
 
-public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResourceResolver {
+public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResourceResolver, IClassloaderLocationResolver {
 	
 	
 
@@ -302,4 +309,26 @@ public class ProjectURIResolver implements ISourceLocationInputOutput, IURIResou
 	public IResource getResource(ISourceLocation uri) throws IOException {
 		return resolve(uri);
 	}
+
+    @Override
+    public ClassLoader getClassLoader(ISourceLocation loc, ClassLoader parent) throws IOException {
+        IProject project = (IProject) resolve(loc);
+
+        try {
+            if (project.exists() && project.isOpen()) {
+                IJavaProject jProject = JavaCore.create(project);
+
+                IPath binFolder = jProject.getOutputLocation();
+                String binLoc = project.getLocation() + "/" + binFolder.removeFirstSegments(1).toString();
+
+                URL binURL = new URL("file", "",  binLoc + "/");
+                return new URLClassLoader(new URL[] {binURL}, getClass().getClassLoader());
+            }
+            else {
+                throw new FileNotFoundException("project is not open: " + loc);
+            }
+        } catch (JavaModelException e) {
+            throw new IOException("no classloader for project:" + loc, e);
+        }
+    }
 }	
