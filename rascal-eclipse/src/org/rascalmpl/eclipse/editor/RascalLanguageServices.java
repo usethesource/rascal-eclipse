@@ -19,6 +19,7 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.util.ProjectPathConfig;
+import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -31,6 +32,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -284,8 +286,9 @@ public class RascalLanguageServices {
     private Future<Evaluator> makeFutureEvaluator(String label, final String... imports) {
         return asyncGenerator(label, () ->  {
             Bundle bundle = Platform.getBundle("rascal_eclipse");
-            // TODO: better streams here
-            Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(bundle, System.err, System.out);
+            // TODO: better streams here; we used to have thread safe access to the writers, now they just 
+            // all print to the same console.
+            Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(bundle, RuntimePlugin.getInstance().getConsoleStream(), RuntimePlugin.getInstance().getConsoleStream());
            
             eval.addRascalSearchPath(URIUtil.correctLocation("jar+plugin", "rascal_eclipse", "/lib/typepal.jar!/"));
             eval.addRascalSearchPath(URIUtil.correctLocation("jar+plugin", "rascal_eclipse", "/lib/rascal-core.jar!/"));
