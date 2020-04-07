@@ -19,7 +19,6 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.util.ProjectPathConfig;
-import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -226,7 +225,6 @@ public class RascalLanguageServices {
             return EMPTY_NODE;
         }
 
-        Activator.getInstance().writeInfoMsg(System.currentTimeMillis()  + ": looking for outline for " + loc.top());
         return replaceNull(outlineCache.get(loc.top(), (l) -> {
             try {
                 Evaluator eval = outlineEvaluator.get();
@@ -237,7 +235,6 @@ public class RascalLanguageServices {
                 }
 
                 synchronized (eval) {
-                    Activator.getInstance().writeInfoMsg(System.currentTimeMillis() + ": calling outliner for " + module.asAnnotatable().getAnnotation("loc"));
                     return (INode) eval.call("outline", module);
                 }
             }
