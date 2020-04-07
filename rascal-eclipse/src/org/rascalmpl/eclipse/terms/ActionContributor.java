@@ -12,6 +12,7 @@
 package org.rascalmpl.eclipse.terms;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.function.Function;
@@ -30,7 +31,10 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+import org.eclipse.ui.internal.browser.WorkbenchBrowserSupport;
+import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.highlight.ShowAsHTML;
 import org.rascalmpl.eclipse.editor.highlight.ShowAsLatex;
@@ -61,6 +65,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
+@SuppressWarnings("restriction")
 public class ActionContributor implements ILanguageActionsContributor {
     protected final REPLContentServerManager contentManager = new REPLContentServerManager();
     
@@ -198,13 +203,8 @@ public class ActionContributor implements ILanguageActionsContributor {
                     }
 
                     REPLContentServer server = servers.addServer(id, target);
-                    URL link = URIUtil.assumeCorrect("http://localhost:" + server.getListeningPort()).toURL();
-                    try {
-                        PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(link);
-                    } catch (PartInitException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
+                    browse(id, "http://localhost:" + server.getListeningPort());
+                    
                     result = null; // to avoid substitution side-effect
                 }
             } catch (IOException e) {
@@ -212,6 +212,23 @@ public class ActionContributor implements ILanguageActionsContributor {
             }
 
             return Status.OK_STATUS;
+        }
+        
+        private void browse(String id, String host) {
+            new UIJob("Content") {
+                @Override
+                public IStatus runInUIThread(IProgressMonitor monitor) {
+                    try {
+                        URL url = URIUtil.assumeCorrect(host).toURL();
+                        IWebBrowser browser = WorkbenchBrowserSupport.getInstance().createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, id, id, "This browser shows the latest web content produced by a Rascal action");
+                        browser.openURL(url);
+                    } catch (PartInitException | MalformedURLException e) {
+                        Activator.log("could not view HTML content", e);
+                    }
+                    
+                    return Status.OK_STATUS;
+                }
+            }.schedule();
         }
         
         private Function<IValue, IValue> liftProviderFunction(IValue callback) {
@@ -301,6 +318,8 @@ public class ActionContributor implements ILanguageActionsContributor {
 		}
 	}
 
+	
+	
 	private ISet getContribs(UniversalEditor editor) {
 		ISet result = TermLanguageRegistry.getInstance().getContributions(editor.getLanguage());
 		if (result == null) {
