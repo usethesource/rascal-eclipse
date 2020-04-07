@@ -65,7 +65,9 @@ import ParseTree;
 import vis::Figure;
 import lang::rascal::\format::Grammar;
 import String;
+extend Content;
 extend Message;
+
 
 @doc{
 .Synopsis
@@ -114,6 +116,7 @@ data CompletionProposal
     
 data Menu 
      = action(str label, void ((&T<:Tree) tree, loc selection) action)
+     | interaction(str label, Content ((&T <: Tree) tree, loc selection) server)
      | action(str label, void (str selStr, loc selLoc) handler) // for non rascal menu's
      | toggle(str label, bool() state, void((&T<:Tree) tree, loc selection) action)
      | edit(str label, str ((&T<:Tree) tree, loc selection) edit)

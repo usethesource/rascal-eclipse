@@ -11,6 +11,11 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.terms;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.function.Function;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -24,6 +29,8 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.highlight.ShowAsHTML;
 import org.rascalmpl.eclipse.editor.highlight.ShowAsLatex;
@@ -33,6 +40,9 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.repl.REPLContentServer;
+import org.rascalmpl.repl.REPLContentServerManager;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -52,6 +62,8 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 public class ActionContributor implements ILanguageActionsContributor {
+    protected final REPLContentServerManager contentManager = new REPLContentServerManager();
+    
 	private static final class Runner extends Action {
 		private final UniversalEditor editor;
 		private final RascalAction job;
@@ -82,8 +94,8 @@ public class ActionContributor implements ILanguageActionsContributor {
 			if (sync) {
 				try {
 					job.join();
-					if (job.result != null) {
-						replaceText(selection, job.result);
+					if (job.result != null && job.result instanceof IString) {
+						replaceText(selection, (IString) job.result);
 					}
 				} catch (InterruptedException e) {
 					Activator.getInstance().logException("action interrupted", e);
@@ -105,12 +117,12 @@ public class ActionContributor implements ILanguageActionsContributor {
 		}
 	}
 	
-	private static final class RascalAction extends Job {
+	private static class RascalAction extends Job {
 		private final ICallableValue func;
 		private final WarningsToErrorLog warnings;
 		private ITree tree;
 		private Point selection;
-		public IString result = null;
+		public IValue result = null;
     
 
 		private RascalAction(String text, ICallableValue func) {
@@ -141,10 +153,10 @@ public class ActionContributor implements ILanguageActionsContributor {
 					}
 					
 					if ( (func.getType() instanceof OverloadedFunctionType) &&  (((OverloadedFunctionType) func.getType()).getReturnType() != TF.voidType()) ) {
-						this.result = (IString) result;
+						this.result = result;
 					}
 					if ( (func.getType() instanceof FunctionType) && (((FunctionType) func.getType()).getReturnType() != TF.voidType())) {
-						this.result = (IString) result;
+						this.result = result;
 					}
 				}
 				catch (Throwable e) {
@@ -157,9 +169,64 @@ public class ActionContributor implements ILanguageActionsContributor {
 			
 			return Status.OK_STATUS;
 		}
-
-		
 	}
+	
+	private static final class RascalContentServerAction extends RascalAction {
+        private final REPLContentServerManager servers;
+
+        private RascalContentServerAction(REPLContentServerManager servers, String text, ICallableValue func) {
+            super(text, func);
+            this.servers = servers;
+        }
+        
+        @Override
+        public IStatus run(IProgressMonitor monitor) {
+            super.run(monitor);
+            try {
+                if (result != null && result instanceof IConstructor) {
+                    IConstructor provider = (IConstructor) result;
+                    Function<IValue, IValue> target;
+                    String id;
+                    
+                    if (provider.has("id")) {
+                        id = ((IString) provider.get("id")).getValue();
+                        target = liftProviderFunction(provider.get("callback"));
+                    }
+                    else {
+                        id = getName();
+                        target = (r) -> provider.get("response");
+                    }
+
+                    REPLContentServer server = servers.addServer(id, target);
+                    URL link = URIUtil.assumeCorrect("http://localhost:" + server.getListeningPort()).toURL();
+                    try {
+                        PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(link);
+                    } catch (PartInitException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    result = null; // to avoid substitution side-effect
+                }
+            } catch (IOException e) {
+                Activator.log("could not start interactive visual from action " + getName(), e);
+            }
+
+            return Status.OK_STATUS;
+        }
+        
+        private Function<IValue, IValue> liftProviderFunction(IValue callback) {
+            ICallableValue func = (ICallableValue) callback;
+            
+            return (t) -> {
+              synchronized(func.getEval()) {
+                  return func.call(
+                      new Type[] { REPLContentServer.requestType },
+                      new IValue[] { t },
+                      Collections.emptyMap()).getValue();
+              }
+            };
+        }
+    }
 
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	private final static RascalTypeFactory RTF = RascalTypeFactory.getInstance();
@@ -185,7 +252,8 @@ public class ActionContributor implements ILanguageActionsContributor {
 		
 		if (menu.getName().equals("action") || 
 				menu.getName().equals("toggle") ||
-				menu.getName().equals("edit")) {
+				menu.getName().equals("edit") ||
+				menu.getName().equals("interaction")) {
 			contributeAction(menuManager, editor, menu, label);
 		}
 		else if (menu.getName().equals("group")) {
@@ -210,7 +278,6 @@ public class ActionContributor implements ILanguageActionsContributor {
 			func.getEval().__setInterrupt(false);
 			return ((IBool) func.call(actualTypes, actuals, null).getValue()).getValue();
 		}
-		
 	}
 
 	
@@ -223,6 +290,10 @@ public class ActionContributor implements ILanguageActionsContributor {
 		else if (menu.has("action")) {
 			final ICallableValue func = (ICallableValue) menu.get("action");
 			menuManager.add(new Runner(false, label, editor, new RascalAction(label, func)));
+		}
+		else if (menu.has("server")) {
+		    final ICallableValue func = (ICallableValue) menu.get("server");
+		    menuManager.add(new Runner(false, label, editor, new RascalContentServerAction(contentManager, label, func)));
 		}
 		else if (menu.has("edit")) {
 			final ICallableValue func = (ICallableValue) menu.get("edit");
