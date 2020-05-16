@@ -283,8 +283,8 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                 
                 String version = RascalShell.getVersionNumber();
                 SemVer semVer = new SemVer(version);
-                eval.getOutPrinter().append("Rascal Version: " + version + (semVer.getPrerelease().equals("SNAPSHOT") ? ", see |http://ci.usethesource.io/job/usethesource/job/rascal-eclipse/job/master/|" : ", see |release-notes://" + version + "|") + "\n");
-                
+                eval.getOutPrinter().println("Rascal Version: " + version + (semVer.getPrerelease().equals("SNAPSHOT") ? ", see |http://ci.usethesource.io/job/usethesource/job/rascal-eclipse/job/master/|" : ", see |release-notes://" + version + "|"));
+                eval.getOutPrinter().flush();
                 return eval;
             }
             
