@@ -194,7 +194,7 @@ public class ResourceMarkers {
 					    }
 					  } 
 					  catch (CoreException ce) {
-					    throw RuntimeExceptionFactory.illegalArgument(loc, null, null, ce.getMessage());
+					    throw RuntimeExceptionFactory.illegalArgument(loc, ce.getMessage());
 					  }
 					}
 				}
