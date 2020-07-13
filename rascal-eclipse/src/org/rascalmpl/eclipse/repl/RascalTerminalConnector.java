@@ -140,11 +140,14 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                     Activator.log("terminal not connected", e);
                 } 
                 finally {
-                    control.setState(TerminalState.CLOSED);
-                    
-                    if (reloader != null) {
-                        reloader.destroy();
-                    }
+                	try {
+                		control.setState(TerminalState.CLOSED);
+                	}
+                	finally {
+                		if (reloader != null) {
+                			reloader.destroy();
+                		}
+                	}
                     
                     try {
                         if (debug()) {

@@ -1,8 +1,8 @@
 package org.rascalmpl.eclipse.repl;
 
 import java.lang.ref.WeakReference;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -30,7 +30,7 @@ public class RascalTerminalRegistry {
         return Instance.manager;
     }
     
-    private final List<WeakReference<RascalTerminalConnector>> connectors = new LinkedList<>();
+    private final List<WeakReference<RascalTerminalConnector>> connectors = new CopyOnWriteArrayList<>();
     private WeakReference<RascalTerminalConnector> focussed = null;
     private WeakReference<ILaunch> launch;
     
@@ -38,19 +38,24 @@ public class RascalTerminalRegistry {
         return launch != null ? launch.get() : null;
     }
     
+    
     public void register(RascalTerminalConnector connector) {
-        if (!connectors.stream().anyMatch(x -> x.get() == connector)) {
-            connectors.add(new WeakReference<>(connector));
-        }
+    	if (!contains(connector)) {
+    		synchronized (connectors) {
+    			if (!contains(connector)) {
+    				connectors.add(new WeakReference<>(connector));
+    			}
+    		}
+    	}
     }
+
+
+	private boolean contains(RascalTerminalConnector connector) {
+		return connectors.stream().anyMatch(x -> x.get() == connector);
+	}
     
     public void unregister(RascalTerminalConnector connector) {
-        for (int i = 0; i < connectors.size(); i++) {
-            if (connectors.get(i).get() == connector) {
-                connectors.remove(i);
-                break;
-            }
-        }
+        connectors.removeIf(e -> e.get() == connector);
     }
     
     public RascalTerminalConnector findByProject(String project) {
