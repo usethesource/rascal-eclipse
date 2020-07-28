@@ -29,12 +29,12 @@
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>typepal</artifactId>
-            <version>0.4.7-SNAPSHOT</version>
+            <version>0.4.8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>rascal-core</artifactId>
-            <version>0.4.14-SNAPSHOT</version>
+            <version>0.4.15-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>jline</groupId>
@@ -135,7 +135,7 @@
             <plugin>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-maven-plugin</artifactId>
-                <version>0.2.16</version>
+                <version>0.2.17</version>
                 <configuration>
                     <errorsAsWarnings>true</errorsAsWarnings>
                     <bin>${project.build.outputDirectory}</bin>
