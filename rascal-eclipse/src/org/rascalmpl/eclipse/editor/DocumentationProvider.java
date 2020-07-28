@@ -94,21 +94,21 @@ public class DocumentationProvider  implements IDocumentationProvider {
 	}
 
     private String getDocStringFromTree(IConstructor arg, IConstructor top) {
-        IValue val = arg.asAnnotatable().getAnnotation("doc");
+        IValue val = arg.asWithKeywordParameters().getParameter("doc");
 
 		if (val != null && val.getType().isString()) {
 				return ((IString) val).getValue();
 		}
 		
 		if (top != null && top.getType().isSubtypeOf(RascalValueFactory.Tree)) {
-			IValue vals = top.asAnnotatable().getAnnotation("docs");
+			IValue vals = top.asWithKeywordParameters().getParameter("docs");
 			
 			if (vals != null 
 					&& vals.getType().isMap() 
 					&& vals.getType().getKeyType().isSourceLocation() 
 					&& vals.getType().getValueType().isString()) {
 				IMap map = (IMap) vals;
-				ISourceLocation loc = (ISourceLocation) arg.asAnnotatable().getAnnotation("loc");
+				ISourceLocation loc = (ISourceLocation) arg.asWithKeywordParameters().getParameter("src");
 				if (loc != null && map.containsKey(loc)) {
 					return ((IString) map.get(loc)).getValue();
 				}

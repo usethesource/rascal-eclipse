@@ -42,7 +42,6 @@ import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.repl.REPLContentServer;
 import org.rascalmpl.repl.REPLContentServerManager;
@@ -157,9 +156,6 @@ public class ActionContributor implements ILanguageActionsContributor {
 						result = func.call(rascalMonitor, actualTypes, actuals, null).getValue();
 					}
 					
-					if ( (func.getType() instanceof OverloadedFunctionType) &&  (((OverloadedFunctionType) func.getType()).getReturnType() != TF.voidType()) ) {
-						this.result = result;
-					}
 					if ( (func.getType() instanceof FunctionType) && (((FunctionType) func.getType()).getReturnType() != TF.voidType())) {
 						this.result = result;
 					}

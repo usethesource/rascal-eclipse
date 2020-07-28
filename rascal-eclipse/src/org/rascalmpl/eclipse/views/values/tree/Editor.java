@@ -40,316 +40,317 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class Editor extends EditorPart {
-	public static final String EditorId = "org.rascalmpl.eclipse.views.values.tree.editor";
-	private TreeViewer treeViewer;
-	private static final Object[] empty = new Object[0];
-	
-	public Editor() {
-	}
+    public static final String EditorId = "org.rascalmpl.eclipse.views.values.tree.editor";
+    private TreeViewer treeViewer;
+    private static final Object[] empty = new Object[0];
 
-	@Override
-	public String getTitle() {
-		IEditorInput editorInput = getEditorInput();
-		
-		if (editorInput != null) {
-			return editorInput.getName();
-		}
-		
-		return "Value";
-	}
-	
-	public TreeViewer getViewer() {
-		return treeViewer;
-	}
+    public Editor() {
+    }
 
-	public static void open(final IValue value) {
-		if (value == null) {
-			return;
-		}
-	 	IWorkbench wb = PlatformUI.getWorkbench();
-		IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+    @Override
+    public String getTitle() {
+        IEditorInput editorInput = getEditorInput();
 
-		if (win == null && wb.getWorkbenchWindowCount() != 0) {
-			win = wb.getWorkbenchWindows()[0];
-		}
-		
-		if (win != null) {
-			final IWorkbenchPage page = win.getActivePage();
+        if (editorInput != null) {
+            return editorInput.getName();
+        }
 
-			if (page != null) {
-				Display.getDefault().asyncExec(new Runnable() {
-					public void run() {
-						try {
-							page.openEditor(new ValueEditorInput(value, true, 2), Editor.EditorId);
-						} catch (PartInitException e) {
-							Activator.log("failed to open tree editor", e);
-						}
-					}
-				});
-			}
-		}
-	}
-	
-	@Override
-	public void doSave(IProgressMonitor monitor) {
-	}
+        return "Value";
+    }
 
-	@Override
-	public void doSaveAs() {
-	}
+    public TreeViewer getViewer() {
+        return treeViewer;
+    }
 
-	@Override
-	public void init(IEditorSite site, IEditorInput input)
-			throws PartInitException {
-		setSite(site);
-		setInput(input);
-		if (!(input instanceof ValueEditorInput)) {
-			throw new PartInitException("not a value input");
-		}
-	}
+    public static void open(final IValue value) {
+        if (value == null) {
+            return;
+        }
+        IWorkbench wb = PlatformUI.getWorkbench();
+        IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
 
-	@Override
-	public boolean isDirty() {
-		return false;
-	}
+        if (win == null && wb.getWorkbenchWindowCount() != 0) {
+            win = wb.getWorkbenchWindows()[0];
+        }
 
-	@Override
-	public boolean isSaveAsAllowed() {
-		return false;
-	}
+        if (win != null) {
+            final IWorkbenchPage page = win.getActivePage();
 
-	@Override
-	public void createPartControl(Composite parent) {
-		parent.setLayout(new FillLayout());
-		treeViewer = new TreeViewer(parent);
-		treeViewer.setContentProvider(new ValueContentProvider());
-		treeViewer.setLabelProvider(new ValueLabelProvider());
-		
-		IEditorInput input = getEditorInput();
-		treeViewer.setInput(((ValueEditorInput) input).getValue());
-	}
+            if (page != null) {
+                Display.getDefault().asyncExec(new Runnable() {
+                    public void run() {
+                        try {
+                            page.openEditor(new ValueEditorInput(value, true, 2), Editor.EditorId);
+                        } catch (PartInitException e) {
+                            Activator.log("failed to open tree editor", e);
+                        }
+                    }
+                });
+            }
+        }
+    }
 
-	@Override
-	public void setFocus() {
-	}
-	
-	private class ValueContentProvider implements ITreeContentProvider {
-		public void dispose() {
-		}
+    @Override
+    public void doSave(IProgressMonitor monitor) {
+    }
 
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		}
+    @Override
+    public void doSaveAs() {
+    }
 
-		public Object[] getChildren(Object parentElement) {
-				return ((IValue) parentElement).accept(new IValueVisitor<Object[], RuntimeException>() {
-					
+    @Override
+    public void init(IEditorSite site, IEditorInput input)
+            throws PartInitException {
+        setSite(site);
+        setInput(input);
+        if (!(input instanceof ValueEditorInput)) {
+            throw new PartInitException("not a value input");
+        }
+    }
 
-					public Object[] visitBoolean(IBool boolValue) {
-						return empty; 
-					}
+    @Override
+    public boolean isDirty() {
+        return false;
+    }
 
-					public Object[] visitConstructor(IConstructor o)
-							 {
-						Object[] children = new Object[o.arity()];
-						int i = 0;
-						for (IValue child : o) {
-							children[i++] = child;
-						}
-						return children;
-					}
+    @Override
+    public boolean isSaveAsAllowed() {
+        return false;
+    }
 
-					public Object[] visitExternal(IExternalValue externalValue)
-							 {
-						return empty;
-					}
+    @Override
+    public void createPartControl(Composite parent) {
+        parent.setLayout(new FillLayout());
+        treeViewer = new TreeViewer(parent);
+        treeViewer.setContentProvider(new ValueContentProvider());
+        treeViewer.setLabelProvider(new ValueLabelProvider());
 
-					public Object[] visitInteger(IInteger o)
-							 {
-						return empty;
-					}
+        IEditorInput input = getEditorInput();
+        treeViewer.setInput(((ValueEditorInput) input).getValue());
+    }
 
-					public Object[] visitRational(IRational o)
-							 {
-						return empty;
-					}
+    @Override
+    public void setFocus() {
+    }
 
-					public Object[] visitList(IList o)  {
-						Object[] children = new Object[o.length()];
-						int i = 0;
-						for (IValue child : o) {
-							children[i++] = child;
-						}
-						return children;
-					}
+    private class ValueContentProvider implements ITreeContentProvider {
+        public void dispose() {
+        }
 
-					public Object[] visitMap(IMap o)  {
-						Object[] children = new Object[o.size()];
-						int i = 0;
-						for (IValue child : o) {
-							children[i++] = ValueFactoryFactory.getValueFactory().tuple(child, o.get(child));
-						}
-						return children;
-					}
+        public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+        }
 
-					public Object[] visitNode(INode o)  {
-						Object[] children = new Object[o.arity()];
-						int i = 0;
-						for (IValue child : o) {
-							children[i++] = child;
-						}
-						return children;
-					}
+        public Object[] getChildren(Object parentElement) {
+            return ((IValue) parentElement).accept(new IValueVisitor<Object[], RuntimeException>() {
 
-					public Object[] visitReal(IReal o)  {
-						return empty;
-					}
+                @Override
+                public Object[] visitBoolean(IBool boolValue) {
+                    return empty; 
+                }
 
-					public Object[] visitRelation(ISet o)
-							 {
-						return visitSet(o);
-					}
+                @Override
+                public Object[] visitConstructor(IConstructor o)
+                {
+                    Object[] children = new Object[o.arity()];
+                    int i = 0;
+                    for (IValue child : o) {
+                        children[i++] = child;
+                    }
+                    return children;
+                }
 
-					public Object[] visitSet(ISet o)  {
-						Object[] children = new Object[o.size()];
-						int i = 0;
-						for (IValue child : o) {
-							children[i++] = child;
-						}
-						return children;
-					}
+                @Override
+                public Object[] visitExternal(IExternalValue externalValue) {
+                    return empty;
+                }
 
-					public Object[] visitSourceLocation(ISourceLocation o)
-							 {
-						return empty;
-					}
+                @Override
+                public Object[] visitInteger(IInteger o) {
+                    return empty;
+                }
 
-					public Object[] visitString(IString o)  {
-						return empty;
-					}
+                public Object[] visitRational(IRational o) {
+                    return empty;
+                }
 
-					public Object[] visitTuple(ITuple o)  {
-						Object[] children = new Object[o.arity()];
-						int i = 0;
-						for (IValue child : o) {
-							children[i++] = child;
-						}
-						return children;
-					}
+                @Override
+                public Object[] visitList(IList o)  {
+                    Object[] children = new Object[o.length()];
+                    int i = 0;
+                    for (IValue child : o) {
+                        children[i++] = child;
+                    }
+                    return children;
+                }
 
-					public Object[] visitDateTime(IDateTime o)
-							 {
-						return empty;
-					}
+                @Override
+                public Object[] visitMap(IMap o)  {
+                    Object[] children = new Object[o.size()];
+                    int i = 0;
+                    for (IValue child : o) {
+                        children[i++] = ValueFactoryFactory.getValueFactory().tuple(child, o.get(child));
+                    }
+                    return children;
+                }
 
-          public Object[] visitListRelation(IList o)  {
-            return visitList(o);
-          }
-				});
-		}
+                @Override
+                public Object[] visitNode(INode o)  {
+                    Object[] children = new Object[o.arity()];
+                    int i = 0;
+                    for (IValue child : o) {
+                        children[i++] = child;
+                    }
+                    return children;
+                }
 
-		public Object getParent(Object element) {
-			return null;
-		}
+                @Override
+                public Object[] visitReal(IReal o)  {
+                    return empty;
+                }
 
-		public boolean hasChildren(Object element) {
-			return getChildren(element).length != 0;
-		}
+                @Override
+                public Object[] visitSet(ISet o)  {
+                    Object[] children = new Object[o.size()];
+                    int i = 0;
+                    for (IValue child : o) {
+                        children[i++] = child;
+                    }
+                    return children;
+                }
 
-		public Object[] getElements(Object inputElement) {
-			return getChildren(inputElement);
-		}
-	}
-	
-	private class ValueLabelProvider implements ILabelProvider {
-		public void addListener(ILabelProviderListener listener) {
-		}
+                @Override
+                public Object[] visitSourceLocation(ISourceLocation o) {
+                    return empty;
+                }
 
-		public void dispose() {
-		}
+                @Override
+                public Object[] visitString(IString o)  {
+                    return empty;
+                }
 
-		public boolean isLabelProperty(Object element, String property) {
-			return false;
-		}
+                @Override
+                public Object[] visitTuple(ITuple o)  {
+                    Object[] children = new Object[o.arity()];
+                    int i = 0;
+                    for (IValue child : o) {
+                        children[i++] = child;
+                    }
+                    return children;
+                }
 
-		public void removeListener(ILabelProviderListener listener) {
-		}
+                @Override
+                public Object[] visitDateTime(IDateTime o) {
+                    return empty;
+                }
+            });
+        }
 
-		public Image getImage(Object element) {
-			return null;
-		}
+        public Object getParent(Object element) {
+            return null;
+        }
 
-		public String getText(Object element) {
-			IValue value = (IValue) element;
-			return value.accept(new IValueVisitor<String, RuntimeException>() {
+        public boolean hasChildren(Object element) {
+            return getChildren(element).length != 0;
+        }
 
-			  public String visitBoolean(IBool boolValue)
-			  {
-			    return boolValue.toString();
-			  }
+        public Object[] getElements(Object inputElement) {
+            return getChildren(inputElement);
+        }
+    }
 
-			  public String visitConstructor(IConstructor o)
-			  {
-			    return o.getConstructorType().toString();
-			  }
+    private class ValueLabelProvider implements ILabelProvider {
+        public void addListener(ILabelProviderListener listener) {
+        }
 
-			  public String visitExternal(IExternalValue externalValue)
-			  {
-			    return externalValue.getType().toString();
-			  }
+        public void dispose() {
+        }
 
-			  public String visitInteger(IInteger o)  {
-			    return o.toString();
-			  }
+        public boolean isLabelProperty(Object element, String property) {
+            return false;
+        }
 
-			  public String visitRational(IRational o)  {
-			    return o.toString();
-			  }
+        public void removeListener(ILabelProviderListener listener) {
+        }
 
-			  public String visitList(IList o)  {
-			    return o.getType().toString();
-			  }
+        public Image getImage(Object element) {
+            return null;
+        }
 
-			  public String visitMap(IMap o)  {
-			    return o.getType().toString();
-			  }
+        public String getText(Object element) {
+            IValue value = (IValue) element;
+            return value.accept(new IValueVisitor<String, RuntimeException>() {
 
-			  public String visitNode(INode o)  {
-			    return o.getName();
-			  }
+                @Override
+                public String visitBoolean(IBool boolValue) {
+                    return boolValue.toString();
+                }
 
-			  public String visitReal(IReal o)  {
-			    return o.toString();
-			  }
+                @Override
+                public String visitConstructor(IConstructor o) {
+                    return o.getConstructorType().toString();
+                }
 
-			  public String visitRelation(ISet o)
-			  {
-			    return o.getType().toString();
-			  }
+                @Override
+                public String visitExternal(IExternalValue externalValue)
+                {
+                    return externalValue.getType().toString();
+                }
 
-			  public String visitSet(ISet o)  {
-			    return o.getType().toString();
-			  }
+                @Override
+                public String visitInteger(IInteger o)  {
+                    return o.toString();
+                }
 
-			  public String visitSourceLocation(ISourceLocation o) {
-			    return o.toString();
-			  }
+                @Override
+                public String visitRational(IRational o)  {
+                    return o.toString();
+                }
 
-			  public String visitString(IString o)  {
-			    return o.toString();
-			  }
+                @Override
+                public String visitList(IList o)  {
+                    return o.getType().toString();
+                }
 
-			  public String visitTuple(ITuple o)  {
-			    return o.getType().toString();
-			  }
+                @Override
+                public String visitMap(IMap o)  {
+                    return o.getType().toString();
+                }
 
-			  public String visitDateTime(IDateTime o) {
-			    return o.toString();
-			  }
+                @Override
+                public String visitNode(INode o)  {
+                    return o.getName();
+                }
 
-			  public String visitListRelation(IList o)  {
-			    return o.getType().toString();
-			  }
-			});
-		}
-	}
+                @Override
+                public String visitReal(IReal o)  {
+                    return o.toString();
+                }
+
+                @Override
+                public String visitSet(ISet o)  {
+                    return o.getType().toString();
+                }
+
+                @Override
+                public String visitSourceLocation(ISourceLocation o) {
+                    return o.toString();
+                }
+
+                @Override
+                public String visitString(IString o)  {
+                    return o.toString();
+                }
+
+                @Override
+                public String visitTuple(ITuple o)  {
+                    return o.getType().toString();
+                }
+
+                @Override
+                public String visitDateTime(IDateTime o) {
+                    return o.toString();
+                }
+            });
+        }
+    }
 }
