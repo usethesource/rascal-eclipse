@@ -69,7 +69,7 @@ public class AnnotatorExecutor {
 			if (newTree != null) {
 				if (start) {
 					IList newArgs = TreeAdapter.getArgs(top).put(1, newTree);
-					newTree = (ITree) top.set("args", newArgs).asAnnotatable().setAnnotation("loc", top.asAnnotatable().getAnnotation("loc"));
+					newTree = (ITree) top.set("args", newArgs).asWithKeywordParameters().setParameter("src", top.asWithKeywordParameters().getParameter("src"));
 				}
 				marker.process(newTree, handler);
 				return newTree;

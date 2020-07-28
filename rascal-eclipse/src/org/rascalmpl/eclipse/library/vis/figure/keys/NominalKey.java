@@ -71,7 +71,7 @@ public class NominalKey extends LayoutProxy implements Key{
 
 	public void registerValue(IValue val) {
 		for(int i = 0 ; i < originals.size() ; i++ ){
-			if(originals.get(i).isEqual(val)){
+			if(originals.get(i).equals(val)){
 				return ;
 			}
 		}
@@ -83,7 +83,7 @@ public class NominalKey extends LayoutProxy implements Key{
 	public IValue scaleValue(IValue val) {
 		
 		for(int i = 0 ; i < originals.size()  ; i++){
-			if(originals.get(i).isEqual((IValue)val)){
+			if(originals.get(i).equals((IValue)val)){
 				return possibilities.get(i);
 			}
 		}

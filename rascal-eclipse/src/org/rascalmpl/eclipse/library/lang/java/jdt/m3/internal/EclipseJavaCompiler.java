@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.java.m3.internal.LimitedTypeStore;
@@ -33,15 +34,16 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler {
 
-    public EclipseJavaCompiler(IValueFactory vf) {
-        super(vf);
+    public EclipseJavaCompiler(IValueFactory vf, TypeStore definitions, IRascalMonitor monitor) {
+        super(vf, definitions, monitor);
     }
     
     public ISet createAstsFromEclipseProject(ISourceLocation root, IBool collectBindings, IBool errorRecovery, IEvaluatorContext ctx) {
-        LimitedTypeStore store = getM3Store(ctx);
+        LimitedTypeStore store = getM3Store();
 
         ISetWriter result = VF.setWriter();
         Map<String, ISourceLocation> cache = new HashMap<>();
@@ -52,7 +54,7 @@ public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.inte
     }
     
     public ISet createM3sFromEclipseProject(ISourceLocation root, IBool errorRecovery, IEvaluatorContext ctx) {
-        LimitedTypeStore store = getM3Store(ctx);
+        LimitedTypeStore store = getM3Store();
 
 
         ISetWriter result = VF.setWriter();
@@ -65,7 +67,7 @@ public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.inte
     }
 
     public IValue createAstFromEclipseFile(ISourceLocation file, IBool collectBindings, IBool errorRecovery, IEvaluatorContext ctx) {
-        LimitedTypeStore store = getM3Store(ctx);
+        LimitedTypeStore store = getM3Store();
 
 
         CompilationUnit cu = compileOneFile(file, collectBindings.getValue(), errorRecovery.getValue());
@@ -74,7 +76,7 @@ public class EclipseJavaCompiler extends org.rascalmpl.library.lang.java.m3.inte
     }
     
     public IValue createM3FromEclipseFile(ISourceLocation file, IBool errorRecovery, IEvaluatorContext ctx) {
-        LimitedTypeStore store = getM3Store(ctx);
+        LimitedTypeStore store = getM3Store();
 
 
         CompilationUnit cu = compileOneFile(file, true, errorRecovery.getValue());

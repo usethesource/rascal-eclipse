@@ -19,7 +19,6 @@ import io.usethesource.impulse.language.Language;
 import io.usethesource.impulse.services.IQuickFixAssistant;
 import io.usethesource.impulse.services.IQuickFixInvocationContext;
 import io.usethesource.impulse.utils.NullMessageHandler;
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
@@ -52,12 +51,12 @@ public class TermQuickFixAssistant implements IQuickFixAssistant {
 	}
 
 	private void constructProposals(IConstructor ast, int problemOffset, Collection<ICompletionProposal> proposals) {
-		IAnnotatable<? extends IConstructor> annotatedAst = ast.asAnnotatable();
-		if (!annotatedAst.hasAnnotation(ANNOTATION_MESSAGES)) {
+		IWithKeywordParameters<? extends IConstructor> annotatedAst = ast.asWithKeywordParameters();
+		if (!annotatedAst.hasParameter(ANNOTATION_MESSAGES)) {
 			return;
 		}
 		
-		ISet annotations = (ISet) annotatedAst.getAnnotation(ANNOTATION_MESSAGES);
+		ISet annotations = (ISet) annotatedAst.getParameter(ANNOTATION_MESSAGES);
 		
 		for (IValue annotation : annotations) {
 			IConstructor cons = (IConstructor) annotation;

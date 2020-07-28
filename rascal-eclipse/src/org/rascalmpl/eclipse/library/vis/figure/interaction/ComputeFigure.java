@@ -46,7 +46,7 @@ public class ComputeFigure extends LayoutProxy {
 			if(figureCons == null){
 				return;
 			}
-			if(prevValue == null || !figureCons.isEqual(prevValue)){
+			if(prevValue == null || !figureCons.equals(prevValue)){
 				if(innerFig != null){
 					innerFig.destroy(env);
 				}

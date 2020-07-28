@@ -216,11 +216,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
             }
 
             @Override
-            public Boolean visitListRelation(IList arg0) throws RuntimeException {
-                return true;
-            }
-
-            @Override
             public Boolean visitMap(IMap arg0) throws RuntimeException {
                 return true;
             }
@@ -237,11 +232,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 
             @Override
             public Boolean visitReal(IReal arg0) throws RuntimeException {
-                return false;
-            }
-
-            @Override
-            public Boolean visitRelation(ISet arg0) throws RuntimeException {
                 return false;
             }
 
@@ -312,11 +302,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
             }
 
             @Override
-            public Object[] visitListRelation(IList arg0) throws RuntimeException {
-                return visitList(arg0);
-            }
-
-            @Override
             public Object[] visitMap(IMap arg0) throws RuntimeException {
                 return StreamSupport.stream(arg0.spliterator(), false)
                         .map(x -> new ValueContent(vf.node(x.toString(), arg0.get(x)), project, this))
@@ -343,11 +328,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
             @Override
             public Object[] visitReal(IReal arg0) throws RuntimeException {
                 return empty;
-            }
-
-            @Override
-            public Object[] visitRelation(ISet arg0) throws RuntimeException {
-                return visitSet(arg0);
             }
 
             @Override
@@ -408,11 +388,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
             }
 
             @Override
-            public String visitListRelation(IList arg0) throws RuntimeException {
-                return visitList(arg0);
-            }
-
-            @Override
             public String visitMap(IMap arg0) throws RuntimeException {
                 return "(" + arg0.size() + ")";
             }
@@ -430,11 +405,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
             @Override
             public String visitReal(IReal arg0) throws RuntimeException {
                 return arg0.toString();
-            }
-
-            @Override
-            public String visitRelation(ISet arg0) throws RuntimeException {
-               return visitSet(arg0);
             }
 
             @Override

@@ -76,7 +76,6 @@ public class NodeLocator implements ISourcePositionLocator {
 		return getLocation(node) == null ? 0 : getLocation(node).getLength();
 	}
 	
-	@SuppressWarnings("deprecation")
     private ISourceLocation getLocation(Object node){
 		if (node instanceof ITree){
 			return TreeAdapter.getLocation((ITree) node);
@@ -84,13 +83,6 @@ public class NodeLocator implements ISourcePositionLocator {
 		
 		if (node instanceof INode) {
 			INode n = (INode) node;
-			
-			if (n.isAnnotatable()) {
-			    IValue ann = n.asAnnotatable().getAnnotation("loc");
-			    if (ann != null) {
-			        return (ISourceLocation) ann;
-			    }
-			}
 			
 			if (n.mayHaveKeywordParameters()) {
 			    IValue src = n.asWithKeywordParameters().getParameter("src");

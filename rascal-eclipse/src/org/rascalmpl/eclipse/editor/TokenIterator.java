@@ -78,7 +78,7 @@ public class TokenIterator implements Iterator<Object>{
 		}
 		
 		public ITree visitTreeAppl(ITree arg){
-			IValue catAnno = arg.asAnnotatable().getAnnotation("category");
+			IValue catAnno = arg.asWithKeywordParameters().getParameter("category");
 			String category = null;
 			
 			if (catAnno != null) {
