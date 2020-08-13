@@ -53,6 +53,7 @@ import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.IRascalResult;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.BaseRascalREPL;
@@ -284,7 +285,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                     eventTrigger.fireSuspendByClientRequestEvent();
                 }
                 
-                String version = RascalShell.getVersionNumber();
+                String version = RascalManifest.getRascalVersionNumber();
                 SemVer semVer = new SemVer(version);
                 eval.getOutPrinter().println("Rascal Version: " + version + (semVer.getPrerelease().equals("SNAPSHOT") ? ", see |http://ci.usethesource.io/job/usethesource/job/rascal-eclipse/job/master/|" : ", see |release-notes://" + version + "|"));
                 eval.getOutPrinter().flush();
