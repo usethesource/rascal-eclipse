@@ -25,6 +25,7 @@ import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.terms.TermParseController;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.impulse.parser.IParseController;
@@ -134,7 +135,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		}
 		
 		IValue docLinksMapValue = tree.asWithKeywordParameters().getParameter("docLinks");
-		ITree subtree = TreeAdapter.locateAnnotatedTree(tree, "loc", region.getOffset());
+		ITree subtree = TreeAdapter.locateAnnotatedTree(tree, RascalValueFactory.Location, region.getOffset());
 		if (docLinksMapValue != null && docLinksMapValue.getType().isMap() && subtree != null) {
 			ISourceLocation loc = TreeAdapter.getLocation(subtree);
 			if (loc != null) {
