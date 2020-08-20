@@ -1,5 +1,6 @@
 package org.rascalmpl.eclipse.repl;
 
+import java.io.PrintStream;
 import java.net.URI;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -70,7 +71,10 @@ public class EclipseIDEServices implements IDEServices {
 
     @Override
     public void warning(String message, ISourceLocation src) {
-        RuntimePlugin.getInstance().getConsoleStream().println("[WARNING] " + src + ": " + message);
+        try (PrintStream consoleStream = RuntimePlugin.getInstance().getConsoleStream()) {
+            consoleStream.println("[WARNING] " + src + ": " + message);
+            consoleStream.flush();
+        }
     }
 
     @Override
