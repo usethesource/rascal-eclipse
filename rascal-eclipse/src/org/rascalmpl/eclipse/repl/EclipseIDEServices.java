@@ -10,6 +10,7 @@ import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.ISourceLocation;
 
 public class EclipseIDEServices implements IDEServices {
@@ -69,8 +70,7 @@ public class EclipseIDEServices implements IDEServices {
 
     @Override
     public void warning(String message, ISourceLocation src) {
-        // TODO Auto-generated method stub
-        
+        RuntimePlugin.getInstance().getConsoleStream().println("[WARNING] " + src + ": " + message);
     }
 
     @Override
