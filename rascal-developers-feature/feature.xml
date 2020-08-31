@@ -2,7 +2,7 @@
 <feature
       id="rascal_developers_feature"
       label="Rascal Developers JUnit extension"
-      version="0.19.0">
+      version="0.19.1.qualifier">
 
    <description url="http://www.rascal-mpl.org">
       This feature holds plugins that help the developers of the Rascal programming language.
