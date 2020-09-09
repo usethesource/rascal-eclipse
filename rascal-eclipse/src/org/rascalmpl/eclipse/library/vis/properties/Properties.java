@@ -27,8 +27,7 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.RascalToJavaValueConverters.Convert;
 import org.rascalmpl.eclipse.library.vis.util.RascalToJavaValueConverters.ConvertStr;
 import org.rascalmpl.eclipse.library.vis.util.RascalToJavaValueConverters.DoNotConvert;
-import org.rascalmpl.interpreter.result.OverloadedFunction;
-import org.rascalmpl.interpreter.result.RascalFunction;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
@@ -140,7 +139,7 @@ public enum Properties {
 	
 
 	@SuppressWarnings("unchecked")
-	public <PropValue> PropertyValue<PropValue> producePropertyValue(IValue arg,
+	public <PropValue> PropertyValue<PropValue> producePropertyValue(IFunction arg,
 			PropertyManager pm, IFigureConstructionEnv env) {
 		if(type == Types.HANDLER){
 			return (PropertyValue<PropValue>) new HandlerValue(arg);
@@ -158,8 +157,8 @@ public enum Properties {
 	private static <PropValue> PropertyValue<PropValue> produceMaybeComputedValue(IValue arg,
 			PropertyManager pm, IFigureConstructionEnv env,Convert<PropValue> convert){
 
-		if(arg.getType().isExternalType() && ((arg instanceof RascalFunction) || (arg instanceof OverloadedFunction))){
-			return new ComputedValue<PropValue>(arg, env, pm, convert);
+		if(arg.getType().isExternalType() && (arg instanceof IFunction)) {
+			return new ComputedValue<PropValue>((IFunction) arg, env, pm, convert);
 		}
 		return new ConstantValue<PropValue>( convert.convert(arg, pm, env));
 	}

@@ -10,17 +10,17 @@ package org.rascalmpl.eclipse.library.vis.figure.interaction.swtwidgets;
 import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
-import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IValue;
 
 public abstract class SWTWidgetFigureWithValidationAndCallBack<WidgetType extends Control> extends SWTWidgetFigureWithSingleCallBack<WidgetType> {
 
-	IValue validate;
+	IFunction validate;
 	boolean validated;
 	
-	SWTWidgetFigureWithValidationAndCallBack(IFigureConstructionEnv env, IValue callback, IValue validate, PropertyManager properties) {
+	SWTWidgetFigureWithValidationAndCallBack(IFigureConstructionEnv env, IFunction callback, IFunction validate, PropertyManager properties) {
 		super(env, callback, properties);
 		if (validate != null) {
 			cbenv.checkIfIsCallBack(validate);
@@ -33,7 +33,7 @@ public abstract class SWTWidgetFigureWithValidationAndCallBack<WidgetType extend
 	
 	public void doValidate(){
 		if (validate != null) {
-			validated = ((IBool)(executeValidate()).getValue()).getValue();
+			validated = ((IBool)(executeValidate())).getValue();
 		}
 	}
 	
@@ -44,6 +44,6 @@ public abstract class SWTWidgetFigureWithValidationAndCallBack<WidgetType extend
 		}
 	}
 	
-	abstract Result<IValue>  executeValidate();
+	abstract IValue  executeValidate();
 
 }

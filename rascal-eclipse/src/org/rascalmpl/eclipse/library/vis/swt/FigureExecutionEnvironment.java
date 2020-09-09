@@ -19,15 +19,14 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.Type;
 
 public class FigureExecutionEnvironment implements ICallbackEnv{
 
@@ -139,28 +138,22 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		}
 	}
 	
-	public IConstructor executeRascalFigureCallBack(IValue callback,
-			Type[] argTypes, IValue[] argVals) {
-		Result<IValue> e = executeRascalCallBack(callback, argTypes, argVals);
-		if(e == null){
+	@Override
+	public IConstructor executeRascalCallBack(IFunction callback, IValue... argVals) {
+		IConstructor c = (IConstructor) executeRascalCallBack(callback, argVals);
+		if(c == null){
 			return null;
 		} else {
-			IConstructor c = (IConstructor)e.getValue();
 			IEvaluator<Result<IValue>> evaluator = ctx.getEvaluator();
 			return (IConstructor)evaluator.call(getRascalContext(),"vis::Figure", "normalize", c);
 		}
-
 	}
 
-	public Result<IValue> executeRascalCallBack(IValue callback,
-			Type[] argTypes, IValue[] argVals) {
+	public IValue executeRascalCallBack(IFunction callback, IValue argVals) {
 		long startTime = System.nanoTime();
-		Result<IValue> result = null;
+		IValue  result = null;
 		try {
-			synchronized (ctx) {
-				ctx.getEvaluator().__setInterrupt(false);
-				result = ((ICallableValue) callback).call(argTypes, argVals, null);
-			}
+		    result = callback.call(argVals);
 		} 
 		catch (Throw e) {
 			e.printStackTrace(ctx.getErrorPrinter());
@@ -187,20 +180,6 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		batchEmpty = false;
 	}
 
-	public Result<IValue> executeRascalCallBackWithoutArguments(IValue callback) {
-		Type[] argTypes = {};
-		IValue[] argVals = {};
-
-		return executeRascalCallBack(callback, argTypes, argVals);
-	}
-
-	public Result<IValue> executeRascalCallBackSingleArgument(IValue callback,
-			Type type, IValue arg) {
-		Type[] argTypes = { type };
-		IValue[] argVals = { arg };
-		return executeRascalCallBack(callback, argTypes, argVals);
-	}
-	
 	public FigureSWTApplet getRootApplet(){
 		return appletRoot;
 	}

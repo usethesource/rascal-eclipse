@@ -8,22 +8,23 @@
 package org.rascalmpl.eclipse.library.vis.properties;
 
 import org.rascalmpl.eclipse.library.vis.swt.ICallbackEnv;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.Type;
 
 public class HandlerValue extends PropertyValue<IValue>  {
 	
-	IValue fun;
+	IFunction fun;
 	IValue value;
 
 	
-	public HandlerValue(IValue fun){
+	public HandlerValue(IFunction fun){
 		this.fun = fun;
 	}
 	
-	public IValue execute(ICallbackEnv env,Type[] types,IValue[] args){
-		value = env.executeRascalCallBack(fun, types, args).getValue();
+	@Override
+	public IValue execute(ICallbackEnv env, IValue... args) {
+		value = env.executeRascalCallBack(fun, args);
 		return value;
 	}
 

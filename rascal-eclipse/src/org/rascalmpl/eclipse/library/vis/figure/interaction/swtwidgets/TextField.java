@@ -29,18 +29,17 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.eclipse.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.eclipse.library.vis.util.FigureColorUtils;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class TextField extends SWTWidgetFigureWithValidationAndCallBack<Text> {
 
 	private final Color falseColor;
 	
 
-	public TextField(IFigureConstructionEnv env, String text, IValue cb, IValue validate, PropertyManager properties) {
+	public TextField(IFigureConstructionEnv env, String text, IFunction cb, IFunction validate, PropertyManager properties) {
 		super(env, cb, validate, properties);
 		falseColor = SWTFontsAndColors.getRgbColor(FigureColorUtils.colorNames.get("red").intValue());
 		widget = makeWidget(env.getSWTParent(), env,text);
@@ -72,15 +71,14 @@ public class TextField extends SWTWidgetFigureWithValidationAndCallBack<Text> {
 		return textfield;
 	}
 
-	@Override
-	Result<IValue> executeValidate() {
-		return cbenv.executeRascalCallBackSingleArgument(validate, TypeFactory.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(widget.getText()));
+	@Override 
+	IValue executeValidate() {
+		return cbenv.executeRascalCallBack(validate,ValueFactoryFactory.getValueFactory().string(widget.getText()));
 	}
 
 	@Override
 	void executeCallback() {
-		cbenv.executeRascalCallBackSingleArgument(callback, TypeFactory.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(widget.getText()));
-		
+		cbenv.executeRascalCallBack(callback, ValueFactoryFactory.getValueFactory().string(widget.getText()));
 	}
 
 }

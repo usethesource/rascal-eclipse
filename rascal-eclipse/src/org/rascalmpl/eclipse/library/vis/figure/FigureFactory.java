@@ -51,6 +51,7 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.vector.Dimension;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -216,7 +217,7 @@ public class FigureFactory {
 			}
 		}
 		Figure[] children;
-		IValue validate;
+		IFunction validate;
 		
 		switch(pmap.get(ename)){
 			
@@ -224,20 +225,20 @@ public class FigureFactory {
 			return new Box( makeChild(env,c,properties,childPropsNext), properties );
 			
 		case BUTTON:
-			return new Button(env, ((IString) c.get(0)).getValue(),c.get(1), properties);
+			return new Button(env, ((IString) c.get(0)).getValue(), (IFunction) c.get(1), properties);
 		
 		case CHECKBOX:
-			return new Checkbox(env,  ((IString) c.get(0)).getValue(),((IBool)c.get(1)).getValue(), c.get(2), properties);
+			return new Checkbox(env,  ((IString) c.get(0)).getValue(),((IBool)c.get(1)).getValue(), (IFunction) c.get(2), properties);
 			
 		case CHOICE:
-			return new Choice(env, makeStringList((IList) c.get(0)), c.get(1),  properties);
+			return new Choice(env, makeStringList((IList) c.get(0)), (IFunction) c.get(1),  properties);
 		
 		case COMBO:
-			return new Combo(env, makeStringList((IList)c.get(0)), c.get(1),  properties);					
+			return new Combo(env, makeStringList((IList)c.get(0)), (IFunction) c.get(1),  properties);					
 			
 		case COMPUTEFIGURE:
 			PropertyValue<Boolean> recomp = Properties.produceMaybeComputedValue(Types.BOOL,c.get(0),properties,env);
-			return new ComputeFigure(env, properties,  recomp, c.get(1), childPropsNext);
+			return new ComputeFigure(env, properties,  recomp, (IFunction) c.get(1), childPropsNext);
 			
 	
 		case ELLIPSE:
@@ -289,7 +290,7 @@ public class FigureFactory {
 		case INTERVALKEY:
 			//return new IntervalKey(env,c.get(0),c.get(1),properties,childProps);
 		case NOMINALKEY:
-			return new NominalKey(env,(IList)c.get(0),c.get(1),properties,childProps);
+			return new NominalKey(env,(IList)c.get(0), (IFunction) c.get(1),properties,childProps);
 			
 		case HVCAT:
 			children = makeList(env,c.get(0),properties,childPropsNext);
@@ -320,7 +321,7 @@ public class FigureFactory {
 			PropertyValue<Integer> low = Properties.produceMaybeComputedValue(Types.INT,c.get(0),properties,env);
 			PropertyValue<Integer> high = Properties.produceMaybeComputedValue(Types.INT,c.get(1),properties,env);
 			PropertyValue<Integer> selection = Properties.produceMaybeComputedValue(Types.INT,c.get(2),properties,env);
-			return new Scale(env, Dimension.X, low,high, selection, c.get(3), properties);
+			return new Scale(env, Dimension.X, low,high, selection, (IFunction) c.get(3), properties);
 		case MOUSEOVER:
 			 under = makeChild(0,env,c,properties,childPropsNext);
 			 over =  makeChild(1,env,c,properties,childPropsNext);
@@ -361,10 +362,10 @@ public class FigureFactory {
 						
 		case TEXTFIELD:
 			validate = null;
-			if(c.arity() >= 3) validate = c.get(2);
-			return new TextField(env,  ((IString) c.get(0)).getValue(), c.get(1), validate, properties);
+			if(c.arity() >= 3) validate = (IFunction) c.get(2);
+			return new TextField(env,  ((IString) c.get(0)).getValue(), (IFunction) c.get(1), validate, properties);
 		case TIMER:
-			return new Timer(env, c.get(0), c.get(1), makeChild(2,env,c,properties,childPropsNext), properties );
+			return new Timer(env, (IFunction) c.get(0), (IFunction) c.get(1), makeChild(2,env,c,properties,childPropsNext), properties );
 			
 		case TREE: 			
 			children = makeList(env,c.get(0),properties,childPropsNext);

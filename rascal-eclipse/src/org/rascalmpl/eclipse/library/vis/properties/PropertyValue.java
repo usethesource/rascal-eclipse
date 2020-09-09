@@ -15,12 +15,11 @@ import org.rascalmpl.eclipse.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
 
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.Type;
 
 public abstract class PropertyValue<PropType> {
 	
 	public abstract PropType getValue();
 	public void registerMeasures(NameResolver resolver){}
-	public IValue execute(ICallbackEnv env,Type[] types,IValue[] args){return null;}
+	public IValue execute(ICallbackEnv env, IValue... args){return null;}
 	
 }

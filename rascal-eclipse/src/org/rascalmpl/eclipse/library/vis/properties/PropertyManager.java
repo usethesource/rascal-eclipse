@@ -21,12 +21,12 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
 import org.rascalmpl.eclipse.library.vis.util.vector.Dimension;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.Type;
 
 /**
  * Manage the properties of a figure.
@@ -109,7 +109,7 @@ public class PropertyManager {
 				System.out.printf("Cannot find %s !\n", pname);
 			}
 			else {
-				PropertyValue val = prop.producePropertyValue(c.get(0), this, env);
+				PropertyValue val = prop.producePropertyValue((IFunction) c.get(0), this, env);
 				if(addIn.containsKey(prop)){
 					System.out.printf("Combining!\n");
 					addIn.put(prop, new CombinedProperty(addIn.get(prop),val,prop.combine));
@@ -249,8 +249,8 @@ public class PropertyManager {
 		return false; // std default handler are not supported
 	}
 	
-	public IValue executeHandler(ICallbackEnv env,Properties property,Type[] types,IValue[] args ){
-		return getPropertyValue(property).execute(env,types, args);
+	public IValue executeHandler(ICallbackEnv env,Properties property,IValue... args ){
+		return getPropertyValue(property).execute(env, args);
 	}
 	
 	public Object get2DProperty(Dimension d,TwoDProperties prop){

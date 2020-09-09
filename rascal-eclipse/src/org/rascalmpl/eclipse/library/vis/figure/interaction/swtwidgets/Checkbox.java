@@ -17,13 +17,11 @@ import org.eclipse.swt.SWT;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.values.ValueFactoryFactory;
-
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.TypeFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 public class Checkbox extends Button {
 
-	public Checkbox(IFigureConstructionEnv env, String caption, boolean checked, IValue fun,PropertyManager properties) {
+	public Checkbox(IFigureConstructionEnv env, String caption, boolean checked, IFunction fun,PropertyManager properties) {
 		super(env, caption, fun, properties);
 		widget.setSelection(checked);
 	}
@@ -35,8 +33,6 @@ public class Checkbox extends Button {
 	@Override
 	public void executeCallback() {
 		boolean selected = widget.getSelection();
-		cbenv.executeRascalCallBackSingleArgument(callback, TypeFactory
-				.getInstance().boolType(), ValueFactoryFactory
-				.getValueFactory().bool(selected));
+		cbenv.executeRascalCallBack(callback, ValueFactoryFactory.getValueFactory().bool(selected));
 	}
 }

@@ -7,24 +7,17 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.library.vis.swt;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.values.functions.IFunction;
 
-import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.Type;
 
 public interface ICallbackEnv {
-	public IEvaluatorContext getRascalContext();
 	public void checkIfIsCallBack(IValue fun);
 	public void fakeRascalCallBack();
 	public int getComputeClock();
 	public void signalRecompute();
 	public long getAndResetRascalTime(); // profiling
-	public Result<IValue> executeRascalCallBack(IValue callback, Type[] argTypes, IValue[] argVals) ;
-	public Result<IValue> executeRascalCallBackWithoutArguments(IValue callback) ;
-	public Result<IValue> executeRascalCallBackSingleArgument(IValue callback, Type type, IValue arg) ;
-	public IConstructor executeRascalFigureCallBack(IValue callback, Type[] argTypes, IValue[] argVals);
+	public IValue executeRascalCallBack(IFunction callback, IValue... argVals) ;
 	public void registerAnimation(Animation a);
 	public void unregisterAnimation(Animation a);
 }

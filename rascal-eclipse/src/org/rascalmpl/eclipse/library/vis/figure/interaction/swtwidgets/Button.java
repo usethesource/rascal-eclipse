@@ -17,12 +17,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
-
-import io.usethesource.vallang.IValue;
+import org.rascalmpl.values.functions.IFunction;
 
 public class Button extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Button> {
 
-	public Button(IFigureConstructionEnv env, String caption, IValue fun,  PropertyManager properties) {
+	public Button(IFigureConstructionEnv env, String caption, IFunction fun,  PropertyManager properties) {
 		super(env, fun, properties);
 		widget = makeWidget(env.getSWTParent(), env,caption);
 		widget.setVisible(false);
@@ -46,9 +45,6 @@ public class Button extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wi
 
 	@Override
 	void executeCallback() {
-		cbenv.executeRascalCallBackWithoutArguments(callback);
-
+	    cbenv.executeRascalCallBack(callback);
 	}
-
-
 }

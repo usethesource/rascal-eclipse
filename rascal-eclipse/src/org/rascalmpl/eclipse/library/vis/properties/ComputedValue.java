@@ -14,20 +14,20 @@ package org.rascalmpl.eclipse.library.vis.properties;
 
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.RascalToJavaValueConverters.Convert;
-import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IValue;
 
 public  class ComputedValue<PropType> extends PropertyValue<PropType> {
 		
-	IValue fun;
+	IFunction fun;
 	PropType value;
 	int lastComputeClock;
 	IFigureConstructionEnv env;
 	Convert<PropType> converter; 
 	PropertyManager pm;
 
-	public ComputedValue(IValue fun, IFigureConstructionEnv env, PropertyManager pm, Convert<PropType> converter){
+	public ComputedValue(IFunction fun, IFigureConstructionEnv env, PropertyManager pm, Convert<PropType> converter){
 		this.fun = fun;
 		lastComputeClock = -1;
 		this.env = env;
@@ -36,8 +36,8 @@ public  class ComputedValue<PropType> extends PropertyValue<PropType> {
 	}
 	
 	void compute() {
-		Result<IValue> res = env.getCallBackEnv().executeRascalCallBackWithoutArguments(fun);
-		value = converter.convert(res.getValue(), pm, env);
+		IValue res = env.getCallBackEnv().executeRascalCallBack(fun);
+		value = converter.convert(res, pm, env);
 	}
 	
 	public PropType getValue() {

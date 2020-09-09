@@ -18,14 +18,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.values.ValueFactoryFactory;
-
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.TypeFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 public class Choice extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.List> {
 	
 
-	public Choice(IFigureConstructionEnv env, String[] choices, IValue fun, PropertyManager properties) {
+	public Choice(IFigureConstructionEnv env, String[] choices, IFunction fun, PropertyManager properties) {
 		super(env, fun, properties);
 		widget = makeWidget(env.getSWTParent(), env,choices);
 		widget.setVisible(false);
@@ -49,12 +47,8 @@ public class Choice extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wi
 	}
 
 
+	@Override
 	public void executeCallback() {
-		cbenv.executeRascalCallBackSingleArgument(callback, TypeFactory
-				.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(widget.getItem(widget.getSelectionIndex())));
+		cbenv.executeRascalCallBack(callback, ValueFactoryFactory.getValueFactory().string(widget.getItem(widget.getSelectionIndex())));
 	}
-
-	
-
-
 }

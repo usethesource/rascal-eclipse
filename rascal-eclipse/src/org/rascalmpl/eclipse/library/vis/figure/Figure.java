@@ -67,7 +67,6 @@ import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 
 /**
@@ -421,17 +420,13 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 	
 	public boolean executeKeyHandlers(ICallbackEnv env,IValue keySym, boolean keyDown, IMap modifiers){
-		Type[] types = {keySym.getType(),modifiers.getType()};
-		IValue[] args = {keySym,modifiers};
-		if(keyDown) return executeHandlerProperty(env,Properties.ON_KEY_DOWN,types,args);
-		else  return executeHandlerProperty(env,Properties.ON_KEY_UP,types,args);
+		if(keyDown) return executeHandlerProperty(env,Properties.ON_KEY_DOWN);
+		else  return executeHandlerProperty(env,Properties.ON_KEY_UP);
 	}
 
 	public void executeMouseMoveHandlers(ICallbackEnv env, boolean enter) {
-		Type[] types = {};
-		IValue[] args = {};
-		if(enter) executeHandlerProperty(env,Properties.ON_MOUSE_OVER,types,args);
-		else executeHandlerProperty(env,Properties.ON_MOUSE_OFF,types,args);
+		if(enter) executeHandlerProperty(env,Properties.ON_MOUSE_OVER);
+		else executeHandlerProperty(env,Properties.ON_MOUSE_OFF);
 	}
 
 
@@ -441,16 +436,14 @@ public abstract class Figure implements Comparable<Figure> {
 	}
 
 	public boolean executeOnClick(ICallbackEnv env, int button, IMap modifiers, boolean down) {
-		Type[] types = {TypeFactory.getInstance().integerType(),modifiers.getType()};
-		IValue[] args = {VF.integer(button),modifiers};
-		if(down) return executeHandlerProperty(env, Properties.ON_MOUSE_DOWN, types, args);
-		else return executeHandlerProperty(env, Properties.ON_MOUSE_UP, types, args);
+		if(down) return executeHandlerProperty(env, Properties.ON_MOUSE_DOWN, VF.integer(button),modifiers);
+		else return executeHandlerProperty(env, Properties.ON_MOUSE_UP, VF.integer(button),modifiers);
 	}
 	
 	// returns if the event is captured (i.e. not propagated further)
-	public boolean executeHandlerProperty(ICallbackEnv env, Properties property, Type[] types, IValue[] args){
+	public boolean executeHandlerProperty(ICallbackEnv env, Properties property, IValue... args){
 		if(prop.isSet(property)){
-			IValue v = prop.executeHandler(env, property, types, args);
+			IValue v = prop.executeHandler(env, property, args);
 			if(v instanceof IBool){
 				return ((IBool)v).getValue();
 			} else {

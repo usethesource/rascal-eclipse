@@ -19,18 +19,18 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.Key;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.TypeFactory;
 
 
 @SuppressWarnings("rawtypes")
 public class NominalKey extends LayoutProxy implements Key{
   private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
-	IValue whole;
+	IFunction whole;
 	IList possibilities;
 	Vector<IValue> originals;
 	private IList childProps;
@@ -38,7 +38,7 @@ public class NominalKey extends LayoutProxy implements Key{
 	String id;
 	IFigureConstructionEnv env;
 	
-	public NominalKey(IFigureConstructionEnv env, IList possibilties, IValue whole, PropertyManager properties,IList childProps){
+	public NominalKey(IFigureConstructionEnv env, IList possibilties, IFunction whole, PropertyManager properties,IList childProps){
 		super(null,properties);
 		this.env = env;
 		this.childProps = childProps;
@@ -59,9 +59,8 @@ public class NominalKey extends LayoutProxy implements Key{
 		if(innerFig != null){
 			innerFig.destroy(env);
 		}
-		TypeFactory tf = TypeFactory.getInstance();
 		IList originalsL = VF.list(originals.toArray(tmpArray));
-		IConstructor figureCons = (IConstructor) env.getCallBackEnv().executeRascalCallBackSingleArgument(whole,tf.listType(tf.valueType()),originalsL).getValue();
+		IConstructor figureCons = (IConstructor) env.getCallBackEnv().executeRascalCallBack(whole,originalsL);
 		innerFig = FigureFactory.make(env, figureCons, prop, childProps);
 		innerFig.registerIds(env, resolver);
 		innerFig.registerConverts(resolver);
