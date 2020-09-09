@@ -180,7 +180,6 @@ Contribution proposer(type[&N <: Tree] g) {
 .Synopsis
 Register a language extension and a parser for use in Eclipse.
 }
-@reflect{Use the evaluator to parse editor contents and apply functions to parse trees}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public java void registerLanguage(str name, str extension, Tree (str input, loc origin) parse);
 
@@ -188,7 +187,6 @@ public java void registerLanguage(str name, str extension, Tree (str input, loc 
 .Synopsis
 Register a language extension and a parser for use in Eclipse.
 }
-@reflect{Use the evaluator to parse editor contents and apply functions to parse trees}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public java void registerLanguage(str name, str extension, type[&T <: Tree] nonterminal);
 
