@@ -58,13 +58,12 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.library.vis.util.FigureColorUtils;
 import org.rascalmpl.eclipse.util.RascalInvoker;
-import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.uri.URIEditorInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIStorage;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -73,8 +72,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class Editors {
 	/*
@@ -281,9 +278,9 @@ public class Editors {
 	}
 
 	private class RepeatableDecoratorRunner extends DecoratorRunnerBase {
-		private final ICallableValue fun;
+		private final IFunction fun;
 
-		public RepeatableDecoratorRunner(ISourceLocation loc, ICallableValue fun, IWorkbenchPage page) {
+		public RepeatableDecoratorRunner(ISourceLocation loc, IFunction fun, IWorkbenchPage page) {
 			super(loc, page);
 			if (!Thread.currentThread().equals(Display.getDefault().getThread())) {
 				throw new RuntimeException("Initialization should be run from UI thread!");
@@ -302,14 +299,12 @@ public class Editors {
 			if (Thread.currentThread().equals(Display.getDefault().getThread())) {
 				throw new RuntimeException("The repeatable runner should not be run from inside the UI thread");
 			}
-			fun.getEval().__setInterrupt(false);
-			return (IList) fun.call(new Type[0], new IValue[0], null).getValue();
+			return (IList) fun.call();
 		}
 
 		
 		private void addRunnableToAnnotationListner(IEditorPart editorPart) {
 			annotationRunners.put(editorPart, this);
-			annotationRunnerEvaluators.put(editorPart, fun.getEval());
 			String fileName = editorPart.getEditorInput().getName();
 			int dotPosition = fileName.lastIndexOf('.');
 			if (dotPosition != -1) {
@@ -415,8 +410,8 @@ public class Editors {
 	 *            adapted)
 	 */
 	public void edit(final ISourceLocation loc, final IValue lineInfo) {
-		if (lineInfo instanceof ICallableValue) {
-			final ICallableValue lineInfoFunc = (ICallableValue) lineInfo;
+		if (lineInfo instanceof IFunction) {
+			final IFunction lineInfoFunc = (IFunction) lineInfo;
 
 			IWorkbenchWindow win = getWorkbenchWindow();
 			if (win != null) {
@@ -429,7 +424,7 @@ public class Editors {
 						@Override
 						public void run() {
 							// and only then schedule it on a non UI thread for the rascal callbacks
-							RascalInvoker.invokeAsync(new RepeatableDecoratorRunner(loc, lineInfoFunc, page), lineInfoFunc.getEval());
+							RascalInvoker.invokeAsync(new RepeatableDecoratorRunner(loc, lineInfoFunc, page));
 						}
 					});
 				}
@@ -449,7 +444,7 @@ public class Editors {
 
 	public void provideDefaultLineDecorations(IString extension,
 			IValue handleNewFile) {
-		if (handleNewFile instanceof ICallableValue) {
+		if (handleNewFile instanceof IFunction) {
 			IWorkbenchWindow win = getWorkbenchWindow();
 
 			if (win != null) {
@@ -459,11 +454,10 @@ public class Editors {
 					// okay, we have to remove the old provided LineDecorators
 					for (IWorkbenchPart part : partsProvided.get(extension.getValue())) {
 						annotationRunners.remove(part);
-						annotationRunnerEvaluators.remove(part);
 					}
 				}
 				partsProvided.put(extension.getValue(), new HashSet<IWorkbenchPart>());
-				defaultProviders.put(extension.getValue(), (ICallableValue) handleNewFile);
+				defaultProviders.put(extension.getValue(), (IFunction) handleNewFile);
 			}
 		}
 	}
@@ -473,19 +467,16 @@ public class Editors {
 	 * runners.
 	 */
 	private final static Map<IWorkbenchPart, Runnable> annotationRunners = new ConcurrentHashMap<IWorkbenchPart, Runnable>();
-	private final static Map<IWorkbenchPart, IEvaluator<Result<IValue>>> annotationRunnerEvaluators = new ConcurrentHashMap<IWorkbenchPart, IEvaluator<Result<IValue>>>();
 	private final static Map<String, Set<IWorkbenchPart>> partsProvided = new ConcurrentHashMap<String, Set<IWorkbenchPart>>();
-	private final static Map<String, ICallableValue> defaultProviders = new ConcurrentHashMap<String, ICallableValue>();
-	private final static TypeFactory TF = TypeFactory.getInstance();
-	private final static IValueFactory VF = ValueFactoryFactory
-			.getValueFactory();
+	private final static Map<String, IFunction> defaultProviders = new ConcurrentHashMap<String, IFunction>();
+	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+	
 	private final static IPartListener annotationListener = new IPartListener() {
 		
 		public void partActivated(IWorkbenchPart part) {
 			Runnable runAgain = annotationRunners.get(part);
 			if (runAgain != null) {
-				IEvaluator<Result<IValue>> eval = annotationRunnerEvaluators.get(part);
-				RascalInvoker.invokeAsync(runAgain, eval);
+				RascalInvoker.invokeAsync(runAgain);
 			} else if (part instanceof ITextEditor) { 
 				// only try to run the callback if there wasn't another runner associated
 				IEditorInput editorInput = part.getSite().getPage().getActiveEditor().getEditorInput();
@@ -493,17 +484,13 @@ public class Editors {
 				int dotPosition = fileName.lastIndexOf('.');
 				if (dotPosition != -1) {
 					String extension = fileName.substring(dotPosition).toLowerCase();
-					final ICallableValue defaultProvider = defaultProviders.get(extension);
+					final IFunction defaultProvider = defaultProviders.get(extension);
 					if (defaultProvider != null) {
 						partsProvided.get(extension).add(part);
 						final ISourceLocation fileLoc = new Resources(VF).makeFile(editorInput);
 						Thread callBackThread = new Thread(new Runnable() {
 							public void run() {
-								Result<IValue> result;
-								synchronized (defaultProvider.getEval()) {
-									defaultProvider.getEval().__setInterrupt(false);
-									result = defaultProvider.call(new Type[] { TF.sourceLocationType() }, new IValue[] { fileLoc }, null);
-								}
+								Result<IValue> result = defaultProvider.call(fileLoc);
 								new Editors(VF).edit(fileLoc, result.getValue());
 							}
 						});
@@ -517,7 +504,6 @@ public class Editors {
 		
 		public void partClosed(IWorkbenchPart part) {
 			annotationRunners.remove(part);
-			annotationRunnerEvaluators.remove(part);
 			for (String ext : partsProvided.keySet()) {
 				partsProvided.get(ext).remove(part);
 			}

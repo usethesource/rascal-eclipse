@@ -14,7 +14,6 @@ package org.rascalmpl.eclipse.terms;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.function.Function;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -40,15 +39,13 @@ import org.rascalmpl.eclipse.editor.highlight.ShowAsHTML;
 import org.rascalmpl.eclipse.editor.highlight.ShowAsLatex;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
-import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.repl.REPLContentServer;
 import org.rascalmpl.repl.REPLContentServerManager;
 import org.rascalmpl.types.FunctionType;
-import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
-import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.impulse.editor.UniversalEditor;
@@ -61,7 +58,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 @SuppressWarnings("restriction")
@@ -122,14 +118,14 @@ public class ActionContributor implements ILanguageActionsContributor {
 	}
 	
 	private static class RascalAction extends Job {
-		private final ICallableValue func;
+		private final IFunction func;
 		private final WarningsToErrorLog warnings;
 		private ITree tree;
 		private Point selection;
 		public IValue result = null;
     
 
-		private RascalAction(String text, ICallableValue func) {
+		private RascalAction(String text, IFunction func) {
 			super(text);
 			
 			this.func = func;
@@ -146,15 +142,11 @@ public class ActionContributor implements ILanguageActionsContributor {
 			RascalMonitor rascalMonitor = new RascalMonitor(monitor, warnings);
 			
 			if (tree != null) {
-				Type[] actualTypes = new Type[] { RTF.nonTerminalType(ProductionAdapter.getType(TreeAdapter.getProduction(tree))), TF.sourceLocationType() };
 				ISourceLocation loc = TreeAdapter.getLocation(tree);
 				IValue[] actuals = new IValue[] { tree, VF.sourceLocation(loc, selection.x, selection.y)};
 				try {
 					rascalMonitor.startJob("Executing " + getName(), 10000);
-					IValue result;
-					synchronized(func.getEval()){
-						result = func.call(rascalMonitor, actualTypes, actuals, null).getValue();
-					}
+					IValue result = func.call(actuals);
 					
 					if ( (func.getType() instanceof FunctionType) && (((FunctionType) func.getType()).getReturnType() != TF.voidType())) {
 						this.result = result;
@@ -175,7 +167,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 	private static final class RascalContentServerAction extends RascalAction {
         private final REPLContentServerManager servers;
 
-        private RascalContentServerAction(REPLContentServerManager servers, String text, ICallableValue func) {
+        private RascalContentServerAction(REPLContentServerManager servers, String text, IFunction func) {
             super(text, func);
             this.servers = servers;
         }
@@ -228,21 +220,13 @@ public class ActionContributor implements ILanguageActionsContributor {
         }
         
         private Function<IValue, IValue> liftProviderFunction(IValue callback) {
-            ICallableValue func = (ICallableValue) callback;
+            IFunction func = (IFunction) callback;
             
-            return (t) -> {
-              synchronized(func.getEval()) {
-                  return func.call(
-                      new Type[] { REPLContentServer.requestType },
-                      new IValue[] { t },
-                      Collections.emptyMap()).getValue();
-              }
-            };
+            return (t) -> func.call(t);
         }
     }
 
 	private final static TypeFactory TF = TypeFactory.getInstance();
-	private final static RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
 	public void contributeToEditorMenu(UniversalEditor editor,
@@ -284,32 +268,26 @@ public class ActionContributor implements ILanguageActionsContributor {
 		}
 	}
 	
-	private boolean getState(ICallableValue func) {
-		Type[] actualTypes = new Type[] { };
-		IValue[] actuals = new IValue[] { };
-		synchronized(func.getEval()){
-			func.getEval().__setInterrupt(false);
-			return ((IBool) func.call(actualTypes, actuals, null).getValue()).getValue();
-		}
+	private boolean getState(IFunction func) {
+	    return ((IBool) func.call()).getValue();
 	}
-
 	
 	private void contributeAction(IMenuManager menuManager,
 			final UniversalEditor editor, IConstructor menu, String label) {
 		if (menu.has("state")) { // toggle, order of evaluation is important as state also has action
-			final ICallableValue func = (ICallableValue) menu.get("action");
-			menuManager.add(new Runner(getState((ICallableValue) menu.get("state")), true, label, editor, new RascalAction(label, func)));
+			final IFunction func = (IFunction) menu.get("action");
+			menuManager.add(new Runner(getState((IFunction) menu.get("state")), true, label, editor, new RascalAction(label, func)));
 		}
 		else if (menu.has("action")) {
-			final ICallableValue func = (ICallableValue) menu.get("action");
+			final IFunction func = (IFunction) menu.get("action");
 			menuManager.add(new Runner(false, label, editor, new RascalAction(label, func)));
 		}
 		else if (menu.has("server")) {
-		    final ICallableValue func = (ICallableValue) menu.get("server");
+		    final IFunction func = (IFunction) menu.get("server");
 		    menuManager.add(new Runner(false, label, editor, new RascalContentServerAction(contentManager, label, func)));
 		}
 		else if (menu.has("edit")) {
-			final ICallableValue func = (ICallableValue) menu.get("edit");
+			final IFunction func = (IFunction) menu.get("edit");
 			menuManager.add(new Runner(true, label, editor, new RascalAction(label, func)));
 		}
 	}

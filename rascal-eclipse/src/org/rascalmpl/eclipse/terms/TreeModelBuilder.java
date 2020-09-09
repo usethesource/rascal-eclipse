@@ -11,8 +11,7 @@
 package org.rascalmpl.eclipse.terms;
 
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.impulse.language.ILanguageService;
@@ -33,7 +32,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageService{
@@ -50,17 +48,14 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 		if (lang == null || root == null) return;
 
 		IConstructor pt = (IConstructor) root;
-		ICallableValue outliner = TermLanguageRegistry.getInstance().getOutliner(lang);
+		IFunction outliner = TermLanguageRegistry.getInstance().getOutliner(lang);
 
 		if (outliner == null) {
 			return;
 		}
 
 		try {
-			IValue outline;
-			synchronized(outliner.getEval()){
-				outline = outliner.call(new Type[] {RascalTypeFactory.getInstance().nonTerminalType(pt)}, new IValue[] {pt}, null).getValue();
-			}
+			IValue outline  = outliner.call(pt);
 
 			if (outline instanceof INode) {
 				convertModel(outline);

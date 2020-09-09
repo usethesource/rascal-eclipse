@@ -101,7 +101,7 @@ public class Builder extends BuilderBase {
 		}
 		
 		try {
-			ICallableValue parser = registry.getParser(lang);
+			ICallableValue parser = (ICallableValue) registry.getParser(lang);
 			evalForErrors = parser.getEval();
 			RascalMonitor rmonitor = new RascalMonitor(monitor, warnings) {
 			    @Override
