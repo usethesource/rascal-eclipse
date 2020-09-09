@@ -30,14 +30,14 @@ import org.rascalmpl.eclipse.editor.TokenIterator;
 import org.rascalmpl.eclipse.nature.IWarningHandler;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.file.FileURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.impulse.language.Language;
 import io.usethesource.impulse.model.ISourceProject;

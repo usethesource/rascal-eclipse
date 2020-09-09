@@ -12,8 +12,8 @@ package org.rascalmpl.eclipse.terms;
 
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.impulse.language.ILanguageService;
 import io.usethesource.impulse.language.Language;

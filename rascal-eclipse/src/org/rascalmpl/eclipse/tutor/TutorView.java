@@ -35,7 +35,7 @@ import org.rascalmpl.eclipse.repl.EclipseIDEServices;
 import org.rascalmpl.help.HelpManager;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.ISourceLocation;

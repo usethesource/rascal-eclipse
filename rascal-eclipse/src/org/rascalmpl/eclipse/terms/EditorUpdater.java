@@ -15,7 +15,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.types.RascalTypeFactory;
 
 import io.usethesource.impulse.editor.UniversalEditor;
 import io.usethesource.impulse.parser.IParseController;

@@ -14,9 +14,9 @@ package org.rascalmpl.eclipse.editor;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.terms.TermParseController;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.impulse.parser.IParseController;
 import io.usethesource.impulse.services.IDocumentationProvider;

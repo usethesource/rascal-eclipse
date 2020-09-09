@@ -14,8 +14,8 @@ package org.rascalmpl.eclipse.editor;
 
 import org.eclipse.core.runtime.IPath;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.impulse.editor.ModelTreeNode;
 import io.usethesource.impulse.parser.ISourcePositionLocator;

@@ -58,7 +58,6 @@ import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.RascalInterpreterREPL;
-import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 import jline.Terminal;

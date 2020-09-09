@@ -12,7 +12,7 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
 
 import io.usethesource.impulse.editor.hover.ProblemLocation;
 import io.usethesource.impulse.language.Language;

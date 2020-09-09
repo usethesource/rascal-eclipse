@@ -17,14 +17,14 @@ import java.io.PrintWriter;
 
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.MessagesToAnnotations;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.impulse.parser.IMessageHandler;
 import io.usethesource.vallang.IConstructor;

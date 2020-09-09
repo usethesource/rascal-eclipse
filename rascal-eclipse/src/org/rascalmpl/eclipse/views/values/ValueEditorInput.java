@@ -1,7 +1,5 @@
 package org.rascalmpl.eclipse.views.values;
 
-import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,6 +16,7 @@ import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.IStorageEditorInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIStorage;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -46,13 +45,13 @@ public class ValueEditorInput implements IStorageEditorInput {
     }
 	
 	private IValue parse(ISourceLocation loc) throws IOException {
-        try (IValueInputStream s = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), ValueFactoryFactory.getValueFactory(), TYPE_STORE_SUPPLIER)) {
+        try (IValueInputStream s = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), ValueFactoryFactory.getValueFactory(), () -> RascalValueFactory.uptr)) {
             return s.read();
         } 
     }
 	
 	private IValue parse(URIStorage loc) throws IOException, CoreException {
-	    try (IValueInputStream s = new IValueInputStream(loc.getContents(), ValueFactoryFactory.getValueFactory(), TYPE_STORE_SUPPLIER)) {
+	    try (IValueInputStream s = new IValueInputStream(loc.getContents(), ValueFactoryFactory.getValueFactory(),  () -> RascalValueFactory.uptr)) {
             return s.read();
         } 
     }
