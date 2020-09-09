@@ -38,14 +38,12 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.TypeFactory;
 
 
 public class NonRascalMenuContributionItem extends CompoundContributionItem {
 	
 	private static String NON_RASCAL_CONTRIBUTION_COMMAND_CATEGORY = "org.rascalmpl.eclipse.library.util.NRCMCC";
 	private static String NON_RASCAL_CONTRIBUTION_COMMAND_PREFIX = "org.rascalmpl.eclipse.library.util.NRCMCP";
-	private final static TypeFactory TF = TypeFactory.getInstance();
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
 	
