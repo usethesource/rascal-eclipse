@@ -89,6 +89,11 @@ public class NodeLocator implements ISourcePositionLocator {
 			    if (src != null && src instanceof ISourceLocation) { 
 			        return (ISourceLocation) src;
 			    }
+			    
+			    IValue loc = n.asWithKeywordParameters().getParameter("loc");
+                if (loc != null && loc instanceof ISourceLocation) { 
+                    return (ISourceLocation) loc;
+                }
 			}
 		}
 		
