@@ -17,7 +17,7 @@ node {
         }
     
         stage('Deploy') {
-            if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy") {
+            if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy" || env.BRANCH_NAME == "0.18-stable-ci") {
                 sh "mvn -DskipTests deploy"
             }
         }
