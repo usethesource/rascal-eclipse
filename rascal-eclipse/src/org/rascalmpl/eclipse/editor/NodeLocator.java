@@ -12,8 +12,11 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.uri.URIResourceResolver;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
@@ -57,7 +60,24 @@ public class NodeLocator implements ISourcePositionLocator {
 	}
 
 	public IPath getPath(Object node) {
-		return null;
+	    ISourceLocation loc = getLocation(node);
+	    
+	    if (loc != null) {
+	        IResource resource = URIResourceResolver.getResource(loc);
+	        
+	        if (resource != null) {
+	            return resource.getFullPath();
+	        }
+	        else if (loc.getScheme().equals("file")) {
+	            return new Path(loc.getPath());
+	        }
+	        else {
+	            return null;
+	        }
+	    }
+	    else {
+	        return null;
+	    }
 	}
 
 	public int getStartOffset(Object node) {
@@ -77,7 +97,7 @@ public class NodeLocator implements ISourcePositionLocator {
 	}
 	
     private ISourceLocation getLocation(Object node){
-		if (node instanceof ITree){
+		if (node instanceof ITree) {
 			return TreeAdapter.getLocation((ITree) node);
 		}
 		
