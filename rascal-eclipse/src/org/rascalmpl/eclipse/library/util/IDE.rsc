@@ -187,8 +187,10 @@ public java void registerLanguage(str name, str extension, Tree (str input, loc 
 .Synopsis
 Register a language extension and a parser for use in Eclipse.
 }
-@javaClass{org.rascalmpl.eclipse.library.util.IDE}
-public java void registerLanguage(str name, str extension, type[&T <: Tree] nonterminal);
+public void registerLanguage(str name, str extension, type[&T <: Tree] nonterminal, bool allowAmbiguity=false, bool hasSideEffects=false)
+ = registerLanguage(name, extension, &T <: Tree (str input, loc origin) {
+     return parse(nonterminal, input, origin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects);
+ });
 
 
 @doc{
