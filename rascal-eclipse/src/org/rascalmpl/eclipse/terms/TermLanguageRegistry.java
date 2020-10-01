@@ -39,7 +39,6 @@ import io.usethesource.vallang.IValueFactory;
 
 public class TermLanguageRegistry {
 	private final Map<String, Language> languages = new HashMap<>();
-//	private final Map<String, IEvaluatorContext> evals = new HashMap<>();
 	private final Map<String, IFunction> parsers = new HashMap<>();
 	private final Map<String, IFunction> analyses = new HashMap<>();
 	private final Map<String, IFunction> outliners = new HashMap<>();
@@ -58,7 +57,6 @@ public class TermLanguageRegistry {
 	
 	public void clear() {
 		languages.clear();
-//		evals.clear();
 		parsers.clear();
 		analyses.clear();
 		outliners.clear();
@@ -75,7 +73,6 @@ public class TermLanguageRegistry {
 			LanguageRegistry.deregisterLanguage(lang);
 		}
 		languages.remove(value);
-//		evals.remove(value);
 		parsers.remove(value);
 		analyses.remove(value);
 		outliners.remove(value);
@@ -89,7 +86,6 @@ public class TermLanguageRegistry {
 	public void registerLanguage(String name, String extension, IFunction parser) {
 		Language l = new Language(name, "", "demo editor for " + name, "Terms", "icons/rascal3D_2-32px.gif", "http://www.rascal-mpl.org",ID_RASCAL_ECLIPSE_PLUGIN,extension,"",null);
 		languages.put(extension.startsWith(".") ? extension.substring(0) : extension, l);
-//		evals.put(name, ctx);
 		parsers.put(name, parser);
 		LanguageRegistry.registerLanguage(l);
 	}
