@@ -118,10 +118,6 @@ public class TokenIterator implements Iterator<Object>{
 				child.accept(this);
 			}
 
-			if (ProductionAdapter.isSkipped(prod)) {
-				category = TreeAdapter.META_SKIPPED;
-			}
-			
 			if (ProductionAdapter.isDefault(prod) && (TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg))) {
 				if (category == null){
 					category = TreeAdapter.META_KEYWORD;
