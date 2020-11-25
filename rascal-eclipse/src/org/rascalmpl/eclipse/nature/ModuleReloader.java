@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.nature;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -124,12 +125,12 @@ public class ModuleReloader{
 	
 	private static class RascalModuleChangeListener implements IModuleChangedListener{
 		private final Set<String> dirtyModules = new HashSet<String>();
-		private final Evaluator eval;
+		private final WeakReference<Evaluator> eval;
 		private final IWarningHandler warnings;
 		
 		public RascalModuleChangeListener(Evaluator eval, IProject project, IWarningHandler warnings) {
 			super();
-			this.eval = eval;
+			this.eval = new WeakReference<>(eval);
 			this.warnings = warnings;
 		}
 		
@@ -145,15 +146,21 @@ public class ModuleReloader{
 		
 		public void updateModules(IProgressMonitor monitor, IWarningHandler handler, Set<String> ignored) {
 			synchronized (dirtyModules) {
-				synchronized(eval){
-					Set<String> todo = new HashSet<>();
-					todo.addAll(dirtyModules);
-					boolean changed = todo.removeAll(ignored);
-					eval.reloadModules(new RascalMonitor(monitor, handler == null ? warnings : handler) , Collections.unmodifiableSet(todo), URIUtil.rootLocation("console"));
+				Evaluator ev = eval.get();
+				if (ev != null) {
+                    synchronized(ev){
+                        Set<String> todo = new HashSet<>();
+                        todo.addAll(dirtyModules);
+                        boolean changed = todo.removeAll(ignored);
+                        ev.reloadModules(new RascalMonitor(monitor, handler == null ? warnings : handler) , Collections.unmodifiableSet(todo), URIUtil.rootLocation("console"));
+                        dirtyModules.clear();
+                        if (changed) {
+                            dirtyModules.addAll(ignored);
+                        }
+                    }
+				}
+				else {
 					dirtyModules.clear();
-					if (changed) {
-						dirtyModules.addAll(ignored);
-					}
 				}
 			}
 		}

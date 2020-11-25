@@ -7,14 +7,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
@@ -76,75 +74,19 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 
   @Override
   public Object[] getElements(Object inputElement) {
-    if (inputElement instanceof IWorkspaceRoot) {
-      IWorkingSetManager manager = PlatformUI.getWorkbench().getWorkingSetManager();
-      
-      IWorkingSet[] workingSets = manager.getWorkingSets();
-      
-      if (workingSets.length == 0) {
-        return ((IWorkspaceRoot) inputElement).getProjects();
-      }
-      else {
-        return workingSets;
-      }
-    }
-    else if (inputElement instanceof IContainer) {
-      try {
-        return ((IContainer) inputElement).members();
-      } catch (CoreException e) {
-        Activator.log("navigator exception", e);
-      }
-    }
-    
     return new Object[] { };
   }
 
-  
 
   @Override
   public Object[] getChildren(Object parentElement) {
     try {
-      if (parentElement instanceof IWorkspaceRoot) {
-        IWorkingSetManager manager = PlatformUI.getWorkbench().getWorkingSetManager();
-        IWorkingSet[] workingSets = manager.getWorkingSets();
-        
-        if (workingSets.length == 0) {
-          return ((IWorkspaceRoot) parentElement).getProjects();
-        }
-        else {
-          return workingSets;
-        }
-      }
-      else if (parentElement instanceof IWorkingSet) {
-        IAdaptable[] elems = ((IWorkingSet) parentElement).getElements();
-        IResource[] resources = new IResource[elems.length];
-        
-        for (int i = 0, j = 0; i < elems.length; i++) {
-          Object ad = elems[i].getAdapter(IResource.class);
-          if (ad != null && ad instanceof IResource) {
-            resources[j++] = (IResource) ad;
-          }
-        }
-        
-        return resources;
-      }
-      else if (parentElement instanceof IProject) {
+      if (parentElement instanceof IProject) {
         IProject project = (IProject) parentElement;
 
         if (project.isOpen() && project.hasNature(IRascalResources.ID_RASCAL_NATURE)) {
-          IResource[] members = project.members();
-          Object[] result = new Object[members.length + 1];
-          System.arraycopy(members, 0, result, 0, members.length);
-          result[members.length] = new SearchPath(project);
-          
-          return result;
+          return new Object[] { new SearchPath(project) };
         }
-        else if (project.isOpen()) {
-          return project.members();
-        }
-      }
-      else if (parentElement instanceof IContainer) {
-        return ((IContainer) parentElement).members();
       }
       else if (parentElement instanceof SearchPath) {
     	  return ((SearchPath) parentElement).getSearchPath().toArray();
@@ -274,11 +216,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
             }
 
             @Override
-            public Boolean visitListRelation(IList arg0) throws RuntimeException {
-                return true;
-            }
-
-            @Override
             public Boolean visitMap(IMap arg0) throws RuntimeException {
                 return true;
             }
@@ -295,11 +232,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
 
             @Override
             public Boolean visitReal(IReal arg0) throws RuntimeException {
-                return false;
-            }
-
-            @Override
-            public Boolean visitRelation(ISet arg0) throws RuntimeException {
                 return false;
             }
 
@@ -370,11 +302,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
             }
 
             @Override
-            public Object[] visitListRelation(IList arg0) throws RuntimeException {
-                return visitList(arg0);
-            }
-
-            @Override
             public Object[] visitMap(IMap arg0) throws RuntimeException {
                 return StreamSupport.stream(arg0.spliterator(), false)
                         .map(x -> new ValueContent(vf.node(x.toString(), arg0.get(x)), project, this))
@@ -401,11 +328,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
             @Override
             public Object[] visitReal(IReal arg0) throws RuntimeException {
                 return empty;
-            }
-
-            @Override
-            public Object[] visitRelation(ISet arg0) throws RuntimeException {
-                return visitSet(arg0);
             }
 
             @Override
@@ -466,11 +388,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
             }
 
             @Override
-            public String visitListRelation(IList arg0) throws RuntimeException {
-                return visitList(arg0);
-            }
-
-            @Override
             public String visitMap(IMap arg0) throws RuntimeException {
                 return "(" + arg0.size() + ")";
             }
@@ -488,11 +405,6 @@ public class NavigatorContentProvider implements ITreeContentProvider, IResource
             @Override
             public String visitReal(IReal arg0) throws RuntimeException {
                 return arg0.toString();
-            }
-
-            @Override
-            public String visitRelation(ISet arg0) throws RuntimeException {
-               return visitSet(arg0);
             }
 
             @Override

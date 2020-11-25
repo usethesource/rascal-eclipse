@@ -15,8 +15,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import org.eclipse.swt.graphics.RGB;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IInteger;

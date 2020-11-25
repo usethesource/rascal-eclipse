@@ -11,8 +11,7 @@ module vis::Figure
 import vis::KeySym;
 import util::Math;
 import List;
-import Set;
-import IO;
+import Set; 
 import String;
 
 /*
@@ -235,6 +234,7 @@ str getDir(Orientation or){
 		case topDown() 	 : return "TB";
 		case downTop() 	 : return "BT";
 	}
+	throw "getDir: cannot handle <or>";
 }
 
 bool getHMajor(Orientation or){
@@ -244,6 +244,7 @@ bool getHMajor(Orientation or){
 		case topDown() 	 : return false;
 		case downTop() 	 : return false;
 	}
+	throw "getHMajor: cannot handle <or>";
 }
 
 bool getHMirror(Orientation or){
@@ -253,6 +254,7 @@ bool getHMirror(Orientation or){
 		case topDown() 	 : return false;
 		case downTop() 	 : return false;
 	}
+	throw "getHMirror: cannot handle <or>";
 }
 
 bool getVMirror(Orientation or){
@@ -262,6 +264,7 @@ bool getVMirror(Orientation or){
 		case topDown() 	 : return false;
 		case downTop() 	 : return true;
 	}
+	throw "getVMirror: cannot handle <or>";
 }
 
 public FProperty orientation(Orientation or){
@@ -641,9 +644,9 @@ public FProperty height(num h){
 	return vsize(h);
 }
 
-public FProperty child(FProperty props ...){
+public FProperty child(FProperty _ ...){
 	throw "child is currently out of order (broken)";
-	return _child(props);
+	//return _child(props);
 }
 
 public FProperty grandChild(FProperty props ...){
@@ -720,8 +723,7 @@ public data Figure =
    | _withDependantWidthHeight(bool widthMajor,Figure innder, FProperties props)
    | _mouseOver(Figure under, Figure over, FProperties props)
    | _fswitch(int () choice,Figures figs, FProperties props)
-   | _overlap(Figure under, Figure over, FProperties props)
-   | _mouseOver(Figure under,Figure over,FProperties props)          
+   | _overlap(Figure under, Figure over, FProperties props)      
                    
    | _hvcat(Figures figs, FProperties props) // horizontal and vertical concatenation
                    
@@ -978,7 +980,7 @@ public Figure button(str label, void () callback, FProperty props...){
 }
  
 public Figure textfield(str text, void (str) callback, FProperty props...){
- 	return _textfield(text, callback, bool (str s) {return true; },props);
+ 	return _textfield(text, callback, bool (str _) {return true; },props);
 }
  
 public Figure textfield(str text,  void (str) callback, bool (str) validate, FProperty props...){
@@ -1012,11 +1014,11 @@ public Figure scaleSlider(int() low, int() high, int() selection, void(int) vcal
 public Figure normalize(Figure f){
 	f = outermost visit(f){
 		case Figure f1 : {
-			if([x*,unpack(y),z*] := f1.props){
+			if([*x,unpack(y),*z] := f1.props){
 			    //println("x = <x>, y = <y>, z=<z>, concat: <[*x,*y,*z]>");
 				f1.props = [*x,*y,*z]; // SPLICING, was: f.props = [x,y,z];
 				insert f1;
-			} else if([x*,std(unpack(y)),z*] := f1.props){
+			} else if([*x,std(unpack(y)),*z] := f1.props){
 				f1.props = [*x,*z] + [std(p) | p <- y];  // SPLICING:  f.props = [x,z] + [std(p) | p <- y];
 				insert f1;
 			} else {
@@ -1026,7 +1028,7 @@ public Figure normalize(Figure f){
 	} 
 	f = visit(f){
 		case Figure f1 : {
-			if([_*,project(y,z),_*] := f1.props){
+			if([*_,project(_,_),*_] := f1.props){
 				projects = [];
 				otherProps = [];
 				for(elem <- f1.props){
@@ -1042,7 +1044,7 @@ public Figure normalize(Figure f){
 	}
 	f = visit(f){
 		case Figure f1 : {
-			if([_*,timer(y,z),_*] := f1.props){
+			if([*_,timer(_,_),*_] := f1.props){
 				projects = [];
 				otherProps = [];
 				for(elem <- f1.props){
@@ -1058,7 +1060,7 @@ public Figure normalize(Figure f){
 	}
 	f = visit(f){
 		case Figure f1 : {
-			if([_*,mouseOver(y),_*] := f1.props){
+			if([*_,mouseOver(_),*_] := f1.props){
 				mouseOvers = [];
 				otherProps = [];
 				for(elem <- f1.props){
@@ -1079,10 +1081,13 @@ public Figure normalize(Figure f){
 
 public Figure palleteKey (str name, str key,FProperty props...){
  return  _nominalKey(p12,Figure (list[value] orig) { 
- 		Figure inner;
- 		if(size(orig) == 0) inner = space(); 
- 		else inner = grid([[box(fillColor(p12[i])),text("<orig[i]>",left())] | i <- [0..size(orig)]],hgrow(1.05),vgrow(1.1));
- 		// SPLICING: else inner = grid([[box(fillColor(p12[i])),text("<orig[i]>",left())] | i <- [0..size(orig)]],hgrow(1.05),vgrow(1.1));
+ 		Figure inner = space();
+ 		if(size(orig) == 0) {
+ 		  inner = space();
+ 		} else { 
+ 		  inner = grid([[box(fillColor(p12[i])),text("<orig[i]>",left())] | i <- [0..size(orig)]],hgrow(1.05),vgrow(1.1));
+ 		}
+
  		return vcat([
  		text(name,fontSize(13)),
  		box(
@@ -1093,9 +1098,13 @@ public Figure palleteKey (str name, str key,FProperty props...){
 
 public Figure hPalleteKey (str name, str key,FProperty props...){
  return  _nominalKey(p12,Figure (list[value] orig) { 
- 		Figure inner;
- 		if(size(orig) == 0) inner = space(); 
- 		else inner = hcat([vcat([box(fillColor(p12[i])),text("<orig[i]>")],hgrow(1.05)) | i <- [0..size(orig)]],hgrow(1.05));
+ 		Figure inner = space();
+ 		if(size(orig) == 0) {
+ 		  inner = space();
+ 		} 
+ 		else {
+ 		  inner = hcat([vcat([box(fillColor(p12[i])),text("<orig[i]>")],hgrow(1.05)) | i <- [0..size(orig)]],hgrow(1.05));
+ 		}
  		return box(hcat([
  		text(name,fontSize(13)),
  		inner

@@ -30,7 +30,7 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
 import org.rascalmpl.eclipse.library.vis.util.vector.Rectangle;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 
 import io.usethesource.vallang.IString;
 

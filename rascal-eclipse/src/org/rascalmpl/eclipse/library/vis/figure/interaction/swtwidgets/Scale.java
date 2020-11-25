@@ -19,15 +19,13 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
 import org.rascalmpl.eclipse.library.vis.util.vector.Dimension;
 import org.rascalmpl.values.ValueFactoryFactory;
-
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.TypeFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 public class Scale extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Scale>{
 
 	int selection;
 	PropertyValue<Integer> low, high,selected;
-	public Scale(IFigureConstructionEnv env, Dimension major, PropertyValue<Integer> low, PropertyValue<Integer> high,  PropertyValue<Integer> selected,IValue callback,
+	public Scale(IFigureConstructionEnv env, Dimension major, PropertyValue<Integer> low, PropertyValue<Integer> high,  PropertyValue<Integer> selected,IFunction callback,
 			PropertyManager properties) {
 		super(env, callback, properties);
 		this.selected = selected;
@@ -67,8 +65,7 @@ public class Scale extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wid
 
 	@Override
 	void executeCallback() {
-		cbenv.executeRascalCallBackSingleArgument(callback, TypeFactory
-				.getInstance().integerType(), ValueFactoryFactory.getValueFactory().integer(widget.getSelection()));
+		cbenv.executeRascalCallBack(callback, ValueFactoryFactory.getValueFactory().integer(widget.getSelection()));
 	}
 
 

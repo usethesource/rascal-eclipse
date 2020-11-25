@@ -2,7 +2,6 @@ module demo::lang::turing::l2::ide::Plugin
 
 import ParseTree;
 import util::IDE;
-import IO;
 import lang::box::util::Box2Text;
 
 import demo::lang::turing::l2::cst::Parse;
@@ -31,10 +30,10 @@ public void registerContributions() {
 					loc target = sel[extension = "ctur"];
 					compile(desugar(load(t)), target);
 				}),
-				action("Emulate", void (Tree t, loc sel) {
+				action("Emulate", void (Tree t, loc _) {
 					visInterpreter(desugar(load(t)));	
 				}),
-				edit("Format", str (Tree t, loc s) {
+				edit("Format", str (Tree t, loc _) {
 				  return format(turing2box(load(t)));
 				})
 			]))}

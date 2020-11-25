@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.rascalmpl.eclipse.util;
 
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -153,8 +154,8 @@ public class RascalInterpreter extends JavaToRascal {
 						- Configuration.RASCAL_FILE_EXT.length());
 	}
 
-	public RascalInterpreter(IProject project, PrintWriter stdout,	PrintWriter stderr) {
-		super(stdout, stderr);
+	public RascalInterpreter(IProject project, InputStream input, OutputStream stdout,	OutputStream stderr) {
+		super(input, stdout, stderr);
 		ProjectEvaluatorFactory.getInstance().configure(project, getEvaluator());
 	}
 
@@ -163,7 +164,7 @@ public class RascalInterpreter extends JavaToRascal {
 	public static void test(IProject project) {
 		// IProject project =
 		// ResourcesPlugin.getWorkspace().getRoot().getProject("aap");
-		final RascalInterpreter jr = new RascalInterpreter(project, new PrintWriter(System.err), new PrintWriter(System.out));
+		final RascalInterpreter jr = new RascalInterpreter(project, System.in, System.err, System.out);
 		System.out.println(jr.stringValue("import List;"));
 		System.out.println(jr.stringValue("\"<2+3>\";"));
 		System.out.println(jr.stringValue("\"aap:<size([2,3])>\";"));

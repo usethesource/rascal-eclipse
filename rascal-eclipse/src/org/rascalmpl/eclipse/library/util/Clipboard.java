@@ -4,8 +4,8 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;

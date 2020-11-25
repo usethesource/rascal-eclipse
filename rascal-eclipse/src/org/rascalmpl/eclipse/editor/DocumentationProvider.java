@@ -11,15 +11,13 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
-import org.eclipse.core.resources.IProject;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.terms.TermParseController;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
-import io.usethesource.impulse.model.ISourceProject;
 import io.usethesource.impulse.parser.IParseController;
 import io.usethesource.impulse.services.IDocumentationProvider;
 import io.usethesource.vallang.IConstructor;
@@ -54,9 +52,7 @@ public class DocumentationProvider  implements IDocumentationProvider {
         
 	    if (arg != null && parseController instanceof ParseController && RascalPreferences.isRascalCompilerEnabled()) {
 	    	ParseController rascalPc = (ParseController) parseController;
-	    	ISourceProject rprj = rascalPc.getProject();
-	    	IProject prj = rprj != null ? rprj.getRawProject() : null;
-	    	PathConfig pcfg = RascalLanguageServices.getInstance().getPathConfig(prj);
+	    	PathConfig pcfg = RascalLanguageServices.getInstance().getModulePathConfig(rascalPc.getSourceLocation());
 
 	    	StringBuffer b = new StringBuffer();
 	    	
@@ -98,21 +94,21 @@ public class DocumentationProvider  implements IDocumentationProvider {
 	}
 
     private String getDocStringFromTree(IConstructor arg, IConstructor top) {
-        IValue val = arg.asAnnotatable().getAnnotation("doc");
+        IValue val = arg.asWithKeywordParameters().getParameter("doc");
 
 		if (val != null && val.getType().isString()) {
 				return ((IString) val).getValue();
 		}
 		
 		if (top != null && top.getType().isSubtypeOf(RascalValueFactory.Tree)) {
-			IValue vals = top.asAnnotatable().getAnnotation("docs");
+			IValue vals = top.asWithKeywordParameters().getParameter("docs");
 			
 			if (vals != null 
 					&& vals.getType().isMap() 
 					&& vals.getType().getKeyType().isSourceLocation() 
 					&& vals.getType().getValueType().isString()) {
 				IMap map = (IMap) vals;
-				ISourceLocation loc = (ISourceLocation) arg.asAnnotatable().getAnnotation("loc");
+				ISourceLocation loc = (ISourceLocation) arg.asWithKeywordParameters().getParameter("src");
 				if (loc != null && map.containsKey(loc)) {
 					return ((IString) map.get(loc)).getValue();
 				}

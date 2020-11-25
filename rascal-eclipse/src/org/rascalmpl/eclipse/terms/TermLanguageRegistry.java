@@ -20,13 +20,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.impulse.language.Language;
 import io.usethesource.impulse.language.LanguageRegistry;
@@ -39,13 +38,12 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class TermLanguageRegistry {
-	private final Map<String, Language> languages = new HashMap<String,Language>();
-	private final Map<String, IEvaluatorContext> evals = new HashMap<String, IEvaluatorContext>();
-	private final Map<String, ICallableValue> parsers = new HashMap<String,ICallableValue>();
-	private final Map<String, ICallableValue> analyses = new HashMap<String,ICallableValue>();
-	private final Map<String, ICallableValue> outliners = new HashMap<String,ICallableValue>();
-	private final Map<String, ISet> contributions = new HashMap<String, ISet>();
-	private final Map<String, ISet> nonRascalContributions = new ConcurrentHashMap<String, ISet>();
+	private final Map<String, Language> languages = new HashMap<>();
+	private final Map<String, IFunction> parsers = new HashMap<>();
+	private final Map<String, IFunction> analyses = new HashMap<>();
+	private final Map<String, IFunction> outliners = new HashMap<>();
+	private final Map<String, ISet> contributions = new HashMap<>();
+	private final Map<String, ISet> nonRascalContributions = new ConcurrentHashMap<>();
 
 	static private class InstanceKeeper {
 		public static TermLanguageRegistry sInstance = new TermLanguageRegistry();
@@ -59,7 +57,6 @@ public class TermLanguageRegistry {
 	
 	public void clear() {
 		languages.clear();
-		evals.clear();
 		parsers.clear();
 		analyses.clear();
 		outliners.clear();
@@ -76,7 +73,6 @@ public class TermLanguageRegistry {
 			LanguageRegistry.deregisterLanguage(lang);
 		}
 		languages.remove(value);
-		evals.remove(value);
 		parsers.remove(value);
 		analyses.remove(value);
 		outliners.remove(value);
@@ -87,19 +83,18 @@ public class TermLanguageRegistry {
 		nonRascalContributions.remove(value);
 	}
 	
-	public void registerLanguage(String name, String extension, ICallableValue parser, IEvaluatorContext ctx) {
+	public void registerLanguage(String name, String extension, IFunction parser) {
 		Language l = new Language(name, "", "demo editor for " + name, "Terms", "icons/rascal3D_2-32px.gif", "http://www.rascal-mpl.org",ID_RASCAL_ECLIPSE_PLUGIN,extension,"",null);
-		languages.put(extension, l);
-		evals.put(name, ctx);
+		languages.put(extension.startsWith(".") ? extension.substring(0) : extension, l);
 		parsers.put(name, parser);
 		LanguageRegistry.registerLanguage(l);
 	}
 
-	public void registerAnnotator(String lang, ICallableValue function) {
+	public void registerAnnotator(String lang, IFunction function) {
 		analyses.put(lang, function);
 	}
 	
-	public void registerOutliner(String lang, ICallableValue builder) {
+	public void registerOutliner(String lang, IFunction builder) {
 		outliners.put(lang, builder);
 	}
 	
@@ -135,23 +130,15 @@ public class TermLanguageRegistry {
 		return null;
 	}
 	
-	public IEvaluatorContext getEvaluator(Language lang) {
-		return getEvaluator(lang.getName());
-	}
-	
-	private IEvaluatorContext getEvaluator(String lang) {
-		return evals.get(lang);
-	}
-	
-	public ICallableValue getParser(Language lang) {
+	public IFunction getParser(Language lang) {
 		if (lang == null) {
 			return null;
 		}
 		return  parsers.get(lang.getName());
 	}
 	
-	public ICallableValue getOutliner(Language lang) {
-		ICallableValue outliner = outliners.get(lang.getName());
+	public IFunction getOutliner(Language lang) {
+		IFunction outliner = outliners.get(lang.getName());
 		
 		if (outliner != null) {
 			return outliner;
@@ -165,7 +152,7 @@ public class TermLanguageRegistry {
 		
 		if (outliners.size() > 0) {
 			IConstructor tree = (IConstructor) outliners.iterator().next();
-			return (ICallableValue) tree.get("outliner");
+			return (IFunction) tree.get("outliner");
 		}
 		
 		return null;
@@ -215,7 +202,7 @@ public class TermLanguageRegistry {
 	}
 	
 	private ISet getContributions(String lang, String cons) {
-		IValueFactory vf = getEvaluator(lang).getValueFactory();
+		IValueFactory vf = IRascalValueFactory.getInstance();
 			
 		ISetWriter result = vf.setWriter(); 
 		for (IValue contribution: getContributions(lang)) {
@@ -233,8 +220,8 @@ public class TermLanguageRegistry {
 	}
 	
 	
-	public ICallableValue getAnnotator(Language lang) {
-		ICallableValue annotator = analyses.get(lang.getName());
+	public IFunction getAnnotator(Language lang) {
+		IFunction annotator = analyses.get(lang.getName());
 		
 		if (annotator != null) {
 			return annotator;
@@ -248,13 +235,13 @@ public class TermLanguageRegistry {
 		
 		if (annotators.size() > 0) {
 			IConstructor tree = (IConstructor) annotators.iterator().next();
-			return (ICallableValue) tree.get("annotator");
+			return (IFunction) tree.get("annotator");
 		}
 		
 		return null;
 	}
 
-	public ICallableValue getLiveUpdater(Language lang) {
+	public IFunction getLiveUpdater(Language lang) {
 		ISet updaters = getContributions(lang, "liveUpdater");
 
 		if (updaters.size() > 1) {
@@ -263,7 +250,7 @@ public class TermLanguageRegistry {
 		
 		if (updaters.size() > 0) {
 			IConstructor tree = (IConstructor) updaters.iterator().next();
-			return (ICallableValue) tree.get("updater");
+			return (IFunction) tree.get("updater");
 		}
 		return null;
 	}

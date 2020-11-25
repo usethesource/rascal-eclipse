@@ -30,14 +30,14 @@ import org.rascalmpl.eclipse.editor.TokenIterator;
 import org.rascalmpl.eclipse.nature.IWarningHandler;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToMessageHandler;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.file.FileURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.impulse.language.Language;
 import io.usethesource.impulse.model.ISourceProject;
@@ -51,8 +51,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class TermParseController implements IParseController {
 	private ISourceProject project;
@@ -174,13 +172,10 @@ public class TermParseController implements IParseController {
 			
 			try{
 				handler.clearMessages();
-				TypeFactory TF = TypeFactory.getInstance();
-				ICallableValue parser = getParser();
+				IFunction parser = getParser();
 				if (parser != null) {
-					synchronized (parser.getEval()) {
-						parseTree = (ITree) parser.call(rm, new Type[] {TF.stringType(), TF.sourceLocationType()}, new IValue[] { VF.string(input), loc}, null).getValue();
-					}
-					ICallableValue annotator = getAnnotator();
+				    parseTree = (ITree) parser.call(VF.string(input), loc);
+					IFunction annotator = getAnnotator();
 					if (parseTree != null && annotator != null) {
 						rm.event("annotating", 5);
 						ITree newTree = executor.annotate(annotator, parseTree, handler);
@@ -225,12 +220,12 @@ public class TermParseController implements IParseController {
 			return Status.OK_STATUS;
 		}
 
-		private ICallableValue getAnnotator() {
+		private IFunction getAnnotator() {
 			return TermLanguageRegistry.getInstance().getAnnotator(language);
 		}
 		
 
-		private ICallableValue getParser() {
+		private IFunction getParser() {
 			return TermLanguageRegistry.getInstance().getParser(language);
 		}
 	}

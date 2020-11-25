@@ -16,8 +16,8 @@ import java.util.Set;
 
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.impulse.editor.ModelTreeNode;
 import io.usethesource.impulse.language.ILanguageService;
@@ -53,13 +53,14 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 		if (element instanceof IValue) {
 				return ((IValue) element).accept(new IValueVisitor<String, RuntimeException>() {
 
+				    @Override
 					public String visitBoolean(IBool boolValue)  {
 						return boolValue.toString();
 					}
 
-					public String visitConstructor(IConstructor o)
-					 {
-						IValue img = o.asAnnotatable().getAnnotation("label");
+					@Override
+					public String visitConstructor(IConstructor o) {
+						IValue img = o.asWithKeywordParameters().getParameter("label");
 						if (img != null) {
 							if (img instanceof IString) {
 								return ((IString) img).getValue();
@@ -71,33 +72,39 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 						return o.getName();
 					}
 
+					@Override
 					public String visitDateTime(IDateTime o)  {
 						return o.toString();
 					}
 
+					@Override
 					public String visitExternal(IExternalValue externalValue)
 					 {
 						return "";
 					}
 
+					@Override
 					public String visitInteger(IInteger o)  {
 						return o.toString();
 					}
 
+					@Override
 					public String visitRational(IRational o)  {
 						return o.toString();
 					}
 
+					@Override
 					public String visitList(IList o)  {
 						return "";
 					}
 
+					@Override
 					public String visitMap(IMap o)  {
 						return "";
 					}
 
 					public String visitNode(INode o)  {
-						IValue label = o.asAnnotatable().getAnnotation("label");
+						IValue label = o.asWithKeywordParameters().getParameter("label");
 						if (label != null) {
 							if (label instanceof IString) {
 								return ((IString) label).getValue();
@@ -109,31 +116,28 @@ public class LabelProvider implements ILabelProvider, ILanguageService {
 						return o.getName();
 					}
 
+					@Override
 					public String visitReal(IReal o)  {
 						return o.toString();
 					}
 
-					public String visitRelation(ISet o)  {
-						return "";
-					}
-					
-					public String visitListRelation(IList o)  {
-						return "";
-					}
-
+					@Override
 					public String visitSet(ISet o)  {
 						return "";
 					}
 
+					@Override
 					public String visitSourceLocation(ISourceLocation o)
 					 {
 						return o.toString();
 					}
 
+					@Override
 					public String visitString(IString o)  {
 						return o.getValue();
 					}
 
+					@Override
 					public String visitTuple(ITuple o)  {
 						return "";
 					}

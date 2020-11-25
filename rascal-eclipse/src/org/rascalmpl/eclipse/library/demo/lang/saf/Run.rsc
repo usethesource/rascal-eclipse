@@ -8,17 +8,16 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Atze van der Ploeg - Atze.van.der.Ploeg@cwi.nl}
 
-module lang::saf::Run
+module demo::lang::saf::Run
 
-import lang::saf::AST;
-import lang::saf::Parse;
-import lang::saf::Implode;
-import lang::saf::Render;
-import lang::saf::Config; // TODO: remove cycle
+import demo::lang::saf::AST;
+import demo::lang::saf::Parse;
+import demo::lang::saf::Implode;
+import demo::lang::saf::Render;
+import demo::lang::saf::Config; // TODO: remove cycle
 
 import util::Math;
 import List;
-import IO;
 import vis::Figure;
 import vis::Render;
 
@@ -100,7 +99,7 @@ public Figure positionedFighters(FState f1, FState f2, FProperty props ...) {
 }
 
 
-public Figure arena(FState f1, FState f2, str log) =
+public Figure arena(FState f1, FState f2, str _) =
 	hcat([ state2figure(f1),positionedFighters(f1,f2,hshrink(0.6)),state2figure(f2)]);
 
 public void mainTest(str path) {
@@ -127,8 +126,6 @@ public void game(Fighter f1, Fighter f2) {
   
   TimerAction myTimer(stopped(n)) = isDead(fs1) || isDead(fs2) ? stop() : restart(DELAY - n);
   default TimerAction myTimer(_) = noChange();
-  
-  Figure newArena() = arena(fs1, fs2, log); 
   
   render( title("Super Awesome Fighters!", 
         box(computeFigure(Figure() { return arena(fs1, fs2, log); } ),

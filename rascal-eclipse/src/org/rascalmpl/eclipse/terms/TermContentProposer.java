@@ -19,9 +19,8 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.eclipse.editor.proposer.Prefix;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.impulse.editor.ErrorProposal;
 import io.usethesource.impulse.editor.SourceProposal;
@@ -35,7 +34,6 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.Type;
 
 public class TermContentProposer implements IContentProposer {	
 	private IConstructor cachedTree = null;
@@ -48,11 +46,11 @@ public class TermContentProposer implements IContentProposer {
 
 		Language lang = parseController.getLanguage();
 		ISet proposerContributions = TermLanguageRegistry.getInstance().getContentProposer(lang);
-		ICallableValue proposer = null;
+		IFunction proposer = null;
 		String prefixIdCharacters = "";
 		if (proposerContributions.size() > 0) {
 			IConstructor cons = (IConstructor) proposerContributions.iterator().next();
-			proposer = (ICallableValue) cons.get("proposer");
+			proposer = (IFunction) cons.get("proposer");
 			prefixIdCharacters = ((IString) cons.get("legalPrefixChars")).getValue();
 		}
 		
@@ -68,12 +66,8 @@ public class TermContentProposer implements IContentProposer {
 		IInteger _requestOffset = VF.integer(requestOffset) ;
 
 		if (proposer != null && tree != null) {
-			Result<IValue> result;
-			synchronized (proposer.getEval()) {
-				proposer.getEval().__setInterrupt(false);
-			    result = (Result<IValue>) proposer.call(new Type[] { tree.getType(), _prefixText.getType(), _requestOffset.getType() }, new IValue[] { tree, _prefixText, _requestOffset }, null);	
-			}
-			IList resultProposals = (IList) result.getValue();
+			IList resultProposals = (IList) proposer.call(tree, _prefixText, _requestOffset);
+			
 			for (IValue proposal : resultProposals) {
 				IConstructor propCons = (IConstructor) proposal;
 				if (propCons.getName().equals("sourceProposal")) {

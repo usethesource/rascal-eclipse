@@ -16,15 +16,14 @@ import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
-
-import io.usethesource.vallang.IValue;
+import org.rascalmpl.values.functions.IFunction;
 
 public abstract class SWTWidgetFigureWithSingleCallBack<WidgetType extends Control> extends SWTWidgetFigure<WidgetType>{
 
-	IValue callback;
+	IFunction callback;
 	ICallbackEnv cbenv;
 	
-	SWTWidgetFigureWithSingleCallBack(IFigureConstructionEnv env, IValue callback, PropertyManager properties){
+	SWTWidgetFigureWithSingleCallBack(IFigureConstructionEnv env, IFunction callback, PropertyManager properties){
 		super(env,properties);
 		this.cbenv = env.getCallBackEnv();
 		this.callback = callback;

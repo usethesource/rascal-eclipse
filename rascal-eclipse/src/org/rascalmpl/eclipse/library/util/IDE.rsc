@@ -65,7 +65,9 @@ import ParseTree;
 import vis::Figure;
 import lang::rascal::\format::Grammar;
 import String;
+extend Content;
 extend Message;
+
 
 @doc{
 .Synopsis
@@ -114,6 +116,7 @@ data CompletionProposal
     
 data Menu 
      = action(str label, void ((&T<:Tree) tree, loc selection) action)
+     | interaction(str label, Content ((&T <: Tree) tree, loc selection) server)
      | action(str label, void (str selStr, loc selLoc) handler) // for non rascal menu's
      | toggle(str label, bool() state, void((&T<:Tree) tree, loc selection) action)
      | edit(str label, str ((&T<:Tree) tree, loc selection) edit)
@@ -136,8 +139,9 @@ Annotate an outline node with a link.
 anno loc node@\loc;  // a link for an outline node
 
 @doc{create a proper based on a character class type literal} 
-Contribution proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int requestOffset) prop, type[Tree] cc : type(\char-class(_),_))
-  = proposer(prop, class2str(cc));
+Contribution proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int requestOffset) prop, type[Tree] cc)
+  = proposer(prop, class2str(cc))
+  when cc.symbol is \char-class;
   
 private str class2str(type[&T <: Tree] cc) = "<for (\char-class(rs) := cc.symbol, range(b,e) <- rs, ch <- [b..e+1]) {><char(ch)><}>";  
   
@@ -147,7 +151,7 @@ Contribution syntaxProperties(type[&N <: Tree] g) {
 
   return syntaxProperties(
       fences= {<b,c> | prod(_,[lit(str b),*_, lit(str c)],{\tag("fences"()), *_}) <- rules}
-            + {<b,c> | prod(_,[*pre, lit(str b), *mid, lit(str c), *post],{\tag("fences"(<int i, int j>)), *_}) <- rules, size(pre) == i * 2, size(pre) + 1 + size(mid) == j * 2}
+            + {<b,c> | prod(_,[*pre, lit(str b), *mid, lit(str c), *_],{\tag("fences"(<int i, int j>)), *_}) <- rules, size(pre) == i * 2, size(pre) + 1 + size(mid) == j * 2}
             + {<b,c> | prod(_,[lit(str b),*_,lit(str c)],{\bracket(),*_}) <- rules},
       lineComment="<if (prod(_,[lit(b),*_,c],{\tag("lineComment"()),*_}) <- rules, (c == lit("\n") || lit(_) !:= c)){><b><}>",
       blockComment= (prod(_,[lit(b),*_,lit(c)],{\tag("blockComment"()),*_}) <- rules && b != c && c != "\n") ? <b,"",c> : <"","","">
@@ -160,13 +164,13 @@ Contribution proposer(type[&N <: Tree] g) {
   prefixrules = { <x,p> | p:prod(_,[lit(x),*_],_) <- rules};
   
   str sym(lit(z)) = z;
-  str sym(c:\char-class(_)) = class2str(c);
+  str sym(Symbol c:\char-class(_)) = class2str(t) when type[Tree] t := type(c, ());
   str sym(layouts(_)) = " ";
   default str sym(Symbol s) = "\<<symbol2rascal(s)>\>";
   
   CompletionProposal toProposal(Production p) = sourceProposal("<for(s <- p.symbols){><sym(s)><}>", replaceAll(prod2rascal(p[attributes={}]),"\n"," "));
   
-  return proposer(list[CompletionProposal] (&T<:Tree input, str prefix, int offset) {
+  return proposer(list[CompletionProposal] (&T<:Tree _, str prefix, int _) {
     return [toProposal(p) | <x,p> <- prefixrules, startsWith(x, prefix)];
   }, "<for (x <- prefixrules<0>) {><x[0]><}>");
 }
@@ -176,7 +180,6 @@ Contribution proposer(type[&N <: Tree] g) {
 .Synopsis
 Register a language extension and a parser for use in Eclipse.
 }
-@reflect{Use the evaluator to parse editor contents and apply functions to parse trees}
 @javaClass{org.rascalmpl.eclipse.library.util.IDE}
 public java void registerLanguage(str name, str extension, Tree (str input, loc origin) parse);
 
@@ -184,9 +187,10 @@ public java void registerLanguage(str name, str extension, Tree (str input, loc 
 .Synopsis
 Register a language extension and a parser for use in Eclipse.
 }
-@reflect{Use the evaluator to parse editor contents and apply functions to parse trees}
-@javaClass{org.rascalmpl.eclipse.library.util.IDE}
-public java void registerLanguage(str name, str extension, type[&T <: Tree] nonterminal);
+public void registerLanguage(str name, str extension, type[&T <: Tree] nonterminal, bool allowAmbiguity=false, bool hasSideEffects=false)
+ = registerLanguage(name, extension, &T <: Tree (str input, loc origin) {
+     return parse(nonterminal, input, origin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects);
+ });
 
 
 @doc{

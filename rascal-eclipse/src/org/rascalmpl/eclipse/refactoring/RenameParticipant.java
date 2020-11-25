@@ -65,7 +65,7 @@ public class RenameParticipant extends org.eclipse.ltk.core.refactoring.particip
 				m.addChild(new DeleteEdit(index, moduleName.length()));
 				change.setEdit(m);
 			}
-
+			
 			return change;
 		} 
 		catch (CoreException e) {

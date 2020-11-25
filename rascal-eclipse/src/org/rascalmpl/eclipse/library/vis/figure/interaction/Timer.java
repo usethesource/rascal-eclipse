@@ -11,7 +11,6 @@ import static org.rascalmpl.eclipse.library.vis.Timer.TimerAction_noChange;
 import static org.rascalmpl.eclipse.library.vis.Timer.TimerAction_restart;
 import static org.rascalmpl.eclipse.library.vis.Timer.TimerAction_restart_delay;
 import static org.rascalmpl.eclipse.library.vis.Timer.TimerAction_stop;
-import static org.rascalmpl.eclipse.library.vis.Timer.TimerInfo;
 import static org.rascalmpl.eclipse.library.vis.Timer.TimerInfo_running;
 import static org.rascalmpl.eclipse.library.vis.Timer.TimerInfo_stopped;
 
@@ -23,8 +22,8 @@ import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
@@ -38,15 +37,15 @@ public class Timer extends LayoutProxy {
 	private static final boolean debug = true;
 	ExecuteTimer t;
 	ICallbackEnv cbenv;
-	IValue timerInit;
-	IValue callback;
+	IFunction timerInit;
+	IFunction callback;
 	Control c;
 	long elapsedAtHide;
 	boolean hidden;
 	IConstructor timerAction;
 	boolean firstDraw = true;
 	
-	public Timer(IFigureConstructionEnv env, IValue timerInit, IValue callback, Figure inner, PropertyManager properties){
+	public Timer(IFigureConstructionEnv env, IFunction timerInit, IFunction callback, Figure inner, PropertyManager properties){
 		super(inner,properties);
 		hidden = true;
 		elapsedAtHide = 0;
@@ -73,10 +72,10 @@ public class Timer extends LayoutProxy {
 		
 		IValue timerInfo = getTimerInfo();
 		//if(debug)System.out.printf("timerInit %s\n", timerInfo);
-		Result<IValue> result = cbenv.executeRascalCallBackSingleArgument(timerInit, TimerInfo, timerInfo);
+		IValue result = cbenv.executeRascalCallBack(timerInit, timerInfo);
 		
-		if (result != null && result.getValue() != null) {
-			timerAction = (IConstructor) result.getValue();
+		if (result != null) {
+			timerAction = (IConstructor) result;
 			executeTimerAction(timerAction);
 			hidden = false;
 		}
@@ -150,7 +149,7 @@ public class Timer extends LayoutProxy {
 			}
 			//System.out.printf("Executing! %d %s \n",delay, this);
 			
-			cbenv.executeRascalCallBackWithoutArguments(callback);
+			cbenv.executeRascalCallBack(callback);
 			stopped =true;
 			stopTime = System.currentTimeMillis();
 			cbenv.signalRecompute();

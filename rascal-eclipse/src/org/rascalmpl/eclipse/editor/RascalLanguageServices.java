@@ -1,5 +1,6 @@
 package org.rascalmpl.eclipse.editor;
 
+import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -8,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -17,18 +19,19 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.util.ProjectPathConfig;
-import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -72,7 +75,7 @@ public class RascalLanguageServices {
         return InstanceHolder.sInstance;
     }
     
-    private <T extends IValue> T get(ISourceLocation occ, PathConfig pcfg, String field, T def) {
+    private synchronized <T extends IValue> T get(ISourceLocation occ, PathConfig pcfg, String field, T def) {
        IConstructor summary = getSummary(occ, pcfg);
        
        if (summary != null) {
@@ -90,7 +93,7 @@ public class RascalLanguageServices {
        return def;
     }
     
-    public IConstructor getSummary(ISourceLocation occ, PathConfig pcfg) {
+    public synchronized IConstructor getSummary(ISourceLocation occ, PathConfig pcfg) {
     	return summaryCache.get(occ.top(), (u) -> {
     		try {
     		    Evaluator eval = summaryEvaluator.get();
@@ -120,12 +123,21 @@ public class RascalLanguageServices {
             synchronized (eval) {
                 try {
                     return (IList) eval.call(monitor, "checkAll", folder, pcfg.asConstructor());
-                } catch (Throwable e) {
-                    Activator.log("compilation failed", e);
+                }
+                catch (InterruptException e) {
                     return IRascalValueFactory.getInstance().list();
+                }
+                finally {
+                    eval.__setInterrupt(false);
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
+            Activator.log("compilation failed", e);
+            return IRascalValueFactory.getInstance().list();
+        } catch (Throw e) {
+            Activator.log("internal error during compilation;\n" + e.getLocation() + ": " + e.getMessage() + "\n" + e.getTrace(), e);
+            return IRascalValueFactory.getInstance().list();
+        } catch (Throwable e) {
             Activator.log("compilation failed", e);
             return IRascalValueFactory.getInstance().list();
         }
@@ -142,15 +154,20 @@ public class RascalLanguageServices {
                 catch (InterruptException e) {
                     return IRascalValueFactory.getInstance().list();
                 }
-                catch (Throwable e) {
-                    Activator.log("compilation failed", e);
-                    return IRascalValueFactory.getInstance().list();
-                }
                 finally {
                     eval.__setInterrupt(false);
                 }
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException e) {
+            Activator.log("compilation failed", e);
+            return IRascalValueFactory.getInstance().list();
+        } catch (ExecutionException e1) {
+            Activator.log("could not find compiler", e1);
+            return IRascalValueFactory.getInstance().list();
+        } catch (Throw e) {
+            Activator.log("internal error during compilation;\n" + e.getLocation() + ": " + e.getMessage() + "\n" + e.getTrace(), e);
+            return IRascalValueFactory.getInstance().list();
+        } catch (Throwable e) {
             Activator.log("compilation failed", e);
             return IRascalValueFactory.getInstance().list();
         }
@@ -203,29 +220,29 @@ public class RascalLanguageServices {
 	}
 
     public INode getOutline(IConstructor module) {
-    	ISourceLocation loc = getFileLoc((ITree) module);
-    	if (loc == null) {
-    		return EMPTY_NODE;
-    	}
+        ISourceLocation loc = getFileLoc((ITree) module);
+        if (loc == null) {
+            return EMPTY_NODE;
+        }
 
-    	return replaceNull(outlineCache.get(loc.top(), (l) -> {
-    		try {
-    		    Evaluator eval = outlineEvaluator.get();
-                
+        return replaceNull(outlineCache.get(loc.top(), (l) -> {
+            try {
+                Evaluator eval = outlineEvaluator.get();
+
                 if (eval == null) {
                     Activator.log("Could not calculate outline due to missing evaluator", null);
                     return null;
                 }
-                
+
                 synchronized (eval) {
                     return (INode) eval.call("outline", module);
                 }
-    		}
-    		catch (Throwable e) {
-    			Activator.log("failure to create outline", e);
+            }
+            catch (Throwable e) {
+                Activator.log("failure to create outline", e);
                 return null;
-    		}
-    	}));
+            }
+        }));
     }
 
 	public void clearSummaryCache(ISourceLocation file) {
@@ -246,10 +263,29 @@ public class RascalLanguageServices {
     	return new PathConfig();
     }
     
+    public PathConfig getModulePathConfig(ISourceLocation module) {
+        if (module.getScheme().equals("project")) {
+            IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(module.getAuthority());
+            return getPathConfig(project);
+        }
+        else if (module.getScheme().equals("lib")) {
+            try {
+                return PathConfig.fromLibraryRascalManifest(module.getAuthority());
+            }
+            catch (IOException e) {
+                Activator.log("could not configure compiler for " + module, e);
+            }
+        }
+
+        return new PathConfig();
+    }
+    
     private Future<Evaluator> makeFutureEvaluator(String label, final String... imports) {
         return asyncGenerator(label, () ->  {
             Bundle bundle = Platform.getBundle("rascal_eclipse");
-            Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(bundle, ThreadSafeImpulseConsole.INSTANCE.getWriter(), ThreadSafeImpulseConsole.INSTANCE.getWriter());
+            // TODO: better streams here; we used to have thread safe access to the writers, now they just 
+            // all print to the same console.
+            Evaluator eval = ProjectEvaluatorFactory.getInstance().getBundleEvaluator(bundle, RuntimePlugin.getInstance().getConsoleStream(), RuntimePlugin.getInstance().getConsoleStream());
            
             eval.addRascalSearchPath(URIUtil.correctLocation("jar+plugin", "rascal_eclipse", "/lib/typepal.jar!/"));
             eval.addRascalSearchPath(URIUtil.correctLocation("jar+plugin", "rascal_eclipse", "/lib/rascal-core.jar!/"));
@@ -288,4 +324,6 @@ public class RascalLanguageServices {
         
         return result;
     }
+
+   
 }

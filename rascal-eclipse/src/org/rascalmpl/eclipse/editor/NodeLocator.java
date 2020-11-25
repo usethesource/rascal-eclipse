@@ -12,10 +12,13 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.uri.URIResourceResolver;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.impulse.editor.ModelTreeNode;
 import io.usethesource.impulse.parser.ISourcePositionLocator;
@@ -57,7 +60,24 @@ public class NodeLocator implements ISourcePositionLocator {
 	}
 
 	public IPath getPath(Object node) {
-		return null;
+	    ISourceLocation loc = getLocation(node);
+	    
+	    if (loc != null) {
+	        IResource resource = URIResourceResolver.getResource(loc);
+	        
+	        if (resource != null) {
+	            return resource.getFullPath();
+	        }
+	        else if (loc.getScheme().equals("file")) {
+	            return new Path(loc.getPath());
+	        }
+	        else {
+	            return null;
+	        }
+	    }
+	    else {
+	        return null;
+	    }
 	}
 
 	public int getStartOffset(Object node) {
@@ -76,27 +96,24 @@ public class NodeLocator implements ISourcePositionLocator {
 		return getLocation(node) == null ? 0 : getLocation(node).getLength();
 	}
 	
-	@SuppressWarnings("deprecation")
     private ISourceLocation getLocation(Object node){
-		if (node instanceof ITree){
+		if (node instanceof ITree) {
 			return TreeAdapter.getLocation((ITree) node);
 		}
 		
 		if (node instanceof INode) {
 			INode n = (INode) node;
 			
-			if (n.isAnnotatable()) {
-			    IValue ann = n.asAnnotatable().getAnnotation("loc");
-			    if (ann != null) {
-			        return (ISourceLocation) ann;
-			    }
-			}
-			
 			if (n.mayHaveKeywordParameters()) {
 			    IValue src = n.asWithKeywordParameters().getParameter("src");
 			    if (src != null && src instanceof ISourceLocation) { 
 			        return (ISourceLocation) src;
 			    }
+			    
+			    IValue loc = n.asWithKeywordParameters().getParameter("loc");
+                if (loc != null && loc instanceof ISourceLocation) { 
+                    return (ISourceLocation) loc;
+                }
 			}
 		}
 		

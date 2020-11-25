@@ -1,5 +1,6 @@
 package org.rascalmpl.eclipse.repl;
 
+import java.io.PrintStream;
 import java.net.URI;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -10,6 +11,7 @@ import org.rascalmpl.eclipse.editor.EditorUtil;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.ISourceLocation;
 
 public class EclipseIDEServices implements IDEServices {
@@ -69,8 +71,10 @@ public class EclipseIDEServices implements IDEServices {
 
     @Override
     public void warning(String message, ISourceLocation src) {
-        // TODO Auto-generated method stub
-        
+        try (PrintStream consoleStream = RuntimePlugin.getInstance().getConsoleStream()) {
+            consoleStream.println("[WARNING] " + src + ": " + message);
+            consoleStream.flush();
+        }
     }
 
     @Override

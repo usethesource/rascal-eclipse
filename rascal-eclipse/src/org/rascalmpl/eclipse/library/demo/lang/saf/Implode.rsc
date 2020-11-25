@@ -7,11 +7,13 @@
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 
-module lang::saf::Parse
+module demo::lang::saf::Implode
 
-import lang::saf::SAF;
+import demo::lang::saf::AST;
+
 import ParseTree;
 
-public start[Fighter] parse(str src, loc l) = parse(#start[Fighter], src, l);
-public start[Fighter] parse(str src) = parse(#start[Fighter], src);
-public start[Fighter] parse(loc l) = parse(#start[Fighter], l);
+// start[lang::saf::SAF::Fighter] 
+public demo::lang::saf::AST::Fighter implode(Tree pt) 
+  = implode(#demo::lang::saf::AST::Fighter, pt);
+

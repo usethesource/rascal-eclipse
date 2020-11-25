@@ -8,16 +8,16 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Atze van der Ploeg - Atze.van.der.Ploeg@cwi.nl}
 
-module lang::saf::Plugin
+module demo::lang::saf::Plugin
 
 import util::IDE;
 import util::Prompt;
-import lang::saf::SAF;
-import lang::saf::Parse;
-import lang::saf::Implode;
-import lang::saf::Check;
-import lang::saf::Run;
-import lang::saf::DumpXML;
+import demo::lang::saf::SAF;
+import demo::lang::saf::Parse;
+import demo::lang::saf::Implode;
+import demo::lang::saf::Check;
+import demo::lang::saf::Run;
+import demo::lang::saf::DumpXML;
 import lang::xml::DOM;
 import ParseTree;
 import IO;
@@ -42,14 +42,14 @@ private Tree checkSAF(Tree fighter) {
   return fighter;
 }
 
-private void gameOn(start[Fighter] fighter, loc sel) {
+private void gameOn(start[Fighter] fighter, loc _) {
   f1 = implode(fighter);
   path = prompt("Opponent: (include projectname and path)             ");
   f2 = implode(parse(|project://<path>|));
   game(f1, f2);
 }
 
-private void dumpXML(start[Fighter] fighter, loc sel) {
+private void dumpXML(start[Fighter] fighter, loc _) {
   ast = implode(fighter);
   xml = saf2xml(ast);
   path = prompt("Project path to dump XML to: ");

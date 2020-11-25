@@ -7,9 +7,7 @@
 }
 module vis::examples::New
 
-import Prelude;
 import util::Math;
-
 import vis::Figure;
 import vis::Render;
 
@@ -81,7 +79,7 @@ public void bubbles(int n){
 			fillColor(rrgba(arbReal(),arbReal(),arbReal(),arbReal())),
 			align(arbReal(),arbReal())
 		)
-		| i <- [1..n+1]]));
+		| _ <- [1..n+1]]));
 }
 
 public void mondriaan(){

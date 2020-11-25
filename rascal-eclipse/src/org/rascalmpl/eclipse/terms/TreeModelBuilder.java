@@ -11,9 +11,8 @@
 package org.rascalmpl.eclipse.terms;
 
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.impulse.language.ILanguageService;
 import io.usethesource.impulse.language.Language;
@@ -33,7 +32,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageService{
@@ -50,17 +48,14 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 		if (lang == null || root == null) return;
 
 		IConstructor pt = (IConstructor) root;
-		ICallableValue outliner = TermLanguageRegistry.getInstance().getOutliner(lang);
+		IFunction outliner = TermLanguageRegistry.getInstance().getOutliner(lang);
 
 		if (outliner == null) {
 			return;
 		}
 
 		try {
-			IValue outline;
-			synchronized(outliner.getEval()){
-				outline = outliner.call(new Type[] {RascalTypeFactory.getInstance().nonTerminalType(pt)}, new IValue[] {pt}, null).getValue();
-			}
+			IValue outline  = outliner.call(pt);
 
 			if (outline instanceof INode) {
 				convertModel(outline);
@@ -78,12 +73,14 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
 
         	for (IValue child : node) {
         		child.accept(new IValueVisitor<Object, RuntimeException>() {
+        		    @Override
         			public Object visitBoolean(IBool o)
         			 {
         				createSubItem(o);
         				return null;
         			}
 
+        		    @Override
         			public Object visitConstructor(IConstructor o)
         			 {
         				pushSubItem(o);
@@ -94,28 +91,33 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
         				return null;
         			}
 
+        		    @Override
         			public Object visitDateTime(IDateTime o)
         			 {
         				createSubItem(o);
         				return null;
         			}
 
+        		    @Override
         			public Object visitExternal(IExternalValue o)
         			 {
         				createSubItem(o);
         				return null;
         			}
 
+        		    @Override
         			public Object visitInteger(IInteger o)  {
         				createSubItem(o);
         				return null;
         			}
 
+        		    @Override
         			public Object visitRational(IRational o)  {
         				createSubItem(o);
         				return null;
         			}
 
+        		    @Override
         			public Object visitList(IList o)  {
         				for (IValue elem : o) {
         					elem.accept(this);
@@ -123,6 +125,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
         				return null;
         			}
 
+        		    @Override
         			public Object visitMap(IMap o)  {
         				for (IValue key : o) {
         					pushSubItem(key);
@@ -132,6 +135,7 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
         				return null;
         			}
 
+        		    @Override
         			public Object visitNode(INode o)  {
         				pushSubItem(o);
         				for (IValue child : o) {
@@ -141,26 +145,12 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
         				return null;
         			}
 
+        		    @Override
         			public Object visitReal(IReal o)  {
         				return createSubItem(o);
         			}
 
-        			public Object visitRelation(ISet o)
-        			 {
-        				for (IValue tuple : o) {
-        					tuple.accept(this);
-        				}
-        				return null;
-        			}
-        			
-        			public Object visitListRelation(IList o)
-        			 {
-        				for (IValue tuple : o) {
-        						tuple.accept(this);
-        				}
-        				return null;
-        			}
-
+        		    @Override
         			public Object visitSet(ISet o)  {
         				for (IValue tuple : o) {
         					tuple.accept(this);
@@ -168,15 +158,18 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
         				return null;
         			}
 
+        		    @Override
         			public Object visitSourceLocation(ISourceLocation o)
         			 {
         				return createSubItem(o);
         			}
 
+        		    @Override
         			public Object visitString(IString o)  {
         				return createSubItem(o);
         			}
 
+        		    @Override
         			public Object visitTuple(ITuple o)  {
         				for (IValue field : o) {
         					field.accept(this);
@@ -184,7 +177,6 @@ public class TreeModelBuilder extends TreeModelBuilderBase implements ILanguageS
         				return null;
         			}
         		});
-
         	}
     }
 

@@ -5,6 +5,9 @@ import demo::lang::turing::l2::format::Format;
 import lang::box::util::Box2Text;
 import List;
 
+anno str node@label;
+anno loc node@\loc;
+
 public node turing2outline(Program p) = "program"(stats2outline(p.statements));
 
 public node stat2outline(l:loop(n, ss)) 

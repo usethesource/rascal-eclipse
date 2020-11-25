@@ -8,11 +8,10 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Atze van der Ploeg - Atze.van.der.Ploeg@cwi.nl}
 
-module lang::saf::Config
+module demo::lang::saf::Config
 
-import lang::saf::AST;
+import demo::lang::saf::AST;
 import util::Math;
-import IO;
 
 public int ARENASIZE     = 60;  //Size of the arena in m.
 public int FIGHTDURATION = 100; //Battle duration in turns.
@@ -72,7 +71,7 @@ public bool muchWeaker(FState f1, FState f2) = totalPower(f1) + MUCHPOWER < tota
 public bool even(FState f1, FState f2) = totalPower(f1) == totalPower(f2);
 public bool near(FState f1, FState f2) = distance(f1, f2) <= NEARDISTANCE;
 public bool far(FState f1, FState f2) = distance(f1, f2) > NEARDISTANCE;
-public bool always(FState f1, FState f2) = true;
+public bool always(FState _, FState _) = true;
 
 public int punchPower(FState f) = getAttr(f, "punchPower");
 public int kickPower(FState f) = getAttr(f, "kickPower");
@@ -101,7 +100,7 @@ public FState dispatchMove("jump", FState f1, FState f2)         = f1[jump = tru
 public FState dispatchMove("stand", FState f1, FState f2)         = f1; 
 
 
-public default FState dispatchCondition(str c, FState f1, FState f2) = f1;
+public default FState dispatchCondition(str _, FState f1, FState _) = f1;
 
 public tuple[FState,FState] dispatchFight("punch_low", FState f1, FState f2) =
   engage(f1, f2, "jump", "block_low", inPunchReach, punchPower);

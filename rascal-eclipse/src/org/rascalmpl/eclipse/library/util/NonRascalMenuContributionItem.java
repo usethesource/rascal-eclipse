@@ -29,8 +29,8 @@ import org.eclipse.ui.services.IServiceLocator;
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
 import org.rascalmpl.eclipse.util.RascalInvoker;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
-import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
@@ -38,15 +38,12 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 
 public class NonRascalMenuContributionItem extends CompoundContributionItem {
 	
 	private static String NON_RASCAL_CONTRIBUTION_COMMAND_CATEGORY = "org.rascalmpl.eclipse.library.util.NRCMCC";
 	private static String NON_RASCAL_CONTRIBUTION_COMMAND_PREFIX = "org.rascalmpl.eclipse.library.util.NRCMCP";
-	private final static TypeFactory TF = TypeFactory.getInstance();
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
 	
@@ -157,7 +154,7 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 			if (!newCommand.isDefined()) {
 				newCommand.define(label, "A non rascal contribution", defaultCategory);
 			}
-			final ICallableValue func = (ICallableValue) menu.get("handler");
+			final IFunction func = (IFunction) menu.get("handler");
 			IHandler handler = new AbstractHandler() {
 				public Object execute(ExecutionEvent event) throws ExecutionException {
 					ITextSelection selection = (ITextSelection)HandlerUtil.getActiveWorkbenchWindowChecked(event).getSelectionService().getSelection();
@@ -168,10 +165,9 @@ public class NonRascalMenuContributionItem extends CompoundContributionItem {
 					if (selectedLine != null) {
 						RascalInvoker.invokeAsync(new Runnable() {
 							public void run() {
-								func.getEval().__setInterrupt(false);
-								func.call(new Type[] { TF.stringType(), TF.sourceLocationType() }, new IValue[] { selectedText,  selectedLine }, null);
+								func.call(selectedText,  selectedLine);
 							}
-						}, func.getEval());
+						});
 					}
 					return null;
 				}

@@ -11,6 +11,11 @@
 *******************************************************************************/
 package org.rascalmpl.eclipse.terms;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.function.Function;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -24,19 +29,24 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+import org.eclipse.ui.internal.browser.WorkbenchBrowserSupport;
+import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.editor.highlight.ShowAsHTML;
 import org.rascalmpl.eclipse.editor.highlight.ShowAsLatex;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.OverloadedFunctionType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.repl.REPLContentServer;
+import org.rascalmpl.repl.REPLContentServerManager;
+import org.rascalmpl.types.FunctionType;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.impulse.editor.UniversalEditor;
 import io.usethesource.impulse.services.ILanguageActionsContributor;
@@ -48,10 +58,12 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
+@SuppressWarnings("restriction")
 public class ActionContributor implements ILanguageActionsContributor {
+    protected final REPLContentServerManager contentManager = new REPLContentServerManager();
+    
 	private static final class Runner extends Action {
 		private final UniversalEditor editor;
 		private final RascalAction job;
@@ -82,8 +94,8 @@ public class ActionContributor implements ILanguageActionsContributor {
 			if (sync) {
 				try {
 					job.join();
-					if (job.result != null) {
-						replaceText(selection, job.result);
+					if (job.result != null && job.result instanceof IString) {
+						replaceText(selection, (IString) job.result);
 					}
 				} catch (InterruptedException e) {
 					Activator.getInstance().logException("action interrupted", e);
@@ -105,15 +117,15 @@ public class ActionContributor implements ILanguageActionsContributor {
 		}
 	}
 	
-	private static final class RascalAction extends Job {
-		private final ICallableValue func;
+	private static class RascalAction extends Job {
+		private final IFunction func;
 		private final WarningsToErrorLog warnings;
 		private ITree tree;
 		private Point selection;
-		public IString result = null;
+		public IValue result = null;
     
 
-		private RascalAction(String text, ICallableValue func) {
+		private RascalAction(String text, IFunction func) {
 			super(text);
 			
 			this.func = func;
@@ -130,21 +142,14 @@ public class ActionContributor implements ILanguageActionsContributor {
 			RascalMonitor rascalMonitor = new RascalMonitor(monitor, warnings);
 			
 			if (tree != null) {
-				Type[] actualTypes = new Type[] { RTF.nonTerminalType(ProductionAdapter.getType(TreeAdapter.getProduction(tree))), TF.sourceLocationType() };
 				ISourceLocation loc = TreeAdapter.getLocation(tree);
 				IValue[] actuals = new IValue[] { tree, VF.sourceLocation(loc, selection.x, selection.y)};
 				try {
 					rascalMonitor.startJob("Executing " + getName(), 10000);
-					IValue result;
-					synchronized(func.getEval()){
-						result = func.call(rascalMonitor, actualTypes, actuals, null).getValue();
-					}
+					IValue result = func.call(actuals);
 					
-					if ( (func.getType() instanceof OverloadedFunctionType) &&  (((OverloadedFunctionType) func.getType()).getReturnType() != TF.voidType()) ) {
-						this.result = (IString) result;
-					}
 					if ( (func.getType() instanceof FunctionType) && (((FunctionType) func.getType()).getReturnType() != TF.voidType())) {
-						this.result = (IString) result;
+						this.result = result;
 					}
 				}
 				catch (Throwable e) {
@@ -157,12 +162,71 @@ public class ActionContributor implements ILanguageActionsContributor {
 			
 			return Status.OK_STATUS;
 		}
-
-		
 	}
+	
+	private static final class RascalContentServerAction extends RascalAction {
+        private final REPLContentServerManager servers;
+
+        private RascalContentServerAction(REPLContentServerManager servers, String text, IFunction func) {
+            super(text, func);
+            this.servers = servers;
+        }
+        
+        @Override
+        public IStatus run(IProgressMonitor monitor) {
+            super.run(monitor);
+            try {
+                if (result != null && result instanceof IConstructor) {
+                    IConstructor provider = (IConstructor) result;
+                    Function<IValue, IValue> target;
+                    String id;
+                    
+                    if (provider.has("id")) {
+                        id = ((IString) provider.get("id")).getValue();
+                        target = liftProviderFunction(provider.get("callback"));
+                    }
+                    else {
+                        id = getName();
+                        target = (r) -> provider.get("response");
+                    }
+
+                    REPLContentServer server = servers.addServer(id, target);
+                    browse(id, "http://localhost:" + server.getListeningPort());
+                    
+                    result = null; // to avoid substitution side-effect
+                }
+            } catch (IOException e) {
+                Activator.log("could not start interactive visual from action " + getName(), e);
+            }
+
+            return Status.OK_STATUS;
+        }
+        
+        private void browse(String id, String host) {
+            new UIJob("Content") {
+                @Override
+                public IStatus runInUIThread(IProgressMonitor monitor) {
+                    try {
+                        URL url = URIUtil.assumeCorrect(host).toURL();
+                        IWebBrowser browser = WorkbenchBrowserSupport.getInstance().createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, id, id, "This browser shows the latest web content produced by a Rascal action");
+                        browser.openURL(url);
+                    } catch (PartInitException | MalformedURLException e) {
+                        Activator.log("could not view HTML content", e);
+                    }
+                    
+                    return Status.OK_STATUS;
+                }
+            }.schedule();
+        }
+        
+        private Function<IValue, IValue> liftProviderFunction(IValue callback) {
+            IFunction func = (IFunction) callback;
+            
+            return (t) -> func.call(t);
+        }
+    }
 
 	private final static TypeFactory TF = TypeFactory.getInstance();
-	private final static RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
 	public void contributeToEditorMenu(UniversalEditor editor,
@@ -185,7 +249,8 @@ public class ActionContributor implements ILanguageActionsContributor {
 		
 		if (menu.getName().equals("action") || 
 				menu.getName().equals("toggle") ||
-				menu.getName().equals("edit")) {
+				menu.getName().equals("edit") ||
+				menu.getName().equals("interaction")) {
 			contributeAction(menuManager, editor, menu, label);
 		}
 		else if (menu.getName().equals("group")) {
@@ -203,33 +268,32 @@ public class ActionContributor implements ILanguageActionsContributor {
 		}
 	}
 	
-	private boolean getState(ICallableValue func) {
-		Type[] actualTypes = new Type[] { };
-		IValue[] actuals = new IValue[] { };
-		synchronized(func.getEval()){
-			func.getEval().__setInterrupt(false);
-			return ((IBool) func.call(actualTypes, actuals, null).getValue()).getValue();
-		}
-		
+	private boolean getState(IFunction func) {
+	    return ((IBool) func.call()).getValue();
 	}
-
 	
 	private void contributeAction(IMenuManager menuManager,
 			final UniversalEditor editor, IConstructor menu, String label) {
 		if (menu.has("state")) { // toggle, order of evaluation is important as state also has action
-			final ICallableValue func = (ICallableValue) menu.get("action");
-			menuManager.add(new Runner(getState((ICallableValue) menu.get("state")), true, label, editor, new RascalAction(label, func)));
+			final IFunction func = (IFunction) menu.get("action");
+			menuManager.add(new Runner(getState((IFunction) menu.get("state")), true, label, editor, new RascalAction(label, func)));
 		}
 		else if (menu.has("action")) {
-			final ICallableValue func = (ICallableValue) menu.get("action");
+			final IFunction func = (IFunction) menu.get("action");
 			menuManager.add(new Runner(false, label, editor, new RascalAction(label, func)));
 		}
+		else if (menu.has("server")) {
+		    final IFunction func = (IFunction) menu.get("server");
+		    menuManager.add(new Runner(false, label, editor, new RascalContentServerAction(contentManager, label, func)));
+		}
 		else if (menu.has("edit")) {
-			final ICallableValue func = (ICallableValue) menu.get("edit");
+			final IFunction func = (IFunction) menu.get("edit");
 			menuManager.add(new Runner(true, label, editor, new RascalAction(label, func)));
 		}
 	}
 
+	
+	
 	private ISet getContribs(UniversalEditor editor) {
 		ISet result = TermLanguageRegistry.getInstance().getContributions(editor.getLanguage());
 		if (result == null) {

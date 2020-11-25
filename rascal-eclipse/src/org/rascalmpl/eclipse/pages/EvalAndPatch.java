@@ -23,9 +23,9 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedExcepti
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.impulse.editor.UniversalEditor;
 import io.usethesource.impulse.parser.IModelListener;
@@ -115,10 +115,8 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 			String errOut = "";
 			boolean exc = false;
 			Result<IValue> x = null;
-			PrintWriter stdout = eval.getStdOut();
-			PrintWriter stderr = eval.getStdErr();
 			try {
-				eval.overrideDefaultWriters(new PrintWriter(out), new PrintWriter(err));
+				eval.overrideDefaultWriters(eval.getInput(), eval.getStdOut(), eval.getStdErr());
 				x = new ASTBuilder().buildValue(cmd).interpret(eval);
 			} catch (Throwable e) {
 				errOut = err.getBuffer().substring(errOffset);
@@ -127,7 +125,7 @@ public class EvalAndPatch implements IModelListener, IEditorService {
 				exc = true;
 			}
 			finally {
-				eval.overrideDefaultWriters(stdout, stderr);
+				eval.overrideDefaultWriters(eval.getInput(), eval.getStdOut(),  eval.getStdErr());
 			}
 			String output = out.getBuffer().substring(outOffset);
 			outOffset += output.length();

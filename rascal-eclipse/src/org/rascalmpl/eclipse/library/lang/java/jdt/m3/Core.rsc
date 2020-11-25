@@ -9,10 +9,6 @@ extend lang::java::m3::Core;
 extend lang::java::jdt::Project;
 import lang::java::jdt::m3::AST;
 import analysis::m3::Registry;
-import IO;
-import Set;
-import List;
-import Node;
 
 @reflect
 @javaClass{org.rascalmpl.eclipse.library.lang.java.jdt.m3.internal.EclipseJavaCompiler}

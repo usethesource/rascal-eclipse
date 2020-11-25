@@ -19,9 +19,9 @@ import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.staticErrors.ModuleImport;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
@@ -77,14 +77,14 @@ public class LoadRascalPluginsFromProjects implements ILanguageRegistrar {
 				// we can ignore because this is just the main Plugin module not existing
 				return;
 			}
-			eval.getStdErr().println("Could not run Plugin.rsc main of " + project.getName());
-			ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(eval.getStdErr(), e, new StandardTextWriter(true));
-			eval.getStdErr().println();
+			eval.getErrorPrinter().println("Could not run Plugin.rsc main of " + project.getName());
+			ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(eval.getErrorPrinter(), e, new StandardTextWriter(true));
+			eval.getErrorPrinter().println();
 		}
 		catch (ParseError | StaticError | Throw e) {
-		  eval.getStdErr().println("Could not run Plugin.rsc main of " + project.getName());
-			ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(eval.getStdErr(), e, new StandardTextWriter(true));
-			eval.getStdErr().println();
+		  eval.getErrorPrinter().println("Could not run Plugin.rsc main of " + project.getName());
+			ReadEvalPrintDialogMessages.parseOrStaticOrThrowMessage(eval.getErrorPrinter(), e, new StandardTextWriter(true));
+			eval.getErrorPrinter().println();
 		}
 		catch (Throwable e) {
 			Activator.getInstance().logException("could not run Plugin.rsc main of " + project.getName(), e);

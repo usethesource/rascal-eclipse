@@ -12,8 +12,8 @@ import static org.rascalmpl.eclipse.library.vis.properties.Properties.ID;
 import java.util.HashMap;
 
 import org.rascalmpl.eclipse.library.vis.figure.Figure;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 public class NameResolver {
 	

@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal-eclipse-ide</artifactId>
-    <version>0.15.0-SNAPSHOT</version>
+    <version>0.19.3-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -29,30 +29,37 @@
     <distributionManagement>
         <repository>
             <id>usethesource-releases</id>
-            <url>http://nexus.usethesource.io/content/repositories/releases/</url>
+            <url>https://nexus.usethesource.io/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
             <id>usethesource-snapshots</id>
-            <url>http://nexus.usethesource.io/content/repositories/snapshots/</url>
+            <url>https://nexus.usethesource.io/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
     <repositories>
         <repository>
             <id>usethesource</id>
-            <url>http://nexus.usethesource.io/content/repositories/public/</url>
+            <url>https://nexus.usethesource.io/content/repositories/public/</url>
         </repository>
         <repository>
             <id>neon</id>
             <layout>p2</layout>
-            <url>http://nexus.usethesource.io/content/repositories/eclipse-neon/</url>
+            <url>https://nexus.usethesource.io/content/repositories/eclipse-neon/</url>
         </repository>
         <repository>
             <id>tm</id>
             <layout>p2</layout>
-            <url>http://nexus.usethesource.io/content/repositories/tm-terminal-marketplace/</url>
+            <url>https://nexus.usethesource.io/content/repositories/tm-terminal-marketplace/</url>
         </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>usethesource</id>
+            <url>https://nexus.usethesource.io/content/repositories/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
 
     <build>

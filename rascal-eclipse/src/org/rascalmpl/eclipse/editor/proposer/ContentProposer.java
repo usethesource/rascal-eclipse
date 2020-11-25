@@ -8,7 +8,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.swt.graphics.Point;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.parser.ASTBuilder;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.impulse.editor.ErrorProposal;
 import io.usethesource.impulse.editor.SourceProposal;

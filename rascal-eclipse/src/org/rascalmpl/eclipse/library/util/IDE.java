@@ -13,28 +13,26 @@
 package org.rascalmpl.eclipse.library.util;
 
 import org.rascalmpl.eclipse.terms.TermLanguageRegistry;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class IDE {
 	public IDE(IValueFactory factory) {
 	}
 	
-	public void registerLanguage(IString name, IString extension, IValue parser, IEvaluatorContext ctx) {
-		TermLanguageRegistry.getInstance().registerLanguage(name.getValue(), extension.getValue(), (ICallableValue) parser, ctx);
+	public void registerLanguage(IString name, IString extension, IFunction parser) {
+		TermLanguageRegistry.getInstance().registerLanguage(name.getValue(), extension.getValue(), parser);
 	}
 
-	public void registerAnnotator(IString name, IValue function) {
-		TermLanguageRegistry.getInstance().registerAnnotator(name.getValue(), (ICallableValue) function);
+	public void registerAnnotator(IString name, IFunction function) {
+		TermLanguageRegistry.getInstance().registerAnnotator(name.getValue(), function);
 	}
 	
-	public void registerOutliner(IString name, IValue builder) {
-		TermLanguageRegistry.getInstance().registerOutliner(name.getValue(), (ICallableValue) builder);
+	public void registerOutliner(IString name, IFunction builder) {
+		TermLanguageRegistry.getInstance().registerOutliner(name.getValue(), builder);
 	}
 	
 	public void registerContributions(IString name, ISet contributions) {

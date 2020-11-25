@@ -33,8 +33,8 @@ import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.uri.URIEditorInput;
 import org.rascalmpl.uri.URIStorage;
 import org.rascalmpl.uri.URIUtil;
@@ -240,10 +240,10 @@ public class Resources {
 			return p;
 		}
 		else if (!p.isOpen()) {
-			throw new Throw(VF.string("Project is not open: " + projectName), (ISourceLocation) null, null);
+			throw new Throw(VF.string("Project is not open: " + projectName));
 		}
 		else {
-			throw new Throw(VF.string("Project does not exist: " + projectName), (ISourceLocation) null, null);
+			throw new Throw(VF.string("Project does not exist: " + projectName));
 		}
 	}
 	

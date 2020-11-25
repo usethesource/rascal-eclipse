@@ -1,7 +1,6 @@
 package org.rascalmpl.eclipse.terms;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -11,15 +10,13 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.impulse.editor.hover.ProblemLocation;
 import io.usethesource.impulse.language.Language;
 import io.usethesource.impulse.services.IQuickFixAssistant;
 import io.usethesource.impulse.services.IQuickFixInvocationContext;
 import io.usethesource.impulse.utils.NullMessageHandler;
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
@@ -28,8 +25,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class TermQuickFixAssistant implements IQuickFixAssistant {
 	
@@ -52,12 +47,12 @@ public class TermQuickFixAssistant implements IQuickFixAssistant {
 	}
 
 	private void constructProposals(IConstructor ast, int problemOffset, Collection<ICompletionProposal> proposals) {
-		IAnnotatable<? extends IConstructor> annotatedAst = ast.asAnnotatable();
-		if (!annotatedAst.hasAnnotation(ANNOTATION_MESSAGES)) {
+		IWithKeywordParameters<? extends IConstructor> annotatedAst = ast.asWithKeywordParameters();
+		if (!annotatedAst.hasParameter(ANNOTATION_MESSAGES)) {
 			return;
 		}
 		
-		ISet annotations = (ISet) annotatedAst.getAnnotation(ANNOTATION_MESSAGES);
+		ISet annotations = (ISet) annotatedAst.getParameter(ANNOTATION_MESSAGES);
 		
 		for (IValue annotation : annotations) {
 			IConstructor cons = (IConstructor) annotation;
@@ -72,7 +67,7 @@ public class TermQuickFixAssistant implements IQuickFixAssistant {
 					for (IValue qf: quickFixes) {
 						ITuple quickFix = (ITuple) qf;
 						String label = ((IString)quickFix.get(0)).getValue();
-						ICallableValue function = ((ICallableValue) quickFix.get(1));
+						IFunction function = ((IFunction) quickFix.get(1));
 						
 						proposals.add(makeProposal(ast, fixLoc, label, function));
 					}
@@ -105,7 +100,7 @@ public class TermQuickFixAssistant implements IQuickFixAssistant {
 	}
 
 	private ICompletionProposal makeProposal(final IConstructor ast, final ISourceLocation loc, final String label,
-			final ICallableValue f) {
+			final IFunction f) {
 		return new ICompletionProposal() {
 			
 			@Override
@@ -135,8 +130,7 @@ public class TermQuickFixAssistant implements IQuickFixAssistant {
 			
 			@Override
 			public void apply(IDocument document) {
-				Type[] argTypes = new Type[] { RascalValueFactory.Tree, TypeFactory.getInstance().sourceLocationType() };
-				IString newSrc = (IString)f.call(argTypes, new IValue[] {ast, loc},  Collections.<String,IValue>emptyMap()).getValue();
+				IString newSrc = f.call(ast, loc);
 				document.set(newSrc.getValue());
 			}
 		};

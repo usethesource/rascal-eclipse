@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.impulse.parser.IMessageHandler;
 import io.usethesource.impulse.parser.IModelListener;
@@ -37,17 +37,17 @@ public class MessagesTo {
 
 	private void processMarkers(ITree tree, IMessageHandler handler) {
 		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isLexical(tree)) {
-			IValue anno = tree.asAnnotatable().getAnnotation("message");
+			IValue anno = tree.asWithKeywordParameters().getParameter("message");
 			if (anno != null && anno.getType().isAbstractData() && anno.getType().getName().equals("Message")) {
 				IConstructor message = (IConstructor) anno;
 				ISourceLocation loc = TreeAdapter.getLocation(tree);
 				processMessage(message, loc, handler);
 			}
 			
-			anno = tree.asAnnotatable().getAnnotation("messages");
+			anno = tree.asWithKeywordParameters().getParameter("messages");
 			
 			if (anno != null && anno.getType().isSet()) {
-				process((ISourceLocation) tree.asAnnotatable().getAnnotation("loc"),  (ISet) anno, handler);
+				process((ISourceLocation) tree.asWithKeywordParameters().getParameter("src"),  (ISet) anno, handler);
 				return; // we do not recurse if we found messages (for efficiency)
 			}
 			

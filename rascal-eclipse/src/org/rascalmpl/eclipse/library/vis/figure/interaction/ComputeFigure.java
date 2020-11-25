@@ -18,19 +18,19 @@ import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyValue;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IValue;
 
 public class ComputeFigure extends LayoutProxy {
 	
-	final private IValue callback;
+	final private IFunction callback;
 	private IConstructor prevValue; // TODO: remove this when nullary closures are memoed
 	PropertyValue<Boolean> recompute;
 	private IList childProps;
 
-	public ComputeFigure(IFigureConstructionEnv env, PropertyManager properties, PropertyValue<Boolean> recompute, IValue fun, IList childProps) {
+	public ComputeFigure(IFigureConstructionEnv env, PropertyManager properties, PropertyValue<Boolean> recompute, IFunction fun, IList childProps) {
 		super(null,properties);
 		this.childProps = childProps;
 		env.getCallBackEnv().checkIfIsCallBack(fun);
@@ -42,11 +42,11 @@ public class ComputeFigure extends LayoutProxy {
 	public void setChildren(IFigureConstructionEnv env, NameResolver resolver){
 		if(prevValue == null || recompute.getValue()){
 			IConstructor figureCons =
-				(IConstructor) env.getCallBackEnv().executeRascalFigureCallBack(callback, noTypes, noArgs);
+				(IConstructor) env.getCallBackEnv().executeRascalCallBack(callback);
 			if(figureCons == null){
 				return;
 			}
-			if(prevValue == null || !figureCons.isEqual(prevValue)){
+			if(prevValue == null || !figureCons.equals(prevValue)){
 				if(innerFig != null){
 					innerFig.destroy(env);
 				}

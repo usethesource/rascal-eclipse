@@ -7,7 +7,7 @@
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 
-module lang::saf::SAF
+module demo::lang::saf::SAF
 
 start syntax Fighter 
   = fighter: Id name "{" Spec* specs "}";

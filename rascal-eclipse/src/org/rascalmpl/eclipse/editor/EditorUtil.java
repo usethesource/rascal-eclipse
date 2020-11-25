@@ -19,7 +19,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.navigator.RascalNavigator;
 import org.rascalmpl.eclipse.tutor.TutorView;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.uri.URIEditorInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIResourceResolver;

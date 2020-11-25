@@ -24,6 +24,7 @@ public class TreeModelBuilder extends org.rascalmpl.eclipse.terms.TreeModelBuild
 	    if (root == null) {
 	        return;
 	    }
+	    
 	    INode model = RascalLanguageServices.getInstance().getOutline((IConstructor) root);
 	    convertModel(model);
 	}

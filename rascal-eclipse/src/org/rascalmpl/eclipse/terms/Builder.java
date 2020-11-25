@@ -27,15 +27,15 @@ import org.rascalmpl.eclipse.editor.MessagesToMarkers;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
 import org.rascalmpl.eclipse.util.SchedulingRules;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.ProjectURIResolver;
 
 import io.usethesource.impulse.builder.BuilderBase;
@@ -101,7 +101,7 @@ public class Builder extends BuilderBase {
 		}
 		
 		try {
-			ICallableValue parser = registry.getParser(lang);
+			ICallableValue parser = (ICallableValue) registry.getParser(lang);
 			evalForErrors = parser.getEval();
 			RascalMonitor rmonitor = new RascalMonitor(monitor, warnings) {
 			    @Override
@@ -137,9 +137,9 @@ public class Builder extends BuilderBase {
 						result = (ISet) builder.call(rmonitor, new Type[] { type }, new IValue[] { tree }, null).getValue();
 					}
 					catch (MatchFailed e) {
-						builder.getEval().getStdErr().write("builder function can not handle tree of type:" + type + "\n");
-						builder.getEval().getStdErr().write(e.toString() + "\n");
-						builder.getEval().getStdErr().flush();
+						builder.getEval().getErrorPrinter().write("builder function can not handle tree of type:" + type + "\n");
+						builder.getEval().getErrorPrinter().write(e.toString() + "\n");
+						builder.getEval().getErrorPrinter().flush();
 					}
 				}
 				
@@ -171,9 +171,9 @@ public class Builder extends BuilderBase {
 					handler.handleSimpleMessage("builder error: " + loc, loc.getOffset(), loc.getOffset() + loc.getLength(), loc.getBeginColumn(), loc.getEndColumn(), loc.getBeginLine(), loc.getEndLine());
 				}
 				else if (evalForErrors != null) {
-				    ReadEvalPrintDialogMessages.throwMessage(evalForErrors.getStdErr(), e, new StandardTextWriter());
-				    evalForErrors.getStdErr().println();
-					evalForErrors.getStdErr().flush();
+				    ReadEvalPrintDialogMessages.throwMessage(evalForErrors.getErrorPrinter(), e, new StandardTextWriter());
+				    evalForErrors.getErrorPrinter().println();
+					evalForErrors.getErrorPrinter().flush();
 				}
 				else {
 					Activator.getInstance().logException(e.getMessage(), e);
@@ -181,9 +181,9 @@ public class Builder extends BuilderBase {
 			}
 			else {
 				if (evalForErrors != null) {
-				    ReadEvalPrintDialogMessages.throwMessage(evalForErrors.getStdErr(), e, new StandardTextWriter());
-				    evalForErrors.getStdErr().println();
-					evalForErrors.getStdErr().flush();
+				    ReadEvalPrintDialogMessages.throwMessage(evalForErrors.getErrorPrinter(), e, new StandardTextWriter());
+				    evalForErrors.getErrorPrinter().println();
+					evalForErrors.getErrorPrinter().flush();
 				}
 				else {
 					Activator.getInstance().logException(exc.toString(), e);
@@ -193,9 +193,9 @@ public class Builder extends BuilderBase {
 		catch (IOException e) {
 			String error = "could not read file in builder: " + file;
 			if (evalForErrors != null) {
-				evalForErrors.getStdErr().write(error + "\n");
-				evalForErrors.getStdErr().write(e.toString() + "\n");
-				evalForErrors.getStdErr().flush();
+				evalForErrors.getErrorPrinter().write(error + "\n");
+				evalForErrors.getErrorPrinter().write(e.toString() + "\n");
+				evalForErrors.getErrorPrinter().flush();
 			}
 			else 
 				Activator.getInstance().logException("could not read file in builder: " + file, e);

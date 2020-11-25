@@ -7,14 +7,14 @@
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 
-module lang::saf::Check
+module demo::lang::saf::Check
 
 import Message;
 import IO;
-import lang::saf::Implode;
-import lang::saf::Parse;
-import lang::saf::AST;
-import lang::saf::Config;
+import demo::lang::saf::Implode;
+import demo::lang::saf::Parse;
+import demo::lang::saf::AST;
+import demo::lang::saf::Config;
 
 
 // todo: non-empty behavior etc. Last should always be "always"?
@@ -30,7 +30,7 @@ public set[Message] check(Fighter fighter) {
 public set[Message] checkDuplicateAttributes(Fighter fighter) {
   done = {};
   errs = {};
-  for (a:attribute(n, s) <- fighter.specs) {
+  for (a:attribute(n, _) <- fighter.specs) {
     if (n in done) 
       errs += {error("Duplicate attribute", a@location)};
     else

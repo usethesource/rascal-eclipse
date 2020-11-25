@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
@@ -25,13 +24,12 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.preferences.RascalPreferences;
 import org.rascalmpl.eclipse.terms.TermParseController;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
-import io.usethesource.impulse.model.ISourceProject;
 import io.usethesource.impulse.parser.IParseController;
 import io.usethesource.impulse.services.ISourceHyperlinkDetector;
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
@@ -39,6 +37,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -49,10 +48,10 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
     private static final RascalLanguageServices imp = RascalLanguageServices.getInstance();
     
     private static ISourceLocation getLocation(ITree t, IParseController controller) {
-    	if (t.isAnnotatable()) {
-    		IAnnotatable<? extends IConstructor> annotatedTree = t.asAnnotatable();
-			if (annotatedTree.hasAnnotation("loc")) {
-    			return (ISourceLocation)(annotatedTree.getAnnotation("loc"));
+    	if (t.mayHaveKeywordParameters()) {
+    		IWithKeywordParameters<? extends IConstructor> annotatedTree = t.asWithKeywordParameters();
+			if (annotatedTree.hasParameter("src")) {
+    			return (ISourceLocation)(annotatedTree.getParameter("src"));
     		}
     	}
     	if (controller instanceof TermParseController) {
@@ -82,14 +81,11 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		}
 		
 		if (tree != null && parseController instanceof ParseController && RascalPreferences.isRascalCompilerEnabled()) {
-		    // Rascal case
-		    // TODO: integrate with DSL case
 		    ParseController rascalPc = (ParseController) parseController;
-		    ISourceProject rprj = rascalPc.getProject();
-		    IProject prj = rprj != null ? rprj.getRawProject() : null;
-		    PathConfig pcfg = RascalLanguageServices.getInstance().getPathConfig(prj);
+		    
+		    PathConfig pcfg = RascalLanguageServices.getInstance().getModulePathConfig(rascalPc.getSourceLocation());
 
-		    ISet useDef = imp.getUseDef(rootLocation, pcfg, rascalPc.getModuleName());
+		    ISet useDef = imp.getUseDef(rascalPc.getSourceLocation(), pcfg, rascalPc.getModuleName());
 
 		    if (!checkUseDefType(useDef)) {
 		        Activator.log(useDef.getType() + " is not a rel[loc,loc] or rel[loc,loc,str]? " + useDef, null);
@@ -107,7 +103,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
     }
 	
 	private IHyperlink[] getTreeLinks(ISourceLocation root, ITree tree, IRegion region) {
-		IValue xref = tree.asAnnotatable().getAnnotation("hyperlinks");
+		IValue xref = tree.asWithKeywordParameters().getParameter("hyperlinks");
 		
 		if (xref != null && (xref.getType().isSubtypeOf(linksRelType1) || xref.getType().isSubtypeOf(linksRelType2))) {
 		    return getLinksForRegionFromUseDefRelation(root, region, (ISet) xref);
@@ -117,7 +113,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		ITree ref = TreeAdapter.locateAnnotatedTree(tree, "link", region.getOffset());
 		
 		if (ref != null) {
-			IValue link = ref.asAnnotatable().getAnnotation("link");
+			IValue link = ref.asWithKeywordParameters().getParameter("link");
 			
 			if (link != null && link.getType().isSourceLocation()) { 
 				return new IHyperlink[] { new SourceLocationHyperlink(TreeAdapter.getLocation(ref), (ISourceLocation) link) };
@@ -127,7 +123,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 		}
 		ref = TreeAdapter.locateAnnotatedTree(tree, "links", region.getOffset());
 		if (ref != null) {
-			IValue links = ref.asAnnotatable().getAnnotation("links");
+			IValue links = ref.asWithKeywordParameters().getParameter("links");
 			if (links != null && links.getType().isSet() && links.getType().getElementType().isSourceLocation()) {
 				IHyperlink[] a = new IHyperlink[((ISet) links).size()];
 				int i = 0;
@@ -138,8 +134,8 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector {
 			}
 		}
 		
-		IValue docLinksMapValue = tree.asAnnotatable().getAnnotation("docLinks");
-		ITree subtree = TreeAdapter.locateAnnotatedTree(tree, "loc", region.getOffset());
+		IValue docLinksMapValue = tree.asWithKeywordParameters().getParameter("docLinks");
+		ITree subtree = TreeAdapter.locateAnnotatedTree(tree, RascalValueFactory.Location, region.getOffset());
 		if (docLinksMapValue != null && docLinksMapValue.getType().isMap() && subtree != null) {
 			ISourceLocation loc = TreeAdapter.getLocation(subtree);
 			if (loc != null) {

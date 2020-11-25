@@ -12,9 +12,9 @@ package org.rascalmpl.eclipse.nature;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -64,12 +64,12 @@ public class ProjectEvaluatorFactory {
 	
 	private final WeakHashMap<IProject, Evaluator> parserForProject = new WeakHashMap<IProject, Evaluator>();
 	private final WeakHashMap<IProject, ModuleReloader> reloaderForProject = new WeakHashMap<IProject, ModuleReloader>();
-	private final PrintWriter out;
-	private final PrintWriter err;
+	private final OutputStream out;
+	private final OutputStream err;
 	
 	private ProjectEvaluatorFactory() {
-		out = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream());
-		err = new PrintWriter(RuntimePlugin.getInstance().getConsoleStream(), true);
+		out = RuntimePlugin.getInstance().getConsoleStream();
+		err = RuntimePlugin.getInstance().getConsoleStream();
 	}
 	
 	private static class InstanceHolder {
@@ -98,7 +98,7 @@ public class ProjectEvaluatorFactory {
 	public Evaluator getEvaluator(IProject project) {
 		Evaluator parser = getOrCreateEvaluator(project);
 		assert reloaderForProject.get(project) != null;
-		reloaderForProject.get(project).updateModules(new NullProgressMonitor(), new WarningsToPrintWriter(parser.getStdErr()), Collections.emptySet());
+		reloaderForProject.get(project).updateModules(new NullProgressMonitor(), new WarningsToPrintWriter(parser.getErrorPrinter()), Collections.emptySet());
 		return parser;
 	}
 	/**
@@ -127,8 +127,8 @@ public class ProjectEvaluatorFactory {
 		Evaluator parser = parserForProject.get(project);
 		
 		if (parser == null) {
-			parser = createProjectEvaluator(project, err, out);
-			reloaderForProject.put(project, new ModuleReloader(project, parser, new WarningsToPrintWriter(parser.getStdErr())));
+			parser = createProjectEvaluator(project, System.in, err, out);
+			reloaderForProject.put(project, new ModuleReloader(project, parser, new WarningsToPrintWriter(parser.getOutPrinter())));
 			parserForProject.put(project, parser);
 		}
 		
@@ -138,24 +138,24 @@ public class ProjectEvaluatorFactory {
 	/**
 	 * This method creates a fresh evaluator every time you call it.
 	 */
-	public Evaluator createProjectEvaluator(IProject project, Writer err, Writer out) {
+	public Evaluator createProjectEvaluator(IProject project, InputStream input, OutputStream err, OutputStream out) {
 		Activator.getInstance().checkRascalRuntimePreconditions(project);
 		GlobalEnvironment heap = new GlobalEnvironment();
-		Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(err), new PrintWriter(out), new ModuleEnvironment("$root$", heap), heap);
+		Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), input, err, out, new ModuleEnvironment("$root$", heap), heap);
 		configure(project, parser);
 		return parser;
 	}
 	
 	public Evaluator getBundleEvaluator(Bundle bundle) {
 	    GlobalEnvironment heap = new GlobalEnvironment();
-	    Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), err, out, new ModuleEnvironment("$parser$", heap), heap);
+	    Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, err, out, new ModuleEnvironment("$parser$", heap), heap);
 	    initializeBundleEvaluator(bundle, parser);
 	    return parser;
 	}
 
-	public Evaluator getBundleEvaluator(Bundle bundle, Writer err, Writer out) {
+	public Evaluator getBundleEvaluator(Bundle bundle, OutputStream err, OutputStream out) {
 	    GlobalEnvironment heap = new GlobalEnvironment();
-	    Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), new PrintWriter(err), new PrintWriter(out), new ModuleEnvironment("$parser$", heap), heap);
+	    Evaluator parser = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, err, out, new ModuleEnvironment("$parser$", heap), heap);
 	    initializeBundleEvaluator(bundle, parser);
 	    return parser;
 	}
@@ -224,7 +224,20 @@ public class ProjectEvaluatorFactory {
 				if (libs != null) {
 					for (String required : libs) {
 					    if (required.startsWith("|")) {
-					        eval.addRascalSearchPath((ISourceLocation) new StandardTextReader().read(eval.getValueFactory(), new StringReader(required)));
+					        ISourceLocation libLocation = (ISourceLocation) new StandardTextReader().read(eval.getValueFactory(), new StringReader(required));
+                            eval.addRascalSearchPath(libLocation);
+                            
+                            // load dependencies recursively
+                            if (libLocation.getScheme().equals("lib")) {
+                                String libName = libLocation.getAuthority();
+                                if (libName != null && !configured.contains(libName)) {
+                                    Bundle libBundle = Platform.getBundle(libName);
+                                    
+                                    if (libBundle != null) {
+                                        configure(libBundle, eval);
+                                    }
+                                }
+                            }
 					    }
 					    else {
 					        URI entryURI = URIUtil.fromURL(bundle.getEntry(required));
@@ -281,8 +294,8 @@ public class ProjectEvaluatorFactory {
           // this is to give the option to NOT run a main module, but provide only the 
           // plugin as a library to other plugins.
           if (mainModule != null && mainFunction != null) {
-              evaluator.getStdOut().println("Loading module " + mainModule + " and calling " + mainFunction);
-              evaluator.getStdOut().flush();
+              evaluator.getOutPrinter().println("Loading module " + mainModule + " and calling " + mainFunction);
+              evaluator.getOutPrinter().flush();
               evaluator.doImport(evaluator.getMonitor(), mainModule);
               evaluator.call(mainFunction);
           }

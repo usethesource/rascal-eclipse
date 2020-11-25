@@ -2,7 +2,7 @@ module demo::lang::Pico::Plugin
 
 import Prelude;
 import util::IDE;
-import util::ValueUI;
+import util::ValueUI; 
 
 import vis::Figure;
 import vis::Render;
@@ -36,20 +36,20 @@ public Tree checkPicoProgram(Tree x) {
 	if(!isEmpty(errors))
 		return x[@messages = errors];
     ids = uninitProgram(p);
-	warnings = { warning("Variable <v> maybe uninitialized", l) | <loc l, PicoId v, STATEMENT s> <- ids };
+	warnings = { warning("Variable <v> maybe uninitialized", l) | <loc l, PicoId v, STATEMENT _> <- ids };
 	return x[@messages = warnings];
 }
 
 // /*4*/ Define the connection with the Pico evaluator
 
-public void evalPicoProgram(Tree x, loc selection) {
+public void evalPicoProgram(Tree x, loc _) {
 	m = implode(#PROGRAM, x); 
 	text(evalProgram(m));
 }
 
 // /*5*/ Define connection with the Pico compiler
 
-public void compilePicoProgram(Tree x, loc l){
+public void compilePicoProgram(Tree x, loc _){
     p = implode(#PROGRAM, x);
     asm = compileProgram(p);
 	text(asm);
@@ -57,7 +57,7 @@ public void compilePicoProgram(Tree x, loc l){
 
 // /*6*/ Define connection with CFG visualization
 
-public void visualizePicoProgram(Tree x, loc selection) {
+public void visualizePicoProgram(Tree x, loc _) {
 	m = implode(#PROGRAM, x); 
 	CFG = cflowProgram(m);
 	render(visCFG(CFG.graph));

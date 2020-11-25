@@ -14,8 +14,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.Activator;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.impulse.editor.UniversalEditor;
 import io.usethesource.impulse.parser.IParseController;
@@ -26,7 +25,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.Type;
 
 /*
  * NB: this might end up in an infinite loop when the function used to compute patches
@@ -55,7 +53,7 @@ public class EditorUpdater implements IEditorService {
 					IEditorPart activeEditor = activePage.getActiveEditor();
 					if (activeEditor != null && activeEditor instanceof UniversalEditor) {
 						
-						ICallableValue func = TermLanguageRegistry.getInstance().getLiveUpdater(parseController.getLanguage());
+						IFunction func = TermLanguageRegistry.getInstance().getLiveUpdater(parseController.getLanguage());
 						if (func == null) {
 							return Status.CANCEL_STATUS;
 						}
@@ -63,12 +61,8 @@ public class EditorUpdater implements IEditorService {
 						if (pt == null) {
 							return Status.CANCEL_STATUS;
 						}
-						Type type = RascalTypeFactory.getInstance().nonTerminalType(pt);
-						IList patch = null;
-						synchronized (func.getEval()) {
-							func.getEval().__setInterrupt(false);
-							patch = (IList) func.call(new Type[] {type}, new IValue[] {pt}, null).getValue();
-						}
+
+						IList patch =  func.call(pt);
 
 						if (patch.isEmpty()) {
 							return Status.OK_STATUS;

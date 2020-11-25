@@ -19,13 +19,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.eclipse.library.vis.properties.PropertyManager;
 import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.values.ValueFactoryFactory;
-
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.TypeFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 public class Combo extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Combo> {
 
-	public Combo(IFigureConstructionEnv env, String[] choices, IValue cb,  PropertyManager properties) {
+	public Combo(IFigureConstructionEnv env, String[] choices, IFunction cb,  PropertyManager properties) {
 		super(env, cb, properties);
 		widget = makeWidget(env.getSWTParent(), env,choices);
 		widget.setVisible(false);
@@ -53,7 +51,6 @@ public class Combo extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.wid
 		int s = widget.getSelectionIndex();
 		if (s < 0)
 			return;
-		cbenv.executeRascalCallBackSingleArgument(callback, TypeFactory
-				.getInstance().stringType(), ValueFactoryFactory.getValueFactory().string(widget.getItem(s)));
+		cbenv.executeRascalCallBack(callback,  ValueFactoryFactory.getValueFactory().string(widget.getItem(s)));
 	}
 }

@@ -62,7 +62,7 @@ public class FigureLibrary {
 							out =  URIResolverRegistry.getInstance().getOutputStream(loc, false);
 							env.saveImage(out);
 						} catch(IOException f){
-							ctx.getStdErr().printf("Could not save figure " + f.getMessage() + "\n");
+							ctx.getErrorPrinter().printf("Could not save figure " + f.getMessage() + "\n");
 						} finally{
 							if(out != null){
 								try{

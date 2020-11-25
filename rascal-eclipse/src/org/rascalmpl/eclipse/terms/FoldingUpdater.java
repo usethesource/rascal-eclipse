@@ -16,12 +16,12 @@ import java.util.List;
 
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
 
 import io.usethesource.impulse.services.base.FolderBase;
 import io.usethesource.vallang.IConstructor;
@@ -58,10 +58,10 @@ public class FoldingUpdater extends FolderBase {
 						else if (ProductionAdapter.hasAttribute(prod, VF.constructor(RascalValueFactory.Attr_Tag, VF.node("Folded")))) {
 							makeAnnotation(arg, true);	
 						}
-						else if (arg.asAnnotatable().getAnnotation("foldable") != null) {
+						else if (arg.asWithKeywordParameters().getParameter("foldable") != null) {
 							makeAnnotation(arg, false);
 						}
-						else if (arg.asAnnotatable().getAnnotation("folded") != null) {
+						else if (arg.asWithKeywordParameters().getParameter("folded") != null) {
 							makeAnnotation(arg, true);
 						}
 						
