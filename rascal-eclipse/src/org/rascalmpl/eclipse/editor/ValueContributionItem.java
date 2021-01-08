@@ -121,7 +121,7 @@ public class ValueContributionItem extends ContributionItem {
       for (final AbstractFunction f : func.getSecond()) {
         if (f.getArity() == 1 
             && f.getReturnType().isBottom()
-            && val.getType().isSubtypeOf(f.getFunctionType().getArgumentTypes().getFieldType(0))) {
+            && val.getType().isSubtypeOf(f.getFunctionType().getFieldTypes().getFieldType(0))) {
           IString label = (IString) f.getTag("label");
           Action a = new FunctionAction(label != null ? label.getValue() : name, val, f);
           new ActionContributionItem(a).fill(menu, index);

@@ -315,6 +315,11 @@ public class RascalValue extends RascalDebugElement implements IValue {
 			}
 
 			@Override
+			public IVariable[] visitFunction(Type type) {
+				return new IVariable[0];
+			}
+
+			@Override
 			public IVariable[] visitVoid(Type type) {
 				return new IVariable[0];
 			}

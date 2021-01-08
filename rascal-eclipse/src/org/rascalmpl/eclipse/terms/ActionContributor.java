@@ -41,7 +41,6 @@ import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToErrorLog;
 import org.rascalmpl.repl.REPLContentServer;
 import org.rascalmpl.repl.REPLContentServerManager;
-import org.rascalmpl.types.FunctionType;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -148,7 +147,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 					rascalMonitor.startJob("Executing " + getName(), 10000);
 					IValue result = func.call(actuals);
 					
-					if ( (func.getType() instanceof FunctionType) && (((FunctionType) func.getType()).getReturnType() != TF.voidType())) {
+					if (func.getType().isFunction() && func.getType().getReturnType() != TF.voidType()) {
 						this.result = result;
 					}
 				}

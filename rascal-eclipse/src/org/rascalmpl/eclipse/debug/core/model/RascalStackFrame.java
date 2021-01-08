@@ -72,7 +72,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
 
     for (String v : vars) {
       IRascalResult var = environment.getFrameVariable(v);
-      ivars.add(new RascalVariable(this, v, var.getType(), var.getValue()));
+      ivars.add(new RascalVariable(this, v, var.getStaticType(), var.getValue()));
     }
     
     for (String s:environment.getImports()) {
@@ -82,7 +82,7 @@ public class RascalStackFrame extends RascalDebugElement implements IStackFrame 
             Set<String> variables = module.getFrameVariables();
             for (String v:variables) {
                 IRascalResult w = module.getFrameVariable(v);
-                ivars.add(new RascalVariable(this, s + "::" + v, w.getType(), w.getValue()));
+                ivars.add(new RascalVariable(this, s + "::" + v, w.getStaticType(), w.getValue()));
             }
         }
     }
