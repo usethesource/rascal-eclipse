@@ -259,7 +259,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
     }
     
     protected BaseRascalREPL constructRascalREPL(ITerminalControl control, REPLPipedInputStream stdIn, OutputStream stdout, Terminal tm) throws IOException, URISyntaxException {
-        return new RascalInterpreterREPL(true, true, false, getHistoryFile()) {
+        return new RascalInterpreterREPL(true, true, getHistoryFile()) {
             private AbstractInterpreterEventTrigger eventTrigger;
             private DebugHandler debugHandler;
             
