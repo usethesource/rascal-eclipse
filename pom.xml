@@ -45,7 +45,7 @@
         <repository>
             <id>neon</id>
             <layout>p2</layout>
-            <url>https://nexus.usethesource.io/content/repositories/eclipse-neon/</url>
+            <url>http://ftp.snt.utwente.nl/pub/software/eclipse/releases/neon/201705151400/</url>
         </repository>
         <repository>
             <id>tm</id>
