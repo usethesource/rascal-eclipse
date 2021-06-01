@@ -25,22 +25,10 @@
         <tycho-version>1.4.0</tycho-version>
     </properties>
 
-    <!-- deployment configuration (usethesource) -->
-    <distributionManagement>
-        <repository>
-            <id>usethesource-releases</id>
-            <url>https://nexus.usethesource.io/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>usethesource-snapshots</id>
-            <url>https://nexus.usethesource.io/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <repositories>
         <repository>
             <id>usethesource</id>
-            <url>https://nexus.usethesource.io/content/repositories/public/</url>
+            <url>https://releases.usethesource.io/maven/</url>
         </repository>
         <repository>
             <id>neon</id>
@@ -50,14 +38,14 @@
         <repository>
             <id>tm</id>
             <layout>p2</layout>
-            <url>https://nexus.usethesource.io/content/repositories/tm-terminal-marketplace/</url>
+            <url>http://gnu.mirrors.tds.net/pub/eclipse.org/tm/updates/4.5.100-SNAPSHOT/repository/</url>
         </repository>
     </repositories>
 
     <pluginRepositories>
         <pluginRepository>
             <id>usethesource</id>
-            <url>https://nexus.usethesource.io/content/repositories/public/</url>
+            <url>https://releases.usethesource.io/maven/</url>
         </pluginRepository>
     </pluginRepositories>
 
