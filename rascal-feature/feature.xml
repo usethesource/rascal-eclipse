@@ -2,7 +2,7 @@
 <feature
       id="rascal-feature"
       label="The Rascal MetaProgramming Language"
-      version="0.19.4.RC1"
+      version="0.19.4.qualifier"
       provider-name="NWO_I_CWI">
 
    <description url="https://www.rascal-mpl.org/">
@@ -103,7 +103,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="rascal_eclipse"
          download-size="0"
          install-size="0"
-         version="0.19.4.RC1"
+         version="0.19.4.qualifier"
          unpack="false"/>
 
    <plugin
