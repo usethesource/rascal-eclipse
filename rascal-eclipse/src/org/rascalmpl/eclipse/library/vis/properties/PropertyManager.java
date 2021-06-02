@@ -21,7 +21,6 @@ import org.rascalmpl.eclipse.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.eclipse.library.vis.util.NameResolver;
 import org.rascalmpl.eclipse.library.vis.util.vector.Dimension;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -109,7 +108,7 @@ public class PropertyManager {
 				System.out.printf("Cannot find %s !\n", pname);
 			}
 			else {
-				PropertyValue val = prop.producePropertyValue((IFunction) c.get(0), this, env);
+				PropertyValue val = prop.producePropertyValue(c.get(0), this, env);
 				if(addIn.containsKey(prop)){
 					System.out.printf("Combining!\n");
 					addIn.put(prop, new CombinedProperty(addIn.get(prop),val,prop.combine));

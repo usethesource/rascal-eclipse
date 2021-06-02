@@ -139,10 +139,10 @@ public enum Properties {
 	
 
 	@SuppressWarnings("unchecked")
-	public <PropValue> PropertyValue<PropValue> producePropertyValue(IFunction arg,
+	public <PropValue> PropertyValue<PropValue> producePropertyValue(IValue arg,
 			PropertyManager pm, IFigureConstructionEnv env) {
 		if(type == Types.HANDLER){
-			return (PropertyValue<PropValue>) new HandlerValue(arg);
+			return (PropertyValue<PropValue>) new HandlerValue((IFunction) arg);
 		}
 		return producePropertyValue(arg, pm, env,type.getConverter());
 	}
