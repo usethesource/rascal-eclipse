@@ -328,7 +328,7 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 
                                     ISourceLocation binFile = URIUtil.getChildLocation(pathConfig.getBin(), relativePath);
                                     binFile = URIUtil.changePath(binFile, binFile.getPath().replace("." + IRascalResources.RASCAL_EXT, ".tpl"));
-                                    URIResolverRegistry.getInstance().remove(binFile);
+                                    URIResolverRegistry.getInstance().remove(binFile, true);
                                 }
                             }
                         }

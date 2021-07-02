@@ -23,6 +23,7 @@ import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -267,14 +268,6 @@ public class RascalLanguageServices {
         if (module.getScheme().equals("project")) {
             IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(module.getAuthority());
             return getPathConfig(project);
-        }
-        else if (module.getScheme().equals("lib")) {
-            try {
-                return PathConfig.fromLibraryRascalManifest(module.getAuthority());
-            }
-            catch (IOException e) {
-                Activator.log("could not configure compiler for " + module, e);
-            }
         }
 
         return new PathConfig();

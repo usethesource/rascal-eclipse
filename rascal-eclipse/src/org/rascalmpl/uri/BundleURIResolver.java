@@ -44,7 +44,7 @@ public class BundleURIResolver implements  ISourceLocationInputOutput {
 
 	@Override
 	public void remove(ISourceLocation uri) throws IOException {
-	    URIResolverRegistry.getInstance().remove(resolve(uri));
+	    URIResolverRegistry.getInstance().remove(resolve(uri), true);
 	}
 
 	@Override
