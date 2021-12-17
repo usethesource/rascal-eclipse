@@ -33,7 +33,7 @@
         <repository>
             <id>neon</id>
             <layout>p2</layout>
-            <url>http://ftp.snt.utwente.nl/pub/software/eclipse/releases/neon/201705151400/</url>
+            <url>https://download.eclipse.org/releases/neon/</url>
         </repository>
         <repository>
             <id>tm</id>
@@ -52,6 +52,15 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <compilerArgument>-parameters</compilerArgument> <!-- make sure parameters are compiled by name into the jar -->
+                    <release>11</release>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.eclipse.tycho</groupId>
                 <artifactId>tycho-maven-plugin</artifactId>
@@ -104,7 +113,7 @@
                         <configuration>
                             <excludes>**/target/**,**/bin/**</excludes>
                             <includes>**/META-INF/MANIFEST.MF,**/feature.xml,**/*.product,**/category.xml</includes>
-                            <message>Changing the version to reflect the pom versions for the release</message>
+                            <message>[maven-release-plugin] Changing the version to reflect the pom versions for the release</message>
                         </configuration>
                     </execution>
                 </executions>
