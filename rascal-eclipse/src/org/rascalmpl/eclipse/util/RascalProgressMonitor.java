@@ -16,51 +16,31 @@ public class RascalProgressMonitor implements IRascalMonitor {
     }
 
     @Override
-    public void startJob(String name) {
-        monitor.beginTask(name, -1);
-    }
-
-    @Override
-    public void startJob(String name, int totalWork) {
+    public void jobStart(String name, int workShare, int totalWork) {
         monitor.beginTask(name, totalWork);
     }
 
     @Override
-    public void startJob(String name, int workShare, int totalWork) {
-        monitor.beginTask(name, totalWork);
-    }
-
-    @Override
-    public void event(String name) {
-        monitor.subTask(name);
-    }
-
-    @Override
-    public void event(String name, int inc) {
-        monitor.subTask(name);
-        monitor.worked(inc);
-    }
-
-    @Override
-    public void event(int inc) {
-        monitor.worked(inc);
-    }
-
-    @Override
-    public int endJob(boolean succeeded) {
-        monitor.done();
-        return -1;
-    }
-
-    @Override
-    public boolean isCanceled() {
+    public boolean jobIsCanceled(String name) {
         return monitor.isCanceled();
     }
+    
+    @Override
+    public void jobStep(String name, String message, int workShare) {
+        monitor.worked(workShare);
+    }
 
     @Override
-    public void todo(int work) {
-        
+    public int jobEnd(String name, boolean succeeded) {
+        monitor.done();
+        return 0;
     }
+
+    @Override
+    public void jobTodo(String name, int work) {
+
+    }
+    
 
     @Override
     public void warning(String message, ISourceLocation src) {
@@ -70,4 +50,6 @@ public class RascalProgressMonitor implements IRascalMonitor {
             Activator.log("failed to print warning", e);
         }
     }
+
+   
 }

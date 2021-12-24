@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2021 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -143,8 +143,10 @@ public class ActionContributor implements ILanguageActionsContributor {
 			if (tree != null) {
 				ISourceLocation loc = TreeAdapter.getLocation(tree);
 				IValue[] actuals = new IValue[] { tree, VF.sourceLocation(loc, selection.x, selection.y)};
+				String jobName = "Executing " + getName();
+				
 				try {
-					rascalMonitor.startJob("Executing " + getName(), 10000);
+                    rascalMonitor.jobStart(jobName, 10000);
 					IValue result = func.call(actuals);
 					
 					if (func.getType().isFunction() && func.getType().getReturnType() != TF.voidType()) {
@@ -155,7 +157,7 @@ public class ActionContributor implements ILanguageActionsContributor {
 					Activator.getInstance().logException("error while executing action:" + e.getMessage(), e);
 				}
 				finally {
-					rascalMonitor.endJob(true);
+					rascalMonitor.jobEnd(jobName, true);
 				}
 			}
 			

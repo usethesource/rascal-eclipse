@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2021 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -105,9 +105,9 @@ public class Builder extends BuilderBase {
 			evalForErrors = parser.getEval();
 			RascalMonitor rmonitor = new RascalMonitor(monitor, warnings) {
 			    @Override
-			    public boolean isCanceled() {
+			    public boolean jobIsCanceled(String name) {
 			        // makes compilation processes interuptible by the next build
-			        return super.isCanceled() || isInterrupted();
+			        return super.jobIsCanceled(name) || isInterrupted();
 			    }  
 			};
 			
