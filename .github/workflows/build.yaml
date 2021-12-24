@@ -34,7 +34,7 @@ jobs:
         run: mvn -B compile
 
       - name: Test 
-        run: mvn -B package test
+        run: mvn -Drascal.compile.skip -B package test
 
       - name: Attach artifact
         id: build-artifact
