@@ -38,7 +38,7 @@
         <repository>
             <id>tm</id>
             <layout>p2</layout>
-            <url>http://gnu.mirrors.tds.net/pub/eclipse.org/tm/updates/4.5.200-SNAPSHOT/repository/</url>
+            <url>https://download.eclipse.org/tools/cdt/releases/10.5</url>
         </repository>
     </repositories>
 
