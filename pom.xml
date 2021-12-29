@@ -33,7 +33,7 @@
         <repository>
             <id>photon</id>
             <layout>p2</layout>
-            <url>https://download.eclipse.org/releases/photon/</url>
+            <url>https://download.eclipse.org/eclipse/updates/4.21</url>
         </repository>
         <repository>
             <id>tm</id>
