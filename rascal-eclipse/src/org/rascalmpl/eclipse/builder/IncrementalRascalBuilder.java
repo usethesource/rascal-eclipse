@@ -227,8 +227,8 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         }
 	    
 	    @Override
-	    public boolean isCanceled() {
-	        return super.isCanceled() || isInterrupted();
+	    public boolean jobIsCanceled(String name) {
+	        return super.jobIsCanceled(name) || isInterrupted();
 	    }
 	}
 	

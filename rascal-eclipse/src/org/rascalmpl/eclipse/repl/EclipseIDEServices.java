@@ -1,6 +1,7 @@
 package org.rascalmpl.eclipse.repl;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.URI;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -16,58 +17,6 @@ import io.usethesource.vallang.ISourceLocation;
 
 public class EclipseIDEServices implements IDEServices {
 
-    @Override
-    public void startJob(String name) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void startJob(String name, int totalWork) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void startJob(String name, int workShare, int totalWork) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void event(String name) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void event(String name, int inc) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void event(int inc) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public int endJob(boolean succeeded) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public boolean isCanceled() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void todo(int work) {
-        // TODO Auto-generated method stub
-        
-    }
 
     @Override
     public void warning(String message, ISourceLocation src) {
@@ -99,6 +48,39 @@ public class EclipseIDEServices implements IDEServices {
         }.schedule();
     }
 
-    
+    @Override
+    public void jobStart(String name, int workShare, int totalWork) {
+        // TODO Auto-generated method stub
+        
+    }
 
+    @Override
+    public void jobStep(String name, String message, int workShare) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public int jobEnd(String name, boolean succeeded) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public boolean jobIsCanceled(String name) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void jobTodo(String name, int work) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public PrintWriter stderr() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

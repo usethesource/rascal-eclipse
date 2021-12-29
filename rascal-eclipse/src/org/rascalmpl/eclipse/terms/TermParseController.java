@@ -168,7 +168,7 @@ public class TermParseController implements IParseController {
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			RascalMonitor rm = new RascalMonitor(monitor, warnings);
-			rm.startJob("Parsing Term", 105);
+			rm.jobStart("parsing", 105);
 			
 			try{
 				handler.clearMessages();
@@ -177,7 +177,6 @@ public class TermParseController implements IParseController {
 				    parseTree = (ITree) parser.call(VF.string(input), loc);
 					IFunction annotator = getAnnotator();
 					if (parseTree != null && annotator != null) {
-						rm.event("annotating", 5);
 						ITree newTree = executor.annotate(annotator, parseTree, handler);
 						if (newTree != null) {
 							parseTree = newTree;
@@ -214,7 +213,7 @@ public class TermParseController implements IParseController {
 				Activator.getInstance().logException("parsing " + language.getName() + " failed: " + e.getMessage(), e);
 			}
 			finally {
-				rm.endJob(true);
+				rm.jobEnd("parsing", true);
 			}
 			
 			return Status.OK_STATUS;

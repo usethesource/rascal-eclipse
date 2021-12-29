@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2017 CWI
+ * Copyright (c) 2009-2021 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -206,7 +206,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		protected IStatus run(IProgressMonitor monitor) {
 			RascalMonitor rm = new RascalMonitor(monitor, warnings);
 			clearMarkers();
-			rm.startJob("parsing", 500);
+			rm.jobStart("parsing", 500);
 			parseTree = null;
 			if (input == null || path == null || (path != null && !path.isAbsolute() && project == null)) {
 				// may happen when project is deleted before Eclipse was started
@@ -269,7 +269,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 				Activator.log("unexpected ambiguity during parsing of Rascal module", e);
 			}
 			finally {
-				rm.endJob(true);
+				rm.jobEnd("parsing", true);
 			}
 			
 			return Status.OK_STATUS;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2015 CWI
+ * Copyright (c) 2009-2021 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -67,7 +67,7 @@ public class ParseController extends org.rascalmpl.eclipse.editor.ParseControlle
 		protected IStatus run(IProgressMonitor monitor) {
 			RascalMonitor rm = new RascalMonitor(monitor, warnings);
 			clearMarkers();
-			rm.startJob("parsing", 500);
+			rm.jobStart("parsing", 500);
 			parseTree = null;
 			if (input == null || path == null || (path != null && !path.isAbsolute() && project == null)) {
 				// may happen when project is deleted before Eclipse was started
@@ -91,7 +91,6 @@ public class ParseController extends org.rascalmpl.eclipse.editor.ParseControlle
 					Environment oldEnv = parser.getCurrentEnvt();
 					try {
 						parser.setCurrentEnvt(env);
-//						parser.event("defining syntax");
 				        IValueFactory vf = parser.getValueFactory();
 				        ISetWriter rulesWriter = vf.setWriter();  
 				        ISetWriter importsWriter = vf.setWriter();  
@@ -122,20 +121,17 @@ public class ParseController extends org.rascalmpl.eclipse.editor.ParseControlle
 				          Import.evalImport(parser, (IConstructor) rule);
 				        }
 
-//				        parser.event("importing modules");
 				        ISet imports = importsWriter.done();
 				        for (IValue mod : imports) {
 				          Import.evalImport(parser, (IConstructor) mod);
 				        }
 
-//				        parser.event("extending modules");
 				        ISet extend = extendsWriter.done();
 				        for (IValue mod : extend) {
 				          Import.evalImport(parser, (IConstructor) mod);
 				        }
 
-//				        parser.event("generating modules");
-				       ISet externals = externalsWriter.done();
+				        ISet externals = externalsWriter.done();
 				        for (IValue mod : externals) {
 				          Import.evalImport(parser, (IConstructor) mod);
 				        }
@@ -203,7 +199,7 @@ public class ParseController extends org.rascalmpl.eclipse.editor.ParseControlle
 				Activator.log("unexpected ambiguity during parsing of Rascal module", e);
 			}
 			finally {
-				rm.endJob(true);
+				rm.jobEnd("parsing", true);
 			}
 			
 			return Status.OK_STATUS;
