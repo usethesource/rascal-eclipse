@@ -22,7 +22,7 @@ private str Pico_NAME = "Pico";
 private str Pico_EXT = "pico";
 
 // /*2*/ Define the connection with the Pico parser
-Tree parser(str x, loc l) {
+Tree parsePico(str x, loc l) {
     return parse(#Program, x, l);
 }
 
@@ -78,7 +78,7 @@ public set[Contribution] Pico_CONTRIBS = {
 // /*8*/ Register the Pico tools
 
 public void registerPico() {
-  registerLanguage(Pico_NAME, Pico_EXT, parser);
+  registerLanguage(Pico_NAME, Pico_EXT, parsePico);
   registerAnnotator(Pico_NAME, checkPicoProgram);
   registerContributions(Pico_NAME, Pico_CONTRIBS);
 }
