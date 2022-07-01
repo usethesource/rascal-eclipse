@@ -50,6 +50,8 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.uri.ProjectURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -409,10 +411,32 @@ public class ProjectEvaluatorFactory {
     } 
   }
   
-	private void collectClassPathForProject(IProject project, List<URL> classPath, List<String> compilerClassPath, Evaluator parser) {
+	private void collectClassPathForProject(IProject project, List<URL> classPath, List<String> compilerClassPath, Evaluator eval) {
 	    if (project == null) {
 	        return;
 	    }
+	    
+	    if (project.getFile("pom.xml").exists()) {
+            // collect information from maven
+            try {
+                ISourceLocation ploc = URIUtil.createFileLocation(project.getRawLocation().makeAbsolute().toOSString());
+                PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(ploc, RascalConfigMode.INTERPETER);
+                
+                pcfg.getClassloaders().stream().map(v -> (ISourceLocation) v).forEach(cl -> {
+                    try {
+                        if ("file".equals(cl.getScheme())) {
+                            classPath.add(cl.getURI().toURL());
+                            addJarToSearchPath(cl, eval);
+                        }
+                    } catch (MalformedURLException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            } 
+            catch (IOException | URISyntaxException e) {
+                Activator.log(e.getMessage(), e);
+            }
+        }
 	    
 		try {
 		    IJavaProject jProject = JavaCore.create(project);
@@ -422,7 +446,7 @@ public class ProjectEvaluatorFactory {
 		    compilerClassPath.add(binLoc);
 
 		    URL binURL = new URL("file", "",  binLoc + "/");
-		    parser.addClassLoader(new URLClassLoader(new URL[] {binURL}, getClass().getClassLoader()));
+		    eval.addClassLoader(new URLClassLoader(new URL[] {binURL}, getClass().getClassLoader()));
 		    classPath.add(binURL);
 
 		    if (!jProject.isOpen()) {
@@ -451,7 +475,7 @@ public class ProjectEvaluatorFactory {
 		            }
 		            break;
 		        case IClasspathEntry.CPE_PROJECT:
-		            collectClassPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath, compilerClassPath, parser);
+		            collectClassPathForProject((IProject) project.getWorkspace().getRoot().findMember(entry.getPath()), classPath, compilerClassPath, eval);
 		            break;
 		        }
 		    }
