@@ -51,6 +51,7 @@ import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
 import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.utils.RascalManifest;
@@ -264,12 +265,15 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
             private DebugHandler debugHandler;
             
             @Override
-            protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr) {
+            protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices ideServices) {
                 IProject ipr = project != null ? ResourcesPlugin.getWorkspace().getRoot().getProject(project) : null;
                 if (ipr != null && !ipr.isOpen()) {
                     ipr = null;
                 }
                 Evaluator eval = ProjectEvaluatorFactory.getInstance().createProjectEvaluator(ipr, input, stderr, stdout);
+                if (ideServices != null) {
+                    eval.setMonitor(ideServices);
+                }
                 
                 // TODO: this is a workaround to get access to a launch, but we'd rather
                 // just get it from the terminal's properties
