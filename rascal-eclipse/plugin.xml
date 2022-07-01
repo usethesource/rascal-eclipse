@@ -1035,25 +1035,11 @@
       </language>
    </extension>
    <extension
-         point="impulse.parser">
-      <parser
-            class="org.rascalmpl.eclipse.pages.ParseController"
-            language="RascalPage">
-      </parser>
-   </extension>
-   <extension
          point="impulse.tokenColorer">
       <tokenColorer
             class="org.rascalmpl.eclipse.editor.TokenColorer"
             language="RascalPage">
       </tokenColorer>
-   </extension>
-   <extension
-         point="impulse.editorService">
-      <editorService
-            class="org.rascalmpl.eclipse.pages.EvalAndPatch"
-            language="RascalPage">
-      </editorService>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
