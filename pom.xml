@@ -38,7 +38,7 @@
         <repository>
             <id>tm</id>
             <layout>p2</layout>
-            <url>https://download.eclipse.org/tools/cdt/releases/10.5</url>
+            <url>https://download.eclipse.org/tools/cdt/releases/latest</url>
         </repository>
     </repositories>
 
