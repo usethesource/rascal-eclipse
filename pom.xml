@@ -36,9 +36,14 @@
             <url>https://download.eclipse.org/eclipse/updates/4.21</url>
         </repository>
         <repository>
-            <id>tm</id>
+            <id>tm-10-5</id>
             <layout>p2</layout>
-            <url>https://download.eclipse.org/tools/cdt/releases/latest</url>
+            <url>https://download.eclipse.org/tools/cdt/releases/10.5</url>
+        </repository>
+        <repository>
+            <id>tm-10-5-archived</id>
+            <layout>p2</layout>
+            <url>https://archive.eclipse.org/tools/cdt/releases/10.5</url>
         </repository>
     </repositories>
 
