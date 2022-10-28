@@ -18,7 +18,6 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.navigator.RascalNavigator;
-import org.rascalmpl.eclipse.tutor.TutorView;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.uri.URIEditorInput;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -102,9 +101,6 @@ public class EditorUtil {
 		return false;
 	}
 
-  private static final String tutorPrefix = "http://tutor.rascal-mpl.org";
-  private static final String localTutorPrefix = "http://localhost:";
-
   /**
    * MUST be called from a UI thread
    * @param loc
@@ -113,18 +109,7 @@ public class EditorUtil {
     try {
       String link = loc.getURI().toString();
 
-      if (link.startsWith(tutorPrefix)) {
-          TutorView t = (TutorView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(TutorView.ID);
-          t.gotoPage(link.substring(tutorPrefix.length()));
-      }
-      else if (link.startsWith(localTutorPrefix)) {
-          TutorView t = (TutorView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(TutorView.ID);
-          t.gotoPage(link.substring(localTutorPrefix.length() + 4));
-      }
-      else {
-        // open a link in an external browser
-        PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(link));
-      }
+      PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(link));
     }
     catch (PartInitException e) {
       Activator.log("Couldn't open weblink", e);

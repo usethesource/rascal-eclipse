@@ -20,7 +20,6 @@ import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.rascalmpl.eclipse.tutor.TutorView;
 
 public class Factory implements IPerspectiveFactory {
 
@@ -37,7 +36,6 @@ public class Factory implements IPerspectiveFactory {
 		replFolder.addView("org.eclipse.tm.terminal.view.ui.TerminalsView");
 		replFolder.addView(IPageLayout.ID_PROGRESS_VIEW);
 		replFolder.addView(IPageLayout.ID_PROBLEM_VIEW);
-		replFolder.addView(TutorView.ID);
 		
 		inspect.addView("org.eclipse.debug.ui.VariableView");
 		
