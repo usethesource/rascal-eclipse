@@ -102,13 +102,6 @@
       </parser>
    </extension>
    <extension
-         point="impulse.parser">
-      <parser
-            class="org.rascalmpl.eclipse.tutor.ConceptParseController"
-            language="Tutor3">
-      </parser>
-   </extension>
-   <extension
          point="impulse.languageDescription">
       <language
             description="Abstract language which all Rascal-based implementations of languages are derived from to allow on-the-fly extension of the Eclipse IDE"
@@ -591,28 +584,6 @@
    </foldingUpdater>
 </extension>
 <extension
-      point="org.eclipse.ui.views">
-   <view
-         allowMultiple="false"
-         class="org.rascalmpl.eclipse.tutor.TutorView"
-         icon="icons/rascal-tutor-small.png"
-         id="rascal_eclipse.tutorBrowser"
-         name="Tutor"
-         restorable="true">
-   </view>
-</extension> 
-<extension
-      point="org.eclipse.ui.views">
-   <view
-         allowMultiple="false"
-         class="org.rascalmpl.eclipse.tutor.TutorPreview"
-         icon="icons/rascal-tutor-small.png"
-         id="rascal_eclipse.tutorPreview"
-         name="Tutor Preview"
-         restorable="true">
-   </view>
-</extension> 
-<extension
       point="impulse.editorActionContributions">
    <editorActionContributor
          class="org.rascalmpl.eclipse.editor.ActionsContributor"
@@ -626,16 +597,6 @@
    <builder>
       <run
             class="org.rascalmpl.eclipse.terms.Builder">
-      </run>
-   </builder>
-</extension>
-<extension
-      id="tutor_builder"
-      name="tutor_builder"
-      point="org.eclipse.core.resources.builders">
-   <builder>
-      <run
-            class="org.rascalmpl.eclipse.tutor.Builder">
       </run>
    </builder>
 </extension>
@@ -671,19 +632,6 @@
    </runtime>
    <builder
          id="rascal_eclipse.term_builder">
-   </builder>
-</extension>
-<extension
-      id="tutor_nature"
-      name="tutor_nature"
-      point="org.eclipse.core.resources.natures">
-   <runtime>
-      <run
-            class="org.rascalmpl.eclipse.tutor.TutorNature">
-      </run>
-   </runtime>
-   <builder
-         id="rascal_eclipse.tutor_builder">
    </builder>
 </extension>
 <extension
@@ -737,15 +685,6 @@
             menubarPath="rascal_eclipse.menu/consoles"
             toolbarPath="Normal"
             tooltip="Press to start a Rascal console"/>
-      <action
-            class="org.rascalmpl.eclipse.actions.ShowTutor"
-            icon="icons/rascal-tutor-small.png"
-            id="StartTutorAction"
-            label="Show Tutor"
-            menubarPath="rascal_eclipse.menu/consoles"
-            toolbarPath="Normal"
-            tooltip="Press to show the Rascal tutor">
-      </action>
       <action
             class="org.rascalmpl.eclipse.actions.ReloadLanguage"
             id="ReloadTermLanguage"
