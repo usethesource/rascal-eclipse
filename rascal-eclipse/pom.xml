@@ -24,7 +24,7 @@
         <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>rascal</artifactId>
-            <version>0.24.4</version>
+            <version>0.26.4</version>
         </dependency>
         <dependency>
             <groupId>org.rascalmpl</groupId>
@@ -40,24 +40,6 @@
             <groupId>jline</groupId>
             <artifactId>jline</artifactId>
             <version>2.13</version>
-        </dependency>
-        <dependency>
-            <groupId>org.asciidoctor</groupId>
-            <artifactId>asciidoctorj</artifactId>
-            <version>1.6.0-alpha.6</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jruby</groupId>
-            <artifactId>jruby-complete</artifactId>
-            <version>9.1.15.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-            <version>1.72</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -103,30 +85,6 @@
                                     <outputDirectory>${basedir}/lib</outputDirectory>
                                     <destFileName>rascal-core.jar</destFileName>
                                 </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.jruby</groupId>
-                                    <artifactId>jruby-complete</artifactId>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${basedir}/lib</outputDirectory>
-                                    <destFileName>jruby.jar</destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.beust</groupId>
-                                    <artifactId>jcommander</artifactId>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${basedir}/lib</outputDirectory>
-                                    <destFileName>jcommander.jar</destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.asciidoctor</groupId>
-                                    <artifactId>asciidoctorj</artifactId>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${basedir}/lib</outputDirectory>
-                                    <destFileName>asciidoctor.jar</destFileName>
-                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -135,7 +93,7 @@
             <plugin>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-maven-plugin</artifactId>
-                <version>0.8.2</version>
+                <version>0.10.2</version>
                 <configuration>
                     <errorsAsWarnings>true</errorsAsWarnings>
                     <bin>${project.build.outputDirectory}</bin>
@@ -157,6 +115,22 @@
                         <goals>
                             <goal>package</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <id>default-cli</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>tutor</goal>
+                        </goals>
+                        <configuration>
+                            <errorsAsWarnings>false</errorsAsWarnings>
+                            <bin>${project.build.outputDirectory}</bin>
+                            <srcs>
+                                <src>${project.basedir}/src/org/rascalmpl/eclipse/library</src>
+                                <src>${project.basedir}/src/org/rascalmpl/eclipse/courses/Recipes</src>
+                                <src>${project.basedir}/src/org/rascalmpl/eclipse/courses/Libraries</src>
+                            </srcs>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin> 

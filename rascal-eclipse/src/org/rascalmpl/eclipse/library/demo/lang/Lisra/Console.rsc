@@ -5,6 +5,7 @@ import demo::lang::Lisra::Parse;
 import demo::lang::Lisra::Eval;
 import demo::lang::Lisra::Pretty;
 import util::REPL;
+import Content;
 
 @doc{Parse and evaluate an expression.}
 public Result eval(str txt, Env env) = eval(parse(txt), env); /*1*/
@@ -15,7 +16,7 @@ public void console() {                                       /*2*/
    
    Content command(str line) {
      <val, env> = eval(line, env);
-     return text("<pretty(val)>");
+     return plainText("<pretty(val)>");
    }
    
    Completion complete(str _, int cursor) {
