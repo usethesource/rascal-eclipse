@@ -9,8 +9,6 @@ public class RascalPreferences {
   public static final String bootstrapRascalProject = "bootstrapRascalProject";
   public static final String loadInterpretedLanguagesFromProjects = "loadInterpretedLanguagesFromProjects";
   public static final String loadInterpretedLanguagesFromBundles = "loadInterpretedLanguagesFromBundles";
-  public static final String enableConceptCompiler = "enableConceptCompiler";
-  public static final String liveConceptPreview = "liveConceptPreview";
   
   private static IPreferencesService service = Activator.getInstance().getPreferencesService();
 
@@ -28,13 +26,5 @@ public class RascalPreferences {
   
   public static boolean loadInterpretedLanguagesFromProjects() {
       return service.getBooleanPreference(IPreferencesService.INSTANCE_LEVEL, loadInterpretedLanguagesFromProjects);
-  }
-  
-  public static boolean conceptCompilerEnabled() {
-      return service.getBooleanPreference(IPreferencesService.INSTANCE_LEVEL, enableConceptCompiler);
-  }
-  
-  public static boolean liveConceptPreviewEnabled() {
-      return service.getBooleanPreference(IPreferencesService.INSTANCE_LEVEL, liveConceptPreview);
   }
 }
