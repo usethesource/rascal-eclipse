@@ -72,14 +72,17 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 	protected IWarningHandler warnings;
     protected ISourceLocation sourceLocation;
 	
+    @Override
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
 		return null;
 	}
 
+	@Override
 	public IMessageHandler getMessageHandler() {
 		return handler;
 	}
 	
+	@Override
 	public Object getCurrentAst() {
 		return parseTree;
 	}
@@ -88,6 +91,7 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		this.parseTree = parseTree;
 	}
 
+    @Override
 	public Language getLanguage() {
 		if (language == null) {
 			language = LanguageRegistry.findLanguage("Rascal");
@@ -95,22 +99,27 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		return language;
 	}
 
+    @Override
 	public ISourcePositionLocator getSourcePositionLocator() {
 		return new NodeLocator();
 	}
 
+    @Override
 	public IPath getPath() {
 		return path;
 	}
 
+    @Override
 	public ISourceProject getProject() {
 		return project;
 	}
 
+    @Override
 	public ILanguageSyntaxProperties getSyntaxProperties() {
 		return new RascalSyntaxProperties();
 	}
 	
+    @Override
 	public Iterator<Object> getTokenIterator(IRegion region) {
 		return parseTree != null ? new TokenIterator(false, parseTree) : null;
 	}
@@ -155,10 +164,12 @@ public class ParseController implements IParseController, IMessageHandlerProvide
 		this.job = new ParseJob("Rascal parser", location, handler);
 	}
 	
+	@Override
 	public IDocument getDocument() {
 		return document;
 	}
 	
+	@Override
 	public Object parse(IDocument doc, IProgressMonitor monitor) {
 		if (doc == null) {
 			return null;
