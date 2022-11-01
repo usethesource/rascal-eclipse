@@ -167,10 +167,12 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 	
 	private void buildWholeProject(IProgressMonitor monitor) throws CoreException {
 	    if (!RascalPreferences.isRascalCompilerEnabled()) {
+            Activator.log("Rascal compilation skipped becaused not enabled", null);
             return;
         }
         
         if (isRascalBootstrapProject() && !RascalPreferences.bootstrapRascalProject()) {
+            Activator.log("Rascal compilation skipped becaused bootstrap not enabled", null);
             return;
         }
         
@@ -350,10 +352,12 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 
     private void buildIncremental(IResourceDelta delta, IProgressMonitor monitor) {
         if (!RascalPreferences.isRascalCompilerEnabled()) {
+            Activator.log("Rascal compilation skipped becaused not enabled", null);
             return;
         }
         
         if (isRascalBootstrapProject() && !RascalPreferences.bootstrapRascalProject()) {
+            Activator.log("Rascal compilation skipped becaused bootstrap not enabled", null);
             return;
         }
         
@@ -412,6 +416,8 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
 
 	private void buildChangedModules(List<ModuleWork> todo, IProgressMonitor monitor) throws CoreException {
         monitor.beginTask("Compiling changed Rascal modules", todo.size());
+        
+        Activator.log("Incremental build uses pathConfig: " + pathConfig, null);
         
         IList locs = getModuleLocations(todo);
         
@@ -498,5 +504,8 @@ public class IncrementalRascalBuilder extends IncrementalProjectBuilder {
         
         projectLoc = ProjectURIResolver.constructProjectURI(project.getFullPath());
         pathConfig = RascalLanguageServices.getInstance().getPathConfig(project);
+        
+        
+        Activator.log("PathConfig for compilation: " + pathConfig, null);
     }
 }
