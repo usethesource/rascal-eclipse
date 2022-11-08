@@ -77,7 +77,7 @@ public class Activator extends PluginBase {
 	  = new org.eclipse.core.runtime.Path("icons/"); //$NON-NLS-1$("icons/"); //$NON-NLS-1$
 
 	protected void initializeImageRegistry(ImageRegistry reg) {
-		IPath path = ICONS_PATH.append("rascal3D_2-32px.png");//$NON-NLS-1$
+		IPath path = ICONS_PATH.append("rascal_logo_32px.png");//$NON-NLS-1$
 		ImageDescriptor imageDescriptor = createImageDescriptor(Platform.getBundle(PLUGIN_ID), path);
 		reg.put(IRascalResources.RASCAL_DEFAULT_IMAGE, imageDescriptor);
 
