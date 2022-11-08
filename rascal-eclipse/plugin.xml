@@ -47,19 +47,8 @@
       <language
             description="Source analysis and manipulation language"
             extensions="rsc"
-            icon="icons/rascal3D_2-16px.gif"
+            icon="icons/rascal_logo_16px.png"
             language="Rascal"
-            natureID="rascal_nature"
-            url="http://www.rascal-mpl.org">
-      </language>
-   </extension>
-    <extension 
-         point="impulse.languageDescription">
-      <language
-            description="Tutor3 - Rascal Documentation Engine"
-            extensions="concept"
-            icon="icons/rascal3D_2-16px.gif"
-            language="Tutor3"
             natureID="rascal_nature"
             url="http://www.rascal-mpl.org">
       </language>
@@ -144,7 +133,7 @@
       <perspective
             class="org.rascalmpl.eclipse.perspective.Factory"
             fixed="false"
-            icon="icons/rascal3D_2-16px.gif"
+            icon="icons/rascal_logo_16px.png"
             id="rascal.perspective"
             name="Rascal">
       </perspective>
@@ -172,9 +161,9 @@
       <wizard
             category="rascal_eclipse"
             class="org.rascalmpl.eclipse.wizards.RascalProjectWizard"
-            descriptionImage="icons/rascal3D_2-16px.gif"
+            descriptionImage="icons/rascal_logo_16px.png"
             finalPerspective="rascal.perspective"
-            icon="icons/rascal3D_2-16px.gif"
+            icon="icons/rascal_logo_16px.png"
             id="rascal_eclipse.projectwizard"
             name="Rascal Project"
             preferredPerspectives="rascal.perspective"
@@ -188,7 +177,7 @@
             category="rascal_eclipse"
             class="org.rascalmpl.eclipse.wizards.NewRascalFile"
             finalPerspective="rascal.perspective"
-            icon="icons/rascal3D_2-16px.gif"
+            icon="icons/rascal_logo_16px.png"
             id="rascal_eclipse.wizards.NewRascalFile"
             name="Rascal Module"
             preferredPerspectives="rascal.perspective">
@@ -197,7 +186,7 @@
    <extension
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
-            icon="icons/rascal3D_2-16px.gif"
+            icon="icons/rascal_logo_16px.png"
             id="rascal_nature.image"
             natureId="rascal_eclipse.rascal_nature">
       </image>
@@ -249,7 +238,7 @@
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
-            icon="icons/rascal3D_2-16px.gif"
+            icon="icons/rascal_logo_16px.png"
             configTypeID="rascal.launchType"
             id="rascal.typeImage"/>
    </extension>
@@ -257,7 +246,7 @@
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             label="Rascal Application"
-            icon="icons/rascal3D_2-16px.gif"
+            icon="icons/rascal_logo_16px.png"
             class="org.rascalmpl.eclipse.launch.LaunchShortcut"
             modes="run, debug"
             id="rascal.launchShortcut">
@@ -679,7 +668,7 @@
       </menu>
       <action
             class="org.rascalmpl.eclipse.actions.StartConsole"
-            icon="icons/rascal3D_2-16px.gif"
+            icon="icons/rascal_logo_16px.png"
             id="StartConsoleAction"
             label="Start Console"
             menubarPath="rascal_eclipse.menu/consoles"
@@ -703,7 +692,7 @@
    <action
          class="org.rascalmpl.eclipse.actions.StartConsole"
          enablesFor="?"
-         icon="icons/rascal3D_2-16px.gif"
+         icon="icons/rascal_logo_16px.png"
          id="rascal_eclipse.packageExplorer.console"
          label="Rascal Console"
          menubarPath="additions"
@@ -846,7 +835,7 @@
    <action
          class="org.rascalmpl.eclipse.editor.commands.ImportInConsole"
          enablesFor="1"
-         icon="icons/rascal3D_2-16px.gif"
+         icon="icons/rascal_logo_16px.png"
          id="rascal.navigator.contributions.importInConsole"
          label="Import Module in current console"
          menubarPath="additions"
@@ -859,7 +848,7 @@
    <action
          class="org.rascalmpl.eclipse.actions.StartConsole"
          enablesFor="?"
-         icon="icons/rascal3D_2-16px.gif"
+         icon="icons/rascal_logo_16px.png"
          id="rascal.navigator.contributions.console"
          label="Rascal Console"
          menubarPath="additions"
@@ -969,7 +958,7 @@
       <language
             description="Rascal Scrapbook Pages"
             extensions="rpage"
-            icon="icons/rascal3D_2-16px.gif"
+            icon="icons/rascal_logo_16px.png"
             language="RascalPage">
       </language>
    </extension>
