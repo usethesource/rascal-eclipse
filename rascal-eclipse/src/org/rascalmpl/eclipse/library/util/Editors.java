@@ -409,25 +409,21 @@ public class Editors {
 	 *            Code is cloned from SourceLocationHyperlink (but heavily
 	 *            adapted)
 	 */
-	public void edit(final ISourceLocation loc, final IValue lineInfo) {
-		if (lineInfo instanceof IFunction) {
-			final IFunction lineInfoFunc = (IFunction) lineInfo;
-
-			IWorkbenchWindow win = getWorkbenchWindow();
-			if (win != null) {
-				final IWorkbenchPage page = win.getActivePage();
-				if (page != null) {
-					page.addPartListener(annotationListener);
-					// The Decorator was to be constructed on the UI thread due to initialisation  
-					// afterwards we can run it outside the UI thread (and we should)
-					Display.getDefault().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							// and only then schedule it on a non UI thread for the rascal callbacks
-							RascalInvoker.invokeAsync(new RepeatableDecoratorRunner(loc, lineInfoFunc, page));
-						}
-					});
-				}
+	public void edit(final ISourceLocation loc, final IFunction  lineInfoFunc) {
+		IWorkbenchWindow win = getWorkbenchWindow();
+		if (win != null) {
+			final IWorkbenchPage page = win.getActivePage();
+			if (page != null) {
+				page.addPartListener(annotationListener);
+				// The Decorator was to be constructed on the UI thread due to initialisation  
+				// afterwards we can run it outside the UI thread (and we should)
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						// and only then schedule it on a non UI thread for the rascal callbacks
+						RascalInvoker.invokeAsync(new RepeatableDecoratorRunner(loc, lineInfoFunc, page));
+					}
+				});
 			}
 		}
 	}
@@ -442,8 +438,7 @@ public class Editors {
 		return win;
 	}
 
-	public void provideDefaultLineDecorations(IString extension,
-			IValue handleNewFile) {
+	public void provideDefaultLineDecorations(IString extension, IValue handleNewFile) {
 		if (handleNewFile instanceof IFunction) {
 			IWorkbenchWindow win = getWorkbenchWindow();
 
@@ -491,7 +486,7 @@ public class Editors {
 						Thread callBackThread = new Thread(new Runnable() {
 							public void run() {
 								Result<IValue> result = defaultProvider.call(fileLoc);
-								new Editors(VF).edit(fileLoc, result.getValue());
+								new Editors(VF).edit(fileLoc, (IList) result.getValue());
 							}
 						});
 						// execute the callback on a separate thread to avoid slowing down the page switches
