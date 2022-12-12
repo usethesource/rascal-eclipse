@@ -48,10 +48,6 @@ public class RascalEclipseManifest extends RascalManifest {
     return getManifestMainModule(manifest(project));
   }
   
-  public List<String> getCourses(IProject project) {
-      return getManifestCourses(manifest(project));
-  }
-  
   public String getMainModule(Bundle project) {
     return getManifestMainModule(manifest(project));
   }
