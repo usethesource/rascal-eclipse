@@ -88,11 +88,7 @@ public class ProjectPathConfig {
                 libsWriter.append(URIUtil.getChildLocation(projectLoc, lib));
             }
         }
-        
-        for (String course : manifest.getCourses(project)) {
-            coursesWriter.append(URIUtil.getChildLocation(projectLoc, course));
-        }
-        
+         
         // the bin folder to the lib path
         // TODO: this should be removed soon (project references are superceded by Require-Libraries in RASCAL.MF
         try {
