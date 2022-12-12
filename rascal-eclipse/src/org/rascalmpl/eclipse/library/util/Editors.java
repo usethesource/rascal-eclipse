@@ -438,22 +438,20 @@ public class Editors {
 		return win;
 	}
 
-	public void provideDefaultLineDecorations(IString extension, IValue handleNewFile) {
-		if (handleNewFile instanceof IFunction) {
-			IWorkbenchWindow win = getWorkbenchWindow();
+	public void provideDefaultLineDecorations(IString extension, IFunction handleNewFile) {
+		IWorkbenchWindow win = getWorkbenchWindow();
 
-			if (win != null) {
-				IWorkbenchPage page = win.getActivePage();
-				page.addPartListener(annotationListener);
-				if (partsProvided.containsKey(extension.getValue())) {
-					// okay, we have to remove the old provided LineDecorators
-					for (IWorkbenchPart part : partsProvided.get(extension.getValue())) {
-						annotationRunners.remove(part);
-					}
+		if (win != null) {
+			IWorkbenchPage page = win.getActivePage();
+			page.addPartListener(annotationListener);
+			if (partsProvided.containsKey(extension.getValue())) {
+				// okay, we have to remove the old provided LineDecorators
+				for (IWorkbenchPart part : partsProvided.get(extension.getValue())) {
+					annotationRunners.remove(part);
 				}
-				partsProvided.put(extension.getValue(), new HashSet<IWorkbenchPart>());
-				defaultProviders.put(extension.getValue(), (IFunction) handleNewFile);
 			}
+			partsProvided.put(extension.getValue(), new HashSet<IWorkbenchPart>());
+			defaultProviders.put(extension.getValue(), handleNewFile);
 		}
 	}
 
