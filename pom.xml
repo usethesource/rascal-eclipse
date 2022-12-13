@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal-eclipse-ide</artifactId>
-    <version>0.26.9-SNAPSHOT</version>
+    <version>0.26.10-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
