@@ -126,7 +126,7 @@ public class InputHandler implements MouseListener,MouseMoveListener, MouseTrack
 			fig.mouseOver = true;
 			fig.executeMouseMoveHandlers(env, true);
 		}
-		env.endCallbackBatch(true);
+		env.endCallbackBatch(false);
 	
 	}
 	
