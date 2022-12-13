@@ -141,7 +141,7 @@ public enum Properties {
 	@SuppressWarnings("unchecked")
 	public <PropValue> PropertyValue<PropValue> producePropertyValue(IValue arg,
 			PropertyManager pm, IFigureConstructionEnv env) {
-		if(type == Types.HANDLER){
+		if (type == Types.HANDLER) {
 			return (PropertyValue<PropValue>) new HandlerValue((IFunction) arg);
 		}
 		return producePropertyValue(arg, pm, env,type.getConverter());
@@ -149,7 +149,7 @@ public enum Properties {
 	
 
 	@SuppressWarnings("unchecked")
-	public static <PropValue> PropertyValue<PropValue> produceMaybeComputedValue(Types type,IValue arg,
+	public static <PropValue> PropertyValue<PropValue> produceMaybeComputedValue(Types type, IValue arg,
 			PropertyManager pm, IFigureConstructionEnv env){
 		return produceMaybeComputedValue(arg, pm, env, type.getConverter());
 	}
@@ -157,10 +157,11 @@ public enum Properties {
 	private static <PropValue> PropertyValue<PropValue> produceMaybeComputedValue(IValue arg,
 			PropertyManager pm, IFigureConstructionEnv env,Convert<PropValue> convert){
 
-		if(arg.getType().isExternalType() && (arg instanceof IFunction)) {
+		if (arg instanceof IFunction) {
 			return new ComputedValue<PropValue>((IFunction) arg, env, pm, convert);
 		}
-		return new ConstantValue<PropValue>( convert.convert(arg, pm, env));
+		
+		return new ConstantValue<PropValue>(convert.convert(arg, pm, env));
 	}
 	
 	private static <PropValue> PropertyValue<PropValue> producePropertyValue(IValue arg,

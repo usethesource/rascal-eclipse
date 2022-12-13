@@ -132,7 +132,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	
 
 	public void checkIfIsCallBack(IValue fun) {
-		if (!(fun.getType().isExternalType() && ((fun instanceof RascalFunction) || (fun instanceof OverloadedFunction)))) {
+		if (!(fun instanceof IFunction)) {
 			throw RuntimeExceptionFactory.illegalArgument(fun,
 					ctx.getCurrentAST(), ctx.getStackTrace());
 		}

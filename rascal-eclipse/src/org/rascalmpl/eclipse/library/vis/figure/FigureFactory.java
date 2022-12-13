@@ -237,7 +237,7 @@ public class FigureFactory {
 			return new Combo(env, makeStringList((IList)c.get(0)), (IFunction) c.get(1),  properties);					
 			
 		case COMPUTEFIGURE:
-			PropertyValue<Boolean> recomp = Properties.produceMaybeComputedValue(Types.BOOL,c.get(0),properties,env);
+			PropertyValue<Boolean> recomp = Properties.produceMaybeComputedValue(Types.BOOL, c.get(0), properties, env);
 			return new ComputeFigure(env, properties,  recomp, (IFunction) c.get(1), childPropsNext);
 			
 	
