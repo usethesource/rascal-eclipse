@@ -2,18 +2,18 @@
 <feature
       id="rascal_developers_feature"
       label="Rascal Developers JUnit extension"
-      version="0.26.9.qualifier">
+      version="0.26.10.qualifier">
 
    <description url="http://www.rascal-mpl.org">
       This feature holds plugins that help the developers of the Rascal programming language.
    </description>
 
    <copyright url="http://www.rascal-mpl.org">
-      Copyright 2009-2019 NWO-I - Centrum Wiskunde &amp; Informatica
+      Copyright 2009-2022 NWO-I - Centrum Wiskunde &amp; Informatica
    </copyright>
 
    <license url="http://www.rascal-mpl.org">
-      Copyright (c) 2008-2019, NWO-I - CWI All rights reserved.
+      Copyright (c) 2008-2022, NWO-I - CWI All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:

@@ -140,16 +140,17 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	
 	@Override
 	public IConstructor executeRascalCallBack(IFunction callback, IValue... argVals) {
-		IConstructor c = (IConstructor) executeRascalCallBack(callback, argVals);
-		if(c == null){
+		IConstructor c = (IConstructor) doExecuteRascalCallBack(callback, argVals);
+		
+		if (c == null) {
 			return null;
 		} else {
 			IEvaluator<Result<IValue>> evaluator = ctx.getEvaluator();
-			return (IConstructor)evaluator.call(getRascalContext(),"vis::Figure", "normalize", c);
+			return (IConstructor) evaluator.call(getRascalContext(), "vis::Figure", "normalize", c);
 		}
 	}
 
-	public IValue executeRascalCallBack(IFunction callback, IValue argVals) {
+	private IValue doExecuteRascalCallBack(IFunction callback, IValue... argVals) {
 		long startTime = System.nanoTime();
 		IValue  result = null;
 		try {

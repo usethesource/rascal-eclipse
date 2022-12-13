@@ -2,7 +2,7 @@
 <feature
       id="rascal-feature"
       label="The Rascal MetaProgramming Language"
-      version="0.26.9.qualifier"
+      version="0.26.10.qualifier"
       provider-name="NWO_I_CWI">
 
    <description url="https://www.rascal-mpl.org/">
@@ -12,7 +12,7 @@ reverse engineering, source code generation and source code visualization.
    </description>
 
    <copyright url="http://www.rascal-mpl.org/">
-      Copyright NWO-I - CWI 2008-2021
+      Copyright NWO-I - CWI 2008-2022
 Please note that this feature bundle also contains the following
 third-party libraries:
 
@@ -30,7 +30,7 @@ third-party libraries:
    </copyright>
 
    <license url="http://www.rascal-mpl.org/License">
-      Copyright (c) 2008-2021, NWO-I - CWI All rights reserved.
+      Copyright (c) 2008-2022, NWO-I - CWI All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
@@ -106,7 +106,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="rascal_eclipse"
          download-size="0"
          install-size="0"
-         version="0.26.9.qualifier"
+         version="0.26.10.qualifier"
          unpack="false"/>
 
    <plugin
