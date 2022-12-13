@@ -19,8 +19,6 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.result.OverloadedFunction;
-import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.values.functions.IFunction;
@@ -140,7 +138,7 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 	
 	@Override
 	public IConstructor executeRascalCallBack(IFunction callback, IValue... argVals) {
-		IConstructor c = (IConstructor) doExecuteRascalCallBack(callback, argVals);
+		IValue c = doExecuteRascalCallBack(callback, argVals);
 		
 		if (c == null) {
 			return null;
