@@ -19,6 +19,7 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.values.functions.IFunction;
@@ -162,6 +163,10 @@ public class FigureExecutionEnvironment implements ICallbackEnv{
 		catch (StaticError e) {
 			e.printStackTrace(ctx.getErrorPrinter());
 			ctx.getErrorPrinter().printf("Callback error: " + e.getMessage());
+		}
+		catch (MatchFailed e) {
+		    e.printStackTrace(ctx.getErrorPrinter());
+            ctx.getErrorPrinter().printf("Callback error: " + e.getMessage());
 		}
 		
 		if(profile) rascalTime += System.nanoTime() - startTime;

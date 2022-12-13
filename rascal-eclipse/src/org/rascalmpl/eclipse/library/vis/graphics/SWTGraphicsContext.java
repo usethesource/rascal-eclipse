@@ -12,6 +12,7 @@ import static org.rascalmpl.eclipse.library.vis.util.FigureMath.OPEN;
 import static org.rascalmpl.eclipse.library.vis.util.FigureMath.degrees;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Stack;
 
 import org.eclipse.swt.SWT;
@@ -27,9 +28,6 @@ import org.rascalmpl.eclipse.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.eclipse.library.vis.util.FigureColorUtils;
 
 public class SWTGraphicsContext implements GraphicsContext {
-	
-
-	
 	private volatile GC gc;
 	private int shadowColor;
 	private double shadowLeft;
@@ -46,6 +44,7 @@ public class SWTGraphicsContext implements GraphicsContext {
 	private Color foregroundColor;
 	private Color backgroundColor;
 	private Color fontColor;
+	private LinkedList<Transform> disposables = new LinkedList<>();
 	double translateX, translateY;
 	
 	
@@ -74,7 +73,6 @@ public class SWTGraphicsContext implements GraphicsContext {
 	public GC getGC(){
 		return gc;
 	}
-	
 	
 
 	@SuppressWarnings("serial")
@@ -215,18 +213,22 @@ public class SWTGraphicsContext implements GraphicsContext {
 
 	public void pushMatrix() {
 		Transform transform = new Transform(gc.getDevice());
+		disposables.add(transform);
 		gc.getTransform(transform);
 		stackMatrix.push(transform);
 	}
 
 	public void popMatrix() {
 		Transform transform = stackMatrix.pop();
+		disposables.add(transform);
 		gc.setTransform(transform);
 	}
 
 	public void rotate(double angle) {
 		Transform transform = new Transform(gc.getDevice());
 		Transform transform2 = new Transform(gc.getDevice());
+		disposables.add(transform2);
+		disposables.add(transform);
 		gc.getTransform(transform);
 		transform2.rotate((float)angle);
 		transform.multiply(transform2);
@@ -238,6 +240,8 @@ public class SWTGraphicsContext implements GraphicsContext {
 		translateY+=y;
 		Transform transform = new Transform(gc.getDevice());
 		Transform transform2 = new Transform(gc.getDevice());
+		disposables.add(transform2);
+        disposables.add(transform);
 		gc.getTransform(transform2);
 		transform2.translate((float) x, (float) y);
 		transform.multiply(transform2);
@@ -247,6 +251,8 @@ public class SWTGraphicsContext implements GraphicsContext {
 	public void scale(double scaleX, double scaleY) {
 		Transform transform = new Transform(gc.getDevice());
 		Transform transform2 = new Transform(gc.getDevice());
+		disposables.add(transform2);
+        disposables.add(transform);
 		gc.getTransform(transform);
 		transform2.scale((float) scaleX, (float) scaleY);
 		transform.multiply(transform2);
@@ -479,7 +485,14 @@ public class SWTGraphicsContext implements GraphicsContext {
 		gc.setFont(currentFont);
 	}
 	
-	public void dispose(){
+	public void dispose() {
+	    for (Transform tf : disposables) {
+	        if (!tf.isDisposed()) {
+	            tf.dispose();
+	        }
+	    }
+	    disposables.clear();
+	    
 		gc.dispose();
 	}
 
