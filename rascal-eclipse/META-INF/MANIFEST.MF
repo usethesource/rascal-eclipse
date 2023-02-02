@@ -4,7 +4,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Vendor: NWOi_CWI
 Bundle-Name: rascal_eclipse
 Bundle-SymbolicName: rascal_eclipse;singleton:=true
-Bundle-Version: 0.29.0.RC1
+Bundle-Version: 0.29.0.RC2
 Bundle-Activator: org.rascalmpl.eclipse.Activator
 Bundle-ActivationPolicy: lazy
 Eclipse-BundleShape: dir
