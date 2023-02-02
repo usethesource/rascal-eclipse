@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2023 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *
+ *   * Jurgen J. Vinju - CWI  
+ *******************************************************************************/
 package org.rascalmpl.eclipse.editor;
 
 import java.util.HashMap;
@@ -33,7 +44,7 @@ public class MessagesTo {
 		if (parseTree != null) {
 			processMarkers(parseTree, handler); 
 		}
-}
+	}
 
 	private void processMarkers(ITree tree, IMessageHandler handler) {
 		if (TreeAdapter.isAppl(tree) && !TreeAdapter.isLexical(tree)) {
