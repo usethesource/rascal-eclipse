@@ -1,6 +1,5 @@
 package org.rascalmpl.eclipse.repl;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
 
@@ -9,21 +8,17 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.progress.UIJob;
 import org.rascalmpl.eclipse.editor.EditorUtil;
+import org.rascalmpl.eclipse.nature.IWarningHandler;
+import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-import io.usethesource.impulse.runtime.RuntimePlugin;
 import io.usethesource.vallang.ISourceLocation;
 
-public class EclipseIDEServices implements IDEServices {
+public class EclipseIDEServices extends RascalMonitor implements IDEServices {
 
-
-    @Override
-    public void warning(String message, ISourceLocation src) {
-        try (PrintStream consoleStream = RuntimePlugin.getInstance().getConsoleStream()) {
-            consoleStream.println("[WARNING] " + src + ": " + message);
-            consoleStream.flush();
-        }
+    public EclipseIDEServices(IProgressMonitor monitor, IWarningHandler handler) {
+        super(monitor, handler);
     }
 
     @Override
@@ -49,38 +44,8 @@ public class EclipseIDEServices implements IDEServices {
     }
 
     @Override
-    public void jobStart(String name, int workShare, int totalWork) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void jobStep(String name, String message, int workShare) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public int jobEnd(String name, boolean succeeded) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public boolean jobIsCanceled(String name) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void jobTodo(String name, int work) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
     public PrintWriter stderr() {
-        // TODO Auto-generated method stub
-        return null;
+        assert false;
+        return new PrintWriter(System.err);
     }
 }

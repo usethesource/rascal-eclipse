@@ -48,7 +48,6 @@ import org.rascalmpl.eclipse.debug.core.model.RascalDebugTarget;
 import org.rascalmpl.eclipse.nature.IWarningHandler;
 import org.rascalmpl.eclipse.nature.ModuleReloader;
 import org.rascalmpl.eclipse.nature.ProjectEvaluatorFactory;
-import org.rascalmpl.eclipse.nature.RascalMonitor;
 import org.rascalmpl.eclipse.nature.WarningsToPrintWriter;
 import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
 import org.rascalmpl.ideservices.IDEServices;
@@ -256,7 +255,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
 
     protected BaseREPL constructREPL(ITerminalControl control, REPLPipedInputStream stdin, OutputStream stdout, Terminal tm) throws IOException, URISyntaxException {
         BaseRascalREPL repl = constructRascalREPL(control, stdin, stdout, tm);
-        return new BaseREPL(repl, null, stdin, stdout, stdout, true, true, getHistoryFile(), tm, new EclipseIDEServices());
+        return new BaseREPL(repl, null, stdin, stdout, stdout, true, true, getHistoryFile(), tm, new EclipseIDEServices(new NullProgressMonitor(), null));
     }
     
     protected BaseRascalREPL constructRascalREPL(ITerminalControl control, REPLPipedInputStream stdIn, OutputStream stdout, Terminal tm) throws IOException, URISyntaxException {
@@ -280,7 +279,8 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                 launch = RascalTerminalRegistry.getInstance().getLaunch();
                 warnings = new WarningsToPrintWriter(new PrintWriter(ThreadSafeImpulseConsole.INSTANCE.getWriter()));
                 reloader = new ModuleReloader(ipr, eval, warnings);
-                eval.setMonitor(new RascalMonitor(new NullProgressMonitor(), warnings));
+                IDEServices services = new EclipseIDEServices(new NullProgressMonitor(), warnings);
+                eval.setMonitor(services);
 
                 if (debug()) {
                     initializeRascalDebugMode(eval);      
@@ -291,6 +291,7 @@ public class RascalTerminalConnector extends SizedTerminalConnector {
                 String version = RascalManifest.getRascalVersionNumber();
                 SemVer semVer = new SemVer(version);
                 eval.getOutPrinter().println("Rascal Version: " + version + (semVer.getPrerelease().equals("SNAPSHOT") ? ", see |http://ci.usethesource.io/job/usethesource/job/rascal-eclipse/job/master/|" : ", see |release-notes://" + version + "|"));
+                eval.getOutPrinter().println("Rascal-Eclipse is deprecated as of Feb 1st, 2023. Please migrate to VScode before the end of Feb 1st, 2024. See |http://www.rascal-mpl.org/docs/MigrationGuides/EclipseToVScode|");
                 eval.getOutPrinter().flush();
                 return eval;
             }

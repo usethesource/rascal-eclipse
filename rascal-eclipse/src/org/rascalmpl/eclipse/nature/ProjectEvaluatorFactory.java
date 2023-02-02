@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -43,8 +44,10 @@ import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
+import org.rascalmpl.eclipse.repl.EclipseIDEServices;
 import org.rascalmpl.eclipse.util.RascalEclipseManifest;
-import org.rascalmpl.interpreter.ConsoleRascalMonitor;
+import org.rascalmpl.eclipse.util.ThreadSafeImpulseConsole;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -166,8 +169,11 @@ public class ProjectEvaluatorFactory {
 	 * This method configures an evaluator for use in an eclipse context
 	 */
 	public static void configure(Evaluator evaluator, IProject project) {
-		// make sure errors show up somewhere
-		evaluator.setMonitor(new ConsoleRascalMonitor(RuntimePlugin.getInstance().getConsoleStream()));
+		// make sure errors show up somewhere and IDEServices can be executed by Eclipse itself		
+	    WarningsToPrintWriter warnings = new WarningsToPrintWriter(new PrintWriter(ThreadSafeImpulseConsole.INSTANCE.getWriter()));
+        IDEServices services = new EclipseIDEServices(new NullProgressMonitor(), warnings);
+        evaluator.setMonitor(services);
+        
 		// NB. the code in this method is order dependent because it constructs a rascal module path in a particular order
 	    evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
 		evaluator.addClassLoader(ProjectEvaluatorFactory.class.getClassLoader());
