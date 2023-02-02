@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.rascalmpl</groupId>
 		<artifactId>rascal-eclipse-ide</artifactId>
-		<version>0.28.2-SNAPSHOT</version>
+		<version>0.29.0.RC2</version>
 	</parent>
 
 	<artifactId>rascal_developers_feature</artifactId>
