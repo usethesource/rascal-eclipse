@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2011 CWI
+ * Copyright (c) 2009-2023 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,6 @@ import org.rascalmpl.eclipse.Activator;
 import org.rascalmpl.eclipse.IRascalResources;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIResourceResolver;
 
@@ -37,15 +36,10 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 
 public class ResourceMarkers {
 	
-	public ResourceMarkers(IValueFactory values){
-		super();
-	}
-
-	public void removeMessageMarkers(ISourceLocation loc, IEvaluatorContext ctx) {
+	public void removeMessageMarkers(ISourceLocation loc) {
 	  try { 
 	    loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
 	  }
@@ -82,17 +76,17 @@ public class ResourceMarkers {
 	  }
 	}
 
-	private void removeMessageMarkers(ISet markers, IEvaluatorContext ctx) {
+	private void removeMessageMarkers(ISet markers) {
 		for (IValue msg : markers) {
 			IConstructor marker = (IConstructor) msg;
 			if (! marker.getType().getName().equals("Message"))
 				throw RuntimeExceptionFactory.illegalArgument(marker, null, null);
-			removeMessageMarkers((ISourceLocation)marker.get(1), ctx);
+			removeMessageMarkers((ISourceLocation)marker.get(1));
 		}
 		return;
 	}
 	
-	public void addMessageMarkers(final ISet markers, final IEvaluatorContext ctx) {
+	public void addMessageMarkers(final ISet markers) {
 		// we need two locks, one for  the UI and one for the resources
 		// because we know we might need to lock a lot of resources we lock the entire workspace here
 		// and prevent lock starvation where for every file and every ui operation to add a marker we 
@@ -100,7 +94,7 @@ public class ResourceMarkers {
 		
 		final WorkspaceModifyOperation wmo = new WorkspaceModifyOperation(ResourcesPlugin.getWorkspace().getRoot()) {
 			public void execute(IProgressMonitor monitor) {
-				removeMessageMarkers(markers, ctx);
+				removeMessageMarkers(markers);
 				
 				for (IValue msg : markers) {
 					IConstructor marker = (IConstructor) msg;
