@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal-eclipse-ide</artifactId>
-    <version>0.28.2-SNAPSHOT</version>
+    <version>0.29.0.RC1</version>
 
     <packaging>pom</packaging>
 
@@ -17,7 +17,7 @@
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal-eclipse.git</developerConnection>
 
-        <tag>HEAD</tag>
+        <tag>v0.29.0.RC1</tag>
     </scm>
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
