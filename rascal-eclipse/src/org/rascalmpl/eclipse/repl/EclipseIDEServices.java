@@ -41,7 +41,7 @@ public class EclipseIDEServices extends RascalMonitor implements IDEServices {
     }
     
     @Override
-    public void browse(URI uri) {
+    public void browse(URI uri, String title, int viewColumn) {
         new UIJob("start browser for " + uri) {
             @Override
             public IStatus runInUIThread(IProgressMonitor monitor) {
