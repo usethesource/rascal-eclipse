@@ -3,7 +3,7 @@
 Eclipse IMP based IDE for the Rascal meta-programming language, including IDE plugin generator for domain-specific languages.
 
 > **Warning**
-> As of January 2025 this project has been archived indefinitely. Code reuse or other kinds of cannibalism is allowed but please do satisfy the conditions of the open source license. If you are looking for IDE generators with Rascal for DSLs or the Rascal IDE for meta-programming in general, look at usethesource/rascal-language-servers.
+> As of January 2025 this project has been archived indefinitely. Code reuse or other kinds of cannibalism is allowed but please do satisfy the conditions of the open source license. If you are looking for IDE generators with Rascal for DSLs or the Rascal IDE for meta-programming in general, look at [Rascal Language servers] (https://github.com/usethesource/rascal-language-servers).
 
 > **Warning**
 > The rascal-eclipse project has served the community for many years, but now it appears our users gravitate to the VScode extension,
